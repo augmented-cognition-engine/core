@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir uv
 # Install the same complete source surface used to build the wheel. The old
 # order installed an editable project before its packages existed and omitted
 # the thin MCP client, README, and license metadata from the image entirely.
-COPY pyproject.toml uv.lock build_backend.py README.md CONTRIBUTING.md SECURITY.md CHANGELOG.md LICENSE NOTICE ./
+COPY pyproject.toml uv.lock build_backend.py README.md ROADMAP.md CONTRIBUTING.md SECURITY.md CHANGELOG.md LICENSE NOTICE ./
 COPY core/ core/
 COPY extensions/ extensions/
 COPY ace_mcp_client/ ace_mcp_client/
