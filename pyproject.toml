@@ -34,6 +34,7 @@ dependencies = [
     "tokenizers>=0.15.0",
     "watchdog>=4.0.0",
     "networkx>=3.0",
+    "scipy>=1.12",
     "pyyaml>=6.0",
     "pydriller>=2.6",
     "ast-grep-py>=0.42.1",
