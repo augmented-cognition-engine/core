@@ -41,35 +41,53 @@ perspectives, and covers the parts a happy path always misses.
 ## Inspired by the octopus
 
 ACE takes architectural inspiration from the octopus: a lean coordinating
-brain working with specialized arms. The core classifies the problem, composes
-the reasoning team, and coordinates its work; perspectives, agents, and
-extensions contribute specialized reasoning around it.
+brain working with specialized arms and a living network of memory. The core
+classifies the problem, composes the reasoning team, and coordinates its work;
+the graph carries nodes, semantic edges, provenance, predictions, outcomes,
+and the context that can inform what happens next.
 
 The analogy describes the design, not a literal ratio of code or intelligence.
-In 0.1.0, the reasoning core and extension boundary are the compatibility focus;
-MAKE and SHIP execution arms remain experimental.
+It also describes more than the 0.1.x compatibility surface: MAKE, SHIP,
+sentinel, foresight, calibration, and learning are first-class parts of the
+implemented architecture even where their public APIs and end-to-end paths are
+still experimental.
 
 ```mermaid
-flowchart LR
+flowchart TB
     H([You]) <--> B
-    subgraph B["🧠 brain — core/engine"]
-        direction TB
-        classify --> compose --> engage
+    subgraph B["🧠 brain — coordinate the thinking"]
+        direction LR
+        classify --> compose --> engage --> synthesize
     end
-    B <--> A
-    subgraph A["🦑 specialized contributions"]
-        direction TB
-        PERSPECTIVES["perspectives · committees"]
-        ARMS["MAKE / SHIP arms — experimental"]
-        EXTENSIONS["extensions"]
+    M[("Meta-Intelligence\ngraph · provenance · calibration")] <--> B
+    B --> MAKE["🦑 MAKE\ncode · design · data"]
+    MAKE --> SHIP["🦑 SHIP\nsecurity · testing · observability · devops · scale"]
+    B --> D["decision + graph write"]
+    SHIP --> O["evidence + outcomes"]
+    D --> M
+    O --> L["sentinel · foresight · reconciliation"] --> M
+    subgraph X["specialized contributions"]
+        P["perspectives · committees · extensions"]
     end
+    X --> B
     B --> S([🎨 Atrium — experimental visual-product research])
     S <--> H
 ```
 
 - **The brain** (`core/engine/`) decides *who should think about this* and convenes them — `classify → compose → engage`. Selection combines explicit policy, configuration, and learned signals.
-- **Specialized contributions** supply perspectives, committees, extensions, and experimental MAKE/SHIP execution capabilities around the shared reasoning core.
-- **MAKE and SHIP arms** are implemented for evaluation, but they are not stable 0.1.x contracts.
+- **Meta-Intelligence** is the standing substrate: retained observations, insights, decisions,
+  capabilities, reasoning traces, predictions, outcomes, provenance, and semantic relationships.
+- **Specialized contributions** supply perspectives, committees, and extensions around the shared
+  reasoning core.
+- **MAKE and SHIP are first-class architectural arms.** MAKE turns approved reasoning into code,
+  design, data, and scaffold artifacts. SHIP challenges production readiness across security,
+  testing, observability, DevOps, and scale; its current gate assesses and proposes rather than
+  mutating. Their implementations ship in the repository, while their APIs and end-to-end
+  execution paths are not yet compatibility-stable 0.1.x contracts.
+- **Continuous learning closes the loop.** Captured evidence and outcomes can update graph context,
+  effectiveness signals, predictions, and calibration so later composition and reasoning can start
+  better informed. The architecture is explicit about provenance and discounts self-generated
+  material; it does not promise that every run learns or improves automatically.
 - **The experimental visual-product/research track** — Atrium prototypes Canvas interactions.
   Think Tank is its deep-deliberation research mode. Atrium releases with 0.1.0 as a public
   repository beta, not as a supported Python artifact.

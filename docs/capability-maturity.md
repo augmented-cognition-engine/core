@@ -40,12 +40,13 @@ The CLI, thin MCP adapter, persistence migrations, reference extension mechanism
 provider routes are the compatibility focus for 0.1.x. Changes to these surfaces receive
 migration notes when needed.
 
-## Experimental surfaces
+## Implemented architecture beyond the compatibility contract
 
 The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,
-foresight, calibration, proactive intelligence, and advanced extension hooks are available for
-evaluation but are not stable 0.1.x contracts. Their presence in source or API discovery does
-not imply support or compatibility.
+foresight, calibration, proactive intelligence, continuous-learning paths, and advanced extension
+hooks are implemented parts of ACE. They are not stable 0.1.x contracts: their APIs, supported
+end-to-end journeys, and compatibility guarantees can change. This maturity label limits the public
+promise; it does not reduce those systems to roadmap concepts or peripheral demos.
 
 Long-running public tasks use persisted receipts and expose pending, running, completed, failed,
 and degraded outcomes. The single-process preview does not claim distributed task claiming,

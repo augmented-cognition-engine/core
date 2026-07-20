@@ -114,7 +114,9 @@ The following are audit findings, not a request for a speculative rewrite:
 - Optional provider routers (`litellm`, `any-llm`), Discord, and browser tooling are dependency
   extras or guarded imports. Extensions have a process-lifetime kill switch and fail independently.
 - Atrium, worker automation, sentinels, MAKE/SHIP execution, foresight/calibration, and the broad
-  engine MCP are implemented but are not required by the developer-preview shipping allowlist.
+  engine MCP are implemented architecture outside the developer-preview shipping allowlist. That
+  support boundary does not make them placeholders; it means their APIs and end-to-end behavior are
+  not yet compatibility-stable 0.1.x contracts.
 - The API still mounts broad reporting, research, voice, notification, and compatibility routes.
   Their presence is not a public compatibility promise.
 
@@ -170,8 +172,11 @@ flowchart TB
 ```
 
 - **The brain** decides *who should think about this* and convenes them: `classify → compose → engage`. Selection combines explicit policy, configuration, and learned signals.
-- **The arms** contain specialized MAKE and SHIP capabilities around the shared reasoning core.
-  They are implemented for evaluation but remain experimental outside the stable 0.1.x contract.
+- **The arms** are first-class parts of the engine. MAKE turns approved reasoning into code, design,
+  data, and scaffold artifacts. SHIP challenges production readiness across security, testing,
+  observability, DevOps, and scale; the current gate assesses and proposes without mutating. The
+  implementations are present today, while their APIs and end-to-end paths remain experimental
+  rather than compatibility-stable 0.1.x contracts.
 - **The skin** is Atrium, the experimental ACE Canvas research track. MCP and CLI carry the
   supported developer-preview interaction path.
 - **Extensions grow new arms.** A domain (personas, frameworks, recipes, instruments, tools, schema) attaches to the brain without forking it. That's the whole extension model, and it's covered in [build-your-first-extension.md](build-your-first-extension.md).
@@ -207,10 +212,10 @@ task database—and Atrium is initially a view over the same kernel-owned state.
 
 ## The cognitive pipeline — 9 layers
 
-The full architecture is organized as nine layers. The supported developer-preview path exercises
-the reasoning, capture, graph, and retrieval loop; sentinel, foresight, calibration, and broader
-automation remain experimental. **Layer 1, Meta-Intelligence** is the standing substrate of past
-insights, decisions, capabilities, calibration, and sentinel state.
+ACE is implemented as a nine-layer cognitive loop. The supported developer-preview contract is
+narrower than the whole engine, but the other layers are real code rather than roadmap
+placeholders. **Layer 1, Meta-Intelligence** is the standing substrate of past insights, decisions,
+capabilities, provenance, graph relationships, outcomes, calibration, and sentinel state.
 
 ```mermaid
 flowchart TB
@@ -232,9 +237,116 @@ flowchart TB
     style L1 fill:#0d3b2e,stroke:#2fb48d,color:#e7ede9
 ```
 
-The dotted line shows the design intent: exercised layers can feed accepted conclusions back into
-Layer 1, so later work can load retained context. Persistence creates the opportunity for better-
-informed later reasoning; it is not a guarantee that every run improves automatically.
+The dotted line is an implemented architectural loop with maturity boundaries: exercised paths can
+feed accepted conclusions, evidence, and reconciled outcomes back into Layer 1, so later work can
+load retained context. Not every host enables every layer, and persistence creates the opportunity
+for better-informed later reasoning rather than guaranteeing that every run improves automatically.
+
+### Meta-Intelligence — meaning lives in nodes *and* edges
+
+ACE does not treat memory as a transcript or an undifferentiated vector store. Durable nodes hold
+things such as observations, insights, decisions, capabilities, work, reasoning journeys,
+predictions, and outcomes. Typed edges carry the meaning between them: dependency, provenance,
+composition, effect, conflict, change history, prediction, production, and improvement are distinct
+relationships rather than generic similarity.
+
+```mermaid
+flowchart LR
+    O[observation] -->|derived_from / informed_by| I[insight]
+    I -->|informs| D[decision]
+    D -->|decomposes / depends_on| W[work]
+    P[prediction] -->|predicts| D
+    W -->|produced| A[artifact]
+    E[evidence + outcome] -->|grounds / improves| I
+    D -->|supersedes / contradicts| D2[earlier decision]
+```
+
+The relationship-assertion layer validates ontology vocabulary and type compatibility; centralized
+edge writers validate endpoints and deduplicate supported writes. Capture records source kind and
+trust prior, including deliberately lower priors for ACE's own reasoning and composition, so
+generated conclusions are not silently laundered into external evidence. Timestamps, evidence, and
+context make a connection inspectable rather than merely retrievable. Grounding edges also support
+the reverse question—*which beliefs depend on this object?*—so graph metabolism can enqueue focused
+re-evaluation when the grounded object changes.
+
+### Reasoning — compose, engage, synthesize, remember
+
+Classification identifies the discipline, complexity, and mode. Composition selects perspectives,
+frameworks, depth, and orchestration shape. Engagement runs that shape through the configured model
+provider; synthesis resolves contributions into a recommendation. Decisions, receipts, reasoning
+traces, and provenance can then be written through the capture and graph boundary. The model
+contributes inference inside these stages; it does not choose the architecture around them.
+
+### MAKE and SHIP — reason into action, then gate what leaves
+
+MAKE and SHIP extend the loop beyond recommendation:
+
+```mermaid
+flowchart LR
+    R[reasoned intent] --> M{MAKE}
+    M --> C[code]
+    M --> DE[design]
+    M --> DA[data]
+    M --> SC[scaffold]
+    C & DE & DA & SC --> G{SHIP gate}
+    G --> SEC[security]
+    G --> TEST[testing]
+    G --> OBS[observability]
+    G --> OPS[DevOps]
+    G --> SCALE[scale]
+    SEC & TEST & OBS & OPS & SCALE --> V[verdict + hardening actions]
+```
+
+The arm registry discovers and routes the built-in scaffold, code, design, data, and SHIP
+implementations. MAKE arms share a depth-aware brain/hand loop. SHIP is intentionally an
+adversarial production-readiness gate: it produces a verdict and hardening actions, performs no file
+mutation, and refuses a vacuous pass. These are substantive engine components. What remains
+experimental in 0.1.x is their public compatibility boundary and supported end-to-end journey, not
+their place in the architecture.
+
+### Continuous learning — outcomes close the loop
+
+ACE's learning path is an evidence loop, not a claim of automatic self-improvement:
+
+```mermaid
+flowchart LR
+    C[capture observations + corrections] --> S[synthesize insights]
+    S --> G[(graph + provenance)]
+    G --> R[future retrieval + composition]
+    D[decision] --> P[falsifiable prediction]
+    P --> O[observed outcome]
+    O --> REC[reconcile]
+    REC --> E[effectiveness + calibration]
+    E --> G
+```
+
+Outcome detection can open and resolve observations from product events when closed-loop learning is
+enabled. Foresight attaches measurable, falsifiable predictions to decisions with a horizon,
+leading indicators, and a falsification condition. Reconciliation compares predictions with later
+measurements, records outcomes, and updates calibration signals. Calibration is loaded into later
+orchestration context; effectiveness scores are persisted as an inspectable outcome ledger, with
+broader prioritization use still evolving. Each step is inspectable, feature-gated where required,
+and designed to degrade without blocking the primary reasoning path.
+
+### Sentinel and foresight — time enters the graph
+
+Sentinel engines run on registered schedules or explicit triggers and record correlated runs and
+signals. They watch for gaps, changes, and emerging information without turning background output
+into unquestioned truth. Foresight moves decisions forward in time by making predictions that can be
+proven wrong; reconciliation brings the evidence back. Together they let ACE retain not only *what
+was decided*, but also *what the decision expected and what actually happened*.
+
+### Architecture versus the 0.1.x compatibility promise
+
+| Area | Implemented architectural role | 0.1.x promise |
+|---|---|---|
+| CLI + thin MCP | Supported entry to reasoning, capture, retrieval, and task receipts | Compatibility focus; exactly 11 thin MCP tools |
+| Brain + graph | Classification, composition, engagement, synthesis, capture, provenance, and durable relationships | Supported preview path, subject to documented limits |
+| Extensions | Add perspectives, frameworks, recipes, tools, and schema without forking core | Reference mechanism and documented boundary are compatibility focus |
+| MAKE + SHIP | Build artifacts and challenge production readiness | Implemented; APIs and end-to-end execution paths experimental |
+| Learning + outcomes | Detect action/outcome evidence and update effectiveness signals | Implemented; feature-gated and experimental |
+| Sentinel + foresight + calibration | Watch for change, predict, reconcile, and calibrate | Implemented; scheduling and public APIs experimental |
+| Atrium + broad hosts | Visual research surface and wider API/MCP/worker composition roots | Repository beta / advanced surfaces, not the golden path |
 
 ---
 
