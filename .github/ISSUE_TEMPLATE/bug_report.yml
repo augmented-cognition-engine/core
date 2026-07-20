@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a reproducible ACE defect without sharing secrets.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not report vulnerabilities here; use SECURITY.md. Redact keys, tokens, credentials, private graph exports, proprietary code, client names, and .env contents."
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options: ["Kernel", "MCP/CLI", "Providers", "Evaluation", "Extensions", "Atrium (experimental)", "Documentation"]
+    validations: {required: true}
+  - type: textarea
+    id: reproduction
+    attributes: {label: Reproduction, description: "Minimal commands and sanitized inputs."}
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes: {label: Expected and actual behavior}
+    validations: {required: true}
+  - type: textarea
+    id: environment
+    attributes: {label: Environment, description: "OS, Python/uv versions, ACE commit, access-route type (never credentials)."}
+    validations: {required: true}
+  - type: checkboxes
+    id: redaction
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed secrets, credentials, private data, and proprietary code.
+          required: true

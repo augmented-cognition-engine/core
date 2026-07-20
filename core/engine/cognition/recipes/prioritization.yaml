@@ -1,0 +1,85 @@
+slug: prioritization_intelligence
+name: Prioritization Intelligence
+description: "Structures prioritization with competing demands mapping, impact assessment, dependency ordering, and dynamic reprioritization."
+domain_intelligences: [prioritization, product_management]
+min_execution_depth: 1
+activation_signals:
+  - prioritize
+  - pick
+  - rank
+  - order
+  - what first
+  - what next
+  - deferrable
+  - must-have
+  - ICE
+  - RICE
+  - biggest impact
+  - critical path
+  - attention budget
+  - sequencing
+archetype_affinity:
+  advisor: 0.9
+  analyst: 0.8
+  executor: 0.75
+  sentinel: 0.7
+  creator: 0.55
+  researcher: 0.55
+mode_affinity:
+  deliberative: 0.9
+  reflective: 0.75
+  procedural: 0.7
+  conversational: 0.6
+  reactive: 0.6
+  exploratory: 0.5
+composability:
+  complements:
+    - planning_intelligence
+    - strategic_intelligence
+    - gap_intelligence
+    - delegation_intelligence
+  conflicts: []
+recipe:
+  phases:
+    - cognitive_function: frame
+      pattern: solo
+      min_depth: 1
+      output_schema: everything_competing_for_attention
+      instruments:
+        - slug: competing-demands-mapping
+          fallback_slug: mece
+    - cognitive_function: prioritize
+      pattern: solo
+      min_depth: 1
+      output_schema: needle_movers_ranked
+      instruments:
+        - slug: impact-assessment
+          fallback_slug: leverage-analysis
+    - cognitive_function: choose
+      pattern: solo
+      min_depth: 3
+      output_schema: critical_path_first_ordering
+      instruments:
+        - slug: dependency-ordering
+          fallback_slug: pairwise-comparison
+    - cognitive_function: validate
+      pattern: solo
+      min_depth: 3
+      output_schema: high_risk_items_surfaced_early
+      instruments:
+        - slug: risk-adjusted-sequencing
+          fallback_slug: holistic-validation
+    - cognitive_function: allocate
+      pattern: solo
+      min_depth: 2
+      output_schema: deep_work_vs_quick_wins_vs_blockers
+      instruments:
+        - slug: attention-budget
+          fallback_slug: allocation
+    - cognitive_function: critique
+      pattern: solo
+      min_depth: 4
+      output_schema: new_info_changes_order
+      instruments:
+        - slug: dynamic-reprioritization
+          fallback_slug: adversarial-testing

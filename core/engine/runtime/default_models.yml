@@ -1,0 +1,43 @@
+# ACE default model configuration
+# Override by creating ~/.ace/models.yml or .ace/models.yml in your project root
+# Settings in later files take precedence.
+
+claude-sonnet-4-6:
+  thinking: disabled
+  temperature: 1
+  max_tokens: 8192
+  weak_model: claude-haiku-4-5-20251001
+  supports_tools: true
+  supports_thinking: true
+
+claude-opus-4-6:
+  thinking: adaptive
+  temperature: 1
+  max_tokens: 16384
+  weak_model: claude-haiku-4-5-20251001
+  supports_tools: true
+  supports_thinking: true
+
+claude-haiku-4-5-20251001:
+  thinking: disabled
+  temperature: 1
+  max_tokens: 4096
+  weak_model: claude-haiku-4-5-20251001
+  supports_tools: true
+  supports_thinking: false
+
+gpt-4o:
+  thinking: disabled
+  temperature: 1
+  max_tokens: 4096
+  weak_model: gpt-4o-mini
+  supports_tools: true
+  supports_thinking: false
+
+gemini-2.5-pro:
+  thinking: disabled
+  temperature: 1
+  max_tokens: 8192
+  weak_model: gemini-2.0-flash
+  supports_tools: true
+  supports_thinking: true

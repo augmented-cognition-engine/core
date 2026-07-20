@@ -1,0 +1,1744 @@
+{
+  "contract_version": "ace.decision-delta-receipt/v1",
+  "evidence_scope": {
+    "causal_boundary": "Only matched within-route comparisons may support a memory-effect claim. Cross-path records demonstrate contract portability only.",
+    "live": false,
+    "purpose": "Exercise materiality, null, negative, invalidated, degraded, persistence, and portability receipt semantics without provider spend.",
+    "task_count": 8
+  },
+  "missing_live_evidence": [
+    "A paid or otherwise configured second live ACE reasoning route was not exercised because no spending authority was supplied.",
+    "A live cross-surface capture-through-MCP then reason-through-CLI run on a second model/access class remains required.",
+    "Repeated matched trials, variance, blinded judgments, and externally observed outcomes remain required for comparative or longitudinal claims."
+  ],
+  "receipts": [
+    {
+      "capture_route": null,
+      "case_id": "architecture-relevant-correction",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "Recorded responses and the recorded outcome exercise the receipt contract; they are not a live model or longitudinal trial."
+        ],
+        "memory_effect_supported": true
+      },
+      "completeness": {
+        "degraded_reasons": [],
+        "status": "complete"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "subscription_backed",
+          "configuration_hash": "config-a",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "claude-haiku-4-5-20251001",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "CLIProvider",
+          "surface": "mcp",
+          "task_hash": "task-hash-arch-1",
+          "temperature": 0,
+          "toolset_hash": "eleven-tools-v1"
+        },
+        "matched": true,
+        "mismatches": [],
+        "with_memory_output_hash": "sha256:56506b0cdd645c0f3819c835635cf87293babddc21b359a45366e135902650a3",
+        "without_memory_output_hash": "sha256:6a557257d83f6f2f49d8c5b67cb9c8dc084ce73fa7bb0be210e8af5046aa8787"
+      },
+      "decision": {
+        "delta": [
+          {
+            "after": "extend_evaluation_artifact",
+            "before": "add_receipt_endpoint",
+            "field": "selected_option"
+          },
+          {
+            "after": [
+              "keep exactly 11 MCP tools",
+              "do not create roadmap write authority"
+            ],
+            "before": [],
+            "field": "constraints"
+          },
+          {
+            "after": [
+              "twelfth MCP tool",
+              "new runtime control plane"
+            ],
+            "before": [],
+            "field": "rejected_alternatives"
+          },
+          {
+            "after": "build pure receipt adapter",
+            "before": "add public receipt API",
+            "field": "next_action"
+          }
+        ],
+        "identity": "decision:architecture-relevant-correction",
+        "material_fields": [
+          "constraints",
+          "next_action",
+          "rejected_alternatives",
+          "selected_option"
+        ],
+        "material_memory_ids": [
+          "observation:fixture-correction-1"
+        ],
+        "reflected_memory_ids": [
+          "observation:fixture-correction-1"
+        ],
+        "retrieved_memory_ids": [
+          "observation:fixture-correction-1"
+        ],
+        "under_examination": "Choose the persistence boundary for a new inspectable receipt.",
+        "with_memory": {
+          "constraints": [
+            "keep exactly 11 MCP tools",
+            "do not create roadmap write authority"
+          ],
+          "next_action": "build pure receipt adapter",
+          "rejected_alternatives": [
+            "twelfth MCP tool",
+            "new runtime control plane"
+          ],
+          "selected_option": "extend_evaluation_artifact"
+        },
+        "without_memory": {
+          "constraints": [],
+          "next_action": "add public receipt API",
+          "rejected_alternatives": [],
+          "selected_option": "add_receipt_endpoint"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "rejected_alternatives",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-07-19T17:00:00Z",
+          "content_hash": "sha256:82d2a4499cd2867033282d9bb8a8f6886a9a5c15a7e1ba1dd344e29c8a34371f",
+          "evidence": {
+            "decision_material": true,
+            "injected": true,
+            "invalidated": false,
+            "level": "outcome-supported",
+            "level_number": 5,
+            "outcome_supported": true,
+            "reflected": true,
+            "retrieved": true
+          },
+          "id": "observation:fixture-correction-1",
+          "loaded_at": "2026-07-19T18:00:00Z",
+          "provenance": {
+            "product_id": "product:fixture-a",
+            "source": "human_capture",
+            "surface": "mcp",
+            "user_id": "user:fixture"
+          },
+          "receiving_stage": {
+            "component": "ContextAssembler",
+            "stage": "established_intelligence"
+          },
+          "retrieval": {
+            "reason": "architecture receipt decision matches the correction scope",
+            "relevance": "relevant",
+            "score": 0.98
+          },
+          "trust": 1.0,
+          "type": "correction",
+          "validity": {
+            "contested": false,
+            "invalidated": false,
+            "stale": false,
+            "state": "active"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-a"
+      },
+      "metrics": {
+        "with_memory": {
+          "calls": 2,
+          "cost_usd": null,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 410,
+          "latency_ms": 180,
+          "output_tokens": 120,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 2,
+          "cost_usd": null,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 360,
+          "latency_ms": 170,
+          "output_tokens": 105,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "finding": "The additive evaluator preserved the eleven-tool boundary in the recorded fixture.",
+        "link": "outcome:fixture-arch-verification",
+        "status": "supported"
+      },
+      "persistence": {
+        "fresh_client_process": true,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "recorded_fixture"
+      },
+      "receipt_id": "decision_delta:7f9860499da0a7707be6da23",
+      "replay": {
+        "configuration_hash": "config-a",
+        "identity_hash": "7f9860499da0a7707be6da23383d67ebe3c63fb6846df48a3237ade70fb5a66f",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-arch-1"
+      },
+      "route": {
+        "access_class": "subscription_backed",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "claude-haiku-4-5-20251001",
+        "provider": "CLIProvider",
+        "surface": "mcp"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-arch-1",
+        "product_id": "product:fixture-a",
+        "shape": "architecture_choice",
+        "workspace_id": "workspace:fixture"
+      }
+    },
+    {
+      "capture_route": null,
+      "case_id": "release-irrelevant-memory",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "Irrelevant retrieval is intentionally denied injection and materiality credit."
+        ],
+        "memory_effect_supported": false
+      },
+      "completeness": {
+        "degraded_reasons": [],
+        "status": "complete"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "local",
+          "configuration_hash": "config-local",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "qwen3:4b",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "OllamaProvider",
+          "surface": "cli",
+          "task_hash": "task-hash-release-1",
+          "temperature": 0,
+          "toolset_hash": "cli-core-v1"
+        },
+        "matched": true,
+        "mismatches": [],
+        "with_memory_output_hash": "sha256:a94631e90583f9690461f4cb525e0b7f8058a8e9448281d2a4020b5536c12ac2",
+        "without_memory_output_hash": "sha256:a94631e90583f9690461f4cb525e0b7f8058a8e9448281d2a4020b5536c12ac2"
+      },
+      "decision": {
+        "delta": [],
+        "identity": "decision:release-irrelevant-memory",
+        "material_fields": [
+          "constraints",
+          "next_action",
+          "selected_option"
+        ],
+        "material_memory_ids": [],
+        "reflected_memory_ids": [],
+        "retrieved_memory_ids": [
+          "insight:fixture-irrelevant-1",
+          "insight:fixture-irrelevant-2"
+        ],
+        "under_examination": "Decide whether a security regression blocks release.",
+        "with_memory": {
+          "constraints": [
+            "repair authentication regression"
+          ],
+          "next_action": "fix and rerun auth tests",
+          "selected_option": "block_release"
+        },
+        "without_memory": {
+          "constraints": [
+            "repair authentication regression"
+          ],
+          "next_action": "fix and rerun auth tests",
+          "selected_option": "block_release"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-07-18T10:00:00Z",
+          "content_hash": "sha256:b4958bce8e681f4a929fc19fe5d0d753f3a6eb95edc03e3b7c1685ca45f1f681",
+          "evidence": {
+            "decision_material": false,
+            "injected": false,
+            "invalidated": false,
+            "level": "retrieved",
+            "level_number": 1,
+            "outcome_supported": false,
+            "reflected": false,
+            "retrieved": true
+          },
+          "id": "insight:fixture-irrelevant-1",
+          "loaded_at": "2026-07-19T18:10:00Z",
+          "provenance": {
+            "product_id": "product:fixture-a",
+            "source": "human_capture",
+            "surface": "cli",
+            "user_id": "user:fixture"
+          },
+          "receiving_stage": {
+            "component": "ContextAssembler",
+            "stage": "candidate_filter"
+          },
+          "retrieval": {
+            "reason": "broad release query retrieved a UI color preference",
+            "relevance": "irrelevant",
+            "score": 0.12
+          },
+          "trust": 1.0,
+          "type": "preference",
+          "validity": {
+            "contested": false,
+            "invalidated": false,
+            "stale": false,
+            "state": "active"
+          }
+        },
+        {
+          "captured_at": "2026-07-18T10:05:00Z",
+          "content_hash": "sha256:ff2e64aaad6b06d638479e19f8ad15d6b86f9286a6ce1ba7a2a7d18667e113ad",
+          "evidence": {
+            "decision_material": false,
+            "injected": true,
+            "invalidated": false,
+            "level": "injected",
+            "level_number": 2,
+            "outcome_supported": false,
+            "reflected": false,
+            "retrieved": true
+          },
+          "id": "insight:fixture-irrelevant-2",
+          "loaded_at": "2026-07-19T18:10:00Z",
+          "provenance": {
+            "product_id": "product:fixture-a",
+            "source": "synthesized_observation",
+            "source_observation": "observation:ui-copy",
+            "surface": "cli"
+          },
+          "receiving_stage": {
+            "component": "ContextAssembler",
+            "stage": "legacy_insights"
+          },
+          "retrieval": {
+            "reason": "broad release query admitted an unrelated copy convention",
+            "relevance": "irrelevant",
+            "score": 0.11
+          },
+          "trust": 0.7,
+          "type": "convention",
+          "validity": {
+            "contested": false,
+            "invalidated": false,
+            "stale": false,
+            "state": "active"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-a"
+      },
+      "metrics": {
+        "with_memory": {
+          "calls": 1,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 210,
+          "latency_ms": 95,
+          "output_tokens": 70,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 1,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 190,
+          "latency_ms": 91,
+          "output_tokens": 70,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "link": null,
+        "status": "not_observed"
+      },
+      "persistence": {
+        "fresh_client_process": false,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "not_exercised"
+      },
+      "receipt_id": "decision_delta:175b793b9c7ad5160d3c773f",
+      "replay": {
+        "configuration_hash": "config-local",
+        "identity_hash": "175b793b9c7ad5160d3c773f993f90192ab310abf8b6fd046d0997f53b8d5dc4",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-release-1"
+      },
+      "route": {
+        "access_class": "local",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "qwen3:4b",
+        "provider": "OllamaProvider",
+        "surface": "cli"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-release-1",
+        "product_id": "product:fixture-a",
+        "shape": "release_prioritization",
+        "workspace_id": "workspace:fixture"
+      }
+    },
+    {
+      "capture_route": null,
+      "case_id": "risk-contested-guidance",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "The receipt credits preservation of disagreement, not either contested directive as truth."
+        ],
+        "memory_effect_supported": true
+      },
+      "completeness": {
+        "degraded_reasons": [],
+        "status": "complete"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "subscription_backed",
+          "configuration_hash": "config-a",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "claude-haiku-4-5-20251001",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "CLIProvider",
+          "surface": "mcp",
+          "task_hash": "task-hash-risk-1",
+          "temperature": 0,
+          "toolset_hash": "eleven-tools-v1"
+        },
+        "matched": true,
+        "mismatches": [],
+        "with_memory_output_hash": "sha256:0340ac7ed6421ff4da6caa6a3fbcd393aee87d116ff43527f61e411336063134",
+        "without_memory_output_hash": "sha256:a16456dd73d08924101737307368b9599110ed1457187266e6fc08bb9482c783"
+      },
+      "decision": {
+        "delta": [
+          {
+            "after": "defer_for_human_resolution",
+            "before": "enable_migration",
+            "field": "selected_option"
+          },
+          {
+            "after": [
+              "preserve both conflicting directives"
+            ],
+            "before": [],
+            "field": "constraints"
+          },
+          {
+            "after": "authority_contested",
+            "before": "ordinary",
+            "field": "risk_classification"
+          },
+          {
+            "after": "request explicit owner disposition",
+            "before": "run migration",
+            "field": "next_action"
+          }
+        ],
+        "identity": "decision:risk-contested-guidance",
+        "material_fields": [
+          "constraints",
+          "next_action",
+          "risk_classification",
+          "selected_option"
+        ],
+        "material_memory_ids": [
+          "observation:fixture-contested-a",
+          "observation:fixture-contested-b"
+        ],
+        "reflected_memory_ids": [
+          "observation:fixture-contested-a",
+          "observation:fixture-contested-b"
+        ],
+        "retrieved_memory_ids": [
+          "observation:fixture-contested-a",
+          "observation:fixture-contested-b"
+        ],
+        "under_examination": "Choose whether to enable an irreversible migration.",
+        "with_memory": {
+          "constraints": [
+            "preserve both conflicting directives"
+          ],
+          "contested_handling": "preserve_disagreement",
+          "next_action": "request explicit owner disposition",
+          "presented_as_settled": false,
+          "risk_classification": "authority_contested",
+          "selected_option": "defer_for_human_resolution"
+        },
+        "without_memory": {
+          "constraints": [],
+          "contested_handling": null,
+          "next_action": "run migration",
+          "presented_as_settled": false,
+          "risk_classification": "ordinary",
+          "selected_option": "enable_migration"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "risk_classification",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-07-18T11:00:00Z",
+          "content_hash": "sha256:5d065a5f2eb0687891d4c99c9b1ea9b93f0aad66b7ff72d2ccecb874f863f985",
+          "evidence": {
+            "decision_material": true,
+            "injected": true,
+            "invalidated": false,
+            "level": "decision-material",
+            "level_number": 4,
+            "outcome_supported": false,
+            "reflected": true,
+            "retrieved": true
+          },
+          "id": "observation:fixture-contested-a",
+          "loaded_at": "2026-07-19T18:20:00Z",
+          "provenance": {
+            "product_id": "product:fixture-b",
+            "source": "human_capture",
+            "surface": "mcp",
+            "user_id": "user:owner-a"
+          },
+          "receiving_stage": {
+            "component": "risk_review",
+            "stage": "authority_check"
+          },
+          "retrieval": {
+            "reason": "migration authority decision",
+            "relevance": "relevant",
+            "score": 0.95
+          },
+          "trust": 1.0,
+          "type": "decision",
+          "validity": {
+            "conflicts_with": [
+              "observation:fixture-contested-b"
+            ],
+            "contested": true,
+            "invalidated": false,
+            "stale": false,
+            "state": "contested"
+          }
+        },
+        {
+          "captured_at": "2026-07-18T11:05:00Z",
+          "content_hash": "sha256:bc9e8dcf085b27913500177f9c2cf97c1852d6c5f2ef5b2e3b0219bba47f33f1",
+          "evidence": {
+            "decision_material": true,
+            "injected": true,
+            "invalidated": false,
+            "level": "decision-material",
+            "level_number": 4,
+            "outcome_supported": false,
+            "reflected": true,
+            "retrieved": true
+          },
+          "id": "observation:fixture-contested-b",
+          "loaded_at": "2026-07-19T18:20:00Z",
+          "provenance": {
+            "product_id": "product:fixture-b",
+            "source": "human_capture",
+            "surface": "cli",
+            "user_id": "user:owner-b"
+          },
+          "receiving_stage": {
+            "component": "risk_review",
+            "stage": "authority_check"
+          },
+          "retrieval": {
+            "reason": "migration authority decision",
+            "relevance": "relevant",
+            "score": 0.94
+          },
+          "trust": 1.0,
+          "type": "decision",
+          "validity": {
+            "conflicts_with": [
+              "observation:fixture-contested-a"
+            ],
+            "contested": true,
+            "invalidated": false,
+            "stale": false,
+            "state": "contested"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-b"
+      },
+      "metrics": {
+        "with_memory": {
+          "calls": 2,
+          "cost_usd": null,
+          "degraded_states": [
+            "contested_intelligence"
+          ],
+          "failures": [],
+          "input_tokens": 520,
+          "latency_ms": 220,
+          "output_tokens": 150,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 2,
+          "cost_usd": null,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 430,
+          "latency_ms": 205,
+          "output_tokens": 120,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "link": null,
+        "status": "not_observed"
+      },
+      "persistence": {
+        "fresh_client_process": true,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "recorded_fixture"
+      },
+      "receipt_id": "decision_delta:e755ea25ba1c36f304a4d46f",
+      "replay": {
+        "configuration_hash": "config-a",
+        "identity_hash": "e755ea25ba1c36f304a4d46f8a5ab74518bf981afb9aab67288f0f5673d8bfc5",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-risk-1"
+      },
+      "route": {
+        "access_class": "subscription_backed",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "claude-haiku-4-5-20251001",
+        "provider": "CLIProvider",
+        "surface": "mcp"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-risk-1",
+        "product_id": "product:fixture-b",
+        "shape": "risk_sensitive_recommendation",
+        "workspace_id": "workspace:fixture"
+      }
+    },
+    {
+      "capture_route": null,
+      "case_id": "implementation-invalidated-memory",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "An invalidated item receives no reflected or decision-material credit."
+        ],
+        "memory_effect_supported": false
+      },
+      "completeness": {
+        "degraded_reasons": [],
+        "status": "complete"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "local",
+          "configuration_hash": "config-local",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "qwen3:4b",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "OllamaProvider",
+          "surface": "cli",
+          "task_hash": "task-hash-impl-1",
+          "temperature": 0,
+          "toolset_hash": "cli-core-v1"
+        },
+        "matched": true,
+        "mismatches": [],
+        "with_memory_output_hash": "sha256:d14dcfcc664bd91ca8823565e4d51b4cd3918d3a355c293db3ae9a5dfe84e55a",
+        "without_memory_output_hash": "sha256:d14dcfcc664bd91ca8823565e4d51b4cd3918d3a355c293db3ae9a5dfe84e55a"
+      },
+      "decision": {
+        "delta": [],
+        "identity": "decision:implementation-invalidated-memory",
+        "material_fields": [
+          "constraints",
+          "next_action",
+          "selected_option"
+        ],
+        "material_memory_ids": [],
+        "reflected_memory_ids": [],
+        "retrieved_memory_ids": [
+          "insight:fixture-invalidated-1"
+        ],
+        "under_examination": "Plan database result parsing after a superseding correction.",
+        "with_memory": {
+          "constraints": [
+            "exclude invalidated direct result indexing"
+          ],
+          "next_action": "implement supported parser",
+          "selected_option": "use_parse_rows"
+        },
+        "without_memory": {
+          "constraints": [
+            "exclude invalidated direct result indexing"
+          ],
+          "next_action": "implement supported parser",
+          "selected_option": "use_parse_rows"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-07-10T08:00:00Z",
+          "content_hash": "sha256:d10a2d1b7c847ac2eef9761e957627d63213fb73426de38f0cd1bb18aef9b190",
+          "evidence": {
+            "decision_material": false,
+            "injected": false,
+            "invalidated": true,
+            "level": "invalidated",
+            "level_number": 6,
+            "outcome_supported": false,
+            "reflected": false,
+            "retrieved": true
+          },
+          "id": "insight:fixture-invalidated-1",
+          "loaded_at": "2026-07-19T18:30:00Z",
+          "provenance": {
+            "product_id": "product:fixture-a",
+            "source": "synthesized_observation",
+            "source_observation": "observation:older-pattern",
+            "surface": "mcp"
+          },
+          "receiving_stage": {
+            "component": "ContextAssembler",
+            "stage": "validity_filter"
+          },
+          "retrieval": {
+            "reason": "lexical match to result parsing",
+            "relevance": "relevant",
+            "score": 0.88
+          },
+          "trust": 0.8,
+          "type": "pattern",
+          "validity": {
+            "contested": false,
+            "invalidated": true,
+            "invalidated_by": "observation:new-correction",
+            "stale": false,
+            "state": "invalidated"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-a"
+      },
+      "metrics": {
+        "with_memory": {
+          "calls": 1,
+          "cost_usd": 0.0,
+          "degraded_states": [
+            "invalidated_memory_filtered"
+          ],
+          "failures": [],
+          "input_tokens": 230,
+          "latency_ms": 100,
+          "output_tokens": 80,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 1,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 205,
+          "latency_ms": 96,
+          "output_tokens": 80,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "link": null,
+        "status": "not_observed"
+      },
+      "persistence": {
+        "fresh_client_process": true,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "recorded_fixture"
+      },
+      "receipt_id": "decision_delta:b9c9e11eb53e4e668ef7861d",
+      "replay": {
+        "configuration_hash": "config-local",
+        "identity_hash": "b9c9e11eb53e4e668ef7861dadf3666453dd1151fbad2545445adc2ebfc4de32",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-impl-1"
+      },
+      "route": {
+        "access_class": "local",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "qwen3:4b",
+        "provider": "OllamaProvider",
+        "surface": "cli"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-impl-1",
+        "product_id": "product:fixture-a",
+        "shape": "implementation_planning",
+        "workspace_id": "workspace:fixture"
+      }
+    },
+    {
+      "capture_route": null,
+      "case_id": "planning-null-relevant-memory",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "Reflection without a structured decision delta is a null result, not material use."
+        ],
+        "memory_effect_supported": false
+      },
+      "completeness": {
+        "degraded_reasons": [],
+        "status": "complete"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "subscription_backed",
+          "configuration_hash": "config-a",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "claude-haiku-4-5-20251001",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "CLIProvider",
+          "surface": "mcp",
+          "task_hash": "task-hash-plan-1",
+          "temperature": 0,
+          "toolset_hash": "eleven-tools-v1"
+        },
+        "matched": true,
+        "mismatches": [],
+        "with_memory_output_hash": "sha256:24aad52e4d22dd6880a215d2110f3d0efb48be3d3952395a91895d10b8b89605",
+        "without_memory_output_hash": "sha256:24aad52e4d22dd6880a215d2110f3d0efb48be3d3952395a91895d10b8b89605"
+      },
+      "decision": {
+        "delta": [],
+        "identity": "decision:planning-null-relevant-memory",
+        "material_fields": [
+          "constraints",
+          "next_action",
+          "selected_option"
+        ],
+        "material_memory_ids": [],
+        "reflected_memory_ids": [
+          "observation:fixture-null-1"
+        ],
+        "retrieved_memory_ids": [
+          "observation:fixture-null-1"
+        ],
+        "under_examination": "Choose the next bounded verification task.",
+        "with_memory": {
+          "constraints": [
+            "keep changes bounded"
+          ],
+          "next_action": "run focused tests",
+          "selected_option": "run_auth_isolation_tests"
+        },
+        "without_memory": {
+          "constraints": [
+            "keep changes bounded"
+          ],
+          "next_action": "run focused tests",
+          "selected_option": "run_auth_isolation_tests"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-07-19T12:00:00Z",
+          "content_hash": "sha256:21301e959271f1379a0051900ed6439c5f8a7559cd2696a596be12a02e66c04d",
+          "evidence": {
+            "decision_material": false,
+            "injected": true,
+            "invalidated": false,
+            "level": "reflected",
+            "level_number": 3,
+            "outcome_supported": false,
+            "reflected": true,
+            "retrieved": true
+          },
+          "id": "observation:fixture-null-1",
+          "loaded_at": "2026-07-19T18:40:00Z",
+          "provenance": {
+            "product_id": "product:fixture-c",
+            "source": "human_capture",
+            "surface": "mcp",
+            "user_id": "user:fixture"
+          },
+          "receiving_stage": {
+            "component": "roadmap_reasoner",
+            "stage": "sequence_constraints"
+          },
+          "retrieval": {
+            "reason": "preference directly concerns verification ordering",
+            "relevance": "relevant",
+            "score": 0.91
+          },
+          "trust": 1.0,
+          "type": "preference",
+          "validity": {
+            "contested": false,
+            "invalidated": false,
+            "stale": false,
+            "state": "active"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-c"
+      },
+      "metrics": {
+        "with_memory": {
+          "calls": 1,
+          "cost_usd": null,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 300,
+          "latency_ms": 130,
+          "output_tokens": 90,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 1,
+          "cost_usd": null,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 260,
+          "latency_ms": 122,
+          "output_tokens": 90,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "link": null,
+        "status": "not_observed"
+      },
+      "persistence": {
+        "fresh_client_process": false,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "not_exercised"
+      },
+      "receipt_id": "decision_delta:e974afea1b5d081a36f56bcc",
+      "replay": {
+        "configuration_hash": "config-a",
+        "identity_hash": "e974afea1b5d081a36f56bcc44063caab5b9b2bea81f0b1fcca59c5ccd95f81a",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-plan-1"
+      },
+      "route": {
+        "access_class": "subscription_backed",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "claude-haiku-4-5-20251001",
+        "provider": "CLIProvider",
+        "surface": "mcp"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-plan-1",
+        "product_id": "product:fixture-c",
+        "shape": "roadmap_prioritization",
+        "workspace_id": "workspace:fixture"
+      }
+    },
+    {
+      "capture_route": null,
+      "case_id": "research-harmful-memory",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "The memory was decision-material but later contradicted; material use is not assumed beneficial."
+        ],
+        "memory_effect_supported": true
+      },
+      "completeness": {
+        "degraded_reasons": [],
+        "status": "complete"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "local",
+          "configuration_hash": "config-local",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "qwen3:4b",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "OllamaProvider",
+          "surface": "cli",
+          "task_hash": "task-hash-research-1",
+          "temperature": 0,
+          "toolset_hash": "cli-core-v1"
+        },
+        "matched": true,
+        "mismatches": [],
+        "with_memory_output_hash": "sha256:8f3bafcd06be9eddd19c5fc614f366387f73b7778a2defc0d89910c7f882dc1d",
+        "without_memory_output_hash": "sha256:4c4fda2640ceb145ad79f4d6b6560758b8ecf99e16e3b1fca898295154618ca4"
+      },
+      "decision": {
+        "delta": [
+          {
+            "after": "unblinded_self_grading",
+            "before": "deterministic_rubric",
+            "field": "selected_option"
+          },
+          {
+            "after": [
+              "unblinded_self_grading",
+              "deterministic_rubric",
+              "blinded_human_review"
+            ],
+            "before": [
+              "deterministic_rubric",
+              "blinded_human_review",
+              "unblinded_self_grading"
+            ],
+            "field": "ranking"
+          },
+          {
+            "after": "run self-graded pilot",
+            "before": "freeze rubric before pilot",
+            "field": "next_action"
+          }
+        ],
+        "identity": "decision:research-harmful-memory",
+        "material_fields": [
+          "next_action",
+          "ranking",
+          "selected_option"
+        ],
+        "material_memory_ids": [
+          "insight:fixture-harmful-1"
+        ],
+        "reflected_memory_ids": [
+          "insight:fixture-harmful-1"
+        ],
+        "retrieved_memory_ids": [
+          "insight:fixture-harmful-1"
+        ],
+        "under_examination": "Rank evaluation methods for a small pilot.",
+        "with_memory": {
+          "next_action": "run self-graded pilot",
+          "ranking": [
+            "unblinded_self_grading",
+            "deterministic_rubric",
+            "blinded_human_review"
+          ],
+          "selected_option": "unblinded_self_grading"
+        },
+        "without_memory": {
+          "next_action": "freeze rubric before pilot",
+          "ranking": [
+            "deterministic_rubric",
+            "blinded_human_review",
+            "unblinded_self_grading"
+          ],
+          "selected_option": "deterministic_rubric"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "ranking",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-06-15T09:00:00Z",
+          "content_hash": "sha256:f07d8c786bc1681f35a99b0c5d36db3d320a2c1643511c234443f620fec0da90",
+          "evidence": {
+            "decision_material": true,
+            "injected": true,
+            "invalidated": false,
+            "level": "decision-material",
+            "level_number": 4,
+            "outcome_supported": false,
+            "reflected": true,
+            "retrieved": true
+          },
+          "id": "insight:fixture-harmful-1",
+          "loaded_at": "2026-07-19T18:50:00Z",
+          "provenance": {
+            "product_id": "product:fixture-d",
+            "source": "synthesized_observation",
+            "source_observation": "observation:pilot-pattern",
+            "surface": "cli"
+          },
+          "receiving_stage": {
+            "component": "evaluation_planner",
+            "stage": "method_ranking"
+          },
+          "retrieval": {
+            "reason": "historical pilot method",
+            "relevance": "relevant",
+            "score": 0.87
+          },
+          "trust": 0.65,
+          "type": "pattern",
+          "validity": {
+            "contested": false,
+            "invalidated": false,
+            "stale": false,
+            "state": "active"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-d"
+      },
+      "metrics": {
+        "with_memory": {
+          "calls": 2,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 340,
+          "latency_ms": 145,
+          "output_tokens": 110,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 2,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 305,
+          "latency_ms": 138,
+          "output_tokens": 105,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "finding": "The self-graded method inflated agreement and was rejected.",
+        "link": "outcome:fixture-pilot-1",
+        "status": "contradicted"
+      },
+      "persistence": {
+        "fresh_client_process": false,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "not_exercised"
+      },
+      "receipt_id": "decision_delta:f240efa48a51eb12a4d93ca0",
+      "replay": {
+        "configuration_hash": "config-local",
+        "identity_hash": "f240efa48a51eb12a4d93ca0f3e5b3108bc3c91885987e8d8c58d0f3026496ba",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-research-1"
+      },
+      "route": {
+        "access_class": "local",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "qwen3:4b",
+        "provider": "OllamaProvider",
+        "surface": "cli"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-research-1",
+        "product_id": "product:fixture-d",
+        "shape": "evaluation_research_decision",
+        "workspace_id": "workspace:fixture"
+      }
+    },
+    {
+      "capture_route": {
+        "access_class": "subscription_backed_agent",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "gpt-5.6",
+        "provider": "CodexAgent",
+        "surface": "mcp"
+      },
+      "case_id": "cross-path-portability",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "The matched memory-effect comparison occurs entirely on the local CLI route.",
+          "The cross-model/access transition proves only contract portability in a deterministic fixture, not live continuity or quality lift."
+        ],
+        "memory_effect_supported": true
+      },
+      "completeness": {
+        "degraded_reasons": [],
+        "status": "complete"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "local",
+          "configuration_hash": "config-local",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "qwen3:4b",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "OllamaProvider",
+          "surface": "cli",
+          "task_hash": "task-hash-portable-1",
+          "temperature": 0,
+          "toolset_hash": "cli-core-v1"
+        },
+        "matched": true,
+        "mismatches": [],
+        "with_memory_output_hash": "sha256:6aa834de2e896d18e9cb12e820777f17c21dd1364c88f216b30ab9ae973bcb3d",
+        "without_memory_output_hash": "sha256:2cb33a34eead5b93a2424b0eb2e23b6531800cab8f8734803bb2ec8b66750bf6"
+      },
+      "decision": {
+        "delta": [
+          {
+            "after": "thin_mcp_and_cli",
+            "before": "atrium_demo",
+            "field": "selected_option"
+          },
+          {
+            "after": [
+              "preserve exactly 11 MCP tools",
+              "keep Atrium out of executable preview"
+            ],
+            "before": [],
+            "field": "constraints"
+          },
+          {
+            "after": [
+              "production Atrium demo"
+            ],
+            "before": [],
+            "field": "rejected_alternatives"
+          },
+          {
+            "after": "run CLI receipt verifier",
+            "before": "build interactive canvas",
+            "field": "next_action"
+          }
+        ],
+        "identity": "decision:cross-path-portability",
+        "material_fields": [
+          "constraints",
+          "next_action",
+          "rejected_alternatives",
+          "selected_option"
+        ],
+        "material_memory_ids": [
+          "observation:fixture-portable-1"
+        ],
+        "reflected_memory_ids": [
+          "observation:fixture-portable-1"
+        ],
+        "retrieved_memory_ids": [
+          "observation:fixture-portable-1"
+        ],
+        "under_examination": "Choose the interaction surface for the next inspectable demonstration.",
+        "with_memory": {
+          "constraints": [
+            "preserve exactly 11 MCP tools",
+            "keep Atrium out of executable preview"
+          ],
+          "next_action": "run CLI receipt verifier",
+          "rejected_alternatives": [
+            "production Atrium demo"
+          ],
+          "selected_option": "thin_mcp_and_cli"
+        },
+        "without_memory": {
+          "constraints": [],
+          "next_action": "build interactive canvas",
+          "rejected_alternatives": [],
+          "selected_option": "atrium_demo"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "rejected_alternatives",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-07-19T16:00:00Z",
+          "content_hash": "sha256:5c1c684bc43fca879242d0963b084558c63028ed2f222cfc128938f419f5e2d8",
+          "evidence": {
+            "decision_material": true,
+            "injected": true,
+            "invalidated": false,
+            "level": "decision-material",
+            "level_number": 4,
+            "outcome_supported": false,
+            "reflected": true,
+            "retrieved": true
+          },
+          "id": "observation:fixture-portable-1",
+          "loaded_at": "2026-07-19T19:00:00Z",
+          "provenance": {
+            "access_class": "subscription_backed_agent",
+            "capture_model": "gpt-5.6",
+            "capture_provider": "CodexAgent",
+            "product_id": "product:fixture-portable",
+            "source": "human_capture",
+            "surface": "mcp",
+            "user_id": "user:fixture"
+          },
+          "receiving_stage": {
+            "component": "implementation_planner",
+            "stage": "surface_selection"
+          },
+          "retrieval": {
+            "reason": "demo surface preference",
+            "relevance": "relevant",
+            "score": 0.99
+          },
+          "trust": 1.0,
+          "type": "preference",
+          "validity": {
+            "contested": false,
+            "invalidated": false,
+            "stale": false,
+            "state": "active"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-portable"
+      },
+      "metrics": {
+        "capture": {
+          "calls": 1,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 0,
+          "latency_ms": 35,
+          "output_tokens": 0,
+          "retries": 0
+        },
+        "with_memory": {
+          "calls": 2,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 380,
+          "latency_ms": 165,
+          "output_tokens": 125,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 2,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 335,
+          "latency_ms": 151,
+          "output_tokens": 115,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "link": null,
+        "status": "not_observed"
+      },
+      "persistence": {
+        "cross_access_path": true,
+        "cross_surface": true,
+        "fresh_client_process": true,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "recorded_fixture"
+      },
+      "receipt_id": "decision_delta:6e63f6a6b9171394b17669c4",
+      "replay": {
+        "configuration_hash": "config-local",
+        "identity_hash": "6e63f6a6b9171394b17669c4358a9ceb355080e57340166a38721e9caa3eb877",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-portable-1"
+      },
+      "route": {
+        "access_class": "local",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "qwen3:4b",
+        "provider": "OllamaProvider",
+        "surface": "cli"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-portable-1",
+        "product_id": "product:fixture-portable",
+        "shape": "implementation_planning",
+        "workspace_id": "workspace:fixture"
+      }
+    },
+    {
+      "capture_route": null,
+      "case_id": "degraded-mismatched-counterfactual",
+      "causal_assessment": {
+        "cross_model_difference_used_as_causal_evidence": false,
+        "limitations": [
+          "The model mismatch blocks memory-effect attribution even though the decisions differ."
+        ],
+        "memory_effect_supported": false
+      },
+      "completeness": {
+        "degraded_reasons": [
+          "counterfactual_conditions_mismatched",
+          "recorded fixture intentionally uses a different control model"
+        ],
+        "status": "degraded"
+      },
+      "contract_version": "ace.decision-delta-receipt/v1",
+      "counterfactual": {
+        "conditions": {
+          "access_class": "subscription_backed",
+          "configuration_hash": "config-a",
+          "evaluator_method": "structured_field_delta_v1",
+          "model": "claude-haiku-4-5-20251001",
+          "prompt_contract_hash": "prompt-v1",
+          "provider": "CLIProvider",
+          "surface": "mcp",
+          "task_hash": "task-hash-degraded-1",
+          "temperature": 0,
+          "toolset_hash": "eleven-tools-v1"
+        },
+        "matched": false,
+        "mismatches": [
+          {
+            "field": "provider",
+            "with_memory": "CLIProvider",
+            "without_memory": "OllamaProvider"
+          },
+          {
+            "field": "model",
+            "with_memory": "claude-haiku-4-5-20251001",
+            "without_memory": "qwen3:4b"
+          },
+          {
+            "field": "access_class",
+            "with_memory": "subscription_backed",
+            "without_memory": "local"
+          }
+        ],
+        "with_memory_output_hash": "sha256:5f15875815091847497f036699533efb39cc39d37febc48c2fafc14a9947f09a",
+        "without_memory_output_hash": "sha256:8c310c6f66ae01467221aa381ea012c2669ce2194f0da4cc6fd3f071a7e43a77"
+      },
+      "decision": {
+        "delta": [
+          {
+            "after": "durable_queue",
+            "before": "in_memory_queue",
+            "field": "selected_option"
+          },
+          {
+            "after": [
+              "survive restart"
+            ],
+            "before": [],
+            "field": "constraints"
+          },
+          {
+            "after": "implement persistence",
+            "before": "implement process queue",
+            "field": "next_action"
+          }
+        ],
+        "identity": "decision:degraded-mismatched-counterfactual",
+        "material_fields": [
+          "constraints",
+          "next_action",
+          "selected_option"
+        ],
+        "material_memory_ids": [],
+        "reflected_memory_ids": [
+          "observation:fixture-degraded-1"
+        ],
+        "retrieved_memory_ids": [
+          "observation:fixture-degraded-1"
+        ],
+        "under_examination": "Choose a queue implementation under an unmatched control.",
+        "with_memory": {
+          "constraints": [
+            "survive restart"
+          ],
+          "next_action": "implement persistence",
+          "selected_option": "durable_queue"
+        },
+        "without_memory": {
+          "constraints": [],
+          "next_action": "implement process queue",
+          "selected_option": "in_memory_queue"
+        }
+      },
+      "evaluator": {
+        "judge": "deterministic",
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "next_action"
+        ],
+        "method": "structured_field_delta_v1",
+        "model_self_report_used": false,
+        "version": 1
+      },
+      "intelligence": [
+        {
+          "captured_at": "2026-07-19T15:00:00Z",
+          "content_hash": "sha256:a69f97872d63f41e77e36cd1f958435b08619e245cab56466c239261f758108b",
+          "evidence": {
+            "decision_material": false,
+            "injected": true,
+            "invalidated": false,
+            "level": "reflected",
+            "level_number": 3,
+            "outcome_supported": false,
+            "reflected": true,
+            "retrieved": true
+          },
+          "id": "observation:fixture-degraded-1",
+          "loaded_at": "2026-07-19T19:10:00Z",
+          "provenance": {
+            "product_id": "product:fixture-e",
+            "source": "human_capture",
+            "surface": "mcp",
+            "user_id": "user:fixture"
+          },
+          "receiving_stage": {
+            "component": "architecture_planner",
+            "stage": "constraint_application"
+          },
+          "retrieval": {
+            "reason": "queue architecture correction",
+            "relevance": "relevant",
+            "score": 0.96
+          },
+          "trust": 1.0,
+          "type": "correction",
+          "validity": {
+            "contested": false,
+            "invalidated": false,
+            "stale": false,
+            "state": "active"
+          }
+        }
+      ],
+      "isolation": {
+        "mismatched_memory_ids": [],
+        "status": "passed",
+        "task_product_id": "product:fixture-e"
+      },
+      "metrics": {
+        "with_memory": {
+          "calls": 2,
+          "cost_usd": null,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 400,
+          "latency_ms": 175,
+          "output_tokens": 120,
+          "retries": 0
+        },
+        "without_memory": {
+          "calls": 2,
+          "cost_usd": 0.0,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 330,
+          "latency_ms": 160,
+          "output_tokens": 105,
+          "retries": 0
+        }
+      },
+      "outcome": {
+        "link": null,
+        "status": "not_observed"
+      },
+      "persistence": {
+        "fresh_client_process": false,
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "not_exercised"
+      },
+      "receipt_id": "decision_delta:1d41593483e529cad19c59c7",
+      "replay": {
+        "configuration_hash": "config-a",
+        "identity_hash": "1d41593483e529cad19c59c756122d51a58999b099dfb95da118a24eae8f1e0d",
+        "prompt_contract_hash": "prompt-v1",
+        "task_hash": "task-hash-degraded-1"
+      },
+      "route": {
+        "access_class": "subscription_backed",
+        "evidence_kind": "recorded_fixture",
+        "live": false,
+        "model": "claude-haiku-4-5-20251001",
+        "provider": "CLIProvider",
+        "surface": "mcp"
+      },
+      "suite_id": "ia-01-decision-delta-contract-v1",
+      "task": {
+        "id": "task:fixture-degraded-1",
+        "product_id": "product:fixture-e",
+        "shape": "architecture_choice",
+        "workspace_id": "workspace:fixture"
+      }
+    }
+  ],
+  "run_kind": "recorded_deterministic_conformance",
+  "schema_version": 1,
+  "suite_id": "ia-01-decision-delta-contract-v1",
+  "summary": {
+    "access_classes": [
+      "local",
+      "subscription_backed"
+    ],
+    "complete_receipts": 7,
+    "degraded_receipts": 1,
+    "distinct_routes": 2,
+    "evidence_levels": {
+      "decision-material": 4,
+      "injected": 1,
+      "invalidated": 1,
+      "outcome-supported": 1,
+      "reflected": 2,
+      "retrieved": 1
+    },
+    "material_receipts": 4,
+    "null_receipts": 3,
+    "surfaces": [
+      "cli",
+      "mcp"
+    ],
+    "task_shapes": [
+      "architecture_choice",
+      "evaluation_research_decision",
+      "implementation_planning",
+      "release_prioritization",
+      "risk_sensitive_recommendation",
+      "roadmap_prioritization"
+    ],
+    "tasks": 8
+  },
+  "unsupported_claims": [
+    "ACE outperforms either recorded model path.",
+    "Cross-model differences prove a memory effect.",
+    "The deterministic portability fixture is a live provider or runtime-restart trial.",
+    "Decision-material memory is necessarily beneficial; the harmful case is explicitly retained.",
+    "Eight recorded tasks establish general or longitudinal decision lift."
+  ]
+}

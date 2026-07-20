@@ -1,0 +1,105 @@
+{
+  "_why": [
+    "THE EXTENSION PROXY SEAM HAS TWO IMPLEMENTATIONS, AND THEY MUST NOT DRIFT.",
+    "",
+    "An extension declares the data-plane routes its UI needs in extensions/<name>/ui/canvas/",
+    "canvas_proxy.json. That manifest is read TWICE: by vite.config.ts in development, and by",
+    "the ACE canvas host (core/engine/api/canvas_host.py) in production. Same declaration, two",
+    "readers, two languages.",
+    "",
+    "Two implementations of a fail-closed merge is exactly the shape of bug that ships: dev",
+    "refuses a collision, prod silently allows it, and one extension's traffic is quietly routed",
+    "into another extension's data plane. Both services answer 200. The numbers are simply",
+    "someone else's, and nothing anywhere says so.",
+    "",
+    "So the RULES live here, as data, and both implementations are tested against this file.",
+    "Change the behaviour in one language and the other language's test goes red.",
+    "",
+    "  devProxySeam.test.ts        (TypeScript, vite)",
+    "  tests/test_canvas_host.py   (Python, the production host)"
+  ],
+
+  "cases": [
+    {
+      "name": "a declared prefix is merged, and target survives",
+      "kernel": ["/health"],
+      "declared": [
+        { "extension": "metrics", "prefix": "/api/v2", "entry": { "target": "http://127.0.0.1:8788" } }
+      ],
+      "env": {},
+      "expect": { "merged": { "/api/v2": "http://127.0.0.1:8788" } }
+    },
+    {
+      "name": "targetEnv overrides target when set — an operator repoints without a commit",
+      "kernel": [],
+      "declared": [
+        {
+          "extension": "metrics",
+          "prefix": "/api/v2",
+          "entry": { "target": "http://127.0.0.1:8788", "targetEnv": "VITE_METRICS_DATA_URL" }
+        }
+      ],
+      "env": { "VITE_METRICS_DATA_URL": "http://192.0.2.10:9000" },
+      "expect": { "merged": { "/api/v2": "http://192.0.2.10:9000" } }
+    },
+    {
+      "name": "an EMPTY targetEnv is not an override — it is an unset variable",
+      "kernel": [],
+      "declared": [
+        {
+          "extension": "metrics",
+          "prefix": "/api/v2",
+          "entry": { "target": "http://127.0.0.1:8788", "targetEnv": "VITE_METRICS_DATA_URL" }
+        }
+      ],
+      "env": { "VITE_METRICS_DATA_URL": "" },
+      "expect": { "merged": { "/api/v2": "http://127.0.0.1:8788" } }
+    },
+    {
+      "name": "two prefixes from one extension both merge",
+      "kernel": [],
+      "declared": [
+        { "extension": "metrics", "prefix": "/api/v2", "entry": { "target": "http://127.0.0.1:8788" } },
+        { "extension": "metrics", "prefix": "/api/replay", "entry": { "target": "http://127.0.0.1:8788" } }
+      ],
+      "env": {},
+      "expect": {
+        "merged": {
+          "/api/v2": "http://127.0.0.1:8788",
+          "/api/replay": "http://127.0.0.1:8788"
+        }
+      }
+    },
+
+    {
+      "name": "REFUSES to shadow a kernel route",
+      "_why": "A stray /health entry silently swallows the kernel's own health route, and the canvas starts asking a data service whether ACE is alive.",
+      "kernel": ["/health"],
+      "declared": [
+        { "extension": "metrics", "prefix": "/health", "entry": { "target": "http://127.0.0.1:8788" } }
+      ],
+      "env": {},
+      "expect": { "error": "collision" }
+    },
+    {
+      "name": "REFUSES two extensions claiming one prefix",
+      "_why": "Last-wins routes one extension's traffic into another's data plane. Both answer 200; the numbers are someone else's.",
+      "kernel": [],
+      "declared": [
+        { "extension": "metrics", "prefix": "/api/v2", "entry": { "target": "http://127.0.0.1:8788" } },
+        { "extension": "reporting", "prefix": "/api/v2", "entry": { "target": "http://127.0.0.1:9999" } }
+      ],
+      "env": {},
+      "expect": { "error": "collision" }
+    },
+    {
+      "name": "REFUSES a prefix that is not a path",
+      "kernel": [],
+      "declared": [
+        { "extension": "metrics", "prefix": "api/v2", "entry": { "target": "http://127.0.0.1:8788" } }
+      ],
+      "env": {},
+      "expect": { "error": "collision" }
+    }
+  ]
+}

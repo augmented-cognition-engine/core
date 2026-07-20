@@ -1,0 +1,30 @@
+{
+  "opening": "We don't know each other yet. Four quick questions so the briefing pipeline has something to work with. What we build from these answers becomes the foundation we'll keep referring back to.",
+  "questions": [
+    {
+      "index": 1,
+      "id": "product",
+      "prompt": "What are we building? One sentence is fine. We'll deepen it later.",
+      "ack_template": "Got it. **{shortened}**."
+    },
+    {
+      "index": 2,
+      "id": "customer",
+      "prompt": "Who are we building this for? Be specific if you can. \"Solo SaaS founders\" beats \"developers.\"",
+      "ack_template": "Building for **{shortened}**. That frames a lot of what comes next."
+    },
+    {
+      "index": 3,
+      "id": "goal_30d",
+      "prompt": "What does done look like in 30 days for us? The demo, the milestone, the launch. Whatever's on your calendar.",
+      "ack_template": "30 days to **{shortened}**. We'll watch the gap between current state and that target every week."
+    },
+    {
+      "index": 4,
+      "id": "risk",
+      "prompt": "What's currently the scariest part? The thing that wakes you up. We'll tag this as a thread we keep checking on.",
+      "ack_template": "Tagged **{shortened}** as an open thread. We'll keep referencing it until it's resolved."
+    }
+  ],
+  "closing_template": "Got it. We're building **{q1_short}** for **{q2_short}**, aiming for **{q3_short}**, watching **{q4_short}**. Let's start there."
+}

@@ -1,0 +1,391 @@
+/* engine/reports/templates/base_styles.css */
+/* Print-optimized, Chromium-rendered via Patchright */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #0a0a0f;
+  --dark: #13131a;
+  --mid: #1e1e2a;
+  --border: rgba(255,255,255,0.08);
+  --text: #e8e8f0;
+  --text-muted: #888899;
+  --text-dim: #555566;
+  --accent: #d4974a;
+  --accent-dim: rgba(212,151,74,0.07);
+  --emerald: #34d399;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --critical: #f87171;
+  --high: #fbbf24;
+  --medium: #a3e635;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--dark);
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.6;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ─── Page layout ─────────────────────────────── */
+.page { width: 100%; min-height: 100vh; padding: 0; }
+.page-break { page-break-before: always; }
+
+/* ─── Cover ──────────────────────────────────── */
+.cover {
+  background: var(--black);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.cover-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent);
+}
+.cover-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 64px;
+}
+.cover-label {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+.cover-title {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 14px;
+  letter-spacing: -0.02em;
+}
+.cover-subtitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-bottom: 64px;
+  letter-spacing: 0.01em;
+}
+.cover-meta { display: flex; flex-direction: column; gap: 8px; }
+.cover-meta-item { font-size: 10px; color: var(--text-muted); }
+.cover-meta-item strong { color: var(--text); font-weight: 500; }
+.cover-footer {
+  padding: 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cover-footer-brand {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.cover-footer-date { font-size: 9px; color: var(--text-dim); }
+
+/* ─── Section layout ─────────────────────────── */
+.section {
+  padding: 56px 64px;
+  min-height: 100vh;
+  background: var(--dark);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 24px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Executive summary ──────────────────────── */
+.exec-summary p {
+  margin-bottom: 14px;
+  color: var(--text);
+  font-size: 11.5px;
+  line-height: 1.78;
+}
+.headline-findings {
+  margin-top: 28px;
+  padding: 20px 24px;
+  background: var(--accent-dim);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}
+.headline-findings h4 {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.headline-findings ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.headline-findings li { display: flex; gap: 10px; font-size: 11px; color: var(--text); }
+.headline-findings li::before { content: "→"; color: var(--accent); flex-shrink: 0; }
+
+/* ─── Health scorecard ───────────────────────── */
+
+/* Callout row: worst 3 disciplines, prominent */
+.score-callout-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.score-callout-cell {
+  background: var(--mid);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+.score-callout-cell.bad  { border-color: rgba(248,113,113,0.22); background: rgba(248,113,113,0.04); }
+.score-callout-cell.warn { border-color: rgba(251,191,36,0.18);  background: rgba(251,191,36,0.03); }
+.score-callout-cell.good { border-color: rgba(52,211,153,0.18);  background: rgba(52,211,153,0.03); }
+.score-callout-discipline {
+  font-family: var(--font-display);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.score-callout-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.score-callout-value.good { color: var(--emerald); }
+.score-callout-value.warn { color: var(--amber); }
+.score-callout-value.bad  { color: var(--red); }
+.score-callout-bar-track {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.score-callout-bar-fill { height: 100%; border-radius: 2px; }
+.score-callout-bar-fill.good { background: var(--emerald); }
+.score-callout-bar-fill.warn { background: var(--amber); }
+.score-callout-bar-fill.bad  { background: var(--red); }
+.score-callout-gaps { font-size: 9px; color: var(--text-dim); }
+
+/* Compact grid: remaining disciplines */
+.score-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+}
+.score-compact-cell {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 9px 12px;
+}
+.score-compact-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.score-compact-discipline {
+  font-size: 9px;
+  color: var(--text-muted);
+  text-transform: capitalize;
+  font-weight: 500;
+}
+.score-compact-value {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.score-compact-value.good { color: var(--emerald); }
+.score-compact-value.warn { color: var(--amber); }
+.score-compact-value.bad  { color: var(--red); }
+.score-compact-bar-track {
+  height: 2px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.score-compact-bar-fill { height: 100%; border-radius: 1px; }
+.score-compact-bar-fill.good { background: var(--emerald); }
+.score-compact-bar-fill.warn { background: var(--amber); }
+.score-compact-bar-fill.bad  { background: var(--red); }
+
+/* ─── Risk items ─────────────────────────────── */
+.risk-list { display: flex; flex-direction: column; gap: 14px; }
+.risk-item {
+  background: var(--mid);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 16px;
+}
+.risk-num {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  width: 28px;
+  line-height: 1.2;
+  padding-top: 2px;
+}
+.risk-body { flex: 1; }
+.risk-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.risk-badge {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.risk-badge.critical { background: rgba(248,113,113,0.15); color: var(--critical); }
+.risk-badge.high     { background: rgba(251,191,36,0.12);  color: var(--high); }
+.risk-badge.medium   { background: rgba(163,230,53,0.1);   color: var(--medium); }
+.risk-title { font-size: 11px; font-weight: 600; color: var(--text); text-transform: capitalize; }
+.risk-plain { font-size: 10.5px; color: var(--text-muted); line-height: 1.65; margin-bottom: 8px; }
+.risk-gaps { display: flex; flex-direction: column; gap: 3px; }
+.risk-gap { font-size: 9.5px; color: var(--text-dim); display: flex; gap: 6px; }
+.risk-gap::before { content: "·"; color: var(--accent); }
+
+/* ─── Initiatives / Roadmap ──────────────────── */
+.initiative-list { display: flex; flex-direction: column; gap: 10px; }
+.initiative-item {
+  background: var(--mid);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.initiative-status {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.initiative-status.active    { background: var(--accent-dim); color: var(--accent); }
+.initiative-status.completed { background: rgba(52,211,153,0.1); color: var(--emerald); }
+.initiative-status.planned   { background: rgba(255,255,255,0.05); color: var(--text-dim); }
+.initiative-title { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.initiative-desc  { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+
+/* ─── Recommendation intro ───────────────────── */
+.recommendation-intro {
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  line-height: 1.75;
+  font-size: 11.5px;
+}
+
+/* ─── Footer (all pages) ─────────────────────── */
+.report-footer {
+  padding: 16px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: var(--text-dim);
+  background: var(--dark);
+}
+
+/* ─── Diagrams ───────────────────────────────── */
+.diagram-section { margin-bottom: 32px; }
+
+.diagram-block {
+  margin-bottom: 24px;
+}
+.diagram-block.half {
+  flex: 1;
+  min-width: 0;
+}
+
+.diagram-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.diagram-label {
+  font-family: var(--font-display);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Mermaid SVG dark-theme overrides */
+.mermaid svg {
+  width: 100%;
+  max-height: 280px;
+  background: transparent !important;
+}
+.mermaid svg .label {
+  color: var(--text) !important;
+  fill: var(--text) !important;
+}

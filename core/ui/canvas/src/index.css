@@ -1,0 +1,247 @@
+/* core/ui/canvas/src/index.css
+ *
+ * PURE shadcn preset b39gyV5NI — verbatim from `npx shadcn@latest
+ * init --preset b39gyV5NI --template vite`. Only additions are:
+ *
+ *   - @source directives (v4 needs to know which files to scan for
+ *     utility classes — Vite plugin auto-detects most but pinning
+ *     the TS/TSX scope is safer)
+ *
+ * `shadcn/tailwind.css` ships the `@custom-variant data-open`,
+ * `data-closed`, `data-active`, `data-horizontal`, etc. definitions
+ * that bridge Base UI's bare `data-*` attributes and Radix's
+ * `data-state="..."` form. Without it, half the primitives'
+ * state-dependent styling silently breaks. Resolved via shadcn
+ * package.json `exports./tailwind.css` under the `style` condition.
+ */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/spline-sans";
+@import "@fontsource-variable/spline-sans-mono";
+
+@source "./**/*.{ts,tsx}";
+@source "../index.html";
+/* Extension UI trees live outside this package (wired in through the
+ * ext seam, src/app/ext/). Scan them for utility classes too — the
+ * glob is generic, so no extension is named and an empty match (no
+ * extensions present) is fine. */
+@source "../../../../extensions/*/ui/canvas";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Legacy --ace-font-* aliases. Unshimmed legacy components in
+ * src/design/components/ still inline `fontFamily: var(--ace-font-sans)`
+ * etc. Pointing all three (sans, serif, mono) at the canonical Raleway
+ * stack ensures Raleway renders everywhere, even on surfaces that
+ * haven't been migrated to Tailwind utilities yet. */
+:root {
+    --ace-font-sans: 'Spline Sans Variable', sans-serif;
+    --ace-font-serif: 'Spline Sans Variable', sans-serif;
+    --ace-font-mono: 'Spline Sans Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Spline Sans Variable', sans-serif;
+    --font-mono: 'Spline Sans Mono Variable', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    /* Landmark semantic-role tokens (engineered-neutral spec).
+     *
+     *   --primary  → CTAs only (buttons that initiate work). Per the
+     *                spec, primary buttons use dark neutral tones
+     *                (midnight #292D3A), NOT brand green. Green is brand
+     *                identity, not the CTA color.
+     *   --brand    → brand green #01A982. Used SPARINGLY for brand-
+     *                identity moments (logo accents, key eyebrow, the
+     *                rare brand-saturated emphasis).
+     *   --live     → in-motion signal (streaming pulse, partner-warm
+     *                indicator). Shares hue with --brand intentionally
+     *                — motion is alive, alive is brand.
+     *
+     * Selected/active state is NOT a token — it's a structural treatment
+     * (ring-2 + shadow + bg-foreground at low opacity). Visual weight,
+     * not a new hue.
+     *
+     * Decorative palette (Jade/Mint/Cyan/Blue/Purple) — separate bucket,
+     * data-viz only, never for interactive state. See chart-1..5 below. */
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
+    /* State-status tokens — distinct from the decorative chart palette.
+     * STATE answers "is this good / watch / bad" (success/warning/
+     * destructive). DATA VIZ answers "which category is this"
+     * (chart-1..5 = decorative). Never cross them: a warning is
+     * amber, a 4th chart series is Blue. */
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    /* --anchor → the dark editorial anchor card (hero quote blocks,
+     * ready-score heroes, "what the product delivers" cards). Stays DARK in
+     * both themes — unlike --primary which inverts to light in dark
+     * mode. Midnight in light, lifted-charcoal in dark; light text both. */
+    --color-anchor: var(--anchor);
+    --color-anchor-foreground: var(--anchor-foreground);
+    --color-live: var(--live);
+    --color-live-foreground: var(--live-foreground);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    /* Landmark — light theme.
+     * Surfaces / text / borders use the cool-grey neutrals ladder
+     * (light cloud → cloud → slate → carbon → midnight). Primary is
+     * midnight, the dark CTA neutral. Brand green carries identity. */
+    --background: #FFFFFF;                       /* paper white */
+    --foreground: #292D3A;                       /* midnight */
+    --card: #FFFFFF;
+    --card-foreground: #292D3A;
+    --popover: #FFFFFF;
+    --popover-foreground: #292D3A;
+    --primary: #292D3A;                          /* midnight — CTAs */
+    --primary-foreground: #FFFFFF;
+    --secondary: #F7F7F7;                        /* light cloud */
+    --secondary-foreground: #292D3A;
+    --muted: #F7F7F7;                            /* light cloud */
+    --muted-foreground: #535C66;                 /* carbon */
+    --accent: #F7F7F7;
+    --accent-foreground: #292D3A;
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: #E6E8E9;                           /* cloud */
+    --input: #E6E8E9;
+    --ring: #7D8A92;                             /* light carbon */
+    /* Decorative palette — secondary colors from the brand
+     * guide. NEVER used for interactive state. Reserved for data viz
+     * + dynamic-element graphic motifs. Mapped onto chart-1..5 so
+     * existing chart consumers light up brand-aligned automatically. */
+    --chart-1: #05CC93;                          /* jade green */
+    --chart-2: #00E0AF;                          /* mint green */
+    --chart-3: #62E5F6;                          /* cyan */
+    --chart-4: #0070F8;                          /* blue */
+    --chart-5: #7764FC;                          /* purple */
+    /* Semantic role tokens — see @theme comment above for the contract. */
+    --brand: #01A982;                            /* brand green — identity */
+    --brand-foreground: #FFFFFF;
+    --live: #01A982;                             /* in-motion = brand green */
+    --live-foreground: #FFFFFF;
+    --success: #01A982;                          /* good = brand green */
+    --success-foreground: #FFFFFF;
+    --warning: oklch(0.74 0.15 78);              /* watch = amber (state, NOT chart-3 cyan) */
+    --warning-foreground: oklch(0.205 0 0);
+    /* --anchor → the marketing-hero surface. NOT graphite — hero cards
+     * are light. A pale green wash so heroes read as branded + crisp
+     * on white, with dark Midnight text. Green is the signature; the
+     * hero is where it gets a soft full-card presence. */
+    --anchor: oklch(0.965 0.028 165);            /* pale green wash */
+    --anchor-foreground: #292D3A;                /* Midnight text */
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.511 0.262 276.966);
+    --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+    /* Landmark — dark theme. Background = charcoal, surface cards
+     * use dark carbon, text + foreground use light cloud / cloud.
+     * Per the spec, dark-mode primary is also dark — but for visibility
+     * on charcoal we lift it slightly to carbon. */
+    --background: #111212;                       /* charcoal */
+    --foreground: #F7F7F7;                       /* light cloud */
+    --card: #3E4550;                             /* dark carbon */
+    --card-foreground: #F7F7F7;
+    --popover: #3E4550;
+    --popover-foreground: #F7F7F7;
+    --primary: #F7F7F7;                          /* light CTA on dark bg */
+    --primary-foreground: #111212;
+    --secondary: #3E4550;
+    --secondary-foreground: #F7F7F7;
+    --muted: #3E4550;                            /* dark carbon */
+    --muted-foreground: #B1B9BE;                 /* slate */
+    --accent: #3E4550;
+    --accent-foreground: #F7F7F7;
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: #535C66;                           /* carbon */
+    --input: #535C66;
+    --ring: #7D8A92;                             /* light carbon */
+    --chart-1: #05CC93;
+    --chart-2: #00E0AF;
+    --chart-3: #62E5F6;
+    --chart-4: #0070F8;
+    --chart-5: #7764FC;
+    /* Dark-mode brand + live — same hue, slightly lifted for contrast on
+     * charcoal background. */
+    --brand: #05CC93;                            /* jade green (brighter in dark) */
+    --brand-foreground: #111212;
+    --live: #05CC93;
+    --live-foreground: #111212;
+    --success: #05CC93;
+    --success-foreground: #111212;
+    --warning: oklch(0.78 0.15 78);
+    --warning-foreground: oklch(0.205 0 0);
+    /* Dark mode: a green-tinted dark surface (not flat carbon) so the
+     * hero still reads as branded against the Charcoal page. */
+    --anchor: oklch(0.30 0.03 165);              /* green-tinted dark carbon */
+    --anchor-foreground: #F7F7F7;
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.585 0.233 277.117);
+    --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+    html {
+        @apply font-sans;
+    }
+}

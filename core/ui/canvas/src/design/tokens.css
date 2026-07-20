@@ -1,0 +1,645 @@
+/* core/ui/canvas/src/design/tokens.css
+ *
+ * The ACE design system — canonical token sheet.
+ *
+ * Visual direction: ENGINEERED LIGHT. Bright neutral canvas, single
+ * electric-blue accent, hairline-shadow-as-border for elevation, 8px
+ * engineered buttons (not pills), 12px cards. The vocabulary of Vercel +
+ * v0 + OpenAI Devs — a working surface that instills trust through
+ * clarity, not warmth. Whiteboard, not parchment.
+ *
+ * See docs/design-system.md for the principles and layer model.
+ * Every UI component composes from these tokens. No inline color/font/
+ * spacing in component code; if a value isn't expressible in tokens, the
+ * design system gets a new token first.
+ *
+ * Layer model:
+ *   Layer 0 — Foundations (font stacks, base unit, radius scale)
+ *   Layer 1 — Primitive scales (color/spacing/text/leading/tracking/motion)
+ *   Layer 2 — Role tokens (surface, ink, line, shadow — what something IS)
+ *   Layer 3a — Semantic tokens (voice-accent, north-star, …)
+ *   Layer 3b — Component tokens (card, button, chip, …)
+ *
+ * Themes (extension-contributed) override Layer 3a/3b tokens.
+ * The base IS engineered-light; there is no separate light theme to
+ * switch into.
+ *
+ * Legacy brand-prefixed aliases live in the owning extension's CSS
+ * (loaded through the ext seam). New code references --ace-* only.
+ */
+
+/* ============================================================================
+ * Layer 0 — Foundations
+ * ============================================================================ */
+
+:root {
+  /* Single font family across the system. Engineered-light direction
+     chose to collapse the prior sans/serif/mono triple into one stack
+     — simpler, more consistent, no mixed-aesthetic visual jumps
+     between body prose, UI chrome, and data readouts.
+     The token names (font-sans / font-serif / font-mono) remain so
+     existing components keep resolving, but all three point at the
+     same family. Tabular numerals for data still happen at the
+     component level via `font-variant-numeric: tabular-nums`. */
+  /* PRODUCT design system — Inter throughout (Cycle/Krisp pattern).
+   * Geometric, highly legible, no headline drama. */
+  --ace-font-sans:  "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                    system-ui, "Segoe UI", Roboto, sans-serif;
+  --ace-font-serif: var(--ace-font-sans);
+  --ace-font-mono:  ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+
+  /* 4-pixel grid. Every spacing token is a multiple. */
+  --ace-base-unit: 4px;
+
+  /* Radius scale — engineered-light vocabulary.
+     Buttons land on 8px (engineered, not pill); cards land on 12px;
+     chips/tags/status badges use 9999px true pill. Anything else
+     opens a new component token, not a new radius. */
+  --ace-radius-sm:    4px;   /* status badges, inline pips */
+  --ace-radius-base:  8px;   /* buttons, inputs */
+  --ace-radius-md:    10px;  /* tooltips, menus */
+  --ace-radius-lg:    12px;  /* cards, popovers, dialogs, sections */
+  --ace-radius-pill:  9999px; /* chips, tags, full pills */
+
+  /* ============================================================================
+   * Layer 1 — Primitive scales
+   * ============================================================================ */
+
+  /* Warm neutral scale. Default surface family — reads as candlelit / lived-in. */
+  --ace-warm-50:   #fbf9f4;
+  --ace-warm-100:  #f4efe5;
+  --ace-warm-150:  #ede6d3;
+  --ace-warm-200:  #e2d8be;
+  --ace-warm-300:  #c9bca0;
+  --ace-warm-400:  #a99c80;
+  --ace-warm-500:  #8a7e64;
+  --ace-warm-600:  #645a47;
+  --ace-warm-700:  #443e31;
+  --ace-warm-800:  #2b2820;
+  --ace-warm-850:  #1f1d17;
+  --ace-warm-900:  #16140f;
+  --ace-warm-950:  #0f0e0a;
+
+  /* Cool neutral scale. Used sparingly, mostly for inks where warm tones
+     would read as "dirty" — e.g. monospace numerals. */
+  --ace-cool-50:   #fafafa;
+  --ace-cool-100:  #f1f1f2;
+  --ace-cool-200:  #e2e2e4;
+  --ace-cool-300:  #c5c5c9;
+  --ace-cool-400:  #9a9aa0;
+  --ace-cool-500:  #6f6f76;
+  --ace-cool-600:  #4a4a50;
+  --ace-cool-700:  #2f2f33;
+  --ace-cool-800:  #1d1d20;
+  --ace-cool-850:  #17171a;
+  --ace-cool-900:  #111114;
+  /* The dark floor. Not #000: pure black against saturated chart hues produces a
+     halation shimmer at the edges, and you sit in front of this for six hours. A
+     cool near-black keeps the greens and reds sitting ON the surface instead of
+     vibrating against it. */
+  --ace-cool-950:  #0a0a0c;
+
+  /* Semantic colors — limited use only. Success on calibration good pills,
+     warning on sentinel severity / calibration poor pills, danger on hard
+     failures. Not for generic "primary brand color" — the accent in Layer 2
+     is the only chromatic chrome. */
+  --ace-success:      #16A34A;
+  --ace-success-soft: rgba(22, 163, 74, 0.10);
+  --ace-warning:      #D97706;
+  --ace-warning-soft: rgba(217, 119, 6, 0.10);
+  --ace-danger:       #DC2626;
+  --ace-danger-soft:  rgba(220, 38, 38, 0.10);
+
+  /* Ink for text sitting ON a solid semantic fill — the loudest badge we have, reserved
+     for an alarm that must be read before anything else on the surface.
+
+     It is NOT theme-flipped, and that is the point. --ace-success/warning/danger are fixed
+     hues in both themes, so a badge filled with one is a dark chip in light mode AND in
+     dark mode. Reaching for --ace-surface-raised here (the instinct, since it is "the white
+     one") inverts in dark mode and hands you black text on a red fill. The contrast pair is
+     with the FILL, not with the page. */
+  --ace-ink-on-solid: #FFFFFF;
+
+  /* Severity-tone middle stop — used between success and warning for
+     medium severity (calibration mid-range, sentinel medium finding,
+     confidence in the 0.6–0.8 band). Ochre tone — distinct from
+     warning's red-orange so a medium reads as "noteworthy" not "alert".
+     Darkened from #C49348 to #B07735 so it hits WCAG 1.4.11 UI-component
+     contrast (3.0:1) on the engineered-light canvas. */
+  --ace-tone-medium:      #B07735;
+  --ace-tone-medium-soft: rgba(176, 119, 53, 0.10);
+
+  /* ---------------------------------------------------------------------
+   * Multi-hue color scales — Layer 1 primitives for decorative usage.
+   *
+   * Eight hues × six weights (50/100/300/500/700/900). Values are
+   * Tailwind-aligned for recognizability + WCAG-tested defaults; ACE
+   * doesn't depend on Tailwind, just the palette values.
+   *
+   * Reading direction by weight:
+   *   50  — barely-there tint (page bg accents)
+   *   100 — pill backgrounds, soft tints
+   *   300 — hover states, mid-soft borders
+   *   500 — default chip / pill foreground if used on -50/-100
+   *   700 — text on light surfaces (-100 bg), borders
+   *   900 — emphatic foreground, headings on light surfaces
+   *
+   * Consumers should usually pick a hue at -100 (background) + -700
+   * (text) for soft pill / chip patterns. This pair hits WCAG AA
+   * contrast across all 8 hues.
+   *
+   * NOT theme-overridable. Themes shift voice + brand, not the
+   * decorative palette — categorization, charts, and tag colors
+   * stay visually consistent across themes.
+   * --------------------------------------------------------------------- */
+
+  /* blue — info / improvement / navigation */
+  --ace-blue-50:    #EFF6FF;
+  --ace-blue-100:   #DBEAFE;
+  --ace-blue-300:   #93C5FD;
+  --ace-blue-500:   #3B82F6;
+  --ace-blue-700:   #1D4ED8;
+  --ace-blue-900:   #1E3A8A;
+
+  /* amber — fix / caution / warm-warning */
+  --ace-amber-50:   #FFFBEB;
+  --ace-amber-100:  #FEF3C7;
+  --ace-amber-300:  #FCD34D;
+  --ace-amber-500:  #F59E0B;
+  --ace-amber-700:  #B45309;
+  --ace-amber-900:  #78350F;
+
+  /* red — destructive / critical / breaking */
+  --ace-red-50:     #FEF2F2;
+  --ace-red-100:    #FEE2E2;
+  --ace-red-300:    #FCA5A5;
+  --ace-red-500:    #EF4444;
+  --ace-red-700:    #B91C1C;
+  --ace-red-900:    #7F1D1D;
+
+  /* green — success / shipped / passing */
+  --ace-green-50:   #F0FDF4;
+  --ace-green-100:  #DCFCE7;
+  --ace-green-300:  #86EFAC;
+  --ace-green-500:  #22C55E;
+  --ace-green-700:  #15803D;
+  --ace-green-900:  #14532D;
+
+  /* purple — experimental / preview / draft */
+  --ace-purple-50:  #FAF5FF;
+  --ace-purple-100: #F3E8FF;
+  --ace-purple-300: #D8B4FE;
+  --ace-purple-500: #A855F7;
+  --ace-purple-700: #7E22CE;
+  --ace-purple-900: #581C87;
+
+  /* teal — calibration / measurement / data */
+  --ace-teal-50:    #F0FDFA;
+  --ace-teal-100:   #CCFBF1;
+  --ace-teal-300:   #5EEAD4;
+  --ace-teal-500:   #14B8A6;
+  --ace-teal-700:   #0F766E;
+  --ace-teal-900:   #134E4A;
+
+  /* pink — persona / audience / brand-marketing accent */
+  --ace-pink-50:    #FDF2F8;
+  --ace-pink-100:   #FCE7F3;
+  --ace-pink-300:   #F9A8D4;
+  --ace-pink-500:   #EC4899;
+  --ace-pink-700:   #BE185D;
+  --ace-pink-900:   #831843;
+
+  /* slate — neutral chip / muted decorative (distinct from cool / warm
+     which are the surface ramps; slate is a decorative neutral for
+     pill foregrounds on light pill backgrounds) */
+  --ace-slate-50:   #F8FAFC;
+  --ace-slate-100:  #F1F5F9;
+  --ace-slate-300:  #CBD5E1;
+  --ace-slate-500:  #64748B;
+  --ace-slate-700:  #334155;
+  --ace-slate-900:  #0F172A;
+
+  /* Spacing — 4px grid. Reach for these, not raw px. */
+  --ace-space-0:  0;
+  --ace-space-1:  4px;
+  --ace-space-2:  8px;
+  --ace-space-3:  12px;
+  --ace-space-4:  16px;
+  --ace-space-5:  20px;
+  --ace-space-6:  24px;
+  --ace-space-8:  32px;
+  --ace-space-10: 40px;
+  --ace-space-12: 48px;
+  --ace-space-16: 64px;
+
+  /* Font sizes — editorial scale. Smaller defaults than tailwind because
+     we want type-density typical of editorial reading. */
+  --ace-text-xs:  10px;
+  --ace-text-sm:  11px;
+  --ace-text-base: 12px;
+  --ace-text-md:  13px;
+  --ace-text-lg:  15px;
+  --ace-text-prose: 17px;   /* long-form serif reading — the team's read, the call */
+  --ace-text-xl:  17px;
+  --ace-text-2xl: 22px;
+  --ace-text-3xl: 28px;
+  --ace-text-4xl: 36px;
+  --ace-text-5xl: 48px;   /* ScoreHero md→lg pivot */
+  --ace-text-6xl: 60px;   /* ScoreHero lg — foresight/calibration hero scale */
+  --ace-leading-prose: 1.6;  /* generous body-leading for serif prose */
+
+  --ace-leading-tight:   1.2;
+  --ace-leading-snug:    1.35;
+  --ace-leading-normal:  1.5;
+  --ace-leading-relaxed: 1.7;
+
+  --ace-track-tight:  -0.01em;
+  --ace-track-normal: 0;
+  --ace-track-wide:   0.06em;
+  --ace-track-wider:  0.12em;
+  --ace-track-widest: 0.16em;
+
+  --ace-weight-regular: 400;
+  --ace-weight-medium:  500;
+  --ace-weight-semibold: 600;
+  --ace-weight-bold:    700;
+
+  /* ============================================================================
+   * Layer 2 — Role tokens (engineered-light base)
+   * ============================================================================
+   * These name what something IS, not what it looks like. Components
+   * reference these exclusively. Engineered-light IS the base — there is
+   * no dark default to override from.
+   *
+   * Color values draw from the Vercel/v0/OpenAI-Devs/Amie consensus:
+   *   canvas #FAFAFA, raised #FFFFFF, line #EAEAEA, ink #171717
+   * Single chromatic accent: Vercel electric blue #0070F3.
+   */
+
+  --ace-surface-canvas:   #FAFAFA;   /* page / canvas ground */
+  --ace-surface-raised:   #FFFFFF;   /* cards, popovers, the lifted surface */
+  --ace-surface-recessed: #F4F4F4;   /* highlight bands, captured-this-turn chips */
+  --ace-surface-tint:     #E8F2FF;   /* accent-tinted background (convergence beat, banner) */
+
+  /* Legacy card surface aliases — keep so existing components don't break.
+     Map them all to the new role tokens. */
+  --ace-surface-card:        var(--ace-surface-raised);
+  --ace-surface-card-strong: var(--ace-surface-recessed);
+  --ace-surface-card-dim:    var(--ace-surface-recessed);
+  --ace-surface-elevated:    var(--ace-surface-raised);
+
+  --ace-ink:        #171717;   /* primary text, headings */
+  --ace-ink-strong: #0A0A0A;   /* display, lock-in verdicts */
+  --ace-ink-soft:   #525252;   /* secondary body, descriptions */
+  --ace-ink-muted:  #737373;   /* tertiary, labels, captions */
+  --ace-ink-faint:  #A3A3A3;   /* placeholder, disabled icons */
+
+  --ace-line:        #EAEAEA;   /* default divider, card hairline */
+  --ace-line-soft:   #F0F0F0;   /* barely-there sub-divider */
+  --ace-line-strong: #D4D4D4;   /* visible divider (rare) */
+
+  /* The shadow stack — the engineered-light signature.
+     `shadow-card` = 1px hairline ring + a single soft drop. Reads as
+     "floating slightly," not "contained in a box."
+     `shadow-card-hover` = ring strengthens, drop grows, extra blur layer
+     for the lift. The Vercel-interactive-elements pattern. */
+  --ace-shadow-sm:        0 1px 2px rgba(15, 17, 21, 0.04);
+  --ace-shadow-card:      0 0 0 1px rgba(0, 0, 0, 0.06),
+                          0 1px 2px -1px rgba(0, 0, 0, 0.08);
+  --ace-shadow-card-hover: 0 0 0 1px rgba(0, 0, 0, 0.08),
+                           0 2px 4px -1px rgba(0, 0, 0, 0.08),
+                           0 8px 16px -8px rgba(0, 0, 0, 0.10);
+  --ace-shadow-popover:   0 0 0 1px rgba(0, 0, 0, 0.08),
+                          0 10px 24px -4px rgba(0, 0, 0, 0.16);
+  --ace-shadow-banner:    0 1px 0 rgba(0, 0, 0, 0.04);
+  /* Legacy shadow aliases — map to the new stack. */
+  --ace-shadow-md:        var(--ace-shadow-card);
+  --ace-shadow-lg:        var(--ace-shadow-popover);
+  --ace-shadow-aged:      var(--ace-shadow-sm);
+
+  /* Focus ring — 3px accent-soft halo + 1px accent core. Both layers
+     in one box-shadow declaration so it composes with card shadows. */
+  --ace-focus-ring:       0 0 0 3px var(--ace-accent-soft);
+  --ace-focus-ring-strong: 0 0 0 1px var(--ace-accent), 0 0 0 4px var(--ace-accent-soft);
+
+  /* Single chromatic accent — Vercel electric blue. Used for CTAs,
+     active states, focus rings, the "next voice" arrow, the
+     reconciliation banner edge, the convergence beat tint. Nowhere else. */
+  --ace-accent:        #0070F3;
+  --ace-accent-hover:  #0061D5;
+  --ace-accent-soft:   #E8F2FF;
+  --ace-accent-tint:   rgba(0, 112, 243, 0.10);
+  --ace-accent-ink:    #FFFFFF;
+
+  /* ============================================================================
+   * Layer 3a — Semantic tokens (cross-product)
+   * ============================================================================
+   * Specific to product patterns but not scoped to a single component.
+   * The canvas itself, the deliberation surface, the convergence beat,
+   * etc. Themes (extension-contributed) override these to retint cross-surface
+   * affordances.
+   */
+
+  /* North star — the vision anchor band. Uses the accent-soft tint so
+     it reads as part of the same trust system as CTAs and focus rings.
+     A branded theme overrides --ace-voice-accent to retint everything in
+     one move. */
+  --ace-north-star-bg:    var(--ace-accent-soft);
+  --ace-north-star-line:  rgba(0, 112, 243, 0.24);
+  --ace-north-star-label: var(--ace-accent);
+
+  /* Synthesis surface — the convergence-beat lock-in card. Same accent
+     tint as the north star to signal "this is the system's verdict
+     about itself." */
+  --ace-synthesis-paper:   var(--ace-surface-tint);
+  --ace-synthesis-divider: rgba(0, 112, 243, 0.18);
+
+  /* Sketch-chalk — the inked annotation strokes inside cards
+     (calibration sparkline, contribution arrows). Dark-ink on light
+     canvas now, not chalk-on-parchment. */
+  --ace-sketch-chalk-dim:    rgba(15, 17, 21, 0.30);
+  --ace-sketch-chalk-bright: rgba(15, 17, 21, 0.55);
+
+  --ace-discipline-accent-fallback: var(--ace-ink-muted);
+
+  /* Voice accent — the color that names ACE's voice in the room.
+     Engineered-light base = Vercel electric blue. Components rendering
+     ACE's chrome (AceCard, ComposingIndicator, VisionAnchor, ShellNav
+     mark, Briefing tile) consume this token rather than hardcoding the
+     hex — so a branded extension theme can retint the voice globally
+     without touching component code.
+
+     Extension themes override this to their brand accent. The base
+     theme leaves it default. */
+  --ace-voice-accent:        var(--ace-accent);
+  --ace-voice-accent-hover:  var(--ace-accent-hover);
+  --ace-voice-accent-soft:   var(--ace-accent-soft);
+  --ace-voice-accent-strong: rgba(0, 112, 243, 0.50);
+  --ace-voice-accent-ink:    var(--ace-accent-ink);
+
+  /* Semantic status — used sparingly on sentinel pips, calibration
+     points sub-baseline, briefing severity. Not for CTAs. */
+  --ace-info:    var(--ace-accent);
+  --ace-info-soft: var(--ace-accent-soft);
+
+  /* ============================================================================
+   * Layer 3b — Component tokens (scoped per primitive)
+   * ============================================================================
+   * Each design-system primitive declares its own tokens here, defaulting
+   * from Layer 2 (role) tokens. Components consume these names directly
+   * (`background: var(--ace-card-bg)`, not `background: var(--ace-surface-card)`).
+   *
+   * This is the theme-override surface. Extension themes override
+   * specific component tokens (e.g. `--ace-card-radius: 4px`) without
+   * touching the underlying scales.
+   */
+
+  /* Card — the engineered-light signature. No explicit border;
+     hairline-shadow technique creates the edge. Hover lifts via the
+     stronger shadow + a 1px translateY (applied in component code). */
+  --ace-card-bg:             var(--ace-surface-raised);
+  --ace-card-bg-strong:      var(--ace-surface-recessed);
+  --ace-card-bg-dim:         var(--ace-surface-recessed);
+  --ace-card-bg-subtle:      var(--ace-surface-canvas);
+  --ace-card-bg-accent:      var(--ace-surface-tint);   /* convergence beat */
+  --ace-card-ink:            var(--ace-ink);
+  --ace-card-border:         none;                       /* shadow IS the border */
+  --ace-card-radius:         var(--ace-radius-lg);       /* 12px */
+  --ace-card-shadow:         var(--ace-shadow-card);
+  --ace-card-shadow-hover:   var(--ace-shadow-card-hover);
+  --ace-card-shadow-elevated: var(--ace-shadow-popover);
+  --ace-card-padding-none:   0;
+  --ace-card-padding-sm:     var(--ace-space-3);
+  --ace-card-padding-md:     var(--ace-space-4);
+  --ace-card-padding-lg:     var(--ace-space-6);
+
+  /* Chip — true pill for status, tags, recipe/lens roster chips. */
+  --ace-chip-radius:    var(--ace-radius-pill);
+  --ace-chip-padding:   3px var(--ace-space-2);
+  --ace-chip-text-size: var(--ace-text-sm);
+  --ace-chip-gap:       var(--ace-space-2);
+
+  /* Button — engineered 8px corners, dark filled primary, hairline
+     secondary, ghost for nav. Hover does NOT pillify or color-shift;
+     it darkens/lightens via the accent-hover variant. */
+  --ace-button-bg-primary:        var(--ace-ink);
+  --ace-button-bg-primary-hover:  var(--ace-ink-strong);
+  --ace-button-ink-primary:       var(--ace-surface-raised);
+  --ace-button-bg-accent:         var(--ace-accent);
+  --ace-button-bg-accent-hover:   var(--ace-accent-hover);
+  --ace-button-ink-accent:        var(--ace-accent-ink);
+  --ace-button-bg-secondary:      var(--ace-surface-raised);
+  --ace-button-ink-secondary:     var(--ace-ink);
+  --ace-button-border-secondary:  1px solid var(--ace-line);
+  --ace-button-bg-secondary-hover: var(--ace-surface-recessed);
+  --ace-button-bg-ghost:          transparent;
+  --ace-button-ink-ghost:         var(--ace-ink-soft);
+  --ace-button-ink-ghost-hover:   var(--ace-ink);
+  --ace-button-radius:            var(--ace-radius-base);   /* 8px */
+  --ace-button-padding-sm:        var(--ace-space-1) var(--ace-space-3);
+  --ace-button-padding-md:        var(--ace-space-2) var(--ace-space-4);
+  --ace-button-padding-lg:        var(--ace-space-3) var(--ace-space-5);
+
+  /* Section */
+  --ace-section-bg:      var(--ace-surface-raised);
+  --ace-section-border:  none;
+  --ace-section-radius:  var(--ace-radius-lg);
+  --ace-section-padding: var(--ace-space-5);
+  --ace-section-shadow:  var(--ace-shadow-card);
+
+  /* Decision / prediction / capture (product-surface cards) */
+  --ace-decision-zone-bg:   var(--ace-surface-tint);    /* lock-in moment */
+  --ace-prediction-tile-bg: var(--ace-surface-raised);
+  --ace-capture-summary-bg: var(--ace-surface-recessed);
+
+  /* Tooltip — small, decisive, dark-on-light for legibility against
+     the bright canvas. Mono ink, no chrome. */
+  --ace-tooltip-bg:      var(--ace-ink);
+  --ace-tooltip-ink:     var(--ace-surface-raised);
+  --ace-tooltip-border:  none;
+  --ace-tooltip-shadow:  var(--ace-shadow-popover);
+  --ace-tooltip-radius:  var(--ace-radius-base);
+  --ace-tooltip-padding: var(--ace-space-1) var(--ace-space-3);
+
+  /* Popover */
+  --ace-popover-bg:        var(--ace-surface-raised);
+  --ace-popover-border:    none;
+  --ace-popover-shadow:    var(--ace-shadow-popover);
+  --ace-popover-radius:    var(--ace-radius-lg);
+  --ace-popover-padding:   var(--ace-space-4);
+  --ace-popover-min-width: 240px;
+
+  /* Dialog */
+  --ace-dialog-bg:         var(--ace-surface-raised);
+  --ace-dialog-border:     none;
+  --ace-dialog-shadow:     var(--ace-shadow-popover);
+  --ace-dialog-radius:     var(--ace-radius-lg);
+  --ace-dialog-padding:    var(--ace-space-6);
+  --ace-dialog-overlay-bg: rgba(15, 17, 21, 0.40);
+
+  /* Menu (dropdown) */
+  --ace-menu-bg:              var(--ace-surface-raised);
+  --ace-menu-border:          none;
+  --ace-menu-shadow:          var(--ace-shadow-popover);
+  --ace-menu-radius:          var(--ace-radius-md);
+  --ace-menu-padding:         var(--ace-space-1);
+  --ace-menu-item-padding:    var(--ace-space-2) var(--ace-space-3);
+  --ace-menu-item-radius:     var(--ace-radius-base);
+  --ace-menu-item-hover-bg:   var(--ace-surface-recessed);
+
+  /* Input — used by closing-ask, footer "ask the team", any future text
+     field. 8px radius, hairline border in rest, accent border + halo on
+     focus. The Vercel/v0/Amie pattern. */
+  --ace-input-bg:           var(--ace-surface-raised);
+  --ace-input-ink:          var(--ace-ink);
+  --ace-input-placeholder:  var(--ace-ink-muted);
+  --ace-input-border:       1px solid var(--ace-line);
+  --ace-input-border-hover: 1px solid var(--ace-line-strong);
+  --ace-input-border-focus: 1px solid var(--ace-accent);
+  --ace-input-radius:       var(--ace-radius-base);
+  --ace-input-padding:      var(--ace-space-2) var(--ace-space-3);
+  --ace-input-shadow-focus: var(--ace-focus-ring);
+
+  /* North-star band */
+  --ace-north-star-padding: var(--ace-space-2) var(--ace-space-8);
+
+  /* Status badge */
+  --ace-status-badge-radius: var(--ace-radius-pill);
+  --ace-status-badge-padding: 2px var(--ace-space-2);
+
+  /* Motion — engineered-light cadence.
+     - micro: hover state colors/borders, 120ms — almost instant feedback
+     - snap:  focus rings, small reveals, 90ms — instant
+     - lift:  card hover, popover open, 180ms — felt as deliberate
+     - flow:  contribution arrival, brief-me-back lede, 420ms — staged
+     - land:  convergence beat lock-in, 680ms — theatrical, once
+     - pulse: sentinel/calibration loop, 2400ms — ambient breathing
+     All curves are smooth — no spring/bounce. */
+  --ace-motion-snap:  90ms;
+  --ace-motion-micro: 120ms;
+  --ace-motion-lift:  180ms;
+  --ace-motion-base:  220ms;   /* legacy alias = lift */
+  --ace-motion-flow:  420ms;
+  --ace-motion-land:  680ms;
+  --ace-motion-pulse: 2400ms;
+  --ace-ease-out:     cubic-bezier(0.2, 0, 0, 1);
+  --ace-ease-organic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ace-ease-stage:   cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ace-ease-snap:    cubic-bezier(0.2, 0.8, 0.2, 1);   /* legacy alias */
+
+  /* ============================================================================
+     LAYER 4 — VISUALIZATION HUES
+     ----------------------------------------------------------------------------
+     Chart series colors, stored as SPACE-SEPARATED RGB CHANNELS, not hex.
+
+     Why channels: a data chart does color MATH. Intensity ramps (σ-tiers, OI
+     magnitude, alpha by conviction) multiply a hue by a computed opacity, and you
+     cannot multiply `var(--ace-chart-call)` if it resolves to "#4ADE80". Channels
+     compose in CSS — rgb(var(--ace-chart-call) / 0.4) — AND can be read as numbers
+     by the SVG renderer, which is the escape hatch tokens.ts already sanctions for
+     "SVG fill, JS computed colors".
+
+     design/viz/chartTokens.ts mirrors these as numeric triplets and
+     __enforcement__/chartTokensParity.test.ts fails the day the two drift.
+
+     These are DIRECTIONAL/DOMAIN hues (call vs put, up vs down, one Greek vs
+     another) — deliberately NOT the discipline palette and NOT semantic
+     success/danger. A rising market is not "success".
+     ============================================================================ */
+  --ace-chart-call:   74 222 128;   /* call side — green */
+  --ace-chart-put:    248 113 113;  /* put side — red */
+  --ace-chart-up:     16 185 129;   /* price up */
+  --ace-chart-down:   239 68 68;    /* price down */
+  --ace-chart-pin:    251 191 36;   /* pin regime — amber (the "master switch") */
+  --ace-chart-accel:  56 189 248;   /* accel regime — sky */
+  --ace-chart-gamma:  96 165 250;   /* greek: gamma */
+  --ace-chart-delta:  192 132 252;  /* greek: delta */
+  --ace-chart-charm:  244 114 182;  /* greek: charm */
+  --ace-chart-vanna:  52 211 153;   /* greek: vanna */
+
+  /* Horizon lenses — which time-window's flip zone price is respecting. Distinct
+     hues so they are tellable apart live, at a glance, under load. */
+  --ace-chart-short-term: 251 191 36;   /* overnight Δ — amber */
+  --ace-chart-roll3:      45 212 191;   /* next-3 rolling LIS — teal */
+  --ace-chart-roll5:      34 211 238;   /* next-5 rolling LIS — cyan */
+
+  /* Corridor diff — by the SIDE the net moved (same convention as call/put). */
+  --ace-chart-diff-call:  34 197 94;
+  --ace-chart-diff-put:   248 113 113;
+
+  /* Tape lens — the day's options tape read against the standing book. */
+  --ace-chart-tape:       167 139 250;  /* violet — the tape's slot in the LIS vocabulary */
+
+  /* Tints — the same domain hue at lower saturation, for fills UNDER a stroke of
+     the parent hue. A tint is not a separate meaning; it is the same meaning,
+     quieter. */
+  /* Moneyness encodes as LIGHTNESS on the same hue: DEEP = OTM (speculative fuel,
+     the strong read), LIGHT = ITM (winners/ballast). The deep call green is a
+     SEPARATE value from --ace-chart-call — collapsing them destroys the OTM/ITM
+     read on the call side while the put side keeps it, which is worse than losing
+     both (asymmetric, and invisible). */
+  --ace-chart-call-deep:  34 197 94;
+  --ace-chart-call-tint:  134 239 172;
+  --ace-chart-put-tint:   252 165 165;
+  --ace-chart-delta-tint: 216 180 254;
+
+  /* Gold family — wind, charm pressure, and the warnings that ride them. Distinct
+     from --ace-warning: this is a market force, not a UI state. */
+  --ace-chart-gold:        234 179 8;
+  --ace-chart-gold-bright: 250 204 21;
+  --ace-chart-gold-deep:   180 140 60;
+  --ace-chart-wind:        255 205 90;
+  --ace-chart-orange:      251 146 60;
+
+  /* Chart-surface neutrals. The plot area is its own visual world — axis ink and
+     label chips must read against candles and density bands, not against the page. */
+  --ace-chart-ink:        226 232 240;
+  --ace-chart-ink-dim:    160 160 170;
+  --ace-chart-ink-bright: 245 248 252;
+  --ace-chart-chip-bg:    20 20 20;    /* label chip — floats over the plot */
+  --ace-chart-scrim:      0 0 0;       /* text shadow, so labels survive any backdrop */
+  --ace-chart-highlight:  255 255 255;
+
+  /* Cascade — a razor cascade is the tight, dangerous one; amber is the ordinary. */
+  --ace-chart-razor:      251 146 60;  /* orange (same channels as --ace-chart-orange) */
+  --ace-chart-cascade:    251 191 36;  /* amber (same channels as --ace-chart-pin) */
+
+  /* Linreg fans — call/put centroid regressions, lighter than the parent hue so a
+     fan never competes with the wall it is drawn beside. */
+  --ace-chart-linreg-call: 110 231 183;
+  --ace-chart-linreg-put:  252 165 165;
+
+  /* Chart type: tabular numerals are non-negotiable on a price axis — proportional
+     digits make columns of numbers jitter as they tick. */
+  --ace-chart-font-numeric: var(--ace-font-mono);
+}
+
+/* Legacy brand-prefixed token aliases moved to the owning extension's
+ * CSS (loaded through the ext seam when that extension is present). The
+ * kernel defines --ace-* tokens only. */
+
+/* ============================================================================
+ * Universal motion keyframes
+ * ============================================================================
+ * Reusable @keyframes that any component can consume via `animation:`.
+ * Component-specific motion stays scoped to the component; only motion
+ * that's genuinely cross-cutting lives here.
+ */
+
+@keyframes ace-caret-blink {
+  /* Used by ProactiveLine typewriter mode and any future inline-caret
+     reveal. `steps(2)` produces the hard on/off blink the static demos
+     established as the partnership-narration cadence. */
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ============================================================================
+ * Theme overrides
+ * ============================================================================
+ * Engineered-light IS the base in :root above. There are no built-in
+ * direction toggles anymore — A/B candidates were collapsed once the
+ * direction locked. Vertical themes (extension-contributed) override Layer 3a
+ * tokens (voice-accent, north-star, synthesis) from their own theme
+ * file under design/themes/. They do not redefine Layer 2 surfaces.
+ * ============================================================================ */

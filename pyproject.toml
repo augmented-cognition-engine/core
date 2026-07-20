@@ -1,0 +1,196 @@
+[project]
+name = "ace-core"
+version = "0.1.0"
+description = "ACE — Augmented Cognition Engine, an open-source reasoning kernel and SDK"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Eamirian" }]
+requires-python = ">=3.12,<3.13"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = [
+    "fastapi>=0.136",  # starlette>=1.0.1 compat (PYSEC-2026-161)
+    "uvicorn[standard]>=0.30",
+    "surrealdb>=1.0,<2.0",
+    "pydantic-settings>=2.0",
+    "PyJWT[crypto]>=2.13",  # PYSEC-2026-175/177/178/179 fixed in 2.13.0
+    "anthropic>=0.40",
+    "httpx>=0.27",
+    "click>=8.0",
+    "rich>=13.0",
+    "apscheduler>=3.11.2",
+    "croniter>=6.2.2",
+    "gitpython>=3.1",
+    "sse-starlette>=2.0",
+    "fastmcp>=2.0",
+    "mcp>=1.28.1",  # CVE-2026-59950 fixed in 1.28.1
+    "slowapi>=0.1.9",
+    "claude-agent-sdk>=0.1.0",
+    "onnxruntime>=1.17.0",
+    "tokenizers>=0.15.0",
+    "watchdog>=4.0.0",
+    "networkx>=3.0",
+    "pyyaml>=6.0",
+    "pydriller>=2.6",
+    "ast-grep-py>=0.42.1",
+    "tree-sitter-language-pack>=1.2.0",
+    "qdrant-client>=1.7",
+    "curl-cffi>=0.7",
+    "lxml>=5.0",
+    "ddgs>=6.0",
+    "msgspec>=0.20.0",
+    "browserforge>=1.2.4",
+    "prometheus-client>=0.20",
+    "prometheus-fastapi-instrumentator>=7.0",
+    "opentelemetry-sdk>=1.20",
+    "opentelemetry-exporter-otlp-proto-grpc>=1.20",
+    "opentelemetry-instrumentation-fastapi>=0.45b0",
+    "opentelemetry-instrumentation-httpx>=0.45b0",
+    "python-docx>=1.1.0",
+    "pycrdt-websocket>=0.16.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/augmented-cognition-engine/core"
+Repository = "https://github.com/augmented-cognition-engine/core"
+Issues = "https://github.com/augmented-cognition-engine/core/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.27",
+]
+discord = [
+    "discord.py>=2.3",
+    "aiohttp>=3.14",  # CVE-2026-34993 / CVE-2026-47265 fixed in 3.14.0
+]
+browser = [
+    "playwright>=1.40",
+    "patchright>=1.40",
+    "scrapling>=0.3",
+    "msgspec>=0.18",
+    "browserforge>=1.0",
+]
+# Optional 1.3B-parameter CodeSage backend. The default ONNX embedder does not
+# need PyTorch; keeping this extra explicit avoids multi-gigabyte CUDA packages
+# in the standard wheel/container install.
+codesage = [
+    "sentence-transformers>=3.0",
+]
+# Optional LLM router extras — NOT part of the default install (the kernel's
+# dependency set must stay lean and pip-audit-clean). Lazy-imported by
+# core/engine/core/llm_litellm.py / llm_anyllm.py; activated only by the
+# explicit LITELLM_MODEL / ANYLLM_MODEL settings.
+litellm = [
+    # SECURITY FLOOR >=1.83.7: the March 2026 PyPI supply-chain compromise of
+    # litellm itself (1.82.7/1.82.8 shipped a credential stealer + RCE) and
+    # CVE-2026-42208 (pre-auth SQLi, CVSS 9.3, exploited in the wild within
+    # 36h of disclosure) are both fixed in 1.83.7 — never resolve below it.
+    "litellm>=1.83.7",
+]
+any-llm = [
+    "any-llm-sdk>=1.17",  # Mozilla AI, Apache-2.0 — license-matched second router
+]
+
+[project.scripts]
+ace = "core.engine.cli.main:cli"
+ace-mcp = "core.engine.mcp.server:main"
+ace-mcp-client = "ace_mcp_client.server:main"
+
+[tool.pytest.ini_options]
+# Only real test trees. Without this, bare `pytest` collects production modules
+# whose names match the test glob (scripts/spec_lib/test_runner.py) and imports
+# them under wrong module names with `core/` prepended to sys.path (no
+# core/__init__.py). Two historical instances of the footgun are fixed:
+# core/engine/intelligence/test_ref_indexer.py and
+# core/engine/verification/checks/test_execution.py were renamed (ref_indexer.py,
+# execution_check.py), and the worst case — core/mcp shadowing the `mcp` SDK —
+# was retired when the thin client was extracted to top-level ace_mcp_client.
+testpaths = ["tests", "extensions"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+markers = [
+    "unit: pure function tests, no mocks or DB",
+    "integration: tests with mocked DB pool",
+    "api: API route tests via httpx ASGI transport",
+    "e2e: end-to-end tests requiring live SurrealDB",
+    "requires_extensions: test depends on built-in extensions being loaded; excluded from the naked-kernel lane",
+]
+
+[tool.uv]
+package = true
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "build_backend"
+backend-path = ["."]
+
+[tool.setuptools.packages.find]
+include = ["ace", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evaluations*"]
+
+[tool.setuptools.package-data]
+"core.schema" = ["*.surql"]
+"core.engine.onboarding" = ["*.json"]
+"core.engine.runtime" = ["*.yml"]
+"core.engine.cognition.recipes" = ["*.yaml"]
+"core.engine.generation" = ["templates/*.j2"]
+"core.engine.reports" = ["templates/*.html", "templates/*.css", "static/*.js"]
+"evaluations" = ["*.md", "fixtures/*.json", "results/*.json", "results/*.md"]
+
+[tool.setuptools.data-files]
+"share/doc/ace" = [
+    "README.md",
+    "ROADMAP.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
+]
+"share/doc/ace/docs" = [
+    "docs/*.md",
+]
+
+# Extensions discovered by core.engine.extensions.load_extensions().
+# Built-in extensions are declared here; external extensions ship their own
+# ace.extensions entry point (see docs/build-your-first-extension.md).
+[project.entry-points."ace.extensions"]
+product = "extensions.reference.extension:ProductExtension"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-asyncio>=1.3.0",
+    "ruff>=0.9",
+    "pytest-cov>=6.0",
+    "pip-audit>=2.7",
+    "pre-commit>=4.0",
+]
+
+[tool.coverage.run]
+source = ["engine"]
+omit = ["engine/cli/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [".claude"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E402", "E501", "E701"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["engine"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F811", "F841"]
+"engine/api/main.py" = ["F401"]

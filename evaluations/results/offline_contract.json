@@ -1,0 +1,184 @@
+{
+  "access_paths": [
+    "api",
+    "local",
+    "subscription"
+  ],
+  "comparable_product_evidence": false,
+  "live_evaluations_required": [
+    "Run frozen prompts through ACE and the ungrounded single-model baseline using the same model and matched token budget.",
+    "Run no-memory, fixed-roster, and no-calibration ablations through actual orchestration paths.",
+    "Collect repeated trials for variance, blinded human quality judgments, continuity across sessions, latency, calls, provider-reported tokens, and actual or documented estimated cost.",
+    "Repeat across API, sanctioned subscription, and local paths without assigning a quality tier to an access path.",
+    "Publish sample size and uncertainty before claiming improvement."
+  ],
+  "method": "Transparent term-presence rubric applied identically to frozen synthetic responses; validates the harness only.",
+  "rows": [
+    {
+      "access_path": "api",
+      "calls": 1,
+      "continuity": 0.0,
+      "continuity_hits": [],
+      "estimated_cost_usd": 0.00036,
+      "forbidden_hits": [],
+      "input_tokens": 80,
+      "latency_ms": 100,
+      "model": "fixture-model",
+      "output_tokens": 25,
+      "quality": 0.75,
+      "required_hits": [
+        "rollback",
+        "verification",
+        "kill criterion"
+      ],
+      "task_id": "release-decision",
+      "total_tokens": 105,
+      "variant": "single_model_ungrounded"
+    },
+    {
+      "access_path": "subscription",
+      "calls": 3,
+      "continuity": 1.0,
+      "continuity_hits": [
+        "30-minute"
+      ],
+      "estimated_cost_usd": 0.0006,
+      "forbidden_hits": [],
+      "input_tokens": 160,
+      "latency_ms": 240,
+      "model": "fixture-model",
+      "output_tokens": 35,
+      "quality": 0.75,
+      "required_hits": [
+        "rollback",
+        "kill criterion"
+      ],
+      "task_id": "release-decision",
+      "total_tokens": 195,
+      "variant": "ace"
+    },
+    {
+      "access_path": "local",
+      "calls": 3,
+      "continuity": 0.0,
+      "continuity_hits": [],
+      "estimated_cost_usd": 0.00051,
+      "forbidden_hits": [],
+      "input_tokens": 135,
+      "latency_ms": 210,
+      "model": "fixture-model",
+      "output_tokens": 30,
+      "quality": 0.75,
+      "required_hits": [
+        "rollback",
+        "verification",
+        "kill criterion"
+      ],
+      "task_id": "release-decision",
+      "total_tokens": 165,
+      "variant": "no_memory"
+    },
+    {
+      "access_path": "api",
+      "calls": 4,
+      "continuity": 1.0,
+      "continuity_hits": [
+        "30-minute"
+      ],
+      "estimated_cost_usd": 0.0007,
+      "forbidden_hits": [],
+      "input_tokens": 190,
+      "latency_ms": 260,
+      "model": "fixture-model",
+      "output_tokens": 40,
+      "quality": 1.0,
+      "required_hits": [
+        "rollback",
+        "verification",
+        "kill criterion"
+      ],
+      "task_id": "release-decision",
+      "total_tokens": 230,
+      "variant": "fixed_roster"
+    },
+    {
+      "access_path": "subscription",
+      "calls": 3,
+      "continuity": 1.0,
+      "continuity_hits": [
+        "30-minute"
+      ],
+      "estimated_cost_usd": 0.000572,
+      "forbidden_hits": [],
+      "input_tokens": 150,
+      "latency_ms": 225,
+      "model": "fixture-model",
+      "output_tokens": 34,
+      "quality": 1.0,
+      "required_hits": [
+        "rollback",
+        "verification",
+        "kill criterion"
+      ],
+      "task_id": "release-decision",
+      "total_tokens": 184,
+      "variant": "no_calibration"
+    }
+  ],
+  "run_kind": "synthetic",
+  "schema_version": 1,
+  "suite_id": "offline-contract-v1",
+  "summary": {
+    "ace": {
+      "calls_total": 3,
+      "continuity_mean": 1.0,
+      "estimated_cost_usd_total": 0.0006,
+      "latency_ms_total": 240,
+      "quality_mean": 0.75,
+      "tasks": 1,
+      "tokens_total": 195
+    },
+    "fixed_roster": {
+      "calls_total": 4,
+      "continuity_mean": 1.0,
+      "estimated_cost_usd_total": 0.0007,
+      "latency_ms_total": 260,
+      "quality_mean": 1.0,
+      "tasks": 1,
+      "tokens_total": 230
+    },
+    "no_calibration": {
+      "calls_total": 3,
+      "continuity_mean": 1.0,
+      "estimated_cost_usd_total": 0.000572,
+      "latency_ms_total": 225,
+      "quality_mean": 1.0,
+      "tasks": 1,
+      "tokens_total": 184
+    },
+    "no_memory": {
+      "calls_total": 3,
+      "continuity_mean": 0.0,
+      "estimated_cost_usd_total": 0.00051,
+      "latency_ms_total": 210,
+      "quality_mean": 0.75,
+      "tasks": 1,
+      "tokens_total": 165
+    },
+    "single_model_ungrounded": {
+      "calls_total": 1,
+      "continuity_mean": 0.0,
+      "estimated_cost_usd_total": 0.00036,
+      "latency_ms_total": 100,
+      "quality_mean": 0.75,
+      "tasks": 1,
+      "tokens_total": 105
+    }
+  },
+  "unsupported_claims": [
+    "README: 'Nothing is hardcoded' is absolute and is not established by component tests.",
+    "README: 'Every decision compounds in a living graph' is not supported by longitudinal outcome evidence.",
+    "README: the model is described as swappable without published cross-provider behavioral evaluation.",
+    "README: 'a whole committee' is broader than the documented dispatcher behavior, which may select independent execution."
+  ]
+}

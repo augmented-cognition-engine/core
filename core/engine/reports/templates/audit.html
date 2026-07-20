@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ client_name }} — Technical Health Assessment</title>
+  <style>{% include 'base_styles.css' %}</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="page cover">
+  <div class="cover-accent"></div>
+  <div class="cover-body">
+    <div class="cover-label">Technical Health Assessment</div>
+    <div class="cover-title">{{ client_name }}</div>
+    <div class="cover-subtitle">{{ product_name }}</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>Prepared by:</strong> {{ consultant_name or "ACE Intelligence" }}</div>
+      <div class="cover-meta-item"><strong>Date:</strong> {{ generated_at }}</div>
+      <div class="cover-meta-item"><strong>Report type:</strong> {{ report_type.replace('_', ' ').title() }}</div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-footer-brand">ACE — Augmented Cognition Engine</div>
+    <div class="cover-footer-date">{{ generated_at }}</div>
+  </div>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">Executive Summary</span>
+  </div>
+  <div class="exec-summary">
+    {% for para in executive_summary.split('\n\n') %}
+      {% if para.strip() %}<p>{{ para.strip() }}</p>{% endif %}
+    {% endfor %}
+  </div>
+  {% if headline_findings %}
+  <div class="headline-findings">
+    <h4>Key Findings</h4>
+    <ul>
+      {% for f in headline_findings %}
+      <li>{{ f }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  <div class="report-footer">
+    <span>{{ client_name }} — Technical Health Assessment</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+
+<!-- HEALTH SCORECARD -->
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">Health Scorecard</span>
+  </div>
+
+  {% set sorted_disciplines = health_by_discipline | sort(attribute='avg_score') %}
+  {% set callout = sorted_disciplines[:3] %}
+  {% set rest = sorted_disciplines[3:] %}
+
+  <!-- Worst 3: prominent callout cards -->
+  <div class="score-callout-row">
+    {% for d in callout %}
+    {% set pct = (d.avg_score * 100)|int %}
+    {% set cls = "good" if d.avg_score >= 0.7 else ("warn" if d.avg_score >= 0.4 else "bad") %}
+    <div class="score-callout-cell {{ cls }}">
+      <div class="score-callout-discipline">{{ d.discipline.replace('_', ' ') }}</div>
+      <div class="score-callout-value {{ cls }}">{{ pct }}%</div>
+      <div class="score-callout-bar-track">
+        <div class="score-callout-bar-fill {{ cls }}" style="width: {{ pct }}%"></div>
+      </div>
+      {% if d.gap_count > 0 %}
+      <div class="score-callout-gaps">{{ d.gap_count }} gap{{ 's' if d.gap_count != 1 }}</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Remaining: compact 4-col grid -->
+  {% if rest %}
+  <div class="score-compact-grid">
+    {% for d in rest %}
+    {% set pct = (d.avg_score * 100)|int %}
+    {% set cls = "good" if d.avg_score >= 0.7 else ("warn" if d.avg_score >= 0.4 else "bad") %}
+    <div class="score-compact-cell">
+      <div class="score-compact-top">
+        <span class="score-compact-discipline">{{ d.discipline.replace('_', ' ') }}</span>
+        <span class="score-compact-value {{ cls }}">{{ pct }}%</span>
+      </div>
+      <div class="score-compact-bar-track">
+        <div class="score-compact-bar-fill {{ cls }}" style="width: {{ pct }}%"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="report-footer">
+    <span>{{ client_name }} — Technical Health Assessment</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+
+<!-- DIAGRAMS -->
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">System Diagrams</span>
+  </div>
+
+  <!-- Risk Heat Map (pure SVG, data-driven) -->
+  <div class="diagram-block">
+    <div class="diagram-label">Risk Heat Map — Coverage vs. Business Impact</div>
+    {{ diagram_risk_heatmap | safe }}
+  </div>
+
+  <!-- Architecture Map + Capability Graph (Mermaid) -->
+  <div class="diagram-row">
+    <div class="diagram-block half">
+      <div class="diagram-label">System Architecture</div>
+      <div class="mermaid">{{ diagram_arch_map | safe }}</div>
+    </div>
+    <div class="diagram-block half">
+      <div class="diagram-label">Capability Dependencies</div>
+      <div class="mermaid">{{ diagram_cap_graph | safe }}</div>
+    </div>
+  </div>
+
+  {% if mermaid_js_inline %}
+  <script>{{ mermaid_js_inline | safe }}</script>
+  {% elif mermaid_js_src %}
+  <script src="{{ mermaid_js_src }}"></script>
+  {% endif %}
+  <script>
+    if (typeof mermaid !== 'undefined') {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+          primaryColor: '#1e1e2a',
+          primaryTextColor: '#e8e8f0',
+          primaryBorderColor: 'rgba(212,151,74,0.3)',
+          lineColor: '#555566',
+          secondaryColor: '#13131a',
+          background: '#0a0a0f',
+          nodeBorder: 'rgba(212,151,74,0.3)',
+          clusterBkg: 'rgba(212,151,74,0.05)',
+          titleColor: '#888899',
+          fontFamily: "'Space Grotesk', system-ui, sans-serif",
+          fontSize: '11px'
+        }
+      });
+    }
+  </script>
+
+  <div class="report-footer">
+    <span>{{ client_name }} — Technical Health Assessment</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+
+<!-- TOP RISKS -->
+{% if top_risks %}
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <span class="section-title">Top Risks</span>
+  </div>
+  <div class="risk-list">
+    {% for r in top_risks %}
+    <div class="risk-item">
+      <div class="risk-num">{{ loop.index }}</div>
+      <div class="risk-body">
+        <div class="risk-header">
+          <span class="risk-badge {{ r.severity }}">{{ r.severity }}</span>
+          <span class="risk-title">{{ r.discipline.replace('_', ' ') }} — {{ r.capability_slug.replace('_', ' ') }}</span>
+        </div>
+        {% if risk_summaries and risk_summaries.get(r.capability_slug) %}
+        <div class="risk-plain">{{ risk_summaries[r.capability_slug] }}</div>
+        {% endif %}
+        {% if r.gaps %}
+        <div class="risk-gaps">
+          {% for g in r.gaps %}<div class="risk-gap">{{ g }}</div>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="report-footer">
+    <span>{{ client_name }} — Technical Health Assessment</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+{% endif %}
+
+<!-- RECOMMENDED PATH FORWARD -->
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <span class="section-title">Recommended Path Forward</span>
+  </div>
+  {% if recommendation_intro %}
+  <p class="recommendation-intro">{{ recommendation_intro }}</p>
+  {% endif %}
+  <div class="initiative-list">
+    {% for i in initiatives %}
+    <div class="initiative-item">
+      <span class="initiative-status {{ i.status }}">{{ i.status }}</span>
+      <div>
+        <div class="initiative-title">{{ i.title }}</div>
+        {% if i.description %}<div class="initiative-desc">{{ i.description }}</div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% if not initiatives %}
+    <p style="color: var(--text-dim); font-size: 10px;">No active initiatives — recommendations to be discussed.</p>
+    {% endif %}
+  </div>
+  <div class="report-footer">
+    <span>{{ client_name }} — Technical Health Assessment</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+
+</body>
+</html>

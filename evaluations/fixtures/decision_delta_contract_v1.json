@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "suite_id": "ia-01-decision-delta-contract-v1",
+  "run_kind": "recorded_deterministic_conformance",
+  "evidence_scope": {
+    "live": false,
+    "task_count": 8,
+    "purpose": "Exercise materiality, null, negative, invalidated, degraded, persistence, and portability receipt semantics without provider spend.",
+    "causal_boundary": "Only matched within-route comparisons may support a memory-effect claim. Cross-path records demonstrate contract portability only."
+  },
+  "cases": [
+    {
+      "case_id": "architecture-relevant-correction",
+      "task": {"id": "task:fixture-arch-1", "product_id": "product:fixture-a", "workspace_id": "workspace:fixture", "shape": "architecture_choice"},
+      "decision_under_examination": "Choose the persistence boundary for a new inspectable receipt.",
+      "memories": [{
+        "id": "observation:fixture-correction-1",
+        "type": "correction",
+        "content_hash": "sha256:82d2a4499cd2867033282d9bb8a8f6886a9a5c15a7e1ba1dd344e29c8a34371f",
+        "provenance": {"source": "human_capture", "product_id": "product:fixture-a", "user_id": "user:fixture", "surface": "mcp"},
+        "captured_at": "2026-07-19T17:00:00Z",
+        "loaded_at": "2026-07-19T18:00:00Z",
+        "trust": 1.0,
+        "validity": {"state": "active", "contested": false, "stale": false, "invalidated": false},
+        "retrieval": {"reason": "architecture receipt decision matches the correction scope", "score": 0.98, "relevance": "relevant"},
+        "receiving_stage": {"component": "ContextAssembler", "stage": "established_intelligence"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}
+      }],
+      "with_memory": {
+        "decision": {"selected_option": "extend_evaluation_artifact", "constraints": ["keep exactly 11 MCP tools", "do not create roadmap write authority"], "rejected_alternatives": ["twelfth MCP tool", "new runtime control plane"], "next_action": "build pure receipt adapter"},
+        "output_hash": "sha256:56506b0cdd645c0f3819c835635cf87293babddc21b359a45366e135902650a3",
+        "conditions": {"task_hash": "task-hash-arch-1", "prompt_contract_hash": "prompt-v1", "provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}
+      },
+      "without_memory": {
+        "decision": {"selected_option": "add_receipt_endpoint", "constraints": [], "rejected_alternatives": [], "next_action": "add public receipt API"},
+        "output_hash": "sha256:6a557257d83f6f2f49d8c5b67cb9c8dc084ce73fa7bb0be210e8af5046aa8787",
+        "conditions": {"task_hash": "task-hash-arch-1", "prompt_contract_hash": "prompt-v1", "provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}
+      },
+      "route": {"provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "constraints", "rejected_alternatives", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "supported", "link": "outcome:fixture-arch-verification", "finding": "The additive evaluator preserved the eleven-tool boundary in the recorded fixture."},
+      "metrics": {"with_memory": {"latency_ms": 180, "calls": 2, "input_tokens": 410, "output_tokens": 120, "cost_usd": null, "failures": [], "retries": 0, "degraded_states": []}, "without_memory": {"latency_ms": 170, "calls": 2, "input_tokens": 360, "output_tokens": 105, "cost_usd": null, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": true, "runtime_restart": "recorded_fixture", "memory_identity_preserved": true, "receipt_identity_replayed": true},
+      "causal_limitations": ["Recorded responses and the recorded outcome exercise the receipt contract; they are not a live model or longitudinal trial."]
+    },
+    {
+      "case_id": "release-irrelevant-memory",
+      "task": {"id": "task:fixture-release-1", "product_id": "product:fixture-a", "workspace_id": "workspace:fixture", "shape": "release_prioritization"},
+      "decision_under_examination": "Decide whether a security regression blocks release.",
+      "memories": [
+        {
+          "id": "insight:fixture-irrelevant-1",
+          "type": "preference",
+          "content_hash": "sha256:b4958bce8e681f4a929fc19fe5d0d753f3a6eb95edc03e3b7c1685ca45f1f681",
+          "provenance": {"source": "human_capture", "product_id": "product:fixture-a", "user_id": "user:fixture", "surface": "cli"},
+          "captured_at": "2026-07-18T10:00:00Z",
+          "loaded_at": "2026-07-19T18:10:00Z",
+          "trust": 1.0,
+          "validity": {"state": "active", "contested": false, "stale": false, "invalidated": false},
+          "retrieval": {"reason": "broad release query retrieved a UI color preference", "score": 0.12, "relevance": "irrelevant"},
+          "receiving_stage": {"component": "ContextAssembler", "stage": "candidate_filter"},
+          "observed": {"retrieved": true, "injected": false, "reflected": false}
+        },
+        {
+          "id": "insight:fixture-irrelevant-2",
+          "type": "convention",
+          "content_hash": "sha256:ff2e64aaad6b06d638479e19f8ad15d6b86f9286a6ce1ba7a2a7d18667e113ad",
+          "provenance": {"source": "synthesized_observation", "product_id": "product:fixture-a", "source_observation": "observation:ui-copy", "surface": "cli"},
+          "captured_at": "2026-07-18T10:05:00Z",
+          "loaded_at": "2026-07-19T18:10:00Z",
+          "trust": 0.7,
+          "validity": {"state": "active", "contested": false, "stale": false, "invalidated": false},
+          "retrieval": {"reason": "broad release query admitted an unrelated copy convention", "score": 0.11, "relevance": "irrelevant"},
+          "receiving_stage": {"component": "ContextAssembler", "stage": "legacy_insights"},
+          "observed": {"retrieved": true, "injected": true, "reflected": false}
+        }
+      ],
+      "with_memory": {"decision": {"selected_option": "block_release", "constraints": ["repair authentication regression"], "next_action": "fix and rerun auth tests"}, "output_hash": "sha256:a94631e90583f9690461f4cb525e0b7f8058a8e9448281d2a4020b5536c12ac2", "conditions": {"task_hash": "task-hash-release-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "without_memory": {"decision": {"selected_option": "block_release", "constraints": ["repair authentication regression"], "next_action": "fix and rerun auth tests"}, "output_hash": "sha256:a94631e90583f9690461f4cb525e0b7f8058a8e9448281d2a4020b5536c12ac2", "conditions": {"task_hash": "task-hash-release-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "route": {"provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "constraints", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "not_observed", "link": null},
+      "metrics": {"with_memory": {"latency_ms": 95, "calls": 1, "input_tokens": 210, "output_tokens": 70, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}, "without_memory": {"latency_ms": 91, "calls": 1, "input_tokens": 190, "output_tokens": 70, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": false, "runtime_restart": "not_exercised", "memory_identity_preserved": true, "receipt_identity_replayed": true},
+      "causal_limitations": ["Irrelevant retrieval is intentionally denied injection and materiality credit."]
+    },
+    {
+      "case_id": "risk-contested-guidance",
+      "task": {"id": "task:fixture-risk-1", "product_id": "product:fixture-b", "workspace_id": "workspace:fixture", "shape": "risk_sensitive_recommendation"},
+      "decision_under_examination": "Choose whether to enable an irreversible migration.",
+      "memories": [
+        {"id": "observation:fixture-contested-a", "type": "decision", "content_hash": "sha256:5d065a5f2eb0687891d4c99c9b1ea9b93f0aad66b7ff72d2ccecb874f863f985", "provenance": {"source": "human_capture", "product_id": "product:fixture-b", "user_id": "user:owner-a", "surface": "mcp"}, "captured_at": "2026-07-18T11:00:00Z", "loaded_at": "2026-07-19T18:20:00Z", "trust": 1.0, "validity": {"state": "contested", "contested": true, "stale": false, "invalidated": false, "conflicts_with": ["observation:fixture-contested-b"]}, "retrieval": {"reason": "migration authority decision", "score": 0.95, "relevance": "relevant"}, "receiving_stage": {"component": "risk_review", "stage": "authority_check"}, "observed": {"retrieved": true, "injected": true, "reflected": true}},
+        {"id": "observation:fixture-contested-b", "type": "decision", "content_hash": "sha256:bc9e8dcf085b27913500177f9c2cf97c1852d6c5f2ef5b2e3b0219bba47f33f1", "provenance": {"source": "human_capture", "product_id": "product:fixture-b", "user_id": "user:owner-b", "surface": "cli"}, "captured_at": "2026-07-18T11:05:00Z", "loaded_at": "2026-07-19T18:20:00Z", "trust": 1.0, "validity": {"state": "contested", "contested": true, "stale": false, "invalidated": false, "conflicts_with": ["observation:fixture-contested-a"]}, "retrieval": {"reason": "migration authority decision", "score": 0.94, "relevance": "relevant"}, "receiving_stage": {"component": "risk_review", "stage": "authority_check"}, "observed": {"retrieved": true, "injected": true, "reflected": true}}
+      ],
+      "with_memory": {"decision": {"selected_option": "defer_for_human_resolution", "constraints": ["preserve both conflicting directives"], "risk_classification": "authority_contested", "next_action": "request explicit owner disposition", "contested_handling": "preserve_disagreement", "presented_as_settled": false}, "output_hash": "sha256:0340ac7ed6421ff4da6caa6a3fbcd393aee87d116ff43527f61e411336063134", "conditions": {"task_hash": "task-hash-risk-1", "prompt_contract_hash": "prompt-v1", "provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "without_memory": {"decision": {"selected_option": "enable_migration", "constraints": [], "risk_classification": "ordinary", "next_action": "run migration", "contested_handling": null, "presented_as_settled": false}, "output_hash": "sha256:a16456dd73d08924101737307368b9599110ed1457187266e6fc08bb9482c783", "conditions": {"task_hash": "task-hash-risk-1", "prompt_contract_hash": "prompt-v1", "provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "route": {"provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "constraints", "risk_classification", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "not_observed", "link": null},
+      "metrics": {"with_memory": {"latency_ms": 220, "calls": 2, "input_tokens": 520, "output_tokens": 150, "cost_usd": null, "failures": [], "retries": 0, "degraded_states": ["contested_intelligence"]}, "without_memory": {"latency_ms": 205, "calls": 2, "input_tokens": 430, "output_tokens": 120, "cost_usd": null, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": true, "runtime_restart": "recorded_fixture", "memory_identity_preserved": true, "receipt_identity_replayed": true},
+      "causal_limitations": ["The receipt credits preservation of disagreement, not either contested directive as truth."]
+    },
+    {
+      "case_id": "implementation-invalidated-memory",
+      "task": {"id": "task:fixture-impl-1", "product_id": "product:fixture-a", "workspace_id": "workspace:fixture", "shape": "implementation_planning"},
+      "decision_under_examination": "Plan database result parsing after a superseding correction.",
+      "memories": [{"id": "insight:fixture-invalidated-1", "type": "pattern", "content_hash": "sha256:d10a2d1b7c847ac2eef9761e957627d63213fb73426de38f0cd1bb18aef9b190", "provenance": {"source": "synthesized_observation", "product_id": "product:fixture-a", "source_observation": "observation:older-pattern", "surface": "mcp"}, "captured_at": "2026-07-10T08:00:00Z", "loaded_at": "2026-07-19T18:30:00Z", "trust": 0.8, "validity": {"state": "invalidated", "contested": false, "stale": false, "invalidated": true, "invalidated_by": "observation:new-correction"}, "retrieval": {"reason": "lexical match to result parsing", "score": 0.88, "relevance": "relevant"}, "receiving_stage": {"component": "ContextAssembler", "stage": "validity_filter"}, "observed": {"retrieved": true, "injected": false, "reflected": false}}],
+      "with_memory": {"decision": {"selected_option": "use_parse_rows", "constraints": ["exclude invalidated direct result indexing"], "next_action": "implement supported parser"}, "output_hash": "sha256:d14dcfcc664bd91ca8823565e4d51b4cd3918d3a355c293db3ae9a5dfe84e55a", "conditions": {"task_hash": "task-hash-impl-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "without_memory": {"decision": {"selected_option": "use_parse_rows", "constraints": ["exclude invalidated direct result indexing"], "next_action": "implement supported parser"}, "output_hash": "sha256:d14dcfcc664bd91ca8823565e4d51b4cd3918d3a355c293db3ae9a5dfe84e55a", "conditions": {"task_hash": "task-hash-impl-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "route": {"provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "constraints", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "not_observed", "link": null},
+      "metrics": {"with_memory": {"latency_ms": 100, "calls": 1, "input_tokens": 230, "output_tokens": 80, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": ["invalidated_memory_filtered"]}, "without_memory": {"latency_ms": 96, "calls": 1, "input_tokens": 205, "output_tokens": 80, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": true, "runtime_restart": "recorded_fixture", "memory_identity_preserved": true, "receipt_identity_replayed": true},
+      "causal_limitations": ["An invalidated item receives no reflected or decision-material credit."]
+    },
+    {
+      "case_id": "planning-null-relevant-memory",
+      "task": {"id": "task:fixture-plan-1", "product_id": "product:fixture-c", "workspace_id": "workspace:fixture", "shape": "roadmap_prioritization"},
+      "decision_under_examination": "Choose the next bounded verification task.",
+      "memories": [{"id": "observation:fixture-null-1", "type": "preference", "content_hash": "sha256:21301e959271f1379a0051900ed6439c5f8a7559cd2696a596be12a02e66c04d", "provenance": {"source": "human_capture", "product_id": "product:fixture-c", "user_id": "user:fixture", "surface": "mcp"}, "captured_at": "2026-07-19T12:00:00Z", "loaded_at": "2026-07-19T18:40:00Z", "trust": 1.0, "validity": {"state": "active", "contested": false, "stale": false, "invalidated": false}, "retrieval": {"reason": "preference directly concerns verification ordering", "score": 0.91, "relevance": "relevant"}, "receiving_stage": {"component": "roadmap_reasoner", "stage": "sequence_constraints"}, "observed": {"retrieved": true, "injected": true, "reflected": true}}],
+      "with_memory": {"decision": {"selected_option": "run_auth_isolation_tests", "constraints": ["keep changes bounded"], "next_action": "run focused tests"}, "output_hash": "sha256:24aad52e4d22dd6880a215d2110f3d0efb48be3d3952395a91895d10b8b89605", "conditions": {"task_hash": "task-hash-plan-1", "prompt_contract_hash": "prompt-v1", "provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "without_memory": {"decision": {"selected_option": "run_auth_isolation_tests", "constraints": ["keep changes bounded"], "next_action": "run focused tests"}, "output_hash": "sha256:24aad52e4d22dd6880a215d2110f3d0efb48be3d3952395a91895d10b8b89605", "conditions": {"task_hash": "task-hash-plan-1", "prompt_contract_hash": "prompt-v1", "provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "route": {"provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "constraints", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "not_observed", "link": null},
+      "metrics": {"with_memory": {"latency_ms": 130, "calls": 1, "input_tokens": 300, "output_tokens": 90, "cost_usd": null, "failures": [], "retries": 0, "degraded_states": []}, "without_memory": {"latency_ms": 122, "calls": 1, "input_tokens": 260, "output_tokens": 90, "cost_usd": null, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": false, "runtime_restart": "not_exercised", "memory_identity_preserved": true, "receipt_identity_replayed": true},
+      "causal_limitations": ["Reflection without a structured decision delta is a null result, not material use."]
+    },
+    {
+      "case_id": "research-harmful-memory",
+      "task": {"id": "task:fixture-research-1", "product_id": "product:fixture-d", "workspace_id": "workspace:fixture", "shape": "evaluation_research_decision"},
+      "decision_under_examination": "Rank evaluation methods for a small pilot.",
+      "memories": [{"id": "insight:fixture-harmful-1", "type": "pattern", "content_hash": "sha256:f07d8c786bc1681f35a99b0c5d36db3d320a2c1643511c234443f620fec0da90", "provenance": {"source": "synthesized_observation", "product_id": "product:fixture-d", "source_observation": "observation:pilot-pattern", "surface": "cli"}, "captured_at": "2026-06-15T09:00:00Z", "loaded_at": "2026-07-19T18:50:00Z", "trust": 0.65, "validity": {"state": "active", "contested": false, "stale": false, "invalidated": false}, "retrieval": {"reason": "historical pilot method", "score": 0.87, "relevance": "relevant"}, "receiving_stage": {"component": "evaluation_planner", "stage": "method_ranking"}, "observed": {"retrieved": true, "injected": true, "reflected": true}}],
+      "with_memory": {"decision": {"selected_option": "unblinded_self_grading", "ranking": ["unblinded_self_grading", "deterministic_rubric", "blinded_human_review"], "next_action": "run self-graded pilot"}, "output_hash": "sha256:8f3bafcd06be9eddd19c5fc614f366387f73b7778a2defc0d89910c7f882dc1d", "conditions": {"task_hash": "task-hash-research-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "without_memory": {"decision": {"selected_option": "deterministic_rubric", "ranking": ["deterministic_rubric", "blinded_human_review", "unblinded_self_grading"], "next_action": "freeze rubric before pilot"}, "output_hash": "sha256:4c4fda2640ceb145ad79f4d6b6560758b8ecf99e16e3b1fca898295154618ca4", "conditions": {"task_hash": "task-hash-research-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "route": {"provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "ranking", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "contradicted", "link": "outcome:fixture-pilot-1", "finding": "The self-graded method inflated agreement and was rejected."},
+      "metrics": {"with_memory": {"latency_ms": 145, "calls": 2, "input_tokens": 340, "output_tokens": 110, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}, "without_memory": {"latency_ms": 138, "calls": 2, "input_tokens": 305, "output_tokens": 105, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": false, "runtime_restart": "not_exercised", "memory_identity_preserved": true, "receipt_identity_replayed": true},
+      "causal_limitations": ["The memory was decision-material but later contradicted; material use is not assumed beneficial."]
+    },
+    {
+      "case_id": "cross-path-portability",
+      "task": {"id": "task:fixture-portable-1", "product_id": "product:fixture-portable", "workspace_id": "workspace:fixture", "shape": "implementation_planning"},
+      "decision_under_examination": "Choose the interaction surface for the next inspectable demonstration.",
+      "capture_route": {"provider": "CodexAgent", "model": "gpt-5.6", "access_class": "subscription_backed_agent", "surface": "mcp", "evidence_kind": "recorded_fixture", "live": false},
+      "memories": [{"id": "observation:fixture-portable-1", "type": "preference", "content_hash": "sha256:5c1c684bc43fca879242d0963b084558c63028ed2f222cfc128938f419f5e2d8", "provenance": {"source": "human_capture", "product_id": "product:fixture-portable", "user_id": "user:fixture", "surface": "mcp", "capture_provider": "CodexAgent", "capture_model": "gpt-5.6", "access_class": "subscription_backed_agent"}, "captured_at": "2026-07-19T16:00:00Z", "loaded_at": "2026-07-19T19:00:00Z", "trust": 1.0, "validity": {"state": "active", "contested": false, "stale": false, "invalidated": false}, "retrieval": {"reason": "demo surface preference", "score": 0.99, "relevance": "relevant"}, "receiving_stage": {"component": "implementation_planner", "stage": "surface_selection"}, "observed": {"retrieved": true, "injected": true, "reflected": true}}],
+      "with_memory": {"decision": {"selected_option": "thin_mcp_and_cli", "constraints": ["preserve exactly 11 MCP tools", "keep Atrium out of executable preview"], "rejected_alternatives": ["production Atrium demo"], "next_action": "run CLI receipt verifier"}, "output_hash": "sha256:6aa834de2e896d18e9cb12e820777f17c21dd1364c88f216b30ab9ae973bcb3d", "conditions": {"task_hash": "task-hash-portable-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "without_memory": {"decision": {"selected_option": "atrium_demo", "constraints": [], "rejected_alternatives": [], "next_action": "build interactive canvas"}, "output_hash": "sha256:2cb33a34eead5b93a2424b0eb2e23b6531800cab8f8734803bb2ec8b66750bf6", "conditions": {"task_hash": "task-hash-portable-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "temperature": 0, "configuration_hash": "config-local", "toolset_hash": "cli-core-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "route": {"provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "cli", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "constraints", "rejected_alternatives", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "not_observed", "link": null},
+      "metrics": {"capture": {"latency_ms": 35, "calls": 1, "input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}, "with_memory": {"latency_ms": 165, "calls": 2, "input_tokens": 380, "output_tokens": 125, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}, "without_memory": {"latency_ms": 151, "calls": 2, "input_tokens": 335, "output_tokens": 115, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": true, "runtime_restart": "recorded_fixture", "memory_identity_preserved": true, "receipt_identity_replayed": true, "cross_surface": true, "cross_access_path": true},
+      "causal_limitations": ["The matched memory-effect comparison occurs entirely on the local CLI route.", "The cross-model/access transition proves only contract portability in a deterministic fixture, not live continuity or quality lift."]
+    },
+    {
+      "case_id": "degraded-mismatched-counterfactual",
+      "task": {"id": "task:fixture-degraded-1", "product_id": "product:fixture-e", "workspace_id": "workspace:fixture", "shape": "architecture_choice"},
+      "decision_under_examination": "Choose a queue implementation under an unmatched control.",
+      "memories": [{"id": "observation:fixture-degraded-1", "type": "correction", "content_hash": "sha256:a69f97872d63f41e77e36cd1f958435b08619e245cab56466c239261f758108b", "provenance": {"source": "human_capture", "product_id": "product:fixture-e", "user_id": "user:fixture", "surface": "mcp"}, "captured_at": "2026-07-19T15:00:00Z", "loaded_at": "2026-07-19T19:10:00Z", "trust": 1.0, "validity": {"state": "active", "contested": false, "stale": false, "invalidated": false}, "retrieval": {"reason": "queue architecture correction", "score": 0.96, "relevance": "relevant"}, "receiving_stage": {"component": "architecture_planner", "stage": "constraint_application"}, "observed": {"retrieved": true, "injected": true, "reflected": true}}],
+      "with_memory": {"decision": {"selected_option": "durable_queue", "constraints": ["survive restart"], "next_action": "implement persistence"}, "output_hash": "sha256:5f15875815091847497f036699533efb39cc39d37febc48c2fafc14a9947f09a", "conditions": {"task_hash": "task-hash-degraded-1", "prompt_contract_hash": "prompt-v1", "provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "without_memory": {"decision": {"selected_option": "in_memory_queue", "constraints": [], "next_action": "implement process queue"}, "output_hash": "sha256:8c310c6f66ae01467221aa381ea012c2669ce2194f0da4cc6fd3f071a7e43a77", "conditions": {"task_hash": "task-hash-degraded-1", "prompt_contract_hash": "prompt-v1", "provider": "OllamaProvider", "model": "qwen3:4b", "access_class": "local", "surface": "mcp", "temperature": 0, "configuration_hash": "config-a", "toolset_hash": "eleven-tools-v1", "evaluator_method": "structured_field_delta_v1"}},
+      "route": {"provider": "CLIProvider", "model": "claude-haiku-4-5-20251001", "access_class": "subscription_backed", "surface": "mcp", "evidence_kind": "recorded_fixture", "live": false},
+      "evaluator": {"method": "structured_field_delta_v1", "version": 1, "materiality_fields": ["selected_option", "constraints", "next_action"], "judge": "deterministic", "model_self_report_used": false},
+      "outcome": {"status": "not_observed", "link": null},
+      "metrics": {"with_memory": {"latency_ms": 175, "calls": 2, "input_tokens": 400, "output_tokens": 120, "cost_usd": null, "failures": [], "retries": 0, "degraded_states": []}, "without_memory": {"latency_ms": 160, "calls": 2, "input_tokens": 330, "output_tokens": 105, "cost_usd": 0.0, "failures": [], "retries": 0, "degraded_states": []}},
+      "persistence": {"fresh_client_process": false, "runtime_restart": "not_exercised", "memory_identity_preserved": true, "receipt_identity_replayed": true},
+      "degraded_reasons": ["recorded fixture intentionally uses a different control model"],
+      "causal_limitations": ["The model mismatch blocks memory-effect attribution even though the decisions differ."]
+    }
+  ],
+  "unsupported_claims": [
+    "ACE outperforms either recorded model path.",
+    "Cross-model differences prove a memory effect.",
+    "The deterministic portability fixture is a live provider or runtime-restart trial.",
+    "Decision-material memory is necessarily beneficial; the harmful case is explicitly retained.",
+    "Eight recorded tasks establish general or longitudinal decision lift."
+  ],
+  "missing_live_evidence": [
+    "A paid or otherwise configured second live ACE reasoning route was not exercised because no spending authority was supplied.",
+    "A live cross-surface capture-through-MCP then reason-through-CLI run on a second model/access class remains required.",
+    "Repeated matched trials, variance, blinded judgments, and externally observed outcomes remain required for comparative or longitudinal claims."
+  ]
+}

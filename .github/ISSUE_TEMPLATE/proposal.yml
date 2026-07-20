@@ -1,0 +1,25 @@
+name: Feature or architecture proposal
+description: Propose a bounded capability or stable-contract change.
+title: "[Proposal]: "
+labels: ["proposal"]
+body:
+  - type: textarea
+    id: problem
+    attributes: {label: Problem, description: "Describe the user or contributor problem, not only a solution."}
+    validations: {required: true}
+  - type: textarea
+    id: boundary
+    attributes: {label: Product boundary, description: "Supported, experimental, internal, or planned? Kernel, Arm, extension, or Atrium?"}
+    validations: {required: true}
+  - type: textarea
+    id: alternatives
+    attributes: {label: Alternatives and evidence}
+    validations: {required: true}
+  - type: textarea
+    id: compatibility
+    attributes: {label: Compatibility, security, and rollback impact}
+    validations: {required: true}
+  - type: textarea
+    id: acceptance
+    attributes: {label: Acceptance evidence, description: "Deterministic commands, tests, or research that would support the decision."}
+    validations: {required: true}

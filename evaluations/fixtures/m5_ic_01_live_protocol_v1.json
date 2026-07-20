@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "protocol_id": "m5-ic-01-live-continuity-v1",
+  "frozen_at": "2026-07-20T15:33:04Z",
+  "status": "frozen_before_live_execution",
+  "source_contract": "ace.decision-delta-receipt/v1",
+  "source_fixture_case": "cross-path-portability",
+  "purpose": "Test continuity of one durable ACE intelligence identity across independent Claude and GPT subscription-backed routes; do not compare provider quality.",
+  "task": {
+    "shape": "implementation_planning",
+    "decision_under_examination": "Choose the interaction surface for the next inspectable demonstration.",
+    "prompt": "Choose the interaction surface for the next inspectable ACE demonstration. Select exactly one of thin_mcp_and_cli or production_atrium_demo. Return one JSON object only with exactly these fields: selected_option (string), constraints (array of strings), rejected_alternatives (array of strings), next_action (string), memory_reflection (string or null). Base the decision only on the supplied task and, when present, the explicitly supplied ACE memory. Do not inspect files, browse, use tools, or rely on prior conversation.",
+    "structured_decision_fields": [
+      "selected_option",
+      "constraints",
+      "rejected_alternatives",
+      "next_action"
+    ],
+    "permitted_output_keys": [
+      "selected_option",
+      "constraints",
+      "rejected_alternatives",
+      "next_action",
+      "memory_reflection"
+    ]
+  },
+  "memory": {
+    "observation_type": "preference",
+    "domain_path": "m5_ic_01_live_continuity",
+    "content": "For the next inspectable ACE demonstration, prefer the thin MCP and CLI path, preserve exactly 11 MCP tools, and keep Atrium out of the executable preview by rejecting a production Atrium demo. The next action should be to run the CLI receipt verifier.",
+    "confidence": 1.0,
+    "relevance": "relevant",
+    "expected_causal_effect": {
+      "selected_option": "thin_mcp_and_cli",
+      "constraints": [
+        "preserve exactly 11 MCP tools",
+        "keep Atrium out of executable preview"
+      ],
+      "rejected_alternatives": [
+        "production Atrium demo"
+      ],
+      "next_action": "run CLI receipt verifier"
+    }
+  },
+  "conditions": {
+    "treatment": "Inject the exact freshly loaded ACE observation, including its durable observation ID and source, immediately before the frozen task prompt.",
+    "control": "Use the identical task prompt and output contract in a fresh stateless invocation while suppressing all ACE memory injection. Do not delete, invalidate, or alter the real observation.",
+    "matching": "Within each provider, hold native model, semantic tier, resolved effort, access class, surface, task prompt, output schema, tool policy, temperature policy, and evaluator fixed. Compare no outputs across providers as causal evidence."
+  },
+  "routes": {
+    "claude": {
+      "provider": "CLIProvider",
+      "native_model": "claude-sonnet-4-6",
+      "semantic_tier": "capable",
+      "requested_effort": "default",
+      "resolved_effort": "default",
+      "access_class": "subscription",
+      "surface": "claude_cli_stateless_completion",
+      "temperature": "provider_default",
+      "timeout_seconds": 180
+    },
+    "gpt": {
+      "provider": "CodexCLIProvider",
+      "native_model": "gpt-5.6-terra",
+      "semantic_tier": "capable",
+      "requested_effort": "default",
+      "resolved_effort": "default",
+      "access_class": "subscription",
+      "surface": "codex_cli_ephemeral_stateless_completion",
+      "temperature": "provider_default",
+      "timeout_seconds": 300
+    }
+  },
+  "stopping_rule": "Run exactly one treatment and one no-memory control per provider. Do not tune or rerun a condition after seeing output. Retain malformed, null, failed, timed-out, and degraded results. Provider transport retries are permitted only when already implemented internally and must be counted from native call deltas.",
+  "evidence_definitions": {
+    "retrieved": "A fresh ace_load response contains the exact durable observation ID, content, source, and active validity state for the frozen domain.",
+    "injected": "The exact retrieved item is included in the treatment invocation input; the control receives no ACE memory.",
+    "reflected": "The treatment output explicitly identifies the observation ID or unambiguously restates its operational guidance in memory_reflection.",
+    "decision_material": "The within-provider control is matched, retrieved/injected/reflected are true, and at least one frozen structured decision field differs between treatment and control.",
+    "outcome_supported": "Not tested by this protocol; no external outcome is observed.",
+    "invalidated": "The item is stale or invalidated and therefore cannot receive materiality credit."
+  },
+  "failure_policy": {
+    "authentication_unavailable": "Record the failed route and diagnostic; do not substitute a metered API or another model.",
+    "timeout_or_transport_failure": "Retain the error and native metadata available from the invocation; do not rerun after the frozen stopping rule.",
+    "malformed_output": "Retain raw output, mark structured parsing failed, and generate degraded evidence without inventing fields.",
+    "retrieval_failure": "Do not claim injection, reflection, or decision-material use.",
+    "control_mismatch": "Generate a degraded receipt and block causal credit.",
+    "missing_metric": "Record null; never estimate or backfill."
+  },
+  "permitted_claims": [
+    "The same observation identity was or was not preserved across the exercised fresh-client and provider boundaries.",
+    "A matched within-provider treatment/control pair did or did not show a structured decision delta.",
+    "A memory item reached retrieved, injected, reflected, or decision-material evidence under the contract.",
+    "The exact native route metadata and attributable invocation metrics recorded by each provider."
+  ],
+  "forbidden_claims": [
+    "Claude is better or worse than GPT.",
+    "Any cross-provider or cross-model difference is an ACE architecture effect.",
+    "One trial establishes general, longitudinal, or outcome-supported decision lift.",
+    "Missing metrics have estimated values.",
+    "Full M5 is complete."
+  ]
+}

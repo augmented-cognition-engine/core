@@ -1,0 +1,14 @@
+include README.md ROADMAP.md CONTRIBUTING.md SECURITY.md CHANGELOG.md LICENSE NOTICE
+include Dockerfile Makefile .env.example uv.lock
+include build_backend.py
+recursive-include ace_mcp_client *.py
+recursive-include core *.py *.surql
+recursive-include extensions *.py *.md
+recursive-include scripts *.py
+recursive-include evaluations *.json *.md
+recursive-include docs *.md
+prune .github
+prune tests
+prune core/ui
+global-exclude *.py[cod] .DS_Store
+global-exclude __pycache__

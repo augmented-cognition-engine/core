@@ -1,0 +1,59 @@
+.env
+.env.*
+# the example ships — only real env files stay private
+!.env.example
+.worktrees/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.claude/worktrees/
+dist/
+# Naked-canvas build scratch: build-naked.mjs moves the extension shim +
+# symlink here during a naked build and restores them on exit. A crashed run
+# must never leave a tracked stash behind.
+.naked-stash/
+core/ui/canvas/.naked-stash/
+*.egg-info/
+.pytest_cache/
+node_modules/
+portal/dist/
+# Root-anchored: a scratch reference/ dir at repo root only. Must NOT shadow
+# extensions/reference/ (the shipped reference extension).
+/reference/
+.DS_Store
+**/.DS_Store
+.worktrees/
+
+# Large files / local artifacts
+# Project-root data dirs only — does NOT cover nested data/ inside source
+# packages (e.g. typed React data modules under a UI app tree, which MUST
+# be tracked).
+/data/
+/data-dev/
+/build/
+/ace.egg-info/
+core/data/
+extensions/*/data/
+infra/data-dev/
+ace_logo/
+.superpowers/
+.serena/
+.coverage
+test-results/
+history.txt
+._*
+engine/reports/static/mermaid.min.js
+.ace/decisions.yml
+
+# JTBD e2e test artifacts
+frontend/tests/e2e/jtbd/screenshots/
+frontend/tests/e2e/jtbd/state.json
+frontend/tests/e2e/jtbd2/screenshots/
+frontend/tests/e2e/jtbd2/state2.json
+
+# Machine-specific MCP config (each clone has its own absolute paths)
+.mcp.json
+
+# Vite local dev cache
+**/.vite/

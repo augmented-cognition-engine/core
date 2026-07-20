@@ -1,0 +1,455 @@
+{
+  "schema_version": 1,
+  "suite_id": "m5-ic-01-live-continuity-v1",
+  "run_kind": "live",
+  "evidence_scope": {
+    "protocol": "evaluations/fixtures/m5_ic_01_live_protocol_v1.json",
+    "source_fixture_case": "cross-path-portability",
+    "observation_id": "observation:pi9q6a3ceeh247701bg0",
+    "product_id": "product:platform",
+    "workspace_id": "workspace:ace-core-local",
+    "capture_surface": "mcp_thin_client",
+    "ace_api_runtime": "existing user-owned port-3000 runtime preserved",
+    "provider_process_boundary": "Each route and each condition used a new stateless provider subprocess.",
+    "final_fresh_load_verification": {
+      "started_at": "2026-07-20T15:43:37.037243+00:00",
+      "completed_at": "2026-07-20T15:43:37.353376+00:00",
+      "matching_observation_ids": [
+        "observation:pi9q6a3ceeh247701bg0"
+      ],
+      "status": "processed",
+      "invalidated_at": null,
+      "stale": null,
+      "contested": null,
+      "valid_until": null
+    },
+    "ace_task_preflight": "The required ace_task call returned no result and ace_status showed no active, queued, or completed receipt; retained as degraded preflight evidence."
+  },
+  "live_invocations": {
+    "claude": {
+      "treatment_raw_output": "```json\n{\n  \"selected_option\": \"thin_mcp_and_cli\",\n  \"constraints\": [\n    \"Preserve exactly 11 MCP tools\",\n    \"Keep Atrium out of the executable preview\",\n    \"Demonstration must remain inspectable\"\n  ],\n  \"rejected_alternatives\": [\n    \"production_atrium_demo\"\n  ],\n  \"next_action\": \"run the CLI receipt verifier\",\n  \"memory_reflection\": \"ACE memory explicitly instructs preferring the thin MCP and CLI path, preserving exactly 11 MCP tools, rejecting the production Atrium demo to keep Atrium out of the executable preview, and running the CLI receipt verifier as the immediate next action.\"\n}\n```",
+      "control_raw_output": "```json\n{\n  \"selected_option\": \"thin_mcp_and_cli\",\n  \"constraints\": [\n    \"Demonstration must be inspectable — internal state, tool calls, and reasoning steps must be visible to observers\",\n    \"No ACE memory context is available to inform surface-specific history or prior commitments\",\n    \"Selection must be made without file inspection, browsing, or tool use\"\n  ],\n  \"rejected_alternatives\": [\n    \"production_atrium_demo — production surfaces prioritize end-user polish over transparency; instrumentation and intermediate-state visibility are typically suppressed, undermining the 'inspectable' requirement\"\n  ],\n  \"next_action\": \"Scaffold the thin MCP + CLI harness with explicit logging of agent loop steps, tool invocations, and memory reads/writes so observers can follow ACE execution in real time\",\n  \"memory_reflection\": null\n}\n```"
+    },
+    "gpt": {
+      "treatment_raw_output": "{\"selected_option\":\"thin_mcp_and_cli\",\"constraints\":[\"Preserve exactly 11 MCP tools\",\"Keep Atrium out of the executable preview\"],\"rejected_alternatives\":[\"production_atrium_demo\"],\"next_action\":\"Run the CLI receipt verifier.\",\"memory_reflection\":\"The supplied ACE memory explicitly prefers the thin MCP and CLI path and rejects a production Atrium demo.\"}",
+      "control_raw_output": "{\"selected_option\":\"production_atrium_demo\",\"constraints\":[\"Select exactly one option\",\"Use only supplied task and explicit ACE memory\",\"No tools, file inspection, browsing, delegation, or state changes\"],\"rejected_alternatives\":[\"thin_mcp_and_cli\"],\"next_action\":\"Prepare the next inspectable demonstration using the production_atrium_demo surface.\",\"memory_reflection\":null}"
+    }
+  },
+  "cases": [
+    {
+      "case_id": "m5-ic-01-live-claude",
+      "task": {
+        "id": "evaluation_task:m5-ic-01-live-claude-1",
+        "product_id": "product:platform",
+        "workspace_id": "workspace:ace-core-local",
+        "shape": "implementation_planning"
+      },
+      "decision_under_examination": "Choose the interaction surface for the next inspectable demonstration.",
+      "capture_route": {
+        "provider": "CodexAgent",
+        "model": "unreported",
+        "access_class": "subscription_backed_agent",
+        "surface": "mcp_thin_client",
+        "evidence_kind": "live",
+        "live": true
+      },
+      "memories": [
+        {
+          "id": "observation:pi9q6a3ceeh247701bg0",
+          "type": "preference",
+          "content_hash": "sha256:d2b23b9bc04341925b1e6781b0c37f93df5910fe630758393a281db68eba138e",
+          "provenance": {
+            "source": "api",
+            "product_id": "product:platform",
+            "workspace_id": "workspace:ace-core-local",
+            "surface": "mcp_thin_client",
+            "capture_provider": "CodexAgent",
+            "capture_model": "unreported",
+            "access_class": "subscription_backed_agent"
+          },
+          "captured_at": "2026-07-20 15:34:30.703239+00:00",
+          "loaded_at": null,
+          "trust": 1.0,
+          "validity": {
+            "state": "active",
+            "contested": false,
+            "stale": false,
+            "invalidated": false
+          },
+          "retrieval": {
+            "reason": "Fresh ace_load returned the exact observation ID in the frozen continuity domain before the provider invocation.",
+            "score": 1.0,
+            "relevance": "relevant"
+          },
+          "receiving_stage": {
+            "component": "CLIProvider",
+            "stage": "surface_selection"
+          },
+          "observed": {
+            "retrieved": true,
+            "injected": true,
+            "reflected": true
+          }
+        }
+      ],
+      "with_memory": {
+        "decision": {
+          "selected_option": "thin_mcp_and_cli",
+          "constraints": [
+            "Preserve exactly 11 MCP tools",
+            "Keep Atrium out of the executable preview",
+            "Demonstration must remain inspectable"
+          ],
+          "rejected_alternatives": [
+            "production_atrium_demo"
+          ],
+          "next_action": "run the CLI receipt verifier"
+        },
+        "output_hash": "sha256:3129827b4ac054fe203d7611e9d03dcb4fe8b970a4bd8e51b22526afdf5fafd0",
+        "conditions": {
+          "task_hash": "sha256:27161fc0e2dc79b9acc8b3181f3013c728d37e915cb752ceda68f68154316eb4",
+          "prompt_contract_hash": "sha256:2a7bb774c744090c916640d96c363bb635a43cf7eda2fb71bc284833fd71e4d6",
+          "provider": "CLIProvider",
+          "model": "claude-sonnet-4-6",
+          "access_class": "subscription",
+          "surface": "claude_cli_stateless_completion",
+          "temperature": "provider_default",
+          "configuration_hash": "sha256:72edd66591aef7ef1e19538781cca447cb99ab73361709c95005f21ed7073a04",
+          "toolset_hash": "sha256:no-tools-stateless-transport-v1",
+          "evaluator_method": "structured_field_delta_v1"
+        }
+      },
+      "without_memory": {
+        "decision": {
+          "selected_option": "thin_mcp_and_cli",
+          "constraints": [
+            "Demonstration must be inspectable — internal state, tool calls, and reasoning steps must be visible to observers",
+            "No ACE memory context is available to inform surface-specific history or prior commitments",
+            "Selection must be made without file inspection, browsing, or tool use"
+          ],
+          "rejected_alternatives": [
+            "production_atrium_demo — production surfaces prioritize end-user polish over transparency; instrumentation and intermediate-state visibility are typically suppressed, undermining the 'inspectable' requirement"
+          ],
+          "next_action": "Scaffold the thin MCP + CLI harness with explicit logging of agent loop steps, tool invocations, and memory reads/writes so observers can follow ACE execution in real time"
+        },
+        "output_hash": "sha256:30b92bdcc8e7bf8ca0d0d986e5388cf78d18928618aa39e671717671c90a8dbd",
+        "conditions": {
+          "task_hash": "sha256:27161fc0e2dc79b9acc8b3181f3013c728d37e915cb752ceda68f68154316eb4",
+          "prompt_contract_hash": "sha256:2a7bb774c744090c916640d96c363bb635a43cf7eda2fb71bc284833fd71e4d6",
+          "provider": "CLIProvider",
+          "model": "claude-sonnet-4-6",
+          "access_class": "subscription",
+          "surface": "claude_cli_stateless_completion",
+          "temperature": "provider_default",
+          "configuration_hash": "sha256:72edd66591aef7ef1e19538781cca447cb99ab73361709c95005f21ed7073a04",
+          "toolset_hash": "sha256:no-tools-stateless-transport-v1",
+          "evaluator_method": "structured_field_delta_v1"
+        }
+      },
+      "route": {
+        "provider": "CLIProvider",
+        "model": "claude-sonnet-4-6",
+        "semantic_tier": "capable",
+        "resolved_effort": "default",
+        "access_class": "subscription",
+        "surface": "claude_cli_stateless_completion",
+        "billing": "subscription_credit_estimate",
+        "evidence_kind": "live",
+        "live": true
+      },
+      "evaluator": {
+        "method": "structured_field_delta_v1",
+        "version": 1,
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "rejected_alternatives",
+          "next_action"
+        ],
+        "judge": "deterministic",
+        "model_self_report_used": false
+      },
+      "outcome": {
+        "status": "not_observed",
+        "link": null
+      },
+      "metrics": {
+        "capture": {
+          "latency_ms": 5388,
+          "calls": 1,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "billing": "local_ace_operation",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        },
+        "load": {
+          "latency_ms": 272,
+          "calls": 1,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "billing": "local_ace_operation",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        },
+        "with_memory": {
+          "latency_ms": 6832,
+          "calls": 1,
+          "input_tokens": 414,
+          "output_tokens": 332,
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 0,
+          "cost_usd": 0.006973,
+          "billing": "subscription_credit_estimate",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        },
+        "without_memory": {
+          "latency_ms": 10953,
+          "calls": 1,
+          "input_tokens": 296,
+          "output_tokens": 505,
+          "cache_read_tokens": 0,
+          "cache_write_tokens": 0,
+          "cost_usd": 0.009096,
+          "billing": "subscription_credit_estimate",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        }
+      },
+      "persistence": {
+        "fresh_client_process": true,
+        "runtime_restart": "fresh provider subprocesses; ACE API restart not exercised because the existing user-owned runtime and schema-v141 database were preserved",
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "cross_surface": true,
+        "cross_access_path": true
+      },
+      "causal_limitations": [
+        "This is one matched within-Claude trial with no observed external outcome.",
+        "The treatment and control selected the same top-level option; materiality rests on exact constraint, rejection, and next-action deltas.",
+        "The running user-owned ACE API was not restarted; fresh thin-client and provider subprocess boundaries were exercised.",
+        "Claude CLI cost is an API-rate-equivalent subscription-credit estimate, not a per-call invoice."
+      ]
+    },
+    {
+      "case_id": "m5-ic-01-live-gpt",
+      "task": {
+        "id": "evaluation_task:m5-ic-01-live-gpt-1",
+        "product_id": "product:platform",
+        "workspace_id": "workspace:ace-core-local",
+        "shape": "implementation_planning"
+      },
+      "decision_under_examination": "Choose the interaction surface for the next inspectable demonstration.",
+      "capture_route": {
+        "provider": "CodexAgent",
+        "model": "unreported",
+        "access_class": "subscription_backed_agent",
+        "surface": "mcp_thin_client",
+        "evidence_kind": "live",
+        "live": true
+      },
+      "memories": [
+        {
+          "id": "observation:pi9q6a3ceeh247701bg0",
+          "type": "preference",
+          "content_hash": "sha256:d2b23b9bc04341925b1e6781b0c37f93df5910fe630758393a281db68eba138e",
+          "provenance": {
+            "source": "api",
+            "product_id": "product:platform",
+            "workspace_id": "workspace:ace-core-local",
+            "surface": "mcp_thin_client",
+            "capture_provider": "CodexAgent",
+            "capture_model": "unreported",
+            "access_class": "subscription_backed_agent"
+          },
+          "captured_at": "2026-07-20 15:34:30.703239+00:00",
+          "loaded_at": null,
+          "trust": 1.0,
+          "validity": {
+            "state": "active",
+            "contested": false,
+            "stale": false,
+            "invalidated": false
+          },
+          "retrieval": {
+            "reason": "Fresh ace_load returned the exact observation ID in the frozen continuity domain before the provider invocation.",
+            "score": 1.0,
+            "relevance": "relevant"
+          },
+          "receiving_stage": {
+            "component": "CodexCLIProvider",
+            "stage": "surface_selection"
+          },
+          "observed": {
+            "retrieved": true,
+            "injected": true,
+            "reflected": true
+          }
+        }
+      ],
+      "with_memory": {
+        "decision": {
+          "selected_option": "thin_mcp_and_cli",
+          "constraints": [
+            "Preserve exactly 11 MCP tools",
+            "Keep Atrium out of the executable preview"
+          ],
+          "rejected_alternatives": [
+            "production_atrium_demo"
+          ],
+          "next_action": "Run the CLI receipt verifier."
+        },
+        "output_hash": "sha256:8c9decef3e4ff77e7d36da6454626f0eeb4d285a7b50cc80f9202af5a7895197",
+        "conditions": {
+          "task_hash": "sha256:27161fc0e2dc79b9acc8b3181f3013c728d37e915cb752ceda68f68154316eb4",
+          "prompt_contract_hash": "sha256:2a7bb774c744090c916640d96c363bb635a43cf7eda2fb71bc284833fd71e4d6",
+          "provider": "CodexCLIProvider",
+          "model": "gpt-5.6-terra",
+          "access_class": "subscription",
+          "surface": "codex_cli_ephemeral_stateless_completion",
+          "temperature": "provider_default",
+          "configuration_hash": "sha256:39d4919e1b542a21ebbf84663d3db3531bbf10891a2c5104ec057513e2fc403a",
+          "toolset_hash": "sha256:no-tools-stateless-transport-v1",
+          "evaluator_method": "structured_field_delta_v1"
+        }
+      },
+      "without_memory": {
+        "decision": {
+          "selected_option": "production_atrium_demo",
+          "constraints": [
+            "Select exactly one option",
+            "Use only supplied task and explicit ACE memory",
+            "No tools, file inspection, browsing, delegation, or state changes"
+          ],
+          "rejected_alternatives": [
+            "thin_mcp_and_cli"
+          ],
+          "next_action": "Prepare the next inspectable demonstration using the production_atrium_demo surface."
+        },
+        "output_hash": "sha256:386c69a323a9ab41df92a53dfc3f9ed6bd92872b0744604fb065747c64c9dbc2",
+        "conditions": {
+          "task_hash": "sha256:27161fc0e2dc79b9acc8b3181f3013c728d37e915cb752ceda68f68154316eb4",
+          "prompt_contract_hash": "sha256:2a7bb774c744090c916640d96c363bb635a43cf7eda2fb71bc284833fd71e4d6",
+          "provider": "CodexCLIProvider",
+          "model": "gpt-5.6-terra",
+          "access_class": "subscription",
+          "surface": "codex_cli_ephemeral_stateless_completion",
+          "temperature": "provider_default",
+          "configuration_hash": "sha256:39d4919e1b542a21ebbf84663d3db3531bbf10891a2c5104ec057513e2fc403a",
+          "toolset_hash": "sha256:no-tools-stateless-transport-v1",
+          "evaluator_method": "structured_field_delta_v1"
+        }
+      },
+      "route": {
+        "provider": "CodexCLIProvider",
+        "model": "gpt-5.6-terra",
+        "semantic_tier": "capable",
+        "resolved_effort": "default",
+        "access_class": "subscription",
+        "surface": "codex_cli_ephemeral_stateless_completion",
+        "billing": "chatgpt_subscription",
+        "evidence_kind": "live",
+        "live": true
+      },
+      "evaluator": {
+        "method": "structured_field_delta_v1",
+        "version": 1,
+        "materiality_fields": [
+          "selected_option",
+          "constraints",
+          "rejected_alternatives",
+          "next_action"
+        ],
+        "judge": "deterministic",
+        "model_self_report_used": false
+      },
+      "outcome": {
+        "status": "not_observed",
+        "link": null
+      },
+      "metrics": {
+        "capture": {
+          "latency_ms": 5388,
+          "calls": 1,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "billing": "local_ace_operation",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        },
+        "load": {
+          "latency_ms": 182,
+          "calls": 1,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "cost_usd": 0.0,
+          "billing": "local_ace_operation",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        },
+        "with_memory": {
+          "latency_ms": 4192,
+          "calls": 1,
+          "input_tokens": 8450,
+          "output_tokens": 80,
+          "cached_input_tokens": 0,
+          "reasoning_output_tokens": 0,
+          "cost_usd": 0.0,
+          "billing": "chatgpt_subscription_no_platform_api_charge",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        },
+        "without_memory": {
+          "latency_ms": 6424,
+          "calls": 1,
+          "input_tokens": 8341,
+          "output_tokens": 80,
+          "cached_input_tokens": 0,
+          "reasoning_output_tokens": 0,
+          "cost_usd": 0.0,
+          "billing": "chatgpt_subscription_no_platform_api_charge",
+          "failures": [],
+          "retries": 0,
+          "degraded_states": []
+        }
+      },
+      "persistence": {
+        "fresh_client_process": true,
+        "runtime_restart": "fresh provider subprocesses; ACE API restart not exercised because the existing user-owned runtime and schema-v141 database were preserved",
+        "memory_identity_preserved": true,
+        "receipt_identity_replayed": true,
+        "cross_surface": true,
+        "cross_access_path": true
+      },
+      "causal_limitations": [
+        "This is one matched within-GPT trial with no observed external outcome.",
+        "ChatGPT subscription cost_usd=0 records no OpenAI Platform API charge; it does not imply the subscription has no price or capacity limit.",
+        "The running user-owned ACE API was not restarted; fresh thin-client and provider subprocess boundaries were exercised.",
+        "No cross-provider difference is used as causal evidence."
+      ]
+    }
+  ],
+  "unsupported_claims": [
+    "Claude is better or worse than GPT.",
+    "Cross-provider or cross-model variance is an ACE architecture effect.",
+    "One live pair per provider establishes general, longitudinal, or outcome-supported lift.",
+    "The running ACE API was restarted during this packet.",
+    "Full M5 is complete."
+  ],
+  "missing_live_evidence": [
+    "No external outcome, repeated trial, variance estimate, or blinded judgment was collected.",
+    "The existing user-owned ACE API and schema-v141 database were not disrupted to force an API restart; fresh client and provider subprocess boundaries were exercised instead.",
+    "The capture agent's native model identifier was not exposed to the supported capture surface and remains unreported."
+  ]
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ client_name }} — Progress Snapshot</title>
+  <style>{% include 'base_styles.css' %}</style>
+  <style>
+    /* ─── Snapshot-specific: score delta table ──── */
+    .delta-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .delta-th {
+      text-align: left;
+      padding: 8px 0;
+      font-family: var(--font-display);
+      font-size: 9px;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border);
+    }
+    .delta-th.right { text-align: right; }
+    .delta-td {
+      padding: 10px 0;
+      font-size: 11px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      text-transform: capitalize;
+    }
+    .delta-td.right {
+      text-align: right;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .delta-td.current {
+      text-align: right;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .delta-change {
+      text-align: right;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      font-family: var(--font-display);
+    }
+    .delta-change.improved { color: var(--emerald); }
+    .delta-change.declined { color: var(--red); }
+  </style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="page cover">
+  <div class="cover-accent"></div>
+  <div class="cover-body">
+    <div class="cover-label">Progress Snapshot</div>
+    <div class="cover-title">{{ client_name }}</div>
+    <div class="cover-subtitle">{{ product_name }}</div>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>Prepared by:</strong> {{ consultant_name or "ACE Intelligence" }}</div>
+      <div class="cover-meta-item"><strong>Date:</strong> {{ generated_at }}</div>
+      <div class="cover-meta-item"><strong>Report type:</strong> Retainer Snapshot</div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-footer-brand">ACE — Augmented Cognition Engine</div>
+    <div class="cover-footer-date">{{ generated_at }}</div>
+  </div>
+</div>
+
+<!-- PERIOD SUMMARY -->
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">Period Summary</span>
+  </div>
+  <div class="exec-summary">
+    {% for para in executive_summary.split('\n\n') %}
+      {% if para.strip() %}<p>{{ para.strip() }}</p>{% endif %}
+    {% endfor %}
+  </div>
+  {% if headline_findings %}
+  <div class="headline-findings">
+    <h4>This Period</h4>
+    <ul>{% for f in headline_findings %}<li>{{ f }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+  <div class="report-footer">
+    <span>{{ client_name }} — Progress Snapshot</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+
+<!-- SCORE CHANGES -->
+{% if score_deltas %}
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">Score Changes</span>
+  </div>
+  <table class="delta-table">
+    <thead>
+      <tr>
+        <th class="delta-th">Discipline</th>
+        <th class="delta-th right">Before</th>
+        <th class="delta-th right">Now</th>
+        <th class="delta-th right">Change</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for d in score_deltas %}
+    {% set improved = d.delta > 0 %}
+    <tr>
+      <td class="delta-td">{{ d.discipline.replace('_', ' ') }}</td>
+      <td class="delta-td right">{{ (d.prev_score * 100)|int }}%</td>
+      <td class="delta-td current">{{ (d.curr_score * 100)|int }}%</td>
+      <td class="delta-change {{ 'improved' if improved else 'declined' }}">
+        {{ '+' if improved }}{{ (d.delta * 100)|int }}%
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="report-footer">
+    <span>{{ client_name }} — Progress Snapshot</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+{% endif %}
+
+<!-- WHAT'S NEXT -->
+<div class="page section page-break">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">What's Next</span>
+  </div>
+  <div class="initiative-list">
+    {% for i in initiatives %}
+    <div class="initiative-item">
+      <span class="initiative-status {{ i.status }}">{{ i.status }}</span>
+      <div>
+        <div class="initiative-title">{{ i.title }}</div>
+        {% if i.description %}<div class="initiative-desc">{{ i.description }}</div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+    {% if not initiatives %}
+    <p style="color: var(--text-dim); font-size: 10px;">No active initiatives on record.</p>
+    {% endif %}
+  </div>
+  <div class="report-footer">
+    <span>{{ client_name }} — Progress Snapshot</span>
+    <span>{{ generated_at }}</span>
+  </div>
+</div>
+
+</body>
+</html>

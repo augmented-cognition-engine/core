@@ -1,0 +1,163 @@
+/* core/ui/canvas/src/app/board/board.css
+ *
+ * Engineered-light theme overrides for tldraw + styles for the two
+ * custom ACE board shapes (contribution-note, contribution-placeholder).
+ *
+ * tldraw's default chrome is hidden via `hideUi={true}` on <Tldraw>; the
+ * overrides below only need to recolor the canvas background, selection
+ * indicators, cursor labels, and any residual chrome (collaborator
+ * cursors come from awareness state in later phases).
+ *
+ * No hex literals inside the shape styling — everything routes through
+ * --ace-* tokens so theme switches retint the board in one move.
+ */
+
+/* ── Canvas background — match engineered-light surface ── */
+
+.ace-board {
+  position: relative;
+  width: 100%;
+  height: 640px;
+  border-radius: var(--ace-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--ace-shadow-card);
+  background: var(--ace-surface-canvas);
+}
+
+.ace-board .tl-container {
+  --color-background: var(--ace-surface-canvas);
+  --color-low: var(--ace-surface-recessed);
+  --color-muted-1: var(--ace-line-soft);
+  --color-muted-2: var(--ace-line);
+  --color-divider: var(--ace-line);
+  --color-text: var(--ace-ink);
+  --color-text-1: var(--ace-ink);
+  --color-text-3: var(--ace-ink-muted);
+  --color-selected: var(--ace-accent);
+  --color-selection-stroke: var(--ace-accent);
+  --color-selection-fill: var(--ace-accent-tint);
+  --color-focus: var(--ace-accent);
+}
+
+/* Suppress the dotted grid that ships by default — engineered-light
+   reads cleaner without it. tldraw exposes a CSS variable for the
+   pattern opacity. */
+.ace-board .tl-background {
+  background: var(--ace-surface-canvas);
+}
+
+/* Hide tldraw's hint cursor and watermark when present.
+   `hideUi` already removes the chrome, but the watermark renders
+   separately via a portal in production builds. */
+.ace-board .tl-watermark_SEE-LICENSE,
+.ace-board .tl-watermark-logo {
+  display: none !important;
+}
+
+/* ── Contribution note (landed or in-flight voice contribution) ── */
+
+.ace-board-note {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ace-space-2);
+  padding: var(--ace-space-4);
+  background: var(--ace-surface-raised);
+  border-radius: var(--ace-radius-lg);
+  border-left: 2px solid var(--ace-ink-muted); /* overridden inline */
+  box-shadow: var(--ace-shadow-card);
+  font-family: var(--ace-font-sans);
+  color: var(--ace-ink);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ace-board-note__byline {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ace-space-2);
+  font-size: var(--ace-text-xs);
+  letter-spacing: var(--ace-track-wide);
+  text-transform: uppercase;
+}
+
+.ace-board-note__speaker {
+  font-weight: var(--ace-weight-semibold);
+}
+
+.ace-board-note__landed-at {
+  color: var(--ace-ink-muted);
+  font-weight: var(--ace-weight-regular);
+  text-transform: none;
+  letter-spacing: var(--ace-track-normal);
+}
+
+.ace-board-note__framing {
+  flex: 1 1 auto;
+  font-family: var(--ace-font-serif);
+  font-size: var(--ace-text-md);
+  line-height: var(--ace-leading-prose);
+  color: var(--ace-ink);
+  overflow: hidden;
+}
+
+.ace-board-note__caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: ace-board-caret-blink 1100ms steps(1) infinite;
+}
+
+.ace-board-note__thinking-about {
+  font-family: var(--ace-font-sans);
+  font-size: var(--ace-text-xs);
+  font-style: italic;
+  color: var(--ace-ink-muted); /* overridden inline */
+  border-top: 1px solid var(--ace-line-soft);
+  padding-top: var(--ace-space-2);
+}
+
+@keyframes ace-board-caret-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ── Contribution placeholder (voice that hasn't fired) ── */
+
+.ace-board-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ace-space-2);
+  padding: var(--ace-space-4);
+  background: var(--ace-surface-recessed);
+  border-radius: var(--ace-radius-lg);
+  border: 1px dashed var(--ace-ink-muted); /* overridden inline (color) */
+  font-family: var(--ace-font-sans);
+  color: var(--ace-ink-muted);
+  box-sizing: border-box;
+  opacity: 0.72;
+}
+
+.ace-board-placeholder__byline {
+  display: flex;
+  align-items: baseline;
+  font-size: var(--ace-text-xs);
+  letter-spacing: var(--ace-track-wide);
+  text-transform: uppercase;
+}
+
+.ace-board-placeholder__speaker {
+  font-weight: var(--ace-weight-semibold);
+}
+
+.ace-board-placeholder__hint {
+  font-family: var(--ace-font-serif);
+  font-size: var(--ace-text-sm);
+  font-style: italic;
+  color: var(--ace-ink-muted);
+}

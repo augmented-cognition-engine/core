@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "suite_id": "offline-contract-v1",
+  "run_kind": "synthetic",
+  "method": "Transparent term-presence rubric applied identically to frozen synthetic responses; validates the harness only.",
+  "pricing_usd": {
+    "fixture-model": {"input_per_million": 2.0, "output_per_million": 8.0}
+  },
+  "tasks": [
+    {
+      "id": "release-decision",
+      "prompt": "Recommend whether to release a migration with a known rollback risk.",
+      "prior_context": ["The team chose a 30-minute rollback objective."],
+      "rubric": {
+        "required": ["rollback", "verification", "kill criterion"],
+        "continuity": ["30-minute"],
+        "forbidden": ["risk-free"]
+      }
+    }
+  ],
+  "responses": [
+    {"task_id":"release-decision","variant":"single_model_ungrounded","output":"Verify the migration, define rollback steps, and use failed verification as a kill criterion.","metrics":{"access_path":"api","model":"fixture-model","latency_ms":100,"calls":1,"input_tokens":80,"output_tokens":25}},
+    {"task_id":"release-decision","variant":"ace","output":"Verify the migration. Preserve the prior 30-minute rollback objective and make a failed rehearsal the kill criterion.","metrics":{"access_path":"subscription","model":"fixture-model","latency_ms":240,"calls":3,"input_tokens":160,"output_tokens":35}},
+    {"task_id":"release-decision","variant":"no_memory","output":"Require verification, a rollback plan, and a failed rehearsal as the kill criterion.","metrics":{"access_path":"local","model":"fixture-model","latency_ms":210,"calls":3,"input_tokens":135,"output_tokens":30}},
+    {"task_id":"release-decision","variant":"fixed_roster","output":"A fixed PM, engineer, and skeptic roster requires verification, honors the 30-minute rollback objective, and defines a kill criterion.","metrics":{"access_path":"api","model":"fixture-model","latency_ms":260,"calls":4,"input_tokens":190,"output_tokens":40}},
+    {"task_id":"release-decision","variant":"no_calibration","output":"Proceed after verification with a 30-minute rollback plan and a kill criterion, without attaching a confidence estimate.","metrics":{"access_path":"subscription","model":"fixture-model","latency_ms":225,"calls":3,"input_tokens":150,"output_tokens":34}}
+  ],
+  "unsupported_claims": [
+    "README: 'Nothing is hardcoded' is absolute and is not established by component tests.",
+    "README: 'Every decision compounds in a living graph' is not supported by longitudinal outcome evidence.",
+    "README: the model is described as swappable without published cross-provider behavioral evaluation.",
+    "README: 'a whole committee' is broader than the documented dispatcher behavior, which may select independent execution."
+  ],
+  "live_evaluations_required": [
+    "Run frozen prompts through ACE and the ungrounded single-model baseline using the same model and matched token budget.",
+    "Run no-memory, fixed-roster, and no-calibration ablations through actual orchestration paths.",
+    "Collect repeated trials for variance, blinded human quality judgments, continuity across sessions, latency, calls, provider-reported tokens, and actual or documented estimated cost.",
+    "Repeat across API, sanctioned subscription, and local paths without assigning a quality tier to an access path.",
+    "Publish sample size and uncertainty before claiming improvement."
+  ]
+}

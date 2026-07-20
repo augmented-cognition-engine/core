@@ -1,0 +1,14 @@
+slug: test_minimal
+name: Test Minimal Recipe
+description: |
+  A minimal recipe used by loader tests.
+domain_intelligences: [planning]
+min_execution_depth: 1
+recipe:
+  phases:
+    - cognitive_function: frame
+      pattern: solo
+      min_depth: 1
+      output_schema: framed_problem
+      instruments:
+        - fallback_slug: mece

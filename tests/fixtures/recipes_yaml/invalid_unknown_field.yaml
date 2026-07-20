@@ -1,0 +1,13 @@
+slug: invalid_recipe
+name: Invalid Recipe
+description: Has an unknown field that should be rejected.
+domain_intelligences: [planning]
+recipe:
+  phases:
+    - cognitive_function: frame
+      pattern: solo
+      min_depth: 1
+      output_schema: x
+      instruments:
+        - fallback_slug: mece
+      this_field_does_not_exist: oops

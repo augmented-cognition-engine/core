@@ -1,0 +1,89 @@
+# ACE contributor and CI bring-up.
+#
+# `docker compose -f infra/docker-compose.yml up` starts SurrealDB 3.1.4,
+# applies every packaged schema migration, and starts the ACE API. The stack
+# writes only to its Docker-managed `ace_surreal_data` volume and maps host port
+# 8001 by default. Set ACE_SURREAL_HOST_PORT if that port is already occupied.
+# A fresh clone starts with an empty knowledge graph.
+
+services:
+  surrealdb-volume-init:
+    image: busybox:1.37
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 65532:65532 /data"]
+    volumes:
+      - ace_surreal_data:/data
+    restart: "no"
+
+  surrealdb:
+    image: surrealdb/surrealdb:v3.1.4
+    depends_on:
+      surrealdb-volume-init:
+        condition: service_completed_successfully
+    command: start --username root --password root --bind 0.0.0.0:8000 surrealkv:///data/ace.db
+    volumes:
+      - ace_surreal_data:/data
+    ports:
+      - "127.0.0.1:${ACE_SURREAL_HOST_PORT:-8001}:8000"
+    healthcheck:
+      test: ["CMD", "/surreal", "is-ready"]   # default endpoint ws://localhost:8000
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+  # One-shot: apply and validate the packaged schema, then exit 0.
+  # ace-api waits for this to complete successfully before starting.
+  migrate:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+    environment:
+      SURREAL_URL: ws://surrealdb:8000
+      SURREAL_NS: ace
+      SURREAL_DB: ace
+      SURREAL_USER: root
+      SURREAL_PASS: root
+      LLM_API_KEY: sk-test            # placeholder — config requires it; no LLM call in migrate
+      JWT_SECRET: dev-insecure-change-me
+      REQUIRE_SUBSCRIPTION: "0"
+    command: python scripts/schema_apply.py
+    restart: "no"
+
+  ace-api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      SURREAL_URL: ws://surrealdb:8000
+      SURREAL_NS: ace
+      SURREAL_DB: ace
+      SURREAL_USER: root
+      SURREAL_PASS: root
+      # BYOK: override LLM_API_KEY with your own to enable real reasoning.
+      LLM_API_KEY: ${LLM_API_KEY:-sk-test}
+      JWT_SECRET: ${JWT_SECRET:-dev-insecure-change-me}
+      API_KEY: ${API_KEY:-local-dev-only-not-a-secret}
+      # Optional local-provider route. Empty values preserve normal resolver behavior.
+      OLLAMA_HOST: ${OLLAMA_HOST:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-onnx}
+      REQUIRE_SUBSCRIPTION: ${REQUIRE_SUBSCRIPTION:-0}
+      # Emit a Python traceback for native fatal signals so container restarts
+      # remain diagnosable instead of appearing as unexplained disconnects.
+      PYTHONFAULTHANDLER: "1"
+    ports:
+      - "127.0.0.1:${ACE_API_HOST_PORT:-3000}:3000"
+    restart: unless-stopped
+
+volumes:
+  ace_surreal_data:

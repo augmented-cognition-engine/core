@@ -1,0 +1,323 @@
+{
+  "product": {
+    "id": "product:alpha",
+    "name": "Alpha",
+    "settings": {"privacy": "local"},
+    "created_at": "2026-07-01T00:00:00+00:00"
+  },
+  "records": {
+    "projects": [
+      {
+        "id": "project:alpha_core",
+        "product": "product:alpha",
+        "slug": "core",
+        "name": "Alpha Core",
+        "description": "Primary codebase",
+        "product_type": "dev_tool"
+      }
+    ],
+    "product_directions": [
+      {
+        "id": "product_direction:alpha",
+        "product": "product:alpha",
+        "name": "Trusted checkout",
+        "description": "Make checkout dependable",
+        "goals": [{"goal": "zero duplicate charges", "priority": "critical"}],
+        "active": true
+      }
+    ],
+    "product_visions": [
+      {
+        "id": "product_vision:alpha",
+        "product": "product:alpha",
+        "name": "Dependable commerce",
+        "description": "Every accepted purchase is charged exactly once",
+        "active": true
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "capability:billing",
+        "product": "product:alpha",
+        "project": "project:alpha_core",
+        "slug": "billing",
+        "name": "Billing",
+        "description": "Charge customers",
+        "status": "built",
+        "priority": "critical"
+      },
+      {
+        "id": "capability:checkout",
+        "product": "product:alpha",
+        "project": "project:alpha_core",
+        "slug": "checkout",
+        "name": "Checkout",
+        "description": "Complete a purchase",
+        "status": "partial",
+        "priority": "critical"
+      }
+    ],
+    "capability_quality": [
+      {
+        "id": "capability_quality:checkout_testing",
+        "product": "product:alpha",
+        "capability": "capability:checkout",
+        "dimension": "testing",
+        "score": 0.7,
+        "gaps": ["retry coverage"],
+        "evidence": ["test:checkout_retry"],
+        "assessed_by": "scanner"
+      }
+    ],
+    "decisions": [
+      {
+        "id": "decision:idempotency",
+        "product": "product:alpha",
+        "title": "Use idempotency keys",
+        "decision_type": "architecture",
+        "rationale": "Prevent duplicate charges",
+        "alternatives": ["database lock"],
+        "outcome": "accepted",
+        "source": "human",
+        "affected_capabilities": ["capability:billing", "capability:checkout"],
+        "created_at": "2026-07-02T00:00:00+00:00"
+      }
+    ],
+    "predictions": [
+      {
+        "id": "decision_prediction:idempotency",
+        "product": "product:alpha",
+        "decision": "decision:idempotency",
+        "horizon_days": 14,
+        "expected_changes": [{"capability_id": "checkout", "score_delta": 0.1}],
+        "primary_risk": "Key reuse rejects a valid retry",
+        "leading_indicators": ["duplicate charge rate"],
+        "falsification_condition": "Duplicate charges do not decline",
+        "closed": true
+      }
+    ],
+    "prediction_outcomes": [
+      {
+        "id": "prediction_outcome:idempotency",
+        "product": "product:alpha",
+        "prediction": "decision_prediction:idempotency",
+        "decision": "decision:idempotency",
+        "calibration_score": 0.8,
+        "predicted_deltas": {"checkout": 0.1},
+        "actual_deltas": {"checkout": 0.08},
+        "closed_at": "2026-07-16T00:00:00+00:00"
+      }
+    ],
+    "outcome_observations": [
+      {
+        "id": "outcome_observation:duplicate_rate",
+        "product": "product:alpha",
+        "emission_id": "decision:idempotency",
+        "emission_kind": "decision",
+        "emission_topic": "duplicate charges",
+        "outcome_label": "acted_on",
+        "action_evidence": {"metric": "duplicate_charge_rate", "value": 0.001}
+      }
+    ],
+    "action_outcomes": [
+      {
+        "id": "action_outcome:idempotency",
+        "product": "product:alpha",
+        "spec": "agent_spec:idempotency",
+        "arm_domain": "code",
+        "intent": "Implement idempotency keys",
+        "passed": true,
+        "reason": "Focused tests passed",
+        "performed_verbs": ["edit", "test"]
+      }
+    ],
+    "observations": [
+      {
+        "id": "observation:retry_correction",
+        "product": "product:alpha",
+        "content": "Retries must reuse the original key",
+        "observation_type": "correction",
+        "confidence": 1.0,
+        "source": "human",
+        "synthesized": true
+      }
+    ],
+    "insights": [
+      {
+        "id": "insight:retry_policy",
+        "product": "product:alpha",
+        "content": "Retry keys are stable for one purchase attempt",
+        "insight_type": "correction",
+        "tier": "product",
+        "confidence": 1.0,
+        "source_domain": "checkout",
+        "source_observations": ["observation:retry_correction"],
+        "status": "active"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "task:implement_idempotency",
+        "product": "product:alpha",
+        "description": "Implement idempotency keys",
+        "status": "completed",
+        "source": "initiative"
+      }
+    ],
+    "initiatives": [
+      {
+        "id": "initiative:checkout_reliability",
+        "product": "product:alpha",
+        "project": "project:alpha_core",
+        "title": "Checkout reliability",
+        "description": "Reduce duplicate charges",
+        "source": "user_created",
+        "success_criteria": ["duplicate charge rate below 0.1%"],
+        "owner": "user:founder",
+        "status": "active",
+        "priority": "critical"
+      }
+    ],
+    "milestones": [
+      {
+        "id": "milestone:idempotency",
+        "product": "product:alpha",
+        "initiative": "initiative:checkout_reliability",
+        "title": "Idempotency",
+        "description": "Land and verify idempotency keys",
+        "done_criteria": ["retry fixture passes"],
+        "sequence": 1,
+        "requires_approval": true,
+        "approver": "user:founder",
+        "approved_by": "user:founder",
+        "approved_at": "2026-07-03T00:00:00+00:00",
+        "status": "approved"
+      }
+    ],
+    "work_items": [
+      {
+        "id": "work_item:idempotency",
+        "product": "product:alpha",
+        "milestone": "milestone:idempotency",
+        "initiative": "initiative:checkout_reliability",
+        "title": "Add retry key persistence",
+        "description": "Persist and reuse the purchase-attempt key",
+        "archetype": "executor",
+        "mode": "reactive",
+        "domain_path": "checkout",
+        "tasks": ["task:implement_idempotency"],
+        "done_criteria": ["retry fixture passes"],
+        "status": "completed"
+      }
+    ],
+    "agent_specs": [
+      {
+        "id": "agent_spec:idempotency",
+        "product": "product:alpha",
+        "capability": "capability:checkout",
+        "source": "strategy_ingest",
+        "objective": "Implement idempotency keys",
+        "acceptance_criteria": [{"criterion": "retry fixture passes"}],
+        "status": "built"
+      }
+    ],
+    "roadmap_phases": [
+      {
+        "id": "roadmap_phase:reliability",
+        "product": "product:alpha",
+        "title": "Reliability",
+        "ordinal": 1,
+        "status": "active",
+        "summary": "Harden checkout",
+        "source_ref": "docs/strategy.md"
+      }
+    ],
+    "capability_dependencies": [
+      {
+        "id": "capability_dep:checkout_billing",
+        "in": "capability:checkout",
+        "out": "capability:billing",
+        "dep_type": "requires",
+        "evidence": "repository import graph"
+      }
+    ],
+    "decision_affected": [
+      {
+        "id": "affected:idempotency_checkout",
+        "in": "decision:idempotency",
+        "out": "capability:checkout"
+      }
+    ],
+    "insight_derived_from": [
+      {
+        "id": "derived_from:retry_policy",
+        "in": "insight:retry_policy",
+        "out": "observation:retry_correction"
+      }
+    ],
+    "assertions": [
+      {
+        "id": "relationship_assertion:checkout_depends_billing",
+        "subject": "capability:checkout",
+        "predicate": "depends_on",
+        "object": "capability:billing",
+        "family": "dependency",
+        "polarity": "positive",
+        "scope": {"product": "product:alpha"},
+        "status": "accepted",
+        "proposal_confidence": 0.9,
+        "evidence_strength": 1.0,
+        "resolver_certainty": 1.0,
+        "provenance_quality": 0.9,
+        "freshness": 1.0,
+        "evidence_refs": ["observation:retry_correction"],
+        "supporting_assertions": [],
+        "contradicting_assertions": [],
+        "assumptions": [],
+        "proposal_ids": ["relationship_proposal:checkout_depends_billing"],
+        "ontology_version": "ace.relationships.v1",
+        "resolver_version": "ace.assertion-resolver.v1",
+        "projection_eligible": true,
+        "review_depth": "none",
+        "explanation": "Accepted by deterministic policy"
+      },
+      {
+        "id": "relationship_assertion:idempotency_improves_checkout",
+        "subject": "decision:idempotency",
+        "predicate": "improves",
+        "object": "capability:checkout",
+        "family": "impact",
+        "polarity": "positive",
+        "scope": {"measure": "duplicate_charge_rate"},
+        "status": "contested",
+        "proposal_confidence": 0.8,
+        "evidence_strength": 0.5,
+        "resolver_certainty": 1.0,
+        "provenance_quality": 0.7,
+        "freshness": 1.0,
+        "evidence_refs": ["outcome_observation:duplicate_rate"],
+        "supporting_assertions": [],
+        "contradicting_assertions": ["relationship_assertion:idempotency_breaks_checkout"],
+        "assumptions": ["metric is attributable"],
+        "proposal_ids": ["relationship_proposal:idempotency_improves_checkout"],
+        "ontology_version": "ace.relationships.v1",
+        "resolver_version": "ace.assertion-resolver.v1",
+        "projection_eligible": false,
+        "review_depth": "standard",
+        "explanation": "Contested by conflicting evidence"
+      }
+    ],
+    "operational_relationships": [
+      {
+        "id": "operational_relationship:checkout_depends_billing",
+        "in": "capability:checkout",
+        "out": "capability:billing",
+        "predicate": "depends_on",
+        "assertion_id": "relationship_assertion:checkout_depends_billing",
+        "ontology_version": "ace.relationships.v1",
+        "resolver_version": "ace.assertion-resolver.v1",
+        "projection_version": "ace.assertion-resolver.v1"
+      }
+    ]
+  }
+}

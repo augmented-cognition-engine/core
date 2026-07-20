@@ -1,0 +1,127 @@
+slug: sample_audit_intelligence
+name: Sample Audit Intelligence
+description: "Loader-coverage fixture mirroring the shape of a full extension recipe: routing block, affinity blocks, and a 7-phase recipe spanning pipeline, fanout, and adversarial patterns with bindings and output keys. Content is deliberately neutral fixture data."
+domain_intelligences: [evaluation, strategy]
+min_execution_depth: 1
+routing:
+  disciplines: [evaluation]
+activation_signals:
+  - quality audit
+  - review checklist
+  - panel review
+archetype_affinity:
+  advisor: 0.85
+  analyst: 0.85
+  sentinel: 0.85
+  creator: 0.75
+  researcher: 0.7
+  executor: 0.6
+mode_affinity:
+  deliberative: 0.95
+  reflective: 0.85
+  exploratory: 0.7
+  conversational: 0.6
+  procedural: 0.5
+  reactive: 0.3
+composability:
+  complements:
+    - communication_intelligence
+  conflicts: []
+recipe:
+  phases:
+    - cognitive_function: discover
+      pattern: pipeline
+      min_depth: 1
+      output_schema: anchor
+      instruments:
+        - slug: anchor-discovery
+          fallback_slug: jobs-to-be-done
+          bindings:
+            context: audit_context
+            page_text: page_text
+          output_key: anchor
+
+    - cognitive_function: compose_panel
+      pattern: pipeline
+      min_depth: 1
+      output_schema: panel
+      instruments:
+        - slug: compose-panel-full
+          fallback_slug: personas
+          bindings:
+            context: audit_context
+            priors: priors
+            anchor: anchor
+          output_key: panel
+
+    - cognitive_function: review_pass1
+      pattern: fanout
+      min_depth: 1
+      output_schema: pass1_reads
+      instruments:
+        - slug: panel-review
+          fallback_slug: evaluation
+          bindings:
+            context: audit_context
+            panel: panel
+            sentences: sentences
+          output_key: pass1_reads
+
+    - cognitive_function: review_pass2_vetoes
+      pattern: adversarial
+      min_depth: 1
+      output_schema: vetoes
+      instruments:
+        - slug: gating-veto
+          fallback_slug: critique
+          bindings:
+            panel: panel
+            sentences: sentences
+            pass1_reads: pass1_reads
+          output_key: pass2_vetoes
+
+    - cognitive_function: propose_rewrites
+      pattern: pipeline
+      min_depth: 1
+      output_schema: proposed_rewrites
+      instruments:
+        - slug: rewrite-proposal
+          fallback_slug: synthesis
+          bindings:
+            context: audit_context
+            anchor: anchor
+            sentences: sentences
+            pass1_reads: pass1_reads
+            pass2_vetoes: pass2_vetoes
+          output_key: rewrite_proposal
+
+    - cognitive_function: synthesize_receipts
+      pattern: pipeline
+      min_depth: 1
+      output_schema: audit_result
+      instruments:
+        - slug: receipts-assembly
+          fallback_slug: synthesis
+          bindings:
+            audit_run: audit_run
+            anchor: anchor
+            panel: panel
+            sentences: sentences
+            pass1_reads: pass1_reads
+            pass2_vetoes: pass2_vetoes
+            proposed_rewrites: proposed_rewrites
+          output_key: synthesis
+
+    - cognitive_function: persist_decisions
+      pattern: pipeline
+      min_depth: 1
+      output_schema: persisted_node_ids
+      instruments:
+        - slug: decision-graph-write
+          fallback_slug: persistence
+          bindings:
+            repo: repo
+            audit_run: audit_run
+            decisions: decisions
+            sentences: sentences
+          output_key: persisted_ids

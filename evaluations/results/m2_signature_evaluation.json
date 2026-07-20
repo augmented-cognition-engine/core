@@ -1,0 +1,401 @@
+{
+  "access_paths": [
+    "subscription"
+  ],
+  "comparable_product_evidence": true,
+  "failures": [],
+  "live_evaluations_required": [
+    "Repeat trials with a transport exposing matched token caps and provider usage.",
+    "Add blinded human judgments and uncertainty before quality claims."
+  ],
+  "method": "One frozen public-data task; identical model setting; transparent term rubric. Token budgets were not transport-matched and sample size is one, so quality superiority is unsupported.",
+  "rows": [
+    {
+      "access_path": "subscription",
+      "calls": 1,
+      "continuity": 0.0,
+      "continuity_hits": [],
+      "estimated_cost_usd": null,
+      "forbidden_hits": [],
+      "input_tokens": 345,
+      "latency_ms": 30235,
+      "model": "claude-sonnet-4-6",
+      "output_tokens": 1436,
+      "quality": 0.75,
+      "required_hits": [
+        "evidence",
+        "reversal",
+        "MCP"
+      ],
+      "task_id": "ace-preview-surface-v1",
+      "total_tokens": 1781,
+      "variant": "single_model_ungrounded"
+    },
+    {
+      "access_path": "subscription",
+      "calls": 0,
+      "continuity": 1.0,
+      "continuity_hits": [
+        "M2-CONSTRAINT-fca8fb9fe3"
+      ],
+      "estimated_cost_usd": null,
+      "forbidden_hits": [],
+      "input_tokens": 0,
+      "latency_ms": 352627,
+      "model": "claude-sonnet-4-6",
+      "usage_observability": "unavailable_provider_instance_mismatch",
+      "output_tokens": 0,
+      "quality": 1.0,
+      "required_hits": [
+        "evidence",
+        "reversal",
+        "MCP"
+      ],
+      "task_id": "ace-preview-surface-v1",
+      "total_tokens": 0,
+      "variant": "ace"
+    },
+    {
+      "access_path": "subscription",
+      "calls": 0,
+      "continuity": 0.0,
+      "continuity_hits": [],
+      "estimated_cost_usd": null,
+      "forbidden_hits": [],
+      "input_tokens": 0,
+      "latency_ms": 204689,
+      "model": "claude-sonnet-4-6",
+      "usage_observability": "unavailable_provider_instance_mismatch",
+      "output_tokens": 0,
+      "quality": 0.5,
+      "required_hits": [
+        "reversal",
+        "MCP"
+      ],
+      "task_id": "ace-preview-surface-v1",
+      "total_tokens": 0,
+      "variant": "no_memory"
+    },
+    {
+      "access_path": "subscription",
+      "calls": 0,
+      "continuity": 0.0,
+      "continuity_hits": [],
+      "estimated_cost_usd": null,
+      "forbidden_hits": [],
+      "input_tokens": 0,
+      "latency_ms": 109965,
+      "model": "claude-sonnet-4-6",
+      "usage_observability": "unavailable_provider_instance_mismatch",
+      "output_tokens": 0,
+      "quality": 0.75,
+      "required_hits": [
+        "evidence",
+        "reversal",
+        "MCP"
+      ],
+      "task_id": "ace-preview-surface-v1",
+      "total_tokens": 0,
+      "variant": "fixed_roster"
+    },
+    {
+      "access_path": "subscription",
+      "calls": 0,
+      "continuity": 1.0,
+      "continuity_hits": [
+        "M2-CONSTRAINT-fca8fb9fe3"
+      ],
+      "estimated_cost_usd": null,
+      "forbidden_hits": [],
+      "input_tokens": 0,
+      "latency_ms": 148095,
+      "model": "claude-sonnet-4-6",
+      "usage_observability": "unavailable_provider_instance_mismatch",
+      "output_tokens": 0,
+      "quality": 1.0,
+      "required_hits": [
+        "evidence",
+        "reversal",
+        "MCP"
+      ],
+      "task_id": "ace-preview-surface-v1",
+      "total_tokens": 0,
+      "variant": "no_calibration"
+    }
+  ],
+  "run_kind": "live",
+  "schema_version": 1,
+  "suite_id": "m2-signature-live-v1",
+  "summary": {
+    "ace": {
+      "calls_total": 0,
+      "continuity_mean": 1.0,
+      "estimated_cost_usd_total": null,
+      "latency_ms_total": 352627,
+      "quality_mean": 1.0,
+      "tasks": 1,
+      "tokens_total": 0,
+      "usage_observability": "unavailable_provider_instance_mismatch"
+    },
+    "fixed_roster": {
+      "calls_total": 0,
+      "continuity_mean": 0.0,
+      "estimated_cost_usd_total": null,
+      "latency_ms_total": 109965,
+      "quality_mean": 0.75,
+      "tasks": 1,
+      "tokens_total": 0,
+      "usage_observability": "unavailable_provider_instance_mismatch"
+    },
+    "no_calibration": {
+      "calls_total": 0,
+      "continuity_mean": 1.0,
+      "estimated_cost_usd_total": null,
+      "latency_ms_total": 148095,
+      "quality_mean": 1.0,
+      "tasks": 1,
+      "tokens_total": 0,
+      "usage_observability": "unavailable_provider_instance_mismatch"
+    },
+    "no_memory": {
+      "calls_total": 0,
+      "continuity_mean": 0.0,
+      "estimated_cost_usd_total": null,
+      "latency_ms_total": 204689,
+      "quality_mean": 0.5,
+      "tasks": 1,
+      "tokens_total": 0,
+      "usage_observability": "unavailable_provider_instance_mismatch"
+    },
+    "single_model_ungrounded": {
+      "calls_total": 1,
+      "continuity_mean": 0.0,
+      "estimated_cost_usd_total": null,
+      "latency_ms_total": 30235,
+      "quality_mean": 0.75,
+      "tasks": 1,
+      "tokens_total": 1781
+    }
+  },
+  "traces": {
+    "ace": {
+      "classification": {
+        "archetype": "advisor",
+        "complexity": "complex",
+        "discipline": "product_strategy",
+        "domain_path": null,
+        "mode": "deliberative"
+      },
+      "composition": {
+        "depth": 3,
+        "fusion_mode": false,
+        "meta_skills": [
+          "verification_intelligence",
+          "data_intelligence",
+          "strategic_intelligence",
+          "coding_intelligence",
+          "systems_intelligence",
+          "prioritization_intelligence",
+          "product_decision_intelligence",
+          "domain_specific_intelligence"
+        ],
+        "phases": [
+          {
+            "cognitive_function": "frame",
+            "instruments": [
+              "constraint-theory",
+              "core-tradeoffs"
+            ],
+            "pattern": "pipeline",
+            "tools": [
+              "ace_code_context",
+              "ace_module_coupling"
+            ]
+          },
+          {
+            "cognitive_function": "prioritize",
+            "instruments": [
+              "test-strategy"
+            ],
+            "pattern": "solo",
+            "tools": []
+          },
+          {
+            "cognitive_function": "choose",
+            "instruments": [
+              "codebase-comparison",
+              "design-pattern-selection"
+            ],
+            "pattern": "pipeline",
+            "tools": [
+              "ace_module_coupling",
+              "ace_dependency_chain"
+            ]
+          },
+          {
+            "cognitive_function": "validate",
+            "instruments": [
+              "integration-validation"
+            ],
+            "pattern": "solo",
+            "tools": [
+              "ace_blast_radius",
+              "ace_diff_impact"
+            ]
+          },
+          {
+            "cognitive_function": "review",
+            "instruments": [
+              "graph-grounded-review"
+            ],
+            "pattern": "pipeline",
+            "tools": [
+              "ace_blast_radius",
+              "ace_dependency_chain",
+              "ace_pr_review"
+            ]
+          },
+          {
+            "cognitive_function": "allocate",
+            "instruments": [
+              "coverage-budget"
+            ],
+            "pattern": "solo",
+            "tools": []
+          },
+          {
+            "cognitive_function": "assess",
+            "instruments": [
+              "constraint-mapping"
+            ],
+            "pattern": "solo",
+            "tools": []
+          },
+          {
+            "cognitive_function": "engage",
+            "instruments": [
+              "multi-voice-engage"
+            ],
+            "pattern": "parallel",
+            "tools": []
+          },
+          {
+            "cognitive_function": "recommend",
+            "instruments": [
+              "holistic-validation"
+            ],
+            "pattern": "solo",
+            "tools": []
+          }
+        ],
+        "roster": [
+          {
+            "archetype": "advisor",
+            "color_hint": "blue",
+            "idle_zone_hint": "right"
+          }
+        ]
+      },
+      "dispatch": {
+        "agent_count": 3,
+        "pattern": "adversarial",
+        "stages": [
+          "analyst",
+          "creator",
+          "advisor"
+        ]
+      },
+      "intelligence": {
+        "degraded_tiers": [],
+        "prior_decisions": [
+          {
+            "decision_type": "architecture",
+            "rationale": "At candidate stage, the following remain hard blockers before stable publication: M2 copy review, M3 security hardening, and founder/legal/external approvals. No stable-import guarantee should be made until these gates clear.",
+            "title": "At candidate stage, the following remain hard blockers before stable publication: M2 copy review, M3"
+          },
+          {
+            "decision_type": "architecture",
+            "rationale": "ACE must expose an operator onboarding and configuration capability that (1) consolidates model routing into a provider-neutral policy with fast/capable/frontier tiers covering subscription, API, and local routes along with privacy, cost, latency constraints, escalation approval,",
+            "title": "ACE must expose an operator onboarding and configuration capability that (1) consolidates model rout"
+          },
+          {
+            "decision_type": "architecture",
+            "rationale": "On 2026-07-19 the B2B Marketing private extension content was migrated from the overloaded Atrium identity to a dedicated ACE identity: distribution ace-ext-b2b-marketing, package ace_ext_b2b_marketing, extension name/entry b2b_marketing, under QueryLabs stewardship. No permanent",
+            "title": "On 2026-07-19 the B2B Marketing private extension content was migrated from the overloaded Atrium id"
+          },
+          {
+            "decision_type": "architecture",
+            "rationale": "Three categories of known inward coupling exist and are deliberately deferred: (1) MAKE/SHIP modules call core.engine.mcp.tools; (2) foresight/review services import API helpers; (3) graph/capture/intelligence modules share the concrete global DB pool. Resolution is gated on M2/M",
+            "title": "Three categories of known inward coupling exist and are deliberately deferred: (1) MAKE/SHIP modules"
+          },
+          {
+            "decision_type": "architecture",
+            "rationale": "ACE is being used to build ACE, establishing a canonical recursive dogfooding case. ACE's own roadmap, work packets, concurrent sessions, decisions, evidence, blockers, outcomes, and replanning constitute the bootstrap dataset and primary evaluation scenario for the Living Produc",
+            "title": "ACE is being used to build ACE, establishing a canonical recursive dogfooding case. ACE's own roadma"
+          }
+        ],
+        "specialties_loaded": [],
+        "total_count": 1
+      },
+      "provenance": {
+        "duration_ms": 352464,
+        "model": null,
+        "task_id": "task:ggwdw9ur6x9rltenm8vh",
+        "token_usage": {
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "calls": [],
+          "cost_usd": 0.0,
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "stages": {},
+          "total_tokens": 0
+        }
+      }
+    },
+    "fixed_roster": {
+      "classification": {
+        "archetype": "advisor",
+        "complexity": "complex",
+        "discipline": "product_strategy",
+        "mode": "deliberative"
+      },
+      "error": null,
+      "memory_marker_present": false,
+      "pattern": "pipeline",
+      "status": "completed"
+    },
+    "no_calibration": {
+      "classification": {
+        "archetype": "advisor",
+        "complexity": "complex",
+        "discipline": "product_strategy",
+        "mode": "deliberative"
+      },
+      "error": null,
+      "memory_marker_present": true,
+      "pattern": "pipeline",
+      "status": "completed"
+    },
+    "no_memory": {
+      "classification": {
+        "archetype": "advisor",
+        "complexity": "complex",
+        "discipline": "product_strategy",
+        "mode": "deliberative"
+      },
+      "error": null,
+      "memory_marker_present": false,
+      "pattern": "pipeline",
+      "status": "completed"
+    },
+    "single_model_ungrounded": {
+      "provider": "CLIProvider"
+    }
+  },
+  "unsupported_claims": [
+    "ACE outperforms the baseline (n=1, no blinded human judge, unmatched observable token budgets).",
+    "No-calibration is a complete calibration ablation; it removes loop-context calibration only.",
+    "Per-variant token/cost attribution is unavailable for the recorded ACE and ablation runs because they completed through a different provider singleton than the measurement probe. Raw subscription-credit ledger rows exist but cannot be attributed honestly to a variant after the fact. The runner now shares the orchestration provider for future runs."
+  ]
+}

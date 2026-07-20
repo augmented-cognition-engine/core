@@ -1,0 +1,181 @@
+# Decision recognition validation set — 50 labeled samples
+# Format: text, is_decision, decision_type (optional), expected_title (optional)
+
+positive:
+  - text: "Let's go with JWT instead of session cookies for stateless deployment."
+    is_decision: true
+    decision_type: architecture
+    expected_title: "Use JWT instead of session cookies"
+
+  - text: "We should use SurrealDB for this — Postgres is overkill for a graph model."
+    is_decision: true
+    decision_type: architecture
+    expected_title: "Choose SurrealDB over Postgres"
+
+  - text: "Skip the cache layer for now, we'll add it in v2."
+    is_decision: true
+    decision_type: direction
+
+  - text: "Okay, let's do option A — the simpler one."
+    is_decision: true
+    decision_type: trade_off
+
+  - text: "We decided to defer the mobile app to v2."
+    is_decision: true
+    decision_type: direction
+
+  - text: "Let's use snake_case everywhere — matches Python conventions."
+    is_decision: true
+    decision_type: convention
+
+  - text: "We're not building the admin panel ourselves — we'll use Retool."
+    is_decision: true
+    decision_type: trade_off
+
+  - text: "Agreed: no microservices. Start as a monolith, split if needed."
+    is_decision: true
+    decision_type: architecture
+
+  - text: "Let's keep auth stateless — no sessions stored server-side."
+    is_decision: true
+    decision_type: architecture
+
+  - text: "We'll drop the recommendation engine from the MVP scope."
+    is_decision: true
+    decision_type: direction
+
+  - text: "Use Haiku for the classifier — it's fast and cheap enough."
+    is_decision: true
+    decision_type: trade_off
+
+  - text: "Alright, we're going with event sourcing for the audit trail."
+    is_decision: true
+    decision_type: architecture
+
+  - text: "Let's not abstract that yet — three lines is fine."
+    is_decision: true
+    decision_type: convention
+
+  - text: "We decided: no mocking the DB in integration tests."
+    is_decision: true
+    decision_type: convention
+
+  - text: "Ship it. The 80% solution is good enough for the demo."
+    is_decision: true
+    decision_type: direction
+
+  - text: "We'll store decisions in SurrealDB as a separate table, not in the graph."
+    is_decision: true
+    decision_type: architecture
+
+  - text: "FastAPI over Flask — we need async support and type hints."
+    is_decision: true
+    decision_type: architecture
+
+  - text: "No feature flags for now. We don't have the operational overhead for it."
+    is_decision: true
+    decision_type: direction
+
+  - text: "We're using Pydantic v2 everywhere — no mixing v1 and v2."
+    is_decision: true
+    decision_type: convention
+
+  - text: "Reject the proposal for a separate analytics service — keep it in-process."
+    is_decision: true
+    decision_type: rejection
+
+  - text: "Let's go with a pull model instead of push for the sentinel updates."
+    is_decision: true
+    decision_type: architecture
+
+  - text: "We'll use smtplib in a thread executor — no external email service dependency."
+    is_decision: true
+    decision_type: trade_off
+
+  - text: "Decided: all API routes are auth-gated, no public endpoints except permalink."
+    is_decision: true
+    decision_type: convention
+
+  - text: "We chose to ship A4 before A5 — proactive line unblocks more UX."
+    is_decision: true
+    decision_type: direction
+
+  - text: "Alright, the blast radius protocol gates on new regressions, not all failures."
+    is_decision: true
+    decision_type: convention
+
+negative:
+  - text: "Should we use JWT or session cookies?"
+    is_decision: false
+
+  - text: "This login form looks slow."
+    is_decision: false
+
+  - text: "Write the auth module."
+    is_decision: false
+
+  - text: "The build is passing."
+    is_decision: false
+
+  - text: "What are the alternatives to SurrealDB?"
+    is_decision: false
+
+  - text: "How does SurrealDB handle schema evolution?"
+    is_decision: false
+
+  - text: "Can you explain event sourcing?"
+    is_decision: false
+
+  - text: "I noticed a typo in the README."
+    is_decision: false
+
+  - text: "Let me check the test results."
+    is_decision: false
+
+  - text: "Run the tests."
+    is_decision: false
+
+  - text: "What does the classifier currently return for this input?"
+    is_decision: false
+
+  - text: "The latency looks higher than expected."
+    is_decision: false
+
+  - text: "Could we potentially use Postgres here?"
+    is_decision: false
+
+  - text: "I'm thinking about using JWT."
+    is_decision: false
+
+  - text: "The documentation says to use snake_case."
+    is_decision: false
+
+  - text: "There's a bug in the login flow."
+    is_decision: false
+
+  - text: "Here's what the API currently returns."
+    is_decision: false
+
+  - text: "Next up: implement the draft builder."
+    is_decision: false
+
+  - text: "Let me look at how observer.py works."
+    is_decision: false
+
+  - text: "I'll push the commit."
+    is_decision: false
+
+  - text: "Good work on A4."
+    is_decision: false
+
+  - text: "The tests are green."
+    is_decision: false
+
+  - text: "We might want to consider using Redis later."
+    is_decision: false
+
+  - text: "Can you summarize what we built today?"
+    is_decision: false
+
+  - text: "The API needs better error messages."
+    is_decision: false
