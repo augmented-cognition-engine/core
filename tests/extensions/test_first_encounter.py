@@ -29,6 +29,10 @@ def test_readme_opens_with_partner_team_framing():
     assert "Bring the problem. ACE assembles the thinking." in head
     assert "lean coordinating" in readme
     assert "not a literal ratio" in readme
+    assert "The architecture is the feature" in readme
+    assert "A nine-layer cognitive pipeline" in readme
+    assert "Dynamic composition" in readme
+    assert "Human ↔ ACE ↔ LLM" in readme
     assert "two-thirds of the intelligence" not in readme
     assert "minimal teaching" not in readme[:2000]  # the old framing is gone
 

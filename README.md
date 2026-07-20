@@ -14,6 +14,8 @@ and corrections can persist, giving later work the context of what came before.
 
 [Get started](#run-it) · [What works today](docs/capability-maturity.md) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
 
+**Human ↔ ACE ↔ LLM** · **Nine-layer cognitive loop** · **Dynamic composition** · **Living Product Graph** · **MAKE + SHIP**
+
 **For teams** — durable reasoning context for important decisions &nbsp;·&nbsp; **For builders** — an extensible, provider-neutral core, BYOK
 
 *Created and initially stewarded by Edwin Amirian. QueryLabs is the founding sponsor and operator
@@ -35,6 +37,45 @@ perspectives, and covers the parts a happy path always misses.
 | One response path | Multiple perspectives can be composed and synthesized |
 | Context resets unless you provide it again | Accepted decisions and corrections can persist in a graph |
 | Risk-checking depends on the prompt | Skeptic and security perspectives can be composed when the task calls for them |
+
+---
+
+## The architecture is the feature
+
+ACE is not a prompt wrapper with a memory plugin. It owns a layered cognitive
+loop around the model: it decides what kind of reasoning is needed, assembles
+the team and method, keeps the provenance of what informed the result, and can
+connect later evidence back to the decision.
+
+```mermaid
+flowchart LR
+    H([Human]) <--> ROUTE
+    subgraph ACE["ACE owns the loop"]
+        direction LR
+        META[(Meta-Intelligence)] <--> ROUTE[classify]
+        ROUTE --> COMPOSE[compose]
+        COMPOSE --> ENGAGE[engage]
+        ENGAGE --> SYNTH[synthesize]
+        SYNTH --> WRITE[decision + graph write]
+        WRITE -. evidence · outcomes · calibration .-> META
+    end
+    ENGAGE -->|grounded request| LLM([your model])
+    LLM -->|inference| ENGAGE
+```
+
+| Major feature | What makes it different |
+|---|---|
+| **The nested loop — `Human ↔ ACE ↔ LLM`** | ACE owns routing, memory, composition, sequencing, and graph writes. The configured model supplies inference inside the loop; it does not become the system of record or the orchestrator. |
+| **A nine-layer cognitive pipeline** | Meta-Intelligence → classification → orchestration and agent composition → engagement → disciplines × frameworks → synthesis → decision and graph write → sentinel → foresight, with evidence returning to the standing substrate. |
+| **Dynamic composition** | ACE does not send every problem to one fixed agent. It selects *who* should reason, *how* they should reason, the frameworks and depth to use, and an independent, team, pipeline, adversarial, or fan-out orchestration shape. |
+| **Deep, inspectable deliberation** | Multiple perspectives can contribute, disagree, critique, and converge. Receipts, traces, provenance, and retained decisions make the result inspectable beyond the final prose. |
+| **Meta-Intelligence + the Living Product Graph** | Observations, insights, decisions, capabilities, work, predictions, and outcomes live as durable nodes connected by typed semantic edges—not as one flattened chat history. Grounding edges can identify which beliefs depend on a changed object. |
+| **Continuous learning with epistemic guardrails** | Corrections and accepted decisions can persist; outcomes can be detected; forecasts can be reconciled; calibration can return to later orchestration. Provenance and trust priors deliberately discount ACE's own generated material, and no automatic improvement is assumed. |
+| **MAKE and SHIP arms** | MAKE turns approved reasoning into code, design, data, and scaffolds. SHIP challenges security, testing, observability, DevOps, and scale before work leaves. They are implemented first-class arms; their public end-to-end paths are still experimental in 0.1.x. |
+| **Extensions without a fork** | Builders can add personas, committees, frameworks, recipes, instruments, tools, and schema through a public extension boundary while keeping the core provider-neutral and BYOK. |
+
+The [architecture deep dive](docs/architecture.md) maps the as-built boundaries,
+all nine layers, graph semantics, MAKE/SHIP loop, learning system, and extension seams.
 
 ---
 
