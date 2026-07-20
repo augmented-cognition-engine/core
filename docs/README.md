@@ -10,7 +10,9 @@ ACE's public documentation is intentionally small and user-facing:
 - [Build your first extension](build-your-first-extension.md) — the practical extension path.
 - [Extension API](extension-api.md) — contracts available to extension authors.
 - [Governance](governance.md) — project decisions, compatibility, support, and contributions.
-- [Public roadmap](../ROADMAP.md) — current public priorities and longer-term direction.
+- [ACE Public Roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) — live
+  Now/Next/Later status.
+- [Versioned roadmap](../ROADMAP.md) — public outcome definitions and planning principles.
 
 The root [README](../README.md) is the installation and quickstart authority. User-visible release
 changes live in the [changelog](../CHANGELOG.md). Security reports follow the

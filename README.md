@@ -2,16 +2,19 @@
 
 # ACE — Augmented Cognition Engine
 
-***No more prompts. Partner with AI.***
+***Bring the problem. ACE assembles the thinking.***
 
-**An open-source reasoning core — a partner team for thinking.** You bring a
-thought; a problem-fit team of perspectives forms, deliberates *with you*, and
-reasons through whatever model you point it at — then remembers, so the next
-decision starts smarter.
+**An open-source, self-hosted reasoning core — a partner team for thinking.**
+ACE composes a problem-fit set of perspectives, routes them through the model
+provider you configure, and synthesizes a recommendation. Accepted decisions
+and corrections can persist, giving later work the context of what came before.
 
-[Quickstart](#run-it) · [Preview scope](docs/capability-maturity.md) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Roadmap](ROADMAP.md) · [License](#license)
+> **Developer preview — 0.1.0.** The supported self-hosted interaction path is
+> the `ace` CLI and exactly 11 thin MCP tools.
 
-**For teams** — a reasoning partner embedded in the work &nbsp;·&nbsp; **For builders** — an open reasoning core you extend, any model, BYOK
+[Get started](#run-it) · [What works today](docs/capability-maturity.md) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
+
+**For teams** — durable reasoning context for important decisions &nbsp;·&nbsp; **For builders** — an extensible, provider-neutral core, BYOK
 
 *Created and initially stewarded by Edwin Amirian. QueryLabs is the founding sponsor and operator
 of the official hosted and commercial offerings.*
@@ -28,19 +31,23 @@ perspectives, and covers the parts a happy path always misses.
 
 | Operating a chatbot | Partnering with ACE |
 |---|---|
-| You write the prompt, and rewrite it | You bring the thought; the team forms itself |
-| One voice, confidently generic | A committee argues before it agrees |
-| It forgets everything by the next session | Accepted decisions and guidance can persist in a graph |
-| You're the one who remembers the risks | The Skeptic, the Security arm — baked in |
+| You continually restate and steer the task | You bring the problem; ACE composes the reasoning shape |
+| One response path | Multiple perspectives can be composed and synthesized |
+| Context resets unless you provide it again | Accepted decisions and corrections can persist in a graph |
+| Risk-checking depends on the prompt | Skeptic and security perspectives can be composed when the task calls for them |
 
 ---
 
-## Built like an octopus
+## Inspired by the octopus
 
-ACE is an octopus: a lean central brain that recruits and coordinates — it
-does not micromanage — with roughly two-thirds of the intelligence living in
-semi-autonomous arms. That is real cephalopod biology, and it is literally
-this codebase.
+ACE takes architectural inspiration from the octopus: a lean coordinating
+brain working with specialized arms. The core classifies the problem, composes
+the reasoning team, and coordinates its work; perspectives, agents, and
+extensions contribute specialized reasoning around it.
+
+The analogy describes the design, not a literal ratio of code or intelligence.
+In 0.1.0, the reasoning core and extension boundary are the compatibility focus;
+MAKE and SHIP execution arms remain experimental.
 
 ```mermaid
 flowchart LR
@@ -49,19 +56,20 @@ flowchart LR
         direction TB
         classify --> compose --> engage
     end
-    B --> A
-    subgraph A["🦑 arms"]
+    B <--> A
+    subgraph A["🦑 specialized contributions"]
         direction TB
-        MAKE["MAKE — code · design · data"]
-        SHIP["SHIP — security · testing · observability · scale"]
+        PERSPECTIVES["perspectives · committees"]
+        ARMS["MAKE / SHIP arms — experimental"]
+        EXTENSIONS["extensions"]
     end
-    A --> S([🎨 Atrium — experimental visual-product research])
+    B --> S([🎨 Atrium — experimental visual-product research])
     S <--> H
-    EXT[/your extension = a new arm/] -.attaches.-> A
 ```
 
 - **The brain** (`core/engine/`) decides *who should think about this* and convenes them — `classify → compose → engage`. Selection combines explicit policy, configuration, and learned signals.
-- **The arms** — MAKE arms build; SHIP arms gate what leaves (the things a happy path forgets). Each carries its own reasoning on a shared brain base: improve the brain once, every arm gets smarter.
+- **Specialized contributions** supply perspectives, committees, extensions, and experimental MAKE/SHIP execution capabilities around the shared reasoning core.
+- **MAKE and SHIP arms** are implemented for evaluation, but they are not stable 0.1.x contracts.
 - **The experimental visual-product/research track** — Atrium prototypes Canvas interactions.
   Think Tank is its deep-deliberation research mode. Atrium releases with 0.1.0 as a public
   repository beta, not as a supported Python artifact.

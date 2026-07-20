@@ -1,6 +1,9 @@
 # ACE Architecture
 
-**ACE — the Augmented Cognition Engine.** A reasoning core you partner with, not a chatbot you operate. You bring a thought; a problem-fit team of perspectives forms, deliberates with you, and reasons through whatever LLM you point it at. The model doesn't drive — ACE does.
+**ACE — the Augmented Cognition Engine.** A reasoning core you partner with, not a chatbot you
+operate. You bring a problem; ACE composes a problem-fit set of perspectives, routes them through
+the model provider you configure, and synthesizes the result. The model does not drive the loop —
+ACE does.
 
 This document is the map: how the pieces fit, why they're shaped that way, and where your own work plugs in.
 
@@ -126,9 +129,11 @@ real consumer and verification target.
 
 ---
 
-## Built like an octopus
+## Inspired by the octopus
 
-An octopus is a lean central brain that *recruits and coordinates* — it does not micromanage — with roughly two-thirds of its intelligence living in semi-autonomous arms. That's not a metaphor bolted on afterward; it's the architecture.
+ACE takes architectural inspiration from the octopus: a lean coordinating brain working with
+specialized arms. The analogy describes the intended distribution of coordination and specialized
+work; it is not a literal claim about the ratio of code or intelligence in each component.
 
 ```mermaid
 flowchart TB
@@ -164,11 +169,11 @@ flowchart TB
     SKIN <--> H
 ```
 
-- **The brain** decides *who should think about this* and convenes them: `classify → compose → engage`. It's lean on purpose.
-- **The arms** carry their own reasoning on a shared brain base. **MAKE arms** (code, design, data) build; **SHIP arms** (security, testing, observability, devops, scale) gate what leaves — the things a happy-path builder forgets. Improve the brain once and every arm gets smarter.
-- **The skin** is Atrium, the future ACE Canvas. In the developer preview it is a view into the
-  organism's reasoning; MCP and CLI carry interaction. Think Tank is its first deep-deliberation
-  visualization.
+- **The brain** decides *who should think about this* and convenes them: `classify → compose → engage`. Selection combines explicit policy, configuration, and learned signals.
+- **The arms** contain specialized MAKE and SHIP capabilities around the shared reasoning core.
+  They are implemented for evaluation but remain experimental outside the stable 0.1.x contract.
+- **The skin** is Atrium, the experimental ACE Canvas research track. MCP and CLI carry the
+  supported developer-preview interaction path.
 - **Extensions grow new arms.** A domain (personas, frameworks, recipes, instruments, tools, schema) attaches to the brain without forking it. That's the whole extension model, and it's covered in [build-your-first-extension.md](build-your-first-extension.md).
 
 ---
@@ -188,7 +193,10 @@ flowchart LR
     LLM -->|reasoning only| ACE
 ```
 
-The LLM is the inference resource ACE *calls* — it cannot write to the graph, choose the next step, or decide which perspective speaks next. ACE owns all of that. That's what makes ACE model-agnostic (point it at anything) and what makes the reasoning **grounded** rather than improvised: every LLM call is shaped by ACE's standing intelligence first.
+The LLM is the inference resource ACE *calls* — it cannot write to the graph, choose the next
+step, or decide which perspective speaks next. ACE owns those decisions. That separation keeps
+the core provider-neutral across its documented routes and lets ACE shape model calls with retained
+intelligence rather than surrendering orchestration to a provider.
 
 ACE's Living Product Graph extends this ownership from reasoning into planning and execution. It
 connects intent, outcomes, capabilities, decisions, work packets, dependencies, evidence,
@@ -199,7 +207,10 @@ task database—and Atrium is initially a view over the same kernel-owned state.
 
 ## The cognitive pipeline — 9 layers
 
-Every thought you drop in flows through nine layers. The critical one is **Layer 1, Meta-Intelligence** — the standing substrate (past insights, decisions, capabilities, calibration, sentinel state) that is **read first and written back last.** The loop closes at L1, and that's what makes the intelligence *compound*: every run leaves the next one smarter.
+The full architecture is organized as nine layers. The supported developer-preview path exercises
+the reasoning, capture, graph, and retrieval loop; sentinel, foresight, calibration, and broader
+automation remain experimental. **Layer 1, Meta-Intelligence** is the standing substrate of past
+insights, decisions, capabilities, calibration, and sentinel state.
 
 ```mermaid
 flowchart TB
@@ -221,13 +232,18 @@ flowchart TB
     style L1 fill:#0d3b2e,stroke:#2fb48d,color:#e7ede9
 ```
 
-The dotted line is the point. Layers 2–9 feed their conclusions back into Layer 1, so the substrate every future thought reads from keeps growing. ACE gets better at *your* problems the more you think with it.
+The dotted line shows the design intent: exercised layers can feed accepted conclusions back into
+Layer 1, so later work can load retained context. Persistence creates the opportunity for better-
+informed later reasoning; it is not a guarantee that every run improves automatically.
 
 ---
 
-## Dynamic composition — nothing is hardcoded
+## Dynamic composition — policy-guided and assembled at runtime
 
-ACE has no fixed script. The classifier reads each thought's discipline, complexity, and mode, and the composer **assembles the reasoning shape at runtime** — which perspectives convene, which frameworks each one reasons through, how many phases deep. A quick question gets a light touch; a thorny architectural decision convenes a full multi-voice committee that argues before it agrees.
+ACE does not use one fixed committee for every task. The classifier evaluates discipline,
+complexity, and mode using explicit policy, configuration, and learned signals. The composer then
+**assembles the reasoning shape at runtime** — which perspectives convene, which frameworks apply,
+and how many phases the task receives.
 
 ```mermaid
 flowchart LR
@@ -241,7 +257,10 @@ flowchart LR
     SYN --> W[(write decision<br/>back to the graph)]
 ```
 
-**Orchestration** picks *who* engages. **Composition** assembles *how* each one reasons. Because nothing is hardcoded into the dispatch path, every problem gets the cognitive shape that fits it — and the same mechanism a stranger's extension uses to add a domain is the mechanism the core uses to reason. There's no privileged path; the extension API generalized the kernel's own composition past its boundary.
+**Orchestration** picks *who* engages. **Composition** assembles *how* each one reasons. The path is
+runtime-composed within explicit policies and compatibility boundaries; it is not an unconstrained
+claim that every problem receives a perfect team. Extensions use the same public registration and
+composition seams rather than a separate privileged path.
 
 ---
 
@@ -252,7 +271,7 @@ flowchart LR
 | Reason about a new domain | an **extension** — personas, frameworks, recipes, instruments, tools, schema, registered via the `ace.extensions` entry point |
 | Add a reasoning capability | a **recipe + instrument** pair, addressable by slug; the composer routes to it by discipline, never by name |
 | Contribute a pre-built team | a **committee** builder — a composed set of voices |
-| Reach any model | point `get_llm()` at Claude, GPT, a local model — the loop is unchanged |
+| Use a supported model route | configure one of the documented provider paths; the ACE loop remains separate from the provider |
 
 Extensions never fork the core. They attach. The core ships empty of any single domain's specifics; you teach it yours. Start at **[build-your-first-extension.md](build-your-first-extension.md)**, and the stability you can build against is in **[extension-api.md](extension-api.md)**.
 
@@ -271,4 +290,5 @@ Extensions never fork the core. They attach. The core ships empty of any single 
 | The canvas (skin) | `core/ui/canvas/` |
 | The extension contract | `core/engine/extensions/` |
 
-The brain is small enough to hold in your head; the arms are where the depth lives. That's the octopus — and it's the whole point.
+The brain coordinates; specialized components contribute depth around it. That is the design intent
+behind the octopus metaphor.

@@ -33,8 +33,11 @@ Priorities may change as maintainers learn from users and contributors.
 
 ## Follow and contribute
 
-The GitHub Project is the intended live view of public roadmap work. Until it is linked here,
-use repository issues for bugs and proposals. Public roadmap issues should state the user
-outcome, scope, acceptance evidence, dependencies, and maturity impact. They must not contain
-credentials, vulnerability details, customer information, private agreements, or unpublished
-business and release plans.
+Follow the live [ACE Public Roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1)
+for current Now/Next/Later status. This file preserves the versioned outcome definitions and
+public planning principles; repository issues carry discussion and acceptance evidence for
+individual outcomes.
+
+Public roadmap issues should state the user outcome, scope, acceptance evidence, dependencies,
+and maturity impact. They must not contain credentials, vulnerability details, customer
+information, private agreements, or unpublished business and release plans.

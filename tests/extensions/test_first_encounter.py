@@ -22,13 +22,14 @@ def test_readme_opens_with_partner_team_framing():
     before the ladder restructure."""
     readme = _read("README.md")
     head = readme[:800]
-    # The hero (sell-forward, post-landing-page rewrite) leads with the thesis
-    # and the partner-team framing; the octopus anatomy now lives just below the
-    # "The shift" problem→promise band, so it is pinned against the whole doc.
+    # The launch hero leads with accurate partner-team framing and the octopus
+    # section explicitly treats the biology as inspiration rather than a literal
+    # code or intelligence ratio.
     assert "partner team for thinking" in head
-    assert "No more prompts. Partner with AI." in head
-    assert "lean central brain that recruits and coordinates" in readme
-    assert "two-thirds of the intelligence" in readme
+    assert "Bring the problem. ACE assembles the thinking." in head
+    assert "lean coordinating" in readme
+    assert "not a literal ratio" in readme
+    assert "two-thirds of the intelligence" not in readme
     assert "minimal teaching" not in readme[:2000]  # the old framing is gone
 
 
