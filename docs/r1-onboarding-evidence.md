@@ -185,8 +185,13 @@ The first Compose health attempt failed with `No space left on device` after
 the nested Linux trials. Only the named disposable trial containers and empty
 verification volume were removed; the identical health command then passed.
 
-Candidate PR and post-merge main CI links will be added before closeout. The
-pre-trial merged-main baseline is linked above.
+Candidate PR [#10](https://github.com/augmented-cognition-engine/core/pull/10)
+is mergeable. Its first complete candidate CI run
+[29844988881](https://github.com/augmented-cognition-engine/core/actions/runs/29844988881)
+passed Lint, Security Audit, Canvas, fast gate, naked kernel, and Docker Build.
+The pre-trial merged-main baseline is linked above; post-merge main is verified
+as an external closeout step because its run does not exist until this report
+has already merged.
 
 The versioned roadmap files are reconciled to `ready`. The authenticated GitHub
 CLI token lacks `read:project`, so the live Project could not be inspected or
