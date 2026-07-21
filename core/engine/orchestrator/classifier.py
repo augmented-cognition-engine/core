@@ -219,7 +219,7 @@ async def _load_specialty_catalog(product_id: str) -> str:
         async with pool.connection() as conn:
             rows = parse_rows(
                 await conn.query(
-                    "SELECT slug, description, perspective FROM specialty WHERE product = <string>$product_id LIMIT 50",
+                    "SELECT slug, description, perspective FROM specialty WHERE product = <record>$product_id LIMIT 50",
                     {"product_id": product_id},
                 )
             )
