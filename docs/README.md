@@ -10,7 +10,9 @@ ACE's public documentation is intentionally small and user-facing:
 - [Clean-user onboarding trial](onboarding-trials.md) — measure time to first useful result,
   recovery, and independence from maintainer help.
 - [R1 onboarding evidence](r1-onboarding-evidence.md) — the reconciled macOS/Linux trial results,
-  observed friction, fixes, verification, and remaining Linux activation blocker.
+  observed friction, fixes, verification, passing activation outcomes, and explicit limitations.
+- [R2 release evidence](r2-release-evidence.md) — the focused 0.1.1 scope, clean installed-artifact
+  checks, archive inspection, verification results, public release gates, and limitations.
 - [Build your first extension](build-your-first-extension.md) — the practical extension path.
 - [Extension API](extension-api.md) — contracts available to extension authors.
 - [Governance](governance.md) — project decisions, compatibility, support, and contributions.

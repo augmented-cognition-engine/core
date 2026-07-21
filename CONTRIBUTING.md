@@ -1,7 +1,7 @@
 # Contributing to ACE
 
 ACE is an open-source reasoning kernel — the engine that powers partner-team reasoning across any
-domain. The 0.1.0 contribution path covers the kernel, CLI/thin MCP contract, evaluation, docs, and
+domain. The 0.1.x contribution path covers the kernel, CLI/thin MCP contract, evaluation, docs, and
 extension ecosystem. Atrium is a separately gated experimental visual-product/research track.
 
 **Before you start, please read:**

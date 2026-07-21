@@ -9,10 +9,10 @@ ACE composes a problem-fit set of perspectives, routes them through the model
 provider you configure, and synthesizes a recommendation. Accepted decisions
 and corrections can persist, giving later work the context of what came before.
 
-> **Developer preview — 0.1.0.** The supported self-hosted interaction path is
+> **Developer preview — 0.1.1.** The supported self-hosted interaction path is
 > the `ace` CLI and exactly 11 thin MCP tools.
 
-[Get started](#get-your-first-recommendation) · [What works today](docs/capability-maturity.md) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
+[Get started](#start-here-get-a-product-recommendation) · [What works today](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md) · [Documentation](https://github.com/augmented-cognition-engine/core/blob/main/docs/README.md) · [Architecture](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
 
 **Human ↔ ACE ↔ LLM** · **Nine-layer cognitive loop** · **Dynamic composition** · **Living Product Graph** · **MAKE + SHIP**
 
@@ -22,6 +22,30 @@ and corrections can persist, giving later work the context of what came before.
 of the official hosted and commercial offerings.*
 
 </div>
+
+---
+
+## Start here: get a product recommendation
+
+Bring one real product decision. Guided setup asks how ACE should access a model, starts the
+self-hosted runtime, and returns a reasoned recommendation—not merely a health check.
+
+You need macOS or Linux, Git, Python 3.12, [`uv`](https://docs.astral.sh/uv/), Docker Engine with
+Compose v2, and access to one [supported model provider](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
+
+```bash
+git clone https://github.com/augmented-cognition-engine/core ace
+cd ace
+uv sync
+uv run ace setup
+```
+
+Setup explains each provider choice, creates private local configuration, starts SurrealDB and
+ACE, signs in the CLI, and offers to reason through your first decision. If anything is not ready,
+run `uv run ace doctor` and follow its exact recovery command. The flow is safe to rerun.
+
+That is the product-builder path. Continue below only when you want the product model,
+architecture, provider details, MCP connection, extension SDK, or manual service controls.
 
 ---
 
@@ -74,7 +98,7 @@ flowchart LR
 | **MAKE and SHIP arms** | MAKE turns approved reasoning into code, design, data, and scaffolds. SHIP challenges security, testing, observability, DevOps, and scale before work leaves. They are implemented first-class arms; their public end-to-end paths are still experimental in 0.1.x. |
 | **Extensions without a fork** | Builders can add personas, committees, frameworks, recipes, instruments, tools, and schema through a public extension boundary while keeping the core provider-neutral and BYOK. |
 
-The [architecture deep dive](docs/architecture.md) maps the as-built boundaries,
+The [architecture deep dive](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) maps the as-built boundaries,
 all nine layers, graph semantics, MAKE/SHIP loop, learning system, and extension seams.
 
 ---
@@ -130,18 +154,18 @@ flowchart TB
   better informed. The architecture is explicit about provenance and discounts self-generated
   material; it does not promise that every run learns or improves automatically.
 - **The experimental visual-product/research track** — Atrium prototypes Canvas interactions.
-  Think Tank is its deep-deliberation research mode. Atrium releases with 0.1.0 as a public
+  Think Tank is its deep-deliberation research mode. Atrium releases with 0.1.1 as a public
   repository beta, not as a supported Python artifact.
 - **Extensions grow new arms** — teach ACE your domain without forking the core. The shipped [reference extension](#extensions-are-real-not-hypothetical) exercises that public mechanism.
 
-Full deep-dive with every layer: [`docs/architecture.md`](docs/architecture.md).
+Full deep-dive with every layer: [`docs/architecture.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md).
 
 ---
 
 ## Two preview interaction surfaces
 
 Interact with the same reasoning core through MCP or the terminal. Atrium is a separate
-experimental visual-product/research track released as a repository beta, not a supported 0.1.0
+experimental visual-product/research track released as a repository beta, not a supported 0.1.1
 interaction surface.
 
 ### `MCP` — in the AI you already use
@@ -177,7 +201,7 @@ launch promise.
 Bring a real, half-formed thought to ACE through MCP or CLI. ACE classifies what
 kind of thinking it needs, convenes a problem-fit composition, and synthesizes
 a position grounded in what it already knows. Atrium research prototypes study how that process
-might take visual form; a supported partnership interface is outside 0.1.0.
+might take visual form; a supported partnership interface is outside 0.1.1.
 
 That loop is the whole product:
 
@@ -209,21 +233,22 @@ you are working through, and returns a first reasoned recommendation. Service,
 database, authentication, and MCP details stay behind the guided path unless
 you need to inspect or operate them.
 
-This is the authoritative developer-preview path. It still requires independent
-clean-user evidence on both macOS and Linux before onboarding is considered proven.
+This is the authoritative developer-preview path. It passed isolated clean-user proxy trials on
+both macOS and Linux; the exact evidence and limitations remain public.
 
 The Python distribution is `ace-core`; it preserves the `ace` import package,
-the `ace` CLI command, and version `0.1.0`. When 0.1.0 is available on PyPI, the
-package-only installation is:
+the `ace` CLI command, and version `0.1.1`. A package-only installation provides the Python
+package and commands for inspection or an existing ACE service:
 
 ```bash
-python -m pip install ace-core
+python -m pip install ace-core==0.1.1
 python -c "import ace; print(ace.__version__)"
-ace doctor
+ace --help
+ace setup --help
 ```
 
-The source-checkout path below remains required for the bundled infrastructure
-and development scripts.
+The self-hosted first-recommendation journey uses the source checkout below because it includes
+the pinned Compose stack and release-maintained local service scripts.
 
 Prerequisites:
 
@@ -232,7 +257,7 @@ Prerequisites:
 - Python 3.12;
 - [`uv`](https://docs.astral.sh/uv/);
 - Docker Engine with Compose v2 (Docker Desktop is sufficient on macOS);
-- credentials for one provider from [`docs/providers.md`](docs/providers.md).
+- credentials for one provider from [`docs/providers.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
 
 ```bash
 git clone https://github.com/augmented-cognition-engine/core ace
@@ -306,7 +331,7 @@ uv run ace service stop   # preserves the SurrealDB volume
 ```
 
 The independent validation procedure is documented in the
-[clean-user onboarding trial](docs/onboarding-trials.md). Passing automated
+[clean-user onboarding trial](https://github.com/augmented-cognition-engine/core/blob/main/docs/onboarding-trials.md). Passing automated
 tests or a maintainer rehearsal does not pass the onboarding roadmap gate.
 
 For development, CI, or manual control, the equivalent expanded setup remains:
@@ -371,7 +396,7 @@ cd ..
 ```
 
 Atrium is an experimental visual-product/research track released as a repository beta and is
-separately gated. Its setup is not part of the 0.1.0 golden path or supported runtime.
+separately gated. Its setup is not part of the 0.1.1 golden path or supported runtime.
 
 ---
 
@@ -396,9 +421,9 @@ This surface — the `Extension` protocol, the `Registry` facade, the scaffold,
 the entry-point contract — is **the ACE SDK**.
 
 Full walkthrough, file by file: [build your first
-extension](docs/build-your-first-extension.md). Exact contract for every
-`Registry` call: [extension API stability](docs/extension-api.md). What
-"extension" means and who's built one: [`extensions/README.md`](extensions/README.md).
+extension](https://github.com/augmented-cognition-engine/core/blob/main/docs/build-your-first-extension.md). Exact contract for every
+`Registry` call: [extension API stability](https://github.com/augmented-cognition-engine/core/blob/main/docs/extension-api.md). What
+"extension" means and who's built one: [`extensions/README.md`](https://github.com/augmented-cognition-engine/core/blob/main/extensions/README.md).
 
 The boundary is enforced, not just described: the kernel runs naked with
 `ACE_DISABLE_EXTENSIONS=1`, and `tests/test_kernel_boundary.py` guards against
@@ -409,7 +434,7 @@ imports extensions.
 
 ## Extensions are real, not hypothetical
 
-ACE ships with a complete, working extension — [`extensions/reference/`](extensions/reference/)
+ACE ships with a complete, working extension — [`extensions/reference/`](https://github.com/augmented-cognition-engine/core/tree/main/extensions/reference)
 (the `product` extension). It isn't a toy stub: it registers recipes, a
 committee, and instruments through the same `ace.extensions` entry point your
 extension will use. Copy it, rename it, and you have a working domain extension.
@@ -424,7 +449,7 @@ them.
 The `0.1.x` preview treats designated **Stable** extension seams as compatibility
 aims. Changes require proposal and migration evidence, while experimental and
 internal seams may still change on preview minor releases. See the [stability
-contract](docs/extension-api.md).
+contract](https://github.com/augmented-cognition-engine/core/blob/main/docs/extension-api.md).
 
 ---
 
@@ -433,7 +458,7 @@ contract](docs/extension-api.md).
 ACE is provider-agnostic by contract, not by claim. `get_llm()` resolves an
 eleven-slot chain and returns the first match; engine code never imports a concrete
 provider. Every provider — including ones you write — passes the same
-behavioral conformance suite ([`tests/llm/conformance.py`](tests/llm/conformance.py)).
+behavioral conformance suite ([`tests/llm/conformance.py`](https://github.com/augmented-cognition-engine/core/blob/main/tests/llm/conformance.py)).
 
 ACE's access goal is broader than API keys: use a sanctioned subscription-backed
 shell or agent when you already pay for one, use an API key for speed and
@@ -488,7 +513,7 @@ export LLM_API_KEY=sk-test-placeholder   # optional placeholder; falls through t
 ```
 
 Full matrix, billing semantics, and the safeguards that stop a stray exported
-key from silently billing a metered API: [`docs/providers.md`](docs/providers.md).
+key from silently billing a metered API: [`docs/providers.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
 
 ---
 
@@ -542,10 +567,10 @@ ace/
 
 ## License
 
-Apache-2.0 — see [`LICENSE`](LICENSE) for the full text and [`NOTICE`](NOTICE). Existing ACE code is
+Apache-2.0 — see [`LICENSE`](https://github.com/augmented-cognition-engine/core/blob/main/LICENSE) for the full text and [`NOTICE`](https://github.com/augmented-cognition-engine/core/blob/main/NOTICE). Existing ACE code is
 copyright Edwin Amirian; contributors retain copyright in their contributions and license them
 under Apache-2.0. QueryLabs LLC is the founding sponsor. Atrium source in this repository is
-Apache-2.0 repository beta source, not part of the supported Python 0.1.0 artifact. Separately
+Apache-2.0 repository beta source, not part of the supported Python 0.1.1 artifact. Separately
 distributed extensions state their own license. The default stack runs SurrealDB 3.1.4 separately;
 the SurrealDB server is source-available under BSL 1.1 rather than OSI open source.
 
@@ -553,6 +578,6 @@ the SurrealDB server is source-available under BSL 1.1 rather than OSI open sour
 
 ---
 
-**Bring a thought. Meet the team.** &nbsp;·&nbsp; [Quickstart](#get-your-first-recommendation) · [Build an extension](docs/build-your-first-extension.md)
+**Bring a thought. Meet the team.** &nbsp;·&nbsp; [Quickstart](#start-here-get-a-product-recommendation) · [Build an extension](https://github.com/augmented-cognition-engine/core/blob/main/docs/build-your-first-extension.md)
 
 </div>

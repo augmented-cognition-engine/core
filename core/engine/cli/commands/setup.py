@@ -32,6 +32,7 @@ from core.engine.cli.commands.run import _submit_and_wait
 from core.engine.cli.display import console, print_task_result
 
 _API_URL = "http://localhost:3000"
+_QUICKSTART_URL = "https://github.com/augmented-cognition-engine/core#start-here-get-a-product-recommendation"
 _PLACEHOLDERS = {
     "",
     "replace-me-with-32-byte-hex-string",
@@ -44,6 +45,14 @@ _PROVIDER_CHOICES = click.Choice(
     case_sensitive=False,
 )
 _ASSIGNMENT = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$")
+
+
+def _missing_runtime_assets_error() -> click.ClickException:
+    return click.ClickException(
+        "ACE's pinned self-hosted runtime assets were not found. Follow the public quickstart at "
+        f"{_QUICKSTART_URL}, then run `uv run ace setup` from that checkout; or pass "
+        "`--project-dir /path/to/ace-core`."
+    )
 
 
 def _find_project_root(explicit: Path | None = None) -> Path:
@@ -62,10 +71,7 @@ def _find_project_root(explicit: Path | None = None) -> Path:
         seen.add(candidate)
         if (candidate / "infra" / "docker-compose.yml").is_file() and (candidate / ".env.example").is_file():
             return candidate
-    raise click.ClickException(
-        "ACE's local runtime assets were not found. Run `ace setup` from an ace-core source checkout "
-        "or pass `--project-dir /path/to/ace-core`."
-    )
+    raise _missing_runtime_assets_error()
 
 
 def _unquote(value: str) -> str:
@@ -609,7 +615,11 @@ def _configured_project(project_dir: Path | None) -> tuple[Path, dict[str, str]]
 
 @click.command("setup")
 @click.option("--project-dir", type=click.Path(path_type=Path, file_okay=False), help="Path to the ace-core checkout")
-@click.option("--provider", type=_PROVIDER_CHOICES, help="Model route to configure")
+@click.option(
+    "--provider",
+    type=_PROVIDER_CHOICES,
+    help="Model access: API key, Codex/Claude subscription, local Ollama, or existing configuration",
+)
 @click.option("--non-interactive", is_flag=True, help="Fail instead of prompting for missing choices or credentials")
 @click.option("--no-start", is_flag=True, help="Write configuration without starting the local services")
 @click.option("--first-task", help="Product decision or problem to reason through after setup")

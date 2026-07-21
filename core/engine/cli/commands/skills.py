@@ -1,5 +1,5 @@
 # engine/cli/commands/skills.py
-"""ace skills — browse and manage skills."""
+"""Legacy experimental skill compatibility commands."""
 
 import click
 import httpx
@@ -8,7 +8,7 @@ from core.engine.cli.auth import get_headers
 from core.engine.cli.display import console
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=True, hidden=True)
 @click.option("--org", "-o", default="product:default")
 @click.pass_context
 def skills(ctx, org):

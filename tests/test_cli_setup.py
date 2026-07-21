@@ -12,6 +12,7 @@ import pytest
 from click.testing import CliRunner
 
 from core.engine.cli.commands.setup import (
+    _missing_runtime_assets_error,
     _onboarding_summary,
     _parse_env,
     _provider_preflight,
@@ -115,6 +116,22 @@ def test_setup_noninteractive_requires_a_provider(tmp_path):
     assert result.exit_code != 0
     assert "No provider was detected" in result.output
     assert not (root / ".env").exists()
+
+
+def test_installed_setup_failure_points_to_public_quickstart():
+    message = str(_missing_runtime_assets_error())
+    assert "https://github.com/augmented-cognition-engine/core#start-here-get-a-product-recommendation" in message
+    assert "uv run ace setup" in message
+
+
+def test_setup_help_explains_provider_choices():
+    result = CliRunner().invoke(cli, ["setup", "--help"])
+
+    assert result.exit_code == 0, result.output
+    assert "anthropic|openai|codex|claude-token|claude-cli|ollama|existing" in result.output
+    assert "API key" in result.output
+    assert "subscription" in result.output
+    assert "local Ollama" in result.output
 
 
 def test_setup_starts_runtime_and_logs_in_without_exposing_api_key(tmp_path, monkeypatch):

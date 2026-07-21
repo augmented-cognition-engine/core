@@ -10,7 +10,7 @@ from core.engine.cli.auth import get_base_url, get_token
 @click.option("--url", envvar="ACE_URL", default=None, help="ACE API URL")
 @click.pass_context
 def cli(ctx, url):
-    """ACE — Organizational Intelligence Engine"""
+    """ACE — Augmented Cognition Engine. Turn product decisions into durable recommendations."""
     ctx.ensure_object(dict)
     ctx.obj["url"] = url or get_base_url()
     ctx.obj["token"] = get_token()
@@ -56,6 +56,8 @@ cli.add_command(service)
 cli.add_command(onboarding)
 cli.add_command(briefing)
 cli.add_command(conflicts)
+# Legacy experimental compatibility surface: callable, but no longer promoted
+# alongside the 0.1.x product-builder path.
 cli.add_command(skills)
 cli.add_command(frameworks)
 cli.add_command(init)

@@ -18,7 +18,7 @@ The 0.1.x public identities are:
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.1.0`
+- version: `0.1.1`
 
 The thin MCP surface contains exactly eleven tools:
 

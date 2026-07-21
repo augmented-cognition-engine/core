@@ -42,7 +42,7 @@ class ProductExtension:
     """The open `product` extension — copy this file to start your own."""
 
     name = "product"
-    version = "0.1.0"
+    version = "0.1.1"
 
     def register(self, reg: "Registry") -> None:
         # --- 1. Instruments — bespoke LLM pipeline steps used by the recipe ----

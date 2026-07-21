@@ -14,6 +14,8 @@ import httpx
 from core.engine.cli.auth import get_headers
 from core.engine.cli.display import console
 
+_PROVIDER_GUIDE = "https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md"
+
 
 def _model_policy_check(settings) -> tuple[bool, dict[str, Any]]:
     from core.engine.core.model_policy import build_model_policy
@@ -45,7 +47,7 @@ def _provider_configured(settings) -> tuple[bool, str]:
         return True, f"Anthropic ({settings.llm_model})"
     if shutil.which("claude"):
         return True, "Claude CLI"
-    return False, "no usable provider; configure one path from docs/providers.md"
+    return False, f"no usable provider; choose one supported path from {_PROVIDER_GUIDE}"
 
 
 def _recovery_actions(checks: dict[str, dict[str, object]]) -> list[str]:
@@ -63,7 +65,8 @@ def _recovery_actions(checks: dict[str, dict[str, object]]) -> list[str]:
         ]
     if failed & {"model_provider", "model_policy"}:
         return [
-            "Run `ace setup` (source checkout: `uv run ace setup`) to choose or repair a provider, then rerun `ace doctor`.",
+            "Run `ace setup` (source checkout: `uv run ace setup`) to choose or repair a provider, "
+            f"using {_PROVIDER_GUIDE} if needed; then rerun `ace doctor`.",
         ]
     return []
 

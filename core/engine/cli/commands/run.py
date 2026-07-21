@@ -54,7 +54,13 @@ def _submit_and_wait(url: str, body: dict, headers: dict) -> tuple[dict | None, 
 @click.argument("description")
 @click.option("--workspace", "-w", default="workspace:default", help="Workspace ID")
 @click.option("--deep", is_flag=True, default=False, help="Force multi-framework synthesis")
-@click.option("--skill", "force_skill", default=None, help="Force a specific skill slug")
+@click.option(
+    "--skill",
+    "force_skill",
+    default=None,
+    hidden=True,
+    help="Legacy experimental compatibility selector",
+)
 @click.option("--framework", "framework_hints", multiple=True, help="Suggest a reasoning framework (repeatable)")
 @click.pass_context
 def run(ctx, description, workspace, deep, force_skill, framework_hints):
