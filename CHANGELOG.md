@@ -2,6 +2,47 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## Unreleased
+
+- Correct top-level CLI identity copy and hide the legacy experimental `ace skills` command and
+  `ace run --skill` selector from default help. Both remain callable for compatibility; this is a
+  visibility cleanup, not removal, migration, or a new cognition abstraction.
+
+## 0.1.1
+
+### Supported
+
+- Lead the public entry journey with one product-builder quickstart: bring a real decision,
+  choose an existing model route, start the self-hosted runtime, and receive a recommendation.
+- Keep advanced architecture, MCP, provider, extension, and manual-operation material available
+  through progressive disclosure after the quickstart.
+
+### Fixed
+
+- Use concise outcome-led package metadata and absolute public links that continue to work when
+  the README is rendered on PyPI.
+- Make installed `ace setup --help`, missing-runtime guidance, provider selection, `ace doctor`,
+  and service recovery point to concrete commands or public documentation without assuming
+  repository knowledge.
+- Include the R1 setup fixes for optional Discord configuration, Docker/Colima recovery, API log
+  discovery, failed activation exit status, managed-process shutdown, and doctor recovery actions.
+
+### Release maintenance
+
+- Keep distribution, import package, engine, thin MCP client, reference extension, and public
+  capability versions aligned at `0.1.1`.
+- Default manual trusted publishing to `v0.1.1` and fail closed when a release tag does not match
+  package metadata.
+
+### Known limitations
+
+- The complete self-hosted first-recommendation flow still uses a source checkout for its pinned
+  Compose stack and local service scripts; the wheel provides imports and commands but does not
+  silently download or provision runtime assets.
+- Python 3.12 is the supported interpreter. R1 usability evidence is based on isolated AI-operated
+  proxy trials rather than independent human testing, and model quality, capacity, and latency
+  remain provider-dependent.
+
 ## 0.1.0
 
 - Initial developer preview of the `ace-core` Python distribution, preserving the `ace` import

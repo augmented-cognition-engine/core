@@ -62,6 +62,16 @@ def test_run_skill_flag_passes_force_skill(runner):
     assert call_json.get("force_skill") == "code_review"
 
 
+def test_run_help_hides_legacy_skill_selector(runner):
+    """The legacy selector remains accepted without being promoted in default help."""
+    result = runner.invoke(run, ["--help"])
+
+    assert result.exit_code == 0, result.output
+    assert "--skill" not in result.output
+    assert "--deep" in result.output
+    assert "--framework" in result.output
+
+
 def test_run_framework_flag_passes_hint(runner):
     """--framework flag sends frameworks_hint in request body."""
     with patch("core.engine.cli.commands.run.httpx") as mock_httpx:

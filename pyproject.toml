@@ -1,7 +1,7 @@
 [project]
 name = "ace-core"
-version = "0.1.0"
-description = "ACE — Augmented Cognition Engine, an open-source reasoning kernel and SDK"
+version = "0.1.1"
+description = "Self-hosted reasoning that turns product decisions into durable recommendations"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
@@ -58,8 +58,10 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/augmented-cognition-engine/core"
+Documentation = "https://github.com/augmented-cognition-engine/core#readme"
 Repository = "https://github.com/augmented-cognition-engine/core"
 Issues = "https://github.com/augmented-cognition-engine/core/issues"
+Changelog = "https://github.com/augmented-cognition-engine/core/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [

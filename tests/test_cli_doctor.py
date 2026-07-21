@@ -123,3 +123,20 @@ def test_provider_check_accepts_claude_cli_without_settings_field(monkeypatch):
     )
     with patch("core.engine.cli.commands.doctor.shutil.which", return_value="/usr/local/bin/claude"):
         assert _provider_configured(settings) == (True, "Claude CLI")
+
+
+def test_provider_check_points_to_public_provider_guide(monkeypatch):
+    from core.engine.cli.commands.doctor import _provider_configured
+
+    monkeypatch.delenv("CLAUDE_CODE_OAUTH_TOKEN", raising=False)
+    settings = SimpleNamespace(
+        openai_compat_base_url=None,
+        ollama_host=None,
+        subscription_provider="auto",
+        llm_api_key="sk-test-placeholder",
+    )
+    with patch("core.engine.cli.commands.doctor.shutil.which", return_value=None):
+        ok, detail = _provider_configured(settings)
+
+    assert ok is False
+    assert detail.endswith("https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md")

@@ -25,7 +25,7 @@ AI-operated proxy rather than independent human usability validation.
 | ID | Phase | State | Evidence gap or dependency |
 |---|---|---|---|
 | R1 | Now | passed | [2026-07-21 clean-trial evidence](r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
-| R2 | Now | ready | R1 findings are reconciled; cut 0.1.1 with an obvious product-builder quickstart, outcome-led entry copy, focused PyPI copy, repaired absolute links, and release-workflow maintenance |
+| R2 | Now | candidate | [Local 0.1.1 release evidence](r2-release-evidence.md) passes macOS/Linux installed-wheel checks, archives, Twine, required suites, security, workflow, and Docker health; PR/main CI, tag, trusted publication, GitHub Release, and public-index install remain |
 | R3 | Now | ready | Verify supported provider routes, authentication, `ace doctor`, actionable failures, and degraded behavior |
 | R4 | Now | not ready | Requires R1 and R3 to pass before publishing a product-builder golden path that starts with a recognizable decision rather than ACE internals |
 | G1 | Next | candidate | Read-only projection and kernel tests exist; supported journey, failure behavior, compatibility boundary, and public evidence are incomplete |
@@ -40,8 +40,9 @@ AI-operated proxy rather than independent human usability validation.
 
 ## Exact next dispatch
 
-1. **Ready to dispatch — R2:** cut the focused 0.1.1 onboarding, packaging, and documentation
-   release from the reconciled R1 findings; do not tag or publish until that work packet passes.
+1. **Active closeout — R2:** land the locally verified focused 0.1.1 candidate through complete
+   PR and merged-main CI, then tag, trusted-publish, verify the GitHub Release, and pass a fresh
+   public-index install before moving R2 to `passed`.
 2. **Safe parallel — R3:** provider, authentication, diagnostics, and degraded-state validation.
 3. **Do not start yet — R4:** product-builder golden-path demonstration until R3 also passes.
 4. **Do not promote yet — G1 / IA-R1:** preserve the read-only boundary; G1 remains candidate and
