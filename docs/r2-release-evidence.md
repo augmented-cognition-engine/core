@@ -1,12 +1,11 @@
 # R2 ace-core 0.1.1 release evidence
 
 Date: 2026-07-21
-Outcome: **candidate — local release gates passed; public release gates pending**
+Outcome: **passed**
 
-R2 is the focused 0.1.1 onboarding, packaging, and documentation release. The local candidate is
-complete and green. R2 cannot move to `passed` until the release PR and merged-main CI are green,
-`v0.1.1`, PyPI, and the GitHub Release resolve to the same verified merged-main commit, and a fresh
-installation from the public PyPI index passes.
+R2 is the focused 0.1.1 onboarding, packaging, and documentation release. Local verification,
+required PR and merged-main CI, the `v0.1.1` tag, trusted PyPI publication, GitHub Release, fresh
+public-index installation, repository roadmaps, and the live Project item are reconciled and green.
 
 ## Exact release scope
 
@@ -137,6 +136,10 @@ honestly documented as a source-checkout path rather than silently downloading r
 - Pytest emitted existing FastAPI/Starlette/websockets deprecations, test-only JWT key-length
   warnings, collection warnings for model classes named `TestCase`/`TestSuite`, and two
   unawaited-mock runtime warnings. No warning was introduced by or blocks R2.
+- Trusted publishing emitted GitHub's Node.js 20 deprecation warnings for the pinned v4 artifact
+  actions, which GitHub ran on Node.js 24; both build and publish jobs passed.
+- The first public-index install attempt immediately after trusted publishing saw only 0.1.0.
+  After normal index propagation, the same cache-free 0.1.1 install succeeded.
 
 All disposable Linux and Compose containers, the verification network, and the fresh disposable
 database volume were removed after capture. No maintainer service, database, provider route, or
@@ -144,27 +147,32 @@ credential was touched.
 
 ## Public release gates and URLs
 
-Candidate public gates captured:
+Completed public gates:
 
 - ready release PR: https://github.com/augmented-cognition-engine/core/pull/12;
-- complete candidate CI: https://github.com/augmented-cognition-engine/core/actions/runs/29854461273
-  (`success`; all six jobs green in 4m16s against
-  `011389f85d14bcd8803c8766605df6ada3de02ce`).
+- final candidate CI: https://github.com/augmented-cognition-engine/core/actions/runs/29854879422
+  (`success`; all six jobs green in 4m32s against
+  `8f9698691d16f442c922cfaaf607c69449d1f6d7`);
+- verified merged-main commit: https://github.com/augmented-cognition-engine/core/commit/1662eaa9b31b88e80de95966906afab59e7c2505;
+- merged-main CI: https://github.com/augmented-cognition-engine/core/actions/runs/29855304378
+  (`success`; all six jobs green in 4m37s);
+- tag: https://github.com/augmented-cognition-engine/core/tree/v0.1.1 (resolves to the verified
+  merged-main commit);
+- trusted-publishing run: https://github.com/augmented-cognition-engine/core/actions/runs/29855826494
+  (`success`; distributions built, attested, and published in 52s);
+- GitHub Release: https://github.com/augmented-cognition-engine/core/releases/tag/v0.1.1;
+- PyPI: https://pypi.org/project/ace-core/0.1.1/;
+- fresh Python 3.12 public-index install: `pip install --index-url https://pypi.org/simple
+  --no-cache-dir ace-core==0.1.1` passed, then confirmed distribution 0.1.1, corrected CLI
+  identity, hidden-but-callable legacy compatibility surfaces, and exactly eleven thin MCP tools;
+- live roadmap item: https://github.com/augmented-cognition-engine/core/issues/1 records
+  `R2 — passed` with the public evidence links.
 
-Still pending:
-
-- merged-main SHA and post-merge CI;
-- `v0.1.1` tag and tag SHA;
-- trusted-publishing run;
-- PyPI 0.1.1 page and fresh public-index installation;
-- GitHub Release URL;
-- live roadmap transition to `passed`.
-
-These are required before R2 can pass. The candidate branch starts from verified R1 merge
+The release commit descends from verified R1 merge
 `ba73a3daae5a6bc5e61fd55446af5cfe14cceff5`. R3 may proceed independently. R4 remains blocked
 until R3 passes as well.
 
-## Remaining limitations and exact next work
+## Remaining limitations
 
 - Python 3.12 is the only supported interpreter.
 - The full self-hosted journey uses a source checkout for pinned Compose and local service assets.
@@ -173,7 +181,5 @@ until R3 passes as well.
 - Legacy `skills` CLI/API/code remains callable compatibility surface; R2 changes visibility only
   and does not begin recipe convergence or migration.
 
-Exact next work is to let the evidence-only follow-up pass all six PR jobs, merge only if green,
-verify merged-main CI, tag that exact SHA as `v0.1.1`, publish through trusted OIDC, verify the
-GitHub Release, and perform a fresh `ace-core==0.1.1` install from the public PyPI index. Only then
-may evidence, versioned roadmap, roadmap status, and the live project move R2 to `passed`.
+R2 is complete. Exact next work is R3 provider, authentication, diagnostics, and degraded-state
+validation. R4 remains dependency-closed until R3 also passes.
