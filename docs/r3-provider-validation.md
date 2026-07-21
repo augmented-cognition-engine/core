@@ -7,10 +7,10 @@ Repository base: `7c6a20e` (PR #8 merged)
 R3 state: **candidate**
 
 R3 is not passed. The supported matrix and deterministic degraded-state evidence are frozen, and
-one authorized GPT route is live-validated. No authorized Claude API key, setup token, or CLI
-session is available in the validation environment, so a real Claude smoke request and complete
-branch CI remain the exact missing acceptance evidence. No credential value or model response is
-stored in this report.
+one authorized GPT route is live-validated. Pull request #9's pre-update head passed all six CI
+jobs. No authorized Claude API key, setup token, or CLI session is available in the validation
+environment, so a real Claude smoke request and final CI against current main are the exact missing
+acceptance evidence. No credential value or model response is stored in this report.
 
 ## Configuration and authentication precedence
 
@@ -135,10 +135,11 @@ Local verification completed before the pull request:
 | Ruff lint and format | Passed; 1,761 files already formatted |
 | Docker | Clean image build passed; configured container returned `{"status":"ok"}` from `/health/live` |
 | Changed-file secret scan and `git diff --check` | Passed |
+| Pre-update pull request CI | [PR #9 run 17](https://github.com/augmented-cognition-engine/core/actions/runs/29843084978) passed Lint, Tests, Naked kernel, Canvas, Security Audit, and Docker Build at `0e8f54b` |
 
 The Canvas source tree was not changed, so local Canvas-specific npm checks were not required. The
-complete branch CI result is still pending and will be recorded in the pull request rather than
-predicted here.
+complete Canvas suite nevertheless passed in the pre-update branch CI. The rebased final head must
+repeat all six CI jobs before acceptance.
 
 Before R3 can pass:
 
@@ -146,7 +147,6 @@ Before R3 can pass:
    smoke through `ace doctor --live-provider`;
 2. record the Claude resolved model, requested/sent/applied-effort truth, latency, usage metadata,
    and failure/retry behavior without retaining response or credential content;
-3. complete branch CI and reconcile its URL/results here and in the public roadmap;
-4. review any overlap after further R1 changes, then update from main if necessary.
+3. complete all six final-head CI jobs against current main and reconcile their URL and result.
 
 R4 remains dependency-closed until that evidence exists and R3 is reconciled to `passed`.
