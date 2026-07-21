@@ -588,8 +588,9 @@ class CLIProvider:
     # when --setting-sources excludes "user"). tempfile.gettempdir() satisfies both.
     _NEUTRAL_CWD: str = tempfile.gettempdir()
 
-    async def _run(self, args: list[str], timeout: float = 180.0) -> str:
+    async def _run(self, args: list[str], timeout: float | None = None) -> str:
         """Run claude subprocess and return stdout. Raises on non-zero exit or timeout."""
+        effective_timeout = settings.claude_cli_timeout_seconds if timeout is None else timeout
         env = {**os.environ, "HOME": os.path.expanduser("~")}
         proc = await asyncio.create_subprocess_exec(
             self._claude_bin,
@@ -600,12 +601,12 @@ class CLIProvider:
             cwd=self._NEUTRAL_CWD,  # outside project tree (no CLAUDE.md), not $HOME (no settings hooks)
         )
         try:
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=timeout)
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=effective_timeout)
         except asyncio.TimeoutError:
             await _terminate_subprocess(proc)
             from core.engine.core.exceptions import LLMError
 
-            raise LLMError(f"claude subprocess timed out after {timeout}s")
+            raise LLMError(f"claude subprocess timed out after {effective_timeout}s")
         if proc.returncode != 0:
             from core.engine.core.exceptions import LLMError
 

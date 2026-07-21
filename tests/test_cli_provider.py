@@ -295,6 +295,25 @@ def test_get_llm_force_cli_overrides_oauth_promotion(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_run_uses_configured_default_timeout(monkeypatch):
+    provider = CLIProvider(default_model="claude-sonnet-5", claude_bin="claude")
+    proc = MagicMock(returncode=0)
+    proc.communicate = AsyncMock(return_value=(b"ok", b""))
+    observed: dict[str, float] = {}
+
+    async def capture_timeout(awaitable, timeout):
+        observed["timeout"] = timeout
+        return await awaitable
+
+    monkeypatch.setattr("core.engine.core.llm.settings.claude_cli_timeout_seconds", 321.0)
+    monkeypatch.setattr("asyncio.create_subprocess_exec", AsyncMock(return_value=proc))
+    monkeypatch.setattr("asyncio.wait_for", capture_timeout)
+
+    assert await provider._run([]) == "ok"
+    assert observed["timeout"] == 321.0
+
+
+@pytest.mark.asyncio
 async def test_run_reaps_subprocess_on_timeout(tmp_path):
     import asyncio
     import subprocess

@@ -5,6 +5,34 @@ import pytest
 
 
 @pytest.mark.asyncio
+async def test_specialty_catalog_compares_product_as_record(monkeypatch):
+    """The specialty schema stores ``product`` as ``record<product>``."""
+    from core.engine.orchestrator.classifier import _load_specialty_catalog
+
+    class Connection:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_args):
+            return None
+
+        async def query(self, query, params):
+            assert "product = <record>$product_id" in query
+            assert params == {"product_id": "product:default"}
+            return [{"slug": "b2b-marketing", "description": "Buyer messaging", "perspective": "strategist"}]
+
+    class Pool:
+        def connection(self):
+            return Connection()
+
+    monkeypatch.setattr("core.engine.core.db.pool", Pool())
+
+    catalog = await _load_specialty_catalog("product:default")
+
+    assert "b2b-marketing" in catalog
+
+
+@pytest.mark.asyncio
 async def test_classify_returns_discipline():
     """Classifier returns dict containing discipline."""
     from core.engine.orchestrator.classifier import classify_task

@@ -133,7 +133,9 @@ Zero config: if the `claude` binary is installed and authenticated, slot 8
 activates automatically. Every call is a hermetic subprocess
 (`--no-session-persistence --tools ""`, neutral cwd, project/local setting
 sources only) — slower than HTTP, but fully sandboxed from hooks and MCP.
-Prefer slot 7 for headless or high-volume Claude runs.
+Prefer slot 7 for headless or high-volume Claude runs. Each CLI call is bounded
+by `CLAUDE_CLI_TIMEOUT_SECONDS` (default `300`); timed-out subprocesses are
+terminated and reaped.
 
 ### Metered Anthropic API key
 

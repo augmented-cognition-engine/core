@@ -66,6 +66,10 @@ class Settings(BaseSettings):
     # Note: FORCE_CLI does NOT skip the explicit-intent slots (routers, ollama_host,
     # openai_compat_base_url, metered key) — see get_llm()'s docstring.
     force_cli_provider: bool = False
+    # Claude CLI calls can legitimately exceed three minutes for long structured
+    # composition prompts. Keep the bound explicit and operator-configurable while
+    # preserving subprocess termination/reaping when the provider really stalls.
+    claude_cli_timeout_seconds: float = 300.0
 
     # Opt-in for the UNDOCUMENTED OAuth-as-API slot: lifting the Claude.ai / Claude
     # Code subscription OAuth access token from the local credentials store and
