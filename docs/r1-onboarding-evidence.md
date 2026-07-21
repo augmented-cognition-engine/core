@@ -1,13 +1,14 @@
 # R1 effortless product onboarding evidence
 
 Date: 2026-07-21  
-Outcome: **ready — not passed**
+Outcome: **passed**
 
 R1 requires independent clean macOS and Linux journeys to reach a useful
-reasoning result without maintainer help or ACE architecture knowledge. The
-macOS journey passed. The Linux journey reached an authenticated, restartable,
-`ace doctor`-ready installation but did not produce a useful result through the
-credential-free Ollama route. R1 therefore remains `ready`.
+reasoning result without maintainer help or ACE architecture knowledge. Both
+journeys now pass. An initial Linux Ollama route reached readiness but failed
+activation; the required clean Linux rerun used its own device-authorized Codex
+credential, reached a useful result, and recovered from an intentional service
+failure using product-facing guidance.
 
 ## Baseline and method
 
@@ -38,21 +39,23 @@ criteria.
 
 | Measure | macOS | Linux |
 |---|---:|---:|
-| Final outcome | pass | fail at first useful result |
-| Time from `ace setup` start to ready | 20.186 s | 19.049 s |
-| Time from `ace setup` start to useful result | 104.432 s | not reached; timed out at 927.227 s |
-| Public-journey commands through activation | 3 | 4, including `ace setup --help` |
+| Final outcome | pass | pass |
+| Time from `ace setup` start to ready | 20.186 s | 25.496 s |
+| Time from `ace setup` start to useful result | 104.432 s | 161.673 s |
+| Full public journey through useful result | not instrumented | 242.762 s, including clone and dependency sync |
+| Public-journey commands through activation | 3 | 5, including fresh device login and `ace setup --help` |
 | Post-journey lifecycle/evidence commands | 5 | 6 |
-| Provider configuration values | 1 route (`codex`) | 2 (`ollama`, `qwen3:4b`) |
-| Maintainer help required by final flow | no | no for setup/readiness; activation still failed |
+| Provider configuration values | 1 route (`codex`) | 1 route (`codex`); no model value requested |
+| Maintainer help required by final flow | no | no |
 | ACE architecture knowledge required | no | no |
-| Intentional recovery | Docker-engine recovery succeeded | stop/start recovery succeeded after fix |
+| Intentional recovery | Docker-engine recovery succeeded | actionable stop/start recovery succeeded after fix |
 | `ace doctor` after restart | pass | pass |
 
 The command counts exclude harness construction, prerequisite installation,
 and environment-isolation variables. The macOS dependency sync took about ten
 additional seconds; clone duration was not instrumented, so no unsupported
-end-to-end number is claimed.
+macOS end-to-end number is claimed. Linux's full-journey timer began immediately
+before the public clone.
 
 ## macOS stranger trial
 
@@ -93,7 +96,60 @@ path recovered. The candidate now names both Docker Desktop and compatible
 engines and gives `colima start` as the concrete Colima action. The recovery
 text is covered by the focused setup tests.
 
-## Linux stranger trial
+## Linux stranger trial — passing rerun
+
+### Environment
+
+- Debian GNU/Linux 12 (bookworm), aarch64, in a fresh privileged
+  Docker-in-Docker container
+- Linux kernel 6.8.0-117-generic; Python 3.12.13; uv 0.11.30
+- Docker 20.10.24; Docker Compose v5.3.1; Codex CLI 0.144.6
+- Public merged-main revision
+  `9c8d736d6862d9b4e42226e9e3705582f0557510`
+- Codex CLI / ChatGPT subscription route, freshly authorized through the
+  supported device-code flow inside the container; no host authentication,
+  repository, `.env`, ACE state, provider configuration, SurrealDB state, or
+  MCP configuration was copied or mounted
+- Default capable route `gpt-5.6-terra`; fresh Compose project and schema
+  migrated from 0 to 142
+
+### Structured transcript
+
+1. Enable the account's documented Codex device-code authorization setting,
+   run `codex login --device-auth` inside the clean container, and complete the
+   account consent flow. `codex login status` reported `Logged in using
+   ChatGPT`.
+2. Clone public `main`, run the README's `uv sync`, inspect public
+   `ace setup --help`, and run `ace setup --provider codex` with this decision:
+   whether a B2B workflow product for small operations teams should launch a
+   five-partner paid pilot now or continue free discovery for six weeks.
+3. Setup generated private local configuration, verified the provider, started
+   SurrealDB, migrated schema 0 to 142, started the API, authenticated the CLI,
+   and accepted durable task `task:5ylvzdwzr1rj5d8mvbpf`.
+4. ACE recommended a tightly scoped paid pilot, conditional on a 48-hour
+   evidence and qualification check. It supplied explicit assumptions, pilot
+   scope and price, activation and outcome metrics, risks, a stop rule, and the
+   next action. This directly answered the decision and was a useful result.
+5. The onboarding report recorded one setup and activation success, readiness
+   in 25.496 seconds, first result in 161.673 seconds, and no maintainer help or
+   architecture knowledge. The timer from public clone through the result was
+   242.762 seconds.
+6. `ace doctor` passed configuration, schema 142, the Codex route, API,
+   authentication, and 11/11 MCP tools.
+7. An intentional `ace service stop` made database, schema, API, and
+   authentication checks fail. The first doctor output lacked an actionable
+   next command. The bounded fix now prints `ace service start`, its source
+   checkout equivalent, `ace service logs --lines 80`, and the instruction to
+   rerun doctor. Following that guidance preserved the database volume,
+   restarted both services, and returned a fully green doctor result.
+
+Warnings were limited to explicit provider-native model-tier sharing and the
+fact that subscription capacity and latency depend on the provider plan. No
+credential was printed or stored in the repository, and the journey did not
+require ACE architecture, MCP internals, or repository knowledge beyond the
+public source-checkout commands.
+
+## Linux stranger trial — initial local-model attempt
 
 ### Environment
 
@@ -162,6 +218,7 @@ These are harness mistakes or invalid trials, not product passes or failures.
 | Docker-off guidance assumed Docker Desktop | Name Docker-compatible engines and `colima start` | recovery test and recovered macOS attempt |
 | Failed first activation still exited 0 and marked overall success | Preserve setup readiness, record activation failure, and exit nonzero with explicit incomplete-onboarding text | focused setup failure test |
 | Linux zombie PID caused a false shutdown failure | Verify the PID still identifies managed Uvicorn during shutdown | focused lifecycle test and real stop/start rerun |
+| `ace doctor` detected intentionally stopped services but gave no recovery command | Add prioritized text and JSON recovery actions for service, configuration, and provider failures | focused doctor test and clean Linux candidate rerun |
 
 No credential handling was weakened, no data volume was deleted by service
 stop, no public tool was added, and no Atrium, intelligence, extension, or broad
@@ -172,44 +229,53 @@ refactoring work was included.
 | Check | Result |
 |---|---|
 | Focused setup/startup tests | 25 passed |
-| Login/provider/doctor/setup plus roadmap/package matrix | 189 passed, 3 skipped |
+| Final login/provider/doctor/setup plus roadmap/package matrix | 73 passed |
 | Ruff lint and format | pass; 1,760 files formatted as-is |
-| Fast non-E2E | 6,100 passed, 212 skipped, 234 deselected in 109.43 s |
-| Zero-extension non-E2E | 6,092 passed, 213 skipped, 241 deselected in 116.62 s |
+| Fast non-E2E closeout | 6,267 passed, 46 skipped, 234 deselected in 111.93 s |
+| Zero-extension non-E2E closeout | 6,259 passed, 47 skipped, 241 deselected in 114.18 s |
 | Kernel boundary | 4 passed |
 | Canvas | not changed; Canvas proxy checks passed in the fast suite |
-| Packaging | wheel and sdist built; Twine passed both; corrected `.env.example` present in sdist and runtime fixes present in wheel |
-| Docker | image built; isolated Compose migration completed; API and SurrealDB healthy; `/health/live` and `/health/ready` returned `ok` with database, LLM, and pool checks healthy |
+| Packaging | wheel and sdist built; Twine passed both; R1 evidence present in the sdist and doctor recovery code present in the wheel |
+| Docker | candidate image built; isolated Compose migration completed; API and SurrealDB healthy; `/health/live` and `/health/ready` returned `ok` with database, LLM, and pool checks healthy |
 
-The first Compose health attempt failed with `No space left on device` after
-the nested Linux trials. Only the named disposable trial containers and empty
-verification volume were removed; the identical health command then passed.
+The closeout Compose health attempt initially failed with `No space left on
+device` after the nested Linux trial occupied 4.04 GB. After the evidence was
+captured, only that named disposable trial container (including its temporary
+device credential) and the empty verification stack were removed. The identical
+Compose migration and health command then passed.
 
-Candidate PR [#10](https://github.com/augmented-cognition-engine/core/pull/10)
-is mergeable. Its first complete candidate CI run
-[29844988881](https://github.com/augmented-cognition-engine/core/actions/runs/29844988881)
+PR [#10](https://github.com/augmented-cognition-engine/core/pull/10) merged the
+initial trial fixes after its final six-check CI run
+[29845492743](https://github.com/augmented-cognition-engine/core/actions/runs/29845492743)
 passed Lint, Security Audit, Canvas, fast gate, naked kernel, and Docker Build.
-The pre-trial merged-main baseline is linked above; post-merge main is verified
-as an external closeout step because its run does not exist until this report
-has already merged.
+Post-merge main run
+[29845885052](https://github.com/augmented-cognition-engine/core/actions/runs/29845885052)
+passed the same six jobs at
+`9c8d736d6862d9b4e42226e9e3705582f0557510`. The passing Linux rerun and
+doctor recovery change receive their own complete PR and post-merge main CI
+links during final closeout.
 
-The versioned roadmap files are reconciled to `ready`. The authenticated GitHub
-CLI token lacks `read:project`, so the live Project could not be inspected or
-updated. Expanding that token with persistent `read:project`/`project` scopes
-requires separate explicit user approval; no alternate credential path was
-used. The live evidence/blocker annotation therefore remains pending even
-though no promotion to `passed` is being claimed.
+The versioned roadmap files are reconciled to `passed`. The CLI token lacked
+GitHub Project scopes, so the already-authorized GitHub browser session was used
+without expanding persistent token privileges. The live public roadmap issue
+now records R1 as `passed`, R2 as `ready`, the clean-trial measurements, the
+AI-proxy limitation, and the durable evidence link.
 
-## Remaining limitation and exact R1 blocker
+## Remaining limitations and downstream state
 
-Linux did not reach a useful product-reasoning result. A 1B local model returned
-non-useful prose, and a 4B local model left the durable task running beyond the
-900-second CLI polling deadline. A clean authenticated cloud/subscription route
-was not available inside the isolated Linux environment without reusing a
-maintainer credential, which the stranger protocol forbids.
+- No independent human tester was available. Clean isolated AI-operated trials
+  are the declared proxy and do not establish external human usability.
+- Device-code login requires the account owner to enable the corresponding
+  ChatGPT Security setting and approve the one-time account consent. This is
+  standard authentication, not maintainer intervention, but it remains an
+  explicit prerequisite for headless Codex routes.
+- Subscription-backed latency and capacity vary by provider plan. The clean
+  Linux setup-to-result measurement is evidence for this run, not a universal
+  latency promise.
+- The failed Ollama attempts show that operational readiness alone does not
+  prove activation and that small local models may not satisfy the first-value
+  outcome.
 
-Before R2 begins, rerun Linux in a fresh account/container with its own
-authenticated supported provider (or a demonstrated local model/host capable of
-finishing the same decision), require a useful completed result, rerun recovery
-and `ace doctor`, append the evidence here, reconcile the live roadmap, and only
-then move R1 to `passed`. R2 and R4 remain not ready.
+R1's product gate is complete. R2 may move to `ready`; no R2 implementation,
+package publication, tag, or release is part of this closeout. R4 remains
+dependency-blocked until R3 also passes.

@@ -48,6 +48,26 @@ def _provider_configured(settings) -> tuple[bool, str]:
     return False, "no usable provider; configure one path from docs/providers.md"
 
 
+def _recovery_actions(checks: dict[str, dict[str, object]]) -> list[str]:
+    """Return product-facing next steps for the failed readiness checks."""
+    failed = {name for name, item in checks.items() if not bool(item["ok"])}
+    if "configuration" in failed:
+        return [
+            "Run `ace setup` (source checkout: `uv run ace setup`) to repair configuration, then rerun `ace doctor`.",
+        ]
+    if failed & {"surrealdb", "schema", "api"}:
+        return [
+            "Run `ace service start` (source checkout: `uv run ace service start`).",
+            "If startup fails, inspect `ace service logs --lines 80`.",
+            "Then rerun `ace doctor`.",
+        ]
+    if failed & {"model_provider", "model_policy"}:
+        return [
+            "Run `ace setup` (source checkout: `uv run ace setup`) to choose or repair a provider, then rerun `ace doctor`.",
+        ]
+    return []
+
+
 async def _database_check(settings) -> tuple[bool, str, bool, str]:
     from surrealdb import AsyncSurreal
 
@@ -162,15 +182,20 @@ def doctor(ctx, json_output: bool):
         checks["mcp"] = {"ok": False, "detail": str(exc)}
 
     ok = all(bool(item["ok"]) for item in checks.values())
+    recovery = _recovery_actions(checks) if not ok else []
     if json_output:
         import json
 
-        click.echo(json.dumps({"ok": ok, "checks": checks}, indent=2))
+        click.echo(json.dumps({"ok": ok, "checks": checks, "recovery": recovery}, indent=2))
     else:
         for name, item in checks.items():
             mark = "PASS" if item["ok"] else "FAIL"
             color = "green" if item["ok"] else "red"
             console.print(f"[{color}]{mark}[/{color}] {name}: {item['detail']}")
         console.print("\n[green]ACE is ready.[/green]" if ok else "\n[red]ACE is not ready.[/red]")
+        if recovery:
+            console.print("\n[bold]Recovery[/bold]")
+            for action in recovery:
+                console.print(f"- {action}")
     if not ok:
         raise SystemExit(1)

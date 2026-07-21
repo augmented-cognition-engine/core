@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
+import httpx
 from click.testing import CliRunner
 
 from core.engine.cli.main import cli
@@ -83,6 +84,32 @@ def test_doctor_rejects_stale_saved_token(monkeypatch):
     assert result.exit_code == 1
     assert "protected request rejected (401)" in result.output
     assert "ace login" in result.output
+
+
+def test_doctor_gives_actionable_service_recovery(monkeypatch):
+    monkeypatch.setenv("ACE_API_KEY", "test")
+    with (
+        patch(
+            "core.engine.cli.commands.doctor._database_check",
+            new=AsyncMock(return_value=(False, "connection refused", False, "unavailable")),
+        ),
+        patch("core.engine.cli.commands.doctor._provider_configured", return_value=(True, "test provider")),
+        patch("core.engine.cli.commands.doctor._model_policy_check", return_value=(True, {"valid": True})),
+        patch(
+            "core.engine.cli.commands.doctor.get_headers",
+            return_value={"Authorization": "Bearer redacted"},
+        ),
+        patch("core.engine.cli.commands.doctor.httpx.get", side_effect=httpx.ConnectError("connection refused")),
+        patch(
+            "ace_mcp_client.server.mcp.list_tools",
+            new=AsyncMock(return_value=[SimpleNamespace(name=f"tool-{index}") for index in range(11)]),
+        ),
+    ):
+        result = CliRunner().invoke(cli, ["doctor"])
+    assert result.exit_code == 1
+    assert "ace service start" in result.output
+    assert "ace service logs --lines 80" in result.output
+    assert "rerun `ace doctor`" in result.output
 
 
 def test_provider_check_accepts_claude_cli_without_settings_field(monkeypatch):
