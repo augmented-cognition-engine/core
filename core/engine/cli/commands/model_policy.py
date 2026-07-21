@@ -39,7 +39,8 @@ def model_policy(json_output: bool) -> None:
         )
         for role in payload["roles"]:
             console.print(
-                f"  {role['role']}: {role['resolved_model']} (requested {role['requested_model']}; {role['purpose']})"
+                f"  {role['role']}: {role['resolved_model']} "
+                f"(requested {role['requested_model']}; effort={role['resolved_effort']}; {role['purpose']})"
             )
         console.print(f"Escalation: {payload['escalation']}")
         console.print(f"Fallback: {payload['fallback']}")

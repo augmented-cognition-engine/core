@@ -7,6 +7,7 @@ ACE's public documentation is intentionally small and user-facing:
 - [Capability maturity](capability-maturity.md) — what is supported in 0.1.x and what remains
   experimental.
 - [Model providers](providers.md) — provider configuration and routing expectations.
+- [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
 - [Clean-user onboarding trial](onboarding-trials.md) — measure time to first useful result,
   recovery, and independence from maintainer help.
 - [R1 onboarding evidence](r1-onboarding-evidence.md) — the reconciled macOS/Linux trial results,

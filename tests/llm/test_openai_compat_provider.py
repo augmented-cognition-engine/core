@@ -156,6 +156,40 @@ class TestOpenAICompatProviderConformance(LLMConformanceSuite):
         headers = self._client.post.call_args.kwargs["headers"]
         assert "Authorization" not in headers
 
+    def test_gpt56_semantic_effort_is_sent_only_when_explicit(self):
+        provider = self.make_provider()
+
+        capable = provider._payload("hi", "claude-sonnet-5", 16, None)
+        reasoning = provider._payload("hi", "claude-opus-4-8", 16, None)
+        frontier = provider._payload("hi", "claude-fable-5", 16, None)
+
+        assert "reasoning_effort" not in capable
+        assert reasoning["reasoning_effort"] == "high"
+        assert frontier["reasoning_effort"] == "xhigh"
+
+    def test_gpt56_none_effort_is_sent_when_explicit(self, monkeypatch):
+        from core.engine.core import llm as llm_mod
+
+        monkeypatch.setattr(llm_mod.settings, "llm_reasoning_effort", "none", raising=False)
+        provider = self.make_provider()
+
+        payload = provider._payload("hi", "claude-opus-4-8", 16, None)
+
+        assert payload["reasoning_effort"] == "none"
+
+    def test_unknown_compat_backend_never_receives_assumed_effort(self):
+        provider = OpenAICompatProvider(
+            base_url="https://example.compat.invalid/v1",
+            api_key="test-key",
+            default_model="custom-model",
+            model_map={"claude-opus-4-8": "custom-model"},
+        )
+
+        payload = provider._payload("hi", "claude-opus-4-8", 16, None)
+
+        assert "reasoning_effort" not in payload
+        assert provider._resolve_effort("claude-opus-4-8", "custom-model") == "provider_default"
+
     async def test_complete_json_requests_json_object_response_format(self):
         provider = self.make_provider()
         self.respond_text('{"key": "value"}')

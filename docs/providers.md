@@ -42,6 +42,23 @@ cost, availability, concurrency, escalation, fallback, context-limit posture, an
 degradation findings. `ace doctor` additionally verifies the database, schema, API, protected
 authentication request, provider configuration, and exact eleven-tool thin MCP registration.
 
+Provider configuration is not provider reachability. The default doctor run makes no model call and
+reports a key/endpoint route as `configured_unverified`; it can confirm a Codex CLI sign-in as
+`authenticated`, but still does not call a model. Opt into one minimal completion when live evidence
+is required:
+
+```bash
+ace doctor --live-provider
+ace doctor --live-provider --provider-timeout 60
+```
+
+Structured states are `not_configured`, `configured_unverified`, `authenticated`, `reachable`,
+`rate_limited`, `unauthorized`, `unavailable`, `timed_out`, `unsupported_model`,
+`unsupported_effort`, `local_dependency_unavailable`, and
+`provider_operational_but_degraded`. Diagnostics return only credential-source names, never values
+or raw upstream bodies. See the [R3 evidence report](r3-provider-validation.md) for the frozen
+matrix and current live-validation limit.
+
 ## The resolution chain
 
 `get_llm()` walks eleven slots in priority order and returns the first match.
@@ -315,6 +332,27 @@ M5 must measure the routes separately.
 
 Anthropic-native providers (`ClaudeProvider`, `CLIProvider`) pass tier names
 through untouched while applying the independent effort policy above.
+
+The direct OpenAI-compatible adapter applies effort only when the exact endpoint hostname is
+`api.openai.com` and the resolved model is in the GPT-5.6 family. Supported values are `none`,
+`low`, `medium`, `high`, `xhigh`, and `max`; `default` omits `reasoning_effort` and leaves the
+provider in control. Other compatible endpoints expose catalogs and capabilities ACE cannot infer,
+so ACE sends no effort field and reports `provider_default` instead of pretending the setting was
+applied. Current provider responses do not echo an authoritative applied-effort value; diagnostics
+record what was requested and sent while leaving `applied_effort` null.
+
+## Retry and fallback truth
+
+Once `get_llm()` resolves a provider, a request failure does not re-enter the resolver. ACE never
+silently switches providers. The OpenAI-compatible structured-output compatibility path retries
+once, on the same route, only when a 400 explicitly rejects `response_format`; other 4xx/5xx
+responses propagate. CLI JSON repair is capped at three same-route attempts, and subprocess timeout
+or cancellation terminates and reaps the child.
+
+`RetryPolicy` contains model-fallback metadata, but no execution path currently consumes
+`fallback_model`/`should_fallback()`. Therefore ACE has no supported explicit runtime fallback
+configuration today. Unavailability remains an attributable failure. This is a limitation, not an
+implicit downgrade promise.
 
 ## Usage persistence — what writes the ledger
 

@@ -120,3 +120,18 @@ async def test_claude_effort_follows_semantic_role_independently_of_model(monkey
         await provider.complete("request", model=model)
         output_config = provider._client.messages.create.await_args.kwargs.get("output_config")
         assert output_config == ({"effort": effort} if effort else None)
+
+
+@pytest.mark.asyncio
+async def test_claude_rejects_none_effort_instead_of_claiming_it_was_applied(monkeypatch):
+    from core.engine.core import llm as llm_mod
+
+    monkeypatch.setattr(llm_mod.settings, "llm_reasoning_model", "claude-opus-4-8", raising=False)
+    monkeypatch.setattr(llm_mod.settings, "llm_reasoning_effort", "none", raising=False)
+    provider = ClaudeProvider(api_key="sk-test", default_model="claude-sonnet-5")
+    provider._client = MagicMock()
+    provider._client.messages.create = AsyncMock(return_value=_text_response("ok"))
+
+    with pytest.raises(ValueError, match="unsupported Claude effort"):
+        await provider.complete("request", model="claude-opus-4-8")
+    provider._client.messages.create.assert_not_called()

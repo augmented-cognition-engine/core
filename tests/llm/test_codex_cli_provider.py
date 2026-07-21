@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from pydantic import BaseModel
@@ -18,6 +19,22 @@ class _Shape(BaseModel):
 
 def _provider() -> CodexCLIProvider:
     return CodexCLIProvider(default_model="gpt-5.6-terra", codex_bin="codex")
+
+
+@pytest.mark.asyncio
+async def test_codex_subprocess_is_reaped_when_caller_cancels():
+    provider = _provider()
+    proc = MagicMock()
+    proc.communicate = AsyncMock(side_effect=asyncio.CancelledError())
+
+    with (
+        patch("core.engine.core.llm.asyncio.create_subprocess_exec", new=AsyncMock(return_value=proc)),
+        patch("core.engine.core.llm._terminate_subprocess", new=AsyncMock()) as terminate,
+        pytest.raises(asyncio.CancelledError),
+    ):
+        await provider._run("prompt", "gpt-5.6-terra")
+
+    terminate.assert_awaited_once_with(proc)
 
 
 def test_codex_cli_is_hermetic_and_never_receives_credentials():
@@ -131,23 +148,27 @@ def test_explicit_codex_subscription_route_resolves(monkeypatch):
     assert provider._codex_bin == "/path/to/codex"
 
 
-def test_doctor_reports_codex_route(monkeypatch):
+@pytest.mark.asyncio
+async def test_doctor_reports_codex_route():
     from types import SimpleNamespace
 
-    from core.engine.cli.commands.doctor import _provider_configured
+    from core.engine.core.provider_diagnostics import ProviderDiagnosticState, diagnose_provider
 
     configured = SimpleNamespace(
+        llm_budget_model="claude-haiku-4-5-20251001",
         subscription_provider="codex",
         codex_cli_model="gpt-5.6-terra",
         codex_cli_effort="default",
         openai_compat_base_url=None,
         ollama_host=None,
     )
-    monkeypatch.setattr("core.engine.core.llm._find_codex_bin", lambda: "/path/to/codex")
-    assert _provider_configured(configured) == (
-        True,
-        "Codex CLI / ChatGPT subscription (gpt-5.6-terra, effort=default)",
-    )
+    completed = MagicMock(returncode=0)
+    with patch("core.engine.core.provider_diagnostics.subprocess.run", return_value=completed):
+        result = await diagnose_provider(configured, provider=CodexCLIProvider(codex_bin="/path/to/codex"))
+
+    assert result.state is ProviderDiagnosticState.AUTHENTICATED
+    assert result.provider == "CodexCLIProvider"
+    assert result.resolved_model == "gpt-5.6-luna"
 
 
 def test_codex_maps_the_unequal_provider_tiers_explicitly():

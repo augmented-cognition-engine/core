@@ -5,6 +5,26 @@ import httpx
 from click.testing import CliRunner
 
 from core.engine.cli.main import cli
+from core.engine.core.provider_diagnostics import ProviderDiagnosticResult, ProviderDiagnosticState
+
+
+def _reachable_provider_result():
+    return ProviderDiagnosticResult(
+        ok=True,
+        state=ProviderDiagnosticState.REACHABLE,
+        layer="provider",
+        provider="TestProvider",
+        route="test",
+        credential_source="test fixture",
+        configured_model="test-model",
+        resolved_model="test-model",
+        requested_effort="provider_default",
+        effort_sent=None,
+        applied_effort=None,
+        checked_live=True,
+        detail="reachable",
+        action="none",
+    )
 
 
 def test_doctor_reports_all_preview_checks(monkeypatch):
@@ -14,7 +34,10 @@ def test_doctor_reports_all_preview_checks(monkeypatch):
             "core.engine.cli.commands.doctor._database_check",
             new=AsyncMock(return_value=(True, "ws://localhost:8001", True, "141 (expected 141)")),
         ),
-        patch("core.engine.cli.commands.doctor._provider_configured", return_value=(True, "test provider")),
+        patch(
+            "core.engine.cli.commands.doctor._provider_check",
+            new=AsyncMock(return_value=_reachable_provider_result()),
+        ),
         patch(
             "core.engine.cli.commands.doctor._model_policy_check",
             return_value=(True, {"valid": True, "roles": []}),
@@ -68,7 +91,10 @@ def test_doctor_rejects_stale_saved_token(monkeypatch):
             "core.engine.cli.commands.doctor._database_check",
             new=AsyncMock(return_value=(True, "ws://localhost:8001", True, "142 (expected 142)")),
         ),
-        patch("core.engine.cli.commands.doctor._provider_configured", return_value=(True, "test provider")),
+        patch(
+            "core.engine.cli.commands.doctor._provider_check",
+            new=AsyncMock(return_value=_reachable_provider_result()),
+        ),
         patch("core.engine.cli.commands.doctor._model_policy_check", return_value=(True, {"valid": True})),
         patch(
             "core.engine.cli.commands.doctor.get_headers",
@@ -93,7 +119,10 @@ def test_doctor_gives_actionable_service_recovery(monkeypatch):
             "core.engine.cli.commands.doctor._database_check",
             new=AsyncMock(return_value=(False, "connection refused", False, "unavailable")),
         ),
-        patch("core.engine.cli.commands.doctor._provider_configured", return_value=(True, "test provider")),
+        patch(
+            "core.engine.cli.commands.doctor._provider_check",
+            new=AsyncMock(return_value=_reachable_provider_result()),
+        ),
         patch("core.engine.cli.commands.doctor._model_policy_check", return_value=(True, {"valid": True})),
         patch(
             "core.engine.cli.commands.doctor.get_headers",
@@ -112,31 +141,65 @@ def test_doctor_gives_actionable_service_recovery(monkeypatch):
     assert "rerun `ace doctor`" in result.output
 
 
-def test_provider_check_accepts_claude_cli_without_settings_field(monkeypatch):
-    from core.engine.cli.commands.doctor import _provider_configured
-
-    monkeypatch.delenv("CLAUDE_CODE_OAUTH_TOKEN", raising=False)
-    settings = SimpleNamespace(
-        openai_compat_base_url=None,
-        ollama_host=None,
-        llm_api_key="dev-placeholder-not-a-real-key",
-    )
-    with patch("core.engine.cli.commands.doctor.shutil.which", return_value="/usr/local/bin/claude"):
-        assert _provider_configured(settings) == (True, "Claude CLI")
-
-
 def test_provider_check_points_to_public_provider_guide(monkeypatch):
-    from core.engine.cli.commands.doctor import _provider_configured
+    from core.engine.cli.commands.doctor import _recovery_actions
 
-    monkeypatch.delenv("CLAUDE_CODE_OAUTH_TOKEN", raising=False)
-    settings = SimpleNamespace(
-        openai_compat_base_url=None,
-        ollama_host=None,
-        subscription_provider="auto",
-        llm_api_key="sk-test-placeholder",
+    actions = _recovery_actions({"model_provider": {"ok": False}})
+
+    assert actions[0].endswith(
+        "https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md if needed; "
+        "then rerun `ace doctor`."
     )
-    with patch("core.engine.cli.commands.doctor.shutil.which", return_value=None):
-        ok, detail = _provider_configured(settings)
 
-    assert ok is False
-    assert detail.endswith("https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md")
+
+def test_doctor_requires_explicit_live_provider_verification(monkeypatch):
+    monkeypatch.setenv("ACE_API_KEY", "test")
+    unverified = _reachable_provider_result()
+    unverified = ProviderDiagnosticResult(
+        **{
+            **unverified.__dict__,
+            "ok": False,
+            "state": ProviderDiagnosticState.CONFIGURED_UNVERIFIED,
+            "checked_live": False,
+            "detail": "configured but unverified",
+            "action": "run --live-provider",
+        }
+    )
+    with (
+        patch(
+            "core.engine.cli.commands.doctor._database_check",
+            new=AsyncMock(return_value=(True, "ws://localhost:8001", True, "142 (expected 142)")),
+        ),
+        patch("core.engine.cli.commands.doctor._provider_check", new=AsyncMock(return_value=unverified)) as provider,
+        patch("core.engine.cli.commands.doctor._model_policy_check", return_value=(True, {"valid": True})),
+        patch("core.engine.cli.commands.doctor.get_headers", return_value={"Authorization": "Bearer redacted"}),
+        patch("core.engine.cli.commands.doctor.httpx.get") as get,
+        patch(
+            "ace_mcp_client.server.mcp.list_tools",
+            new=AsyncMock(
+                return_value=[
+                    SimpleNamespace(name=name)
+                    for name in (
+                        "ace_start",
+                        "ace_load",
+                        "ace_capture",
+                        "ace_task",
+                        "ace_status",
+                        "ace_capture_idea",
+                        "ace_search",
+                        "ace_briefing",
+                        "ace_impact",
+                        "ace_history",
+                        "ace_related",
+                    )
+                ]
+            ),
+        ),
+    ):
+        get.return_value.status_code = 200
+        result = CliRunner().invoke(cli, ["doctor", "--json-output"])
+
+    assert result.exit_code == 1
+    assert '"state": "configured_unverified"' in result.output
+    assert "--live-provider" in result.output
+    assert provider.await_args.kwargs == {"live": False, "timeout": 30.0}

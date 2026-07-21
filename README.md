@@ -313,6 +313,7 @@ Verify the complete preview path:
 
 ```bash
 uv run ace doctor
+uv run ace doctor --live-provider  # one explicitly requested minimal model call
 uv run ace model-policy
 ```
 
@@ -514,6 +515,11 @@ export LLM_API_KEY=sk-test-placeholder   # optional placeholder; falls through t
 
 Full matrix, billing semantics, and the safeguards that stop a stray exported
 key from silently billing a metered API: [`docs/providers.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
+By default `ace doctor` does not spend model tokens: it reports a configured route
+as unverified (or a locally confirmed CLI session as authenticated). Add
+`--live-provider` only when you want one minimal request to verify model
+reachability. The durable R3 evidence and current live-route limitation are in
+[`docs/r3-provider-validation.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/r3-provider-validation.md).
 
 ---
 
