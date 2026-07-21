@@ -8,8 +8,9 @@ Priorities may change as maintainers learn from users and contributors.
 
 `ace-core` 0.1.0 is published on PyPI and GitHub. The release, package artifacts, trusted
 publishing path, and a clean public-index wheel installation have been verified. The current
-spine is therefore post-release validation: proving that a new user can complete the supported
-self-hosted journey without maintainer knowledge.
+spine is therefore product onboarding: proving that a product builder can understand ACE,
+reach a useful reasoning outcome, and complete the supported self-hosted journey without
+maintainer knowledge or prior familiarity with ACE's architecture.
 
 Roadmap outcome states are used strictly:
 
@@ -20,23 +21,27 @@ Roadmap outcome states are used strictly:
 - **passed** — outcome, verification evidence, limitations, and roadmap reconciliation are complete;
 - **superseded** — replaced by an accepted newer outcome.
 
-## Now — developer preview
+## Now — effortless product onboarding
 
 - Publish and validate the `ace-core` 0.1.x Python distribution while preserving the `ace`
   import and CLI identities.
-- Make the self-hosted install, authentication, provider setup, `ace doctor`, CLI, and thin
-  11-tool MCP path reliable for new users on macOS and Linux.
-- Improve documentation, diagnostics, failure messages, security reporting, and contributor
-  onboarding from real installation feedback.
+- Lead with the product outcomes ACE enables—better product context, reasoning, decisions,
+  evidence, and learning—before introducing its architecture or developer surface.
+- Make installation, authentication, provider setup, `ace doctor`, and the first useful journey
+  guided and reliable for new users on macOS and Linux.
+- Provide one obvious path from “what is ACE?” to a meaningful result, with progressive
+  disclosure for the CLI, thin 11-tool MCP contract, self-hosting, and extension internals.
+- Improve setup guidance, diagnostics, failure recovery, security reporting, and contributor
+  onboarding from observed first-use friction.
 - Protect the kernel/extension boundary and keep model-provider routes replaceable.
 
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
 | R0 | passed | Publish `ace-core` 0.1.0 through a credential-free release path | GitHub Release, PyPI release, successful OIDC workflow, and public-index install verified |
-| R1 | ready | Prove the complete new-user install and onboarding journey on clean macOS and Linux environments | Full dependency install; provider and SurrealDB setup; authentication; `ace doctor`; CLI and 11-tool MCP smoke journey |
-| R2 | not ready | Ship a focused 0.1.1 packaging and documentation polish release | Depends on R1 findings; includes a shorter PyPI-specific description, absolute documentation links, and release-workflow maintenance |
+| R1 | ready | Make first use effortless and outcome-led for product builders, not only developers | A clean user can explain ACE's value, install it, complete guided provider and storage setup, recover from common failures, and reach a useful reasoning result without maintainer help or architecture knowledge on macOS and Linux |
+| R2 | not ready | Ship a focused 0.1.1 onboarding, packaging, and documentation release | Depends on R1 findings; includes outcome-led entry copy, one obvious quickstart, a shorter PyPI description, absolute documentation links, and release-workflow maintenance |
 | R3 | ready | Validate provider setup, authentication, diagnostics, and degraded behavior | Supported provider matrix; actionable failures; no provider-specific widening of the public contract |
-| R4 | not ready | Publish a reproducible public golden-path demonstration | Depends on R1 and R3; must show capture, durable restart, later material use, inspectable evidence, and honest limitations |
+| R4 | not ready | Publish a reproducible, product-builder golden-path demonstration | Depends on R1 and R3; must begin with a recognizable product decision and show capture, reasoning, durable restart, later material use, inspectable evidence, and honest limitations without requiring the audience to understand ACE internals |
 
 ## Next — durable product partnership
 
