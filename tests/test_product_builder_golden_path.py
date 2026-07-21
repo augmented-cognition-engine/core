@@ -85,6 +85,13 @@ def test_later_prompt_does_not_leak_correction_identifier_or_text(scenario):
     assert "NO_PRIOR_CONSTRAINT" in prompt
 
 
+def test_all_persistence_reads_use_the_exact_capture_domain():
+    assert golden._intelligence_params() == {
+        "q": "product_strategy.online_conversion",
+        "product": "product:default",
+    }
+
+
 def test_structural_assertions_accept_non_exact_recommendation(scenario):
     sections = scenario["acceptance_invariants"]["initial_output_sections"]
     result = golden._validate_reasoning_receipt(_receipt(_output(sections)), scenario, sections, "test")

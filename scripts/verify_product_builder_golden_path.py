@@ -48,6 +48,11 @@ class GoldenPathError(RuntimeError):
         return {"status": "failed", "stage": self.stage, "message": str(self), "next_action": self.action}
 
 
+def _intelligence_params() -> dict[str, str]:
+    """Use the stable capture domain for every baseline and persistence read."""
+    return {"q": DOMAIN, "product": "product:default"}
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
@@ -310,7 +315,7 @@ async def _initial(args: argparse.Namespace) -> None:
                 f"ACE is not ready: {health}",
                 "Run `uv run ace doctor` and follow its recovery action.",
             )
-        baseline = await client.get("/intel/context", params={"q": DOMAIN, "product": "product:default"})
+        baseline = await client.get("/intel/context", params=_intelligence_params())
         evidence_capture = await client.post(
             "/observations",
             json={
@@ -356,9 +361,7 @@ async def _initial(args: argparse.Namespace) -> None:
                 "confidence": 1.0,
             },
         )
-        loaded_after_capture = await client.get(
-            "/intel/context", params={"q": "online conversion privacy", "product": "product:default"}
-        )
+        loaded_after_capture = await client.get("/intel/context", params=_intelligence_params())
     except GoldenPathError:
         raise
     except Exception as exc:
@@ -426,9 +429,7 @@ async def _later(args: argparse.Namespace) -> None:
     started = time.monotonic()
     client = AceClient(base_url=args.url, timeout=args.http_timeout)
     try:
-        loaded = await client.get(
-            "/intel/context", params={"q": "online conversion privacy product strategy", "product": "product:default"}
-        )
+        loaded = await client.get("/intel/context", params=_intelligence_params())
         loaded_text = json.dumps(loaded, default=str)
         if marker not in loaded_text:
             raise GoldenPathError(
