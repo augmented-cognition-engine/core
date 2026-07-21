@@ -33,6 +33,7 @@ from core.engine.cli.commands.proposals import proposals
 from core.engine.cli.commands.reasoning import frameworks
 from core.engine.cli.commands.run import quick, run
 from core.engine.cli.commands.sentinel import sentinel
+from core.engine.cli.commands.setup import onboarding, service, setup
 from core.engine.cli.commands.skills import skills
 from core.engine.cli.commands.status import status
 from core.engine.cli.commands.templates import templates
@@ -50,6 +51,9 @@ cli.add_command(graph)
 cli.add_command(proposals)
 cli.add_command(flow)
 cli.add_command(sentinel)
+cli.add_command(setup)
+cli.add_command(service)
+cli.add_command(onboarding)
 cli.add_command(briefing)
 cli.add_command(conflicts)
 cli.add_command(skills)

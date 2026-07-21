@@ -121,7 +121,7 @@ def test_login_connection_refused_gives_actionable_message_and_nonzero_exit(runn
 
     assert result.exit_code != 0
     assert "cannot connect" in result.output.lower()
-    assert "make dev" in result.output
+    assert "ace service start" in result.output
     assert not isolated_config.exists()
 
 

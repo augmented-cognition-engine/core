@@ -20,6 +20,10 @@ separate Node.js toolchain and is not part of preview setup. The ACE kernel is A
 separately run SurrealDB server is
 source-available under BSL 1.1 rather than OSI open source.
 
+For the guided product-style path, run `uv sync && uv run ace setup`. The
+expanded commands below remain useful for contributors who want each service
+and migration step under explicit control.
+
 ```bash
 # Backend (Python 3.12)
 git clone <your-clone-url>              # e.g. your fork of this repository

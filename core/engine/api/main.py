@@ -122,7 +122,8 @@ async def lifespan(app: FastAPI):
         url = pool._redact_url(settings.surreal_url)
         logger.error(
             "SurrealDB is not reachable at %s.\n"
-            "ACE needs a running database. Start one with:\n"
+            "For a first-time local setup, run `ace setup`.\n"
+            "To start only the database manually, run:\n"
             "    docker compose -f infra/docker-compose.yml up -d surrealdb\n"
             "or point SURREAL_URL at an existing SurrealDB in your .env.\n"
             "(See the Quickstart in README.md.)",
