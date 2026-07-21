@@ -325,7 +325,7 @@ async def _initial(args: argparse.Namespace) -> None:
             {
                 "description": _initial_prompt(scenario),
                 "workspace_id": WORKSPACE,
-                "idempotency_key": f"{scenario['scenario_id']}-initial-v1",
+                "idempotency_key": f"{scenario['scenario_id']}-initial-v2",
             },
             wait=True,
             wait_timeout=args.task_timeout,

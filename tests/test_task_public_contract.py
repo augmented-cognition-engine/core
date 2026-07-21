@@ -284,6 +284,40 @@ def test_budget_model_alias_resolves_before_provider_execution():
 
 
 @pytest.mark.asyncio
+async def test_completed_task_receipt_resolves_selected_route_when_usage_is_empty():
+    from core.engine.core.config import settings
+    from core.engine.core.llm import llm
+
+    store = MemoryReceiptStore()
+    result = _result()
+    result.snapshot["token_usage"] = {
+        "total_tokens": 0,
+        "providers": [],
+        "models": [],
+    }
+
+    class SelectedProvider:
+        def _resolve_model(self, requested):
+            return f"native:{requested}"
+
+    with (
+        patch.object(tasks, "_update_receipt", new=store.update),
+        patch.object(llm, "_cached_provider", new=SelectedProvider()),
+        patch("core.engine.orchestration.orchestrate", new=AsyncMock(return_value=result)),
+    ):
+        await tasks._execute_receipt(
+            store.task_id,
+            TaskCreate(description="route provenance", workspace_id="workspace:test"),
+            {"sub": "user:test", "product": "product:test"},
+        )
+
+    provenance = store.state["reasoning_trace"]["provenance"]
+    assert provenance["provider"] == "SelectedProvider"
+    assert provenance["requested_model"] == settings.llm_model
+    assert provenance["model"] == f"native:{settings.llm_model}"
+
+
+@pytest.mark.asyncio
 async def test_task_retrieval_enforces_product_ownership():
     store = MemoryReceiptStore()
     with patch.object(tasks, "_get_task_record", new=store.get):
