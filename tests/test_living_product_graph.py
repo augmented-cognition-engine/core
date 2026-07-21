@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from core.engine.product.living_graph import (
+    MAX_RECORDS_PER_SOURCE,
     PROJECTION_VERSION,
     SNAPSHOT_SCHEMA_VERSION,
     LivingProductGraphRecords,
@@ -22,7 +23,7 @@ from core.engine.product.living_graph_store import SurrealLivingProductGraphStor
 
 pytestmark = pytest.mark.unit
 
-FIXTURE = Path(__file__).parent / "fixtures" / "living_product_graph" / "complete.json"
+FIXTURE = Path(__file__).parents[1] / "evaluations" / "fixtures" / "g1_living_product_graph_v1.json"
 
 
 def _records() -> LivingProductGraphRecords:
@@ -55,7 +56,7 @@ def test_complete_product_snapshot_is_versioned_provenance_bearing_and_read_only
     assert snapshot["snapshot_id"].startswith("product_snapshot:")
     assert snapshot["projection_state"] == {
         "status": "complete",
-        "assertion_states": {"accepted": 1, "contested": 1},
+        "assertion_states": {"accepted": 1, "contested": 2, "provisional": 1, "rejected": 1},
         "issue_count": 0,
     }
     assert snapshot["authority"] == {
@@ -63,9 +64,14 @@ def test_complete_product_snapshot_is_versioned_provenance_bearing_and_read_only
         "operational_roadmap": "docs/roadmap-status.md",
         "writes_permitted": False,
         "autonomous_dispatch": False,
+        "operational_truth": "relationships.operational",
+        "assertions_are_operational_only_when": "accepted_and_projection_eligible",
+        "model_proposals_define_truth": False,
     }
     assert snapshot["product"]["id"] == "product:alpha"
     assert snapshot["product"]["state"] == "observed"
+    assert snapshot["product"]["object_type"] == "product"
+    assert snapshot["capabilities"]["items"][0]["lifecycle_state"] == "built"
     assert "settings" not in snapshot["product"]
     assert [row["id"] for row in snapshot["capabilities"]["items"]] == [
         "capability:billing",
@@ -88,12 +94,14 @@ def test_complete_product_snapshot_is_versioned_provenance_bearing_and_read_only
                 "source_family": "operational_relationship",
             },
             "relationship_kind": "accepted_semantic",
+            "authority": "canonical_operational_truth",
             "resolver_version": "ace.assertion-resolver.v1",
             "subject": "capability:checkout",
         }
     ]
     assert snapshot["work"]["authority"] == "runtime_records_only_not_living_roadmap"
     assert snapshot["decisions"][0]["provenance"]["record_refs"] == ["decision:idempotency"]
+    assert len(snapshot["history"]["assertion_events"]) == 3
 
 
 def test_sparse_product_has_explicit_unknowns_without_fabricated_fields():
@@ -129,10 +137,33 @@ def test_contested_assertion_remains_inspectable_but_cannot_become_operational_t
     assert {row["status"] for row in snapshot["relationships"]["assertions"]} == {
         "accepted",
         "contested",
+        "provisional",
+        "rejected",
     }
     assert [row["id"] for row in snapshot["relationships"]["operational"]] == [
         "operational_relationship:checkout_depends_billing"
     ]
+    assert "ineligible_operational_relationship_excluded" in _issue_codes(snapshot)
+
+
+@pytest.mark.parametrize("status", ["provisional", "rejected", "superseded", "stale"])
+def test_nonaccepted_assertions_remain_inspectable_but_never_operational(status: str):
+    source = _records()
+    assertion = next(
+        row for row in source.records["assertions"] if row["id"] == "relationship_assertion:checkout_depends_billing"
+    )
+    assertion["status"] = status
+    assertion["projection_eligible"] = status == "accepted"
+
+    snapshot = project_product_snapshot("product:alpha", source)
+
+    assert snapshot["relationships"]["operational"] == []
+    projected = next(
+        row
+        for row in snapshot["relationships"]["assertions"]
+        if row["id"] == "relationship_assertion:checkout_depends_billing"
+    )
+    assert projected["status"] == status
     assert "ineligible_operational_relationship_excluded" in _issue_codes(snapshot)
 
 
@@ -183,6 +214,45 @@ def test_cross_product_records_and_relationships_are_excluded():
     assert b"beta_secret" not in encoded
     assert "cross_product_record_excluded" in _issue_codes(snapshot)
     assert "relationship_endpoint_outside_product" in _issue_codes(snapshot)
+
+
+def test_missing_evidence_and_dangling_history_are_explicit_without_fabrication():
+    source = _records()
+    source.records["assertions"][0]["evidence_refs"].append("observation:missing")
+    source.records["assertion_events"].append(
+        {
+            "id": "assertion_event:dangling",
+            "assertion_id": "relationship_assertion:missing",
+            "event_type": "resolution",
+        }
+    )
+
+    snapshot = project_product_snapshot("product:alpha", source)
+
+    assert "evidence_reference_unresolved" in _issue_codes(snapshot)
+    assert "assertion_event_missing_assertion" in _issue_codes(snapshot)
+    assert "observation:missing" not in {row["id"] for row in snapshot["intelligence"]["observations"]}
+    assert all(issue["recovery"] for issue in snapshot["issues"])
+
+
+def test_cyclic_relationships_are_preserved_once_and_projection_terminates():
+    source = _records()
+    source.records["capability_dependencies"].append(
+        {
+            "id": "capability_dep:billing_checkout",
+            "in": "capability:billing",
+            "out": "capability:checkout",
+            "dep_type": "requires",
+        }
+    )
+
+    snapshot = project_product_snapshot("product:alpha", source)
+
+    dependencies = [row for row in snapshot["relationships"]["structural"] if row["id"].startswith("capability_dep:")]
+    assert [row["id"] for row in dependencies] == [
+        "capability_dep:billing_checkout",
+        "capability_dep:checkout_billing",
+    ]
 
 
 def test_repeated_projection_and_permuted_loader_order_are_byte_identical():
@@ -261,6 +331,27 @@ def test_unavailable_optional_store_is_visible_without_erasing_supported_data():
     assert "source_unavailable" in _issue_codes(snapshot)
 
 
+def test_truncated_source_is_bounded_and_explicitly_degraded():
+    source = _records()
+    source.source_states = [state for state in source.source_states if state.source != "observations"]
+    source.source_states.append(
+        SourceState(
+            source="observations",
+            status="truncated",
+            record_count=MAX_RECORDS_PER_SOURCE,
+            reason="record_limit",
+            limit=MAX_RECORDS_PER_SOURCE,
+        )
+    )
+
+    snapshot = project_product_snapshot("product:alpha", source)
+
+    assert snapshot["projection_state"]["status"] == "degraded"
+    receipt = next(row for row in snapshot["source_states"] if row["source"] == "observations")
+    assert receipt["limit"] == MAX_RECORDS_PER_SOURCE
+    assert "source_degraded" in _issue_codes(snapshot)
+
+
 class _ReplayStore:
     def __init__(self, records: LivingProductGraphRecords):
         self._records = records
@@ -306,6 +397,7 @@ class _FixtureDatabase:
         "led_to": "decision_led_to",
         "derived_from": "insight_derived_from",
         "relationship_assertion": "assertions",
+        "assertion_event": "assertion_events",
         "operational_relationship": "operational_relationships",
     }
 
@@ -346,6 +438,33 @@ async def test_surreal_store_adapter_loads_the_complete_scoped_fixture():
     scoped_calls = [params for query, params in database.calls if "WHERE product" in query]
     assert scoped_calls
     assert all(params["product"] == "product:alpha" for params in scoped_calls)
+    assert all(query.lstrip().upper().startswith("SELECT") for query, _params in database.calls)
+    bounded_calls = [(query, params) for query, params in database.calls if "LIMIT $limit" in query]
+    assert bounded_calls
+    assert all(params["limit"] == MAX_RECORDS_PER_SOURCE + 1 for _query, params in bounded_calls)
+
+
+@pytest.mark.asyncio
+async def test_surreal_store_adapter_truncates_oversized_family_at_stable_bound():
+    payload = json.loads(FIXTURE.read_text())
+    payload["records"]["observations"] = [
+        {
+            "id": f"observation:bounded_{index:03d}",
+            "product": "product:alpha",
+            "content": f"Synthetic bounded observation {index}",
+        }
+        for index in range(MAX_RECORDS_PER_SOURCE + 1)
+    ]
+    database = _FixtureDatabase(payload)
+    store = SurrealLivingProductGraphStore(_FixturePool(database))
+
+    records = await store.load_product_graph("product:alpha")
+
+    assert len(records.records["observations"]) == MAX_RECORDS_PER_SOURCE
+    state = next(row for row in records.source_states if row.source == "observations")
+    assert state.status == "truncated"
+    assert state.reason == "record_limit"
+    assert state.limit == MAX_RECORDS_PER_SOURCE
 
 
 class _UnavailablePool:
@@ -370,7 +489,7 @@ async def test_database_unavailability_returns_a_deterministic_degraded_snapshot
     assert all(state["status"] == "unavailable" for state in first["source_states"])
 
 
-@pytest.mark.parametrize("product_id", ["alpha", "", "project:alpha"])
+@pytest.mark.parametrize("product_id", ["alpha", "", "project:alpha", "product:../alpha", "product:a/b"])
 def test_noncanonical_product_identifiers_fail_closed(product_id: str):
     with pytest.raises(ValueError, match="product:<id>"):
         project_product_snapshot(product_id, LivingProductGraphRecords())

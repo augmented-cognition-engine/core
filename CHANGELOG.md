@@ -4,6 +4,9 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+- Add the versioned, authenticated, strictly read-only `ace landscape` journey for inspecting the
+  Living Product Graph with stable identity, evidence, provenance, uncertainty, assertion history,
+  deterministic ordering, bounded degraded behavior, and no change to the eleven-tool MCP surface.
 - Correct top-level CLI identity copy and hide the legacy experimental `ace skills` command and
   `ace run --skill` selector from default help. Both remain callable for compatibility; this is a
   visibility cleanup, not removal, migration, or a new cognition abstraction.

@@ -1,0 +1,18 @@
+{
+  "fixture": "evaluations/fixtures/g1_living_product_graph_v1.json",
+  "kind": "synthetic_redistributable",
+  "license": "Apache-2.0",
+  "product": "product:alpha",
+  "required_contents": {
+    "accepted_relationship": 1,
+    "provisional_relationship": 1,
+    "contested_relationships": 2,
+    "rejected_assertion": 1,
+    "decision": 1,
+    "human_corrections": 2,
+    "prediction_outcome": 1,
+    "assertion_history_events": 3
+  },
+  "contains_private_data": false,
+  "requires_model_call": false
+}

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from decimal import Decimal
@@ -17,6 +18,8 @@ from typing import Any, Protocol
 
 SNAPSHOT_SCHEMA_VERSION = "ace.living-product-snapshot.v1"
 PROJECTION_VERSION = "ace.living-product-projection.g1.v1"
+MAX_RECORDS_PER_SOURCE = 256
+_PRODUCT_ID = re.compile(r"product:[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
 
 
 @dataclass(frozen=True)
@@ -28,6 +31,7 @@ class SourceState:
     record_count: int = 0
     reason: str | None = None
     required: bool = False
+    limit: int | None = None
 
 
 @dataclass
@@ -94,6 +98,27 @@ _STRUCTURAL_FAMILIES = frozenset(
         "insight_derived_from",
     }
 )
+
+_OBJECT_TYPES = {
+    "projects": "project",
+    "product_directions": "product_direction",
+    "product_visions": "product_vision",
+    "capabilities": "capability",
+    "capability_quality": "capability_quality",
+    "decisions": "decision",
+    "predictions": "decision_prediction",
+    "prediction_outcomes": "prediction_outcome",
+    "outcome_observations": "outcome_observation",
+    "action_outcomes": "action_outcome",
+    "observations": "observation",
+    "insights": "insight",
+    "tasks": "task",
+    "initiatives": "initiative",
+    "milestones": "milestone",
+    "work_items": "work_item",
+    "agent_specs": "agent_spec",
+    "roadmap_phases": "roadmap_phase",
+}
 
 _RECORD_FIELDS: dict[str, tuple[str, ...]] = {
     "projects": (
@@ -355,6 +380,35 @@ _ASSERTION_FIELDS = (
     "degraded_reason",
 )
 
+_ASSERTION_EVENT_FIELDS = (
+    "id",
+    "assertion_id",
+    "event_type",
+    "actor",
+    "rationale",
+    "from_status",
+    "to_status",
+    "created_at",
+)
+
+_ISSUE_RECOVERY = {
+    "assertion_endpoint_outside_product": "Inspect the assertion directly and verify both endpoints belong to this product.",
+    "assertion_event_missing_assertion": "Inspect the referenced assertion history and restore or migrate the missing assertion record.",
+    "contradicting_assertion_unresolved": "Inspect the assertion trail and restore or migrate the referenced contradictory assertion.",
+    "cross_product_record_excluded": "Use credentials scoped to the owning product to inspect this record.",
+    "evidence_reference_unresolved": "Inspect the assertion trail and restore, migrate, or explicitly retire the missing evidence reference.",
+    "ineligible_operational_relationship_excluded": "Rebuild the canonical projection from accepted eligible assertions.",
+    "missing_product_record": "Verify the authenticated product exists and that its migrations have completed.",
+    "operational_relationship_missing_assertion": "Rebuild the canonical projection after restoring or migrating the assertion table.",
+    "product_identity_mismatch": "Verify the authenticated product identity and retry without overriding product scope.",
+    "product_intent_missing": "Capture a product direction or vision; reads never synthesize missing intent.",
+    "record_missing_stable_id": "Migrate the legacy record to a stable identifier before relying on it.",
+    "relationship_endpoint_outside_product": "Inspect the source relationship under the product that owns both endpoints.",
+    "source_degraded": "Reduce source size or complete the indicated migration, then retry the same read.",
+    "source_unavailable": "Restore database availability or complete the indicated migration, then retry the same read.",
+    "unscoped_legacy_record_excluded": "Migrate the legacy record with explicit product ownership before relying on it.",
+}
+
 
 def _json_value(value: Any) -> Any:
     """Convert driver values to canonical JSON without database dependencies."""
@@ -390,7 +444,12 @@ def _stable_hash(value: Any) -> str:
 
 
 def _issue(code: str, *, related: list[str] | None = None, detail: str | None = None) -> dict[str, Any]:
-    content = {"code": code, "related": sorted(set(related or [])), "detail": detail}
+    content = {
+        "code": code,
+        "related": sorted(set(related or [])),
+        "detail": detail,
+        "recovery": _ISSUE_RECOVERY.get(code, "Inspect the referenced source records and retry the read."),
+    }
     return {"id": f"projection_issue:{_stable_hash(content)[:24]}", **content}
 
 
@@ -399,9 +458,24 @@ def _scope_value(record: dict[str, Any]) -> str | None:
     return str(value) if value is not None else None
 
 
+def _lifecycle_state(record: dict[str, Any]) -> str:
+    if record.get("status") is not None:
+        return str(record["status"])
+    if record.get("active") is not None:
+        return "active" if record["active"] else "inactive"
+    if record.get("closed") is not None:
+        return "closed" if record["closed"] else "open"
+    if record.get("passed") is not None:
+        return "passed" if record["passed"] else "failed"
+    return "observed"
+
+
 def _project_record(family: str, record: dict[str, Any]) -> dict[str, Any]:
     result = {key: _json_value(record.get(key)) for key in _RECORD_FIELDS[family] if key in record}
     rid = _record_id(record)
+    result["object_type"] = _OBJECT_TYPES[family]
+    result["lifecycle_state"] = _lifecycle_state(record)
+    result["authority"] = "source_record"
     result["provenance"] = {"record_refs": [rid] if rid else [], "source_family": family}
     return result
 
@@ -454,6 +528,7 @@ def _endpoint_relationships(
             if key in {"id", "in", "out", "subject", "object", "dep_type", "predicate", "evidence", "created_at"}
         }
         projected["relationship_kind"] = "structural"
+        projected["authority"] = "source_record"
         projected["provenance"] = {"record_refs": [rid], "source_family": family}
         selected.append(projected)
     return _sort_records(selected)
@@ -473,11 +548,35 @@ def _assertions(
             issues.append(_issue("assertion_endpoint_outside_product"))
             continue
         projected = {key: _json_value(row.get(key)) for key in _ASSERTION_FIELDS if key in row}
+        projected["relationship_kind"] = "assertion"
+        projected["authority"] = "resolved_assertion_state"
         projected["provenance"] = {
             "record_refs": [rid, *sorted(str(ref) for ref in row.get("proposal_ids", []) or [])],
             "evidence_refs": sorted(str(ref) for ref in row.get("evidence_refs", []) or []),
             "source_family": "relationship_assertion",
         }
+        selected.append(projected)
+    return _sort_records(selected)
+
+
+def _assertion_events(
+    rows: list[dict[str, Any]], assertion_ids: set[str], issues: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    selected: list[dict[str, Any]] = []
+    for row in rows:
+        rid = _record_id(row)
+        assertion_id = str(row.get("assertion_id", ""))
+        if not rid:
+            issues.append(_issue("record_missing_stable_id", detail="assertion_events"))
+            continue
+        if assertion_id not in assertion_ids:
+            issues.append(_issue("assertion_event_missing_assertion", related=[rid, assertion_id]))
+            continue
+        projected = {key: _json_value(row.get(key)) for key in _ASSERTION_EVENT_FIELDS if key in row}
+        projected["object_type"] = "assertion_event"
+        projected["lifecycle_state"] = str(row.get("to_status") or "observed")
+        projected["authority"] = "source_record"
+        projected["provenance"] = {"record_refs": [rid, assertion_id], "source_family": "assertion_event"}
         selected.append(projected)
     return _sort_records(selected)
 
@@ -516,6 +615,7 @@ def _operational_relationships(
                 "resolver_version": _json_value(row.get("resolver_version")),
                 "projection_version": _json_value(row.get("projection_version")),
                 "relationship_kind": "accepted_semantic",
+                "authority": "canonical_operational_truth",
                 "provenance": {
                     "record_refs": [rid, assertion_id],
                     "evidence_refs": assertion.get("evidence_refs", []),
@@ -534,6 +634,7 @@ def _source_receipts(states: list[SourceState]) -> list[dict[str, Any]]:
             "record_count": state.record_count,
             "reason": state.reason,
             "required": state.required,
+            "limit": state.limit,
         }
         for state in states
     ]
@@ -543,7 +644,7 @@ def _source_receipts(states: list[SourceState]) -> list[dict[str, Any]]:
 def project_product_snapshot(product_id: str, source: LivingProductGraphRecords) -> dict[str, Any]:
     """Project one deterministic, provenance-bearing G1 product snapshot."""
 
-    if not product_id.startswith("product:"):
+    if not _PRODUCT_ID.fullmatch(product_id):
         raise ValueError("product_id must be a canonical product:<id> record identifier")
 
     issues: list[dict[str, Any]] = []
@@ -566,6 +667,9 @@ def project_product_snapshot(product_id: str, source: LivingProductGraphRecords)
         "id": product_id,
         "name": _json_value(product_record.get("name")) if product_record else None,
         "created_at": _json_value(product_record.get("created_at")) if product_record else None,
+        "object_type": "product",
+        "lifecycle_state": "observed" if product_record else "unknown",
+        "authority": "source_record" if product_record else "explicit_absence",
         "state": "observed" if product_record else "unknown",
         "provenance": {
             "record_refs": [product_id] if product_record else [],
@@ -592,7 +696,19 @@ def project_product_snapshot(product_id: str, source: LivingProductGraphRecords)
     structural = _sort_records(structural)
 
     assertions = _assertions(source.records.get("assertions", []), included_ids, issues)
+    assertion_ids = {str(row["id"]) for row in assertions}
+    for assertion in assertions:
+        assertion_id = str(assertion["id"])
+        for evidence_ref in assertion.get("evidence_refs", []) or []:
+            if str(evidence_ref) not in included_ids:
+                issues.append(_issue("evidence_reference_unresolved", related=[assertion_id, str(evidence_ref)]))
+        for contradiction_ref in assertion.get("contradicting_assertions", []) or []:
+            if str(contradiction_ref) not in assertion_ids:
+                issues.append(
+                    _issue("contradicting_assertion_unresolved", related=[assertion_id, str(contradiction_ref)])
+                )
     operational = _operational_relationships(source.records.get("operational_relationships", []), assertions, issues)
+    assertion_events = _assertion_events(source.records.get("assertion_events", []), assertion_ids, issues)
 
     receipts = _source_receipts(source.source_states)
     for receipt in receipts:
@@ -626,6 +742,9 @@ def project_product_snapshot(product_id: str, source: LivingProductGraphRecords)
             "operational_roadmap": "docs/roadmap-status.md",
             "writes_permitted": False,
             "autonomous_dispatch": False,
+            "operational_truth": "relationships.operational",
+            "assertions_are_operational_only_when": "accepted_and_projection_eligible",
+            "model_proposals_define_truth": False,
         },
         "projection_state": {
             "status": projection_status,
@@ -647,6 +766,7 @@ def project_product_snapshot(product_id: str, source: LivingProductGraphRecords)
             "assertions": assertions,
             "structural": structural,
         },
+        "history": {"assertion_events": assertion_events},
         "decisions": projected["decisions"],
         "foresight": {
             "predictions": projected["predictions"],

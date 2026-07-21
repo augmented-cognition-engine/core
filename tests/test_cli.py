@@ -27,6 +27,7 @@ def test_cli_help():
     assert "intel" in result.output
     assert "search" in result.output
     assert "status" in result.output
+    assert "landscape" in result.output
     assert "skills" not in result.output
 
 

@@ -40,6 +40,13 @@ The CLI, thin MCP adapter, persistence migrations, reference extension mechanism
 provider routes are the compatibility focus for 0.1.x. Changes to these surfaces receive
 migration notes when needed.
 
+The supported CLI also includes `ace landscape`, a versioned, authenticated, strictly read-only
+Living Product Graph snapshot. It exposes stable object identity, canonical and non-operational
+assertion states, evidence, provenance, uncertainty, history, decisions, corrections, and outcomes
+without adding an MCP tool or any write, execution, extension, or model-inference authority. Its
+[read contract](living-product-graph.md) freezes ordering, bounds, absence, failure, redaction, and
+0.1.x compatibility behavior.
+
 ## Implemented architecture beyond the compatibility contract
 
 The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,
