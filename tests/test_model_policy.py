@@ -55,6 +55,16 @@ def test_model_policy_cli_exposes_effective_policy(monkeypatch):
     assert '"local"' in result.output
 
 
+def test_model_policy_readable_output_names_effort(monkeypatch):
+    monkeypatch.setattr(
+        "core.engine.cli.commands.model_policy.build_model_policy",
+        lambda _configured_settings: build_model_policy(_settings(), OllamaProvider()),
+    )
+    result = CliRunner().invoke(cli, ["model-policy"])
+    assert result.exit_code == 0
+    assert "effort=provider_default" in result.output
+
+
 def test_codex_policy_exposes_distinct_effort_for_shared_sol_model():
     from core.engine.core.llm import CodexCLIProvider
 

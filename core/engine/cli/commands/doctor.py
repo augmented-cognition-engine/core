@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import asyncio
-import os
-import shutil
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 import click
 import httpx
@@ -17,6 +16,18 @@ from core.engine.cli.display import console
 _PROVIDER_GUIDE = "https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md"
 
 
+def _safe_url(value: str) -> str:
+    """Remove userinfo before a URL is rendered in diagnostics."""
+    try:
+        parts = urlsplit(value)
+        host = parts.hostname or ""
+        if parts.port:
+            host = f"{host}:{parts.port}"
+        return urlunsplit((parts.scheme, host, parts.path, parts.query, parts.fragment))
+    except (TypeError, ValueError):
+        return "configured endpoint"
+
+
 def _model_policy_check(settings) -> tuple[bool, dict[str, Any]]:
     from core.engine.core.model_policy import build_model_policy
 
@@ -24,30 +35,10 @@ def _model_policy_check(settings) -> tuple[bool, dict[str, Any]]:
     return policy.valid, policy.public_dict()
 
 
-def _provider_configured(settings) -> tuple[bool, str]:
-    if settings.openai_compat_base_url:
-        return True, f"OpenAI-compatible ({settings.openai_compat_model})"
-    if settings.ollama_host:
-        return True, f"Ollama ({settings.ollama_model})"
-    if getattr(settings, "subscription_provider", "auto") == "codex":
-        from core.engine.core.llm import _find_codex_bin
+async def _provider_check(settings, *, live: bool, timeout: float):
+    from core.engine.core.provider_diagnostics import diagnose_provider
 
-        codex_bin = _find_codex_bin()
-        if codex_bin:
-            effort = getattr(settings, "codex_cli_effort", "default")
-            return True, f"Codex CLI / ChatGPT subscription ({settings.codex_cli_model}, effort={effort})"
-        return False, "SUBSCRIPTION_PROVIDER=codex but Codex CLI is unavailable"
-    if os.environ.get("CLAUDE_CODE_OAUTH_TOKEN"):
-        return True, "Claude subscription token"
-    if settings.llm_api_key and settings.llm_api_key not in {
-        "dev-placeholder-not-a-real-key",
-        "sk-test",
-        "sk-test-placeholder",
-    }:
-        return True, f"Anthropic ({settings.llm_model})"
-    if shutil.which("claude"):
-        return True, "Claude CLI"
-    return False, f"no usable provider; choose one supported path from {_PROVIDER_GUIDE}"
+    return await diagnose_provider(settings, live=live, timeout=timeout)
 
 
 def _recovery_actions(checks: dict[str, dict[str, object]]) -> list[str]:
@@ -74,6 +65,8 @@ def _recovery_actions(checks: dict[str, dict[str, object]]) -> list[str]:
 async def _database_check(settings) -> tuple[bool, str, bool, str]:
     from surrealdb import AsyncSurreal
 
+    from core.engine.core.db import SurrealPool
+
     expected = max(int(p.name[1:4]) for p in (Path(__file__).parents[3] / "schema").glob("v*.surql"))
     db = AsyncSurreal(settings.surreal_url)
     try:
@@ -85,9 +78,11 @@ async def _database_check(settings) -> tuple[bool, str, bool, str]:
         result = await db.query("SELECT * FROM config_entry WHERE key = 'schema_version'")
         rows = result[0] if result and isinstance(result[0], list) else result
         actual = int(rows[0]["value"]) if rows else 0
-        return True, settings.surreal_url, actual == expected, f"{actual} (expected {expected})"
+        safe_db_url = SurrealPool._redact_url(settings.surreal_url)
+        return True, safe_db_url, actual == expected, f"{actual} (expected {expected})"
     except Exception as exc:
-        return False, f"{settings.surreal_url}: {exc}", False, "unavailable"
+        safe_db_url = SurrealPool._redact_url(settings.surreal_url)
+        return False, f"{safe_db_url}: {type(exc).__name__}", False, "unavailable"
     finally:
         try:
             await db.close()
@@ -97,8 +92,20 @@ async def _database_check(settings) -> tuple[bool, str, bool, str]:
 
 @click.command()
 @click.option("--json-output", is_flag=True, help="Emit machine-readable JSON")
+@click.option(
+    "--live-provider",
+    is_flag=True,
+    help="Make one minimal provider request to verify authentication and model reachability",
+)
+@click.option(
+    "--provider-timeout",
+    type=click.FloatRange(min=1.0, max=300.0),
+    default=30.0,
+    show_default=True,
+    help="Deadline in seconds for the explicitly requested live provider check",
+)
 @click.pass_context
-def doctor(ctx, json_output: bool):
+def doctor(ctx, json_output: bool, live_provider: bool, provider_timeout: float):
     """Check configuration, database, schema, auth, provider, API, and MCP."""
     checks: dict[str, dict[str, object]] = {}
     try:
@@ -106,30 +113,40 @@ def doctor(ctx, json_output: bool):
 
         checks["configuration"] = {"ok": True, "detail": ".env loaded"}
     except Exception as exc:
-        checks["configuration"] = {"ok": False, "detail": str(exc)}
+        checks["configuration"] = {
+            "ok": False,
+            "state": "invalid_configuration",
+            "layer": "configuration",
+            "detail": f"Configuration could not be loaded ({type(exc).__name__}).",
+            "action": "Check .env values and rerun `ace setup` or `ace doctor`.",
+        }
         settings = None
 
     if settings:
         db_ok, db_detail, schema_ok, schema_detail = asyncio.run(_database_check(settings))
         checks["surrealdb"] = {"ok": db_ok, "detail": db_detail}
         checks["schema"] = {"ok": schema_ok, "detail": schema_detail}
-        provider_ok, provider_detail = _provider_configured(settings)
-        checks["model_provider"] = {"ok": provider_ok, "detail": provider_detail}
+        provider_result = asyncio.run(_provider_check(settings, live=live_provider, timeout=provider_timeout))
+        checks["model_provider"] = provider_result.public_dict()
         try:
             model_policy_ok, model_policy_detail = _model_policy_check(settings)
             checks["model_policy"] = {"ok": model_policy_ok, "detail": model_policy_detail}
         except Exception as exc:
-            checks["model_policy"] = {"ok": False, "detail": str(exc)}
+            checks["model_policy"] = {
+                "ok": False,
+                "detail": f"Model policy could not be resolved ({type(exc).__name__}).",
+            }
     else:
         for name in ("surrealdb", "schema", "model_provider", "model_policy"):
             checks[name] = {"ok": False, "detail": "configuration unavailable"}
 
     url = ctx.obj["url"]
+    safe_url = _safe_url(url)
     try:
         response = httpx.get(f"{url}/health", timeout=5)
-        checks["api"] = {"ok": response.status_code == 200, "detail": f"{url} ({response.status_code})"}
+        checks["api"] = {"ok": response.status_code == 200, "detail": f"{safe_url} ({response.status_code})"}
     except httpx.HTTPError as exc:
-        checks["api"] = {"ok": False, "detail": f"{url}: {exc}"}
+        checks["api"] = {"ok": False, "detail": f"{safe_url}: {type(exc).__name__}"}
 
     headers = get_headers()
     if not headers.get("Authorization"):
@@ -160,7 +177,10 @@ def doctor(ctx, json_output: bool):
                 ),
             }
         except httpx.HTTPError as exc:
-            checks["authentication"] = {"ok": False, "detail": f"protected request failed: {exc}"}
+            checks["authentication"] = {
+                "ok": False,
+                "detail": f"protected request failed ({type(exc).__name__}); check API reachability and retry",
+            }
 
     try:
         from ace_mcp_client.server import mcp
@@ -192,9 +212,16 @@ def doctor(ctx, json_output: bool):
         click.echo(json.dumps({"ok": ok, "checks": checks, "recovery": recovery}, indent=2))
     else:
         for name, item in checks.items():
-            mark = "PASS" if item["ok"] else "FAIL"
-            color = "green" if item["ok"] else "red"
-            console.print(f"[{color}]{mark}[/{color}] {name}: {item['detail']}")
+            if item["ok"]:
+                mark, color = "PASS", "green"
+            elif item.get("state") in {"configured_unverified", "authenticated"}:
+                mark, color = "CHECK", "yellow"
+            else:
+                mark, color = "FAIL", "red"
+            state = f" [{item['state']}]" if item.get("state") else ""
+            console.print(f"[{color}]{mark}[/{color}] {name}{state}: {item['detail']}")
+            if item.get("action") and not item["ok"]:
+                console.print(f"  Next: {item['action']}")
         console.print("\n[green]ACE is ready.[/green]" if ok else "\n[red]ACE is not ready.[/red]")
         if recovery:
             console.print("\n[bold]Recovery[/bold]")

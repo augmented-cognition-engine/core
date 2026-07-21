@@ -82,6 +82,10 @@ def _claude_effort_config(model: str | None) -> dict[str, str]:
         "claude-sonnet-4-6",
     }
     effort = _semantic_effort(requested)
+    if supported and effort == "none":
+        raise ValueError(
+            f"unsupported Claude effort 'none' for {requested}; use default, low, medium, high, xhigh, or max"
+        )
     return {"effort": effort} if supported and effort != "default" else {}
 
 
@@ -104,7 +108,9 @@ class ClaudeProvider:
         self._client = self._build_client()
 
     def _resolve_effort(self, requested_model: str | None, resolved_model: str | None = None) -> str:
-        return _semantic_effort(requested_model or resolved_model or self._default_model)
+        requested = requested_model or resolved_model or self._default_model
+        _claude_effort_config(requested)  # validates route-specific support
+        return _semantic_effort(requested)
 
     def _build_client(self) -> AsyncAnthropic:
         if self._oauth_token:
@@ -607,6 +613,9 @@ class CLIProvider:
             from core.engine.core.exceptions import LLMError
 
             raise LLMError(f"claude subprocess timed out after {effective_timeout}s")
+        except asyncio.CancelledError:
+            await _terminate_subprocess(proc)
+            raise
         if proc.returncode != 0:
             from core.engine.core.exceptions import LLMError
 
@@ -1167,6 +1176,9 @@ class CodexCLIProvider(ModelMapMixin):
             from core.engine.core.exceptions import LLMError
 
             raise LLMError(f"codex subprocess timed out after {timeout}s")
+        except asyncio.CancelledError:
+            await _terminate_subprocess(proc)
+            raise
         if proc.returncode != 0:
             from core.engine.core.exceptions import LLMError
 
@@ -1478,6 +1490,7 @@ _OPENAI_TIER_MAP_DEFAULTS: dict[str, str] = {
     "claude-sonnet-4-6": "gpt-5.6-terra",
     "claude-opus-4-6": "gpt-5.6-sol",
 }
+_OPENAI_GPT56_EFFORTS = frozenset({"none", "low", "medium", "high", "xhigh", "max"})
 
 
 class OpenAICompatProvider(ModelMapMixin):
@@ -1538,6 +1551,23 @@ class OpenAICompatProvider(ModelMapMixin):
     def _model(self, model: str | None) -> str:
         return self._resolve_model(model)
 
+    def _resolve_effort(self, requested_model: str | None, resolved_model: str | None = None) -> str:
+        """Resolve effort only where ACE knows the upstream capability.
+
+        Arbitrary OpenAI-compatible endpoints deliberately report
+        ``provider_default`` and receive no reasoning parameter.  For the exact
+        OpenAI host, GPT-5.6 supports the provider-neutral ACE effort policy.
+        """
+        resolved = resolved_model or self._model(requested_model)
+        if urlparse(self._base_url).hostname != "api.openai.com" or not resolved.startswith("gpt-5.6"):
+            return "provider_default"
+        effort = _semantic_effort(requested_model or resolved)
+        if effort == "default":
+            return "provider_default"
+        if effort not in _OPENAI_GPT56_EFFORTS:
+            raise ValueError(f"unsupported GPT-5.6 reasoning effort: {effort}")
+        return effort
+
     def _headers(self) -> dict:
         headers = {"Content-Type": "application/json"}
         if self._api_key:
@@ -1567,12 +1597,16 @@ class OpenAICompatProvider(ModelMapMixin):
         messages.append({"role": "user", "content": prompt})
         resolved_model = self._model(model)
         token_limit_key = "max_completion_tokens" if resolved_model.startswith("gpt-5") else "max_tokens"
-        return {
+        payload = {
             "model": resolved_model,
             token_limit_key: max_tokens,
             "messages": messages,
             "stream": False,
         }
+        effort = self._resolve_effort(model, resolved_model)
+        if effort != "provider_default":
+            payload["reasoning_effort"] = effort
+        return payload
 
     @staticmethod
     def _extract_content(data: dict) -> str:

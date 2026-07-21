@@ -40,7 +40,7 @@ Roadmap outcome states are used strictly:
 | R0 | passed | Publish `ace-core` 0.1.0 through a credential-free release path | GitHub Release, PyPI release, successful OIDC workflow, and public-index install verified |
 | R1 | passed | Make first use effortless and outcome-led for product builders, not only developers | [Clean-trial evidence](docs/r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
 | R2 | passed | Ship a focused 0.1.1 onboarding, packaging, and documentation release | [Release evidence](docs/r2-release-evidence.md): clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install all passed against verified main commit `1662eaa` |
-| R3 | ready | Validate provider setup, authentication, diagnostics, and degraded behavior | Supported provider matrix; actionable failures; no provider-specific widening of the public contract |
+| R3 | candidate | Validate provider setup, authentication, diagnostics, and degraded behavior | Matrix, deterministic degraded-state coverage, and one live GPT route are evidenced; an authorized live Claude route and complete branch CI remain required |
 | R4 | not ready | Publish a reproducible, product-builder golden-path demonstration | Depends on R1 and R3; must begin with a recognizable product decision and show capture, reasoning, durable restart, later material use, inspectable evidence, and honest limitations without requiring the audience to understand ACE internals |
 
 ## Next — durable product partnership

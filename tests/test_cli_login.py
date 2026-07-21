@@ -109,6 +109,23 @@ def test_login_401_gives_actionable_message_and_nonzero_exit(runner, isolated_co
     assert not isolated_config.exists()
 
 
+def test_login_never_echoes_unsanitized_server_error_body(runner, isolated_config):
+    reflected_secret = "submitted-provider-secret"
+    mock_resp = MagicMock(status_code=500, text=f"backend failed token={reflected_secret}")
+
+    with patch("core.engine.cli.commands.login.httpx") as mock_httpx:
+        mock_httpx.post.return_value = mock_resp
+        result = runner.invoke(
+            login,
+            ["--api-key", reflected_secret, "--url", "http://localhost:3000"],
+        )
+
+    assert result.exit_code != 0
+    assert reflected_secret not in result.output
+    assert "check the api logs" in result.output.lower()
+    assert not isolated_config.exists()
+
+
 def test_login_connection_refused_gives_actionable_message_and_nonzero_exit(runner, isolated_config):
     """Server not running: friendly cause + remedy, not a raw traceback."""
     import httpx as real_httpx

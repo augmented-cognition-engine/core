@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -10,6 +11,23 @@ import pytest
 from pydantic import BaseModel
 
 from core.engine.core.llm import CLIProvider, get_llm
+
+
+@pytest.mark.asyncio
+async def test_cli_subprocess_is_reaped_when_caller_cancels():
+    provider = CLIProvider(default_model="claude-haiku-4-5-20251001", claude_bin="claude")
+    proc = MagicMock()
+    proc.communicate = AsyncMock(side_effect=asyncio.CancelledError())
+
+    with (
+        patch("core.engine.core.llm.asyncio.create_subprocess_exec", new=AsyncMock(return_value=proc)),
+        patch("core.engine.core.llm._terminate_subprocess", new=AsyncMock()) as terminate,
+        pytest.raises(asyncio.CancelledError),
+    ):
+        await provider._run([])
+
+    terminate.assert_awaited_once_with(proc)
+
 
 # ---------------------------------------------------------------------------
 # Helpers

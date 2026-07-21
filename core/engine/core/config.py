@@ -120,10 +120,10 @@ class Settings(BaseSettings):
     # work. Three-level providers may deliberately map both to their top model.
     llm_reasoning_model: str = "claude-opus-4-8"
     llm_frontier_model: str = "claude-fable-5"
-    llm_budget_effort: Literal["default", "low", "medium", "high", "xhigh", "max"] = "default"
-    llm_effort: Literal["default", "low", "medium", "high", "xhigh", "max"] = "default"
-    llm_reasoning_effort: Literal["default", "low", "medium", "high", "xhigh", "max"] = "high"
-    llm_frontier_effort: Literal["default", "low", "medium", "high", "xhigh", "max"] = "xhigh"
+    llm_budget_effort: Literal["default", "none", "low", "medium", "high", "xhigh", "max"] = "default"
+    llm_effort: Literal["default", "none", "low", "medium", "high", "xhigh", "max"] = "default"
+    llm_reasoning_effort: Literal["default", "none", "low", "medium", "high", "xhigh", "max"] = "high"
+    llm_frontier_effort: Literal["default", "none", "low", "medium", "high", "xhigh", "max"] = "xhigh"
     ollama_host: str | None = None  # e.g. "http://localhost:11434" for local Ollama (routes the WHOLE brain)
     ollama_model: str = "llama3.2"  # default Ollama model when ollama_host is set
     # Cross-model grader peer (keystone #1: un-starve calibration). DEDICATED to the grader — does NOT

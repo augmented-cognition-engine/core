@@ -29,6 +29,12 @@ def test_route_specific_provider_does_not_require_anthropic_key(monkeypatch):
     assert s.ollama_host == "http://localhost:11434"
 
 
+def test_provider_neutral_effort_accepts_none_for_gpt_routes(monkeypatch):
+    monkeypatch.setenv("LLM_REASONING_EFFORT", "none")
+    s = Settings(jwt_secret="test-secret", _env_file=None)
+    assert s.llm_reasoning_effort == "none"
+
+
 def test_settings_from_env(monkeypatch):
     monkeypatch.setenv("SURREAL_URL", "ws://custom:8000")
     monkeypatch.setenv("SURREAL_NS", "myns")

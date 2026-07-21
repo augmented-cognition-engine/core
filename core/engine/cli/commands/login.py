@@ -61,10 +61,12 @@ def login(ctx, url, api_key):
         )
         raise SystemExit(1)
     if resp.status_code != 200:
-        # Truncate the raw server body — it's unsanitized and shouldn't be
-        # echoed verbatim next to our curated messages.
-        detail = resp.text[:200].strip()
-        console.print(f"[red]Login failed ({resp.status_code}).[/red] Server said: {detail}")
+        # Never echo an upstream body here: reverse proxies and custom auth
+        # handlers sometimes reflect submitted credentials in error text.
+        console.print(
+            f"[red]Login failed ({resp.status_code}).[/red] "
+            "The ACE API rejected the token exchange. Check the API logs and configuration, then retry."
+        )
         raise SystemExit(1)
 
     token = resp.json().get("token")
