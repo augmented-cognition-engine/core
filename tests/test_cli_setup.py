@@ -17,6 +17,7 @@ from core.engine.cli.commands.setup import (
     _parse_env,
     _provider_preflight,
     _provider_updates,
+    _runtime_isolation_updates,
     _start_local_runtime,
     _stop_local_runtime,
     _update_env,
@@ -188,6 +189,49 @@ def test_update_env_activates_commented_provider_setting_without_duplication():
 
     assert updated.count("SUBSCRIPTION_PROVIDER=") == 1
     assert "SUBSCRIPTION_PROVIDER=codex" in updated
+
+
+def test_runtime_isolation_updates_persist_project_port_and_matching_url():
+    updates = _runtime_isolation_updates(
+        {"SURREAL_URL": "ws://localhost:8001"},
+        {"COMPOSE_PROJECT_NAME": "ace_r4_clean_replay", "ACE_SURREAL_HOST_PORT": "18041"},
+    )
+
+    assert updates == {
+        "COMPOSE_PROJECT_NAME": "ace_r4_clean_replay",
+        "ACE_SURREAL_HOST_PORT": "18041",
+        "SURREAL_URL": "ws://localhost:18041",
+    }
+
+
+@pytest.mark.parametrize(
+    ("environment", "message"),
+    [
+        ({"COMPOSE_PROJECT_NAME": "ACE R4"}, "COMPOSE_PROJECT_NAME"),
+        ({"ACE_SURREAL_HOST_PORT": "not-a-port"}, "ACE_SURREAL_HOST_PORT"),
+        ({"ACE_SURREAL_HOST_PORT": "70000"}, "ACE_SURREAL_HOST_PORT"),
+    ],
+)
+def test_runtime_isolation_updates_reject_invalid_values(environment, message):
+    with pytest.raises(click.ClickException, match=message):
+        _runtime_isolation_updates({"SURREAL_URL": "ws://localhost:8001"}, environment)
+
+
+def test_setup_persists_requested_runtime_isolation(tmp_path, monkeypatch):
+    root = _project(tmp_path)
+    monkeypatch.setenv("COMPOSE_PROJECT_NAME", "ace_r4_clean_replay")
+    monkeypatch.setenv("ACE_SURREAL_HOST_PORT", "18041")
+
+    result = CliRunner().invoke(
+        setup,
+        ["--project-dir", str(root), "--provider", "ollama", "--no-start"],
+    )
+
+    assert result.exit_code == 0, result.output
+    values = _parse_env((root / ".env").read_text())
+    assert values["COMPOSE_PROJECT_NAME"] == "ace_r4_clean_replay"
+    assert values["ACE_SURREAL_HOST_PORT"] == "18041"
+    assert values["SURREAL_URL"] == "ws://localhost:18041"
 
 
 def test_setup_is_registered_in_main_cli():
@@ -408,6 +452,27 @@ def test_runtime_reports_port_collision_before_launching_api(tmp_path):
     popen.assert_not_called()
 
 
+def test_runtime_start_passes_saved_isolation_to_compose(tmp_path):
+    root = _project(tmp_path)
+    with (
+        patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
+        patch("core.engine.cli.commands.setup.subprocess.run") as run,
+        patch("core.engine.cli.commands.setup._api_is_ready", return_value=True),
+    ):
+        _start_local_runtime(
+            root,
+            {
+                "COMPOSE_PROJECT_NAME": "ace_r4_clean_replay",
+                "ACE_SURREAL_HOST_PORT": "18041",
+                "SURREAL_URL": "ws://localhost:18041",
+            },
+        )
+
+    compose_call = run.call_args_list[0]
+    assert compose_call.kwargs["env"]["COMPOSE_PROJECT_NAME"] == "ace_r4_clean_replay"
+    assert compose_call.kwargs["env"]["ACE_SURREAL_HOST_PORT"] == "18041"
+
+
 def test_runtime_timeout_points_to_supported_log_command(tmp_path):
     root = _project(tmp_path)
     process = MagicMock(pid=1234)
@@ -422,6 +487,30 @@ def test_runtime_timeout_points_to_supported_log_command(tmp_path):
         pytest.raises(click.ClickException, match=r"ace service logs --lines 80"),
     ):
         _start_local_runtime(root, {"JWT_SECRET": "safe", "API_KEY": "safe"})
+
+
+def test_runtime_stop_passes_saved_isolation_to_compose(tmp_path):
+    root = _project(
+        tmp_path,
+        env="\n".join(
+            [
+                "COMPOSE_PROJECT_NAME=ace_r4_clean_replay",
+                "ACE_SURREAL_HOST_PORT=18041",
+                "SURREAL_URL=ws://localhost:18041",
+            ]
+        ),
+    )
+    (root / ".env").write_text((root / ".env.example").read_text())
+    with (
+        patch("core.engine.cli.commands.setup._managed_api_pid", return_value=None),
+        patch("core.engine.cli.commands.setup._api_is_ready", return_value=False),
+        patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
+        patch("core.engine.cli.commands.setup.subprocess.run") as run,
+    ):
+        _stop_local_runtime(root)
+
+    assert run.call_args.kwargs["env"]["COMPOSE_PROJECT_NAME"] == "ace_r4_clean_replay"
+    assert run.call_args.kwargs["env"]["ACE_SURREAL_HOST_PORT"] == "18041"
 
 
 def test_provider_rejects_an_incomplete_api_key():

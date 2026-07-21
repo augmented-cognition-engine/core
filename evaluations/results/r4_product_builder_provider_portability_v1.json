@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "not_run",
+  "canonical_route": {
+    "provider": "CodexCLIProvider",
+    "route": "explicit_subscription_provider",
+    "authoritative": true
+  },
+  "bounded_second_route": {
+    "requested_provider": "CLIProvider",
+    "requested_route": "claude-cli",
+    "available": false,
+    "reason": "The `claude` executable was not installed on the accepted clean-replay host, so no explicitly authorized second supported route was available.",
+    "model_request_made": false,
+    "silent_substitution_made": false
+  },
+  "interpretation": "This records an unavailable portability check; it is not evidence of cross-provider equivalence or model quality. The canonical Codex subscription replay remains authoritative."
+}

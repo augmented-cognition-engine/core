@@ -1,0 +1,44 @@
+{
+  "cases": [
+    {
+      "case": "provider_unavailable_or_timed_out",
+      "next_action": "Retrieve the durable receipt with ace_status; run ace doctor; never switch providers silently.",
+      "observed": "failed/degraded or polling timed_out"
+    },
+    {
+      "case": "missing_authentication",
+      "next_action": "Run ace login with the configured API key, then retry.",
+      "observed": "HTTP 401"
+    },
+    {
+      "case": "database_unavailable",
+      "next_action": "Run ace service start, inspect service logs, then rerun doctor.",
+      "observed": "health/doctor database failure"
+    },
+    {
+      "case": "stale_saved_login",
+      "next_action": "Run ace login again; never claim that stale authentication proves persistence.",
+      "observed": "saved token receives HTTP 401/403"
+    },
+    {
+      "case": "malformed_or_missing_source",
+      "next_action": "Restore the tracked fixture or checksum-matched public source; never invent evidence.",
+      "observed": "local JSON/checksum validation failure"
+    },
+    {
+      "case": "restart_before_completion",
+      "next_action": "Retrieve the degraded receipt, preserve its identity, and intentionally resubmit only after review.",
+      "observed": "durable receipt becomes degraded/runtime_restarted"
+    },
+    {
+      "case": "prior_correction_unavailable",
+      "next_action": "Verify the preserved database volume and rerun ace_load; do not claim material memory use.",
+      "observed": "fresh ace_load lacks the correction identifier"
+    }
+  ],
+  "invented_evidence_allowed": false,
+  "mode": "deterministic bounded failure-contract exercise",
+  "schema_version": 1,
+  "silent_provider_substitution_allowed": false,
+  "status": "passed"
+}

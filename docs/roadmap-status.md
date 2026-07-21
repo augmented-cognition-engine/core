@@ -17,8 +17,10 @@ credentials, and security-sensitive detail are intentionally excluded.
 Known release limitations remain explicit: ACE 0.1.x supports Python 3.12; the supported public
 interaction boundary is the CLI and exactly eleven thin MCP tools; Atrium and the broader engine
 surfaces remain experimental; and the existing signature evidence does not establish general
-model superiority. R1 now provides an outcome-led entry path, while the clean trials remain an
-AI-operated proxy rather than independent human usability validation.
+model superiority. R1 provides an outcome-led entry path and R4 provides a reproducible durable
+decision journey, while the clean trials remain an AI-operated proxy rather than independent human
+usability validation. R4's second-provider check was unavailable because the accepted replay host
+did not have the Claude CLI installed; the canonical Codex subscription run remains authoritative.
 
 ## Living roadmap
 
@@ -27,10 +29,10 @@ AI-operated proxy rather than independent human usability validation.
 | R1 | Now | passed | [2026-07-21 clean-trial evidence](r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
 | R2 | Now | passed | [0.1.1 release evidence](r2-release-evidence.md) records clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install against verified main commit `1662eaa` |
 | R3 | Now | passed | [`r3-provider-validation.md`](r3-provider-validation.md) records the frozen provider/auth matrix, structured diagnostics, deterministic degraded states, live Claude and Codex/GPT subscription smokes, honest effort limits, and green current-main CI |
-| R4 | Now | ready | R1 and R3 have passed; the product-builder golden path is authorized to start with a recognizable decision rather than ACE internals, but implementation has not started |
+| R4 | Now | passed | [Product-builder golden-path evidence](product-builder-golden-path.md) records a checksum-frozen public scenario, live Codex/GPT route, zero-intelligence clean start, inspectable multi-perspective reasoning, decision and correction capture, real service restart, fresh-invocation material reuse, bounded failures, exact eleven-tool preservation, and explicit portability and usability limitations |
 | G1 | Next | passed | [`g1-living-product-graph-evidence.md`](g1-living-product-graph-evidence.md) records the frozen contract, supported `ace landscape` journey, deterministic replay, accepted/provisional/contested/rejected behavior, bounded failures, restart parity, strict read-only authority, and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) |
 | IA-R1 | Next | ready | G1 has passed; read-only information-architecture work may start separately, with no new mutation or execution authority |
-| I1 | Next | not ready | Depends on stable read contracts and the developer-preview golden path |
+| I1 | Next | ready | G1's stable read contract and R4's developer-preview golden path have passed; inspectability work may start without adding execution authority, after the smaller IA-R1 operator-view slice is framed |
 | T1 | Next | not ready | Recovery, replay, portability, cancellation, and resource guarantees are not yet frozen |
 | E1 | Next | not ready | Depends on conformance evidence and preservation of the eleven-tool boundary |
 | B1 | Later | not ready | Depends on inspectable approval receipts and explicit execution authority |
@@ -44,12 +46,16 @@ AI-operated proxy rather than independent human usability validation.
    roadmap links intact; R2 passed on 2026-07-21.
 2. **Completed — R3:** preserve the supported provider/auth matrix, redacted live Claude and
    Codex/GPT evidence, deterministic degraded-state coverage, and exact eleven-tool boundary.
-3. **Ready, not started — R4:** dispatch the product-builder golden-path demonstration when work
-   begins; start from a recognizable product decision and retain the R3 limitations.
+3. **Completed — R4:** preserve the frozen scenario, sanitized accepted replay, restart/material-use
+   assertions, provider provenance, failure matrix, and exact eleven-tool boundary.
 4. **Completed — G1:** preserve the versioned `ace landscape` contract, deterministic evidence,
    visible uncertainty, and strict read-only boundary established by the G1 closeout.
-5. **Ready, not started — IA-R1:** the G1 dependency is open; dispatch read-only information-
-   architecture work separately without adding mutation, execution, or Atrium write authority.
+5. **Next thin slice — IA-R1:** use the G1 read contract and R4 decision artifacts to frame the
+   smallest operator-usable read-only view of decisions, evidence, corrections, uncertainty, and
+   outcomes. Add no mutation, execution, or Atrium write authority.
+6. **Ready, sequence after IA-R1 — I1:** both stated dependencies now pass, but keep the next slice
+   thin: establish the read-only operator information architecture before expanding approval-
+   receipt or outcome inspection behavior.
 
 An outcome moves to `passed` only when scope, acceptance checks, evidence, limitations, roadmap
 reconciliation, and downstream readiness have all been recorded. Implementation alone is

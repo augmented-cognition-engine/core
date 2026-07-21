@@ -206,6 +206,33 @@ def _resolve_task_model(model: str | None) -> str | None:
     return settings.llm_budget_model
 
 
+def _provider_route_fallback(
+    provider: object | None,
+    requested_model: str | None,
+    default_model: str | None,
+) -> dict[str, str | None]:
+    """Describe the selected route when nested usage telemetry is unavailable.
+
+    A completed orchestration can contain useful output even when a provider
+    adapter cannot return per-call token usage.  The process-level provider is
+    still authoritative, and its model resolver is the same resolver used for
+    the live request.  Keep the semantic request alongside the native model so
+    the receipt never confuses configured intent with the route actually sent.
+    """
+    if provider is None:
+        return {"provider": None, "requested_model": requested_model or default_model, "model": None}
+    semantic_model = requested_model or default_model
+    resolver = getattr(provider, "_resolve_model", None)
+    if not callable(resolver):
+        resolver = getattr(provider, "_model_arg", None)
+    resolved_model = resolver(semantic_model) if callable(resolver) else semantic_model
+    return {
+        "provider": type(provider).__name__,
+        "requested_model": str(semantic_model) if semantic_model else None,
+        "model": str(resolved_model) if resolved_model else None,
+    }
+
+
 def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
     task_id = str(task.get("id", ""))
     result = dict(task)
@@ -359,12 +386,16 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
         reasoning_trace = _reasoning_trace(result)
         provenance = reasoning_trace.setdefault("provenance", {})
         provenance["task_id"] = task_id
-        provenance["model"] = provenance.get("model") or request.model
-        if not provenance.get("provider"):
+        if not provenance.get("provider") or not provenance.get("model"):
+            from core.engine.core.config import settings
             from core.engine.core.llm import llm
 
             selected_provider = getattr(llm, "_cached_provider", None)
-            provenance["provider"] = type(selected_provider).__name__ if selected_provider is not None else None
+            fallback = _provider_route_fallback(selected_provider, request.model, settings.llm_model)
+            provenance["provider"] = provenance.get("provider") or fallback["provider"]
+            provenance["model"] = provenance.get("model") or fallback["model"]
+            if not provenance.get("requested_model") and fallback["requested_model"]:
+                provenance["requested_model"] = fallback["requested_model"]
         await _update_receipt(
             task_id,
             {

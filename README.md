@@ -356,9 +356,24 @@ uv run uvicorn core.engine.api.main:app --host 127.0.0.1 --port 3000
 uv run ace login --api-key '<the API_KEY from .env>'
 ```
 
-Run the signature demonstration. It performs a reasoning task, captures a
-correction, creates a fresh client invocation, and fails unless that correction
-is present in the later invocation's loaded intelligence:
+Reproduce the public product-builder golden path. A retail product team chooses between targeted
+exit recovery and a universal navigation improvement using checksum-backed, CC BY 4.0 evidence.
+ACE records the decision, accepts a privacy correction, survives a runtime restart, and must change
+the later experiment because of that correction—not merely retrieve or quote it:
+
+```bash
+uv run python scripts/verify_product_builder_golden_path.py initial
+uv run ace service stop
+uv run ace service start
+uv run python scripts/verify_product_builder_golden_path.py later --runtime-restarted
+```
+
+The [outcome-first walkthrough](https://github.com/augmented-cognition-engine/core/blob/main/docs/product-builder-golden-path.md)
+contains the frozen public input, source/license manifest, clean-replay protocol, structural
+assertions, provider metadata, failure recovery, timing expectations, and limitations. It does not
+require one exact model answer and adds no new public surface.
+
+For a shorter local capture-and-load smoke without the R4 restart and material-decision assertions:
 
 ```bash
 uv run python scripts/verify_golden_path.py

@@ -7,10 +7,11 @@ Priorities may change as maintainers learn from users and contributors.
 ## Current release checkpoint
 
 `ace-core` 0.1.0 is published on PyPI and GitHub. The release, package artifacts, trusted
-publishing path, and a clean public-index wheel installation have been verified. The current
-onboarding gate is now proven in clean macOS and Linux proxy trials: a product builder can
-understand ACE, reach a useful reasoning outcome, and complete the supported self-hosted
-journey without maintainer knowledge or prior familiarity with ACE's architecture.
+publishing path, and a clean public-index wheel installation have been verified. The onboarding
+gate is proven in clean macOS and Linux proxy trials. The reproducible product-builder golden path
+now also shows a public evidence-backed decision, inspectable reasoning, a retained human
+correction, real runtime restart, and material later use through the supported CLI and eleven-tool
+MCP boundary.
 
 Roadmap outcome states are used strictly:
 
@@ -41,7 +42,7 @@ Roadmap outcome states are used strictly:
 | R1 | passed | Make first use effortless and outcome-led for product builders, not only developers | [Clean-trial evidence](docs/r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
 | R2 | passed | Ship a focused 0.1.1 onboarding, packaging, and documentation release | [Release evidence](docs/r2-release-evidence.md): clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install all passed against verified main commit `1662eaa` |
 | R3 | passed | Validate provider setup, authentication, diagnostics, and degraded behavior | [Provider validation evidence](docs/r3-provider-validation.md): supported matrix, deterministic degraded-state coverage, live Claude and GPT subscription routes, honest effort reporting, and green current-main CI |
-| R4 | ready | Publish a reproducible, product-builder golden-path demonstration | R1 and R3 have passed; begin with a recognizable product decision and show capture, reasoning, durable restart, later material use, inspectable evidence, and honest limitations without requiring the audience to understand ACE internals |
+| R4 | passed | Publish a reproducible, product-builder golden-path demonstration | [Golden-path evidence](docs/product-builder-golden-path.md): a checksum-frozen public product decision completed through the supported Codex subscription route, persisted a binding human correction across a real service restart, materially changed a fresh later experiment, retained inspectable provenance, and recorded failures and portability limits without widening the eleven-tool boundary |
 
 ## Next — durable product partnership
 
@@ -56,7 +57,7 @@ Roadmap outcome states are used strictly:
 |---|---|---|---|
 | G1 | passed | Promote the read-only Living Product Graph projection into a supported inspectable journey | [`ace landscape`](docs/living-product-graph.md), [reproducible G1 evidence](docs/g1-living-product-graph-evidence.md), and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) prove the versioned, bounded, deterministic, assertion-backed read contract and strict read-only boundary |
 | IA-R1 | ready | Define the read-only information architecture for inspecting ACE state | G1 has passed; IA-R1 may begin separately but must preserve provenance, uncertainty, object identity, and the no-write/no-execution boundary |
-| I1 | not ready | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | Depends on the developer-preview golden path and stable read contracts |
+| I1 | ready | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | G1's stable read contract and R4's developer-preview golden path have passed; sequence the smaller read-only IA-R1 operator-view slice first and add no execution authority |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
 | E1 | not ready | Expand extension examples and conformance coverage | Must preserve the kernel boundary and exactly eleven public MCP tools |
 
