@@ -452,6 +452,27 @@ def test_runtime_reports_port_collision_before_launching_api(tmp_path):
     popen.assert_not_called()
 
 
+def test_runtime_start_passes_saved_isolation_to_compose(tmp_path):
+    root = _project(tmp_path)
+    with (
+        patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
+        patch("core.engine.cli.commands.setup.subprocess.run") as run,
+        patch("core.engine.cli.commands.setup._api_is_ready", return_value=True),
+    ):
+        _start_local_runtime(
+            root,
+            {
+                "COMPOSE_PROJECT_NAME": "ace_r4_clean_replay",
+                "ACE_SURREAL_HOST_PORT": "18041",
+                "SURREAL_URL": "ws://localhost:18041",
+            },
+        )
+
+    compose_call = run.call_args_list[0]
+    assert compose_call.kwargs["env"]["COMPOSE_PROJECT_NAME"] == "ace_r4_clean_replay"
+    assert compose_call.kwargs["env"]["ACE_SURREAL_HOST_PORT"] == "18041"
+
+
 def test_runtime_timeout_points_to_supported_log_command(tmp_path):
     root = _project(tmp_path)
     process = MagicMock(pid=1234)
@@ -466,6 +487,30 @@ def test_runtime_timeout_points_to_supported_log_command(tmp_path):
         pytest.raises(click.ClickException, match=r"ace service logs --lines 80"),
     ):
         _start_local_runtime(root, {"JWT_SECRET": "safe", "API_KEY": "safe"})
+
+
+def test_runtime_stop_passes_saved_isolation_to_compose(tmp_path):
+    root = _project(
+        tmp_path,
+        env="\n".join(
+            [
+                "COMPOSE_PROJECT_NAME=ace_r4_clean_replay",
+                "ACE_SURREAL_HOST_PORT=18041",
+                "SURREAL_URL=ws://localhost:18041",
+            ]
+        ),
+    )
+    (root / ".env").write_text((root / ".env.example").read_text())
+    with (
+        patch("core.engine.cli.commands.setup._managed_api_pid", return_value=None),
+        patch("core.engine.cli.commands.setup._api_is_ready", return_value=False),
+        patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
+        patch("core.engine.cli.commands.setup.subprocess.run") as run,
+    ):
+        _stop_local_runtime(root)
+
+    assert run.call_args.kwargs["env"]["COMPOSE_PROJECT_NAME"] == "ace_r4_clean_replay"
+    assert run.call_args.kwargs["env"]["ACE_SURREAL_HOST_PORT"] == "18041"
 
 
 def test_provider_rejects_an_incomplete_api_key():

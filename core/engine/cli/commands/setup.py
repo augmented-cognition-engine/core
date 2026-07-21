@@ -483,11 +483,14 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
         )
 
     compose_file = root / "infra" / "docker-compose.yml"
+    runtime_env = os.environ.copy()
+    runtime_env.update(env_values)
     console.print("Starting SurrealDB…")
     try:
         subprocess.run(
             [*compose, "-f", str(compose_file), "up", "-d", "--wait", "surrealdb"],
             cwd=root,
+            env=runtime_env,
             check=True,
         )
     except subprocess.CalledProcessError as exc:
@@ -497,8 +500,6 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
             "then rerun `ace setup`; your saved configuration will be reused."
         ) from exc
 
-    runtime_env = os.environ.copy()
-    runtime_env.update(env_values)
     console.print("Applying the ACE schema…")
     try:
         subprocess.run(
@@ -586,10 +587,15 @@ def _stop_local_runtime(root: Path) -> None:
     compose = _compose_command()
     if not compose:
         raise click.ClickException("Docker Compose was not found; the ACE API is stopped but SurrealDB may still run.")
+    compose_env = os.environ.copy()
+    env_path = root / ".env"
+    if env_path.is_file():
+        compose_env.update(_parse_env(env_path.read_text()))
     try:
         subprocess.run(
             [*compose, "-f", str(root / "infra" / "docker-compose.yml"), "stop", "surrealdb"],
             cwd=root,
+            env=compose_env,
             check=True,
         )
     except subprocess.CalledProcessError as exc:
