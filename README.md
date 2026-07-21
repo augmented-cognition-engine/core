@@ -12,7 +12,7 @@ and corrections can persist, giving later work the context of what came before.
 > **Developer preview — 0.1.0.** The supported self-hosted interaction path is
 > the `ace` CLI and exactly 11 thin MCP tools.
 
-[Get started](#run-it) · [What works today](docs/capability-maturity.md) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
+[Get started](#get-your-first-recommendation) · [What works today](docs/capability-maturity.md) · [Documentation](docs/README.md) · [Architecture](docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
 
 **Human ↔ ACE ↔ LLM** · **Nine-layer cognitive loop** · **Dynamic composition** · **Living Product Graph** · **MAKE + SHIP**
 
@@ -202,10 +202,15 @@ the reasoning is grounded rather than improvised.
 
 ---
 
-## Run it
+## Get your first recommendation
 
-This is the authoritative developer-preview path. Alternatives are intentionally
-deferred until this path has independent clean-install evidence.
+Bring one real product decision. The guided setup gets ACE running, asks what
+you are working through, and returns a first reasoned recommendation. Service,
+database, authentication, and MCP details stay behind the guided path unless
+you need to inspect or operate them.
+
+This is the authoritative developer-preview path. It still requires independent
+clean-user evidence on both macOS and Linux before onboarding is considered proven.
 
 The Python distribution is `ace-core`; it preserves the `ace` import package,
 the `ace` CLI command, and version `0.1.0`. When 0.1.0 is available on PyPI, the
@@ -232,26 +237,58 @@ Prerequisites:
 ```bash
 git clone https://github.com/augmented-cognition-engine/core ace
 cd ace
-```
-
-Create the minimum local configuration:
-
-```bash
-cp .env.example .env
-openssl rand -hex 32  # paste this value into JWT_SECRET in .env
-```
-
-In `.env`, keep the documented SurrealDB settings, replace `JWT_SECRET`, choose
-your local `API_KEY`, and configure exactly one real model-provider path. The
-shipped `LLM_API_KEY=sk-test-placeholder` is not a provider; it lets ACE fall
-through to a configured subscription/CLI or local-model path.
-
-Start the one required service, install ACE, and apply the schema:
-
-```bash
-docker compose -f infra/docker-compose.yml up -d surrealdb
 uv sync
-uv run python scripts/schema_apply.py
+uv run ace setup
+```
+
+`ace setup` is the recommended first-run path. It asks which model route to
+use (Anthropic, OpenAI, Codex, a Claude setup token or CLI, or Ollama), handles
+the local mechanics, and then offers to work through your first product
+decision. The generated recommendation—not a health check—is the activation
+outcome.
+
+Behind the guided flow, setup:
+
+- generates the local JWT and API credentials;
+- verifies Codex sign-in or the selected Ollama model before starting services;
+- writes `.env` with mode `0600` without replacing existing secrets;
+- starts SurrealDB through Docker Compose and applies every migration;
+- starts the ACE API as a local background process;
+- logs the CLI and thin MCP client in automatically.
+
+The command is safe to rerun. Use `uv run ace setup --no-start` to prepare the
+configuration only, `--skip-first-task` to stop after readiness, or provide the
+first decision non-interactively:
+
+```bash
+OLLAMA_HOST=http://localhost:11434 uv run ace setup \
+  --provider ollama \
+  --first-task "Which customer segment should we validate first?" \
+  --non-interactive
+```
+
+Setup records privacy-local onboarding evidence in `~/.ace/onboarding.jsonl`:
+time to readiness, time to first result, guided interventions, failure stage,
+and first-result success. It never records credentials or task text and sends
+nothing remotely. Clean-user trials can add `--onboarding-trial` to capture
+self-reported maintainer-help and architecture-knowledge requirements.
+Summarize the local evidence without opening the JSONL directly:
+
+```bash
+uv run ace onboarding report
+uv run ace onboarding report --json-output
+```
+
+If setup is interrupted, rerun the same command. Existing credentials and
+completed work are reused. Failure messages distinguish Docker startup,
+schema migration, API startup, authentication, and first-result failures and
+point to the corresponding retry or diagnostic command.
+
+Verify the complete preview path:
+
+```bash
+uv run ace doctor
+uv run ace model-policy
 ```
 
 The default install uses the CPU-friendly ONNX embedding path. The optional
@@ -259,19 +296,27 @@ The default install uses the CPU-friendly ONNX embedding path. The optional
 install it with `uv sync --extra codesage` only when you explicitly select
 `EMBEDDING_PROVIDER=codesage` and accept its substantially larger model/runtime.
 
-Start the API in a second terminal and leave it running:
+After a restart, manage the local background runtime with:
 
 ```bash
-cd ace
-uv run uvicorn core.engine.api.main:app --host 127.0.0.1 --port 3000
+uv run ace service start
+uv run ace service status
+uv run ace service logs --lines 80
+uv run ace service stop   # preserves the SurrealDB volume
 ```
 
-Back in the first terminal, authenticate and diagnose the complete preview path:
+The independent validation procedure is documented in the
+[clean-user onboarding trial](docs/onboarding-trials.md). Passing automated
+tests or a maintainer rehearsal does not pass the onboarding roadmap gate.
+
+For development, CI, or manual control, the equivalent expanded setup remains:
 
 ```bash
+cp .env.example .env                       # configure secrets and one provider
+docker compose -f infra/docker-compose.yml up -d surrealdb
+uv run python scripts/schema_apply.py
+uv run uvicorn core.engine.api.main:app --host 127.0.0.1 --port 3000
 uv run ace login --api-key '<the API_KEY from .env>'
-uv run ace doctor
-uv run ace model-policy
 ```
 
 Run the signature demonstration. It performs a reasoning task, captures a
@@ -317,11 +362,11 @@ request open. The public `model="budget"` semantic used by `ace quick` resolves 
 `LLM_BUDGET_MODEL` before provider execution; the terminal receipt records the selected provider
 and resolved model even when a nested provider does not populate aggregate route counters.
 
-When finished, stop the API with `Ctrl-C` in its terminal, stop the database,
-and return to the directory that contains the clone:
+When finished, stop the managed local runtime and return to the directory that
+contains the clone:
 
 ```bash
-docker compose -f infra/docker-compose.yml down
+uv run ace service stop
 cd ..
 ```
 
@@ -508,6 +553,6 @@ the SurrealDB server is source-available under BSL 1.1 rather than OSI open sour
 
 ---
 
-**Bring a thought. Meet the team.** &nbsp;·&nbsp; [Quickstart](#run-it) · [Build an extension](docs/build-your-first-extension.md)
+**Bring a thought. Meet the team.** &nbsp;·&nbsp; [Quickstart](#get-your-first-recommendation) · [Build an extension](docs/build-your-first-extension.md)
 
 </div>

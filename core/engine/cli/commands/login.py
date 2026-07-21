@@ -47,7 +47,7 @@ def login(ctx, url, api_key):
     except httpx.ConnectError:
         console.print(
             f"[red]Cannot connect to ACE at {resolved_url}.[/red] "
-            "Is the server running? Start it with `make dev`, or pass "
+            "Is the server running? Start it with `ace service start` (or run `ace setup` first), or pass "
             "`--url`/set `ACE_URL` if it's running somewhere else."
         )
         raise SystemExit(1)

@@ -7,6 +7,8 @@ ACE's public documentation is intentionally small and user-facing:
 - [Capability maturity](capability-maturity.md) — what is supported in 0.1.x and what remains
   experimental.
 - [Model providers](providers.md) — provider configuration and routing expectations.
+- [Clean-user onboarding trial](onboarding-trials.md) — measure time to first useful result,
+  recovery, and independence from maintainer help.
 - [Build your first extension](build-your-first-extension.md) — the practical extension path.
 - [Extension API](extension-api.md) — contracts available to extension authors.
 - [Governance](governance.md) — project decisions, compatibility, support, and contributions.
