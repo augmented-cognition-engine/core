@@ -17,15 +17,15 @@ credentials, and security-sensitive detail are intentionally excluded.
 Known release limitations remain explicit: ACE 0.1.x supports Python 3.12; the supported public
 interaction boundary is the CLI and exactly eleven thin MCP tools; Atrium and the broader engine
 surfaces remain experimental; and the existing signature evidence does not establish general
-model superiority. The current entry experience is also developer-oriented: it exposes setup and
-architecture before making the product-building value and first useful reasoning outcome obvious.
+model superiority. R1 now provides an outcome-led entry path, while the clean trials remain an
+AI-operated proxy rather than independent human usability validation.
 
 ## Living roadmap
 
 | ID | Phase | State | Evidence gap or dependency |
 |---|---|---|---|
-| R1 | Now | ready | [2026-07-21 clean-trial evidence](r1-onboarding-evidence.md): macOS passed; Linux setup, auth, diagnostics, and recovery passed, but a useful result was not reached before the 900-second Ollama timeout |
-| R2 | Now | not ready | Requires R1 findings; then cut 0.1.1 with an obvious product-builder quickstart, outcome-led entry copy, focused PyPI copy, repaired absolute links, and release-workflow maintenance |
+| R1 | Now | passed | [2026-07-21 clean-trial evidence](r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
+| R2 | Now | ready | R1 findings are reconciled; cut 0.1.1 with an obvious product-builder quickstart, outcome-led entry copy, focused PyPI copy, repaired absolute links, and release-workflow maintenance |
 | R3 | Now | ready | Verify supported provider routes, authentication, `ace doctor`, actionable failures, and degraded behavior |
 | R4 | Now | not ready | Requires R1 and R3 to pass before publishing a product-builder golden path that starts with a recognizable decision rather than ACE internals |
 | G1 | Next | candidate | Read-only projection and kernel tests exist; supported journey, failure behavior, compatibility boundary, and public evidence are incomplete |
@@ -40,14 +40,11 @@ architecture before making the product-building value and first useful reasoning
 
 ## Exact next dispatch
 
-1. **Required spine — R1:** rerun the Linux stranger journey with its own authenticated supported
-   provider or a demonstrated local model/host that completes the same product decision. Require a
-   useful result, successful recovery, and green `ace doctor`; append the evidence before passing R1.
+1. **Ready to dispatch — R2:** cut the focused 0.1.1 onboarding, packaging, and documentation
+   release from the reconciled R1 findings; do not tag or publish until that work packet passes.
 2. **Safe parallel — R3:** provider, authentication, diagnostics, and degraded-state validation.
-3. **Queued — R2:** do not begin the 0.1.1 onboarding, packaging, and documentation release until
-   the remaining Linux R1 activation evidence is complete.
-4. **Do not start yet — R4:** product-builder golden-path demonstration until R1 and R3 pass.
-5. **Do not promote yet — G1 / IA-R1:** preserve the read-only boundary; G1 remains candidate and
+3. **Do not start yet — R4:** product-builder golden-path demonstration until R3 also passes.
+4. **Do not promote yet — G1 / IA-R1:** preserve the read-only boundary; G1 remains candidate and
    IA-R1 remains dependency-closed until the missing public evidence is reconciled.
 
 An outcome moves to `passed` only when scope, acceptance checks, evidence, limitations, roadmap
