@@ -26,7 +26,7 @@ AI-operated proxy rather than independent human usability validation.
 |---|---|---|---|
 | R1 | Now | passed | [2026-07-21 clean-trial evidence](r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
 | R2 | Now | passed | [0.1.1 release evidence](r2-release-evidence.md) records clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install against verified main commit `1662eaa` |
-| R3 | Now | candidate | Frozen provider/auth matrix, structured diagnostics, deterministic degraded states, a live Codex/GPT smoke, and pre-update CI are recorded in [`r3-provider-validation.md`](r3-provider-validation.md); an authorized live Claude smoke and final CI against current main remain required before `passed` |
+| R3 | Now | candidate | Frozen provider/auth matrix, structured diagnostics, deterministic degraded states, a live Codex/GPT smoke, and green current-main CI are recorded in [`r3-provider-validation.md`](r3-provider-validation.md); an authorized live Claude smoke remains required before `passed` |
 | R4 | Now | not ready | Requires R1 and R3 to pass before publishing a product-builder golden path that starts with a recognizable decision rather than ACE internals |
 | G1 | Next | candidate | Read-only projection and kernel tests exist; supported journey, failure behavior, compatibility boundary, and public evidence are incomplete |
 | IA-R1 | Next | not ready | Depends on G1 passing; read-only inspection only, with no new mutation or execution authority |
@@ -42,8 +42,8 @@ AI-operated proxy rather than independent human usability validation.
 
 1. **Completed — R2:** keep the 0.1.1 release evidence, PyPI package, GitHub Release, and living
    roadmap links intact; R2 passed on 2026-07-21.
-2. **Active — R3:** complete one authorized Claude live smoke, final branch CI, and redacted
-   evidence reconciliation; deterministic implementation and the Codex/GPT route are candidate-ready.
+2. **Active — R3:** complete one authorized Claude live smoke and reconcile the redacted evidence;
+   deterministic implementation, the Codex/GPT route, and current-main CI are candidate-ready.
 3. **Do not start yet — R4:** product-builder golden-path demonstration until R3 also passes.
 4. **Do not promote yet — G1 / IA-R1:** preserve the read-only boundary; G1 remains candidate and
    IA-R1 remains dependency-closed until the missing public evidence is reconciled.

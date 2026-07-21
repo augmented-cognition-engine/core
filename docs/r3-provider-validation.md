@@ -2,14 +2,14 @@
 
 Evidence date: 2026-07-21
 
-Repository base: `7c6a20e` (PR #8 merged)
+Repository base: `8b4b452` (R1 and R2 passed; `ace-core` 0.1.1 release closeout merged)
 
 R3 state: **candidate**
 
 R3 is not passed. The supported matrix and deterministic degraded-state evidence are frozen, and
-one authorized GPT route is live-validated. Pull request #9's pre-update head passed all six CI
-jobs. No authorized Claude API key, setup token, or CLI session is available in the validation
-environment, so a real Claude smoke request and final CI against current main are the exact missing
+one authorized GPT route is live-validated. Pull request #9 was rebased onto current main and all
+six CI jobs passed at `8d8b758`. No authorized Claude API key, setup token, or CLI session is
+available in the validation environment, so a real Claude smoke request is the exact missing
 acceptance evidence. No credential value or model response is stored in this report.
 
 ## Configuration and authentication precedence
@@ -136,17 +136,17 @@ Local verification completed before the pull request:
 | Docker | Clean image build passed; configured container returned `{"status":"ok"}` from `/health/live` |
 | Changed-file secret scan and `git diff --check` | Passed |
 | Pre-update pull request CI | [PR #9 run 17](https://github.com/augmented-cognition-engine/core/actions/runs/29843084978) passed Lint, Tests, Naked kernel, Canvas, Security Audit, and Docker Build at `0e8f54b` |
+| Current-main pull request CI | [PR #9 run 31](https://github.com/augmented-cognition-engine/core/actions/runs/29860143781) passed Lint, Tests, Naked kernel, Canvas, Security Audit, and Docker Build at `8d8b758` |
 
 The Canvas source tree was not changed, so local Canvas-specific npm checks were not required. The
-complete Canvas suite nevertheless passed in the pre-update branch CI. The rebased final head must
-repeat all six CI jobs before acceptance.
+complete Canvas suite nevertheless passed in both recorded branch CI runs. The final evidence-only
+reconciliation commit must preserve the green result.
 
 Before R3 can pass:
 
 1. provide an already-authorized Claude API/setup-token/CLI route and run one minimal redacted live
    smoke through `ace doctor --live-provider`;
 2. record the Claude resolved model, requested/sent/applied-effort truth, latency, usage metadata,
-   and failure/retry behavior without retaining response or credential content;
-3. complete all six final-head CI jobs against current main and reconcile their URL and result.
+   and failure/retry behavior without retaining response or credential content.
 
 R4 remains dependency-closed until that evidence exists and R3 is reconciled to `passed`.
