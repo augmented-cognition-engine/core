@@ -455,7 +455,8 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
     except subprocess.CalledProcessError as exc:
         raise click.ClickException(
             f"SurrealDB failed to start (Docker Compose exited {exc.returncode}). "
-            "Open Docker, then rerun `ace setup`; your saved configuration will be reused."
+            "Start Docker Desktop or your Docker-compatible engine (for Colima: `colima start`), "
+            "then rerun `ace setup`; your saved configuration will be reused."
         ) from exc
 
     runtime_env = os.environ.copy()
@@ -519,7 +520,11 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
         if _api_is_ready():
             return
         time.sleep(0.25)
-    raise click.ClickException(f"ACE API did not become ready. Inspect {log_file} for startup details.")
+    raise click.ClickException(
+        "ACE API did not become ready. Run `ace service logs --lines 80`, fix the reported configuration, "
+        "then rerun `ace setup`. "
+        f"The managed log is {log_file}."
+    )
 
 
 def _stop_local_runtime(root: Path) -> None:
@@ -528,9 +533,9 @@ def _stop_local_runtime(root: Path) -> None:
     if pid is not None:
         os.kill(pid, signal.SIGTERM)
         deadline = time.monotonic() + 10
-        while time.monotonic() < deadline and _pid_is_running(pid_file):
+        while time.monotonic() < deadline and _managed_api_pid(pid_file) is not None:
             time.sleep(0.1)
-        if _pid_is_running(pid_file):
+        if _managed_api_pid(pid_file) is not None:
             raise click.ClickException(f"ACE API process {pid} did not stop after SIGTERM.")
         pid_file.unlink(missing_ok=True)
         console.print("ACE API stopped.")
@@ -750,6 +755,11 @@ def setup(
         console.print("\n[dim]Optional next steps[/dim]")
         console.print(f"Use ACE inside your AI client with MCP command: [cyan]{mcp_command}[/cyan]")
         console.print(f"Authentication: {get_config_path()} · Diagnostics: `ace doctor`")
+        if first_task and not evidence["first_result_succeeded"]:
+            raise click.ClickException(
+                "ACE is ready, but onboarding did not reach a useful reasoning result. "
+                "Follow the recovery guidance above before treating setup as complete."
+            )
         evidence["success"] = True
     except Exception as exc:
         evidence["failure_stage"] = stage

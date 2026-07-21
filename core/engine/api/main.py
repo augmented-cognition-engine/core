@@ -31,6 +31,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 limiter = Limiter(key_func=get_remote_address)
 
+
+def _optional_numeric_id(value: str | None, setting_name: str) -> int | None:
+    """Parse an optional integration ID without blocking core API startup."""
+    if not value:
+        return None
+    try:
+        return int(value)
+    except ValueError:
+        logger.warning("Discord notifications are disabled because %s is not numeric.", setting_name)
+        return None
+
+
 PORTAL_DIR = pathlib.Path(__file__).resolve().parent.parent.parent / "portal" / "dist"
 
 # SPA routes that share paths with API routes — serve index.html for browser navigation
@@ -221,16 +233,19 @@ async def lifespan(app: FastAPI):
 
     # Start Discord bot if configured
     discord_channel = None
-    discord_user_id = os.environ.get("ACE_DISCORD_USER_ID")
+    discord_user_id_text = os.environ.get("ACE_DISCORD_USER_ID")
     discord_token = os.environ.get("ACE_DISCORD_BOT_TOKEN")
-    if discord_user_id and discord_token:
+    discord_channel_id_text = os.environ.get("ACE_DISCORD_CHANNEL_ID")
+    discord_user_id = _optional_numeric_id(discord_user_id_text, "ACE_DISCORD_USER_ID")
+    discord_channel_id = _optional_numeric_id(discord_channel_id_text, "ACE_DISCORD_CHANNEL_ID")
+
+    if discord_user_id is not None and discord_token:
         from core.engine.notifications.channels.discord import DiscordChannel
 
-        discord_channel_id = os.environ.get("ACE_DISCORD_CHANNEL_ID")
         discord_channel = DiscordChannel(
-            user_id=int(discord_user_id),
+            user_id=discord_user_id,
             product_id="product:platform",
-            channel_id=int(discord_channel_id) if discord_channel_id else None,
+            channel_id=discord_channel_id,
         )
         channel_registry.register(discord_channel)
         await discord_channel.start_bot()
