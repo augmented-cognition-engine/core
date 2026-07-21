@@ -10,6 +10,8 @@ ACE's public documentation is intentionally small and user-facing:
   relationships, evidence, uncertainty, history, and outcomes without mutation authority.
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md) — as-built audit,
   authority proof, deterministic replay, failures, verification, and limits.
+- [IA-R1 read-only product map](ia-r1-product-map.md) — the operator question hierarchy,
+  strict read-only boundary, degraded-state behavior, verification, and limitations.
 - [Model providers](providers.md) — provider configuration and routing expectations.
 - [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
 - [Product-builder golden path](product-builder-golden-path.md) — a reproducible public product

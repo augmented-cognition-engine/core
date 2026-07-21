@@ -5,6 +5,7 @@
 //   /atrium                    → Atrium (the canonical partner Canvas)
 //   /room                      → legacy alias for Atrium
 //   /deliberation              → DeliberationCanvas (the live committee)
+//   /landscape                 → ProductMap (read-only Living Product Graph)
 //   /showcase                  → V14Showcase (chrome reference)
 //   ?mode=showcase             → DesignSystemShowcase (dev reference)
 //
@@ -22,6 +23,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Workroom } from './app/Workroom'
 import { DeliberationCanvas } from './app/DeliberationCanvas'
 import { LiveBrain } from './app/LiveBrain'
+import { ProductMap } from './app/ProductMap'
 import { extensionRoutes } from './app/ext/registry'
 import { AceContextProvider } from './app/journey/aceContext'
 import { AcknowledgmentProvider, TooltipProvider } from './design/components'
@@ -67,6 +69,9 @@ function Root() {
             {/* The brain, visualized — REAL substrate output (beliefs re-derived
                 when their canvas ground shifts). First live slice; snapshot transport. */}
             <Route path="/brain" element={<LiveBrain />} />
+            {/* Read-only operator view over the bounded G1 Living Product Graph.
+                This route exposes no write, execution, extension, or model authority. */}
+            <Route path="/landscape" element={<ProductMap />} />
             <Route path="/showcase" element={<V14Showcase />} />
             {/* Extension-contributed routes (pages, legacy aliases). */}
             {extensionRoutes().map((r) => (
