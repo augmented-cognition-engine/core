@@ -1,6 +1,6 @@
 # G1 — assertion-backed, read-only Living Product Graph evidence
 
-**Outcome:** G1 acceptance candidate pending final-head CI and main reconciliation
+**Outcome:** G1 passed; IA-R1 is ready but not started
 
 **Evidence date:** 2026-07-21
 
@@ -118,7 +118,7 @@ Local verification completed from the isolated G1 worktree:
 
 | Gate | Result |
 |---|---|
-| Focused projection, API/CLI, F0, kernel, and eleven-tool compatibility suite | **73 passed** |
+| Focused projection, API/CLI, F0, kernel, eleven-tool, and package compatibility suite | **80 passed** |
 | Full non-E2E suite | **6,316 passed, 46 skipped, 234 deselected** |
 | Zero-extension non-E2E suite | **6,308 passed, 47 skipped, 241 deselected** |
 | Explicit zero-extension kernel boundary | **4 passed** |
@@ -132,9 +132,11 @@ Local verification completed from the isolated G1 worktree:
 
 The initial sandboxed full-suite attempt had four loopback-socket failures caused by sandbox network
 denial; the same complete command passed outside that restriction and is the result recorded above.
-No shared Canvas adapter changed, so local Canvas validation was not applicable; repository CI
-remains the authoritative Canvas gate. Branch CI, final-head CI, and post-merge main CI are recorded
-during reconciliation before this outcome can move to passed.
+No shared Canvas adapter changed, so local Canvas validation was not applicable. The authoritative
+[acceptance CI run](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736)
+passed Lint, fast tests, naked-kernel tests, Canvas typecheck/test/build, security audit, and the
+dependent Docker build. Pull request #15's reconciliation commit is still required to pass a new
+final-head run before merge; post-merge main CI is the final repository-state verification.
 
 ## Limitations
 
@@ -147,9 +149,10 @@ during reconciliation before this outcome can move to passed.
 - The public fixture is synthetic. It proves contract behavior and determinism, not real-world data
   completeness or model quality.
 
-## Reconciliation gate
+## Reconciliation
 
-G1 remains an acceptance candidate in this document until focused and full suites, zero-extension
-kernel tests, Docker/package/security checks, branch CI, final-head CI, and main CI are green. Only
-then may `ROADMAP.md` and `docs/roadmap-status.md` move G1 to passed and IA-R1 to ready. IA-R1
-implementation is explicitly outside this work.
+The local acceptance matrix and complete branch CI passed, so the versioned roadmaps and
+[public live roadmap issue](https://github.com/augmented-cognition-engine/core/issues/2) move G1 to
+passed and IA-R1 to ready in pull request #15. That closeout commit must receive a completely green
+final-head CI run before merge, and merged main must then receive green CI. Any failure reopens G1
+rather than weakening or bypassing a gate. IA-R1 implementation is explicitly outside this work.
