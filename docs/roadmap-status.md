@@ -1,6 +1,6 @@
 # Public roadmap status
 
-Last reconciled: 2026-07-20
+Last reconciled: 2026-07-21
 
 The live operational view is the
 [ACE Public Roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1), organized as
@@ -24,7 +24,7 @@ architecture before making the product-building value and first useful reasoning
 
 | ID | Phase | State | Evidence gap or dependency |
 |---|---|---|---|
-| R1 | Now | ready | Validate an outcome-led journey in which a product builder can understand ACE, install it, complete guided setup, recover from common failures, and reach a useful reasoning result without maintainer help or architecture knowledge on macOS and Linux |
+| R1 | Now | ready | [2026-07-21 clean-trial evidence](r1-onboarding-evidence.md): macOS passed; Linux setup, auth, diagnostics, and recovery passed, but a useful result was not reached before the 900-second Ollama timeout |
 | R2 | Now | not ready | Requires R1 findings; then cut 0.1.1 with an obvious product-builder quickstart, outcome-led entry copy, focused PyPI copy, repaired absolute links, and release-workflow maintenance |
 | R3 | Now | ready | Verify supported provider routes, authentication, `ace doctor`, actionable failures, and degraded behavior |
 | R4 | Now | not ready | Requires R1 and R3 to pass before publishing a product-builder golden path that starts with a recognizable decision rather than ACE internals |
@@ -40,12 +40,12 @@ architecture before making the product-building value and first useful reasoning
 
 ## Exact next dispatch
 
-1. **Required spine — R1:** outcome-led product-builder onboarding audit. Measure comprehension,
-   time to first useful reasoning result, setup interventions, failure recovery, and whether the
-   journey succeeds without maintainer help or architecture knowledge.
+1. **Required spine — R1:** rerun the Linux stranger journey with its own authenticated supported
+   provider or a demonstrated local model/host that completes the same product decision. Require a
+   useful result, successful recovery, and green `ace doctor`; append the evidence before passing R1.
 2. **Safe parallel — R3:** provider, authentication, diagnostics, and degraded-state validation.
-3. **Queued — R2:** 0.1.1 onboarding, packaging, and documentation improvements after R1 records
-   observed friction and evidence.
+3. **Queued — R2:** do not begin the 0.1.1 onboarding, packaging, and documentation release until
+   the remaining Linux R1 activation evidence is complete.
 4. **Do not start yet — R4:** product-builder golden-path demonstration until R1 and R3 pass.
 5. **Do not promote yet — G1 / IA-R1:** preserve the read-only boundary; G1 remains candidate and
    IA-R1 remains dependency-closed until the missing public evidence is reconciled.

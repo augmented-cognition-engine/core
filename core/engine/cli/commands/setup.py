@@ -533,9 +533,9 @@ def _stop_local_runtime(root: Path) -> None:
     if pid is not None:
         os.kill(pid, signal.SIGTERM)
         deadline = time.monotonic() + 10
-        while time.monotonic() < deadline and _pid_is_running(pid_file):
+        while time.monotonic() < deadline and _managed_api_pid(pid_file) is not None:
             time.sleep(0.1)
-        if _pid_is_running(pid_file):
+        if _managed_api_pid(pid_file) is not None:
             raise click.ClickException(f"ACE API process {pid} did not stop after SIGTERM.")
         pid_file.unlink(missing_ok=True)
         console.print("ACE API stopped.")
@@ -755,6 +755,11 @@ def setup(
         console.print("\n[dim]Optional next steps[/dim]")
         console.print(f"Use ACE inside your AI client with MCP command: [cyan]{mcp_command}[/cyan]")
         console.print(f"Authentication: {get_config_path()} · Diagnostics: `ace doctor`")
+        if first_task and not evidence["first_result_succeeded"]:
+            raise click.ClickException(
+                "ACE is ready, but onboarding did not reach a useful reasoning result. "
+                "Follow the recovery guidance above before treating setup as complete."
+            )
         evidence["success"] = True
     except Exception as exc:
         evidence["failure_stage"] = stage

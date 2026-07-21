@@ -38,7 +38,7 @@ Roadmap outcome states are used strictly:
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
 | R0 | passed | Publish `ace-core` 0.1.0 through a credential-free release path | GitHub Release, PyPI release, successful OIDC workflow, and public-index install verified |
-| R1 | ready | Make first use effortless and outcome-led for product builders, not only developers | A clean user can explain ACE's value, install it, complete guided provider and storage setup, recover from common failures, and reach a useful reasoning result without maintainer help or architecture knowledge on macOS and Linux |
+| R1 | ready | Make first use effortless and outcome-led for product builders, not only developers | [Clean-trial evidence](docs/r1-onboarding-evidence.md): macOS passed; Linux reached authenticated readiness and lifecycle recovery but did not reach a useful result before the 900-second local-model timeout |
 | R2 | not ready | Ship a focused 0.1.1 onboarding, packaging, and documentation release | Depends on R1 findings; includes outcome-led entry copy, one obvious quickstart, a shorter PyPI description, absolute documentation links, and release-workflow maintenance |
 | R3 | ready | Validate provider setup, authentication, diagnostics, and degraded behavior | Supported provider matrix; actionable failures; no provider-specific widening of the public contract |
 | R4 | not ready | Publish a reproducible, product-builder golden-path demonstration | Depends on R1 and R3; must begin with a recognizable product decision and show capture, reasoning, durable restart, later material use, inspectable evidence, and honest limitations without requiring the audience to understand ACE internals |

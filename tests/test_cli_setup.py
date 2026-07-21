@@ -17,6 +17,7 @@ from core.engine.cli.commands.setup import (
     _provider_preflight,
     _provider_updates,
     _start_local_runtime,
+    _stop_local_runtime,
     _update_env,
     onboarding,
     service,
@@ -218,6 +219,27 @@ def test_service_stop_preserves_data_and_delegates_to_runtime(tmp_path):
     stop.assert_called_once_with(root)
 
 
+def test_runtime_stop_accepts_a_terminated_zombie_process(tmp_path, isolated_setup_state):
+    root = _project(tmp_path)
+    pid_file = isolated_setup_state / "api.pid"
+    pid_file.parent.mkdir(parents=True, exist_ok=True)
+    pid_file.write_text("1234\n")
+
+    with (
+        patch("core.engine.cli.commands.setup._managed_api_pid", side_effect=[1234, 1234, None, None]),
+        patch("core.engine.cli.commands.setup.os.kill") as kill,
+        patch("core.engine.cli.commands.setup.time.monotonic", side_effect=[0, 1, 2]),
+        patch("core.engine.cli.commands.setup.time.sleep"),
+        patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
+        patch("core.engine.cli.commands.setup.subprocess.run") as run,
+    ):
+        _stop_local_runtime(root)
+
+    kill.assert_called_once_with(1234, 15)
+    run.assert_called_once()
+    assert not pid_file.exists()
+
+
 def test_setup_records_time_to_first_use_and_trial_answers(tmp_path, monkeypatch, isolated_setup_state):
     root = _project(tmp_path)
     monkeypatch.setenv("OLLAMA_HOST", "http://localhost:11434")
@@ -253,6 +275,41 @@ def test_setup_records_time_to_first_use_and_trial_answers(tmp_path, monkeypatch
     assert event["maintainer_help_reported"] is False
     assert event["architecture_knowledge_reported"] is False
     assert "provider" in event
+
+
+def test_setup_first_result_failure_is_not_reported_as_success(tmp_path, monkeypatch, isolated_setup_state):
+    root = _project(tmp_path)
+    monkeypatch.setenv("OLLAMA_HOST", "http://localhost:11434")
+
+    with (
+        patch("core.engine.cli.commands.setup._provider_preflight"),
+        patch("core.engine.cli.commands.setup._start_local_runtime"),
+        patch("core.engine.cli.commands.setup._login_local"),
+        patch("core.engine.cli.commands.setup._run_first_task", return_value=(False, 900.0)),
+    ):
+        result = CliRunner().invoke(
+            setup,
+            [
+                "--project-dir",
+                str(root),
+                "--provider",
+                "ollama",
+                "--first-task",
+                "Which customer should I serve first?",
+                "--onboarding-trial",
+            ],
+            input="n\nn\n",
+        )
+
+    assert result.exit_code != 0
+    assert "did not reach a useful reasoning result" in result.output
+    event = json.loads((isolated_setup_state / "onboarding.jsonl").read_text().splitlines()[-1])
+    assert event["success"] is False
+    assert event["setup_succeeded"] is True
+    assert event["first_result_attempted"] is True
+    assert event["first_result_succeeded"] is False
+    assert event["path_succeeded"] is False
+    assert event["failure_stage"] == "first_result"
 
 
 def test_setup_failure_records_stage_and_preserves_guided_recovery(tmp_path, monkeypatch, isolated_setup_state):
