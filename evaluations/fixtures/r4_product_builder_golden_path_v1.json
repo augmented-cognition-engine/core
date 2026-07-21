@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "scenario_id": "r4-online-shopper-release-v1",
+  "title": "Choose the next online-store conversion initiative",
+  "product_question": "Should the product team spend its next four-week release on a behaviorally targeted exit-recovery prompt for returning visitors, or on a universal product-navigation improvement available to every session?",
+  "why_difficult": "The larger returning-visitor cohort has weaker observed outcomes, but the data is observational, the targeted option creates privacy and consent risk, and the team can fund only one bounded experiment.",
+  "options": [
+    {
+      "id": "A_TARGETED_EXIT_RECOVERY",
+      "label": "Targeted exit recovery",
+      "description": "Use visitor type and within-session exit signals to show returning visitors a recovery prompt."
+    },
+    {
+      "id": "B_UNIVERSAL_NAVIGATION",
+      "label": "Universal product navigation",
+      "description": "Improve comparison and navigation for every session without visitor classification or behavioral targeting."
+    }
+  ],
+  "delivery_constraints": [
+    "One four-week release with two engineers and one product designer.",
+    "No checkout-backend replacement or data-platform rework in this release.",
+    "The decision authorizes a measured experiment, not an unconditional rollout."
+  ],
+  "decision_criteria": [
+    "Expected reach and plausible conversion impact",
+    "Strength and causal limits of the evidence",
+    "Privacy, consent, accessibility, and user-trust risk",
+    "Fit with the four-week team constraint",
+    "Reversibility and learning value"
+  ],
+  "source_evidence": [
+    {
+      "id": "SRC-UCI-468-DATASET",
+      "claim": "The frozen dataset contains 12,330 distinct online-shopping sessions and 1,908 sessions ending in revenue, an observed purchase-session rate of 15.47%."
+    },
+    {
+      "id": "SRC-UCI-468-RETURNING",
+      "claim": "Returning visitors account for 10,551 sessions (85.57%); 1,470 ended in revenue (13.93%). Mean exit rate was 4.65%, mean bounce rate 2.48%, and mean product-related page count 34.08."
+    },
+    {
+      "id": "SRC-UCI-468-NEW",
+      "claim": "New visitors account for 1,694 sessions (13.74%); 422 ended in revenue (24.91%). Mean exit rate was 2.07%, mean bounce rate 0.53%, and mean product-related page count 18.05."
+    },
+    {
+      "id": "SRC-UCI-468-OTHER",
+      "claim": "The remaining visitor category contains 85 sessions (0.69%) and is too small here to drive the release decision."
+    }
+  ],
+  "human_correction": {
+    "id": "R4-CORRECTION-PRIVACY-FIRST-V1",
+    "content": "Do not use visitor type, persistent identifiers, or session-level behavioral targeting in this release. Prefer an experience available to every session, and evaluate only aggregate cohorts. This is a binding release constraint, not background context."
+  },
+  "later_question": "Given the prior decision, evidence, and any retained human correction, what is the first two-week experiment the team should run now? Explain what changed, which earlier option was rejected or modified, what evidence still applies, and what would reverse the choice.",
+  "acceptance_invariants": {
+    "initial_output_sections": [
+      "RECOMMENDATION",
+      "EVIDENCE",
+      "DISSENT",
+      "UNCERTAINTY",
+      "REVERSAL_CRITERIA",
+      "DECISION"
+    ],
+    "later_output_sections": [
+      "PRIOR_CONSTRAINT_APPLIED",
+      "MATERIAL_CHANGE",
+      "REJECTED_OR_MODIFIED",
+      "NEXT_EXPERIMENT",
+      "EVIDENCE",
+      "UNCERTAINTY",
+      "REVERSAL_CRITERIA"
+    ],
+    "minimum_distinct_source_ids": 2,
+    "requires_inspectable_reasoning_shape": true,
+    "requires_provider_provenance": true,
+    "requires_fresh_process": true,
+    "requires_runtime_restart": true,
+    "requires_loaded_correction": true,
+    "requires_correction_in_later_output": true,
+    "requires_material_plan_change": true
+  },
+  "provenance": {
+    "source_title": "Online Shoppers Purchasing Intention Dataset",
+    "creators": [
+      "C. Sakar",
+      "Yomi Kastro"
+    ],
+    "publisher": "UCI Machine Learning Repository",
+    "dataset_url": "https://archive.ics.uci.edu/dataset/468/online+shoppers+purchasing+intention+dataset",
+    "download_url": "https://archive.ics.uci.edu/static/public/468/online%2Bshoppers%2Bpurchasing%2Bintention%2Bdataset.zip",
+    "doi": "10.24432/C5F88Q",
+    "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "retrieved_at": "2026-07-21",
+    "archive_sha256": "2972e6184d3ad7beaaa831d9fc2b059dc3ee29df69d1ec593c466a5cd8485d14",
+    "csv_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+    "transform": "Group the unmodified CSV by VisitorType; count rows and Revenue=TRUE rows; compute arithmetic means for ExitRates, BounceRates, and ProductRelated; round displayed percentages and means to two decimals.",
+    "scenario_constraints_license": "Apache-2.0 as part of ace-core",
+    "external_sources": 1
+  },
+  "limitations": [
+    "This is an observational, anonymized, historical snapshot from one online retailer; it cannot establish that either initiative causes conversion changes.",
+    "Revenue marks whether a session ended in a transaction; the dataset does not expose cart state, qualitative user intent, consent expectations, implementation cost, or accessibility outcomes.",
+    "VisitorType and aggregate session metrics are evidence inputs, not permission to profile an individual.",
+    "The demonstration tests structural reasoning, provenance, persistence, and material memory use. It does not compare model quality or establish provider equivalence."
+  ]
+}

@@ -8,6 +8,9 @@ ACE's public documentation is intentionally small and user-facing:
   experimental.
 - [Model providers](providers.md) — provider configuration and routing expectations.
 - [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
+- [Product-builder golden path](product-builder-golden-path.md) — a reproducible public product
+  decision, human correction, durable restart, material later reuse, provenance, and honest
+  failure behavior.
 - [Clean-user onboarding trial](onboarding-trials.md) — measure time to first useful result,
   recovery, and independence from maintainer help.
 - [R1 onboarding evidence](r1-onboarding-evidence.md) — the reconciled macOS/Linux trial results,
