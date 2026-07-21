@@ -455,7 +455,8 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
     except subprocess.CalledProcessError as exc:
         raise click.ClickException(
             f"SurrealDB failed to start (Docker Compose exited {exc.returncode}). "
-            "Open Docker, then rerun `ace setup`; your saved configuration will be reused."
+            "Start Docker Desktop or your Docker-compatible engine (for Colima: `colima start`), "
+            "then rerun `ace setup`; your saved configuration will be reused."
         ) from exc
 
     runtime_env = os.environ.copy()
@@ -519,7 +520,11 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
         if _api_is_ready():
             return
         time.sleep(0.25)
-    raise click.ClickException(f"ACE API did not become ready. Inspect {log_file} for startup details.")
+    raise click.ClickException(
+        "ACE API did not become ready. Run `ace service logs --lines 80`, fix the reported configuration, "
+        "then rerun `ace setup`. "
+        f"The managed log is {log_file}."
+    )
 
 
 def _stop_local_runtime(root: Path) -> None:

@@ -258,7 +258,10 @@ def test_setup_records_time_to_first_use_and_trial_answers(tmp_path, monkeypatch
 def test_setup_failure_records_stage_and_preserves_guided_recovery(tmp_path, monkeypatch, isolated_setup_state):
     root = _project(tmp_path)
     monkeypatch.setenv("OLLAMA_HOST", "http://localhost:11434")
-    recovery = "Open Docker, then rerun `ace setup`; your saved configuration will be reused."
+    recovery = (
+        "Start Docker Desktop or your Docker-compatible engine (for Colima: `colima start`), "
+        "then rerun `ace setup`; your saved configuration will be reused."
+    )
 
     with (
         patch("core.engine.cli.commands.setup._provider_preflight"),
@@ -329,6 +332,22 @@ def test_runtime_reports_port_collision_before_launching_api(tmp_path):
         _start_local_runtime(root, {"JWT_SECRET": "safe", "API_KEY": "safe"})
 
     popen.assert_not_called()
+
+
+def test_runtime_timeout_points_to_supported_log_command(tmp_path):
+    root = _project(tmp_path)
+    process = MagicMock(pid=1234)
+    with (
+        patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
+        patch("core.engine.cli.commands.setup.subprocess.run"),
+        patch("core.engine.cli.commands.setup._api_is_ready", return_value=False),
+        patch("core.engine.cli.commands.setup._api_port_is_occupied", return_value=False),
+        patch("core.engine.cli.commands.setup._managed_api_pid", return_value=None),
+        patch("core.engine.cli.commands.setup.subprocess.Popen", return_value=process),
+        patch("core.engine.cli.commands.setup.time.monotonic", side_effect=[0, 31]),
+        pytest.raises(click.ClickException, match=r"ace service logs --lines 80"),
+    ):
+        _start_local_runtime(root, {"JWT_SECRET": "safe", "API_KEY": "safe"})
 
 
 def test_provider_rejects_an_incomplete_api_key():
