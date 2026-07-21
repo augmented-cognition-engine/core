@@ -105,7 +105,7 @@ requires-dist = [
     { name = "discord-py", marker = "extra == 'discord'", specifier = ">=2.3" },
     { name = "fastapi", specifier = ">=0.136" },
     { name = "fastmcp", specifier = ">=2.0" },
-    { name = "gitpython", specifier = ">=3.1" },
+    { name = "gitpython", specifier = ">=3.1.51" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.27" },
     { name = "jinja2", specifier = ">=3.1" },

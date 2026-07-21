@@ -317,6 +317,17 @@ uv run ace doctor --live-provider  # one explicitly requested minimal model call
 uv run ace model-policy
 ```
 
+Inspect the current product landscape without triggering reasoning or writes:
+
+```bash
+uv run ace landscape
+```
+
+The versioned snapshot shows product intent, capabilities, decisions, corrections, evidence,
+accepted/provisional/contested/rejected relationships, history, work, and outcomes. It is scoped to
+the authenticated product, deterministically ordered, explicitly degraded when data is incomplete,
+and documented in the [Living Product Graph read contract](https://github.com/augmented-cognition-engine/core/blob/main/docs/living-product-graph.md).
+
 The default install uses the CPU-friendly ONNX embedding path. The optional
 1.3B-parameter CodeSage backend is intentionally not part of the release image;
 install it with `uv sync --extra codesage` only when you explicitly select
