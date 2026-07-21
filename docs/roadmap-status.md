@@ -28,8 +28,8 @@ AI-operated proxy rather than independent human usability validation.
 | R2 | Now | passed | [0.1.1 release evidence](r2-release-evidence.md) records clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install against verified main commit `1662eaa` |
 | R3 | Now | passed | [`r3-provider-validation.md`](r3-provider-validation.md) records the frozen provider/auth matrix, structured diagnostics, deterministic degraded states, live Claude and Codex/GPT subscription smokes, honest effort limits, and green current-main CI |
 | R4 | Now | ready | R1 and R3 have passed; the product-builder golden path is authorized to start with a recognizable decision rather than ACE internals, but implementation has not started |
-| G1 | Next | candidate | Read-only projection and kernel tests exist; supported journey, failure behavior, compatibility boundary, and public evidence are incomplete |
-| IA-R1 | Next | not ready | Depends on G1 passing; read-only inspection only, with no new mutation or execution authority |
+| G1 | Next | passed | [`g1-living-product-graph-evidence.md`](g1-living-product-graph-evidence.md) records the frozen contract, supported `ace landscape` journey, deterministic replay, accepted/provisional/contested/rejected behavior, bounded failures, restart parity, strict read-only authority, and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) |
+| IA-R1 | Next | ready | G1 has passed; read-only information-architecture work may start separately, with no new mutation or execution authority |
 | I1 | Next | not ready | Depends on stable read contracts and the developer-preview golden path |
 | T1 | Next | not ready | Recovery, replay, portability, cancellation, and resource guarantees are not yet frozen |
 | E1 | Next | not ready | Depends on conformance evidence and preservation of the eleven-tool boundary |
@@ -46,8 +46,10 @@ AI-operated proxy rather than independent human usability validation.
    Codex/GPT evidence, deterministic degraded-state coverage, and exact eleven-tool boundary.
 3. **Ready, not started — R4:** dispatch the product-builder golden-path demonstration when work
    begins; start from a recognizable product decision and retain the R3 limitations.
-4. **Do not promote yet — G1 / IA-R1:** preserve the read-only boundary; G1 remains candidate and
-   IA-R1 remains dependency-closed until the missing public evidence is reconciled.
+4. **Completed — G1:** preserve the versioned `ace landscape` contract, deterministic evidence,
+   visible uncertainty, and strict read-only boundary established by the G1 closeout.
+5. **Ready, not started — IA-R1:** the G1 dependency is open; dispatch read-only information-
+   architecture work separately without adding mutation, execution, or Atrium write authority.
 
 An outcome moves to `passed` only when scope, acceptance checks, evidence, limitations, roadmap
 reconciliation, and downstream readiness have all been recorded. Implementation alone is

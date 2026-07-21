@@ -54,8 +54,8 @@ Roadmap outcome states are used strictly:
 
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
-| G1 | candidate | Promote the read-only Living Product Graph projection into a supported inspectable journey | Kernel projection and boundary tests exist; public journey, failure behavior, compatibility boundary, and reproducible evidence remain |
-| IA-R1 | not ready | Define the read-only information architecture for inspecting ACE state | Depends on G1 closeout; must preserve provenance, uncertainty, and object identity without adding write or execution authority |
+| G1 | passed | Promote the read-only Living Product Graph projection into a supported inspectable journey | [`ace landscape`](docs/living-product-graph.md), [reproducible G1 evidence](docs/g1-living-product-graph-evidence.md), and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) prove the versioned, bounded, deterministic, assertion-backed read contract and strict read-only boundary |
+| IA-R1 | ready | Define the read-only information architecture for inspecting ACE state | G1 has passed; IA-R1 may begin separately but must preserve provenance, uncertainty, object identity, and the no-write/no-execution boundary |
 | I1 | not ready | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | Depends on the developer-preview golden path and stable read contracts |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
 | E1 | not ready | Expand extension examples and conformance coverage | Must preserve the kernel boundary and exactly eleven public MCP tools |

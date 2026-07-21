@@ -1,0 +1,56 @@
+{
+  "contract": {
+    "authority": "read_only",
+    "domain_writes": 0,
+    "llm_calls": 0,
+    "projection_version": "ace.living-product-projection.g1.v1",
+    "schema_version": "ace.living-product-snapshot.v1"
+  },
+  "determinism": {
+    "fresh_process_byte_identical": true,
+    "fresh_process_sha256": "3f1fa223369c36ac83c62d926ce60d1350bfa1d795d3d6a902515fd9efc2cee6",
+    "reordered_byte_identical": true,
+    "repeated_byte_identical": true
+  },
+  "elapsed_ms": 40.691,
+  "failure_examples": {
+    "malformed_identifier": {
+      "error": "product_id must be a canonical product:<id> record identifier"
+    },
+    "missing_evidence": {
+      "issue_codes": [
+        "evidence_reference_unresolved"
+      ],
+      "status": "partial"
+    },
+    "unknown_product": {
+      "issue_codes": [
+        "missing_product_record",
+        "product_intent_missing"
+      ],
+      "status": "unknown"
+    }
+  },
+  "fixture_manifest": {
+    "bytes": 15821,
+    "kind": "synthetic_redistributable",
+    "path": "evaluations/fixtures/g1_living_product_graph_v1.json",
+    "sha256": "f49c54cd68d01dd64b01e3a343593790f0e1a89ee633ece6cd89c3ec7023b0f7"
+  },
+  "projection": {
+    "assertion_states": {
+      "accepted": 1,
+      "contested": 2,
+      "provisional": 1,
+      "rejected": 1
+    },
+    "bytes": 21706,
+    "issue_count": 0,
+    "operational_relationship_ids": [
+      "operational_relationship:checkout_depends_billing"
+    ],
+    "sha256": "3f1fa223369c36ac83c62d926ce60d1350bfa1d795d3d6a902515fd9efc2cee6",
+    "snapshot_id": "product_snapshot:3da4011307ed3e6135efd611aaa7ae2c095175bb42ecaa48ccd05ecbf08cccf8"
+  },
+  "status": "passed"
+}
