@@ -40,8 +40,8 @@ Roadmap outcome states are used strictly:
 | R0 | passed | Publish `ace-core` 0.1.0 through a credential-free release path | GitHub Release, PyPI release, successful OIDC workflow, and public-index install verified |
 | R1 | passed | Make first use effortless and outcome-led for product builders, not only developers | [Clean-trial evidence](docs/r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
 | R2 | passed | Ship a focused 0.1.1 onboarding, packaging, and documentation release | [Release evidence](docs/r2-release-evidence.md): clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install all passed against verified main commit `1662eaa` |
-| R3 | candidate | Validate provider setup, authentication, diagnostics, and degraded behavior | Matrix, deterministic degraded-state coverage, one live GPT route, and green CI against current main are evidenced; an authorized live Claude route remains required |
-| R4 | not ready | Publish a reproducible, product-builder golden-path demonstration | Depends on R1 and R3; must begin with a recognizable product decision and show capture, reasoning, durable restart, later material use, inspectable evidence, and honest limitations without requiring the audience to understand ACE internals |
+| R3 | passed | Validate provider setup, authentication, diagnostics, and degraded behavior | [Provider validation evidence](docs/r3-provider-validation.md): supported matrix, deterministic degraded-state coverage, live Claude and GPT subscription routes, honest effort reporting, and green current-main CI |
+| R4 | ready | Publish a reproducible, product-builder golden-path demonstration | R1 and R3 have passed; begin with a recognizable product decision and show capture, reasoning, durable restart, later material use, inspectable evidence, and honest limitations without requiring the audience to understand ACE internals |
 
 ## Next — durable product partnership
 

@@ -2,15 +2,17 @@
 
 Evidence date: 2026-07-21
 
-Repository base: `8b4b452` (R1 and R2 passed; `ace-core` 0.1.1 release closeout merged)
+Repository base: `21bc5c6` (R1 and R2 passed; `ace-core` 0.1.1 release closeout and configured
+Claude CLI timeout hardening merged)
 
-R3 state: **candidate**
+R3 state: **passed**
 
-R3 is not passed. The supported matrix and deterministic degraded-state evidence are frozen, and
-one authorized GPT route is live-validated. Pull request #9 was rebased onto current main and all
-six CI jobs passed at `8d8b758`. No authorized Claude API key, setup token, or CLI session is
-available in the validation environment, so a real Claude smoke request is the exact missing
-acceptance evidence. No credential value or model response is stored in this report.
+The supported matrix and deterministic degraded-state evidence are frozen. Authorized Claude and
+GPT subscription routes are live-validated, and pull request #9 is rebased onto current main while
+preserving its configured Claude CLI timeout hardening. All six CI jobs passed on the preceding
+implementation and evidence heads; the final rebased head must preserve that result before merge.
+No credential value or model response is stored in this report. R4 is ready because R1 and R3 have
+passed, but R4 implementation has not started.
 
 ## Configuration and authentication precedence
 
@@ -38,7 +40,7 @@ credentials defined by their own SDKs.
 | 6 | Anthropic Messages API; metered key | Haiku, Sonnet, Opus, Fable remain distinct. Haiku receives no effort field; supported explicit Claude effort is `low` through `max`; `none` is rejected | `LLM_API_KEY` | No authorized key here; deterministic only | `REQUIRE_SUBSCRIPTION=1` rejects this route before billing. A 401 refresh occurs only for the opted-in rotating credential-store shape. |
 | 7 | Anthropic Messages API; sanctioned Claude setup token | Same Claude tier/effort policy as row 6 | `CLAUDE_CODE_OAUTH_TOKEN` bearer | No authorized token here; deterministic only | Long-lived token is not reread after 401. No provider substitution. |
 | 8 | Anthropic Messages API; opted-in credential-store token | Same Claude tier/effort policy | `~/.claude/.credentials.json`, only with `ALLOW_OAUTH_API_PATH=1` | Not enabled or inspected; unverified | Undocumented transport shape, off by default. This limitation is retained rather than promoted. |
-| 9 | Claude CLI; subscription | Claude tiers passed through; provider-neutral semantic effort is added only where supported | Claude-managed sign-in | CLI absent here; `local_dependency_unavailable` if selected | Stateless subprocess; timeout/cancellation terminates and reaps it. JSON repair is bounded to three same-route attempts. |
+| 9 | Claude CLI; subscription | Claude tiers passed through; provider-neutral semantic effort is added only where supported | Claude-managed sign-in | **Authenticated and live-reachable here** through the supported `available_cli` route | Stateless subprocess; timeout/cancellation terminates and reaps it. JSON repair is bounded to three same-route attempts. |
 | 10 | OpenAI HTTP from a bare ambient key; last-resort slot | Same known GPT mapping/effort behavior as row 4 | `OPENAI_COMPAT_API_KEY` / `OPENAI_API_KEY` | No API key here; deterministic only | Skipped by subscription-only/force-CLI safeguards. Deliberately below a usable Claude CLI. |
 | 11 | Loud-fail empty Claude provider | Default Claude name, but no usable route | None | `not_configured` | First use fails; this is not a success or a fallback to another provider. |
 
@@ -73,12 +75,22 @@ not echo.
 | Route | ACE tier → resolved model | Requested / sent / applied effort | Latency | Usage | Result | Retry/fallback |
 |---|---|---|---:|---|---|---|
 | Codex CLI / ChatGPT subscription | Fast (Haiku) → `gpt-5.6-luna` | `default` / omitted / not reported | 3,222 ms | 6,832 input; 5 output; 0 reasoning-output tokens | `reachable` | One request; no retry; no fallback |
-| Claude | — | — | — | — | **not run: no authorized Claude route available** | None |
+| Claude CLI / Claude subscription | Fast (Haiku) → `claude-haiku-4-5-20251001` | `default` / omitted / not reported | 3,892 ms | 168 input; 85 output | `reachable` | One call; no retry; no fallback |
 
-The GPT smoke used `Reply with exactly OK.` through the hermetic completion adapter. Only the
-structured diagnostic record above was retained; the credential and response text were not.
-The resolved model is the adapter/CLI selection argument and was not independently echoed by an
-upstream response-model field. The existing session was first checked with `codex login status`.
+Both smokes used `Reply with exactly OK.` through hermetic completion adapters. Only the structured
+diagnostic records above were retained; credentials and response text were not. The Claude route
+was authenticated by Claude Code's managed `claude.ai` subscription session and selected by ACE as
+`CLIProvider` / `available_cli`; ACE did not read the credential store. The configured and resolved
+fast-tier model was `claude-haiku-4-5-20251001`. Default effort intentionally emitted no effort
+flag, and neither provider returned an authoritative applied-effort field, so `applied_effort`
+remains unverified. The Claude diagnostic reported one completed call and no empty-result warning,
+so no same-route retry occurred; no fallback or provider substitution was attempted.
+
+`ace doctor --live-provider` honestly reported the Claude provider subcheck as `reachable`. The
+overall doctor invocation was not globally ready because the already-running local SurrealDB was
+at schema 143 while this current-main branch expected schema 142; API authentication, MCP 11/11,
+model policy, and the live provider check all passed. That unrelated local-service skew did not
+trigger a provider retry or fallback.
 
 ## Deterministic degraded-state coverage
 
@@ -118,15 +130,16 @@ the honest behavior is attributable failure, not silent downgrade or cross-provi
 - Login and doctor no longer echo raw upstream bodies or credential-bearing endpoint userinfo.
 - The public MCP boundary remains exactly eleven thin client tools; no provider-specific tool was
   added.
-- No live Claude evidence, no live metered OpenAI API evidence, and no live local/router evidence
-  exist in this environment. These are not fabricated.
+- No live metered Anthropic/OpenAI API evidence and no live local/router evidence exist in this
+  environment. The subscription CLI evidence does not imply those separate routes are validated.
 
-## Verification and remaining acceptance work
+## Verification
 
 Local verification completed before the pull request:
 
 | Gate | Result |
 |---|---|
+| Post-Claude/current-main focused provider/auth/diagnostics/retry/MCP/kernel tests | **204 passed** |
 | Focused provider/authentication/doctor/kernel/MCP tests | **231 passed** |
 | Exact kernel-boundary and eleven-tool tests | **60 passed** |
 | Naked-kernel non-E2E suite | **6,102 passed, 213 skipped, 241 deselected**; four localhost-binding tests were denied by the sandbox |
@@ -136,17 +149,10 @@ Local verification completed before the pull request:
 | Docker | Clean image build passed; configured container returned `{"status":"ok"}` from `/health/live` |
 | Changed-file secret scan and `git diff --check` | Passed |
 | Pre-update pull request CI | [PR #9 run 17](https://github.com/augmented-cognition-engine/core/actions/runs/29843084978) passed Lint, Tests, Naked kernel, Canvas, Security Audit, and Docker Build at `0e8f54b` |
-| Current-main pull request CI | [PR #9 run 31](https://github.com/augmented-cognition-engine/core/actions/runs/29860143781) passed Lint, Tests, Naked kernel, Canvas, Security Audit, and Docker Build at `8d8b758` |
+| Prior-main pull request CI | [PR #9 run 31](https://github.com/augmented-cognition-engine/core/actions/runs/29860143781) passed Lint, Tests, Naked kernel, Canvas, Security Audit, and Docker Build at `8d8b758` |
+| Final pre-Claude evidence CI | [PR #9 run 32](https://github.com/augmented-cognition-engine/core/actions/runs/29860559097) passed Lint, Tests (**6,128 passed, 212 skipped, 234 deselected**), Naked kernel (**6,120 passed, 213 skipped, 241 deselected**, plus **4 kernel-boundary tests passed**), Canvas, Security Audit, and Docker Build at `5af4cb7` |
 
 The Canvas source tree was not changed, so local Canvas-specific npm checks were not required. The
-complete Canvas suite nevertheless passed in both recorded branch CI runs. The final evidence-only
-reconciliation commit must preserve the green result.
-
-Before R3 can pass:
-
-1. provide an already-authorized Claude API/setup-token/CLI route and run one minimal redacted live
-   smoke through `ace doctor --live-provider`;
-2. record the Claude resolved model, requested/sent/applied-effort truth, latency, usage metadata,
-   and failure/retry behavior without retaining response or credential content.
-
-R4 remains dependency-closed until that evidence exists and R3 is reconciled to `passed`.
+complete Canvas suite nevertheless passed in every recorded branch CI run. The authorized Claude
+smoke closes the final R3 acceptance gap; final-head CI remains required before pull request #9 is
+made ready and merged. R4 is ready but has not started.
