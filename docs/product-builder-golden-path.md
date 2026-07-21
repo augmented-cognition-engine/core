@@ -77,6 +77,8 @@ From the clean clone:
 
 ```bash
 export ACE_CONFIG_DIR="$PWD/.r4-clean/config"
+export COMPOSE_PROJECT_NAME=ace_r4_clean_replay
+export ACE_SURREAL_HOST_PORT=18041
 uv sync
 uv run ace setup --provider codex --skip-first-task --non-interactive
 uv run ace doctor --live-provider --provider-timeout 60 --json-output \
@@ -106,6 +108,11 @@ location and run the later phase as a new process:
 export ACE_CONFIG_DIR="$PWD/.r4-clean/config"
 uv run python scripts/verify_product_builder_golden_path.py later --runtime-restarted
 ```
+
+`ace setup` persists the explicit Compose project and SurrealDB host port in the disposable
+`.env`, so service stop/start commands continue using the same isolated volume without requiring
+those two exports in the fresh terminal. Choose a different free port or project name if either is
+already in use.
 
 The later request contains the same public evidence but does **not** contain the correction text or
 identifier. The phase fails unless `ace_load` retrieves the earlier correction and the new task:

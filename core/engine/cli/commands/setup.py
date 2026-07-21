@@ -118,6 +118,38 @@ def _update_env(text: str, updates: Mapping[str, str]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _runtime_isolation_updates(current: Mapping[str, str], environ: Mapping[str, str]) -> dict[str, str]:
+    """Persist explicitly requested Compose and SurrealDB isolation settings.
+
+    A source checkout's Compose file lives under the same ``infra`` directory name in every clone,
+    so Docker Compose otherwise reuses the ``infra`` project and volume.  Clean trials can select a
+    bounded project and host port without manually editing the generated private ``.env``.
+    """
+    updates: dict[str, str] = {}
+    project = environ.get("COMPOSE_PROJECT_NAME", "").strip()
+    if project:
+        if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", project):
+            raise click.ClickException(
+                "COMPOSE_PROJECT_NAME must start with a lowercase letter or digit and contain only "
+                "lowercase letters, digits, hyphens, or underscores."
+            )
+        updates["COMPOSE_PROJECT_NAME"] = project
+
+    raw_port = environ.get("ACE_SURREAL_HOST_PORT", "").strip()
+    if raw_port:
+        try:
+            port = int(raw_port)
+        except ValueError as exc:
+            raise click.ClickException("ACE_SURREAL_HOST_PORT must be an integer from 1 to 65535.") from exc
+        if not 1 <= port <= 65535:
+            raise click.ClickException("ACE_SURREAL_HOST_PORT must be an integer from 1 to 65535.")
+        updates["ACE_SURREAL_HOST_PORT"] = str(port)
+        current_url = current.get("SURREAL_URL", "")
+        if current_url in {"", "ws://localhost:8001", "ws://127.0.0.1:8001"}:
+            updates["SURREAL_URL"] = f"ws://localhost:{port}"
+    return updates
+
+
 def _usable(value: str | None, placeholders: set[str] = _PLACEHOLDERS) -> bool:
     return bool(value and value.strip() not in placeholders)
 
@@ -700,6 +732,7 @@ def setup(
         if not non_interactive and credential_missing.get(selected_provider, False):
             interventions.append("credential_prompt")
         updates = _provider_updates(selected_provider, current, os.environ, non_interactive=non_interactive)
+        updates.update(_runtime_isolation_updates(current, os.environ))
         jwt_secret = current.get("JWT_SECRET", "")
         api_key = current.get("API_KEY", "")
         if not _usable(jwt_secret):
