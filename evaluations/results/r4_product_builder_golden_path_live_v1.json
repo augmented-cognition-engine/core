@@ -1,0 +1,951 @@
+{
+  "acceptance": {
+    "limitation": null,
+    "material_memory_use_proven": true,
+    "provenance_inspectable": true,
+    "restart_persistence_proven": true,
+    "status": "passed",
+    "structural_assertions_passed": true
+  },
+  "baseline_intelligence_count": 0,
+  "captured_correction_id": "R4-CORRECTION-PRIVACY-FIRST-V1",
+  "captured_correction_inspectable": true,
+  "clean_initialization": {
+    "checks": {
+      "database": "ok",
+      "llm": "ok",
+      "pool": {
+        "available": 10,
+        "checked_out": 0,
+        "initialized": true,
+        "max": 10,
+        "total_created": 10,
+        "total_leaked": 0,
+        "total_recycled": 0
+      }
+    },
+    "status": "ok",
+    "version": "0.1.1"
+  },
+  "correction_capture": {
+    "id": "observation:15eg2vvvzozu5yrgkfkb",
+    "status": "captured"
+  },
+  "decision_capture": {
+    "id": "observation:dhnb3esu1ycy9echntle",
+    "status": "captured"
+  },
+  "evidence_capture": {
+    "id": "observation:328ukfn2mgzrkw7z913n",
+    "status": "captured"
+  },
+  "initial_checks": {
+    "classification": {
+      "archetype": "advisor",
+      "complexity": "complex",
+      "discipline": "product_strategy",
+      "mode": "deliberative"
+    },
+    "composition": {
+      "depth": 3,
+      "fusion_mode": false,
+      "meta_skills": [
+        "strategic_intelligence",
+        "risk_intelligence",
+        "systems_intelligence",
+        "prioritization_intelligence",
+        "product_decision_intelligence",
+        "planning_intelligence",
+        "creative_intelligence",
+        "domain_specific_intelligence"
+      ],
+      "phases": [
+        {
+          "cognitive_function": "frame",
+          "instruments": [
+            "problem-space-modeling",
+            "product-strategy-fit"
+          ],
+          "pattern": "pipeline",
+          "tools": []
+        },
+        {
+          "cognitive_function": "prioritize",
+          "instruments": [
+            "leverage-analysis",
+            "prioritization-sequencing"
+          ],
+          "pattern": "pipeline",
+          "tools": []
+        },
+        {
+          "cognitive_function": "choose",
+          "instruments": [
+            "strategy-pairwise",
+            "market-positioning"
+          ],
+          "pattern": "pipeline",
+          "tools": []
+        },
+        {
+          "cognitive_function": "validate",
+          "instruments": [
+            "second-order-thinking"
+          ],
+          "pattern": "solo",
+          "tools": []
+        },
+        {
+          "cognitive_function": "allocate",
+          "instruments": [
+            "optionality-assessment",
+            "product-risk-assessment"
+          ],
+          "pattern": "pipeline",
+          "tools": []
+        },
+        {
+          "cognitive_function": "assess",
+          "instruments": [
+            "constraint-mapping"
+          ],
+          "pattern": "solo",
+          "tools": []
+        },
+        {
+          "cognitive_function": "engage",
+          "instruments": [
+            "multi-voice-engage"
+          ],
+          "pattern": "parallel",
+          "tools": []
+        },
+        {
+          "cognitive_function": "recommend",
+          "instruments": [
+            "holistic-validation"
+          ],
+          "pattern": "solo",
+          "tools": []
+        }
+      ],
+      "roster": [
+        {
+          "archetype": "advisor",
+          "color_hint": "blue",
+          "idle_zone_hint": "right"
+        },
+        {
+          "archetype": "sentinel",
+          "color_hint": "red",
+          "idle_zone_hint": "bottom-right"
+        },
+        {
+          "archetype": "researcher",
+          "color_hint": "yellow",
+          "idle_zone_hint": "bottom-right"
+        }
+      ]
+    },
+    "dispatch": {
+      "stages": []
+    },
+    "provenance": {
+      "duration_ms": 131727,
+      "model": "gpt-5.6-terra",
+      "provider": "CodexCLIProvider",
+      "requested_model": "claude-sonnet-5",
+      "task_id": "task:dl1khir4ch3zyvkbgqfh",
+      "token_usage": {
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "calls": [],
+        "cost_usd": 0,
+        "input_tokens": 0,
+        "models": [],
+        "output_tokens": 0,
+        "providers": [],
+        "stages": {},
+        "total_tokens": 0
+      }
+    },
+    "source_ids": [
+      "SRC-UCI-468-DATASET",
+      "SRC-UCI-468-NEW",
+      "SRC-UCI-468-OTHER",
+      "SRC-UCI-468-RETURNING"
+    ],
+    "token_cost_posture": {
+      "cost_note": "Cost remains unknown unless the configured provider reports attributable cost metadata.",
+      "cost_usd": null,
+      "token_usage": {
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "calls": [],
+        "cost_usd": 0,
+        "input_tokens": 0,
+        "models": [],
+        "output_tokens": 0,
+        "providers": [],
+        "stages": {},
+        "total_tokens": 0
+      }
+    }
+  },
+  "initial_completed_at_unix": 1784671637.8996139,
+  "initial_task": {
+    "accepted_at": "2026-07-21T22:04:49.324407+00:00",
+    "archetype": "advisor",
+    "completed_at": "2026-07-21T22:07:01.024479+00:00",
+    "contract_version": "async-receipt-v1",
+    "created_at": "2026-07-21T22:04:49.325004+00:00",
+    "description": "Product decision: Should the product team spend its next four-week release on a behaviorally targeted exit-recovery prompt for returning visitors, or on a universal product-navigation improvement available to every session?\n\nOptions:\n- A_TARGETED_EXIT_RECOVERY: Use visitor type and within-session exit signals to show returning visitors a recovery prompt.\n- B_UNIVERSAL_NAVIGATION: Improve comparison and navigation for every session without visitor classification or behavioral targeting.\n\nFrozen public evidence:\n- [SRC-UCI-468-DATASET] The frozen dataset contains 12,330 distinct online-shopping sessions and 1,908 sessions ending in revenue, an observed purchase-session rate of 15.47%.\n- [SRC-UCI-468-RETURNING] Returning visitors account for 10,551 sessions (85.57%); 1,470 ended in revenue (13.93%). Mean exit rate was 4.65%, mean bounce rate 2.48%, and mean product-related page count 34.08.\n- [SRC-UCI-468-NEW] New visitors account for 1,694 sessions (13.74%); 422 ended in revenue (24.91%). Mean exit rate was 2.07%, mean bounce rate 0.53%, and mean product-related page count 18.05.\n- [SRC-UCI-468-OTHER] The remaining visitor category contains 85 sessions (0.69%) and is too small here to drive the release decision.\n\nDelivery constraints:\n- One four-week release with two engineers and one product designer.\n- No checkout-backend replacement or data-platform rework in this release.\n- The decision authorizes a measured experiment, not an unconditional rollout.\n\nDecision criteria:\n- Expected reach and plausible conversion impact\n- Strength and causal limits of the evidence\n- Privacy, consent, accessibility, and user-trust risk\n- Fit with the four-week team constraint\n- Reversibility and learning value\n\nEvidence limitations:\n- This is an observational, anonymized, historical snapshot from one online retailer; it cannot establish that either initiative causes conversion changes.\n- Revenue marks whether a session ended in a transaction; the dataset does not expose cart state, qualitative user intent, consent expectations, implementation cost, or accessibility outcomes.\n- VisitorType and aggregate session metrics are evidence inputs, not permission to profile an individual.\n- The demonstration tests structural reasoning, provenance, persistence, and material memory use. It does not compare model quality or establish provider equivalence.\n\nThis consequential choice warrants product, user/privacy, and skeptical perspectives or stages.\nClassify the decision, expose the tensions, recommend one option or a bounded hybrid, and cite the\nsource IDs supporting every material empirical claim. Do not infer causality. Use these exact\nsection labels, while choosing the substance yourself:\n\nRECOMMENDATION:\nEVIDENCE:\nDISSENT:\nUNCERTAINTY:\nREVERSAL_CRITERIA:\nDECISION:\n",
+    "discipline": "product_strategy",
+    "domain_path": "",
+    "engagement": {
+      "adversarial_pair": [
+        "advisor",
+        "sentinel"
+      ],
+      "injected": [],
+      "perspectives": [
+        "advisor",
+        "sentinel",
+        "researcher"
+      ],
+      "rationale": "The decision needs a product recommendation, skeptical challenge of causal and implementation assumptions, and user/privacy-focused investigation within a constrained release.",
+      "spin_count": 3
+    },
+    "id": "task:dl1khir4ch3zyvkbgqfh",
+    "idempotency_mode": "explicit",
+    "idempotent_replay": false,
+    "intelligence_loaded": {
+      "engagement_rationale": "The decision needs a product recommendation, skeptical challenge of causal and implementation assumptions, and user/privacy-focused investigation within a constrained release.",
+      "perspectives_used": [
+        "advisor",
+        "sentinel",
+        "researcher"
+      ],
+      "pm_context": {
+        "decisions": [
+          {
+            "created_at": "2026-07-21T22:04:42.196734+00:00",
+            "decision_type": "architecture",
+            "outcome": "accepted",
+            "rationale": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 online-shopper release decision.",
+            "title": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 onlin"
+          }
+        ],
+        "initiatives": [],
+        "live_agents": 0,
+        "quality_gaps": []
+      },
+      "spin_count": 3,
+      "token_usage": {
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "calls": [],
+        "cost_usd": 0,
+        "input_tokens": 0,
+        "models": [],
+        "output_tokens": 0,
+        "providers": [],
+        "stages": {},
+        "total_tokens": 0
+      },
+      "verification_gaps": [
+        "The claim that B has \"lower privacy and trust risk\" is plausible but not established by the frozen evidence; it should be framed as a risk assessment/assumption and validated through privacy review, rather than stated as a settled comparative fact.",
+        "The proposed experiment lacks an explicit traffic/sample-size and duration feasibility check. With a four-week window and a 15.47% historical revenue-ending rate, the team should verify whether available traffic can detect the pre-registered practical effect while supporting staged exposure and guardrails.",
+        "Universal eligibility does not ensure universal availability or benefit: the plan should address exclusion/error paths such as unsupported devices or browsers, logged-out/deep-link sessions, experiment-assignment persistence, and fallback behavior if the navigation component fails or degrades.",
+        "The recommendation assumes rapid usability/accessibility research, instrumentation validation, and the selected implementation can all fit in week one plus the remaining release time; the supplied evidence does not establish that delivery assumption.",
+        "The success plan should specify how revenue-ending sessions will be attributed and how assignment, repeat sessions, bot/internal traffic, and concurrent product changes will be handled to avoid biased or contaminated experiment results."
+      ],
+      "verification_verdict": "gaps_found",
+      "verified": false
+    },
+    "mode": "deliberative",
+    "model_used": "claude-sonnet-5",
+    "output": "RECOMMENDATION:\nChoose B_UNIVERSAL_NAVIGATION as a bounded, feature-flagged four-week experiment. Focus on one or two comparison/navigation journeys identified through rapid usability and accessibility review. Do not make behavioral targeting or visitor classification the primary release bet.\n\nEVIDENCE:\nThe dataset covers 12,330 sessions; 1,908 ended in revenue, an observed 15.47% purchase-session rate. [SRC-UCI-468-DATASET]\n\nReturning visitors represent 10,551 sessions (85.57%) but had a 13.93% revenue-ending rate, compared with 24.91% for 1,694 new-visitor sessions. [SRC-UCI-468-RETURNING] [SRC-UCI-468-NEW] Returning sessions also had higher mean exit rate (4.65% vs. 2.07%), bounce rate (2.48% vs. 0.53%), and product-related page count (34.08 vs. 18.05). [SRC-UCI-468-RETURNING] [SRC-UCI-468-NEW]\n\nThose patterns support investigating navigation and comparison friction among an engaged, high-reach audience. They do not show that either a recovery prompt or a navigation change causes purchases. The remaining visitor category is only 85 sessions and should not drive the decision. [SRC-UCI-468-OTHER]\n\nDISSENT:\nA_TARGETED_EXIT_RECOVERY has plausible reach because returning visitors comprise 85.57% of observed sessions, and their higher exit and bounce measures may signal friction worth studying. [SRC-UCI-468-RETURNING] A narrowly scoped, consented, accessible prompt could generate focused learning.\n\nBut the same signals may reflect comparison shopping, price sensitivity, completed research, or differing intent. The evidence does not establish that exits are recoverable, that prompts would be welcome, or that visitor status and exit signals are an appropriate basis for targeting. Consent review, suppression rules, frequency caps, accessible dismissal behavior, and trust safeguards add material delivery risk for a two-engineer, one-designer release.\n\nUNCERTAINTY:\nThis is an anonymized, observational historical snapshot from one retailer. It provides no causal uplift estimate, cart state, intent, consent expectation, accessibility outcome, or implementation-cost evidence. [SRC-UCI-468-DATASET]\n\nBefore build, use rapid task-based usability testing across devices, including keyboard and screen-reader checks, to select the specific navigation friction. Pre-register eligibility, assignment, duration, primary outcome, and practical success threshold using current baselines; the historical dataset cannot credibly set those thresholds. Measure revenue-ending session rate alongside task success and comparison engagement, while tracking bounce/exit, latency, accessibility defects, support/contact signals, and privacy or consent complaints.\n\nREVERSAL_CRITERIA:\nRoll back immediately for critical accessibility or consent failures, material performance regression, or a pre-registered guardrail breach. At the planned readout, retain or expand B only if it shows statistically and practically meaningful improvement in the primary outcome without user-harm guardrails worsening; otherwise revert and document the result.\n\nConsider A later only if B is neutral or harmful and qualitative research identifies recoverable abandonment, with a documented consent/governance basis, explicit suppression and frequency controls, clear dismissal, accessible interaction, holdout measurement, and no persistent individual profiling.\n\nDECISION:\nAuthorize B_UNIVERSAL_NAVIGATION as a reversible controlled experiment. Spend the first week on friction discovery, accessibility review, instrumentation validation, and preregistration; then ship only the selected comparison/navigation improvement behind a feature flag with a control group and staged exposure. This provides universal eligibility, lower privacy and trust risk, credible fit with the four-week constraint, and broadly useful learning without claiming it will cause conversion improvement.",
+    "perspective": "strategist",
+    "product": "product:platform",
+    "reasoning_trace": {
+      "classification": {
+        "archetype": "advisor",
+        "complexity": "complex",
+        "discipline": "product_strategy",
+        "mode": "deliberative"
+      },
+      "composition": {
+        "depth": 3,
+        "fusion_mode": false,
+        "meta_skills": [
+          "strategic_intelligence",
+          "risk_intelligence",
+          "systems_intelligence",
+          "prioritization_intelligence",
+          "product_decision_intelligence",
+          "planning_intelligence",
+          "creative_intelligence",
+          "domain_specific_intelligence"
+        ],
+        "phases": [
+          {
+            "cognitive_function": "frame",
+            "instruments": [
+              "problem-space-modeling",
+              "product-strategy-fit"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "prioritize",
+            "instruments": [
+              "leverage-analysis",
+              "prioritization-sequencing"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "choose",
+            "instruments": [
+              "strategy-pairwise",
+              "market-positioning"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "validate",
+            "instruments": [
+              "second-order-thinking"
+            ],
+            "pattern": "solo",
+            "tools": []
+          },
+          {
+            "cognitive_function": "allocate",
+            "instruments": [
+              "optionality-assessment",
+              "product-risk-assessment"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "assess",
+            "instruments": [
+              "constraint-mapping"
+            ],
+            "pattern": "solo",
+            "tools": []
+          },
+          {
+            "cognitive_function": "engage",
+            "instruments": [
+              "multi-voice-engage"
+            ],
+            "pattern": "parallel",
+            "tools": []
+          },
+          {
+            "cognitive_function": "recommend",
+            "instruments": [
+              "holistic-validation"
+            ],
+            "pattern": "solo",
+            "tools": []
+          }
+        ],
+        "roster": [
+          {
+            "archetype": "advisor",
+            "color_hint": "blue",
+            "idle_zone_hint": "right"
+          },
+          {
+            "archetype": "sentinel",
+            "color_hint": "red",
+            "idle_zone_hint": "bottom-right"
+          },
+          {
+            "archetype": "researcher",
+            "color_hint": "yellow",
+            "idle_zone_hint": "bottom-right"
+          }
+        ]
+      },
+      "dispatch": {
+        "stages": []
+      },
+      "intelligence": {
+        "degraded_tiers": [],
+        "prior_decisions": [
+          {
+            "decision_type": "architecture",
+            "rationale": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 online-shopper release decision.",
+            "title": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 onlin"
+          }
+        ],
+        "specialties_loaded": [],
+        "total_count": 0
+      },
+      "provenance": {
+        "duration_ms": 131727,
+        "model": "gpt-5.6-terra",
+        "provider": "CodexCLIProvider",
+        "requested_model": "claude-sonnet-5",
+        "task_id": "task:dl1khir4ch3zyvkbgqfh",
+        "token_usage": {
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "calls": [],
+          "cost_usd": 0,
+          "input_tokens": 0,
+          "models": [],
+          "output_tokens": 0,
+          "providers": [],
+          "stages": {},
+          "total_tokens": 0
+        }
+      }
+    },
+    "retrieval": {
+      "filter": "task:dl1khir4ch3zyvkbgqfh",
+      "http": "GET /tasks/task:dl1khir4ch3zyvkbgqfh",
+      "tool": "ace_status"
+    },
+    "source": "direct",
+    "specialties_loaded": [],
+    "started_at": "2026-07-21T22:04:49.268507+00:00",
+    "status": "completed",
+    "token_usage": {
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "calls": [],
+      "cost_usd": 0,
+      "input_tokens": 0,
+      "models": [],
+      "output_tokens": 0,
+      "providers": [],
+      "stages": {},
+      "total_tokens": 0
+    },
+    "updated_at": "2026-07-21T22:07:01.024481+00:00",
+    "user": "user:default",
+    "workspace": "workspace:r4"
+  },
+  "later": {
+    "checks": {
+      "classification": {
+        "archetype": "advisor",
+        "complexity": "complex",
+        "discipline": "product_strategy",
+        "mode": "deliberative"
+      },
+      "composition": {
+        "depth": 3,
+        "fusion_mode": false,
+        "meta_skills": [
+          "strategic_intelligence",
+          "risk_intelligence",
+          "systems_intelligence",
+          "prioritization_intelligence",
+          "product_decision_intelligence",
+          "planning_intelligence",
+          "creative_intelligence",
+          "domain_specific_intelligence"
+        ],
+        "phases": [
+          {
+            "cognitive_function": "frame",
+            "instruments": [
+              "problem-space-modeling",
+              "product-strategy-fit"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "prioritize",
+            "instruments": [
+              "leverage-analysis",
+              "prioritization-sequencing"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "choose",
+            "instruments": [
+              "strategy-pairwise",
+              "market-positioning"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "validate",
+            "instruments": [
+              "second-order-thinking"
+            ],
+            "pattern": "solo",
+            "tools": []
+          },
+          {
+            "cognitive_function": "allocate",
+            "instruments": [
+              "optionality-assessment",
+              "product-risk-assessment"
+            ],
+            "pattern": "pipeline",
+            "tools": []
+          },
+          {
+            "cognitive_function": "assess",
+            "instruments": [
+              "constraint-mapping"
+            ],
+            "pattern": "solo",
+            "tools": []
+          },
+          {
+            "cognitive_function": "engage",
+            "instruments": [
+              "multi-voice-engage"
+            ],
+            "pattern": "parallel",
+            "tools": []
+          },
+          {
+            "cognitive_function": "recommend",
+            "instruments": [
+              "holistic-validation"
+            ],
+            "pattern": "solo",
+            "tools": []
+          }
+        ],
+        "roster": [
+          {
+            "archetype": "advisor",
+            "color_hint": "blue",
+            "idle_zone_hint": "right"
+          },
+          {
+            "archetype": "sentinel",
+            "color_hint": "red",
+            "idle_zone_hint": "bottom-right"
+          },
+          {
+            "archetype": "researcher",
+            "color_hint": "yellow",
+            "idle_zone_hint": "bottom-right"
+          }
+        ]
+      },
+      "dispatch": {
+        "stages": []
+      },
+      "provenance": {
+        "duration_ms": 93508,
+        "model": "gpt-5.6-terra",
+        "provider": "CodexCLIProvider",
+        "requested_model": "claude-sonnet-5",
+        "task_id": "task:sxm91im64nyho7we5mdu",
+        "token_usage": {
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "calls": [],
+          "cost_usd": 0,
+          "input_tokens": 0,
+          "models": [],
+          "output_tokens": 0,
+          "providers": [],
+          "stages": {},
+          "total_tokens": 0
+        }
+      },
+      "source_ids": [
+        "SRC-UCI-468-DATASET",
+        "SRC-UCI-468-NEW",
+        "SRC-UCI-468-RETURNING"
+      ],
+      "token_cost_posture": {
+        "cost_note": "Cost remains unknown unless the configured provider reports attributable cost metadata.",
+        "cost_usd": null,
+        "token_usage": {
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "calls": [],
+          "cost_usd": 0,
+          "input_tokens": 0,
+          "models": [],
+          "output_tokens": 0,
+          "providers": [],
+          "stages": {},
+          "total_tokens": 0
+        }
+      }
+    },
+    "correction_identifier_applied": true,
+    "fresh_client_process": true,
+    "initial_output_sha256": "b86d220d8f0c4757a99bfcdb27635462b0b7c3fc1a8ea74b6e85e773f2032cc1",
+    "latency_seconds": 94.42,
+    "later_output_sha256": "93a874564490208cd4857f9985bcd61997b92b028eb2b127f3d04caa68b6111c",
+    "loaded_correction": true,
+    "loaded_intelligence": {
+      "corrections": [
+        {
+          "confidence": 1.0,
+          "content": "R4-CORRECTION-PRIVACY-FIRST-V1: Do not use visitor type, persistent identifiers, or session-level behavioral targeting in this release. Prefer an experience available to every session, and evaluate only aggregate cohorts. This is a binding release constraint, not background context. It corrects R4-DECISION-ONLINE-SHOPPER-V1.",
+          "id": "observation:15eg2vvvzozu5yrgkfkb",
+          "insight_type": "correction",
+          "tier": "human_guidance"
+        }
+      ],
+      "domain_path": "product_strategy.online_conversion",
+      "framework_recommendation": null,
+      "insights": [
+        {
+          "confidence": 0.9,
+          "content": "R4-DECISION-ONLINE-SHOPPER-V1: provisional decision from task:dl1khir4ch3zyvkbgqfh: Choose B_UNIVERSAL_NAVIGATION as a bounded, feature-flagged four-week experiment. Focus on one or two comparison/navigation journeys identified through rapid usability and accessibility review. Do not make behavioral targeting or visitor classification the primary release bet.. Revisit after human privacy review and a bounded experiment.",
+          "created_at": "2026-07-21T22:07:01.729286Z",
+          "id": "observation:dhnb3esu1ycy9echntle",
+          "insight_type": "decision",
+          "source": "api"
+        },
+        {
+          "confidence": 1.0,
+          "content": "R4-EVIDENCE-SNAPSHOT-V1: frozen public evidence for r4-online-shopper-release-v1: - [SRC-UCI-468-DATASET] The frozen dataset contains 12,330 distinct online-shopping sessions and 1,908 sessions ending in revenue, an observed purchase-session rate of 15.47%.\n- [SRC-UCI-468-RETURNING] Returning visitors account for 10,551 sessions (85.57%); 1,470 ended in revenue (13.93%). Mean exit rate was 4.65%, mean bounce rate 2.48%, and mean product-related page count 34.08.\n- [SRC-UCI-468-NEW] New visitors account for 1,694 sessions (13.74%); 422 ended in revenue (24.91%). Mean exit rate was 2.07%, mean bounce rate 0.53%, and mean product-related page count 18.05.\n- [SRC-UCI-468-OTHER] The remaining visitor category contains 85 sessions (0.69%) and is too small here to drive the release decision.",
+          "created_at": "2026-07-21T22:03:33.272616Z",
+          "id": "observation:328ukfn2mgzrkw7z913n",
+          "insight_type": "learning",
+          "source": "api"
+        }
+      ],
+      "maturation_level": "nascent",
+      "preferences": [],
+      "total_count": 3
+    },
+    "material_change": "Replace segment-specific conversion optimization with a universal, privacy-safe clarity experiment.",
+    "rejected_or_modified": "Reject the earlier new-versus-returning visitor strategy implied by R4-DECISION-ONLINE-SHOPPER-V1. Run a single universal treatment instead: clearer product-page purchase path, prominent accessible CTA, and concise shipping/returns information.",
+    "runtime_restart_operator_attested": true,
+    "task": {
+      "accepted_at": "2026-07-21T22:08:42.319985+00:00",
+      "archetype": "advisor",
+      "completed_at": "2026-07-21T22:10:15.816605+00:00",
+      "contract_version": "async-receipt-v1",
+      "created_at": "2026-07-21T22:08:42.320110+00:00",
+      "description": "Fresh product decision after an earlier recommendation and human review:\nGiven the prior decision, evidence, and any retained human correction, what is the first two-week experiment the team should run now? Explain what changed, which earlier option was rejected or modified, what evidence still applies, and what would reverse the choice.\n\nUse ACE's retained product intelligence for product_strategy.online_conversion. If it contains a binding human correction,\nbegin with its exact identifier. The correction text and identifier are deliberately not supplied\nin this request: do not invent one. If none is available, begin PRIOR_CONSTRAINT_APPLIED:\nNO_PRIOR_CONSTRAINT and say that the journey is degraded.\n\nFrozen public evidence, unchanged from the earlier decision:\n- [SRC-UCI-468-DATASET] The frozen dataset contains 12,330 distinct online-shopping sessions and 1,908 sessions ending in revenue, an observed purchase-session rate of 15.47%.\n- [SRC-UCI-468-RETURNING] Returning visitors account for 10,551 sessions (85.57%); 1,470 ended in revenue (13.93%). Mean exit rate was 4.65%, mean bounce rate 2.48%, and mean product-related page count 34.08.\n- [SRC-UCI-468-NEW] New visitors account for 1,694 sessions (13.74%); 422 ended in revenue (24.91%). Mean exit rate was 2.07%, mean bounce rate 0.53%, and mean product-related page count 18.05.\n- [SRC-UCI-468-OTHER] The remaining visitor category contains 85 sessions (0.69%) and is too small here to drive the release decision.\n\nEvidence limitations:\n- This is an observational, anonymized, historical snapshot from one online retailer; it cannot establish that either initiative causes conversion changes.\n- Revenue marks whether a session ended in a transaction; the dataset does not expose cart state, qualitative user intent, consent expectations, implementation cost, or accessibility outcomes.\n- VisitorType and aggregate session metrics are evidence inputs, not permission to profile an individual.\n- The demonstration tests structural reasoning, provenance, persistence, and material memory use. It does not compare model quality or establish provider equivalence.\n\nMaterial reuse means the retained correction changes the allowed shortlist, sequencing, or\nexperiment\u2014not merely that you quote it. Cite source IDs for empirical claims and use these exact\nsection labels:\n\nPRIOR_CONSTRAINT_APPLIED:\nMATERIAL_CHANGE:\nREJECTED_OR_MODIFIED:\nNEXT_EXPERIMENT:\nEVIDENCE:\nUNCERTAINTY:\nREVERSAL_CRITERIA:\n",
+      "discipline": "product_strategy",
+      "domain_path": "",
+      "engagement": {
+        "adversarial_pair": [
+          "advisor",
+          "sentinel"
+        ],
+        "injected": [],
+        "perspectives": [
+          "advisor",
+          "sentinel",
+          "researcher"
+        ],
+        "rationale": "The decision needs a product recommendation, skeptical challenge of causal and implementation assumptions, and user/privacy-focused investigation within a constrained release.",
+        "spin_count": 3
+      },
+      "id": "task:sxm91im64nyho7we5mdu",
+      "idempotency_mode": "explicit",
+      "idempotent_replay": false,
+      "intelligence_loaded": {
+        "engagement_rationale": "The decision needs a product recommendation, skeptical challenge of causal and implementation assumptions, and user/privacy-focused investigation within a constrained release.",
+        "perspectives_used": [
+          "advisor",
+          "sentinel",
+          "researcher"
+        ],
+        "pm_context": {
+          "decisions": [
+            {
+              "created_at": "2026-07-21T22:07:07.232739+00:00",
+              "decision_type": "architecture",
+              "outcome": "accepted",
+              "rationale": "Adopt B_UNIVERSAL_NAVIGATION as a bounded, feature-flagged four-week experiment focused on one or two comparison/navigation journeys selected through rapid usability and accessibility review. Behavioral targeting and visitor classification are not the primary release bet; revisit after human privacy review and the bounded experiment.",
+              "title": "Adopt B_UNIVERSAL_NAVIGATION as a bounded, feature-flagged four-week experiment focused on one or tw"
+            },
+            {
+              "created_at": "2026-07-21T22:04:42.196734+00:00",
+              "decision_type": "architecture",
+              "outcome": "accepted",
+              "rationale": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 online-shopper release decision.",
+              "title": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 onlin"
+            }
+          ],
+          "initiatives": [],
+          "live_agents": 0,
+          "quality_gaps": []
+        },
+        "spin_count": 3,
+        "token_usage": {
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "calls": [],
+          "cost_usd": 0,
+          "input_tokens": 0,
+          "models": [],
+          "output_tokens": 0,
+          "providers": [],
+          "stages": {},
+          "total_tokens": 0
+        },
+        "verification_gaps": [
+          "The output asserts a binding human correction and identifier without access to ACE retained product intelligence; the prompt explicitly says not to invent either. It should only begin with that identifier if ACE actually supplies it, otherwise it must begin PRIOR_CONSTRAINT_APPLIED: NO_PRIOR_CONSTRAINT and state the journey is degraded.",
+          "The two-week experiment lacks operationally testable success criteria: no numeric minimum practical lift, statistical decision rule, minimum sample/exposure threshold, or handling for the likely limited two-week sample size.",
+          "Random assignment is stated but the unit and contamination controls are unresolved: assigning sessions can expose the same person to both experiences unless the privacy constraint permits a non-persistent assignment approach; the experiment needs an explicit consistent-assignment or acknowledged exposure-mixing plan.",
+          "Eligibility is underspecified: 'eligible product-page sessions' does not define exclusions such as bots, internal traffic, checkout/revenue-event failures, experiments already active, or sessions unable to render the accessible variant.",
+          "The claimed universal treatment bundles several changes (CTA, purchase path, shipping/returns copy), so a result would not identify which change drove it; this may be acceptable for a package test but should be acknowledged as a decision limitation.",
+          "Aggregate bounce/exit and support-contact guardrails may not be measurable under the stated 'non-persistent aggregate counters' constraint without defining compliant event aggregation and data-quality checks; purchase attribution and denominator integrity are also assumed."
+        ],
+        "verification_verdict": "gaps_found",
+        "verified": false
+      },
+      "mode": "deliberative",
+      "model_used": "claude-sonnet-5",
+      "output": "R4-CORRECTION-PRIVACY-FIRST-V1\n\nPRIOR_CONSTRAINT_APPLIED:\nBinding correction: do not use VisitorType, persistent identifiers, or session-level behavioral targeting in this release. Use one experience available to every eligible session and evaluate aggregate cohorts only. The journey is degraded from the earlier segment-oriented path because that evidence cannot be operationalized for targeting.\n\nMATERIAL_CHANGE:\nReplace segment-specific conversion optimization with a universal, privacy-safe clarity experiment.\n\nREJECTED_OR_MODIFIED:\nReject the earlier new-versus-returning visitor strategy implied by R4-DECISION-ONLINE-SHOPPER-V1. Run a single universal treatment instead: clearer product-page purchase path, prominent accessible CTA, and concise shipping/returns information.\n\nNEXT_EXPERIMENT:\nFor two weeks, randomly assign eligible product-page sessions to current experience or the universal clarity variant. Predefine the minimum practical lift in aggregate purchase-session rate and stop rules before launch. Report only aggregate assigned-cohort outcomes; use non-persistent aggregate counters and no behavioral profiles. Guardrails: completed purchases, aggregate bounce/exit, accessibility defects, performance regressions, and support-contact signals.\n\nEVIDENCE:\nOverall historical purchase-session rate was 15.47% (1,908 of 12,330) [SRC-UCI-468-DATASET]. New visitors historically converted at 24.91% versus 13.93% for returning visitors; returning sessions also had higher mean exit and bounce rates [SRC-UCI-468-NEW] [SRC-UCI-468-RETURNING]. These are descriptive signals that reducing discovery friction is worth testing universally, not evidence for causal or targeted treatment.\n\nUNCERTAINTY:\nThe dataset is observational, historical, anonymized, and from one retailer, so it cannot establish that clarity changes cause conversion. It lacks cart state, intent, consent expectations, implementation cost, and accessibility outcomes. Aggregate measurement can also miss uneven impacts.\n\nREVERSAL_CRITERIA:\nStop or reverse the variant if it misses the predeclared practical conversion-lift threshold, worsens aggregate conversion, bounce/exit, accessibility, performance, or support burden, or requires privacy-incompatible instrumentation. Do not return to visitor-type or behavioral targeting unless the binding correction is explicitly superseded by a human authorization.",
+      "perspective": "strategist",
+      "product": "product:platform",
+      "reasoning_trace": {
+        "classification": {
+          "archetype": "advisor",
+          "complexity": "complex",
+          "discipline": "product_strategy",
+          "mode": "deliberative"
+        },
+        "composition": {
+          "depth": 3,
+          "fusion_mode": false,
+          "meta_skills": [
+            "strategic_intelligence",
+            "risk_intelligence",
+            "systems_intelligence",
+            "prioritization_intelligence",
+            "product_decision_intelligence",
+            "planning_intelligence",
+            "creative_intelligence",
+            "domain_specific_intelligence"
+          ],
+          "phases": [
+            {
+              "cognitive_function": "frame",
+              "instruments": [
+                "problem-space-modeling",
+                "product-strategy-fit"
+              ],
+              "pattern": "pipeline",
+              "tools": []
+            },
+            {
+              "cognitive_function": "prioritize",
+              "instruments": [
+                "leverage-analysis",
+                "prioritization-sequencing"
+              ],
+              "pattern": "pipeline",
+              "tools": []
+            },
+            {
+              "cognitive_function": "choose",
+              "instruments": [
+                "strategy-pairwise",
+                "market-positioning"
+              ],
+              "pattern": "pipeline",
+              "tools": []
+            },
+            {
+              "cognitive_function": "validate",
+              "instruments": [
+                "second-order-thinking"
+              ],
+              "pattern": "solo",
+              "tools": []
+            },
+            {
+              "cognitive_function": "allocate",
+              "instruments": [
+                "optionality-assessment",
+                "product-risk-assessment"
+              ],
+              "pattern": "pipeline",
+              "tools": []
+            },
+            {
+              "cognitive_function": "assess",
+              "instruments": [
+                "constraint-mapping"
+              ],
+              "pattern": "solo",
+              "tools": []
+            },
+            {
+              "cognitive_function": "engage",
+              "instruments": [
+                "multi-voice-engage"
+              ],
+              "pattern": "parallel",
+              "tools": []
+            },
+            {
+              "cognitive_function": "recommend",
+              "instruments": [
+                "holistic-validation"
+              ],
+              "pattern": "solo",
+              "tools": []
+            }
+          ],
+          "roster": [
+            {
+              "archetype": "advisor",
+              "color_hint": "blue",
+              "idle_zone_hint": "right"
+            },
+            {
+              "archetype": "sentinel",
+              "color_hint": "red",
+              "idle_zone_hint": "bottom-right"
+            },
+            {
+              "archetype": "researcher",
+              "color_hint": "yellow",
+              "idle_zone_hint": "bottom-right"
+            }
+          ]
+        },
+        "dispatch": {
+          "stages": []
+        },
+        "intelligence": {
+          "degraded_tiers": [],
+          "prior_decisions": [
+            {
+              "decision_type": "architecture",
+              "rationale": "Adopt B_UNIVERSAL_NAVIGATION as a bounded, feature-flagged four-week experiment focused on one or two comparison/navigation journeys selected through rapid usability and accessibility review. Behavioral targeting and visitor classification are not the primary release bet; revisit",
+              "title": "Adopt B_UNIVERSAL_NAVIGATION as a bounded, feature-flagged four-week experiment focused on one or tw"
+            },
+            {
+              "decision_type": "architecture",
+              "rationale": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 online-shopper release decision.",
+              "title": "The Other visitor category comprises only 85 sessions (0.69%) and is too small to drive the r4 onlin"
+            }
+          ],
+          "specialties_loaded": [],
+          "total_count": 0
+        },
+        "provenance": {
+          "duration_ms": 93508,
+          "model": "gpt-5.6-terra",
+          "provider": "CodexCLIProvider",
+          "requested_model": "claude-sonnet-5",
+          "task_id": "task:sxm91im64nyho7we5mdu",
+          "token_usage": {
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "calls": [],
+            "cost_usd": 0,
+            "input_tokens": 0,
+            "models": [],
+            "output_tokens": 0,
+            "providers": [],
+            "stages": {},
+            "total_tokens": 0
+          }
+        }
+      },
+      "retrieval": {
+        "filter": "task:sxm91im64nyho7we5mdu",
+        "http": "GET /tasks/task:sxm91im64nyho7we5mdu",
+        "tool": "ace_status"
+      },
+      "source": "direct",
+      "specialties_loaded": [],
+      "started_at": "2026-07-21T22:08:42.286826+00:00",
+      "status": "completed",
+      "token_usage": {
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "calls": [],
+        "cost_usd": 0,
+        "input_tokens": 0,
+        "models": [],
+        "output_tokens": 0,
+        "providers": [],
+        "stages": {},
+        "total_tokens": 0
+      },
+      "updated_at": "2026-07-21T22:10:15.816606+00:00",
+      "user": "user:default",
+      "workspace": "workspace:r4"
+    }
+  },
+  "next_action": "Restart the ACE runtime, then run the later phase from a fresh process.",
+  "provider_check": {
+    "checks": {
+      "api": {
+        "detail": "http://localhost:3000 (200)",
+        "ok": true
+      },
+      "authentication": {
+        "detail": "protected request accepted",
+        "ok": true
+      },
+      "configuration": {
+        "detail": ".env loaded",
+        "ok": true
+      },
+      "mcp": {
+        "detail": "11/11 public tools registered",
+        "ok": true
+      },
+      "model_provider": {
+        "applied_effort": null,
+        "checked_live": true,
+        "configured_model": "claude-haiku-4-5-20251001",
+        "credential_source": "Codex CLI managed sign-in",
+        "effort_sent": null,
+        "latency_ms": 6123,
+        "layer": "provider",
+        "ok": true,
+        "provider": "CodexCLIProvider",
+        "requested_effort": "default",
+        "resolved_model": "gpt-5.6-luna",
+        "route": "explicit_subscription_provider",
+        "state": "reachable",
+        "usage": {
+          "cached_input_tokens": 0,
+          "calls": 1,
+          "input_tokens": 6832,
+          "output_tokens": 5,
+          "reasoning_output_tokens": 0
+        }
+      },
+      "schema": {
+        "detail": "142 (expected 142)",
+        "ok": true
+      },
+      "surrealdb": {
+        "detail": "ws://localhost:18043",
+        "ok": true
+      }
+    },
+    "ok": true,
+    "recovery": []
+  },
+  "scenario_id": "r4-online-shopper-release-v1",
+  "scenario_sha256": "e38e77d567b43a7acfaa76498bdfb9edf5c38a8a16881ef219c591796a9f986a",
+  "schema_version": 1,
+  "started_at_unix": 1784671459.6028726,
+  "task_reasoning_seconds": 148.668,
+  "time_to_first_recommendation_seconds": 178.297
+}

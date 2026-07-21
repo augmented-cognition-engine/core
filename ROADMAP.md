@@ -7,10 +7,11 @@ Priorities may change as maintainers learn from users and contributors.
 ## Current release checkpoint
 
 `ace-core` 0.1.0 is published on PyPI and GitHub. The release, package artifacts, trusted
-publishing path, and a clean public-index wheel installation have been verified. The current
-onboarding gate is now proven in clean macOS and Linux proxy trials: a product builder can
-understand ACE, reach a useful reasoning outcome, and complete the supported self-hosted
-journey without maintainer knowledge or prior familiarity with ACE's architecture.
+publishing path, and a clean public-index wheel installation have been verified. The onboarding
+gate is proven in clean macOS and Linux proxy trials. The reproducible product-builder golden path
+now also shows a public evidence-backed decision, inspectable reasoning, a retained human
+correction, real runtime restart, and material later use through the supported CLI and eleven-tool
+MCP boundary.
 
 Roadmap outcome states are used strictly:
 
@@ -41,7 +42,7 @@ Roadmap outcome states are used strictly:
 | R1 | passed | Make first use effortless and outcome-led for product builders, not only developers | [Clean-trial evidence](docs/r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
 | R2 | passed | Ship a focused 0.1.1 onboarding, packaging, and documentation release | [Release evidence](docs/r2-release-evidence.md): clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install all passed against verified main commit `1662eaa` |
 | R3 | passed | Validate provider setup, authentication, diagnostics, and degraded behavior | [Provider validation evidence](docs/r3-provider-validation.md): supported matrix, deterministic degraded-state coverage, live Claude and GPT subscription routes, honest effort reporting, and green current-main CI |
-| R4 | ready | Publish a reproducible, product-builder golden-path demonstration | R1 and R3 have passed; begin with a recognizable product decision and show capture, reasoning, durable restart, later material use, inspectable evidence, and honest limitations without requiring the audience to understand ACE internals |
+| R4 | passed | Publish a reproducible, product-builder golden-path demonstration | [Golden-path evidence](docs/product-builder-golden-path.md): a checksum-frozen public product decision completed through the supported Codex subscription route, persisted a binding human correction across a real service restart, materially changed a fresh later experiment, retained inspectable provenance, and recorded failures and portability limits without widening the eleven-tool boundary |
 
 ## Next — durable product partnership
 

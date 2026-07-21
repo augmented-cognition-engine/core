@@ -98,7 +98,7 @@ Restart the supported local runtime while preserving its named data volume:
 ```bash
 uv run ace service stop
 uv run ace service start
-uv run ace doctor --json-output
+uv run ace doctor --live-provider --provider-timeout 60 --json-output
 ```
 
 Now open a fresh terminal in the same clean clone. Re-export only the disposable ACE configuration
@@ -152,6 +152,46 @@ uv run python scripts/verify_product_builder_golden_path.py portable \
 This confirms only that the same public question can produce the required structure and provenance
 through another supported route. Different prose or recommendations are allowed. It does not
 establish model superiority, equal quality, matched token budgets, or cross-provider equivalence.
+
+## Accepted replay evidence
+
+The accepted 2026-07-21 clean replay began with zero intelligence records for the frozen domain,
+then completed the initial decision as `task:dl1khir4ch3zyvkbgqfh`. ACE recommended the universal
+navigation experiment with advisor, sentinel, and researcher perspectives across eight inspectable
+composition phases. The task receipt records `CodexCLIProvider`, configured semantic model
+`claude-sonnet-5`, resolved model `gpt-5.6-terra`, and 131,727 ms route latency.
+
+After the API and database container stopped and restarted, a new client process completed
+`task:sxm91im64nyho7we5mdu`. It loaded `R4-CORRECTION-PRIVACY-FIRST-V1` without receiving that
+identifier or its text in the later prompt, rejected the earlier new-versus-returning visitor
+strategy, and replaced it with one universal aggregate-cohort experiment. The later receipt records
+the same provider/model route and 93,508 ms latency. Initial and later output hashes differ.
+
+The live diagnostic separately records the fast-role route to `gpt-5.6-luna`, default provider
+effort, 6,123 ms latency, and 11/11 public MCP tools. The task adapter did not expose attributable
+token or cost telemetry; zero-valued internal counters are not interpreted as zero real usage or
+zero cost. Subscription-backed per-task cost therefore remains unknown.
+
+The accepted replay host did not have a `claude` executable, so the bounded second-provider model
+request was not run and no provider was silently substituted. The canonical Codex subscription run
+remains authoritative. This is an AI-operated stranger replay, not independent human usability
+validation.
+
+Sanitized evidence is committed in:
+
+- [`r4_product_builder_golden_path_live_v1.json`](../evaluations/results/r4_product_builder_golden_path_live_v1.json)
+- [`r4_product_builder_golden_path_state_v1.json`](../evaluations/results/r4_product_builder_golden_path_state_v1.json)
+- [`r4_product_builder_provider_check_v1.json`](../evaluations/results/r4_product_builder_provider_check_v1.json)
+- [`r4_product_builder_provider_portability_v1.json`](../evaluations/results/r4_product_builder_provider_portability_v1.json)
+- [`r4_product_builder_failures_v1.json`](../evaluations/results/r4_product_builder_failures_v1.json)
+
+Closeout verification reproduced the UCI aggregate from CSV SHA-256
+`b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9`, passed 6,323
+non-E2E tests, passed 6,315 zero-extension tests plus four explicit kernel-boundary tests, and
+passed all 279 Canvas tests, TypeScript checking, and the naked Canvas build. Ruff lint and format
+checks passed across 1,764 files, the no-cache Docker image built, and `pip-audit` reported no known
+vulnerabilities after the lock was refreshed from GitPython 3.1.50 to 3.1.53 for three newly
+published advisories.
 
 ## Honest failure and recovery
 
