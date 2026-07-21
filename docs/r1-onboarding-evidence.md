@@ -252,8 +252,13 @@ Post-merge main run
 [29845885052](https://github.com/augmented-cognition-engine/core/actions/runs/29845885052)
 passed the same six jobs at
 `9c8d736d6862d9b4e42226e9e3705582f0557510`. The passing Linux rerun and
-doctor recovery change receive their own complete PR and post-merge main CI
-links during final closeout.
+doctor recovery change are in PR
+[#11](https://github.com/augmented-cognition-engine/core/pull/11); its first
+complete six-check candidate CI run
+[29850236873](https://github.com/augmented-cognition-engine/core/actions/runs/29850236873)
+passed Lint, Security Audit, Canvas, fast gate, naked kernel, and Docker Build.
+Post-merge main is verified as an external closeout step because that run does
+not exist until this evidence has merged.
 
 The versioned roadmap files are reconciled to `passed`. The CLI token lacked
 GitHub Project scopes, so the already-authorized GitHub browser session was used
