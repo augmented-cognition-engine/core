@@ -62,6 +62,7 @@ def test_synapse_count_in_query():
 
     source = inspect.getsource(_get_specialty_metrics)
     assert "specialty_affinity" in source
+    assert "RETURN {" in source
 
 
 @pytest.mark.asyncio
@@ -86,6 +87,30 @@ async def test_synapse_count_returned_from_db():
         result = await _get_specialty_metrics(mock_db, "specialty:sec", "product:test")
 
     assert result["synapse_count"] == 7
+
+
+@pytest.mark.asyncio
+async def test_empty_specialty_mean_normalizes_nan_to_zero():
+    """SurrealDB 3.1 returns NaN for the mean of an empty subquery."""
+    from math import nan
+    from unittest.mock import AsyncMock, patch
+
+    from core.engine.intelligence.maturation import _get_specialty_metrics
+
+    mock_db = AsyncMock()
+    with patch(
+        "core.engine.intelligence.maturation.parse_one",
+        return_value={
+            "insight_count": 0,
+            "avg_confidence": nan,
+            "verified_corrections": 0,
+            "successful_tasks": 0,
+            "synapse_count": 0,
+        },
+    ):
+        result = await _get_specialty_metrics(mock_db, "specialty:empty", "product:test")
+
+    assert result["avg_confidence"] == 0
 
 
 # ── _calculate_aggregate() ────────────────────────────────────────────────────

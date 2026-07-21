@@ -7,6 +7,7 @@ Implements the scoring rubric from docs/ace-16-maturation-model.md.
 from __future__ import annotations
 
 import logging
+import math
 from datetime import datetime, timezone
 from enum import IntEnum
 
@@ -272,21 +273,26 @@ async def _get_specialty_metrics(db, node_id: str, product_id: str) -> dict:
     """Gather metrics for a specialty from the intelligence graph."""
     result = await db.query(
         """
-        SELECT
-            count(SELECT id FROM insight WHERE specialty = $id AND status = 'active') AS insight_count,
-            math::mean(SELECT VALUE confidence FROM insight WHERE specialty = $id AND status = 'active') AS avg_confidence,
-            count(SELECT id FROM insight WHERE specialty = $id AND insight_type = 'correction' AND status = 'active') AS verified_corrections,
-            count(SELECT id FROM task WHERE domain_path CONTAINS $slug AND feedback_human = 'accepted') AS successful_tasks,
-            count(SELECT id FROM specialty_affinity WHERE (specialty_a = $id OR specialty_b = $id) AND org = <record>$product) AS synapse_count
+        RETURN {
+            insight_count: count(SELECT id FROM insight WHERE specialty = $id AND status = 'active'),
+            avg_confidence: math::mean(SELECT VALUE confidence FROM insight WHERE specialty = $id AND status = 'active'),
+            verified_corrections: count(SELECT id FROM insight WHERE specialty = $id AND insight_type = 'correction' AND status = 'active'),
+            successful_tasks: count(SELECT id FROM task WHERE domain_path CONTAINS $slug AND feedback_human = 'accepted'),
+            synapse_count: count(SELECT id FROM specialty_affinity WHERE (specialty_a = $id OR specialty_b = $id) AND org = <record>$product)
+        }
         """,
         {"id": node_id, "slug": str(node_id), "product": product_id},
     )
 
     row = parse_one(result) or {}
 
+    avg_confidence = row.get("avg_confidence", 0)
+    if not isinstance(avg_confidence, (int, float)) or not math.isfinite(float(avg_confidence)):
+        avg_confidence = 0
+
     return {
         "insight_count": row.get("insight_count", 0),
-        "avg_confidence": row.get("avg_confidence", 0) or 0,
+        "avg_confidence": avg_confidence,
         "verified_corrections": row.get("verified_corrections", 0),
         "synapse_count": row.get("synapse_count", 0),  # Phase 2 — now wired
         "successful_tasks": row.get("successful_tasks", 0),
