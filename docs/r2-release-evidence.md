@@ -144,9 +144,15 @@ credential was touched.
 
 ## Public release gates and URLs
 
-Not yet available at candidate reconciliation:
+Candidate public gates captured:
 
-- release PR and complete candidate CI;
+- ready release PR: https://github.com/augmented-cognition-engine/core/pull/12;
+- complete candidate CI: https://github.com/augmented-cognition-engine/core/actions/runs/29854461273
+  (`success`; all six jobs green in 4m16s against
+  `011389f85d14bcd8803c8766605df6ada3de02ce`).
+
+Still pending:
+
 - merged-main SHA and post-merge CI;
 - `v0.1.1` tag and tag SHA;
 - trusted-publishing run;
@@ -167,7 +173,7 @@ until R3 passes as well.
 - Legacy `skills` CLI/API/code remains callable compatibility surface; R2 changes visibility only
   and does not begin recipe convergence or migration.
 
-Exact next work is to open the bounded ready PR, wait for all six CI jobs, merge only if green,
+Exact next work is to let the evidence-only follow-up pass all six PR jobs, merge only if green,
 verify merged-main CI, tag that exact SHA as `v0.1.1`, publish through trusted OIDC, verify the
 GitHub Release, and perform a fresh `ace-core==0.1.1` install from the public PyPI index. Only then
 may evidence, versioned roadmap, roadmap status, and the live project move R2 to `passed`.
