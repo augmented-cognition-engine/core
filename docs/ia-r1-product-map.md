@@ -107,7 +107,7 @@ not grant or simulate authority.
 
 Reconciled IA-R1 verification from the isolated worktree records:
 
-| Gate | Candidate result |
+| Gate | Result |
 |---|---|
 | Focused API and product-map projection/render/failure tests | **9 passed** |
 | Canvas TypeScript and production build | **passed** |
@@ -124,6 +124,11 @@ Reconciled IA-R1 verification from the isolated worktree records:
 The focused tests prove the pinned authenticated GET, signed product scope, operator question
 hierarchy, distinct operational/contested/rejected lanes, correction and outcome placement,
 degraded-source disclosure, stable receipt visibility, and GET-only retry behavior.
+
+The first clean branch run correctly rejected the new root-README evidence link because it was
+relative and therefore not release-ready in installed package copy. The link was changed to its
+public GitHub URL; all six package-identity checks then passed locally, and the complete replacement
+branch run passed. No runtime or authority behavior changed in that remediation.
 
 The first sandboxed full-suite attempt produced four loopback permission failures and one false G1
 replay failure because the original checkout's dirty editable install shadowed the isolated
@@ -152,4 +157,5 @@ gate.
 Full local verification, visual inspection, green branch CI, and versioned roadmap reconciliation
 move IA-R1 to `passed`. Green final-head and merged-main CI remain required integrity checks; a
 failure reopens the outcome and is not waived by this document. I1 remains separately scoped and
-receives no approval-receipt or execution authority from IA-R1.
+receives no mutation, approval-disposition, execution, extension, model-inference, or MCP authority
+from IA-R1.
