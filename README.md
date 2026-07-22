@@ -190,9 +190,11 @@ ace run "should we ship the freemium tier this quarter?"
 ### `Atrium` — experimental visual-product research
 Atrium is the experimental visual-product/research track where Canvas interactions are prototyped
 and studied. Current work explores how committee formation, contributions, stages, disagreement,
-and convergence might become visible. Its source and separate Node app are included in the public
-repository as a beta, but not in the Python wheel/sdist, golden path, supported-runtime claims, or
-launch promise.
+and convergence might become visible. Its read-only **Product map** at `/landscape` organizes the
+G1 snapshot around six operator questions without adding write or execution authority; the
+[IA-R1 evidence](https://github.com/augmented-cognition-engine/core/blob/main/docs/ia-r1-product-map.md) records its boundary and limits. Its source and separate
+Node app are included in the public repository as a beta, but not in the Python wheel/sdist, golden
+path, supported-runtime claims, or launch promise.
 
 ---
 

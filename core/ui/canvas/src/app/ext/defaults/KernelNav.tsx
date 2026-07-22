@@ -6,7 +6,7 @@
 // expected to link back to the room.
 import { type ComponentType } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutGrid, StickyNote, Users } from 'lucide-react'
+import { LayoutGrid, Map, StickyNote, Users } from 'lucide-react'
 
 import {
   Sidebar,
@@ -30,6 +30,7 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { href: '/atrium', icon: Users, label: 'Atrium' },
+  { href: '/landscape', icon: Map, label: 'Product map' },
   { href: '/board', icon: StickyNote, label: 'The Board' },
   { href: '/showcase', icon: LayoutGrid, label: 'Showcase' },
 ]

@@ -110,6 +110,7 @@ const kernelProxy: Record<string, ProxyOptions | string> = Object.fromEntries(
       ['/proactive', true],
       ['/briefings', false],
       ['/portal', false],
+      ['/product', false],
       ['/auth', false],
       ['/recommendations', false],
       ['/decisions', false],
