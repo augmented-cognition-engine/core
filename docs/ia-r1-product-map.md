@@ -1,6 +1,6 @@
 # IA-R1 — read-only product-map information architecture
 
-**Outcome state:** implementation candidate; branch/final-head/main CI and roadmap closeout pending
+**Outcome state:** passed; final-head and merged-main CI remain integrity checks
 
 **Evidence date:** 2026-07-21
 
@@ -105,7 +105,7 @@ not grant or simulate authority.
 
 ## Verification
 
-Local candidate verification from the isolated IA-R1 worktree currently records:
+Reconciled IA-R1 verification from the isolated worktree records:
 
 | Gate | Candidate result |
 |---|---|
@@ -118,7 +118,8 @@ Local candidate verification from the isolated IA-R1 worktree currently records:
 | Explicit kernel boundary | **4 passed** |
 | Ruff lint and formatting | **passed**; 1,770 files formatted |
 | Diff whitespace and changed-file secret checks | **passed** |
-| Branch, final-head, and merged-main CI | pending |
+| Branch CI | **passed** — [all six required jobs](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) |
+| Final-head and merged-main CI | pending integrity checks; failures reopen IA-R1 |
 
 The focused tests prove the pinned authenticated GET, signed product scope, operator question
 hierarchy, distinct operational/contested/rejected lanes, correction and outcome placement,
@@ -148,8 +149,7 @@ gate.
 
 ## Reconciliation rule
 
-Implementation alone leaves IA-R1 as a candidate. It may move to `passed` only after full local
-verification, visual inspection, green branch CI, versioned roadmap reconciliation, green
-final-head CI, merge, and green main CI. A failed gate reopens the outcome; it is not waived by this
-document. I1 remains separately scoped and receives no approval-receipt or execution authority from
-IA-R1.
+Full local verification, visual inspection, green branch CI, and versioned roadmap reconciliation
+move IA-R1 to `passed`. Green final-head and merged-main CI remain required integrity checks; a
+failure reopens the outcome and is not waived by this document. I1 remains separately scoped and
+receives no approval-receipt or execution authority from IA-R1.

@@ -31,7 +31,7 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | R3 | Now | passed | [`r3-provider-validation.md`](r3-provider-validation.md) records the frozen provider/auth matrix, structured diagnostics, deterministic degraded states, live Claude and Codex/GPT subscription smokes, honest effort limits, and green current-main CI |
 | R4 | Now | passed | [Product-builder golden-path evidence](product-builder-golden-path.md) records a checksum-frozen public scenario, live Codex/GPT route, zero-intelligence clean start, inspectable multi-perspective reasoning, decision and correction capture, real service restart, fresh-invocation material reuse, bounded failures, exact eleven-tool preservation, and explicit portability and usability limitations |
 | G1 | Next | passed | [`g1-living-product-graph-evidence.md`](g1-living-product-graph-evidence.md) records the frozen contract, supported `ace landscape` journey, deterministic replay, accepted/provisional/contested/rejected behavior, bounded failures, restart parity, strict read-only authority, and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) |
-| IA-R1 | Next | candidate | [Read-only product-map evidence](ia-r1-product-map.md) records the six-question operator hierarchy, strict GET-only boundary, visible uncertainty/failures, local verification, and remaining branch/final-head/main CI closeout |
+| IA-R1 | Next | passed | [Read-only product-map evidence](ia-r1-product-map.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) record the six-question operator hierarchy, strict GET-only boundary, visible uncertainty/failures, local verification, and roadmap closeout |
 | I1 | Next | ready | G1's stable read contract and R4's developer-preview golden path have passed; inspectability work may start without adding execution authority, after the smaller IA-R1 operator-view slice is framed |
 | T1 | Next | not ready | Recovery, replay, portability, cancellation, and resource guarantees are not yet frozen |
 | E1 | Next | not ready | Depends on conformance evidence and preservation of the eleven-tool boundary |
@@ -50,12 +50,10 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
    assertions, provider provenance, failure matrix, and exact eleven-tool boundary.
 4. **Completed — G1:** preserve the versioned `ace landscape` contract, deterministic evidence,
    visible uncertainty, and strict read-only boundary established by the G1 closeout.
-5. **Candidate — IA-R1:** preserve the locally verified `/landscape` hierarchy and strict
-   read-only boundary; require green branch, final-head, and merged-main CI before moving the
-   outcome to passed.
-6. **Ready, sequence after IA-R1 — I1:** both stated dependencies now pass, but keep the next slice
-   thin: establish the read-only operator information architecture before expanding approval-
-   receipt or outcome inspection behavior.
+5. **Completed — IA-R1:** preserve the verified `/landscape` hierarchy, visible uncertainty and
+   provenance, bounded failures, and strict read-only boundary established by the IA-R1 closeout.
+6. **Next thin slice — I1:** both stated dependencies and the smaller IA-R1 operator-view slice
+   pass; expand approval-receipt and outcome inspection behavior without adding execution authority.
 
 An outcome moves to `passed` only when scope, acceptance checks, evidence, limitations, roadmap
 reconciliation, and downstream readiness have all been recorded. Implementation alone is
