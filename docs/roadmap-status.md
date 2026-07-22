@@ -33,12 +33,24 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | G1 | Next | passed | [`g1-living-product-graph-evidence.md`](g1-living-product-graph-evidence.md) records the frozen contract, supported `ace landscape` journey, deterministic replay, accepted/provisional/contested/rejected behavior, bounded failures, restart parity, strict read-only authority, and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) |
 | IA-R1 | Next | passed | [Read-only product-map evidence](ia-r1-product-map.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) record the six-question operator hierarchy, strict GET-only boundary, visible uncertainty/failures, local verification, and roadmap closeout |
 | I1 | Next | ready | G1's stable read contract, R4's developer-preview golden path, and IA-R1's bounded operator hierarchy have passed; the separately scoped inspectability slice may start without adding execution authority |
+| I2 | Next | not ready | Attributable perspective selection, bounded contributor positions, disagreement, and synthesis depend on I1 identities and must not expose hidden chain-of-thought |
+| I3 | Next | not ready | Inspectable retained-intelligence use and exact decision effects depend on I1 identities plus R3 route evidence; null, harmful, stale, contested, failure, and degraded cases remain first-class |
 | T1 | Next | not ready | Recovery, replay, portability, cancellation, and resource guarantees are not yet frozen |
 | E1 | Next | not ready | Depends on conformance evidence and preservation of the eleven-tool boundary |
 | B1 | Later | not ready | Depends on inspectable approval receipts and explicit execution authority |
-| L1 | Later | not ready | Depends on stable outcome identity, provenance, and calibration evidence |
+| L1 | Later | not ready | Depends on I3 material-use evidence plus stable outcome identity, provenance, and calibration evidence; material influence alone is not assumed beneficial |
 | H1 | Later | not ready | Depends on tenancy, portability, authority, and recovery guarantees |
 | E2 | Later | not ready | Depends on E1 conformance and stable compatibility policy |
+
+I1-01 has a candidate implementation: structured task decisions reuse `task` and `decision`,
+authenticated task feedback supplies human disposition, and linked correction observations are
+retrievable through the existing status/capture/load contracts. The overall I1 outcome remains
+`ready`, not passed: the I1-01 disposable real-API restart test preserves the same decision ID, correction
+ID, and relationship across fresh processes. Production API startup now owns the schema-zero-to-
+v144 replay in that proof; it passes on the supported SurrealDB 3.1.4 pin and 3.2.1, while unknown
+future receipt versions degrade without being reinterpreted as v1. Compatibility reconciliation
+across the full supported journey and the remaining I1 cases are incomplete. This slice is not
+evidence that persistence improves decision correctness or benefit.
 
 ## Exact next dispatch
 

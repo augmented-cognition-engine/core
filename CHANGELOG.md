@@ -10,6 +10,16 @@ Notable user- and contributor-visible changes are recorded here.
 - Correct top-level CLI identity copy and hide the legacy experimental `ace skills` command and
   `ace run --skill` selector from default help. Both remain callable for compatibility; this is a
   visibility cleanup, not removal, migration, or a new cognition abstraction.
+- Durable public task receipts expose contributor and phase coverage in an `execution` block,
+  including explicit partial-result attention without discarding usable output.
+- The experimental conflict workflow now persists product-scoped pending conflicts and quarantines
+  both claims atomically, writes a durable attention signal, and returns provenance-bearing claims
+  and resolution actions through the authenticated conflict API.
+- Candidate I1 decision and correction receipts preserve structured decisions, authenticated human
+  disposition, typed correction relationships, explicit legacy/future-version degradation, and
+  API-owned restart persistence without widening the eleven-tool MCP surface.
+- API startup and the standalone schema installer share one audited historical-migration
+  compatibility policy while migrations v142 and later remain fail-closed.
 
 ## 0.1.1
 
