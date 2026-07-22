@@ -78,9 +78,12 @@ async def test_check_new_insights_creates_conflict_records():
             ],
             # Check for existing conflict between these two
             [[]],
-            # CREATE conflict
-            [{"id": "conflict:abc"}],
+            # Product attention signal after the atomic conflict transaction
+            [],
         ]
+    )
+    mock_db.query_raw = AsyncMock(
+        return_value={"result": [{"status": "OK"}, {"status": "OK"}, {"status": "OK"}, {"status": "OK"}]}
     )
 
     mock_llm = AsyncMock()
@@ -99,6 +102,18 @@ async def test_check_new_insights_creates_conflict_records():
     )
     assert result["conflicts_found"] == 1
     assert result["pairs_checked"] == 1
+    assert result["attention_required"] is True
+    assert len(result["conflict_ids"]) == 1
+    assert result["conflict_ids"][0].startswith("conflict:")
+
+    queries = [call.args[0] for call in mock_db.query.call_args_list]
+    transaction = mock_db.query_raw.call_args.args[0]
+    assert "BEGIN;" in transaction
+    assert "product = $product" in transaction
+    assert "status = 'pending'" in transaction
+    assert transaction.count("status = 'contested'") == 2
+    assert "COMMIT" in transaction
+    assert any("CREATE proactive_signal" in query for query in queries)
 
 
 @pytest.mark.asyncio
@@ -155,11 +170,12 @@ async def test_sweep_respects_max_comparisons_budget():
         for i in range(20)
     ]
 
-    # Build interleaved mock responses: for each pair, conflict check (empty) then CREATE
+    # Each pair performs an existing-conflict check and then writes the durable
+    # attention signal after its separate atomic conflict transaction.
     pair_responses = []
-    for j in range(100):
+    for _ in range(100):
         pair_responses.append([[]])  # conflict check — no existing
-        pair_responses.append([{"id": f"conflict:{j}"}])  # CREATE conflict
+        pair_responses.append([])  # proactive signal
 
     mock_db = AsyncMock()
     mock_db.query = AsyncMock(
@@ -168,6 +184,9 @@ async def test_sweep_respects_max_comparisons_budget():
             [insights],
             *pair_responses,
         ]
+    )
+    mock_db.query_raw = AsyncMock(
+        return_value={"result": [{"status": "OK"}, {"status": "OK"}, {"status": "OK"}, {"status": "OK"}]}
     )
 
     mock_llm = AsyncMock()
@@ -186,6 +205,36 @@ async def test_sweep_respects_max_comparisons_budget():
     )
 
     assert result["pairs_checked"] <= 100
+    assert result["attention_required"] is True
+    assert len(result["conflict_ids"]) == 100
+
+
+@pytest.mark.asyncio
+async def test_conflict_transaction_failure_does_not_emit_attention_signal():
+    """A partial DB failure must not advertise a conflict whose claims were not quarantined."""
+    from core.engine.sentinel.conflict_detector import _persist_conflict_attention
+
+    mock_db = AsyncMock()
+    mock_db.query_raw = AsyncMock(
+        return_value={
+            "result": [
+                {"status": "OK"},
+                {"status": "ERR", "result": "claim quarantine failed"},
+                {"status": "OK"},
+            ]
+        }
+    )
+
+    with pytest.raises(RuntimeError, match="transaction aborted"):
+        await _persist_conflict_attention(
+            db=mock_db,
+            product_id="product:test",
+            insight_a={"id": "insight:a"},
+            insight_b={"id": "insight:b"},
+            explanation="Claims disagree",
+        )
+
+    mock_db.query.assert_not_called()
 
 
 @pytest.mark.asyncio

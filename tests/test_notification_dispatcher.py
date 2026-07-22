@@ -39,6 +39,10 @@ async def test_dispatch_creates_notification():
 
     assert result["tier"] == "critical"
     assert result["read"] is False
+    create_query = next(
+        call.args[0] for call in mock_conn.query.call_args_list if "CREATE notification" in call.args[0]
+    )
+    assert "product = <record>$product" in create_query
 
 
 @pytest.mark.asyncio

@@ -13,21 +13,13 @@ from surrealdb import AsyncSurreal
 # Allow running as script without installing package
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from core.engine.core.config import settings
+from core.engine.core.migration_compat import (
+    STRICT_FROM_VERSION,
+    is_known_legacy_compatibility_error,
+)
 
 SCHEMA_DIR = Path(__file__).parent.parent / "core" / "schema"
 
-# Migrations from this version on fail CLOSED on any per-statement error.
-STRICT_FROM_VERSION = 142
-
-# Fresh databases still replay historical migrations. A small, explicit set of
-# legacy versions contains redundant definitions or SurrealDB-v3-incompatible
-# transitional statements whose final state is corrected by later migrations.
-# These are compatibility events, not an open-ended warning channel: every
-# other statement error fails the install, including errors in a listed file
-# that do not match the expected category.
-_ALREADY_EXISTS_VERSIONS = {6, 12, 19, 20, 25, 29, 31, 32, 35, 37, 40, 44, 55, 83, 84}
-_FLEXIBLE_SCHEMALESS_VERSIONS = {44, 52}
-_NUMERIC_SCHEMA_VERSION_VERSIONS = {81, 83, 84, 85}
 _REQUIRED_TABLES = {
     "config_entry",
     "decision",
@@ -98,18 +90,9 @@ async def get_current_version(db: AsyncSurreal) -> int:
         return 0
 
 
-def _is_known_legacy_compatibility_error(version: int, error: str) -> bool:
-    if version in _ALREADY_EXISTS_VERSIONS and "already exists" in error:
-        return True
-    if version in _FLEXIBLE_SCHEMALESS_VERSIONS and "FLEXIBLE can only be used" in error:
-        return True
-    if version in _NUMERIC_SCHEMA_VERSION_VERSIONS and "Expected `string`" in error:
-        return True
-    if version == 54 and (
-        "Cannot execute statement using value" in error or "The table 'graph_instance' does not exist" in error
-    ):
-        return True
-    return False
+# Backward-compatible import used by the persistence verifier and existing
+# tests; the policy itself has one owner in core.engine.core.migration_compat.
+_is_known_legacy_compatibility_error = is_known_legacy_compatibility_error
 
 
 async def apply_file(db: AsyncSurreal, version: int, name: str, sql: str) -> list[str]:

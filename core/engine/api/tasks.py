@@ -16,7 +16,7 @@ import uuid
 from dataclasses import asdict, is_dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -24,6 +24,12 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from core.engine.core.auth import get_current_user, verify_ownership
 from core.engine.core.db import parse_one, parse_rows, pool
 from core.engine.core.tasks import logged_task
+from core.engine.product.decision_receipts import (
+    build_decision_receipt,
+    human_disposition,
+    normalize_decision_receipt,
+    with_human_disposition,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +53,88 @@ class TaskResponse(BaseModel):
     token_usage: dict | None = None
     phase_traces: list[dict] | None = None
     reasoning_trace: dict | None = None
+    execution: dict = Field(default_factory=dict)
+    decision_receipt: dict = Field(default_factory=dict)
+
+
+def _execution_coverage(result: object) -> dict:
+    """Build a bounded public summary of execution-unit and phase coverage.
+
+    A pattern can complete honestly with only a subset of its contributors.
+    Keep that distinction separate from the terminal task status: callers get
+    the usable output *and* an explicit partial-coverage signal.
+    """
+    pattern_result = getattr(result, "pattern_result", None)
+    agent_results = list(getattr(pattern_result, "agent_results", []) or [])
+    contributors: list[dict] = []
+    counts = {"completed": 0, "failed": 0, "timed_out": 0, "other": 0}
+
+    for index, agent_result in enumerate(agent_results):
+        raw_status = str(getattr(agent_result, "status", None) or "unknown").lower()
+        if raw_status in {"completed", "complete"}:
+            bucket = "completed"
+        elif raw_status in {"timeout", "timed_out"}:
+            bucket = "timed_out"
+        elif raw_status in {"failed", "error", "cancelled", "canceled"}:
+            bucket = "failed"
+        else:
+            bucket = "other"
+        counts[bucket] += 1
+
+        contributor = {
+            "id": str(getattr(agent_result, "agent_id", None) or f"execution-unit-{index + 1}")[:160],
+            "status": raw_status,
+            "duration_ms": max(0, int(getattr(agent_result, "duration_ms", 0) or 0)),
+        }
+        error = getattr(agent_result, "error", None)
+        if error:
+            contributor["error"] = _bounded_public_error(error, code="contributor_failed")
+        contributors.append(contributor)
+
+    snapshot = getattr(result, "snapshot", {}) or {}
+    phase_traces = (snapshot.get("phase_traces") or []) if isinstance(snapshot, dict) else []
+    tainted_phases = sum(1 for phase in phase_traces if isinstance(phase, dict) and phase.get("tainted") is True)
+    total = len(contributors)
+    unavailable = counts["failed"] + counts["timed_out"] + counts["other"]
+    if total == 0:
+        state = "unreported"
+    elif counts["completed"] == total:
+        state = "complete"
+    elif counts["completed"] > 0:
+        state = "partial"
+    else:
+        state = "failed"
+
+    coverage = {
+        "state": state,
+        "usable_output": bool(getattr(result, "output", None)),
+        "pattern": getattr(pattern_result, "pattern_name", None),
+        "contributors": {
+            "total": total,
+            **counts,
+            "coverage_ratio": round(counts["completed"] / total, 4) if total else None,
+            "items": contributors,
+        },
+        "phases": {
+            "total": len(phase_traces),
+            "tainted": tainted_phases,
+        },
+    }
+    if state == "partial" or tainted_phases:
+        partial_reasons = []
+        if unavailable:
+            partial_reasons.append(f"{unavailable} unavailable execution unit(s)")
+        if tainted_phases:
+            partial_reasons.append(f"{tainted_phases} tainted phase(s)")
+        coverage["attention"] = {
+            "required": True,
+            "code": "partial_execution",
+            "message": (
+                f"Result produced with {' and '.join(partial_reasons)}"
+                + "; inspect contributor and phase details before relying on full coverage."
+            ),
+        }
+    return coverage
 
 
 def _reasoning_trace(result) -> dict:
@@ -120,6 +208,24 @@ class TaskFeedbackResponse(BaseModel):
     research_queued: bool | None = None
 
 
+class StructuredDecisionCreate(BaseModel):
+    """Facts explicitly supplied for a task-backed product decision.
+
+    These fields are never extracted from the task description or final prose.
+    """
+
+    selected_option: str = Field(min_length=1, max_length=1_000)
+    scope: str | None = Field(default=None, max_length=2_000)
+    assumptions: list[str] | None = Field(default=None, max_length=25)
+    alternatives: list[str] | None = Field(default=None, max_length=25)
+    reconsideration_conditions: list[str] | None = Field(default=None, max_length=25)
+    evidence_refs: list[str] | None = Field(default=None, max_length=50)
+    rationale: str | None = Field(default=None, max_length=4_000)
+    decision_type: Literal["architecture", "prioritization", "trade_off", "direction", "rejection", "convention"] = (
+        "direction"
+    )
+
+
 class TaskCreate(BaseModel):
     description: str = Field(max_length=10_000)
     workspace_id: str = Field(max_length=200)
@@ -127,6 +233,7 @@ class TaskCreate(BaseModel):
     deep: bool = False
     force_skill: str | None = None
     frameworks_hint: list[str] | None = None
+    decision: StructuredDecisionCreate | None = None
     idempotency_key: str | None = Field(default=None, min_length=1, max_length=200)
     wait_seconds: float = Field(default=0.0, ge=0.0, le=2.0)
 
@@ -242,6 +349,34 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
     result.setdefault("domain_path", "")
     result.setdefault("output", None)
     result.setdefault("intelligence_loaded", {})
+    result.setdefault("execution", {})
+    result["decision_receipt"] = normalize_decision_receipt(result.get("decision_receipt"), task=result)
+    # Persisted execution coordinates and private prompt text are not public
+    # receipt fields.  The output remains available, but the original prompt
+    # and retained-intelligence payload do not ride along with ace_status.
+    intelligence = result.get("intelligence_loaded")
+    if isinstance(intelligence, dict):
+        result["intelligence_loaded"] = {
+            "total_count": intelligence.get("total_count", 0),
+            "specialties_loaded": list(intelligence.get("specialties_loaded", []) or [])[:25],
+            "degraded_tiers": list(intelligence.get("degraded_tiers", []) or [])[:25],
+        }
+    phase_traces = result.get("phase_traces")
+    if isinstance(phase_traces, list):
+        result["phase_traces"] = [
+            {
+                key: phase.get(key)
+                for key in ("phase_name", "status", "confidence", "tainted", "duration_ms")
+                if key in phase
+            }
+            for phase in phase_traces[:25]
+            if isinstance(phase, dict)
+        ]
+    trace = result.get("reasoning_trace")
+    if isinstance(trace, dict) and isinstance(trace.get("intelligence"), dict):
+        trace = {**trace, "intelligence": dict(trace["intelligence"])}
+        trace["intelligence"].pop("prior_decisions", None)
+        result["reasoning_trace"] = trace
     result["retrieval"] = {
         "tool": "ace_status",
         "filter": task_id,
@@ -249,9 +384,100 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
     }
     result["idempotent_replay"] = idempotent_replay
     # These coordinate execution but are not part of the public result.
-    for key in ("idempotency_key", "request_fingerprint", "runtime_id", "request_options"):
+    for key in (
+        "description",
+        "user",
+        "idempotency_key",
+        "request_fingerprint",
+        "runtime_id",
+        "request_options",
+    ):
         result.pop(key, None)
     return result
+
+
+async def _persist_structured_decision(
+    task_id: str,
+    body: TaskCreate,
+    user: dict,
+    provenance: dict,
+) -> dict:
+    """Create or retrieve the canonical decision linked to this task."""
+    product_id = user.get("product", "product:default")
+    if body.decision is None:
+        return build_decision_receipt(
+            task_id=task_id,
+            product_id=product_id,
+            route=provenance,
+            degraded_reason="no_structured_decision_supplied",
+        )
+
+    supplied = body.decision
+    async with pool.connection() as db:
+        decision = parse_one(
+            await db.query(
+                """
+                SELECT * FROM decision
+                WHERE product = <record>$product
+                  AND originating_task = <record>$task_id
+                LIMIT 1
+                """,
+                {"product": product_id, "task_id": task_id},
+            )
+        )
+        if not decision:
+            decision = parse_one(
+                await db.query(
+                    """
+                    CREATE decision SET
+                        product = <record>$product,
+                        title = $selected_option,
+                        selected_option = $selected_option,
+                        decision_type = $decision_type,
+                        rationale = $rationale,
+                        alternatives = $alternatives,
+                        scope = $scope,
+                        assumptions = $assumptions,
+                        reconsideration_conditions = $reconsideration_conditions,
+                        evidence_refs = $evidence_refs,
+                        outcome = 'pending',
+                        source = 'ace_task',
+                        originating_task = <record>$task_id,
+                        originating_actor = $actor,
+                        provider = $provider,
+                        model = $model,
+                        created_at = time::now()
+                    """,
+                    {
+                        "product": product_id,
+                        "task_id": task_id,
+                        "selected_option": supplied.selected_option,
+                        "decision_type": supplied.decision_type,
+                        "rationale": supplied.rationale or "",
+                        "alternatives": supplied.alternatives,
+                        "scope": supplied.scope,
+                        "assumptions": supplied.assumptions,
+                        "reconsideration_conditions": supplied.reconsideration_conditions,
+                        "evidence_refs": supplied.evidence_refs,
+                        "actor": str(user.get("sub") or "authenticated_user")[:200],
+                        "provider": provenance.get("provider"),
+                        "model": provenance.get("model"),
+                    },
+                )
+            )
+    if not decision:
+        return build_decision_receipt(
+            task_id=task_id,
+            product_id=product_id,
+            route=provenance,
+            degraded_reason="decision_persistence_failed",
+        )
+    return build_decision_receipt(
+        task_id=task_id,
+        product_id=product_id,
+        decision=decision,
+        route=provenance,
+    )
 
 
 async def _get_task_record(task_id: str) -> dict | None:
@@ -384,6 +610,7 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
             status = "completed"
 
         reasoning_trace = _reasoning_trace(result)
+        execution = _execution_coverage(result)
         provenance = reasoning_trace.setdefault("provenance", {})
         provenance["task_id"] = task_id
         if not provenance.get("provider") or not provenance.get("model"):
@@ -396,6 +623,7 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
             provenance["model"] = provenance.get("model") or fallback["model"]
             if not provenance.get("requested_model") and fallback["requested_model"]:
                 provenance["requested_model"] = fallback["requested_model"]
+        decision_receipt = await _persist_structured_decision(task_id, body, user, provenance)
         await _update_receipt(
             task_id,
             {
@@ -410,6 +638,8 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                 "token_usage": result.snapshot.get("token_usage"),
                 "phase_traces": result.snapshot.get("phase_traces"),
                 "reasoning_trace": reasoning_trace,
+                "execution": execution,
+                "decision_receipt": decision_receipt,
                 "error": error,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
@@ -424,6 +654,15 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                     "code": "runtime_stopped",
                     "message": "The API runtime stopped before orchestration completed; the task was not reported as failed.",
                 },
+                "execution": {
+                    "state": "interrupted",
+                    "usable_output": False,
+                    "attention": {
+                        "required": True,
+                        "code": "runtime_stopped",
+                        "message": "Execution stopped before contributor coverage could complete.",
+                    },
+                },
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
             },
@@ -436,6 +675,15 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
             {
                 "status": "failed",
                 "error": _bounded_public_error(exc),
+                "execution": {
+                    "state": "failed",
+                    "usable_output": False,
+                    "attention": {
+                        "required": True,
+                        "code": "orchestration_failed",
+                        "message": "Execution failed before a usable result was produced.",
+                    },
+                },
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
             },
@@ -454,6 +702,15 @@ async def initialize_task_runtime() -> int:
                     error = {
                         code: 'runtime_restarted',
                         message: 'The API runtime restarted before orchestration completed; retry with a new explicit idempotency key to run again.'
+                    },
+                    execution = {
+                        state: 'interrupted',
+                        usable_output: false,
+                        attention: {
+                            required: true,
+                            code: 'runtime_restarted',
+                            message: 'Execution coverage is incomplete because the runtime restarted.'
+                        }
                     },
                     completed_at = time::now(),
                     updated_at = time::now()
@@ -553,12 +810,52 @@ class FeedbackType(str, Enum):
 class TaskFeedbackRequest(BaseModel):
     feedback_human: FeedbackType
     edited_output: Optional[str] = None
+    rationale: str | None = Field(default=None, max_length=2_000)
+    surface: Literal["api", "cli", "thin_mcp", "other"] = "api"
+    policy_version: str | None = Field(default=None, max_length=120)
 
     @model_validator(mode="after")
     def validate_edited_output(self):
         if self.feedback_human == FeedbackType.edited and not self.edited_output:
             raise ValueError("edited_output is required when feedback_human is 'edited'")
         return self
+
+
+async def _persist_human_disposition(db, task: dict, body: TaskFeedbackRequest, user: dict) -> dict:
+    """Persist authenticated disposition on both task projection and decision."""
+    recorded_at = datetime.now(timezone.utc)
+    disposition = human_disposition(
+        body.feedback_human.value,
+        actor=user.get("sub") or "authenticated_user",
+        surface=body.surface,
+        rationale=body.rationale,
+        recorded_at=recorded_at,
+        policy_version=body.policy_version,
+    )
+    receipt = with_human_disposition(task.get("decision_receipt"), disposition, task=task)
+    await db.query(
+        "UPDATE <record>$task_id SET human_disposition = $disposition, decision_receipt = $receipt, updated_at = time::now()",
+        {"task_id": str(task.get("id", "")), "disposition": disposition, "receipt": receipt},
+    )
+    decision_id = receipt.get("decision_id")
+    if decision_id:
+        outcome = "rejected" if body.feedback_human == FeedbackType.rejected else "accepted"
+        await db.query(
+            """
+            UPDATE <record>$decision_id SET
+                outcome = $outcome,
+                human_disposition = $disposition,
+                updated_at = time::now()
+            WHERE product = <record>$product
+            """,
+            {
+                "decision_id": decision_id,
+                "outcome": outcome,
+                "disposition": disposition,
+                "product": user.get("product", "product:default"),
+            },
+        )
+    return disposition
 
 
 @router.patch("/{task_id}")
@@ -578,6 +875,7 @@ async def patch_task_feedback(
         if not task:
             raise HTTPException(status_code=404, detail="Task not found")
         verify_ownership(task, user)
+        disposition = await _persist_human_disposition(db, task, body, user)
         if body.feedback_human == FeedbackType.edited:
             await db.query(
                 "UPDATE <record>$task_id SET feedback_human = 'edited', output = $output",
@@ -600,6 +898,7 @@ async def patch_task_feedback(
                 "id": task_id,
                 "feedback_human": "edited",
                 "output_versions": 1,
+                "human_disposition": disposition,
             }
 
         elif body.feedback_human == FeedbackType.accepted:
@@ -624,6 +923,7 @@ async def patch_task_feedback(
                 "id": task_id,
                 "feedback_human": "accepted",
                 "insights_confirmed": 0,
+                "human_disposition": disposition,
             }
 
         elif body.feedback_human == FeedbackType.rejected:
@@ -648,4 +948,5 @@ async def patch_task_feedback(
                 "id": task_id,
                 "feedback_human": "rejected",
                 "research_queued": False,
+                "human_disposition": disposition,
             }

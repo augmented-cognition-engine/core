@@ -3,7 +3,7 @@ import logging
 
 from fastapi import APIRouter, Depends, Query
 
-from core.engine.core.auth import get_current_user
+from core.engine.core.auth import get_current_user, verify_ownership
 from core.engine.core.db import parse_one, parse_rows, pool
 
 logger = logging.getLogger(__name__)
@@ -58,6 +58,7 @@ async def get_attention(
     user: dict = Depends(get_current_user),
 ):
     """Attention items: conflicts, proposals, ready ideas, paused initiatives."""
+    verify_ownership({"product": product}, user)
     items = []
     async with pool.connection() as db:
         # Pending conflicts

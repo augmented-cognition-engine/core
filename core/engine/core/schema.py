@@ -16,6 +16,7 @@ import re
 from pathlib import Path
 
 from core.engine.core.db import pool
+from core.engine.core.migration_compat import is_known_legacy_compatibility_error
 
 logger = logging.getLogger(__name__)
 
@@ -120,6 +121,19 @@ async def get_db_version() -> int:
         return 0
 
 
+def _stmt_error(raw: object) -> str | None:
+    """Extract an error message from a ``query_raw`` response, if present."""
+    if not isinstance(raw, dict):
+        return None
+    err = raw.get("error")
+    if err:
+        return str(err.get("message", err) if isinstance(err, dict) else err)
+    for entry in raw.get("result", []) or []:
+        if isinstance(entry, dict) and entry.get("status") == "ERR":
+            return str(entry.get("result"))
+    return None
+
+
 def _assert_no_stmt_error(raw: object, *, source: str) -> None:
     """Raise RuntimeError if a query_raw response carries any error.
 
@@ -131,15 +145,19 @@ def _assert_no_stmt_error(raw: object, *, source: str) -> None:
     went unnoticed and masked the v113 SCHEMAFULL bug. The migration runner must
     fail loud on either shape.
     """
-    if not isinstance(raw, dict):
-        return
-    err = raw.get("error")
-    if err:
-        msg = err.get("message", err) if isinstance(err, dict) else err
-        raise RuntimeError(f"migration error [{source}]: {msg}")
-    for entry in raw.get("result", []) or []:
-        if isinstance(entry, dict) and entry.get("status") == "ERR":
-            raise RuntimeError(f"migration statement failed [{source}]: {entry.get('result')}")
+    if error := _stmt_error(raw):
+        raise RuntimeError(f"migration statement failed [{source}]: {error}")
+
+
+def _check_stmt_result(raw: object, *, version: int, source: str) -> str | None:
+    """Return an audited legacy event or fail closed on a statement error."""
+    error = _stmt_error(raw)
+    if error is None:
+        return None
+    if is_known_legacy_compatibility_error(version, error):
+        return f"{source}: {error}"
+    _assert_no_stmt_error(raw, source=source)
+    raise AssertionError("unreachable")
 
 
 async def apply_pending() -> int:
@@ -155,6 +173,7 @@ async def apply_pending() -> int:
 
     files = sorted(SCHEMA_DIR.glob("v*.surql"))
     applied = 0
+    compatibility_events = 0
 
     async with pool.connection() as db:
         for f in files:
@@ -170,7 +189,10 @@ async def apply_pending() -> int:
             stmts = _split_statements(sql)
             for stmt in stmts:
                 raw = await db.query_raw(stmt)
-                _assert_no_stmt_error(raw, source=f"{f.name}: {stmt.strip()[:80]}")
+                source = f"{f.name}: {stmt.strip()[:80]}"
+                if event := _check_stmt_result(raw, version=version, source=source):
+                    compatibility_events += 1
+                    logger.warning("Audited legacy migration compatibility event: %s", event)
 
             raw = await db.query_raw(
                 "UPSERT config_entry SET key = 'schema_version', value = $v WHERE key = 'schema_version'",
@@ -179,5 +201,10 @@ async def apply_pending() -> int:
             _assert_no_stmt_error(raw, source=f"{f.name}: schema_version bump")
             applied += 1
 
-    logger.info("Schema migration complete — applied %d file(s), now at v%d", applied, code_ver)
+    logger.info(
+        "Schema migration complete — applied %d file(s), now at v%d (%d audited legacy compatibility events)",
+        applied,
+        code_ver,
+        compatibility_events,
+    )
     return applied

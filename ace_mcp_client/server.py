@@ -52,6 +52,12 @@ async def ace_capture_tool(
     content: str,
     domain_path: str,
     confidence: float = 0.7,
+    affected_decision_id: str | None = None,
+    affected_task_id: str | None = None,
+    lifecycle_state: str = "active",
+    supersedes_correction_id: str | None = None,
+    invalidates_correction_id: str | None = None,
+    contests_correction_id: str | None = None,
 ) -> dict:
     """Record an observation from this session. Types: correction, decision, preference, pattern, learning, error. Call when user corrects output ("that's wrong", "use X not Y"), makes a decision, states a preference, or when you discover a useful fact. ACE processes these into durable intelligence."""
     return await ace_capture(
@@ -59,6 +65,12 @@ async def ace_capture_tool(
         content=content,
         domain_path=domain_path,
         confidence=confidence,
+        affected_decision_id=affected_decision_id,
+        affected_task_id=affected_task_id,
+        lifecycle_state=lifecycle_state,
+        supersedes_correction_id=supersedes_correction_id,
+        invalidates_correction_id=invalidates_correction_id,
+        contests_correction_id=contests_correction_id,
     )
 
 
@@ -68,6 +80,7 @@ async def ace_task_tool(
     skill_hint: str | None = None,
     frameworks_hint: str | None = None,
     request_id: str | None = None,
+    decision: dict | None = None,
 ) -> dict:
     """Submit a task through ACE's full orchestrator. Returns either a completed result or a durable pending/running receipt that remains retrievable with ace_status. Reuse request_id when retrying the same submission; use a new value for an intentional rerun."""
     fw_list = frameworks_hint.split(",") if frameworks_hint else None
@@ -76,6 +89,7 @@ async def ace_task_tool(
         skill_hint=skill_hint,
         frameworks_hint=fw_list,
         request_id=request_id,
+        decision=decision,
     )
 
 
