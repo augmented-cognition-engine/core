@@ -428,12 +428,14 @@ async def test_ace_capture_passes_linked_correction_fields():
             domain_path="product.decisions",
             affected_decision_id="decision:one",
             affected_task_id="task:one",
+            expires_at="2026-08-01T00:00:00Z",
         )
         body = mock_client.post.await_args.kwargs["json"]
         assert body["source_surface"] == "thin_mcp"
         assert body["affected_decision_id"] == "decision:one"
         assert body["affected_task_id"] == "task:one"
         assert body["lifecycle_state"] == "active"
+        assert body["expires_at"] == "2026-08-01T00:00:00Z"
     finally:
         tools_mod._client = old_client
 

@@ -8,6 +8,7 @@ from core.engine.core.auth import get_current_user
 from core.engine.core.db import parse_rows, pool
 from core.engine.intelligence.maturation import calculate_maturation
 from core.engine.orchestrator.loader import load_intelligence
+from core.engine.product.correction_receipts import effective_correction_lifecycle
 
 router = APIRouter(prefix="/intel", tags=["intelligence"])
 
@@ -40,7 +41,8 @@ async def _load_captured_observations(domain_path: str, product: str) -> list[di
                     """SELECT id, content, observation_type, confidence, source, created_at,
                               source_surface, actor_ref, actor_class, content_hash, lifecycle_state,
                               correction_contract_version, affected_decision, affected_task,
-                              supersedes_correction, invalidates_correction, contests_correction
+                              supersedes_correction, invalidates_correction, contests_correction,
+                              expires_at
                        FROM observation
                        WHERE product = <record>$product
                          AND (domain_hint = $domain OR discipline_hint = $domain OR domain_path = $domain)
@@ -63,12 +65,17 @@ async def _load_captured_observations(domain_path: str, product: str) -> list[di
                 stored_version = row.get("correction_contract_version")
                 contract_compatible = stored_version in {None, "correction-v1"}
                 version_current = stored_version == "correction-v1"
-                required_provenance = (
-                    row.get("source_surface"),
-                    row.get("actor_class"),
-                    row.get("content_hash"),
-                    row.get("created_at"),
-                )
+                provenance_fields = {
+                    "source_surface": row.get("source_surface"),
+                    "actor": row.get("actor_ref"),
+                    "actor_class": row.get("actor_class"),
+                    "content_hash": row.get("content_hash"),
+                    "recorded_at": row.get("created_at"),
+                }
+                missing_provenance = [name for name, value in provenance_fields.items() if value is None or value == ""]
+                if not version_current:
+                    missing_provenance.insert(0, "contract_version")
+                stored_lifecycle = row.get("lifecycle_state") if contract_compatible else None
                 item.update(
                     {
                         "contract_version": "correction-v1",
@@ -87,7 +94,13 @@ async def _load_captured_observations(domain_path: str, product: str) -> list[di
                         },
                         "correction_id": str(row.get("id", "")),
                         "product_id": str(product),
-                        "lifecycle_state": row.get("lifecycle_state") if contract_compatible else None,
+                        "lifecycle_state": (
+                            effective_correction_lifecycle(stored_lifecycle, row.get("expires_at"))
+                            if contract_compatible
+                            else None
+                        ),
+                        "stored_lifecycle_state": stored_lifecycle,
+                        "expires_at": row.get("expires_at") if contract_compatible else None,
                         "content_hash": row.get("content_hash") if contract_compatible else None,
                         "relationship": {
                             "affected_decision_id": (
@@ -109,9 +122,8 @@ async def _load_captured_observations(domain_path: str, product: str) -> list[di
                             "actor": _record_text(row.get("actor_ref")),
                             "actor_class": row.get("actor_class"),
                             "recorded_at": row.get("created_at"),
-                            "completeness": (
-                                "complete" if version_current and all(required_provenance) else "degraded"
-                            ),
+                            "completeness": "complete" if not missing_provenance else "incomplete",
+                            "missing_fields": missing_provenance,
                         },
                     }
                 )

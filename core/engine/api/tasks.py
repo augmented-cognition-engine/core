@@ -444,6 +444,7 @@ async def _persist_structured_decision(
                         source = 'ace_task',
                         originating_task = <record>$task_id,
                         originating_actor = $actor,
+                        originating_actor_class = 'authenticated_user',
                         provider = $provider,
                         model = $model,
                         created_at = time::now()

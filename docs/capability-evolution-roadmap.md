@@ -114,6 +114,13 @@ Acceptance evidence:
 - product-isolation, authorization, redaction, supersession, and invalidation tests fail closed;
 - incomplete provenance remains explicit rather than being reconstructed from internal logs.
 
+**Closeout (2026-07-22): passed.** The supported task/status/capture/load journey now covers the
+complete decision context, all four dispositions, correction supersession/invalidation/
+contestation/expiry, authorization and product isolation, credential redaction, explicit missing
+provenance, and schema-zero-to-v145 replay on SurrealDB 3.1.4 and 3.2.1. The thin MCP surface
+remains exactly eleven tools and gains no execution authority. See
+[`decision-correction-receipts.md`](decision-correction-receipts.md) for evidence and limitations.
+
 ### I2. Attributable deliberation and synthesis
 
 **Outcome:** A user can see why ACE selected a reasoning shape, which bounded positions materially

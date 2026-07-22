@@ -1,4 +1,4 @@
-"""Fresh-process HTTP/MCP persistence proof for I1-01.
+"""Fresh-process HTTP/MCP persistence proof for I1 closeout.
 
 This test starts a disposable SurrealKV store and two separate uvicorn API
 processes. The orchestration fixture is deterministic and makes zero model
@@ -208,47 +208,54 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         await _wait_port(db_port, db_process)
         api_process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=api_log, stderr=subprocess.STDOUT)
         await _wait_health(api_url, api_process)
-        await _assert_schema_version(db_url, 144)
+        await _assert_schema_version(db_url, 145)
         await _verify_legacy_rows_survive_v144(db_url)
         client = AceClient(base_url=api_url, token=token, timeout=10)
         thin_tools._client = client
 
-        task = await thin_tools.ace_task(
-            "Exercise the structured I1 receipt",
-            request_id="i1-restart-fixture-v1",
-            decision={
-                "selected_option": "Keep the existing eleven-tool contract",
-                "scope": "I1-01 restart acceptance",
-                "assumptions": ["The disposable store is durable across API processes"],
-                "alternatives": ["Add a twelfth tool"],
-                "reconsideration_conditions": ["The existing contract cannot preserve identity"],
-                "evidence_refs": ["test:i1-restart"],
-                "decision_type": "direction",
-            },
-        )
-        task_id = task["id"]
-        for _ in range(50):
-            status = await thin_tools.ace_status(task_id=task_id)
-            if status["task"]["status"] == "completed":
-                break
-            await asyncio.sleep(0.1)
-        else:
+        async def submit_decision(state: str) -> tuple[str, str]:
+            task = await thin_tools.ace_task(
+                f"Exercise the {state} I1 disposition",
+                request_id=f"i1-closeout-{state}-v1",
+                decision={
+                    "selected_option": f"Preserve the {state} disposition",
+                    "scope": "I1 closeout restart acceptance",
+                    "assumptions": ["The disposable store is durable across API processes"],
+                    "alternatives": ["Lose the disposition on restart"],
+                    "reconsideration_conditions": ["The existing contract cannot preserve identity"],
+                    "evidence_refs": [f"test:i1-restart:{state}"],
+                    "decision_type": "direction",
+                },
+            )
+            task_id = task["id"]
+            for _ in range(50):
+                status = await thin_tools.ace_status(task_id=task_id)
+                if status["task"]["status"] == "completed":
+                    receipt = status["task"]["decision_receipt"]
+                    return task_id, receipt["decision_id"]
+                await asyncio.sleep(0.1)
             raise AssertionError("deterministic task did not complete")
-        decision_id = status["task"]["decision_receipt"]["decision_id"]
-        unresolved = status["task"]["decision_receipt"]["human_disposition"]
-        assert unresolved["state"] == "unresolved"
-        assert unresolved["actor"] is None
-        assert unresolved["recorded_at"] is None
 
+        identities = {state: await submit_decision(state) for state in ("unresolved", "accepted", "edited", "rejected")}
         feedback = await client._ensure_client()
-        response = await feedback.patch(
-            f"/tasks/{task_id}",
-            json={"feedback_human": "accepted", "surface": "cli", "rationale": "Reviewed in restart fixture"},
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        response.raise_for_status()
+        for state in ("accepted", "edited", "rejected"):
+            task_id, _ = identities[state]
+            payload = {
+                "feedback_human": state,
+                "surface": "cli",
+                "rationale": f"Recorded {state} in restart fixture",
+            }
+            if state == "edited":
+                payload["edited_output"] = "Human-edited deterministic fixture output."
+            response = await feedback.patch(
+                f"/tasks/{task_id}",
+                json=payload,
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            response.raise_for_status()
 
-        captured = await thin_tools.ace_capture(
+        task_id, decision_id = identities["accepted"]
+        base = await thin_tools.ace_capture(
             observation_type="correction",
             content="Keep the relationship typed and bounded.",
             domain_path="i1.restart",
@@ -256,9 +263,37 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
             affected_decision_id=decision_id,
             affected_task_id=task_id,
         )
-        correction_id = captured["correction"]["correction_id"]
+        base_id = base["correction"]["correction_id"]
+        superseding = await thin_tools.ace_capture(
+            observation_type="correction",
+            content="Supersede the original correction without deleting it.",
+            domain_path="i1.restart",
+            supersedes_correction_id=base_id,
+        )
+        superseding_id = superseding["correction"]["correction_id"]
+        contesting = await thin_tools.ace_capture(
+            observation_type="correction",
+            content="Contest the superseding correction.",
+            domain_path="i1.restart",
+            contests_correction_id=superseding_id,
+        )
+        contesting_id = contesting["correction"]["correction_id"]
+        invalidating = await thin_tools.ace_capture(
+            observation_type="correction",
+            content="Invalidate the contested correction.",
+            domain_path="i1.restart",
+            invalidates_correction_id=contesting_id,
+        )
+        invalidating_id = invalidating["correction"]["correction_id"]
+        expired = await thin_tools.ace_capture(
+            observation_type="correction",
+            content="This correction has reached its explicit expiry.",
+            domain_path="i1.restart",
+            expires_at="2020-01-01T00:00:00Z",
+        )
+        expired_id = expired["correction"]["correction_id"]
         before_load = await thin_tools.ace_load("i1.restart")
-        before = next(item for item in before_load["corrections"] if item["correction_id"] == correction_id)
+        before = {item["correction_id"]: item for item in before_load["corrections"]}
 
         await client.close()
         client = None
@@ -270,17 +305,30 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         fresh_client = AceClient(base_url=api_url, token=token, timeout=10)
         client = fresh_client
         thin_tools._client = fresh_client
-        after_status = await thin_tools.ace_status(task_id=task_id)
         after_load = await thin_tools.ace_load("i1.restart")
-        after = next(item for item in after_load["corrections"] if item["correction_id"] == correction_id)
+        after = {item["correction_id"]: item for item in after_load["corrections"]}
 
-        assert after_status["task"]["decision_receipt"]["decision_id"] == decision_id
-        assert after_status["task"]["decision_receipt"]["originating_task_id"] == task_id
-        assert after_status["task"]["decision_receipt"]["human_disposition"]["state"] == "accepted"
-        assert after["correction_id"] == correction_id
-        assert after["relationship"] == before["relationship"]
-        assert after["relationship"]["affected_decision_id"] == decision_id
-        assert after["relationship"]["affected_task_id"] == task_id
+        for state, (state_task_id, state_decision_id) in identities.items():
+            after_status = await thin_tools.ace_status(task_id=state_task_id)
+            receipt = after_status["task"]["decision_receipt"]
+            assert receipt["decision_id"] == state_decision_id
+            assert receipt["originating_task_id"] == state_task_id
+            assert receipt["human_disposition"]["state"] == state
+            assert receipt["completeness"]["state"] == "complete"
+            assert receipt["provenance"]["state"] == "complete"
+
+        assert after.keys() >= {base_id, superseding_id, contesting_id, invalidating_id, expired_id}
+        for correction_id in (base_id, superseding_id, contesting_id, invalidating_id, expired_id):
+            assert after[correction_id]["relationship"] == before[correction_id]["relationship"]
+            assert after[correction_id]["provenance"] == before[correction_id]["provenance"]
+        assert after[base_id]["lifecycle_state"] == "superseded"
+        assert after[base_id]["relationship"]["affected_decision_id"] == decision_id
+        assert after[base_id]["relationship"]["affected_task_id"] == task_id
+        assert after[superseding_id]["lifecycle_state"] == "contested"
+        assert after[contesting_id]["lifecycle_state"] == "invalidated"
+        assert after[invalidating_id]["lifecycle_state"] == "active"
+        assert after[expired_id]["lifecycle_state"] == "expired"
+        assert after[expired_id]["stored_lifecycle_state"] == "active"
     finally:
         thin_tools._client = None
         if client:

@@ -59,10 +59,10 @@ Long-running public tasks use persisted receipts and expose pending, running, co
 and degraded outcomes. The single-process preview does not claim distributed task claiming,
 transparent resumption after interruption, or public cancellation.
 
-The candidate I1-01 nested decision/correction receipt contract, its explicit legacy degradation,
-privacy boundary, and limitations are documented in
-[Decision and correction receipts](decision-correction-receipts.md). This bounded slice does not
-promote the overall I1 outcome to passed or widen the eleven-tool surface.
+The supported I1 nested decision/correction receipt contract, explicit incomplete provenance,
+privacy boundary, lifecycle history, and replay evidence are documented in
+[Decision and correction receipts](decision-correction-receipts.md). I1 is passed without widening
+the eleven-tool surface or adding execution authority; it does not imply I2 or I3 behavior.
 
 Atrium is repository beta source and is not included in the Python wheel or sdist. It is a
 research surface, not a required installation or interaction path.
