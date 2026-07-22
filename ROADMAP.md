@@ -56,6 +56,8 @@ Roadmap outcome states are used strictly:
 - Strengthen long-running task recovery, replay, portability, and resource reporting.
 - Turn Atrium research into a clearer read-only view of ACE state before adding new write or
   execution authority.
+- Preserve the passed graph-grounded calibrated-foresight contract while keeping broader
+  consequence-learning claims gated by comparative evidence.
 - Expand extension examples and conformance tests without widening the public MCP contract.
 
 | ID | State | Public outcome | Dependency / acceptance evidence |
@@ -65,6 +67,7 @@ Roadmap outcome states are used strictly:
 | I1 | passed | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | [Decision and correction receipt evidence](docs/decision-correction-receipts.md) proves stable identities, complete decision context, all four human dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and restart continuity through the existing eleven-tool boundary |
 | I2 | ready | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | I1 identities and read contracts have passed; requires bounded perspective-selection reasons, contributor position artifacts, evidence references, meaningful disagreement, synthesis lineage, and honest partial/degraded coverage |
 | I3 | ready | Make retained-intelligence use and its decision effect inspectable | I1 identities and R3 route evidence have passed; requires retrieved/injected/reflected/material states, exact decision-field deltas, restart continuity, and explicit null, stale, contested, harmful, failure, and degraded outcomes |
+| F1 | passed | Freeze the honest, conditional contract for graph-grounded calibrated foresight | [F1 closeout evidence](docs/f1-foresight-evidence.md) proves the continuous-delta v1 forecast-to-observation-to-resolution loop through additive schema v154, including cold start, settled analogues, optional planning/comparators, structured measurement ingestion, proper interval scoring, real API/database restart continuity, explicit non-causal limitations, and the unchanged eleven-tool boundary |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
 | E1 | not ready | Expand extension examples and conformance coverage | Must preserve the kernel boundary and exactly eleven public MCP tools |
 
@@ -76,6 +79,13 @@ claim.
 
 ## Later — build, ship, and learn
 
+**ACE provides graph-grounded, calibrated foresight.** It projects conditional consequences of
+decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
+and uses resolved forecasts to improve later reasoning. The intended system is a bounded,
+inspectable consequence model over a product or domain—not a foundation-scale learned model of the
+physical world. F1 freezes the contract; L1 must prove that resolved forecasts materially and
+beneficially inform later reasoning.
+
 - Carry approved decisions through attributable implementation, review, repair, and promotion.
 - Connect predicted outcomes to observed results so corrections can improve later reasoning.
 - Support secure collaboration and managed operation without making the hosted service the
@@ -84,10 +94,11 @@ claim.
 
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
+| F2 | not ready | Broaden consequence types and independently verified design evidence where product evidence justifies the added complexity | Requires L1 evidence or demonstrated user need; may include binary/categorical scoring, verified assignment/randomization provenance, and independently produced forecast contributions without reopening F1 |
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts and explicit execution authority |
-| L1 | not ready | Connect predicted outcomes to observed results so corrections can improve later reasoning | Requires I3 material-use evidence plus stable outcome identity, provenance, and calibration evidence; material influence alone is not assumed beneficial |
+| L1 | not ready | Use resolved conditional forecasts to improve later reasoning and decision quality | F1 is passed; requires I3 material-use evidence, stable outcome identity and provenance, intervention and confounder attribution, sample-size-aware reliability, explicit null/harmful/degraded cases, and comparison against no-foresight, naive/base-rate, and model-only controls |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
-| E2 | not ready | Grow the provider-neutral extension and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy |
+| E2 | not ready | Grow the provider-neutral extension, telemetry, and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy; native telemetry sources belong here rather than in F1 |
 
 ## Follow and contribute
 

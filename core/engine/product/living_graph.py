@@ -194,6 +194,26 @@ _RECORD_FIELDS: dict[str, tuple[str, ...]] = {
         "primary_risk",
         "leading_indicators",
         "falsification_condition",
+        "contract_version",
+        "forecast_contract",
+        "resolution_status",
+        "outside_view_version",
+        "outside_view_baseline",
+        "indicator_state_version",
+        "indicator_evidence_state",
+        "indicator_status",
+        "indicator_updated_at",
+        "comparator_state_version",
+        "comparator_evidence_state",
+        "comparator_status",
+        "comparator_updated_at",
+        "comparator_plan_version",
+        "comparator_plan",
+        "comparator_plan_status",
+        "measurement_ingestion_version",
+        "measurement_ingestion_state",
+        "measurement_ingestion_status",
+        "measurement_ingestion_updated_at",
         "closed",
         "created_at",
     ),
@@ -203,7 +223,22 @@ _RECORD_FIELDS: dict[str, tuple[str, ...]] = {
         "decision",
         "archetype",
         "discipline",
+        "contract_version",
+        "resolution_contract",
+        "resolution_state",
+        "score_eligible",
+        "non_score_reason",
+        "intervention_status",
+        "applicability_conditions_met",
+        "observation_refs",
+        "confounders",
+        "missing_evidence",
+        "resolution_reason",
         "calibration_score",
+        "outside_view_comparison",
+        "prediction_score_version",
+        "prediction_score",
+        "comparator_context",
         "predicted_deltas",
         "actual_deltas",
         "closed_at",
@@ -243,6 +278,38 @@ _RECORD_FIELDS: dict[str, tuple[str, ...]] = {
         "source",
         "source_memory",
         "source_memories",
+        "affected_decision",
+        "affected_prediction",
+        "intervention_contract_version",
+        "intervention_contract",
+        "intervention_status",
+        "intervention_idempotency_key",
+        "applicability_conditions_met",
+        "intervention_exposure",
+        "indicator_contract_version",
+        "indicator_contract",
+        "indicator_local_id",
+        "indicator_effect",
+        "indicator_idempotency_key",
+        "comparator_contract_version",
+        "comparator_contract",
+        "comparator_type",
+        "comparator_design",
+        "comparator_resolution_eligible",
+        "comparator_idempotency_key",
+        "comparator_plan_id",
+        "comparator_alignment_state",
+        "measurement_contract_version",
+        "measurement_contract",
+        "measurement_source_type",
+        "measurement_plan_id",
+        "measurement_run_id",
+        "measurement_slot",
+        "measurement_idempotency_key",
+        "measurement_ingestion_status",
+        "measurement_comparator_observation",
+        "measured_at",
+        "observed_at",
         "synthesized",
         "created_at",
         "expires_at",
@@ -472,6 +539,18 @@ def _lifecycle_state(record: dict[str, Any]) -> str:
 
 def _project_record(family: str, record: dict[str, Any]) -> dict[str, Any]:
     result = {key: _json_value(record.get(key)) for key in _RECORD_FIELDS[family] if key in record}
+    if family == "observations" and record.get("observation_type") == "intervention":
+        from core.engine.foresight.contracts import normalize_intervention_observation
+
+        result["intervention_contract"] = _json_value(normalize_intervention_observation(record))
+    if family == "observations" and record.get("observation_type") == "forecast_indicator":
+        from core.engine.foresight.contracts import normalize_indicator_observation
+
+        result["indicator_contract"] = _json_value(normalize_indicator_observation(record))
+    if family == "observations" and record.get("observation_type") == "forecast_comparator":
+        from core.engine.foresight.contracts import normalize_comparator_observation
+
+        result["comparator_contract"] = _json_value(normalize_comparator_observation(record))
     rid = _record_id(record)
     result["object_type"] = _OBJECT_TYPES[family]
     result["lifecycle_state"] = _lifecycle_state(record)

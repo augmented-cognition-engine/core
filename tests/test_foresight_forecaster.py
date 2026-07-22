@@ -21,7 +21,16 @@ def _make_pool(query_side_effect):
 
 _VALID_LLM_PREDICTION = {
     "horizon_days": 14,
-    "expected_changes": [{"capability_id": "capability:auth", "score_delta": 0.2, "confidence": 0.7}],
+    "expected_changes": [
+        {
+            "capability_id": "capability:auth",
+            "score_delta": 0.2,
+            "lower_bound": 0.0,
+            "upper_bound": 0.4,
+            "interval_coverage": 0.8,
+            "confidence": 0.7,
+        }
+    ],
     "primary_risk": "OAuth callback remains untested after 14 days",
     "leading_indicators": ["test coverage for auth module increases"],
     "falsification_condition": "auth test coverage stays below 60% after 14 days",
@@ -56,6 +65,131 @@ async def test_attach_prediction_writes_to_db():
 
     assert result is not None
     assert result.get("horizon_days") == 14
+    assert result["contract_version"] == "ace.foresight.forecast/v1"
+    assert result["forecast_contract"]["decision_id"] == "decision:d1"
+    assert result["forecast_contract"]["compatibility"]["state"] == "current"
+
+
+@pytest.mark.asyncio
+async def test_attach_prediction_freezes_loaded_outside_view_in_row_and_contract():
+    from core.engine.foresight.forecaster import attach_prediction
+
+    outside_view = {
+        "contract_version": "ace.foresight.outside-view-baseline/v1",
+        "state": "supported",
+        "target_priors": {
+            "capability:auth": {
+                "case_count": 3,
+                "weighted_mean_actual_delta": 0.15,
+                "maturity": "supported",
+            }
+        },
+        "analogues": [],
+    }
+    create_params = None
+
+    def query_side(q, params=None):
+        nonlocal create_params
+        if "FROM capability_quality" in q:
+            return [[]]
+        if "FROM capability" in q:
+            return [[{"id": "capability:auth", "slug": "auth", "description": "Auth module"}]]
+        if "CREATE decision_prediction" in q:
+            create_params = params
+            return [[{"id": "decision_prediction:pred1", "horizon_days": 14, "closed": False}]]
+        return [[]]
+
+    mock_pool = _make_pool(query_side)
+    with (
+        patch("core.engine.foresight.forecaster.llm") as mock_llm,
+        patch(
+            "core.engine.foresight.forecaster.load_outside_view_baseline",
+            AsyncMock(return_value=outside_view),
+        ) as load_outside,
+        patch("core.engine.foresight.forecaster.create_edge", AsyncMock()),
+    ):
+        mock_llm.complete_json = AsyncMock(return_value=_VALID_LLM_PREDICTION)
+        result = await attach_prediction(
+            decision_id="decision:d1",
+            decision_content="We will add OAuth callback tests",
+            product_id="product:platform",
+            archetype="executor",
+            discipline="testing",
+            pool=mock_pool,
+        )
+
+    assert result is not None
+    load_outside.assert_awaited_once()
+    assert create_params is not None
+    assert create_params["outside_view_version"] == "ace.foresight.outside-view-baseline/v1"
+    frozen_outside_view = create_params["outside_view_baseline"]
+    assert frozen_outside_view["target_priors"] == outside_view["target_priors"]
+    assert frozen_outside_view["projection_comparison"]["state"] == "available"
+    assert frozen_outside_view["projection_comparison"]["aggregation_applied"] is False
+    assert create_params["forecast_contract"]["baseline"]["outside_view"] == frozen_outside_view
+
+
+@pytest.mark.asyncio
+async def test_attach_prediction_freezes_optional_comparator_plan_as_plan_only():
+    from core.engine.foresight.forecaster import attach_prediction
+
+    create_params = None
+
+    def query_side(q, params=None):
+        nonlocal create_params
+        if "FROM capability_quality" in q:
+            return [[]]
+        if "FROM capability" in q:
+            return [[{"id": "capability:auth", "slug": "capability:auth", "description": "Auth"}]]
+        if "CREATE decision_prediction" in q:
+            create_params = params
+            return [[{"id": "decision_prediction:pred1", "horizon_days": 14, "closed": False}]]
+        return [[]]
+
+    raw = {
+        **_VALID_LLM_PREDICTION,
+        "comparator_plan": {
+            "comparator_type": "phased_rollout",
+            "assignment_design": "randomized",
+            "comparator_label": "Later rollout cohort",
+            "feasibility": "conditional",
+            "feasibility_reason": "The deployment system supports delayed cohorts.",
+            "required_conditions": ["Delayed rollout is safe"],
+            "assignment_unit": "team",
+            "allocation": "Stagger eligible teams",
+            "minimum_duration_days": 10,
+            "guardrails": ["Stop if auth failures rise"],
+            "measurements": [
+                {
+                    "capability_id": "capability:auth",
+                    "baseline_source": "Pre-rollout capability quality",
+                    "outcome_source": "Horizon capability quality",
+                    "cadence": "daily",
+                }
+            ],
+        },
+    }
+    mock_pool = _make_pool(query_side)
+    with (
+        patch("core.engine.foresight.forecaster.llm") as mock_llm,
+        patch("core.engine.foresight.forecaster.create_edge", AsyncMock()),
+    ):
+        mock_llm.complete_json = AsyncMock(return_value=raw)
+        result = await attach_prediction(
+            decision_id="decision:d1",
+            decision_content="Roll auth out in phases",
+            product_id="product:platform",
+            pool=mock_pool,
+        )
+
+    assert result is not None
+    assert create_params is not None
+    plan = create_params["comparator_plan"]
+    assert create_params["comparator_plan_version"] == "ace.foresight.comparator-plan/v1"
+    assert create_params["comparator_plan_status"] == "proposed"
+    assert plan == create_params["forecast_contract"]["evaluation"]["comparator_plan"]
+    assert plan["resolution_eligible"] is False
+    assert plan["evidence_status"] == "plan_only_not_observed"
 
 
 @pytest.mark.asyncio
@@ -95,6 +229,70 @@ async def test_attach_prediction_returns_none_on_incomplete_schema():
         )
 
     assert result is None
+
+
+@pytest.mark.asyncio
+async def test_attach_prediction_rejects_malformed_expected_changes_before_write():
+    from core.engine.foresight.forecaster import attach_prediction
+
+    malformed = {**_VALID_LLM_PREDICTION, "expected_changes": ["not-an-object"]}
+    writes: list[str] = []
+
+    def query_side(q, params=None):
+        if "FROM capability" in q:
+            return [[]]
+        writes.append(q)
+        return [[]]
+
+    mock_pool = _make_pool(query_side)
+    with patch("core.engine.foresight.forecaster.llm") as mock_llm:
+        mock_llm.complete_json = AsyncMock(return_value=malformed)
+        result = await attach_prediction(
+            decision_id="decision:d1",
+            decision_content="some decision",
+            product_id="product:platform",
+            pool=mock_pool,
+        )
+
+    assert result is None
+    assert not any("CREATE decision_prediction" in query for query in writes)
+
+
+@pytest.mark.asyncio
+async def test_current_state_baseline_uses_latest_product_scoped_quality_rows():
+    from core.engine.foresight.forecaster import _load_current_state_baseline
+
+    def query_side(q, params=None):
+        assert "WHERE product = <record>$product" in q
+        assert params == {"product": "product:platform"}
+        return [
+            [
+                {
+                    "id": "capability_quality:new",
+                    "capability": "capability:auth",
+                    "dimension": "reliability",
+                    "score": 0.7,
+                    "assessed_at": "2026-02-02T00:00:00Z",
+                },
+                {
+                    "id": "capability_quality:old",
+                    "capability": "capability:auth",
+                    "dimension": "reliability",
+                    "score": 0.4,
+                    "assessed_at": "2026-01-01T00:00:00Z",
+                },
+            ]
+        ]
+
+    baseline, refs, observed_at = await _load_current_state_baseline(
+        product_id="product:platform",
+        capabilities=[{"id": "capability:auth", "slug": "auth"}],
+        pool=_make_pool(query_side),
+    )
+
+    assert baseline == {"auth": {"reliability": 0.7}}
+    assert refs == ["capability_quality:new"]
+    assert observed_at == "2026-02-02T00:00:00Z"
 
 
 @pytest.mark.asyncio

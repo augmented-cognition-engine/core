@@ -330,11 +330,42 @@ and designed to degrade without blocking the primary reasoning path.
 
 ### Sentinel and foresight — time enters the graph
 
+ACE provides graph-grounded, calibrated foresight. It projects conditional consequences of
+decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
+and uses resolved forecasts to improve later reasoning. This is a bounded, inspectable consequence
+model over a product or domain, not a foundation-scale learned model of the physical world. The
+[foresight contract](foresight.md) records the current maturity boundary; the
+[F1 closeout evidence](f1-foresight-evidence.md) records the passed continuous-delta v1 scope and
+the claims that remain gated by I3 and L1.
+
 Sentinel engines run on registered schedules or explicit triggers and record correlated runs and
 signals. They watch for gaps, changes, and emerging information without turning background output
 into unquestioned truth. Foresight moves decisions forward in time by making predictions that can be
 proven wrong; reconciliation brings the evidence back. Together they let ACE retain not only *what
 was decided*, but also *what the decision expected and what actually happened*.
+Frozen capability-quality indicator rules can produce separate versioned evidence before the
+forecast horizon; prose-only indicators remain explicitly manual, and the operational evidence
+summary never rewrites the original forecast.
+Settled outcome retrieval also freezes a product-scoped outside-view reference class with explicit
+similarity features, provenance, sample sufficiency, and limitations. It is kept separate from the
+model projection, cannot be confused with a no-action counterfactual, and is compared against the
+forecast only after an eligible resolution.
+Eligible continuous consequences also produce a separate Prediction Score v1 record using the
+declared central interval coverage. Unsupported or under-specified predictions abstain; the older
+bounded absolute-delta calibration remains a compatibility diagnostic rather than being renamed a
+proper score.
+Optional observed comparator records can add no-action, holdout, phased-rollout, or alternative-
+intervention evidence after a decision. Eligible rows expose difference-in-differences effects and
+design-specific attribution strength at resolution; they never rewrite the frozen forecast and
+are not required for cold-start use.
+Forecasts can also freeze an optional Comparator Plan v1 that proposes target-grounded assignment,
+measurement, timing, and guardrails. Plans require operator confirmation, do not estimate sample
+size without statistical inputs, and remain explicitly non-evidence until a separate comparator
+observation is captured.
+Observed comparators retain a deterministic link to the prediction's frozen plan when available.
+Resolution provenance records whether execution aligned, partially aligned, or departed from the
+plan and downgrades effective attribution for missing or conflicting execution details. Alignment
+never upgrades a design into a verified causal claim.
 
 ### Architecture versus the 0.1.x compatibility promise
 

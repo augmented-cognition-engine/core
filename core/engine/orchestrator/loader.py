@@ -212,9 +212,9 @@ async def _load_calibration_weights(discipline: str, product_id: str) -> dict[st
     async with pool.connection() as db:
         result = await db.query(
             """SELECT archetype, calibration_score FROM archetype_calibration
-               WHERE discipline = $discipline
+               WHERE product = <record>$product AND discipline = $discipline
                ORDER BY calibration_score DESC""",
-            {"discipline": discipline},
+            {"product": product_id, "discipline": discipline},
         )
     rows = parse_rows(result)
     return {

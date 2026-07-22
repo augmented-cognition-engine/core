@@ -35,12 +35,14 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | I1 | Next | passed | [`decision-correction-receipts.md`](decision-correction-receipts.md) records stable identities, complete decision context, all four dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and schema-zero-to-v145 restart continuity |
 | I2 | Next | ready | I1 identities and read contracts have passed; attributable perspective selection, bounded contributor positions, disagreement, synthesis lineage, and honest partial/degraded behavior may start without exposing hidden chain-of-thought |
 | I3 | Next | ready | I1 identities and R3 route evidence have passed; inspectable retained-intelligence states and exact decision effects may start while preserving null, harmful, stale, contested, failure, and degraded cases |
+| F1 | Next | passed | [`f1-foresight-evidence.md`](f1-foresight-evidence.md) records the bounded continuous-delta v1 contract, real structured-measurement-to-comparator-to-resolution API/database scenario, restart-safe replay, cold-start behavior, proper scoring, limitations, and exact eleven-tool preservation through schema v154 |
 | T1 | Next | not ready | Recovery, replay, portability, cancellation, and resource guarantees are not yet frozen |
 | E1 | Next | not ready | Depends on conformance evidence and preservation of the eleven-tool boundary |
+| F2 | Later | not ready | Broader consequence types and independently verified design evidence require L1 evidence or demonstrated user need; they do not keep F1 open |
 | B1 | Later | not ready | Depends on inspectable approval receipts and explicit execution authority |
-| L1 | Later | not ready | Depends on I3 material-use evidence plus stable outcome identity, provenance, and calibration evidence; material influence alone is not assumed beneficial |
+| L1 | Later | not ready | F1 is passed; L1 now depends on I3 material-use evidence, sample-size-aware reliability, explicit null/harmful/degraded influence, and comparison against no-foresight, naive/base-rate, and model-only controls |
 | H1 | Later | not ready | Depends on tenancy, portability, authority, and recovery guarantees |
-| E2 | Later | not ready | Depends on E1 conformance and stable compatibility policy |
+| E2 | Later | not ready | Depends on E1 conformance and stable compatibility policy; native telemetry sources belong to this adapter lane |
 
 I1 passed through structured task decisions, authenticated human dispositions, and linked
 correction observations exposed through the existing status/capture/load contracts. The disposable
@@ -68,6 +70,12 @@ that a decision or correction is correct or beneficial.
 7. **Ready, parallel bounded lanes — I2 / I3:** I2 may add attributable deliberation and synthesis
    receipts without hidden chain-of-thought; I3 may add inspectable retained-intelligence use and
    exact decision effects. Keep their contracts and evidence separate.
+8. **Completed — F1:** preserve the canonical definition, continuous-delta v1 scope, additive
+   v146-v154 contracts, real measurement-to-resolution restart evidence, limitations, and exact
+   eleven-tool boundary. Do not reopen F1 for forecast breadth or adapters.
+9. **Next value proof — I3 then L1:** make resolved-forecast retrieval and exact decision effects
+   inspectable, then compare ACE foresight with no-foresight, naive/base-rate, and model-only
+   controls. I2 may proceed as a separate parallel attributable-deliberation lane.
 
 An outcome moves to `passed` only when scope, acceptance checks, evidence, limitations, roadmap
 reconciliation, and downstream readiness have all been recorded. Implementation alone is

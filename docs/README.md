@@ -4,6 +4,11 @@ ACE's public documentation is intentionally small and user-facing:
 
 - [Architecture](architecture.md) — how the reasoning engine and supported boundaries fit
   together.
+- [Graph-grounded calibrated foresight](foresight.md) — the canonical definition, current maturity
+  boundary, versioned forecast/intervention/indicator/outside-view/resolution/scoring contracts, and F1 acceptance
+  evidence.
+- [F1 foresight closeout evidence](f1-foresight-evidence.md) — continuous-v1 scope, real
+  measurement-to-resolution restart proof, limitations, and deferred work.
 - [Capability maturity](capability-maturity.md) — what is supported in 0.1.x and what remains
   experimental.
 - [Living Product Graph read contract](living-product-graph.md) — inspect product objects,

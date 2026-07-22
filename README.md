@@ -216,7 +216,7 @@ Human ──partners with── ACE ──partners with── LLM (model-agnosti
               │    orchestration (the committee)       │
               │    memory        (knowledge graph)     │
               │    capture       (decisions)           │
-              │    foresight     (world model)         │
+              │    foresight     (consequence model)   │
               │    sentinel      (continuous watch)    │
               │    calibration   (prediction record)   │
               └────────────────────────────────────────┘
@@ -225,6 +225,16 @@ Human ──partners with── ACE ──partners with── LLM (model-agnosti
 The LLM never owns that loop — it's called as the inference resource *inside*
 it, at the steps ACE decides need one. That's why the model is swappable and
 the reasoning is grounded rather than improvised.
+
+**ACE provides graph-grounded, calibrated foresight.** It projects conditional consequences of
+decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
+and uses resolved forecasts to improve later reasoning. This is a bounded, inspectable
+prediction-and-reconciliation loop over a product or domain—not a foundation-scale learned model
+of the physical world. Settled analogue outcomes now provide an explicit, sample-size-gated outside
+view without being presented as causal evidence or a no-action counterfactual. See the
+[passed F1 foresight contract and maturity boundary](https://github.com/augmented-cognition-engine/core/blob/main/docs/foresight.md).
+Resolved continuous forecasts retain declared-coverage interval scores and explicit abstentions;
+the legacy calibration number remains separately labeled for compatibility.
 
 ---
 
