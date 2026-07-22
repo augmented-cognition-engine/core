@@ -13,6 +13,8 @@ async def test_calibration_weights_returned_in_loaded():
 
     async def fake_query(q, params=None):
         if "archetype_calibration" in q:
+            assert "product = <record>$product" in q
+            assert params == {"product": "product:test", "discipline": "architecture"}
             return [cal_rows]
         return [[]]
 

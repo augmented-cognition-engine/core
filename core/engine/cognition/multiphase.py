@@ -264,6 +264,7 @@ class MultiPhaseExecutor:
                 output = await self._llm_call(system_prompt, user_prompt)
                 phase_outputs.append(output)
                 winning_output = output
+                winning_evaluation = None
 
                 _carry_violations = []  # Gap 4: prior violations already injected above; reset
                 # Trace entry for this phase (fields updated below as processing runs)
@@ -288,6 +289,7 @@ class MultiPhaseExecutor:
                         po = PhaseOutput.model_validate(json.loads(output))
                         if self._confidence_gate.should_retrieve(po):
                             initial_result = await self._phase_evaluator.evaluate(description, po, phase)
+                            winning_evaluation = initial_result
                             candidates = [
                                 PhaseCandidate(
                                     output=output,
@@ -363,6 +365,7 @@ class MultiPhaseExecutor:
                                 _trace_entry["pass_at_k_proxy"] = _above / len(candidates)
                                 # Gap 4: carry winner's violated constraints into next phase
                                 if best.evaluation_result:
+                                    winning_evaluation = best.evaluation_result
                                     _carry_violations = best.evaluation_result.violated_constraints
                     except Exception:
                         pass  # Non-fatal: branching failure leaves initial output intact
@@ -377,7 +380,12 @@ class MultiPhaseExecutor:
                         _sr_po = PhaseOutput.model_validate(json.loads(winning_output))
                         if self._confidence_gate.should_retrieve(_sr_po):
                             _rounds_done = 0
-                            _result = await self._phase_evaluator.evaluate(description, _sr_po, phase)
+                            # Wave 3 already evaluated this exact winning
+                            # candidate. Reuse that verdict instead of making a
+                            # stochastic duplicate critic call before refinement.
+                            _result = winning_evaluation or await self._phase_evaluator.evaluate(
+                                description, _sr_po, phase
+                            )
                             _violations_before = len(_result.violated_constraints)
                             for _round in range(self._self_refine_rounds):
                                 if not _result.violated_constraints and not self._confidence_gate.should_retrieve(
@@ -408,6 +416,7 @@ class MultiPhaseExecutor:
                                     winning_output = revised
                                     phase_outputs[-1] = revised
                                     _sr_po, _result = _rev_po, _rev_result
+                                    winning_evaluation = _rev_result
                                     _rounds_done += 1
                                 else:
                                     break  # revision regressed → keep prior, stop

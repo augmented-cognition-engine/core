@@ -181,6 +181,26 @@ Acceptance evidence:
 - a read-only supported surface can render the path from retained source identity to exact decision
   delta without reconstructing missing lineage.
 
+**Closeout (2026-07-22): passed.** `intelligence-use-receipt-v1` extends the existing task/status
+and Living Product Graph projections with product-scoped source and receiver identity, distinct
+retrieved/injected/reflected/decision-material states, exact deltas over the six I1 decision
+fields, matched comparison metadata, route/resource/failure evidence, and explicit reasons for
+every unearned state. The deterministic public-data matrix, matched live Codex subscription pair,
+and real database/API restart acceptance cover material, null, irrelevant, reflected-only, stale,
+invalidated, contested, harmful, isolation, mismatch, failure, and partial-lineage behavior. See
+[`i3-intelligence-use-evidence.md`](i3-intelligence-use-evidence.md). Beneficial impact remains an
+L1 claim and the thin MCP surface remains exactly eleven tools.
+
+**L1 evidence gate (2026-07-22): candidate.** The bounded
+`ace.foresight.impact-evaluation/v1` evaluator requires complete pre-outcome resolution lineage,
+material later use, outcome provenance, adequate independent clusters, supported intervention or
+quasi-experimental attribution, and favorable cluster-adjusted comparisons against no-foresight,
+naïve/base-rate, and matched model-only controls. The first checksum-frozen public-data probe did
+not beat persistence and its apparent base-rate gain included zero; a model-only run could not
+rescue the all-controls rule and was not invoked. See
+[`l1-foresight-impact-evidence.md`](l1-foresight-impact-evidence.md). L1 is not passed and F2 remains
+gated.
+
 ### Product/evaluation boundary
 
 I1–I3 own durable identities, provenance, bounded reasoning artifacts, lineage, materiality
@@ -447,14 +467,16 @@ revision that approved them.
 
 ## Recommended dispatch
 
-1. Complete the active **R1/R3** evidence spine and unlock **R4** according to the public roadmap.
+1. Preserve the passed **R1–R4**, **G1**, **I1**, **I3**, and **F1** evidence spine.
 2. During **E1** planning, converge the legacy skill path into cognition recipes and freeze the
    migration contract.
 3. Deliver one narrow vertical slice: teach from an existing ACE task, classify the learning as a
    recipe change, inspect provenance, approve an immutable recipe revision, compose it in a fresh
    invocation, and record its use.
 4. Add document/path learning only after source fingerprinting and degraded-state behavior pass.
-5. Connect executions to outcomes under **L1** before enabling automated revision proposals broadly.
+5. Replace the candidate **L1** retrospective probe with preregistered, independently timed,
+   attribution-bearing outcome cohorts before enabling automated revision proposals broadly; I3
+   does not begin or satisfy that benefit evaluation.
 6. Add the first writable execution adapter only under **B1**, after approval and recovery contracts
    are stable.
 

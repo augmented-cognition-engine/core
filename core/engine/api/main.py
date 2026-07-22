@@ -382,6 +382,9 @@ async def lifespan(app: FastAPI):
     from core.engine.api.tasks import shutdown_task_runtime
 
     await shutdown_task_runtime()
+    from core.engine.core.llm import llm
+
+    await llm.aclose()
     await stop_canvas_yjs_server()
     _atc_running = False
     _atc_task.cancel()

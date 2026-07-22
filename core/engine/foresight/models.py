@@ -28,9 +28,12 @@ class PredictionOutcome:
     prediction_id: str
     archetype: str
     discipline: str
-    calibration_score: float  # 0.0–1.0; 1.0 = perfect
+    calibration_score: float | None  # absent when the resolution is not eligible for scoring
     predicted_deltas: dict[str, float]  # capability_id -> predicted delta
     actual_deltas: dict[str, float]  # capability_id -> actual delta at close time
+    resolution_state: str = "mixed"
+    score_eligible: bool = True
+    non_score_reason: str | None = None
 
 
 @dataclass

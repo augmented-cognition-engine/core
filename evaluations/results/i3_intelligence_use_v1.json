@@ -1,0 +1,3360 @@
+{
+  "contract_version": "intelligence-use-receipt-v1",
+  "evidence_scope": {
+    "causal_boundary": "Only exact matched comparisons over structured I1 fields may support the scoped memory-effect claim.",
+    "live_provider_case": "evaluations/results/m5_ic_01_live_inputs_v1.json",
+    "purpose": "Choose whether a bounded retention cohort should remain staged after a public-data return-rate signal.",
+    "source": "Public UCI Online Retail II dataset scenario, DOI 10.24432/C5F88Q"
+  },
+  "limitations": [
+    "The deterministic matrix tests contract semantics, not general model quality.",
+    "The authoritative live route is the existing supported Codex subscription evidence; no new provider work was started.",
+    "Beneficial impact, reliability, and longitudinal quality remain gated on L1 outcome evidence."
+  ],
+  "receipts": [
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:c683ce34eee105bc5dfb2315",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "observation:i3-material"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": true,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-material",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [
+              "alternatives",
+              "assumptions",
+              "evidence_refs",
+              "reconsideration_conditions",
+              "scope",
+              "selected_option"
+            ],
+            "decision_material": true,
+            "highest_state": "decision-material",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "observation:i3-material",
+          "intelligence_type": "correction",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "dataset": "UCI Online Retail II",
+            "product_id": "product:i3-public-retail",
+            "source": "public_dataset"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-material",
+            "invocation_id": "invocation:i3-material",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-material"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-material:selected_option"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "query": "public retail return rate cohort",
+            "rank": 1,
+            "reason": "same decision scope",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 1.0,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [
+        "observation:i3-material"
+      ],
+      "receipt_id": "intelligence_use:5c8b740f8d61a41f39240cfc",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-material",
+        "invocation_id": "invocation:i3-material",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-material"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:cce416a046abfd2e4d0827f2",
+        "delta": {
+          "changed_fields": [],
+          "unchanged_fields": [
+            "selected_option",
+            "scope",
+            "assumptions",
+            "alternatives",
+            "reconsideration_conditions",
+            "evidence_refs"
+          ]
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "observation:i3-null"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-null",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "reflected",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [
+                "no_qualifying_structured_decision_delta"
+              ],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "observation:i3-null",
+          "intelligence_type": "preference",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "human_capture"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-null",
+            "invocation_id": "invocation:i3-null",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-null"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "task:i3-null:output"
+            ],
+            "materiality_eligible": true,
+            "method": "bounded_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 1,
+            "reason": "same retention scope",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 1.0,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:805dd06ed519e4e4fa54870d",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-null",
+        "invocation_id": "invocation:i3-null",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-null"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:9bbf174cc4b8fd8fc796d832",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "insight:i3-irrelevant"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-irrelevant",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "retrieved",
+            "injected": false,
+            "not_established_reasons": {
+              "decision_material": [
+                "not_injected",
+                "not_reflected",
+                "not_relevant"
+              ],
+              "injected": [
+                "not_injected"
+              ],
+              "reflected": [
+                "not_injected"
+              ]
+            },
+            "reflected": false,
+            "retrieved": true
+          },
+          "intelligence_id": "insight:i3-irrelevant",
+          "intelligence_type": "preference",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "human_capture"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-irrelevant",
+            "invocation_id": "invocation:i3-irrelevant",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-irrelevant"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [],
+            "materiality_eligible": false,
+            "method": "unreported"
+          },
+          "relevance": "irrelevant",
+          "retrieval": {
+            "rank": 9,
+            "reason": "broad lexical match",
+            "relevance": "irrelevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 0.8,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:329aa199db1d6b6aa72e593a",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-irrelevant",
+        "invocation_id": "invocation:i3-irrelevant",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-irrelevant"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:13f80dc1b01b3397612797cc",
+        "delta": {
+          "changed_fields": [],
+          "unchanged_fields": [
+            "selected_option",
+            "scope",
+            "assumptions",
+            "alternatives",
+            "reconsideration_conditions",
+            "evidence_refs"
+          ]
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "insight:i3-reflected"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-reflected",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "reflected",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [
+                "no_qualifying_structured_decision_delta",
+                "reflection_method_not_materiality_eligible"
+              ],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "insight:i3-reflected",
+          "intelligence_type": "pattern",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "synthesis"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-reflected",
+            "invocation_id": "invocation:i3-reflected",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-reflected"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "task:i3-reflected:output"
+            ],
+            "materiality_eligible": false,
+            "method": "identifier_mention"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 2,
+            "reason": "same retention scope",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 0.9,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:49b8ba28f982d618f5bb8c9f",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-reflected",
+        "invocation_id": "invocation:i3-reflected",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-reflected"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:4e35f450aea266415e936e74",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "insight:i3-stale"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-stale",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "reflected",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [
+                "validity_stale"
+              ],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "insight:i3-stale",
+          "intelligence_type": "pattern",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "historical_observation"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-stale",
+            "invocation_id": "invocation:i3-stale",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-stale"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-stale:selected_option"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 3,
+            "reason": "historical cohort match",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 0.7,
+          "validity": {
+            "state": "stale"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:953bba61a879f74295c2b7da",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-stale",
+        "invocation_id": "invocation:i3-stale",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-stale"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:bcdf5c5bac4d9eb9db1bdc8b",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "observation:i3-invalidated"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-invalidated",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "retrieved",
+            "injected": false,
+            "not_established_reasons": {
+              "decision_material": [
+                "lifecycle_invalidated",
+                "not_injected",
+                "not_reflected",
+                "validity_invalidated"
+              ],
+              "injected": [
+                "not_injected"
+              ],
+              "reflected": [
+                "not_injected"
+              ]
+            },
+            "reflected": false,
+            "retrieved": true
+          },
+          "intelligence_id": "observation:i3-invalidated",
+          "intelligence_type": "correction",
+          "lifecycle": {
+            "state": "invalidated"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "human_capture"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-invalidated",
+            "invocation_id": "invocation:i3-invalidated",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-invalidated"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [],
+            "materiality_eligible": false,
+            "method": "unreported"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 1,
+            "reason": "legacy correction match",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 1.0,
+          "validity": {
+            "invalidated_by": "observation:i3-superseding",
+            "state": "invalidated"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:f29df30ff9bcec26965ac218",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-invalidated",
+        "invocation_id": "invocation:i3-invalidated",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-invalidated"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:2cab45977fba6d1f962fffb4",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "observation:i3-contested"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": true,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-contested",
+          "contestation": {
+            "conflicts_with": [
+              "observation:i3-counterclaim"
+            ],
+            "handling": "preserve_disagreement",
+            "state": "contested"
+          },
+          "evidence": {
+            "changed_fields": [
+              "alternatives",
+              "assumptions",
+              "evidence_refs",
+              "reconsideration_conditions",
+              "scope",
+              "selected_option"
+            ],
+            "decision_material": true,
+            "highest_state": "decision-material",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "observation:i3-contested",
+          "intelligence_type": "correction",
+          "lifecycle": {
+            "state": "contested"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "human_capture"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-contested",
+            "invocation_id": "invocation:i3-contested",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-contested"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-contested:reconsideration_conditions"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 1,
+            "reason": "contested retention authority",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 1.0,
+          "validity": {
+            "state": "contested"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [
+        "observation:i3-contested"
+      ],
+      "receipt_id": "intelligence_use:732140e57cc4160794c42de0",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-contested",
+        "invocation_id": "invocation:i3-contested",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-contested"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:477aa9328b839400244b9986",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "insight:i3-harmful"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "harmful",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": true,
+        "outcome": {
+          "finding": "Later observed returns contradicted the retained pattern.",
+          "status": "harmful"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-harmful",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [
+              "alternatives",
+              "assumptions",
+              "evidence_refs",
+              "reconsideration_conditions",
+              "scope",
+              "selected_option"
+            ],
+            "decision_material": true,
+            "highest_state": "decision-material",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "insight:i3-harmful",
+          "intelligence_type": "pattern",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "historical_observation"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-harmful",
+            "invocation_id": "invocation:i3-harmful",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-harmful"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-harmful:selected_option"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 1,
+            "reason": "historical return-rate pattern",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 0.6,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [
+        "insight:i3-harmful"
+      ],
+      "receipt_id": "intelligence_use:5e025a038df203ea915b07e0",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-harmful",
+        "invocation_id": "invocation:i3-harmful",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-harmful"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:16c60c7c41f0904f67a1b598",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "insight:i3-foreign"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-foreign",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "reflected",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [
+                "product_mismatch"
+              ],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "insight:i3-foreign",
+          "intelligence_type": "pattern",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:foreign",
+            "source": "foreign_product"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-product-mismatch",
+            "invocation_id": "invocation:i3-product-mismatch",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-product-mismatch"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-product-mismatch:selected_option"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 1,
+            "reason": "isolation failure fixture",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:foreign",
+          "trust": 0.9,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:4f2b8eb7751854fa669bd303",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-product-mismatch",
+        "invocation_id": "invocation:i3-product-mismatch",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-product-mismatch"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:bd59559a65dcc258e13d80b3",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [
+            {
+              "field": "provider",
+              "with_context": "CodexAppServerProvider",
+              "without_context": "CLIProvider"
+            },
+            {
+              "field": "model",
+              "with_context": "gpt-5.6",
+              "without_context": "claude-sonnet-4-6"
+            },
+            {
+              "field": "configuration_hash",
+              "with_context": "sha256:i3-config",
+              "without_context": "sha256:other-config"
+            }
+          ],
+          "missing_fields": []
+        },
+        "state": "mismatched",
+        "target_intelligence_ids": [
+          "observation:i3-route-mismatch"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:other-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "claude-sonnet-4-6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CLIProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [
+          "comparison_mismatched"
+        ],
+        "state": "degraded"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-route-mismatch",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "reflected",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [
+                "comparison_mismatched"
+              ],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "observation:i3-route-mismatch",
+          "intelligence_type": "correction",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "human_capture"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-route-mismatch",
+            "invocation_id": "invocation:i3-route-mismatch",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-route-mismatch"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-route-mismatch:selected_option"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 1,
+            "reason": "route mismatch fixture",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 1.0,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:29a6103fa32e0338cca18902",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-route-mismatch",
+        "invocation_id": "invocation:i3-route-mismatch",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-route-mismatch"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:2ff55f022f79b5367240c947",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [
+          "control_provider_timeout"
+        ],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "failed",
+        "target_intelligence_ids": [
+          "observation:i3-evaluation-failure"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [
+          "comparison_failed"
+        ],
+        "state": "degraded"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-evaluation-failure",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "reflected",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [
+                "comparison_failed"
+              ],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "observation:i3-evaluation-failure",
+          "intelligence_type": "correction",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "product_id": "product:i3-public-retail",
+            "source": "human_capture"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-evaluation-failure",
+            "invocation_id": "invocation:i3-evaluation-failure",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-evaluation-failure"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-evaluation-failure:selected_option"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 1,
+            "reason": "evaluation failure fixture",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 1.0,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:320691a17fc12076d82ae021",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-evaluation-failure",
+        "invocation_id": "invocation:i3-evaluation-failure",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-evaluation-failure"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:d8e50db96cbaf9faca6455c9",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "insight:i3-partial-lineage"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [
+          "insight:i3-partial-lineage.content_hash",
+          "insight:i3-partial-lineage.provenance",
+          "insight:i3-partial-lineage.trust"
+        ],
+        "state": "degraded"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": false,
+        "runtime_restart": "not_exercised"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": false,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": null,
+          "contestation": {},
+          "evidence": {
+            "changed_fields": [],
+            "decision_material": false,
+            "highest_state": "reflected",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [
+                "partial_or_missing_lineage"
+              ],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "insight:i3-partial-lineage",
+          "intelligence_type": "pattern",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {},
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-partial-lineage",
+            "invocation_id": "invocation:i3-partial-lineage",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-partial-lineage"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "task:i3-partial-lineage:output"
+            ],
+            "materiality_eligible": true,
+            "method": "bounded_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "rank": 4,
+            "reason": "partial lineage fixture",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": null,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [],
+      "receipt_id": "intelligence_use:638348e2eaa904292c9dbe4a",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-partial-lineage",
+        "invocation_id": "invocation:i3-partial-lineage",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-partial-lineage"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "comparison": {
+        "comparison_id": "intelligence_comparison:804ae31cc51df7230a7a0158",
+        "delta": {
+          "changed_fields": [
+            {
+              "field": "selected_option",
+              "with_context": "keep_staged",
+              "without_context": "general_rollout"
+            },
+            {
+              "field": "scope",
+              "with_context": "bounded retention cohort",
+              "without_context": "all eligible customers"
+            },
+            {
+              "field": "assumptions",
+              "with_context": [
+                "return-rate signal remains applicable"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "alternatives",
+              "with_context": [
+                "general rollout"
+              ],
+              "without_context": [
+                "keep staged"
+              ]
+            },
+            {
+              "field": "reconsideration_conditions",
+              "with_context": [
+                "fresh cohort evidence contradicts the signal"
+              ],
+              "without_context": []
+            },
+            {
+              "field": "evidence_refs",
+              "with_context": [
+                "observation:i3-default"
+              ],
+              "without_context": []
+            }
+          ],
+          "unchanged_fields": []
+        },
+        "failures": [],
+        "limitations": [
+          "A matched deterministic receipt supports only the scoped memory-effect claim."
+        ],
+        "matching": {
+          "dimensions": [
+            "task_hash",
+            "prompt_contract_hash",
+            "provider",
+            "model",
+            "configuration_hash",
+            "decision_schema",
+            "toolset_hash"
+          ],
+          "mismatches": [],
+          "missing_fields": []
+        },
+        "state": "matched",
+        "target_intelligence_ids": [
+          "observation:i3-restart"
+        ],
+        "with_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "general rollout"
+            ],
+            "assumptions": [
+              "return-rate signal remains applicable"
+            ],
+            "evidence_refs": [
+              "observation:i3-default"
+            ],
+            "reconsideration_conditions": [
+              "fresh cohort evidence contradicts the signal"
+            ],
+            "scope": "bounded retention cohort",
+            "selected_option": "keep_staged"
+          },
+          "invocation_id": "invocation:i3-treatment",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 420,
+            "latency_ms": 840,
+            "output_tokens": 96,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-treatment-output"
+        },
+        "without_context": {
+          "conditions": {
+            "configuration_hash": "sha256:i3-config",
+            "decision_schema": "decision-receipt-v1",
+            "model": "gpt-5.6",
+            "prompt_contract_hash": "sha256:i3-prompt-v1",
+            "provider": "CodexAppServerProvider",
+            "task_hash": "sha256:i3-task",
+            "toolset_hash": "sha256:ace-eleven-tools"
+          },
+          "decision": {
+            "alternatives": [
+              "keep staged"
+            ],
+            "assumptions": [],
+            "evidence_refs": [],
+            "reconsideration_conditions": [],
+            "scope": "all eligible customers",
+            "selected_option": "general_rollout"
+          },
+          "invocation_id": "invocation:i3-control",
+          "metrics": {
+            "billing_semantics": "subscription_backed_no_per_call_cost",
+            "calls": 1,
+            "degraded_states": [],
+            "failures": [],
+            "input_tokens": 360,
+            "latency_ms": 790,
+            "output_tokens": 82,
+            "retries": 0
+          },
+          "output_hash": "sha256:i3-control-output"
+        }
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "continuity": {
+        "database_identity_preserved": true,
+        "fresh_client_invocation": true,
+        "receipt_identity_replayed": true,
+        "runtime_restart": "real_supported_api_database_restart"
+      },
+      "contract_version": "intelligence-use-receipt-v1",
+      "impact": {
+        "beneficial_impact": "outcome_unsupported",
+        "beneficial_impact_supported": false,
+        "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+        "material_influence_established": true,
+        "outcome": {
+          "status": "not_observed"
+        }
+      },
+      "intelligence": [
+        {
+          "content_hash": "sha256:i3-restart",
+          "contestation": {
+            "state": "uncontested"
+          },
+          "evidence": {
+            "changed_fields": [
+              "alternatives",
+              "assumptions",
+              "evidence_refs",
+              "reconsideration_conditions",
+              "scope",
+              "selected_option"
+            ],
+            "decision_material": true,
+            "highest_state": "decision-material",
+            "injected": true,
+            "not_established_reasons": {
+              "decision_material": [],
+              "injected": [],
+              "reflected": []
+            },
+            "reflected": true,
+            "retrieved": true
+          },
+          "intelligence_id": "observation:i3-restart",
+          "intelligence_type": "correction",
+          "lifecycle": {
+            "state": "active"
+          },
+          "provenance": {
+            "captured_before_restart": true,
+            "product_id": "product:i3-public-retail",
+            "source": "human_capture"
+          },
+          "receiving": {
+            "component": "retention_decision",
+            "decision_id": "decision:i3-restart",
+            "invocation_id": "invocation:i3-after-restart",
+            "stage": "cohort_gate",
+            "task_id": "task:i3-restart"
+          },
+          "receiving_product_id": "product:i3-public-retail",
+          "reflection": {
+            "evidence_refs": [
+              "decision:i3-restart:selected_option"
+            ],
+            "materiality_eligible": true,
+            "method": "structured_field_attribution"
+          },
+          "relevance": "relevant",
+          "retrieval": {
+            "query": "fresh invocation after restart",
+            "rank": 1,
+            "reason": "durable correction matches cohort gate",
+            "relevance": "relevant"
+          },
+          "source_product_id": "product:i3-public-retail",
+          "trust": 1.0,
+          "validity": {
+            "state": "active"
+          }
+        }
+      ],
+      "material_fields": [
+        "alternatives",
+        "assumptions",
+        "evidence_refs",
+        "reconsideration_conditions",
+        "scope",
+        "selected_option"
+      ],
+      "material_intelligence_ids": [
+        "observation:i3-restart"
+      ],
+      "receipt_id": "intelligence_use:d3b5f748cc831af7011844fb",
+      "receiving": {
+        "component": "retention_decision",
+        "decision_id": "decision:i3-restart",
+        "invocation_id": "invocation:i3-after-restart",
+        "product_id": "product:i3-public-retail",
+        "stage": "cohort_gate",
+        "task_id": "task:i3-restart"
+      },
+      "route": {
+        "billing_semantics": "subscription_backed_no_per_call_cost",
+        "calls": 2,
+        "configuration_hash": "sha256:i3-config",
+        "degraded_state": null,
+        "failures": [],
+        "latency_ms": 1630,
+        "model": "gpt-5.6",
+        "provider": "CodexAppServerProvider",
+        "retries": 0,
+        "tokens": 958
+      }
+    }
+  ],
+  "run_kind": "recorded_deterministic_conformance",
+  "schema_version": 2,
+  "suite_id": "i3-public-data-continuity-v1",
+  "summary": {
+    "comparison_states": {
+      "failed": 1,
+      "matched": 11,
+      "mismatched": 1,
+      "unknown": 0
+    },
+    "complete_receipts": 10,
+    "degraded_receipts": 3,
+    "evidence_states": {
+      "decision-material": 4,
+      "injected": 0,
+      "reflected": 7,
+      "retrieved": 2
+    },
+    "material_receipts": 4,
+    "receipts": 13
+  },
+  "unsupported_claims": [
+    "Retrieval alone is use.",
+    "A reflected identifier or copied wording proves materiality.",
+    "Cross-provider, cross-model, or configuration-mismatched differences prove a memory effect.",
+    "Decision-material retained intelligence is necessarily beneficial.",
+    "I3 establishes the later L1 beneficial-impact claim."
+  ]
+}

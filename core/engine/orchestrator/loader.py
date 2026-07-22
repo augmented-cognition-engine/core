@@ -127,6 +127,11 @@ async def load_intelligence(
                 "confidence": i.get("confidence", 0),
                 "tier": i.get("tier", ""),
                 "insight_type": i.get("insight_type", ""),
+                "product": str(i.get("product") or product_id),
+                "trust": i.get("trust"),
+                "status": i.get("status", "active"),
+                "created_at": i.get("created_at"),
+                "source_observations": i.get("source_observations") or [],
             }
             for i in insights[: _MAX_PER_TIER * 4]
         ],
@@ -212,9 +217,9 @@ async def _load_calibration_weights(discipline: str, product_id: str) -> dict[st
     async with pool.connection() as db:
         result = await db.query(
             """SELECT archetype, calibration_score FROM archetype_calibration
-               WHERE discipline = $discipline
+               WHERE product = <record>$product AND discipline = $discipline
                ORDER BY calibration_score DESC""",
-            {"discipline": discipline},
+            {"product": product_id, "discipline": discipline},
         )
     rows = parse_rows(result)
     return {

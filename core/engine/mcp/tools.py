@@ -4892,6 +4892,10 @@ async def ace_forecast(product_id: str = DEFAULT_ORG) -> dict:
         result = await db.query(
             """SELECT id, decision, archetype, discipline, horizon_days,
                       primary_risk, falsification_condition, leading_indicators,
+                      contract_version, forecast_contract, resolution_status,
+                      outside_view_version, outside_view_baseline,
+                      indicator_state_version, indicator_evidence_state, indicator_status,
+                      indicator_updated_at,
                       closed, created_at
                FROM decision_prediction
                WHERE product = <record>$product AND closed = false
@@ -4900,6 +4904,11 @@ async def ace_forecast(product_id: str = DEFAULT_ORG) -> dict:
             {"product": product_id},
         )
     predictions = parse_rows(result)
+    from core.engine.foresight.contracts import normalize_forecast_record
+
+    for prediction in predictions:
+        prediction["contract"] = normalize_forecast_record(prediction)
+        prediction["forecast_contract"] = prediction["contract"]
     return {
         "total_open": len(predictions),
         "predictions": predictions,
@@ -4910,7 +4919,11 @@ async def ace_calibration(product_id: str = DEFAULT_ORG) -> dict:
     """View per-archetype calibration scores accumulated by the reconciler."""
     async with pool.connection() as db:
         result = await db.query(
-            "SELECT archetype, discipline, calibration_score, sample_count, updated_at FROM archetype_calibration ORDER BY calibration_score DESC",
+            """SELECT archetype, discipline, calibration_score, sample_count, updated_at
+               FROM archetype_calibration
+               WHERE product = <record>$product
+               ORDER BY calibration_score DESC""",
+            {"product": product_id},
         )
     calibrations = parse_rows(result)
     if not calibrations:

@@ -107,3 +107,41 @@ async def test_shadow_request_has_shadow_run_true():
     assert captured_requests[0].shadow_run is True
     assert captured_requests[0].persist_task is False
     assert captured_requests[0].run_post_hooks is False
+
+
+@pytest.mark.asyncio
+async def test_background_shadow_helper_preserves_quality_sample_persistence():
+    from contextlib import asynccontextmanager
+
+    from core.engine.orchestration.executor import _run_shadow_comparison_and_persist
+
+    db = AsyncMock()
+
+    class _Pool:
+        @asynccontextmanager
+        async def connection(self):
+            yield db
+
+    comparison = AsyncMock(
+        return_value={
+            "judge_preference": "treatment",
+            "judge_rationale": "treatment retained more decision-relevant evidence",
+        }
+    )
+    with (
+        patch("core.engine.intelligence.ab_judge.run_shadow_comparison", comparison),
+        patch("core.engine.core.db.pool", _Pool()),
+    ):
+        await _run_shadow_comparison_and_persist(
+            description="design API",
+            classification={"discipline": "api", "mode": "deliberative", "complexity": "complex"},
+            product_id="product:test",
+            treatment_output="answer",
+            task_id="task:test",
+        )
+
+    comparison.assert_awaited_once()
+    db.query.assert_awaited_once()
+    params = db.query.await_args.args[1]
+    assert params["task_id"] == "task:test"
+    assert params["preference"] == "treatment"

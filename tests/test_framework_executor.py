@@ -79,5 +79,10 @@ async def test_iterative_generates_and_evaluates():
         result = await execute_with_frameworks(sel, "Design a solution", "")
 
     assert result["composition_pattern"] == "iterative"
-    assert len(result["per_framework_results"]) >= 3  # generate, evaluate, refine
-    assert call_count >= 3
+    assert result["output"] == "Refined: A with improvements"
+    assert [entry["phase"] for entry in result["per_framework_results"]] == [
+        "generate_1",
+        "evaluate_1",
+        "refine_1",
+    ]
+    assert call_count == 3

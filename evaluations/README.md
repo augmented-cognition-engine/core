@@ -59,3 +59,41 @@ operational metrics, replay hashes, and degraded reasons. The eight recorded tas
 include irrelevant, contested, invalidated, null, harmful, and mismatched-control cases. The
 cross-path case is deterministic portability conformance—not live cross-model quality evidence.
 See the generated [comparison report](results/decision_delta_contract_v1.md).
+
+## I3 intelligence-use receipts
+
+The I3 suite promotes decision-delta semantics into the supported task/Living Product Graph read
+contract and limits causal comparison to the six structured I1 decision fields:
+
+```bash
+uv run python -m core.engine.evaluation.decision_delta \
+  evaluations/fixtures/i3_intelligence_use_v1.json \
+  --json-out evaluations/results/i3_intelligence_use_v1.json \
+  --markdown-out evaluations/results/i3_intelligence_use_v1.md
+```
+
+`intelligence-use-receipt-v1` covers material, null, irrelevant, reflected-only, stale,
+invalidated, contested, harmful, product-isolation, route-mismatch, evaluation-failure,
+partial-lineage, and restart cases. The matched live subscription-backed route is frozen in
+`evaluations/results/i3_live_provider_v1.json`; rerun it only under the recorded one-treatment/
+one-control stopping rule with `scripts/run_i3_live_provider.py`. Material influence remains
+distinct from beneficial impact, which is outside I3.
+
+## L1 foresight-impact gate
+
+The L1 evaluator computes later-outcome scores from a checksum-frozen public-data probe and refuses
+to promote favorable subset comparisons:
+
+```bash
+python3 -m scripts.evaluate_l1_foresight_impact \
+  --csv /path/to/checksum-verified/online_shoppers_intention.csv \
+  --fixture evaluations/fixtures/l1_foresight_impact_v1.json \
+  --result evaluations/results/l1_foresight_impact_v1.json
+```
+
+`ace.foresight.impact-evaluation/v1` requires no-foresight, naïve/base-rate, and matched model-only
+controls, cluster-aware uncertainty, pre-outcome resolution lineage, material use, outcome
+provenance, and supported intervention/confounder attribution. The current probe is intentionally
+`benefit_not_established`: it is slightly worse than persistence, its eight-cluster intervals span
+zero, and it has no matched model-only or intervention evidence. See the
+[L1 evidence gate](../docs/l1-foresight-impact-evidence.md).

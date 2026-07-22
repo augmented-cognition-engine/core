@@ -441,6 +441,148 @@ async def test_ace_capture_passes_linked_correction_fields():
 
 
 @pytest.mark.asyncio
+async def test_ace_capture_passes_intervention_observation_without_new_tool():
+    import ace_mcp_client.tools as tools_mod
+
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value={"status": "captured", "id": "observation:i1"})
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    intervention = {
+        "request_id": "checkout-rollout-v1",
+        "decision_id": "decision:d1",
+        "prediction_id": "decision_prediction:p1",
+        "status": "completed",
+        "applicability_conditions_met": True,
+        "evidence_refs": ["deployment:r1"],
+    }
+    try:
+        await tools_mod.ace_capture(
+            observation_type="intervention",
+            content="Checkout rollout completed.",
+            domain_path="reliability.checkout",
+            intervention=intervention,
+        )
+        body = mock_client.post.await_args.kwargs["json"]
+        assert body["observation_type"] == "intervention"
+        assert body["intervention"] == intervention
+    finally:
+        tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
+async def test_ace_capture_passes_indicator_evidence_without_new_tool():
+    import ace_mcp_client.tools as tools_mod
+
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value={"status": "captured", "id": "observation:s1"})
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    indicator = {
+        "request_id": "checkout-indicator-v1",
+        "decision_id": "decision:d1",
+        "prediction_id": "decision_prediction:p1",
+        "indicator_id": "indicator:1",
+        "effect": "supports",
+        "value": 0.75,
+        "evidence_refs": ["measurement:m1"],
+    }
+    try:
+        await tools_mod.ace_capture(
+            observation_type="forecast_indicator",
+            content="Checkout reliability reached 0.75.",
+            domain_path="reliability.checkout",
+            indicator=indicator,
+        )
+        body = mock_client.post.await_args.kwargs["json"]
+        assert body["observation_type"] == "forecast_indicator"
+        assert body["indicator"] == indicator
+    finally:
+        tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
+async def test_ace_capture_passes_comparator_evidence_without_new_tool():
+    import ace_mcp_client.tools as tools_mod
+
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value={"status": "captured", "id": "observation:c1"})
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    comparator = {
+        "request_id": "checkout-comparator-v1",
+        "decision_id": "decision:d1",
+        "prediction_id": "decision_prediction:p1",
+        "comparator_type": "holdout",
+        "design": "matched",
+        "measurements": [
+            {
+                "capability_id": "checkout",
+                "intervention_before": 0.5,
+                "intervention_after": 0.74,
+                "comparator_before": 0.52,
+                "comparator_after": 0.57,
+                "evidence_refs": ["experiment:e1"],
+            }
+        ],
+    }
+    try:
+        await tools_mod.ace_capture(
+            observation_type="forecast_comparator",
+            content="Observed a matched holdout.",
+            domain_path="reliability.checkout",
+            comparator=comparator,
+        )
+        body = mock_client.post.await_args.kwargs["json"]
+        assert body["observation_type"] == "forecast_comparator"
+        assert body["comparator"] == comparator
+    finally:
+        tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
+async def test_ace_capture_passes_measurement_sample_without_new_tool():
+    import ace_mcp_client.tools as tools_mod
+
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value={"status": "captured", "id": "observation:m1"})
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    measurement = {
+        "request_id": "checkout-run-1-intervention-baseline",
+        "decision_id": "decision:d1",
+        "prediction_id": "decision_prediction:p1",
+        "plan_id": "comparator_plan:aaaaaaaaaaaaaaaaaaaaaaaa",
+        "run_id": "checkout-run-1",
+        "source_type": "structured_metric",
+        "capability_id": "checkout",
+        "metric": "capability_quality",
+        "unit": "score_delta",
+        "arm": "intervention",
+        "phase": "baseline",
+        "value": 0.5,
+        "measured_at": "2026-01-01T00:00:00Z",
+        "window_start": "2026-01-01T00:00:00Z",
+        "window_end": "2026-01-15T00:00:00Z",
+        "comparator_type": "holdout",
+        "design": "matched",
+        "evidence_refs": ["metric:checkout:ib"],
+    }
+    try:
+        await tools_mod.ace_capture(
+            observation_type="forecast_measurement",
+            content="Observed a plan-linked metric sample.",
+            domain_path="reliability.checkout",
+            measurement=measurement,
+        )
+        body = mock_client.post.await_args.kwargs["json"]
+        assert body["observation_type"] == "forecast_measurement"
+        assert body["measurement"] == measurement
+    finally:
+        tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
 async def test_ace_capture_idea_posts_to_ideas():
     """ace_capture_idea sends POST /ideas."""
     import ace_mcp_client.tools as tools_mod

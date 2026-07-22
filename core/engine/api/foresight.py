@@ -16,9 +16,220 @@ from fastapi import APIRouter, HTTPException
 
 from core.engine.core.db import parse_rows
 from core.engine.core.db import pool as _pool
+from core.engine.foresight.contracts import (
+    normalize_comparator_observation,
+    normalize_comparator_plan,
+    normalize_forecast_record,
+    normalize_indicator_observation,
+    normalize_intervention_observation,
+    normalize_resolution_record,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["foresight"])
+
+
+@router.get("/foresight/{product_id:path}/scores")
+async def get_prediction_scores(product_id: str, limit: int = 200) -> dict[str, Any]:
+    """Return product-scoped Prediction Score v1 rows and sample-aware summaries."""
+    from core.engine.foresight.scoring import summarize_prediction_scores
+
+    bounded_limit = max(1, min(int(limit), 500))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT id, prediction, decision, discipline, resolution_contract,
+                          prediction_score_version, prediction_score, closed_at
+                   FROM prediction_outcome
+                   WHERE product = <record>$product
+                   ORDER BY closed_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    return {
+        "summary": summarize_prediction_scores(rows),
+        "outcomes": [
+            {
+                "outcome_id": str(row.get("id", "")),
+                "prediction_id": str(row.get("prediction", "")),
+                "decision_id": str(row.get("decision", "")),
+                "discipline": row.get("discipline"),
+                "closed_at": str(row.get("closed_at", "")),
+                "prediction_score": row.get("prediction_score"),
+            }
+            for row in rows
+        ],
+    }
+
+
+@router.get("/foresight/{product_id:path}/outside-view")
+async def get_outside_view_baselines(product_id: str, limit: int = 20) -> dict[str, Any]:
+    """Return frozen, bounded outside-view baselines for recent product forecasts."""
+    bounded_limit = max(1, min(int(limit), 100))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT id, decision, product, archetype, discipline, horizon_days,
+                          contract_version, forecast_contract, outside_view_version,
+                          outside_view_baseline, closed, created_at
+                   FROM decision_prediction
+                   WHERE product = <record>$product
+                   ORDER BY created_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    baselines = []
+    for row in rows:
+        contract = normalize_forecast_record(row)
+        baseline = contract.get("baseline") if isinstance(contract.get("baseline"), dict) else {}
+        baselines.append(
+            {
+                "prediction_id": str(row.get("id", "")),
+                "decision_id": str(row.get("decision", "")),
+                "created_at": str(row.get("created_at", "")),
+                "outside_view": baseline.get("outside_view"),
+                "no_action_grounding": baseline.get("no_action_grounding"),
+            }
+        )
+    return {"baselines": baselines}
+
+
+@router.get("/foresight/{product_id:path}/indicators")
+async def get_indicator_observations(product_id: str, limit: int = 100) -> dict[str, Any]:
+    """Return bounded leading-indicator evidence for one product."""
+    bounded_limit = max(1, min(int(limit), 200))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT * FROM observation
+                   WHERE product = <record>$product
+                     AND observation_type = 'forecast_indicator'
+                   ORDER BY observed_at DESC, created_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    return {"indicators": [normalize_indicator_observation(row) for row in rows]}
+
+
+@router.get("/foresight/{product_id:path}/interventions")
+async def get_intervention_observations(product_id: str, limit: int = 50) -> dict[str, Any]:
+    """Return bounded Intervention Observation v1 projections for one product."""
+    bounded_limit = max(1, min(int(limit), 100))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT * FROM observation
+                   WHERE product = <record>$product
+                     AND observation_type = 'intervention'
+                   ORDER BY observed_at DESC, created_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    return {"interventions": [normalize_intervention_observation(row) for row in rows]}
+
+
+@router.get("/foresight/{product_id:path}/comparators")
+async def get_comparator_observations(product_id: str, limit: int = 50) -> dict[str, Any]:
+    """Return bounded Comparator Observation v1 projections for one product."""
+    bounded_limit = max(1, min(int(limit), 100))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT * FROM observation
+                   WHERE product = <record>$product
+                     AND observation_type = 'forecast_comparator'
+                   ORDER BY observed_at DESC, created_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    return {"comparators": [normalize_comparator_observation(row) for row in rows]}
+
+
+@router.get("/foresight/{product_id:path}/comparator-plans")
+async def get_comparator_plans(product_id: str, limit: int = 50) -> dict[str, Any]:
+    """Return optional frozen Comparator Plan v1 projections for recent forecasts."""
+    bounded_limit = max(1, min(int(limit), 100))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT id, decision, product, horizon_days, contract_version, forecast_contract,
+                          comparator_plan_version, comparator_plan, comparator_plan_status, created_at
+                   FROM decision_prediction
+                   WHERE product = <record>$product
+                   ORDER BY created_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    return {
+        "plans": [
+            {
+                "prediction_id": str(row.get("id", "")),
+                "decision_id": str(row.get("decision", "")),
+                "created_at": str(row.get("created_at", "")),
+                "plan": normalize_comparator_plan(row),
+            }
+            for row in rows
+        ]
+    }
+
+
+@router.get("/foresight/{product_id:path}/measurements")
+async def get_forecast_measurements(product_id: str, limit: int = 100) -> dict[str, Any]:
+    """Return raw Measurement Observation v1 samples and their ingestion status."""
+    from core.engine.foresight.measurements import normalize_measurement_observation
+
+    bounded_limit = max(1, min(int(limit), 500))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT * FROM observation
+                   WHERE product = <record>$product
+                     AND observation_type = 'forecast_measurement'
+                   ORDER BY measured_at DESC, created_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    return {
+        "measurements": [
+            {
+                "sample": normalize_measurement_observation(row),
+                "ingestion_status": row.get("measurement_ingestion_status") or "collecting",
+                "comparator_observation_id": str(row.get("measurement_comparator_observation") or "") or None,
+            }
+            for row in rows
+        ]
+    }
+
+
+@router.get("/foresight/{product_id:path}/measurement-ingestions")
+async def get_measurement_ingestions(product_id: str, limit: int = 50) -> dict[str, Any]:
+    """Return the latest product-scoped ingestion receipt for each recent prediction."""
+    bounded_limit = max(1, min(int(limit), 100))
+    async with _pool.connection() as db:
+        rows = parse_rows(
+            await db.query(
+                """SELECT id, decision, measurement_ingestion_version,
+                          measurement_ingestion_state, measurement_ingestion_status,
+                          measurement_ingestion_updated_at
+                   FROM decision_prediction
+                   WHERE product = <record>$product
+                     AND measurement_ingestion_version != NONE
+                   ORDER BY measurement_ingestion_updated_at DESC LIMIT $limit""",
+                {"product": product_id, "limit": bounded_limit},
+            )
+        )
+    return {
+        "ingestions": [
+            {
+                "prediction_id": str(row.get("id", "")),
+                "decision_id": str(row.get("decision", "")),
+                "status": row.get("measurement_ingestion_status"),
+                "updated_at": str(row.get("measurement_ingestion_updated_at", "")),
+                "receipt": row.get("measurement_ingestion_state"),
+            }
+            for row in rows
+        ]
+    }
 
 
 @router.get("/foresight/{product_id:path}/rollouts")
@@ -111,6 +322,8 @@ async def get_calibration(product_id: str, limit: int = 20) -> dict[str, Any]:
         title = titles.get(decision_id)
         if not title:
             continue  # orphan — decision row no longer exists; skip the ghost
+        resolution_contract = normalize_resolution_record(r)
+        raw_calibration = r.get("calibration_score")
         outcomes.append(
             {
                 "id": str(r.get("id", "")),
@@ -119,10 +332,19 @@ async def get_calibration(product_id: str, limit: int = 20) -> dict[str, Any]:
                 "decision_title": title,
                 "archetype": r.get("archetype", ""),
                 "discipline": r.get("discipline", ""),
-                "calibration_score": float(r.get("calibration_score", 0.0)),
+                "calibration_score": float(raw_calibration) if raw_calibration is not None else None,
+                "outside_view_comparison": r.get("outside_view_comparison")
+                or (resolution_contract.get("scoring") or {}).get("outside_view_comparison"),
+                "prediction_score": r.get("prediction_score")
+                or (resolution_contract.get("scoring") or {}).get("prediction_score"),
+                "comparator_context": r.get("comparator_context") or resolution_contract.get("comparator"),
+                "resolution_state": r.get("resolution_state") or resolution_contract.get("state"),
+                "score_eligible": bool(r.get("score_eligible", resolution_contract.get("score_eligible", False))),
+                "non_score_reason": r.get("non_score_reason") or resolution_contract.get("non_score_reason"),
                 "predicted_deltas": r.get("predicted_deltas") or {},
                 "actual_deltas": r.get("actual_deltas") or {},
                 "closed_at": str(r.get("closed_at", "")),
+                "contract": resolution_contract,
             }
         )
     return {"outcomes": outcomes}

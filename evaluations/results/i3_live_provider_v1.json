@@ -1,0 +1,283 @@
+{
+  "receipt": {
+    "authority": {
+      "execution_authority": false,
+      "mode": "read_only_projection"
+    },
+    "comparison": {
+      "comparison_id": "intelligence_comparison:ed7afe505da5d6559f75580f",
+      "delta": {
+        "changed_fields": [
+          {
+            "field": "selected_option",
+            "with_context": "keep_staged",
+            "without_context": "general_rollout"
+          },
+          {
+            "field": "assumptions",
+            "with_context": [
+              "Cancellation-code handling has not yet been validated for this cohort."
+            ],
+            "without_context": [
+              "No contrary retained evidence is available."
+            ]
+          },
+          {
+            "field": "alternatives",
+            "with_context": [
+              "general_rollout"
+            ],
+            "without_context": [
+              "keep_staged"
+            ]
+          },
+          {
+            "field": "reconsideration_conditions",
+            "with_context": [
+              "Validate cancellation-code handling with acceptable results for the cohort."
+            ],
+            "without_context": [
+              "Contrary retained intelligence demonstrates unacceptable risk or insufficient readiness for general rollout."
+            ]
+          },
+          {
+            "field": "evidence_refs",
+            "with_context": [
+              "observation:i3-public-retail-cancellation-gate-v1"
+            ],
+            "without_context": []
+          }
+        ],
+        "unchanged_fields": [
+          "scope"
+        ]
+      },
+      "failures": [],
+      "limitations": [
+        "One frozen matched pair supports only the scoped memory-effect claim.",
+        "No later product outcome was observed; beneficial impact is unsupported."
+      ],
+      "matching": {
+        "dimensions": [
+          "task_hash",
+          "prompt_contract_hash",
+          "provider",
+          "model",
+          "configuration_hash",
+          "decision_schema",
+          "toolset_hash"
+        ],
+        "mismatches": [],
+        "missing_fields": []
+      },
+      "state": "matched",
+      "target_intelligence_ids": [
+        "observation:i3-public-retail-cancellation-gate-v1"
+      ],
+      "with_context": {
+        "conditions": {
+          "configuration_hash": "sha256:b3edf1e3f5e3234ac0541af90e10c6b154cb3e3e8d502fc8b9df8cdb59a14eff",
+          "decision_schema": "decision-receipt-v1",
+          "model": "gpt-5.6-terra",
+          "prompt_contract_hash": "sha256:8b41dc1d24fb5d351c659c8022fb092ce1b33175b8a72abf9fb9cd7256531634",
+          "provider": "CodexCLIProvider",
+          "task_hash": "sha256:7183bbb97459ef7bffdf011c58cbafa186086db5a1632081ff4c7e6da7ba8867",
+          "toolset_hash": "sha256:64f6f708c1307072b23e39849f44e10fa168060def57bb5fe47e4ffefc35ea37"
+        },
+        "decision": {
+          "alternatives": [
+            "general_rollout"
+          ],
+          "assumptions": [
+            "Cancellation-code handling has not yet been validated for this cohort."
+          ],
+          "evidence_refs": [
+            "observation:i3-public-retail-cancellation-gate-v1"
+          ],
+          "reconsideration_conditions": [
+            "Validate cancellation-code handling with acceptable results for the cohort."
+          ],
+          "scope": "Bounded Online Retail II cancellation-handling cohort",
+          "selected_option": "keep_staged"
+        },
+        "invocation_id": "invocation:i3-live-treatment-v1",
+        "metrics": {
+          "billing_semantics": "chatgpt_subscription_no_platform_api_charge",
+          "cached_input_tokens": 0,
+          "calls": 1,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 8441,
+          "latency_ms": 4790,
+          "output_tokens": 105,
+          "reasoning_output_tokens": 0,
+          "retries": 0
+        },
+        "output_hash": "sha256:570766090dd34ed24ab204c57ef1464fdfae3e988c3aeb383724b77b8f5beff9"
+      },
+      "without_context": {
+        "conditions": {
+          "configuration_hash": "sha256:b3edf1e3f5e3234ac0541af90e10c6b154cb3e3e8d502fc8b9df8cdb59a14eff",
+          "decision_schema": "decision-receipt-v1",
+          "model": "gpt-5.6-terra",
+          "prompt_contract_hash": "sha256:8b41dc1d24fb5d351c659c8022fb092ce1b33175b8a72abf9fb9cd7256531634",
+          "provider": "CodexCLIProvider",
+          "task_hash": "sha256:7183bbb97459ef7bffdf011c58cbafa186086db5a1632081ff4c7e6da7ba8867",
+          "toolset_hash": "sha256:64f6f708c1307072b23e39849f44e10fa168060def57bb5fe47e4ffefc35ea37"
+        },
+        "decision": {
+          "alternatives": [
+            "keep_staged"
+          ],
+          "assumptions": [
+            "No contrary retained evidence is available."
+          ],
+          "evidence_refs": [],
+          "reconsideration_conditions": [
+            "Contrary retained intelligence demonstrates unacceptable risk or insufficient readiness for general rollout."
+          ],
+          "scope": "Bounded Online Retail II cancellation-handling cohort",
+          "selected_option": "general_rollout"
+        },
+        "invocation_id": "invocation:i3-live-control-v1",
+        "metrics": {
+          "billing_semantics": "chatgpt_subscription_no_platform_api_charge",
+          "cached_input_tokens": 0,
+          "calls": 1,
+          "degraded_states": [],
+          "failures": [],
+          "input_tokens": 8358,
+          "latency_ms": 3325,
+          "output_tokens": 75,
+          "reasoning_output_tokens": 0,
+          "retries": 0
+        },
+        "output_hash": "sha256:30d1cb8992c5d6f6a201e25377802133613c9e0eec33d5446c34defff87850e6"
+      }
+    },
+    "completeness": {
+      "missing_or_degraded": [],
+      "state": "complete"
+    },
+    "continuity": {
+      "database_identity_preserved": "covered_by_separate_restart_acceptance",
+      "fresh_client_invocation": true,
+      "runtime_restart": "not_exercised_by_provider_comparison"
+    },
+    "contract_version": "intelligence-use-receipt-v1",
+    "impact": {
+      "beneficial_impact": "outcome_unsupported",
+      "beneficial_impact_supported": false,
+      "boundary": "Material influence is not beneficial impact; benefit requires later L1 outcome evidence.",
+      "material_influence_established": true,
+      "outcome": {
+        "status": "not_observed"
+      }
+    },
+    "intelligence": [
+      {
+        "content_hash": "sha256:9204205f3d29e34ba845057b310859e46911431a6fe7e2ec09bfa0783878851c",
+        "contestation": {
+          "state": "uncontested"
+        },
+        "evidence": {
+          "changed_fields": [
+            "alternatives",
+            "assumptions",
+            "evidence_refs",
+            "reconsideration_conditions",
+            "selected_option"
+          ],
+          "decision_material": true,
+          "highest_state": "decision-material",
+          "injected": true,
+          "not_established_reasons": {
+            "decision_material": [],
+            "injected": [],
+            "reflected": []
+          },
+          "reflected": true,
+          "retrieved": true
+        },
+        "intelligence_id": "observation:i3-public-retail-cancellation-gate-v1",
+        "intelligence_type": "correction",
+        "lifecycle": {
+          "state": "active"
+        },
+        "provenance": {
+          "dataset": "UCI Online Retail II",
+          "doi": "10.24432/C5F88Q",
+          "product_id": "product:i3-public-retail",
+          "source": "public_data_scenario_correction"
+        },
+        "receiving": {
+          "component": "supported_codex_subscription_route",
+          "decision_id": "decision:i3-live-public-retail-v1",
+          "invocation_id": "invocation:i3-live-treatment-v1",
+          "stage": "matched_decision_comparison",
+          "task_id": "task:i3-live-public-retail-v1"
+        },
+        "receiving_product_id": "product:i3-public-retail",
+        "reflection": {
+          "evidence_refs": [
+            "decision:i3-live-public-retail-v1:evidence_refs"
+          ],
+          "materiality_eligible": true,
+          "method": "structured_field_attribution"
+        },
+        "relevance": "relevant",
+        "retrieval": {
+          "query": "Online Retail II cancellation handling rollout",
+          "rank": 1,
+          "reason": "exact bounded cohort and cancellation-handling scope",
+          "relevance": "relevant"
+        },
+        "source_product_id": "product:i3-public-retail",
+        "trust": 1.0,
+        "validity": {
+          "state": "active"
+        }
+      }
+    ],
+    "material_fields": [
+      "alternatives",
+      "assumptions",
+      "evidence_refs",
+      "reconsideration_conditions",
+      "scope",
+      "selected_option"
+    ],
+    "material_intelligence_ids": [
+      "observation:i3-public-retail-cancellation-gate-v1"
+    ],
+    "receipt_id": "intelligence_use:ca27e7a4dacd90192f033ad1",
+    "receiving": {
+      "component": "supported_codex_subscription_route",
+      "decision_id": "decision:i3-live-public-retail-v1",
+      "invocation_id": "invocation:i3-live-treatment-v1",
+      "product_id": "product:i3-public-retail",
+      "stage": "matched_decision_comparison",
+      "task_id": "task:i3-live-public-retail-v1"
+    },
+    "route": {
+      "access_class": "subscription",
+      "billing_semantics": "chatgpt_subscription_no_platform_api_charge",
+      "calls": 2,
+      "configuration_hash": "sha256:b3edf1e3f5e3234ac0541af90e10c6b154cb3e3e8d502fc8b9df8cdb59a14eff",
+      "degraded_state": null,
+      "failures": [],
+      "latency_ms": 8115,
+      "model": "gpt-5.6-terra",
+      "provider": "CodexCLIProvider",
+      "retries": 0,
+      "surface": "codex_cli_ephemeral_stateless_completion",
+      "tokens": {
+        "input": 16799,
+        "output": 180
+      }
+    }
+  },
+  "scenario_id": "i3-live-public-retail-v1",
+  "schema_version": 1,
+  "stopping_rule": "exactly_one_treatment_and_one_control"
+}

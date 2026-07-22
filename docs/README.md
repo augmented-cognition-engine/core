@@ -4,6 +4,11 @@ ACE's public documentation is intentionally small and user-facing:
 
 - [Architecture](architecture.md) — how the reasoning engine and supported boundaries fit
   together.
+- [Graph-grounded calibrated foresight](foresight.md) — the canonical definition, current maturity
+  boundary, versioned forecast/intervention/indicator/outside-view/resolution/scoring contracts, and F1 acceptance
+  evidence.
+- [F1 foresight closeout evidence](f1-foresight-evidence.md) — continuous-v1 scope, real
+  measurement-to-resolution restart proof, limitations, and deferred work.
 - [Capability maturity](capability-maturity.md) — what is supported in 0.1.x and what remains
   experimental.
 - [Living Product Graph read contract](living-product-graph.md) — inspect product objects,
@@ -16,6 +21,12 @@ ACE's public documentation is intentionally small and user-facing:
   provenance, and multi-product SurrealDB operation.
 - [Decision and correction receipts](decision-correction-receipts.md) — the supported I1 contract,
   lifecycle, compatibility behavior, privacy boundary, replay evidence, and limitations.
+- [I3 intelligence-use evidence](i3-intelligence-use-evidence.md) — retained-intelligence states,
+  exact I1 decision deltas, matched comparisons, restart continuity, failure cases, and the boundary
+  between material influence and beneficial impact.
+- [L1 foresight-impact evidence gate](l1-foresight-impact-evidence.md) — sample-aware all-controls
+  evaluation, the preserved negative public-data result, and the evidence still required to claim
+  beneficial impact.
 - [Model providers](providers.md) — provider configuration and routing expectations.
 - [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
 - [Product-builder golden path](product-builder-golden-path.md) — a reproducible public product
@@ -27,6 +38,8 @@ ACE's public documentation is intentionally small and user-facing:
   observed friction, fixes, verification, passing activation outcomes, and explicit limitations.
 - [R2 release evidence](r2-release-evidence.md) — the focused 0.1.1 scope, clean installed-artifact
   checks, archive inspection, verification results, public release gates, and limitations.
+- [R5 0.1.2 release readiness](r5-release-readiness.md) — candidate scope, supported-versus-
+  experimental boundary, local artifact gates, and the external publication steps still required.
 - [Build your first extension](build-your-first-extension.md) — the practical extension path.
 - [Extension API](extension-api.md) — contracts available to extension authors.
 - [Capability evolution roadmap](capability-evolution-roadmap.md) — graph-native procedural

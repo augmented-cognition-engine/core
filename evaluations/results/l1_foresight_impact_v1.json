@@ -1,0 +1,2931 @@
+{
+  "attribution": {
+    "assignment": "not_randomized_or_operated",
+    "confounders": [
+      "Month is a categorical field; the dataset does not publish a year or event-time sequence.",
+      "Regional cohorts are disjoint within a month but repeated over target months.",
+      "Traffic mix, campaign, device, visitor type, and unrecorded operational changes may differ.",
+      "No intervention or rollout assignment was observed."
+    ],
+    "intervention_identity": null,
+    "limitations": [
+      "The probe evaluates retrospective predictive decision quality, not causal product impact.",
+      "Target-month clusters, rather than 72 rows, are the uncertainty unit."
+    ],
+    "state": "retrospective_observational",
+    "supported_for_benefit_claim": false
+  },
+  "beneficial_impact_supported": false,
+  "cases": [
+    {
+      "case_id": "uci468:region:1:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:May:n:1227"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:1:month:May",
+        "value": 0.09861450692746536
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.04131827223821691,
+          "prediction": 0.05729623468924845
+        },
+        "model_only": {
+          "absolute_error": 0.004213256568678603,
+          "prediction": 0.10282776349614396
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.004755874250756201,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.004213256568678603,
+          "prediction": 0.10282776349614396
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:1:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:June:n:100"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:1:month:June",
+        "value": 0.13
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.029278864788195344,
+          "prediction": 0.10072113521180466
+        },
+        "model_only": {
+          "absolute_error": 0.031385493072534645,
+          "prediction": 0.09861450692746536
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.036141367323290846,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.031385493072534645,
+          "prediction": 0.09861450692746536
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:1:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Jul:n:148"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:1:month:Jul",
+        "value": 0.18243243243243243
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.06812517896869974,
+          "prediction": 0.11430725346373269
+        },
+        "model_only": {
+          "absolute_error": 0.052432432432432424,
+          "prediction": 0.13
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.08857379975572327,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.052432432432432424,
+          "prediction": 0.13
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:1:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Aug:n:157"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:1:month:Aug",
+        "value": 0.17197452229299362
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.01575830607677739,
+          "prediction": 0.15621621621621623
+        },
+        "model_only": {
+          "absolute_error": 0.010457910139438809,
+          "prediction": 0.18243243243243243
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.07811588961628446,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.010457910139438809,
+          "prediction": 0.18243243243243243
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:1:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Sep:n:156"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:1:month:Sep",
+        "value": 0.20512820512820512
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.027924727765492097,
+          "prediction": 0.17720347736271302
+        },
+        "model_only": {
+          "absolute_error": 0.0331536828352115,
+          "prediction": 0.17197452229299362
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.11126957245149596,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.0331536828352115,
+          "prediction": 0.17197452229299362
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:1:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Oct:n:215"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:1:month:Oct",
+        "value": 0.20465116279069767
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.016099799080098287,
+          "prediction": 0.18855136371059938
+        },
+        "model_only": {
+          "absolute_error": 0.0004770423375074495,
+          "prediction": 0.20512820512820512
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.11079253011398851,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.0004770423375074495,
+          "prediction": 0.20512820512820512
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:1:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Nov:n:1288"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:1:month:Nov",
+        "value": 0.2717391304347826
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.0668494464753312,
+          "prediction": 0.2048896839594514
+        },
+        "model_only": {
+          "absolute_error": 0.06708796764408492,
+          "prediction": 0.20465116279069767
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.17788049775807344,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.06708796764408492,
+          "prediction": 0.20465116279069767
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:1:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Dec:n:626"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:1:month:Dec",
+        "value": 0.12140575079872204
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.1167893958140181,
+          "prediction": 0.23819514661274013
+        },
+        "model_only": {
+          "absolute_error": 0.15033337963606055,
+          "prediction": 0.2717391304347826
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.02754711812201288,
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "absolute_error": 0.15033337963606055,
+          "prediction": 0.2717391304347826
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:May:n:347"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:2:month:May",
+        "value": 0.11815561959654179
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.0547038429467956,
+          "prediction": 0.06345177664974619
+        },
+        "model_only": {
+          "absolute_error": 0.008747933702950586,
+          "prediction": 0.12690355329949238
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.00023109129465499756,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.008747933702950586,
+          "prediction": 0.12690355329949238
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:June:n:38"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:2:month:June",
+        "value": 0.02631578947368421
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.09621379697433288,
+          "prediction": 0.12252958644801709
+        },
+        "model_only": {
+          "absolute_error": 0.09183983012285758,
+          "prediction": 0.11815561959654179
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.09160873882820258,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.09183983012285758,
+          "prediction": 0.11815561959654179
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Jul:n:42"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:2:month:Jul",
+        "value": 0.11904761904761904
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.04681191451250605,
+          "prediction": 0.072235704535113
+        },
+        "model_only": {
+          "absolute_error": 0.09273182957393483,
+          "prediction": 0.02631578947368421
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.001123090745732247,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.09273182957393483,
+          "prediction": 0.02631578947368421
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Aug:n:34"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:2:month:Aug",
+        "value": 0.2647058823529412
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.19202417809228955,
+          "prediction": 0.07268170426065163
+        },
+        "model_only": {
+          "absolute_error": 0.14565826330532214,
+          "prediction": 0.11904761904761904
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.14678135405105439,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.14565826330532214,
+          "prediction": 0.11904761904761904
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Sep:n:41"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:2:month:Sep",
+        "value": 0.24390243902439024
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.05202568832411014,
+          "prediction": 0.1918767507002801
+        },
+        "model_only": {
+          "absolute_error": 0.02080344332855094,
+          "prediction": 0.2647058823529412
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.12597791072250344,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.02080344332855094,
+          "prediction": 0.2647058823529412
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Oct:n:45"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:2:month:Oct",
+        "value": 0.24444444444444444
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.009859716244221245,
+          "prediction": 0.2543041606886657
+        },
+        "model_only": {
+          "absolute_error": 0.0005420054200541979,
+          "prediction": 0.24390243902439024
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.12651991614255764,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.0005420054200541979,
+          "prediction": 0.24390243902439024
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Nov:n:235"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:2:month:Nov",
+        "value": 0.2978723404255319
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.05369889869111455,
+          "prediction": 0.24417344173441735
+        },
+        "model_only": {
+          "absolute_error": 0.053427895981087464,
+          "prediction": 0.24444444444444444
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1799478121236451,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.053427895981087464,
+          "prediction": 0.24444444444444444
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:2:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Dec:n:142"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:2:month:Dec",
+        "value": 0.11267605633802817
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.15848233609696,
+          "prediction": 0.2711583924349882
+        },
+        "model_only": {
+          "absolute_error": 0.18519628408750372,
+          "prediction": 0.2978723404255319
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.0052484719638586225,
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "absolute_error": 0.18519628408750372,
+          "prediction": 0.2978723404255319
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:May:n:669"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:3:month:May",
+        "value": 0.10014947683109118
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.040774476831091186,
+          "prediction": 0.059375
+        },
+        "model_only": {
+          "absolute_error": 0.006399476831091183,
+          "prediction": 0.09375
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.013414782953540164,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.006399476831091183,
+          "prediction": 0.09375
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:June:n:57"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:3:month:June",
+        "value": 0.05263157894736842
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.04431815946817717,
+          "prediction": 0.09694973841554559
+        },
+        "model_only": {
+          "absolute_error": 0.047517897883722765,
+          "prediction": 0.10014947683109118
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.0341031149301826,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.047517897883722765,
+          "prediction": 0.10014947683109118
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Jul:n:81"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:3:month:Jul",
+        "value": 0.13580246913580246
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.05941194124657266,
+          "prediction": 0.0763905278892298
+        },
+        "model_only": {
+          "absolute_error": 0.08317089018843404,
+          "prediction": 0.05263157894736842
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.04906777525825144,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.08317089018843404,
+          "prediction": 0.05263157894736842
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Aug:n:94"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:3:month:Aug",
+        "value": 0.1276595744680851
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.033442550426499656,
+          "prediction": 0.09421702404158544
+        },
+        "model_only": {
+          "absolute_error": 0.008142894667717365,
+          "prediction": 0.13580246913580246
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.04092488059053408,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.008142894667717365,
+          "prediction": 0.13580246913580246
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Sep:n:83"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:3:month:Sep",
+        "value": 0.1686746987951807
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.03694367699323692,
+          "prediction": 0.1317310218019438
+        },
+        "model_only": {
+          "absolute_error": 0.041015124327095615,
+          "prediction": 0.1276595744680851
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.08194000491762969,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.041015124327095615,
+          "prediction": 0.1276595744680851
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Oct:n:109"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:3:month:Oct",
+        "value": 0.2018348623853211
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.05366772575368822,
+          "prediction": 0.1481671366316329
+        },
+        "model_only": {
+          "absolute_error": 0.0331601635901404,
+          "prediction": 0.1686746987951807
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.11510016850777009,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.0331601635901404,
+          "prediction": 0.1686746987951807
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Nov:n:567"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:3:month:Nov",
+        "value": 0.26102292768959434
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.07576814709934343,
+          "prediction": 0.1852547805902509
+        },
+        "model_only": {
+          "absolute_error": 0.05918806530427323,
+          "prediction": 0.2018348623853211
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.17428823381204334,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.05918806530427323,
+          "prediction": 0.2018348623853211
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:3:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Dec:n:351"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:3:month:Dec",
+        "value": 0.10826210826210826
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.12316678677534947,
+          "prediction": 0.23142889503745773
+        },
+        "model_only": {
+          "absolute_error": 0.1527608194274861,
+          "prediction": 0.26102292768959434
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.021527414384557242,
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "absolute_error": 0.1527608194274861,
+          "prediction": 0.26102292768959434
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:May:n:354"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:4:month:May",
+        "value": 0.10734463276836158
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.062472837896566706,
+          "prediction": 0.04487179487179487
+        },
+        "model_only": {
+          "absolute_error": 0.017601043024771834,
+          "prediction": 0.08974358974358974
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.02594928393115227,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.017601043024771834,
+          "prediction": 0.08974358974358974
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:June:n:22"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:4:month:June",
+        "value": 0.13636363636363635
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.03781952510766069,
+          "prediction": 0.09854411125597566
+        },
+        "model_only": {
+          "absolute_error": 0.029019003595274775,
+          "prediction": 0.10734463276836158
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.054968287526427045,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.029019003595274775,
+          "prediction": 0.10734463276836158
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Jul:n:43"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:4:month:Jul",
+        "value": 0.09302325581395349
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.028830878752045486,
+          "prediction": 0.12185413456599897
+        },
+        "model_only": {
+          "absolute_error": 0.043340380549682866,
+          "prediction": 0.13636363636363635
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.011627906976744179,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.043340380549682866,
+          "prediction": 0.13636363636363635
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Aug:n:44"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:4:month:Aug",
+        "value": 0.2727272727272727
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.1580338266384778,
+          "prediction": 0.11469344608879492
+        },
+        "model_only": {
+          "absolute_error": 0.17970401691331922,
+          "prediction": 0.09302325581395349
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1913319238900634,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.17970401691331922,
+          "prediction": 0.09302325581395349
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Sep:n:55"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:4:month:Sep",
+        "value": 0.14545454545454545
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.03742071881606765,
+          "prediction": 0.1828752642706131
+        },
+        "model_only": {
+          "absolute_error": 0.12727272727272726,
+          "prediction": 0.2727272727272727
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.06405919661733614,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.12727272727272726,
+          "prediction": 0.2727272727272727
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Oct:n:46"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:4:month:Oct",
+        "value": 0.2608695652173913
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.05177865612648222,
+          "prediction": 0.20909090909090908
+        },
+        "model_only": {
+          "absolute_error": 0.11541501976284585,
+          "prediction": 0.14545454545454545
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.179474216380182,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.11541501976284585,
+          "prediction": 0.14545454545454545
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Nov:n:285"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:4:month:Nov",
+        "value": 0.21754385964912282
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.014381804313154445,
+          "prediction": 0.20316205533596837
+        },
+        "model_only": {
+          "absolute_error": 0.04332570556826848,
+          "prediction": 0.2608695652173913
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1361485108119135,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.04332570556826848,
+          "prediction": 0.2608695652173913
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:4:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Dec:n:161"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:4:month:Dec",
+        "value": 0.13664596273291926
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.1025607497003378,
+          "prediction": 0.23920671243325706
+        },
+        "model_only": {
+          "absolute_error": 0.08089789691620355,
+          "prediction": 0.21754385964912282
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.055250613895709955,
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "absolute_error": 0.08089789691620355,
+          "prediction": 0.21754385964912282
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:May:n:103"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:5:month:May",
+        "value": 0.1650485436893204
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.13940751804829477,
+          "prediction": 0.02564102564102564
+        },
+        "model_only": {
+          "absolute_error": 0.11376649240726912,
+          "prediction": 0.05128205128205128
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.11959399823477494,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.11376649240726912,
+          "prediction": 0.05128205128205128
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:June:n:10"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:5:month:June",
+        "value": 0.3
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.19183470251431414,
+          "prediction": 0.10816529748568585
+        },
+        "model_only": {
+          "absolute_error": 0.1349514563106796,
+          "prediction": 0.1650485436893204
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.2545454545454545,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.1349514563106796,
+          "prediction": 0.1650485436893204
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Jul:n:13"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:5:month:Jul",
+        "value": 0.15384615384615385
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.07867811799850633,
+          "prediction": 0.23252427184466018
+        },
+        "model_only": {
+          "absolute_error": 0.14615384615384613,
+          "prediction": 0.3
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1083916083916084,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.14615384615384613,
+          "prediction": 0.3
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Aug:n:11"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:5:month:Aug",
+        "value": 0.09090909090909091
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.136013986013986,
+          "prediction": 0.22692307692307692
+        },
+        "model_only": {
+          "absolute_error": 0.06293706293706294,
+          "prediction": 0.15384615384615385
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.045454545454545456,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.06293706293706294,
+          "prediction": 0.15384615384615385
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Sep:n:18"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:5:month:Sep",
+        "value": 0.16666666666666666
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.044289044289044274,
+          "prediction": 0.12237762237762238
+        },
+        "model_only": {
+          "absolute_error": 0.07575757575757575,
+          "prediction": 0.09090909090909091
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1212121212121212,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.07575757575757575,
+          "prediction": 0.09090909090909091
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Oct:n:14"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:5:month:Oct",
+        "value": 0.2857142857142857
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.15692640692640691,
+          "prediction": 0.12878787878787878
+        },
+        "model_only": {
+          "absolute_error": 0.11904761904761904,
+          "prediction": 0.16666666666666666
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.24025974025974023,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.11904761904761904,
+          "prediction": 0.16666666666666666
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Nov:n:64"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:5:month:Nov",
+        "value": 0.203125
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.023065476190476164,
+          "prediction": 0.22619047619047616
+        },
+        "model_only": {
+          "absolute_error": 0.0825892857142857,
+          "prediction": 0.2857142857142857
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.15767045454545453,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.0825892857142857,
+          "prediction": 0.2857142857142857
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:5:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Dec:n:41"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:5:month:Dec",
+        "value": 0.17073170731707318
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.07368793554006967,
+          "prediction": 0.24441964285714285
+        },
+        "model_only": {
+          "absolute_error": 0.032393292682926816,
+          "prediction": 0.203125
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.12527716186252774,
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "absolute_error": 0.032393292682926816,
+          "prediction": 0.203125
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:May:n:258"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:6:month:May",
+        "value": 0.13178294573643412
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.0971675611210495,
+          "prediction": 0.03461538461538462
+        },
+        "model_only": {
+          "absolute_error": 0.06255217650566489,
+          "prediction": 0.06923076923076923
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.0670347442975852,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.06255217650566489,
+          "prediction": 0.06923076923076923
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:June:n:23"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:6:month:June",
+        "value": 0.13043478260869565
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.02992792512509397,
+          "prediction": 0.10050685748360168
+        },
+        "model_only": {
+          "absolute_error": 0.001348163127738472,
+          "prediction": 0.13178294573643412
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.06568658116984673,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.001348163127738472,
+          "prediction": 0.13178294573643412
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Jul:n:34"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:6:month:Jul",
+        "value": 0.17647058823529413
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.04536172406272923,
+          "prediction": 0.1311088641725649
+        },
+        "model_only": {
+          "absolute_error": 0.04603580562659848,
+          "prediction": 0.13043478260869565
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.11172238679644521,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.04603580562659848,
+          "prediction": 0.13043478260869565
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Aug:n:29"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:6:month:Aug",
+        "value": 0.13793103448275862
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.01552165093923627,
+          "prediction": 0.1534526854219949
+        },
+        "model_only": {
+          "absolute_error": 0.03853955375253551,
+          "prediction": 0.17647058823529413
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.0731828330439097,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.03853955375253551,
+          "prediction": 0.17647058823529413
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Sep:n:36"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:6:month:Sep",
+        "value": 0.19444444444444445
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.03724363308541809,
+          "prediction": 0.15720081135902636
+        },
+        "model_only": {
+          "absolute_error": 0.05651340996168583,
+          "prediction": 0.13793103448275862
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1296962430055955,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.05651340996168583,
+          "prediction": 0.13793103448275862
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Oct:n:39"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:6:month:Oct",
+        "value": 0.20512820512820512
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.038940465664603574,
+          "prediction": 0.16618773946360155
+        },
+        "model_only": {
+          "absolute_error": 0.010683760683760674,
+          "prediction": 0.19444444444444445
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.14038000368935621,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.010683760683760674,
+          "prediction": 0.19444444444444445
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Nov:n:147"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:6:month:Nov",
+        "value": 0.20408163265306123
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.004295307866736431,
+          "prediction": 0.1997863247863248
+        },
+        "model_only": {
+          "absolute_error": 0.001046572475143892,
+          "prediction": 0.20512820512820512
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.13933343121421232,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.001046572475143892,
+          "prediction": 0.20512820512820512
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:6:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Dec:n:100"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:6:month:Dec",
+        "value": 0.11
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.09460491889063317,
+          "prediction": 0.20460491889063318
+        },
+        "model_only": {
+          "absolute_error": 0.09408163265306123,
+          "prediction": 0.20408163265306123
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.04525179856115108,
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "absolute_error": 0.09408163265306123,
+          "prediction": 0.20408163265306123
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:May:n:196"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:7:month:May",
+        "value": 0.09183673469387756
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.07532744441060006,
+          "prediction": 0.16716417910447762
+        },
+        "model_only": {
+          "absolute_error": 0.04249162351507767,
+          "prediction": 0.13432835820895522
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.04485391278813684,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.04249162351507767,
+          "prediction": 0.13432835820895522
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:June:n:18"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:7:month:June",
+        "value": 0.05555555555555555
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.05752699089586083,
+          "prediction": 0.11308254645141638
+        },
+        "model_only": {
+          "absolute_error": 0.036281179138322,
+          "prediction": 0.09183673469387756
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.08113509192645885,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.036281179138322,
+          "prediction": 0.09183673469387756
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Jul:n:29"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:7:month:Jul",
+        "value": 0.13793103448275862
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.06423488935804206,
+          "prediction": 0.07369614512471656
+        },
+        "model_only": {
+          "absolute_error": 0.08237547892720307,
+          "prediction": 0.05555555555555555
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.0012403870007442197,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.08237547892720307,
+          "prediction": 0.05555555555555555
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Aug:n:31"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:7:month:Aug",
+        "value": 0.12903225806451613
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.03228896304535904,
+          "prediction": 0.09674329501915709
+        },
+        "model_only": {
+          "absolute_error": 0.008898776418242493,
+          "prediction": 0.13793103448275862
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.007658389417498274,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.008898776418242493,
+          "prediction": 0.13793103448275862
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Sep:n:26"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:7:month:Sep",
+        "value": 0.2692307692307692
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.13574912295713185,
+          "prediction": 0.13348164627363737
+        },
+        "model_only": {
+          "absolute_error": 0.1401985111662531,
+          "prediction": 0.12903225806451613
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.13254012174875482,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.1401985111662531,
+          "prediction": 0.12903225806451613
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Oct:n:39"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:7:month:Oct",
+        "value": 0.23076923076923078
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.03163771712158811,
+          "prediction": 0.19913151364764267
+        },
+        "model_only": {
+          "absolute_error": 0.038461538461538436,
+          "prediction": 0.2692307692307692
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.09407858328721638,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.038461538461538436,
+          "prediction": 0.2692307692307692
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Nov:n:164"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:7:month:Nov",
+        "value": 0.25
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.0,
+          "prediction": 0.25
+        },
+        "model_only": {
+          "absolute_error": 0.019230769230769218,
+          "prediction": 0.23076923076923078
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1133093525179856,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.019230769230769218,
+          "prediction": 0.23076923076923078
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:7:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Dec:n:119"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:7:month:Dec",
+        "value": 0.13445378151260504
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.10593083387201035,
+          "prediction": 0.2403846153846154
+        },
+        "model_only": {
+          "absolute_error": 0.11554621848739496,
+          "prediction": 0.25
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.002236865969409363,
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "absolute_error": 0.11554621848739496,
+          "prediction": 0.25
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:May:n:123"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:8:month:May",
+        "value": 0.13008130081300814
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.10834217037822554,
+          "prediction": 0.021739130434782608
+        },
+        "model_only": {
+          "absolute_error": 0.08660303994344293,
+          "prediction": 0.043478260869565216
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.08898541040204924,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.08660303994344293,
+          "prediction": 0.043478260869565216
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:June:n:10"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:8:month:June",
+        "value": 0.2
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.11322021915871333,
+          "prediction": 0.08677978084128668
+        },
+        "model_only": {
+          "absolute_error": 0.06991869918699187,
+          "prediction": 0.13008130081300814
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.1589041095890411,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.06991869918699187,
+          "prediction": 0.13008130081300814
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Jul:n:22"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:8:month:Jul",
+        "value": 0.22727272727272727
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.0622320768662232,
+          "prediction": 0.16504065040650406
+        },
+        "model_only": {
+          "absolute_error": 0.027272727272727254,
+          "prediction": 0.2
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.18617683686176836,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.027272727272727254,
+          "prediction": 0.2
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Aug:n:19"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:8:month:Aug",
+        "value": 0.3157894736842105
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.10215311004784688,
+          "prediction": 0.21363636363636362
+        },
+        "model_only": {
+          "absolute_error": 0.08851674641148324,
+          "prediction": 0.22727272727272727
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.2746935832732516,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.08851674641148324,
+          "prediction": 0.22727272727272727
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Sep:n:16"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:8:month:Sep",
+        "value": 0.125
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.1465311004784689,
+          "prediction": 0.2715311004784689
+        },
+        "model_only": {
+          "absolute_error": 0.1907894736842105,
+          "prediction": 0.3157894736842105
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.0839041095890411,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.1907894736842105,
+          "prediction": 0.3157894736842105
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Oct:n:18"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:8:month:Oct",
+        "value": 0.05555555555555555
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.1648391812865497,
+          "prediction": 0.22039473684210525
+        },
+        "model_only": {
+          "absolute_error": 0.06944444444444445,
+          "prediction": 0.125
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.01445966514459665,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.06944444444444445,
+          "prediction": 0.125
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Nov:n:86"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:8:month:Nov",
+        "value": 0.16279069767441862
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.07251291989664084,
+          "prediction": 0.09027777777777778
+        },
+        "model_only": {
+          "absolute_error": 0.10723514211886306,
+          "prediction": 0.05555555555555555
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.12169480726345971,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.10723514211886306,
+          "prediction": 0.05555555555555555
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:8:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Dec:n:67"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:8:month:Dec",
+        "value": 0.1044776119402985
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.004695514674688581,
+          "prediction": 0.10917312661498708
+        },
+        "model_only": {
+          "absolute_error": 0.05831308573412011,
+          "prediction": 0.16279069767441862
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.0633817215293396,
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "absolute_error": 0.05831308573412011,
+          "prediction": 0.16279069767441862
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:May:n:87"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:9:month:May",
+        "value": 0.14942528735632185
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.07250221043324492,
+          "prediction": 0.07692307692307693
+        },
+        "model_only": {
+          "absolute_error": 0.004420866489832004,
+          "prediction": 0.15384615384615385
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.009074410163339403,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.004420866489832004,
+          "prediction": 0.15384615384615385
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:June:n:10"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:9:month:June",
+        "value": 0.0
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.15163572060123787,
+          "prediction": 0.15163572060123787
+        },
+        "model_only": {
+          "absolute_error": 0.14942528735632185,
+          "prediction": 0.14942528735632185
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.14035087719298245,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.14942528735632185,
+          "prediction": 0.14942528735632185
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Jul:n:20"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:9:month:Jul",
+        "value": 0.1
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.02528735632183908,
+          "prediction": 0.07471264367816093
+        },
+        "model_only": {
+          "absolute_error": 0.1,
+          "prediction": 0.0
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.04035087719298244,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.1,
+          "prediction": 0.0
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Aug:n:14"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:9:month:Aug",
+        "value": 0.07142857142857142
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.021428571428571422,
+          "prediction": 0.05
+        },
+        "model_only": {
+          "absolute_error": 0.02857142857142858,
+          "prediction": 0.1
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.06892230576441102,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.02857142857142858,
+          "prediction": 0.1
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Sep:n:17"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:9:month:Sep",
+        "value": 0.17647058823529413
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.09075630252100841,
+          "prediction": 0.08571428571428572
+        },
+        "model_only": {
+          "absolute_error": 0.1050420168067227,
+          "prediction": 0.07142857142857142
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.03611971104231168,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.1050420168067227,
+          "prediction": 0.07142857142857142
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Oct:n:24"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:9:month:Oct",
+        "value": 0.16666666666666666
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.04271708683473388,
+          "prediction": 0.12394957983193278
+        },
+        "model_only": {
+          "absolute_error": 0.009803921568627472,
+          "prediction": 0.17647058823529413
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.02631578947368421,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.009803921568627472,
+          "prediction": 0.17647058823529413
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Nov:n:162"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:9:month:Nov",
+        "value": 0.19753086419753085
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.02596223674655046,
+          "prediction": 0.1715686274509804
+        },
+        "model_only": {
+          "absolute_error": 0.030864197530864196,
+          "prediction": 0.16666666666666666
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.057179987004548405,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.030864197530864196,
+          "prediction": 0.16666666666666666
+        }
+      }
+    },
+    {
+      "case_id": "uci468:region:9:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "eligible": true,
+      "model_comparison": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Dec:n:120"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:9:month:Dec",
+        "value": 0.19166666666666668
+      },
+      "reason_codes": [],
+      "scores": {
+        "ace_foresight": {
+          "absolute_error": 0.009567901234567938,
+          "prediction": 0.18209876543209874
+        },
+        "model_only": {
+          "absolute_error": 0.005864197530864174,
+          "prediction": 0.19753086419753085
+        },
+        "naive_base_rate": {
+          "absolute_error": 0.05131578947368423,
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "absolute_error": 0.005864197530864174,
+          "prediction": 0.19753086419753085
+        }
+      }
+    }
+  ],
+  "claim": "The bounded evidence does not establish that resolved foresight beneficially improved later decisions.",
+  "comparisons": [
+    {
+      "ace_mean_absolute_error": 0.06848337277611406,
+      "benefit_supported": false,
+      "case_count": 72,
+      "cluster_adjusted_95_percent_interval": {
+        "count": 8,
+        "lower_95": -0.02164919554522677,
+        "mean": -0.003061333167718722,
+        "standard_error": 0.007859561258988602,
+        "upper_95": 0.015526529209789324
+      },
+      "cluster_count": 8,
+      "control": "no_foresight",
+      "control_mean_absolute_error": 0.06542203960839534,
+      "direction": "positive_delta_favors_ace_foresight",
+      "losses": 39,
+      "mean_error_reduction": -0.0030613331677187224,
+      "reason": "cluster_adjusted_interval_includes_no_benefit",
+      "state": "benefit_not_established",
+      "ties": 0,
+      "wins": 33
+    },
+    {
+      "ace_mean_absolute_error": 0.06848337277611406,
+      "benefit_supported": false,
+      "case_count": 72,
+      "cluster_adjusted_95_percent_interval": {
+        "count": 8,
+        "lower_95": -0.018470352410139584,
+        "mean": 0.020478671009287276,
+        "standard_error": 0.016468931678404592,
+        "upper_95": 0.05942769442871414
+      },
+      "cluster_count": 8,
+      "control": "naive_base_rate",
+      "control_mean_absolute_error": 0.08896204378540133,
+      "direction": "positive_delta_favors_ace_foresight",
+      "losses": 30,
+      "mean_error_reduction": 0.020478671009287276,
+      "reason": "cluster_adjusted_interval_includes_no_benefit",
+      "state": "benefit_not_established",
+      "ties": 0,
+      "wins": 42
+    },
+    {
+      "ace_mean_absolute_error": null,
+      "benefit_supported": false,
+      "case_count": 0,
+      "cluster_adjusted_95_percent_interval": {
+        "count": 0,
+        "lower_95": null,
+        "mean": null,
+        "standard_error": null,
+        "upper_95": null
+      },
+      "cluster_count": 0,
+      "control": "model_only",
+      "control_mean_absolute_error": null,
+      "direction": "positive_delta_favors_ace_foresight",
+      "losses": 0,
+      "mean_error_reduction": null,
+      "reason": "insufficient_case_count",
+      "state": "benefit_not_established",
+      "ties": 0,
+      "wins": 0
+    }
+  ],
+  "contract_version": "ace.foresight.impact-evaluation/v1",
+  "evaluation_id": "impact-evaluation:f49d8048ca688f8bd9743d61ab209316",
+  "limitations": [
+    "Material use and a favorable average do not establish beneficial impact.",
+    "Cluster-adjusted uncertainty is computed over declared independent clusters.",
+    "Retrospective predictive evidence does not identify an intervention effect.",
+    "Every required control must pass; favorable subset selection is not allowed."
+  ],
+  "reason_codes": [
+    "benefit_not_supported_against_every_required_control",
+    "intervention_or_confounder_attribution_not_supported"
+  ],
+  "required_controls": [
+    "no_foresight",
+    "naive_base_rate",
+    "model_only"
+  ],
+  "sample": {
+    "complete_case_count": 72,
+    "ineligible_case_count": 0,
+    "invalid_reason_counts": {},
+    "minimum_case_count": 30,
+    "minimum_independent_clusters": 8,
+    "submitted_case_count": 72
+  },
+  "scenario_id": "l1-uci468-region-month-retrospective-v1",
+  "score_contract": {
+    "direction": "lower_absolute_error_is_better",
+    "method": "continuous_absolute_error/v1",
+    "metric": "regional_monthly_revenue_session_rate",
+    "supported": true
+  },
+  "state": "benefit_not_established"
+}

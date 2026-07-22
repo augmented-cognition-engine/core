@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir uv
 COPY pyproject.toml uv.lock build_backend.py README.md ROADMAP.md CONTRIBUTING.md SECURITY.md CHANGELOG.md LICENSE NOTICE ./
 COPY core/ core/
 COPY extensions/ extensions/
+COPY ace/ ace/
 COPY ace_mcp_client/ ace_mcp_client/
 COPY scripts/ scripts/
 COPY evaluations/ evaluations/

@@ -221,6 +221,10 @@ async def load_dual_intelligence(
                     "tier": r.get("tier", ""),
                     "insight_type": r.get("insight_type", ""),
                     "trust": r.get("trust"),
+                    "product": str(r.get("product") or "product:platform"),
+                    "status": r.get("status", "active"),
+                    "created_at": r.get("created_at"),
+                    "source_observations": r.get("source_observations") or [],
                     "source_graph": "specialty",
                 }
                 for r in rows
@@ -264,6 +268,10 @@ async def load_dual_intelligence(
                             "tier": r.get("tier", ""),
                             "insight_type": r.get("insight_type", ""),
                             "trust": r.get("trust"),
+                            "product": str(r.get("product") or "product:platform"),
+                            "status": r.get("status", "active"),
+                            "created_at": r.get("created_at"),
+                            "source_observations": r.get("source_observations") or [],
                             "source_graph": "specialty",
                         }
                         for r in supp_insights
@@ -305,6 +313,10 @@ async def load_dual_intelligence(
                     "tier": r.get("tier", ""),
                     "insight_type": r.get("insight_type", ""),
                     "trust": r.get("trust"),
+                    "product": str(r.get("product") or product_id),
+                    "status": r.get("status", "active"),
+                    "created_at": r.get("created_at"),
+                    "source_observations": r.get("source_observations") or [],
                     "source_graph": "org",
                 }
                 for r in rows

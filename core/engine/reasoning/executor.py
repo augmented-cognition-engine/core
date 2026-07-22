@@ -18,7 +18,10 @@ from core.engine.reasoning.models import FrameworkSelection
 
 logger = logging.getLogger(__name__)
 
-MAX_ITERATIONS = 2
+# One evaluator-guided refinement is the quality-bearing iterative path:
+# generate -> evaluate -> refine. The former second evaluation could not alter
+# the returned output and added a fourth model call with no user-visible value.
+MAX_REFINEMENT_ROUNDS = 1
 _VALID_PATTERNS = frozenset(["stacked", "layered", "iterative"])
 
 
@@ -130,7 +133,7 @@ For each framework, provide its perspective on the task. Then synthesize the per
 
 
 async def _execute_iterative(frameworks, task_description, intel_context, llm_model):
-    """Generate → evaluate → refine cycle. Max 2 iterations."""
+    """Generate → evaluate → refine, with every call affecting the result."""
     if len(frameworks) < 2:
         return await _execute_stacked(frameworks[0], task_description, intel_context, llm_model)
 
@@ -151,7 +154,7 @@ Apply the {generator.name} framework. Provide your initial analysis."""
 
     current_output = gen_output
 
-    for iteration in range(MAX_ITERATIONS):
+    for iteration in range(MAX_REFINEMENT_ROUNDS):
         # Evaluate
         eval_prompt = f"""{evaluator.system_prompt}
 
@@ -165,9 +168,7 @@ Apply the {evaluator.name} framework to evaluate this analysis. Identify strengt
         eval_output = await llm.complete(eval_prompt, model=llm_model)
         results.append({"framework_slug": evaluator.slug, "output": eval_output, "phase": f"evaluate_{iteration + 1}"})
 
-        # Refine (only if not last iteration)
-        if iteration < MAX_ITERATIONS - 1:
-            refine_prompt = f"""{generator.system_prompt}
+        refine_prompt = f"""{generator.system_prompt}
 
 Original task: {task_description}
 {intel_context}
@@ -180,9 +181,9 @@ Evaluation feedback:
 
 Refine your analysis based on the evaluation feedback. Address the identified weaknesses."""
 
-            refined = await llm.complete(refine_prompt, model=llm_model)
-            results.append({"framework_slug": generator.slug, "output": refined, "phase": f"refine_{iteration + 1}"})
-            current_output = refined
+        refined = await llm.complete(refine_prompt, model=llm_model)
+        results.append({"framework_slug": generator.slug, "output": refined, "phase": f"refine_{iteration + 1}"})
+        current_output = refined
 
     # Final output is the last generation/refinement
     final_output = current_output

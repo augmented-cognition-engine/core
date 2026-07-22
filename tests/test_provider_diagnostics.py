@@ -90,6 +90,22 @@ async def test_diagnostic_does_not_close_caller_owned_provider():
 
 
 @pytest.mark.asyncio
+async def test_diagnostic_does_not_close_shared_resolver_provider(monkeypatch):
+    provider = OpenAICompatProvider(
+        base_url="https://api.openai.com/v1",
+        api_key="redacted-fixture-key",
+    )
+    provider.aclose = AsyncMock()
+    provider._ace_shared_provider = True
+    monkeypatch.setattr("core.engine.core.llm.get_llm", lambda: provider)
+
+    result = await diagnose_provider(_settings())
+
+    assert result.state is ProviderDiagnosticState.CONFIGURED_UNVERIFIED
+    provider.aclose.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("status", "message", "expected"),
     [
@@ -142,7 +158,7 @@ async def test_route_specific_unsupported_effort_is_classified_before_transport(
 @pytest.mark.asyncio
 async def test_codex_passive_check_reports_authentication_not_reachability():
     provider = CodexCLIProvider(codex_bin="codex")
-    completed = MagicMock(returncode=0)
+    completed = MagicMock(returncode=0, stdout="Logged in using ChatGPT", stderr="")
 
     with patch("core.engine.core.provider_diagnostics.subprocess.run", return_value=completed):
         result = await diagnose_provider(_settings(), provider=provider)

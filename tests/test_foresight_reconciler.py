@@ -167,6 +167,133 @@ async def test_reconciler_no_open_predictions_is_noop():
     assert result["errors"] == 0
 
 
+def _intervention_observation(*, status: str, conditions_met: bool = True) -> dict:
+    from core.engine.foresight.contracts import build_intervention_observation_contract
+
+    contract = build_intervention_observation_contract(
+        observation_id="observation:i1",
+        request_id=f"intervention-{status}-v1",
+        decision_id="decision:d1",
+        prediction_id="decision_prediction:p1",
+        product_id="product:platform",
+        status=status,
+        observed_at="2026-02-01T00:00:00Z",
+        applicability_conditions_met=conditions_met,
+        conditions=[{"condition": "Rollout reached users", "met": conditions_met}],
+        exposure={"degree": 0.8, "scope": "users", "unit": "fraction"},
+        evidence_refs=["deployment:r1"],
+        confounders=[],
+        missing_evidence=[],
+        reason="Deployment telemetry observed.",
+        source_surface="api",
+        actor_ref="user:operator",
+    )
+    return {
+        "id": "observation:i1",
+        "product": "product:platform",
+        "affected_prediction": "decision_prediction:p1",
+        "affected_decision": "decision:d1",
+        "intervention_contract": contract,
+        "intervention_contract_version": contract["contract_version"],
+    }
+
+
+@pytest.mark.asyncio
+async def test_intervention_before_horizon_remains_open():
+    import datetime
+
+    from core.engine.foresight.reconciler import process_intervention_observation
+
+    prediction = {
+        "id": "decision_prediction:p1",
+        "decision": "decision:d1",
+        "product": "product:platform",
+        "closed": False,
+        "horizon_days": 30,
+        "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    }
+    pool = _make_pool({"SELECT * FROM ONLY <record>$prediction": [[prediction]]})
+    with (
+        patch("core.engine.foresight.reconciler.pool", pool),
+        patch("core.engine.foresight.reconciler._close_prediction", AsyncMock()) as close,
+    ):
+        result = await process_intervention_observation(_intervention_observation(status="partial"))
+
+    assert result["state"] == "awaiting_horizon"
+    close.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_cancelled_intervention_resolves_invalid_before_horizon():
+    import datetime
+
+    from core.engine.foresight.reconciler import process_intervention_observation
+
+    prediction = {
+        "id": "decision_prediction:p1",
+        "decision": "decision:d1",
+        "product": "product:platform",
+        "closed": False,
+        "horizon_days": 30,
+        "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    }
+    pool = _make_pool({"SELECT * FROM ONLY <record>$prediction": [[prediction]]})
+    summary = {
+        "resolution_state": "invalid",
+        "score_eligible": False,
+        "non_score_reason": "intervention_cancelled",
+    }
+    with (
+        patch("core.engine.foresight.reconciler.pool", pool),
+        patch("core.engine.foresight.reconciler._close_prediction", AsyncMock(return_value=summary)) as close,
+    ):
+        result = await process_intervention_observation(_intervention_observation(status="cancelled"))
+
+    assert result == {
+        "state": "resolved",
+        "prediction_id": "decision_prediction:p1",
+        "resolution_state": "invalid",
+        "score_eligible": False,
+        "non_score_reason": "intervention_cancelled",
+    }
+    assert close.await_args.kwargs["intervention_status"] == "cancelled"
+    assert close.await_args.kwargs["observation_refs"] == ["observation:i1", "deployment:r1"]
+
+
+@pytest.mark.asyncio
+async def test_hourly_reconciler_reloads_persisted_intervention_after_restart():
+    import datetime
+
+    from core.engine.foresight.reconciler import run_reconciler
+
+    old_ts = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=20)).isoformat()
+    prediction = {
+        "id": "decision_prediction:p1",
+        "decision": "decision:d1",
+        "product": "product:platform",
+        "closed": False,
+        "horizon_days": 7,
+        "created_at": old_ts,
+    }
+    observation = _intervention_observation(status="completed")
+    pool = _make_pool(
+        {
+            "FROM decision_prediction": [[prediction]],
+            "FROM observation": [[observation]],
+        }
+    )
+    with (
+        patch("core.engine.foresight.reconciler.pool", pool),
+        patch("core.engine.foresight.reconciler._close_prediction", AsyncMock(return_value={})) as close,
+    ):
+        result = await run_reconciler("product:platform")
+
+    assert result == {"predictions_closed": 1, "errors": 0}
+    assert close.await_args.kwargs["intervention_status"] == "completed"
+    assert close.await_args.kwargs["applicability_conditions_met"] is True
+    assert close.await_args.kwargs["observation_refs"] == ["observation:i1", "deployment:r1"]
+
+
 @pytest.mark.asyncio
 async def test_reconciler_closes_overdue_prediction():
     """Reconciler closes an overdue prediction and reports predictions_closed=1."""
@@ -250,6 +377,8 @@ def test_calibration_score_formula():
     assert _compute_calibration_score(predicted=0.3, actual=0.3) == pytest.approx(1.0)
     assert _compute_calibration_score(predicted=1.0, actual=-1.0) == pytest.approx(0.0)
     assert _compute_calibration_score(predicted=0.3, actual=0.1) == pytest.approx(0.9)
+    with pytest.raises(ValueError, match="finite"):
+        _compute_calibration_score(predicted=float("nan"), actual=0.1)
 
 
 @pytest.mark.asyncio

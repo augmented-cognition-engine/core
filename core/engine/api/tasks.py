@@ -30,6 +30,10 @@ from core.engine.product.decision_receipts import (
     normalize_decision_receipt,
     with_human_disposition,
 )
+from core.engine.product.intelligence_use import (
+    normalize_intelligence_use_receipt,
+    runtime_intelligence_use_receipt,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,10 +55,14 @@ class TaskResponse(BaseModel):
     specialties_loaded: list[str] | None = None
     engagement: dict | None = None
     token_usage: dict | None = None
+    call_estimate: dict | None = None
+    model_calls: dict | None = None
+    latency: dict | None = None
     phase_traces: list[dict] | None = None
     reasoning_trace: dict | None = None
     execution: dict = Field(default_factory=dict)
     decision_receipt: dict = Field(default_factory=dict)
+    intelligence_use_receipt: dict = Field(default_factory=dict)
 
 
 def _execution_coverage(result: object) -> dict:
@@ -120,6 +128,17 @@ def _execution_coverage(result: object) -> dict:
             "tainted": tainted_phases,
         },
     }
+    bounded = snapshot.get("bounded_interactive") if isinstance(snapshot, dict) else None
+    if isinstance(bounded, dict):
+        coverage["bounded_interactive"] = {
+            key: bounded.get(key) for key in ("selected", "attempts", "contract", "validation", "semantic_verification")
+        }
+    classification = getattr(result, "classification", {}) or {}
+    routing = classification.get("routing_governance") if isinstance(classification, dict) else None
+    if isinstance(routing, dict) and isinstance(routing.get("stage_plan"), dict):
+        coverage["stage_plan"] = routing["stage_plan"]
+    if isinstance(routing, dict) and isinstance(routing.get("adaptive_stage_plan"), dict):
+        coverage["adaptive_stage_plan"] = routing["adaptive_stage_plan"]
     if state == "partial" or tainted_phases:
         partial_reasons = []
         if unavailable:
@@ -313,6 +332,67 @@ def _resolve_task_model(model: str | None) -> str | None:
     return settings.llm_budget_model
 
 
+def _estimate_task_model_calls(body: TaskCreate) -> dict:
+    """Return a conservative pre-acceptance estimate, never a billing promise."""
+    from core.engine.core.config import settings
+
+    if not body.deep and not body.force_skill and not body.frameworks_hint and body.model is None:
+        from core.engine.orchestration.bounded_interactive import detect_bounded_output_contract
+
+        if detect_bounded_output_contract(body.description) is not None:
+            per_call_ms = settings.llm_expected_call_latency_ms
+            bounded_high = 2
+            escalated_high = bounded_high + 3 + 3 + max(0, settings.self_refine_rounds)
+            return {
+                "low": 1,
+                "expected": 1,
+                "high": escalated_high,
+                "bounded_high": bounded_high,
+                "escalated_high": escalated_high,
+                "expected_serial_wall_ms": per_call_ms,
+                "high_serial_wall_ms": escalated_high * per_call_ms,
+                "assumed_call_ms": per_call_ms,
+                "soft_limit": settings.llm_task_call_soft_limit,
+                "within_soft_limit": escalated_high <= settings.llm_task_call_soft_limit,
+                "reasons": [
+                    "bounded_generation_with_one_conditional_repair",
+                    "relevant_conflict_or_failed_repair_can_escalate_to_full_orchestration",
+                ],
+                "method": "bounded_contract_v1",
+            }
+
+    expected = 2 if body.model == "budget" else 3
+    reasons = ["classification_and_execution"]
+    if body.deep:
+        expected += 3
+        reasons.append("deep_framework_composition")
+    if body.force_skill:
+        expected += 1
+        reasons.append("forced_skill")
+    if body.frameworks_hint:
+        expected += min(2, len(body.frameworks_hint))
+        reasons.append("framework_hints")
+    if len(body.description) > 4_000:
+        expected += 1
+        reasons.append("large_input")
+    low = max(1, expected - 1)
+    # Evaluation/refinement and structured-output repair are conditional.
+    high = expected + 3 + max(0, settings.self_refine_rounds)
+    per_call_ms = settings.llm_expected_call_latency_ms
+    return {
+        "low": low,
+        "expected": expected,
+        "high": high,
+        "expected_serial_wall_ms": expected * per_call_ms,
+        "high_serial_wall_ms": high * per_call_ms,
+        "assumed_call_ms": per_call_ms,
+        "soft_limit": settings.llm_task_call_soft_limit,
+        "within_soft_limit": high <= settings.llm_task_call_soft_limit,
+        "reasons": reasons,
+        "method": "heuristic_v1",
+    }
+
+
 def _provider_route_fallback(
     provider: object | None,
     requested_model: str | None,
@@ -350,7 +430,13 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
     result.setdefault("output", None)
     result.setdefault("intelligence_loaded", {})
     result.setdefault("execution", {})
+    result.setdefault("call_estimate", None)
+    result.setdefault("model_calls", None)
+    result.setdefault("latency", None)
     result["decision_receipt"] = normalize_decision_receipt(result.get("decision_receipt"), task=result)
+    result["intelligence_use_receipt"] = normalize_intelligence_use_receipt(
+        result.get("intelligence_use_receipt"), task=result
+    )
     # Persisted execution coordinates and private prompt text are not public
     # receipt fields.  The output remains available, but the original prompt
     # and retained-intelligence payload do not ride along with ace_status.
@@ -532,6 +618,7 @@ async def _create_or_get_receipt(body: TaskCreate, user: dict) -> tuple[dict, bo
                     return active, False
 
             options = body.model_dump(exclude={"idempotency_key", "wait_seconds"}, exclude_none=True)
+            call_estimate = _estimate_task_model_calls(body)
             created = parse_one(
                 await db.query(
                     """
@@ -547,6 +634,7 @@ async def _create_or_get_receipt(body: TaskCreate, user: dict) -> tuple[dict, bo
                         idempotency_mode = $mode,
                         request_fingerprint = $fingerprint,
                         request_options = $options,
+                        call_estimate = $call_estimate,
                         runtime_id = $runtime_id,
                         accepted_at = time::now(),
                         updated_at = time::now()
@@ -561,6 +649,7 @@ async def _create_or_get_receipt(body: TaskCreate, user: dict) -> tuple[dict, bo
                         "mode": mode,
                         "fingerprint": fingerprint,
                         "options": options,
+                        "call_estimate": call_estimate,
                         "runtime_id": _RUNTIME_ID,
                     },
                 )
@@ -625,6 +714,56 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
             if not provenance.get("requested_model") and fallback["requested_model"]:
                 provenance["requested_model"] = fallback["requested_model"]
         decision_receipt = await _persist_structured_decision(task_id, body, user, provenance)
+        token_usage = result.snapshot.get("token_usage") or {}
+        latency = dict(token_usage.get("latency") or {})
+        latency["task_wall_ms"] = max(0, int(result.duration_ms or 0))
+        # ACE currently returns a completed artifact rather than progressive
+        # partial output, so the first useful result is the terminal result.
+        latency["first_useful_result_ms"] = max(0, int(result.duration_ms or 0)) if result.output else None
+        logical_calls = int(latency.get("call_count") or 0)
+        actual_calls = max(
+            len(token_usage.get("calls") or []),
+            logical_calls + int(latency.get("retry_count") or 0),
+        )
+        call_estimate = _estimate_task_model_calls(body)
+        model_calls = {
+            "estimated": call_estimate,
+            "actual": actual_calls,
+            "retry_count": int(latency.get("retry_count") or 0),
+            "over_soft_limit": actual_calls > call_estimate["soft_limit"],
+        }
+        intelligence_use_receipt = runtime_intelligence_use_receipt(
+            task_id=task_id,
+            product_id=user.get("product", "product:default"),
+            decision_receipt=decision_receipt,
+            trace=result.snapshot.get("_intelligence_use_trace"),
+            route={
+                "provider": provenance.get("provider"),
+                "model": provenance.get("model"),
+                "requested_model": provenance.get("requested_model"),
+                "configuration": {"task_model": body.model, "deep": body.deep},
+                "calls": actual_calls,
+                "tokens": token_usage,
+                "latency": latency,
+                "retries": model_calls["retry_count"],
+                "billing_semantics": "provider_route_reported_or_unknown",
+                "failures": [error] if error else [],
+                "degraded_state": status if status != "completed" else None,
+            },
+        )
+        adaptive_plan = execution.get("adaptive_stage_plan")
+        if isinstance(adaptive_plan, dict):
+            from core.engine.orchestration.adaptive_reasoning import evaluate_advisory_stage_plan
+
+            execution["adaptive_evidence"] = evaluate_advisory_stage_plan(
+                adaptive_plan,
+                snapshot=result.snapshot,
+                token_usage=token_usage,
+                execution=execution,
+                actual_calls=actual_calls,
+                duration_ms=result.duration_ms,
+                status=status,
+            )
         await _update_receipt(
             task_id,
             {
@@ -636,11 +775,15 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                 "output": result.output,
                 "intelligence_loaded": result.snapshot,
                 "specialties_loaded": result.snapshot.get("specialties_loaded", []),
-                "token_usage": result.snapshot.get("token_usage"),
+                "token_usage": token_usage,
+                "call_estimate": call_estimate,
+                "model_calls": model_calls,
+                "latency": latency,
                 "phase_traces": result.snapshot.get("phase_traces"),
                 "reasoning_trace": reasoning_trace,
                 "execution": execution,
                 "decision_receipt": decision_receipt,
+                "intelligence_use_receipt": intelligence_use_receipt,
                 "error": error,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),

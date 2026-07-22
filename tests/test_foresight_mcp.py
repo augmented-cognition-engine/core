@@ -97,6 +97,11 @@ async def test_ace_calibration_returns_archetype_scores():
     assert cal["calibration_score"] == pytest.approx(0.82)
     assert cal["sample_count"] == 7
 
+    query = pool.connection.return_value.__aenter__.return_value.query
+    sql, params = query.await_args.args
+    assert "WHERE product = <record>$product" in sql
+    assert params == {"product": "product:platform"}
+
 
 @pytest.mark.asyncio
 async def test_ace_calibration_empty_db_returns_empty():

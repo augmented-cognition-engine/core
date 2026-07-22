@@ -24,6 +24,9 @@ def _settings():
         llm_model="default",
         llm_reasoning_model="reasoning",
         llm_frontier_model="frontier",
+        llm_local_concurrency=2,
+        llm_expected_call_latency_ms=5_000,
+        llm_task_call_soft_limit=12,
     )
 
 
@@ -36,10 +39,14 @@ def test_policy_projects_existing_router_into_provider_neutral_roles():
     assert [role["resolved_model"] for role in payload["roles"]] == ["small", "medium", "large", "frontier"]
     assert "secret-reference" in str(payload)
     assert "redacted-secret-value" not in str(payload)
+    assert payload["latency_governance"]["concurrency_limit"] == 2
+    assert payload["latency_governance"]["whole_task_budget"] == "estimated_not_hard_capped"
 
 
 def test_configuration_exposure_never_returns_values():
     inventory = configuration_exposure()
+    assert "CODEX_TRANSPORT" in inventory[0]["settings"]
+    assert "LLM_SUBSCRIPTION_CONCURRENCY" in inventory[0]["settings"]
     assert any(item["category"] == "secret-reference" for item in inventory)
     assert all(set(item) == {"category", "settings"} for item in inventory)
 

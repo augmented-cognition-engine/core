@@ -133,7 +133,7 @@ export const multiplayerFixture: AceCoreState = {
         progress: 0.84,
         status: 'advancing',
         detail:
-          'L9 calibration layer hits ≥ 0.80 mean accuracy across rolling 12-prediction window. Currently 0.78 mean, trending up as the world model accumulates traffic-shape priors.',
+          'L9 calibration layer targets ≥ 0.80 mean accuracy across a rolling 12-prediction window. Currently 0.78 mean as resolved forecasts build a product-specific evidence record.',
         recentCommits: [
           { id: 'c1', date: 'May 22', what: 'Calibration history surface lands' },
           { id: 'c2', date: 'May 14', what: 'Reconciliation loop ships' },
@@ -343,7 +343,7 @@ export const multiplayerFixture: AceCoreState = {
         values: [0.62, 0.71, 0.68, 0.78, 0.74, 0.82, 0.86, 0.8, 0.85, 0.83, 0.88, 0.84],
         average: 0.78,
         note:
-          "Last 12 predictions, reconciled at horizon. Calibration improving as the world model accumulates traffic-shape priors.",
+          'Last 12 predictions, reconciled at horizon. Calibration reflects the product-specific record of forecast versus observed outcome.',
       },
     },
     // No convergence block — the deliberation hasn't landed yet.

@@ -100,8 +100,12 @@ async def ace_capture(
     invalidates_correction_id: str | None = None,
     contests_correction_id: str | None = None,
     expires_at: str | None = None,
+    intervention: dict | None = None,
+    indicator: dict | None = None,
+    comparator: dict | None = None,
+    measurement: dict | None = None,
 ) -> dict:
-    """Record an observation from the session."""
+    """Record an observation, including structured foresight evidence."""
     c = _get_client()
     body = {
         "observation_type": observation_type,
@@ -117,6 +121,10 @@ async def ace_capture(
         "invalidates_correction_id": invalidates_correction_id,
         "contests_correction_id": contests_correction_id,
         "expires_at": expires_at,
+        "intervention": intervention,
+        "indicator": indicator,
+        "comparator": comparator,
+        "measurement": measurement,
     }
     body.update({key: value for key, value in optional.items() if value is not None})
     if observation_type == "correction":

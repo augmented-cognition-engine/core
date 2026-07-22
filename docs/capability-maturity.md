@@ -18,7 +18,7 @@ The 0.1.x public identities are:
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.1.1`
+- version: `0.1.2`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -62,7 +62,20 @@ transparent resumption after interruption, or public cancellation.
 The supported I1 nested decision/correction receipt contract, explicit incomplete provenance,
 privacy boundary, lifecycle history, and replay evidence are documented in
 [Decision and correction receipts](decision-correction-receipts.md). I1 is passed without widening
-the eleven-tool surface or adding execution authority; it does not imply I2 or I3 behavior.
+the eleven-tool surface or adding execution authority.
+
+The supported I3 `intelligence-use-receipt-v1` projection is exposed through the existing
+`ace_status` task result and read-only Living Product Graph. It distinguishes retrieved, injected,
+reflected, and decision-material evidence; limits comparison to the six structured I1 fields; and
+degrades missing, mismatched, failed, or partial controls without reconstruction. I3 is passed, but
+material influence is not beneficial impact and does not imply L1 success. See
+[I3 closeout evidence](i3-intelligence-use-evidence.md).
+
+The experimental L1 `ace.foresight.impact-evaluation/v1` evaluator now computes bounded,
+cluster-aware later-outcome comparisons without accepting caller-supplied quality labels. Its first
+checksum-frozen public-data probe did not establish benefit, so L1 is candidate and no beneficial-
+impact capability is part of the supported preview contract. See the
+[L1 evidence gate](l1-foresight-impact-evidence.md).
 
 Atrium is repository beta source and is not included in the Python wheel or sdist. It is a
 research surface, not a required installation or interaction path.

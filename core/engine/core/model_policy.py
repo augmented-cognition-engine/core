@@ -42,6 +42,7 @@ class EffectiveModelPolicy:
     escalation: str
     fallback: str
     context_limits: str
+    latency_governance: dict[str, Any]
     validation_errors: tuple[str, ...] = ()
     warnings: tuple[str, ...] = ()
 
@@ -57,6 +58,7 @@ class EffectiveModelPolicy:
             "escalation": self.escalation,
             "fallback": self.fallback,
             "context_limits": self.context_limits,
+            "latency_governance": self.latency_governance,
             "validation_errors": list(self.validation_errors),
             "warnings": list(self.warnings),
             "configuration_exposure": configuration_exposure(),
@@ -80,8 +82,15 @@ def configuration_exposure() -> list[dict[str, object]]:
                 "REQUIRE_SUBSCRIPTION",
                 "FORCE_CLI_PROVIDER",
                 "SUBSCRIPTION_PROVIDER",
+                "CODEX_TRANSPORT",
                 "CODEX_CLI_MODEL",
                 "CODEX_CLI_EFFORT",
+                "LLM_SUBPROCESS_CONCURRENCY",
+                "LLM_SUBSCRIPTION_CONCURRENCY",
+                "LLM_METERED_CONCURRENCY",
+                "LLM_LOCAL_CONCURRENCY",
+                "LLM_EXPECTED_CALL_LATENCY_MS",
+                "LLM_TASK_CALL_SOFT_LIMIT",
             ],
         },
         {
@@ -132,6 +141,42 @@ def _resolved_effort(provider: object, requested: str, resolved: str) -> str:
     if callable(resolver):
         return str(resolver(requested, resolved))
     return "provider_default"
+
+
+def _latency_governance(settings: object, provider: object, access: AccessProfile) -> dict[str, Any]:
+    name = type(provider).__name__
+    if name in {"CLIProvider", "CodexCLIProvider"}:
+        limit = int(getattr(settings, "llm_subprocess_concurrency", 1))
+        timeout_ms = int(
+            float(getattr(settings, "claude_cli_timeout_seconds", 300.0)) * 1000 if name == "CLIProvider" else 300_000
+        )
+        suitability = "batch_or_bounded_only"
+    elif access.access_class is AccessClass.SUBSCRIPTION:
+        limit = int(getattr(settings, "llm_subscription_concurrency", 2))
+        timeout_ms = 300_000 if name == "CodexAppServerProvider" else None
+        suitability = "interactive_capacity_limited"
+    elif access.access_class is AccessClass.METERED_API:
+        limit = int(getattr(settings, "llm_metered_concurrency", 4))
+        timeout_ms = 120_000 if name == "OpenAICompatProvider" else None
+        suitability = "interactive_backend_limited"
+    elif access.access_class is AccessClass.LOCAL:
+        limit = int(getattr(settings, "llm_local_concurrency", 2))
+        timeout_ms = 120_000
+        suitability = "hardware_dependent"
+    else:
+        limit = 1
+        timeout_ms = None
+        suitability = "not_ready"
+    return {
+        "scheduler": "process_local_provider_aware",
+        "concurrency_limit": limit,
+        "per_call_timeout_ms": timeout_ms,
+        "whole_task_budget": "estimated_not_hard_capped",
+        "expected_call_latency_ms": int(getattr(settings, "llm_expected_call_latency_ms", 5_000)),
+        "task_call_soft_limit": int(getattr(settings, "llm_task_call_soft_limit", 12)),
+        "interactive_multi_call_suitability": suitability,
+        "receipts": "call_count_queue_setup_first_token_inference_parse_retry_and_task_wall",
+    }
 
 
 def build_model_policy(settings: object, provider: object | None = None) -> EffectiveModelPolicy:
@@ -192,6 +237,7 @@ def build_model_policy(settings: object, provider: object | None = None) -> Effe
             "unsupported or unavailable routes fail or degrade explicitly"
         ),
         context_limits="provider/model specific; ACE does not silently remove reasoning artifacts to fit a slower route",
+        latency_governance=_latency_governance(settings, provider, access),
         validation_errors=tuple(errors),
         warnings=tuple(warnings),
     )

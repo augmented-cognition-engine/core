@@ -603,12 +603,36 @@ export interface Prediction {
   primary_risk: string
   leading_indicators: string[]
   falsification_condition: string
+  contract_version?: string
+  forecast_contract?: Record<string, unknown>
+  outside_view_version?: string
+  outside_view_baseline?: Record<string, unknown>
+  resolution_status?: 'open' | 'confirmed' | 'contradicted' | 'mixed' | 'unresolved' | 'invalid'
+  indicator_state_version?: string
+  indicator_evidence_state?: Record<string, unknown>
+  indicator_status?: 'unobserved' | 'inconclusive' | 'supports' | 'weakens' | 'mixed' | 'falsifies'
+  indicator_updated_at?: string
+  comparator_state_version?: string
+  comparator_evidence_state?: Record<string, unknown>
+  comparator_status?: 'absent' | 'ineligible' | 'eligible'
+  comparator_updated_at?: string
+  comparator_plan_version?: string
+  comparator_plan?: Record<string, unknown>
+  comparator_plan_status?: 'not_proposed' | 'needs_operator_review' | 'proposed' | 'not_feasible'
   closed: boolean
   created_at: string
 }
 
 export interface PredictionOutcome {
-  calibration_score: number
+  calibration_score: number | null
+  outside_view_comparison?: Record<string, unknown>
+  prediction_score_version?: string
+  prediction_score?: Record<string, unknown>
+  comparator_context?: Record<string, unknown>
+  resolution_state?: 'open' | 'confirmed' | 'contradicted' | 'mixed' | 'unresolved' | 'invalid'
+  score_eligible?: boolean
+  non_score_reason?: string | null
+  resolution_contract?: Record<string, unknown>
   predicted_deltas: Record<string, number>
   actual_deltas: Record<string, number>
   closed_at: string

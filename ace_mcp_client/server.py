@@ -59,8 +59,12 @@ async def ace_capture_tool(
     invalidates_correction_id: str | None = None,
     contests_correction_id: str | None = None,
     expires_at: str | None = None,
+    intervention: dict | None = None,
+    indicator: dict | None = None,
+    comparator: dict | None = None,
+    measurement: dict | None = None,
 ) -> dict:
-    """Record an observation from this session. Types: correction, decision, preference, pattern, learning, error. Call when user corrects output ("that's wrong", "use X not Y"), makes a decision, states a preference, or when you discover a useful fact. ACE processes these into durable intelligence."""
+    """Record an observation from this session. Types include correction, decision, preference, pattern, learning, error, intervention, forecast_indicator, forecast_comparator, and forecast_measurement. Supply the corresponding structured payload for foresight evidence. ACE processes ordinary observations into durable intelligence and keeps foresight observations as separate evidence."""
     return await ace_capture(
         observation_type=observation_type,
         content=content,
@@ -73,6 +77,10 @@ async def ace_capture_tool(
         invalidates_correction_id=invalidates_correction_id,
         contests_correction_id=contests_correction_id,
         expires_at=expires_at,
+        intervention=intervention,
+        indicator=indicator,
+        comparator=comparator,
+        measurement=measurement,
     )
 
 

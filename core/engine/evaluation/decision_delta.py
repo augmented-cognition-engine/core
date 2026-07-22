@@ -15,6 +15,9 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+from core.engine.product.intelligence_use import CONTRACT_VERSION as I3_CONTRACT_VERSION
+from core.engine.product.intelligence_use import build_intelligence_use_receipt
+
 CONTRACT_VERSION = "ace.decision-delta-receipt/v1"
 SUITE_VERSION = 1
 
@@ -57,6 +60,16 @@ class DecisionDeltaContractError(ValueError):
     """Raised when a recorded fixture cannot produce an honest receipt."""
 
 
+def _merged(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    result = deepcopy(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = _merged(result[key], value)
+        else:
+            result[key] = deepcopy(value)
+    return result
+
+
 def stable_hash(value: Any) -> str:
     """Return a full SHA-256 over canonical, JSON-safe content."""
     payload = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
@@ -66,7 +79,7 @@ def stable_hash(value: Any) -> str:
 def load_decision_delta_suite(path: str | Path) -> dict[str, Any]:
     with Path(path).open(encoding="utf-8") as handle:
         suite = json.load(handle)
-    if suite.get("schema_version") != SUITE_VERSION:
+    if suite.get("schema_version") not in {SUITE_VERSION, 2}:
         raise DecisionDeltaContractError("unsupported decision-delta suite schema_version")
     if not suite.get("cases"):
         raise DecisionDeltaContractError("decision-delta suite must contain at least one case")
@@ -308,6 +321,38 @@ def build_decision_delta_receipt(case: dict[str, Any], *, suite_id: str) -> dict
 
 def evaluate_decision_delta_suite(suite: dict[str, Any]) -> dict[str, Any]:
     """Build all receipts while preserving null, negative, and degraded cases."""
+    if suite.get("schema_version") == 2:
+        defaults = suite.get("defaults") if isinstance(suite.get("defaults"), dict) else {}
+        receipts = [build_intelligence_use_receipt(_merged(defaults, case)) for case in suite.get("cases") or []]
+        if not receipts:
+            raise DecisionDeltaContractError("decision-delta suite must contain at least one case")
+        states = {state: 0 for state in ("retrieved", "injected", "reflected", "decision-material")}
+        for receipt in receipts:
+            for item in receipt["intelligence"]:
+                highest = item["evidence"]["highest_state"]
+                if highest in states:
+                    states[highest] += 1
+        return {
+            "schema_version": 2,
+            "contract_version": I3_CONTRACT_VERSION,
+            "suite_id": str(_required(suite, "suite_id", "suite")),
+            "run_kind": suite.get("run_kind", "recorded_deterministic_conformance"),
+            "evidence_scope": deepcopy(suite.get("evidence_scope") or {}),
+            "summary": {
+                "receipts": len(receipts),
+                "complete_receipts": sum(r["completeness"]["state"] == "complete" for r in receipts),
+                "degraded_receipts": sum(r["completeness"]["state"] == "degraded" for r in receipts),
+                "material_receipts": sum(bool(r["material_intelligence_ids"]) for r in receipts),
+                "evidence_states": states,
+                "comparison_states": {
+                    state: sum(r["comparison"]["state"] == state for r in receipts)
+                    for state in ("matched", "mismatched", "failed", "unknown")
+                },
+            },
+            "receipts": receipts,
+            "unsupported_claims": list(suite.get("unsupported_claims") or []),
+            "limitations": list(suite.get("limitations") or []),
+        }
     if suite.get("schema_version") != SUITE_VERSION:
         raise DecisionDeltaContractError("unsupported decision-delta suite schema_version")
     suite_id = str(_required(suite, "suite_id", "suite"))
@@ -353,6 +398,37 @@ def evaluate_decision_delta_suite(suite: dict[str, Any]) -> dict[str, Any]:
 
 
 def render_decision_delta_markdown(result: dict[str, Any]) -> str:
+    if result.get("schema_version") == 2:
+        summary = result["summary"]
+        lines = [
+            f"# I3 intelligence-use evaluation: {result['suite_id']}",
+            "",
+            f"Contract: `{result['contract_version']}`",
+            "",
+            (
+                f"Recorded {summary['receipts']} receipts. Material: {summary['material_receipts']}; "
+                f"degraded: {summary['degraded_receipts']}."
+            ),
+            "",
+            "> Material influence is not beneficial impact. Benefit remains unsupported until later L1 outcome evidence.",
+            "",
+            "| Task | Intelligence | Highest state | Changed I1 fields | Comparison | Completeness |",
+            "|---|---|---|---|---|---|",
+        ]
+        for receipt in result["receipts"]:
+            task_id = receipt["receiving"]["task_id"]
+            for item in receipt["intelligence"] or [None]:
+                lines.append(
+                    f"| {task_id} | {item['intelligence_id'] if item else 'none'} | "
+                    f"{item['evidence']['highest_state'] if item else 'not-established'} | "
+                    f"{', '.join(item['evidence']['changed_fields']) if item else 'none'} | "
+                    f"{receipt['comparison']['state']} | {receipt['completeness']['state']} |"
+                )
+        lines += ["", "## Unsupported claims", ""]
+        lines += [f"- {claim}" for claim in result.get("unsupported_claims") or []] or ["- None recorded."]
+        lines += ["", "## Limitations", ""]
+        lines += [f"- {item}" for item in result.get("limitations") or []] or ["- None recorded."]
+        return "\n".join(lines)
     summary = result["summary"]
     lines = [
         f"# Decision-delta evaluation: {result['suite_id']}",

@@ -111,6 +111,9 @@ async def test_simulated_31_second_task_returns_receipt_then_survives_disconnect
 
     assert completed["status"] == "completed"
     assert completed["output"] == "durable output"
+    assert completed["model_calls"]["actual"] == 0
+    assert completed["latency"]["task_wall_ms"] == 31_001
+    assert completed["latency"]["first_useful_result_ms"] == 31_001
     assert completed["reasoning_trace"]["provenance"] == {
         "task_id": store.task_id,
         "provider": "OllamaProvider",
@@ -122,6 +125,130 @@ async def test_simulated_31_second_task_returns_receipt_then_survives_disconnect
             "models": ["qwen3:4b"],
         },
     }
+
+
+def test_pre_acceptance_call_estimate_is_bounded_and_explained():
+    estimate = tasks._estimate_task_model_calls(
+        TaskCreate(
+            description="deep analysis",
+            workspace_id="workspace:test",
+            deep=True,
+            force_skill="architecture",
+            frameworks_hint=["a", "b"],
+        )
+    )
+    assert estimate["low"] <= estimate["expected"] <= estimate["high"]
+    assert estimate["expected_serial_wall_ms"] == estimate["expected"] * estimate["assumed_call_ms"]
+    assert estimate["soft_limit"] >= 1
+    assert estimate["method"] == "heuristic_v1"
+    assert "deep_framework_composition" in estimate["reasons"]
+
+
+def test_bounded_output_contract_estimates_one_call_plus_conditional_repair():
+    estimate = tasks._estimate_task_model_calls(
+        TaskCreate(
+            description="Return exactly three concise bullets with a measurable metric in every bullet",
+            workspace_id="workspace:test",
+        )
+    )
+
+    assert estimate["low"] == 1
+    assert estimate["expected"] == 1
+    assert estimate["bounded_high"] == 2
+    assert estimate["high"] == estimate["escalated_high"]
+    assert estimate["high"] > estimate["bounded_high"]
+    assert estimate["method"] == "bounded_contract_v1"
+
+
+def test_execution_receipt_exposes_bounded_route_without_claiming_semantic_verification():
+    stage_plan = {
+        "planner": "dynamic_stage_policy_v1",
+        "route": "bounded_interactive",
+        "stages": [{"stage": "ace_intelligence_probe", "selected": True, "reason": "no_llm_indexed_retrieval"}],
+        "intelligence": {"retrieved": 1, "injected": 1, "relevant_conflicts": 0},
+    }
+    result = SimpleNamespace(
+        pattern_result=None,
+        output="- result",
+        snapshot={
+            "bounded_interactive": {
+                "selected": True,
+                "attempts": 1,
+                "contract": "exactly 1 bullet(s)",
+                "validation": "deterministic_shape",
+                "semantic_verification": "not_claimed",
+            }
+        },
+        classification={"routing_governance": {"stage_plan": stage_plan}},
+    )
+
+    execution = tasks._execution_coverage(result)
+
+    assert execution["bounded_interactive"] == {
+        "selected": True,
+        "attempts": 1,
+        "contract": "exactly 1 bullet(s)",
+        "validation": "deterministic_shape",
+        "semantic_verification": "not_claimed",
+    }
+    assert execution["stage_plan"] == stage_plan
+
+
+@pytest.mark.asyncio
+async def test_completed_receipt_records_adaptive_shadow_evidence_without_an_evaluator_call():
+    store = MemoryReceiptStore()
+    result = _result()
+    adaptive_plan = {
+        "planner": "adaptive_reasoning_shadow_v1",
+        "advisory_only": True,
+        "priority": "balanced",
+        "stages": [
+            {"stage": "semantic_classification", "selected": True},
+            {"stage": "ace_intelligence", "selected": True},
+            {"stage": "verification", "selected": False},
+        ],
+    }
+    result.classification["routing_governance"] = {"adaptive_stage_plan": adaptive_plan}
+    result.snapshot["token_usage"] = {
+        "llm_calls": [
+            {
+                "stage": "classification",
+                "retry_count": 0,
+            }
+        ],
+        "calls": [],
+        "latency": {
+            "call_count": 1,
+            "retry_count": 0,
+            "stages": {"classification": {"calls": 1}},
+        },
+        "total_tokens": 20,
+        "providers": ["OllamaProvider"],
+        "models": ["qwen3:4b"],
+    }
+
+    async def orchestrate(_request):
+        return result
+
+    body = TaskCreate(description="balanced work", workspace_id="workspace:test")
+    user = {"sub": "user:test", "product": "product:test"}
+    with (
+        patch.object(tasks, "_create_or_get_receipt", new=store.create_or_get),
+        patch.object(tasks, "_update_receipt", new=store.update),
+        patch.object(tasks, "_get_task_record", new=store.get),
+        patch("core.engine.orchestration.orchestrate", new=orchestrate),
+        patch.object(tasks, "_persist_structured_decision", new=AsyncMock(return_value={})),
+    ):
+        receipt = await tasks.create_task(body, user)
+        await tasks._active_tasks[receipt["id"]]
+        completed = await tasks.get_task(receipt["id"], user)
+
+    evidence = completed["execution"]["adaptive_evidence"]
+    assert evidence["advisory_only"] is True
+    assert evidence["actual"]["model_calls"] == 1
+    assert evidence["actual"]["task_wall_ms"] == 31_001
+    assert evidence["quality_evidence"]["user_feedback"] == "not_yet_available"
+    assert evidence["comparison"]["stages"][0]["agreement"] is True
 
 
 @pytest.mark.asyncio

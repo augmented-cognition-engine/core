@@ -518,7 +518,15 @@ class ContextAssembler:
             return ""
         lines = ["\n\n## Established Intelligence\nThese are validated insights at this domain path:"]
         for i in items:
-            lines.append(f"- [{i['insight_type']}] {i['content']} (confidence: {i['confidence']})")
+            if self._use_markers:
+                self._marker_idx += 1
+                marker = f"[I-{self._marker_idx}]"
+                insight_id = str(i.get("id", ""))
+                if insight_id:
+                    self._markers[marker] = insight_id
+                lines.append(f"- {marker} [{i['insight_type']}] {i['content']} (confidence: {i['confidence']})")
+            else:
+                lines.append(f"- [{i['insight_type']}] {i['content']} (confidence: {i['confidence']})")
         return "\n".join(lines)
 
     # ------------------------------------------------------------------ #

@@ -195,6 +195,34 @@ async def test_instrument_llm_wraps_stream_messages(spans):
     assert spans.get_finished_spans()[0].attributes["gen_ai.request.model"] == "gpt-x"
 
 
+@pytest.mark.asyncio
+async def test_instrumented_call_records_latency_evidence(spans):
+    from core.engine.core.llm import _instrument_llm
+    from core.engine.core.tokens import TokenAccumulator, clear_accumulator, set_accumulator
+
+    class _Inner:
+        _default_model = "test-model"
+
+        async def complete(self, prompt, model=None):
+            return f"answer:{prompt}"
+
+    acc = TokenAccumulator()
+    set_accumulator(acc)
+    try:
+        result = await _instrument_llm(_Inner(), "test").complete("hello", model="requested")
+    finally:
+        clear_accumulator()
+
+    assert result == "answer:hello"
+    call = acc.summary()["llm_calls"][0]
+    assert call["provider"] == "_Inner"
+    assert call["requested_model"] == "requested"
+    assert call["input_size"] == 5
+    assert call["output_size"] == len("answer:hello")
+    assert call["status"] == "completed"
+    assert "concurrency_limit=1" in call["notes"]
+
+
 def test_provider_system_mapping():
     from core.engine.core.llm import _provider_system
 

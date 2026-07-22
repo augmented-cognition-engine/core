@@ -1,0 +1,4078 @@
+{
+  "attribution": {
+    "assignment": "not_randomized_or_operated",
+    "confounders": [
+      "Month is a categorical field; the dataset does not publish a year or event-time sequence.",
+      "Regional cohorts are disjoint within a month but repeated over target months.",
+      "Traffic mix, campaign, device, visitor type, and unrecorded operational changes may differ.",
+      "No intervention or rollout assignment was observed."
+    ],
+    "intervention_identity": null,
+    "limitations": [
+      "The probe evaluates retrospective predictive decision quality, not causal product impact.",
+      "Target-month clusters, rather than 72 rows, are the uncertainty unit."
+    ],
+    "state": "retrospective_observational"
+  },
+  "cases": [
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.05729623468924845,
+          "source_resolutions": [
+            {
+              "observed_value": 0.011764705882352941,
+              "resolution_id": "resolution:uci468:region:1:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.10282776349614396,
+              "resolution_id": "resolution:uci468:region:1:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.10282776349614396
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.10282776349614396
+        }
+      },
+      "case_id": "uci468:region:1:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "1",
+        "session_count": 1227,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:May:n:1227"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:1:month:May",
+        "resolution_eligible": true,
+        "value": 0.09861450692746536
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.10072113521180466,
+          "source_resolutions": [
+            {
+              "observed_value": 0.10282776349614396,
+              "resolution_id": "resolution:uci468:region:1:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.09861450692746536,
+              "resolution_id": "resolution:uci468:region:1:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.09861450692746536
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.09861450692746536
+        }
+      },
+      "case_id": "uci468:region:1:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "1",
+        "session_count": 100,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:June:n:100"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:1:month:June",
+        "resolution_eligible": true,
+        "value": 0.13
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.11430725346373269,
+          "source_resolutions": [
+            {
+              "observed_value": 0.09861450692746536,
+              "resolution_id": "resolution:uci468:region:1:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.13,
+              "resolution_id": "resolution:uci468:region:1:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13
+        }
+      },
+      "case_id": "uci468:region:1:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "1",
+        "session_count": 148,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Jul:n:148"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:1:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.18243243243243243
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.15621621621621623,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13,
+              "resolution_id": "resolution:uci468:region:1:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.18243243243243243,
+              "resolution_id": "resolution:uci468:region:1:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.18243243243243243
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.18243243243243243
+        }
+      },
+      "case_id": "uci468:region:1:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "1",
+        "session_count": 157,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Aug:n:157"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:1:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.17197452229299362
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.17720347736271302,
+          "source_resolutions": [
+            {
+              "observed_value": 0.18243243243243243,
+              "resolution_id": "resolution:uci468:region:1:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.17197452229299362,
+              "resolution_id": "resolution:uci468:region:1:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.17197452229299362
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.17197452229299362
+        }
+      },
+      "case_id": "uci468:region:1:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "1",
+        "session_count": 156,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Sep:n:156"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:1:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.20512820512820512
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.18855136371059938,
+          "source_resolutions": [
+            {
+              "observed_value": 0.17197452229299362,
+              "resolution_id": "resolution:uci468:region:1:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.20512820512820512,
+              "resolution_id": "resolution:uci468:region:1:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.20512820512820512
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.20512820512820512
+        }
+      },
+      "case_id": "uci468:region:1:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "1",
+        "session_count": 215,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Oct:n:215"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:1:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.20465116279069767
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.2048896839594514,
+          "source_resolutions": [
+            {
+              "observed_value": 0.20512820512820512,
+              "resolution_id": "resolution:uci468:region:1:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.20465116279069767,
+              "resolution_id": "resolution:uci468:region:1:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.20465116279069767
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.20465116279069767
+        }
+      },
+      "case_id": "uci468:region:1:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "1",
+        "session_count": 1288,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Nov:n:1288"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:1:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.2717391304347826
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.23819514661274013,
+          "source_resolutions": [
+            {
+              "observed_value": 0.20465116279069767,
+              "resolution_id": "resolution:uci468:region:1:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.2717391304347826,
+              "resolution_id": "resolution:uci468:region:1:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2717391304347826
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.09385863267670916
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2717391304347826
+        }
+      },
+      "case_id": "uci468:region:1:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "1",
+        "session_count": 626,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:1:month:Dec:n:626"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:1:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.12140575079872204
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.06345177664974619,
+          "source_resolutions": [
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:2:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.12690355329949238,
+              "resolution_id": "resolution:uci468:region:2:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.12690355329949238
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.12690355329949238
+        }
+      },
+      "case_id": "uci468:region:2:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "2",
+        "session_count": 347,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:May:n:347"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:2:month:May",
+        "resolution_eligible": true,
+        "value": 0.11815561959654179
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.12252958644801709,
+          "source_resolutions": [
+            {
+              "observed_value": 0.12690355329949238,
+              "resolution_id": "resolution:uci468:region:2:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.11815561959654179,
+              "resolution_id": "resolution:uci468:region:2:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.11815561959654179
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.11815561959654179
+        }
+      },
+      "case_id": "uci468:region:2:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "2",
+        "session_count": 38,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:June:n:38"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:2:month:June",
+        "resolution_eligible": true,
+        "value": 0.02631578947368421
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.072235704535113,
+          "source_resolutions": [
+            {
+              "observed_value": 0.11815561959654179,
+              "resolution_id": "resolution:uci468:region:2:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.02631578947368421,
+              "resolution_id": "resolution:uci468:region:2:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.02631578947368421
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.02631578947368421
+        }
+      },
+      "case_id": "uci468:region:2:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "2",
+        "session_count": 42,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Jul:n:42"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:2:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.11904761904761904
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.07268170426065163,
+          "source_resolutions": [
+            {
+              "observed_value": 0.02631578947368421,
+              "resolution_id": "resolution:uci468:region:2:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.11904761904761904,
+              "resolution_id": "resolution:uci468:region:2:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.11904761904761904
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.11904761904761904
+        }
+      },
+      "case_id": "uci468:region:2:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "2",
+        "session_count": 34,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Aug:n:34"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:2:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.2647058823529412
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1918767507002801,
+          "source_resolutions": [
+            {
+              "observed_value": 0.11904761904761904,
+              "resolution_id": "resolution:uci468:region:2:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.2647058823529412,
+              "resolution_id": "resolution:uci468:region:2:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2647058823529412
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2647058823529412
+        }
+      },
+      "case_id": "uci468:region:2:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "2",
+        "session_count": 41,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Sep:n:41"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:2:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.24390243902439024
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.2543041606886657,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2647058823529412,
+              "resolution_id": "resolution:uci468:region:2:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.24390243902439024,
+              "resolution_id": "resolution:uci468:region:2:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.24390243902439024
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.24390243902439024
+        }
+      },
+      "case_id": "uci468:region:2:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "2",
+        "session_count": 45,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Oct:n:45"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:2:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.24444444444444444
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.24417344173441735,
+          "source_resolutions": [
+            {
+              "observed_value": 0.24390243902439024,
+              "resolution_id": "resolution:uci468:region:2:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.24444444444444444,
+              "resolution_id": "resolution:uci468:region:2:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.24444444444444444
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.24444444444444444
+        }
+      },
+      "case_id": "uci468:region:2:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "2",
+        "session_count": 235,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Nov:n:235"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:2:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.2978723404255319
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.2711583924349882,
+          "source_resolutions": [
+            {
+              "observed_value": 0.24444444444444444,
+              "resolution_id": "resolution:uci468:region:2:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.2978723404255319,
+              "resolution_id": "resolution:uci468:region:2:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2978723404255319
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1179245283018868
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2978723404255319
+        }
+      },
+      "case_id": "uci468:region:2:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "2",
+        "session_count": 142,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:2:month:Dec:n:142"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:2:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.11267605633802817
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.059375,
+          "source_resolutions": [
+            {
+              "observed_value": 0.025,
+              "resolution_id": "resolution:uci468:region:3:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.09375,
+              "resolution_id": "resolution:uci468:region:3:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.09375
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.09375
+        }
+      },
+      "case_id": "uci468:region:3:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "3",
+        "session_count": 669,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:May:n:669"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:3:month:May",
+        "resolution_eligible": true,
+        "value": 0.10014947683109118
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.09694973841554559,
+          "source_resolutions": [
+            {
+              "observed_value": 0.09375,
+              "resolution_id": "resolution:uci468:region:3:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.10014947683109118,
+              "resolution_id": "resolution:uci468:region:3:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.10014947683109118
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.10014947683109118
+        }
+      },
+      "case_id": "uci468:region:3:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "3",
+        "session_count": 57,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:June:n:57"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:3:month:June",
+        "resolution_eligible": true,
+        "value": 0.05263157894736842
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.0763905278892298,
+          "source_resolutions": [
+            {
+              "observed_value": 0.10014947683109118,
+              "resolution_id": "resolution:uci468:region:3:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.05263157894736842,
+              "resolution_id": "resolution:uci468:region:3:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.05263157894736842
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.05263157894736842
+        }
+      },
+      "case_id": "uci468:region:3:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "3",
+        "session_count": 81,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Jul:n:81"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:3:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.13580246913580246
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.09421702404158544,
+          "source_resolutions": [
+            {
+              "observed_value": 0.05263157894736842,
+              "resolution_id": "resolution:uci468:region:3:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.13580246913580246,
+              "resolution_id": "resolution:uci468:region:3:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13580246913580246
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13580246913580246
+        }
+      },
+      "case_id": "uci468:region:3:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "3",
+        "session_count": 94,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Aug:n:94"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:3:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.1276595744680851
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1317310218019438,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13580246913580246,
+              "resolution_id": "resolution:uci468:region:3:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.1276595744680851,
+              "resolution_id": "resolution:uci468:region:3:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.1276595744680851
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.1276595744680851
+        }
+      },
+      "case_id": "uci468:region:3:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "3",
+        "session_count": 83,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Sep:n:83"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:3:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.1686746987951807
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1481671366316329,
+          "source_resolutions": [
+            {
+              "observed_value": 0.1276595744680851,
+              "resolution_id": "resolution:uci468:region:3:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.1686746987951807,
+              "resolution_id": "resolution:uci468:region:3:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.1686746987951807
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.1686746987951807
+        }
+      },
+      "case_id": "uci468:region:3:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "3",
+        "session_count": 109,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Oct:n:109"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:3:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.2018348623853211
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1852547805902509,
+          "source_resolutions": [
+            {
+              "observed_value": 0.1686746987951807,
+              "resolution_id": "resolution:uci468:region:3:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.2018348623853211,
+              "resolution_id": "resolution:uci468:region:3:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2018348623853211
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2018348623853211
+        }
+      },
+      "case_id": "uci468:region:3:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "3",
+        "session_count": 567,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Nov:n:567"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:3:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.26102292768959434
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.23142889503745773,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2018348623853211,
+              "resolution_id": "resolution:uci468:region:3:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.26102292768959434,
+              "resolution_id": "resolution:uci468:region:3:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.26102292768959434
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08673469387755102
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.26102292768959434
+        }
+      },
+      "case_id": "uci468:region:3:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "3",
+        "session_count": 351,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:3:month:Dec:n:351"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:3:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.10826210826210826
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.04487179487179487,
+          "source_resolutions": [
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:4:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.08974358974358974,
+              "resolution_id": "resolution:uci468:region:4:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.08974358974358974
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.08974358974358974
+        }
+      },
+      "case_id": "uci468:region:4:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "4",
+        "session_count": 354,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:May:n:354"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:4:month:May",
+        "resolution_eligible": true,
+        "value": 0.10734463276836158
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.09854411125597566,
+          "source_resolutions": [
+            {
+              "observed_value": 0.08974358974358974,
+              "resolution_id": "resolution:uci468:region:4:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.10734463276836158,
+              "resolution_id": "resolution:uci468:region:4:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.10734463276836158
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.10734463276836158
+        }
+      },
+      "case_id": "uci468:region:4:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "4",
+        "session_count": 22,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:June:n:22"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:4:month:June",
+        "resolution_eligible": true,
+        "value": 0.13636363636363635
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.12185413456599897,
+          "source_resolutions": [
+            {
+              "observed_value": 0.10734463276836158,
+              "resolution_id": "resolution:uci468:region:4:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.13636363636363635,
+              "resolution_id": "resolution:uci468:region:4:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13636363636363635
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13636363636363635
+        }
+      },
+      "case_id": "uci468:region:4:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "4",
+        "session_count": 43,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Jul:n:43"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:4:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.09302325581395349
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.11469344608879492,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13636363636363635,
+              "resolution_id": "resolution:uci468:region:4:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.09302325581395349,
+              "resolution_id": "resolution:uci468:region:4:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.09302325581395349
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.09302325581395349
+        }
+      },
+      "case_id": "uci468:region:4:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "4",
+        "session_count": 44,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Aug:n:44"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:4:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.2727272727272727
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1828752642706131,
+          "source_resolutions": [
+            {
+              "observed_value": 0.09302325581395349,
+              "resolution_id": "resolution:uci468:region:4:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.2727272727272727,
+              "resolution_id": "resolution:uci468:region:4:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2727272727272727
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2727272727272727
+        }
+      },
+      "case_id": "uci468:region:4:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "4",
+        "session_count": 55,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Sep:n:55"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:4:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.14545454545454545
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.20909090909090908,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2727272727272727,
+              "resolution_id": "resolution:uci468:region:4:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.14545454545454545,
+              "resolution_id": "resolution:uci468:region:4:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.14545454545454545
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.14545454545454545
+        }
+      },
+      "case_id": "uci468:region:4:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "4",
+        "session_count": 46,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Oct:n:46"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:4:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.2608695652173913
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.20316205533596837,
+          "source_resolutions": [
+            {
+              "observed_value": 0.14545454545454545,
+              "resolution_id": "resolution:uci468:region:4:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.2608695652173913,
+              "resolution_id": "resolution:uci468:region:4:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2608695652173913
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2608695652173913
+        }
+      },
+      "case_id": "uci468:region:4:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "4",
+        "session_count": 285,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Nov:n:285"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:4:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.21754385964912282
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.23920671243325706,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2608695652173913,
+              "resolution_id": "resolution:uci468:region:4:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.21754385964912282,
+              "resolution_id": "resolution:uci468:region:4:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.21754385964912282
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.08139534883720931
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.21754385964912282
+        }
+      },
+      "case_id": "uci468:region:4:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "4",
+        "session_count": 161,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:4:month:Dec:n:161"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:4:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.13664596273291926
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.02564102564102564,
+          "source_resolutions": [
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:5:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.05128205128205128,
+              "resolution_id": "resolution:uci468:region:5:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.05128205128205128
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.05128205128205128
+        }
+      },
+      "case_id": "uci468:region:5:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "5",
+        "session_count": 103,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:May:n:103"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:5:month:May",
+        "resolution_eligible": true,
+        "value": 0.1650485436893204
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.10816529748568585,
+          "source_resolutions": [
+            {
+              "observed_value": 0.05128205128205128,
+              "resolution_id": "resolution:uci468:region:5:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.1650485436893204,
+              "resolution_id": "resolution:uci468:region:5:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.1650485436893204
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.1650485436893204
+        }
+      },
+      "case_id": "uci468:region:5:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "5",
+        "session_count": 10,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:June:n:10"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:5:month:June",
+        "resolution_eligible": true,
+        "value": 0.3
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.23252427184466018,
+          "source_resolutions": [
+            {
+              "observed_value": 0.1650485436893204,
+              "resolution_id": "resolution:uci468:region:5:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.3,
+              "resolution_id": "resolution:uci468:region:5:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.3
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.3
+        }
+      },
+      "case_id": "uci468:region:5:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "5",
+        "session_count": 13,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Jul:n:13"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:5:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.15384615384615385
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.22692307692307692,
+          "source_resolutions": [
+            {
+              "observed_value": 0.3,
+              "resolution_id": "resolution:uci468:region:5:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.15384615384615385,
+              "resolution_id": "resolution:uci468:region:5:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.15384615384615385
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.15384615384615385
+        }
+      },
+      "case_id": "uci468:region:5:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "5",
+        "session_count": 11,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Aug:n:11"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:5:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.09090909090909091
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.12237762237762238,
+          "source_resolutions": [
+            {
+              "observed_value": 0.15384615384615385,
+              "resolution_id": "resolution:uci468:region:5:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.09090909090909091,
+              "resolution_id": "resolution:uci468:region:5:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.09090909090909091
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.09090909090909091
+        }
+      },
+      "case_id": "uci468:region:5:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "5",
+        "session_count": 18,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Sep:n:18"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:5:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.16666666666666666
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.12878787878787878,
+          "source_resolutions": [
+            {
+              "observed_value": 0.09090909090909091,
+              "resolution_id": "resolution:uci468:region:5:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.16666666666666666,
+              "resolution_id": "resolution:uci468:region:5:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.16666666666666666
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.16666666666666666
+        }
+      },
+      "case_id": "uci468:region:5:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "5",
+        "session_count": 14,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Oct:n:14"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:5:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.2857142857142857
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.22619047619047616,
+          "source_resolutions": [
+            {
+              "observed_value": 0.16666666666666666,
+              "resolution_id": "resolution:uci468:region:5:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.2857142857142857,
+              "resolution_id": "resolution:uci468:region:5:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2857142857142857
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2857142857142857
+        }
+      },
+      "case_id": "uci468:region:5:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "5",
+        "session_count": 64,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Nov:n:64"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:5:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.203125
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.24441964285714285,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2857142857142857,
+              "resolution_id": "resolution:uci468:region:5:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.203125,
+              "resolution_id": "resolution:uci468:region:5:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.203125
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.045454545454545456
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.203125
+        }
+      },
+      "case_id": "uci468:region:5:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "5",
+        "session_count": 41,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:5:month:Dec:n:41"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:5:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.17073170731707318
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.03461538461538462,
+          "source_resolutions": [
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:6:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.06923076923076923,
+              "resolution_id": "resolution:uci468:region:6:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.06923076923076923
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.06923076923076923
+        }
+      },
+      "case_id": "uci468:region:6:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "6",
+        "session_count": 258,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:May:n:258"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:6:month:May",
+        "resolution_eligible": true,
+        "value": 0.13178294573643412
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.10050685748360168,
+          "source_resolutions": [
+            {
+              "observed_value": 0.06923076923076923,
+              "resolution_id": "resolution:uci468:region:6:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.13178294573643412,
+              "resolution_id": "resolution:uci468:region:6:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13178294573643412
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13178294573643412
+        }
+      },
+      "case_id": "uci468:region:6:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "6",
+        "session_count": 23,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:June:n:23"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:6:month:June",
+        "resolution_eligible": true,
+        "value": 0.13043478260869565
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1311088641725649,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13178294573643412,
+              "resolution_id": "resolution:uci468:region:6:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.13043478260869565,
+              "resolution_id": "resolution:uci468:region:6:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13043478260869565
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13043478260869565
+        }
+      },
+      "case_id": "uci468:region:6:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "6",
+        "session_count": 34,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Jul:n:34"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:6:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.17647058823529413
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1534526854219949,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13043478260869565,
+              "resolution_id": "resolution:uci468:region:6:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.17647058823529413,
+              "resolution_id": "resolution:uci468:region:6:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.17647058823529413
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.17647058823529413
+        }
+      },
+      "case_id": "uci468:region:6:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "6",
+        "session_count": 29,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Aug:n:29"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:6:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.13793103448275862
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.15720081135902636,
+          "source_resolutions": [
+            {
+              "observed_value": 0.17647058823529413,
+              "resolution_id": "resolution:uci468:region:6:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.13793103448275862,
+              "resolution_id": "resolution:uci468:region:6:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13793103448275862
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13793103448275862
+        }
+      },
+      "case_id": "uci468:region:6:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "6",
+        "session_count": 36,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Sep:n:36"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:6:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.19444444444444445
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.16618773946360155,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13793103448275862,
+              "resolution_id": "resolution:uci468:region:6:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.19444444444444445,
+              "resolution_id": "resolution:uci468:region:6:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.19444444444444445
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.19444444444444445
+        }
+      },
+      "case_id": "uci468:region:6:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "6",
+        "session_count": 39,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Oct:n:39"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:6:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.20512820512820512
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1997863247863248,
+          "source_resolutions": [
+            {
+              "observed_value": 0.19444444444444445,
+              "resolution_id": "resolution:uci468:region:6:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.20512820512820512,
+              "resolution_id": "resolution:uci468:region:6:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.20512820512820512
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.20512820512820512
+        }
+      },
+      "case_id": "uci468:region:6:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "6",
+        "session_count": 147,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Nov:n:147"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:6:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.20408163265306123
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.20460491889063318,
+          "source_resolutions": [
+            {
+              "observed_value": 0.20512820512820512,
+              "resolution_id": "resolution:uci468:region:6:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.20408163265306123,
+              "resolution_id": "resolution:uci468:region:6:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.20408163265306123
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.06474820143884892
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.20408163265306123
+        }
+      },
+      "case_id": "uci468:region:6:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "6",
+        "session_count": 100,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:6:month:Dec:n:100"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:6:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.11
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.16716417910447762,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2,
+              "resolution_id": "resolution:uci468:region:7:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.13432835820895522,
+              "resolution_id": "resolution:uci468:region:7:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13432835820895522
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13432835820895522
+        }
+      },
+      "case_id": "uci468:region:7:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "7",
+        "session_count": 196,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:May:n:196"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:7:month:May",
+        "resolution_eligible": true,
+        "value": 0.09183673469387756
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.11308254645141638,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13432835820895522,
+              "resolution_id": "resolution:uci468:region:7:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.09183673469387756,
+              "resolution_id": "resolution:uci468:region:7:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.09183673469387756
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.09183673469387756
+        }
+      },
+      "case_id": "uci468:region:7:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "7",
+        "session_count": 18,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:June:n:18"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:7:month:June",
+        "resolution_eligible": true,
+        "value": 0.05555555555555555
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.07369614512471656,
+          "source_resolutions": [
+            {
+              "observed_value": 0.09183673469387756,
+              "resolution_id": "resolution:uci468:region:7:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.05555555555555555,
+              "resolution_id": "resolution:uci468:region:7:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.05555555555555555
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.05555555555555555
+        }
+      },
+      "case_id": "uci468:region:7:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "7",
+        "session_count": 29,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Jul:n:29"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:7:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.13793103448275862
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.09674329501915709,
+          "source_resolutions": [
+            {
+              "observed_value": 0.05555555555555555,
+              "resolution_id": "resolution:uci468:region:7:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.13793103448275862,
+              "resolution_id": "resolution:uci468:region:7:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13793103448275862
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13793103448275862
+        }
+      },
+      "case_id": "uci468:region:7:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "7",
+        "session_count": 31,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Aug:n:31"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:7:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.12903225806451613
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.13348164627363737,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13793103448275862,
+              "resolution_id": "resolution:uci468:region:7:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.12903225806451613,
+              "resolution_id": "resolution:uci468:region:7:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.12903225806451613
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.12903225806451613
+        }
+      },
+      "case_id": "uci468:region:7:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "7",
+        "session_count": 26,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Sep:n:26"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:7:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.2692307692307692
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.19913151364764267,
+          "source_resolutions": [
+            {
+              "observed_value": 0.12903225806451613,
+              "resolution_id": "resolution:uci468:region:7:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.2692307692307692,
+              "resolution_id": "resolution:uci468:region:7:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2692307692307692
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2692307692307692
+        }
+      },
+      "case_id": "uci468:region:7:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "7",
+        "session_count": 39,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Oct:n:39"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:7:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.23076923076923078
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.25,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2692307692307692,
+              "resolution_id": "resolution:uci468:region:7:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.23076923076923078,
+              "resolution_id": "resolution:uci468:region:7:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.23076923076923078
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.23076923076923078
+        }
+      },
+      "case_id": "uci468:region:7:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "7",
+        "session_count": 164,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Nov:n:164"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:7:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.25
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.2403846153846154,
+          "source_resolutions": [
+            {
+              "observed_value": 0.23076923076923078,
+              "resolution_id": "resolution:uci468:region:7:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.25,
+              "resolution_id": "resolution:uci468:region:7:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.25
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.1366906474820144
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.25
+        }
+      },
+      "case_id": "uci468:region:7:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "7",
+        "session_count": 119,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:7:month:Dec:n:119"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:7:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.13445378151260504
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.021739130434782608,
+          "source_resolutions": [
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:8:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.043478260869565216,
+              "resolution_id": "resolution:uci468:region:8:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.043478260869565216
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.043478260869565216
+        }
+      },
+      "case_id": "uci468:region:8:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "8",
+        "session_count": 123,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:May:n:123"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:8:month:May",
+        "resolution_eligible": true,
+        "value": 0.13008130081300814
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.08677978084128668,
+          "source_resolutions": [
+            {
+              "observed_value": 0.043478260869565216,
+              "resolution_id": "resolution:uci468:region:8:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.13008130081300814,
+              "resolution_id": "resolution:uci468:region:8:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.13008130081300814
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.13008130081300814
+        }
+      },
+      "case_id": "uci468:region:8:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "8",
+        "session_count": 10,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:June:n:10"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:8:month:June",
+        "resolution_eligible": true,
+        "value": 0.2
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.16504065040650406,
+          "source_resolutions": [
+            {
+              "observed_value": 0.13008130081300814,
+              "resolution_id": "resolution:uci468:region:8:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.2,
+              "resolution_id": "resolution:uci468:region:8:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.2
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.2
+        }
+      },
+      "case_id": "uci468:region:8:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "8",
+        "session_count": 22,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Jul:n:22"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:8:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.22727272727272727
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.21363636363636362,
+          "source_resolutions": [
+            {
+              "observed_value": 0.2,
+              "resolution_id": "resolution:uci468:region:8:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.22727272727272727,
+              "resolution_id": "resolution:uci468:region:8:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.22727272727272727
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.22727272727272727
+        }
+      },
+      "case_id": "uci468:region:8:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "8",
+        "session_count": 19,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Aug:n:19"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:8:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.3157894736842105
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.2715311004784689,
+          "source_resolutions": [
+            {
+              "observed_value": 0.22727272727272727,
+              "resolution_id": "resolution:uci468:region:8:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.3157894736842105,
+              "resolution_id": "resolution:uci468:region:8:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.3157894736842105
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.3157894736842105
+        }
+      },
+      "case_id": "uci468:region:8:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "8",
+        "session_count": 16,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Sep:n:16"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:8:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.125
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.22039473684210525,
+          "source_resolutions": [
+            {
+              "observed_value": 0.3157894736842105,
+              "resolution_id": "resolution:uci468:region:8:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.125,
+              "resolution_id": "resolution:uci468:region:8:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.125
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.125
+        }
+      },
+      "case_id": "uci468:region:8:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "8",
+        "session_count": 18,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Oct:n:18"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:8:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.05555555555555555
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.09027777777777778,
+          "source_resolutions": [
+            {
+              "observed_value": 0.125,
+              "resolution_id": "resolution:uci468:region:8:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.05555555555555555,
+              "resolution_id": "resolution:uci468:region:8:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.05555555555555555
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.05555555555555555
+        }
+      },
+      "case_id": "uci468:region:8:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "8",
+        "session_count": 86,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Nov:n:86"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:8:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.16279069767441862
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.10917312661498708,
+          "source_resolutions": [
+            {
+              "observed_value": 0.05555555555555555,
+              "resolution_id": "resolution:uci468:region:8:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.16279069767441862,
+              "resolution_id": "resolution:uci468:region:8:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.16279069767441862
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.0410958904109589
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.16279069767441862
+        }
+      },
+      "case_id": "uci468:region:8:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "8",
+        "session_count": 67,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:8:month:Dec:n:67"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:8:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.1044776119402985
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.07692307692307693,
+          "source_resolutions": [
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:9:month:Feb",
+              "resolved_at": "sequence:01"
+            },
+            {
+              "observed_value": 0.15384615384615385,
+              "resolution_id": "resolution:uci468:region:9:month:Mar",
+              "resolved_at": "sequence:02"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.15384615384615385
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.15384615384615385
+        }
+      },
+      "case_id": "uci468:region:9:month:May",
+      "cluster_id": "uci468:target-month:May",
+      "cohort": {
+        "region": "9",
+        "session_count": 87,
+        "target_month": "May"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:May:n:87"
+        ],
+        "observed_at": "sequence:03",
+        "outcome_id": "outcome:uci468:region:9:month:May",
+        "resolution_eligible": true,
+        "value": 0.14942528735632185
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.15163572060123787,
+          "source_resolutions": [
+            {
+              "observed_value": 0.15384615384615385,
+              "resolution_id": "resolution:uci468:region:9:month:Mar",
+              "resolved_at": "sequence:02"
+            },
+            {
+              "observed_value": 0.14942528735632185,
+              "resolution_id": "resolution:uci468:region:9:month:May",
+              "resolved_at": "sequence:03"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.14942528735632185
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.14942528735632185
+        }
+      },
+      "case_id": "uci468:region:9:month:June",
+      "cluster_id": "uci468:target-month:June",
+      "cohort": {
+        "region": "9",
+        "session_count": 10,
+        "target_month": "June"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:June:n:10"
+        ],
+        "observed_at": "sequence:04",
+        "outcome_id": "outcome:uci468:region:9:month:June",
+        "resolution_eligible": true,
+        "value": 0.0
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.07471264367816093,
+          "source_resolutions": [
+            {
+              "observed_value": 0.14942528735632185,
+              "resolution_id": "resolution:uci468:region:9:month:May",
+              "resolved_at": "sequence:03"
+            },
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:9:month:June",
+              "resolved_at": "sequence:04"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.0
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.0
+        }
+      },
+      "case_id": "uci468:region:9:month:Jul",
+      "cluster_id": "uci468:target-month:Jul",
+      "cohort": {
+        "region": "9",
+        "session_count": 20,
+        "target_month": "Jul"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Jul:n:20"
+        ],
+        "observed_at": "sequence:05",
+        "outcome_id": "outcome:uci468:region:9:month:Jul",
+        "resolution_eligible": true,
+        "value": 0.1
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.05,
+          "source_resolutions": [
+            {
+              "observed_value": 0.0,
+              "resolution_id": "resolution:uci468:region:9:month:June",
+              "resolved_at": "sequence:04"
+            },
+            {
+              "observed_value": 0.1,
+              "resolution_id": "resolution:uci468:region:9:month:Jul",
+              "resolved_at": "sequence:05"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.1
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.1
+        }
+      },
+      "case_id": "uci468:region:9:month:Aug",
+      "cluster_id": "uci468:target-month:Aug",
+      "cohort": {
+        "region": "9",
+        "session_count": 14,
+        "target_month": "Aug"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Aug:n:14"
+        ],
+        "observed_at": "sequence:06",
+        "outcome_id": "outcome:uci468:region:9:month:Aug",
+        "resolution_eligible": true,
+        "value": 0.07142857142857142
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.08571428571428572,
+          "source_resolutions": [
+            {
+              "observed_value": 0.1,
+              "resolution_id": "resolution:uci468:region:9:month:Jul",
+              "resolved_at": "sequence:05"
+            },
+            {
+              "observed_value": 0.07142857142857142,
+              "resolution_id": "resolution:uci468:region:9:month:Aug",
+              "resolved_at": "sequence:06"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.07142857142857142
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.07142857142857142
+        }
+      },
+      "case_id": "uci468:region:9:month:Sep",
+      "cluster_id": "uci468:target-month:Sep",
+      "cohort": {
+        "region": "9",
+        "session_count": 17,
+        "target_month": "Sep"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Sep:n:17"
+        ],
+        "observed_at": "sequence:07",
+        "outcome_id": "outcome:uci468:region:9:month:Sep",
+        "resolution_eligible": true,
+        "value": 0.17647058823529413
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.12394957983193278,
+          "source_resolutions": [
+            {
+              "observed_value": 0.07142857142857142,
+              "resolution_id": "resolution:uci468:region:9:month:Aug",
+              "resolved_at": "sequence:06"
+            },
+            {
+              "observed_value": 0.17647058823529413,
+              "resolution_id": "resolution:uci468:region:9:month:Sep",
+              "resolved_at": "sequence:07"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.17647058823529413
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.17647058823529413
+        }
+      },
+      "case_id": "uci468:region:9:month:Oct",
+      "cluster_id": "uci468:target-month:Oct",
+      "cohort": {
+        "region": "9",
+        "session_count": 24,
+        "target_month": "Oct"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Oct:n:24"
+        ],
+        "observed_at": "sequence:08",
+        "outcome_id": "outcome:uci468:region:9:month:Oct",
+        "resolution_eligible": true,
+        "value": 0.16666666666666666
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.1715686274509804,
+          "source_resolutions": [
+            {
+              "observed_value": 0.17647058823529413,
+              "resolution_id": "resolution:uci468:region:9:month:Sep",
+              "resolved_at": "sequence:07"
+            },
+            {
+              "observed_value": 0.16666666666666666,
+              "resolution_id": "resolution:uci468:region:9:month:Oct",
+              "resolved_at": "sequence:08"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.16666666666666666
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.16666666666666666
+        }
+      },
+      "case_id": "uci468:region:9:month:Nov",
+      "cluster_id": "uci468:target-month:Nov",
+      "cohort": {
+        "region": "9",
+        "session_count": 162,
+        "target_month": "Nov"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Nov:n:162"
+        ],
+        "observed_at": "sequence:09",
+        "outcome_id": "outcome:uci468:region:9:month:Nov",
+        "resolution_eligible": true,
+        "value": 0.19753086419753085
+      }
+    },
+    {
+      "arms": {
+        "ace_foresight": {
+          "forecast_contract_version": "ace.foresight.forecast/v1",
+          "material_use": true,
+          "prediction": 0.18209876543209874,
+          "source_resolutions": [
+            {
+              "observed_value": 0.16666666666666666,
+              "resolution_id": "resolution:uci468:region:9:month:Oct",
+              "resolved_at": "sequence:08"
+            },
+            {
+              "observed_value": 0.19753086419753085,
+              "resolution_id": "resolution:uci468:region:9:month:Nov",
+              "resolved_at": "sequence:09"
+            }
+          ]
+        },
+        "model_only": {
+          "policy": "unscored_placeholder_not_a_model_control",
+          "prediction": 0.19753086419753085
+        },
+        "naive_base_rate": {
+          "policy": "first_two_periods_product_local_base_rate/v1",
+          "prediction": 0.14035087719298245
+        },
+        "no_foresight": {
+          "policy": "last_observation_persistence/v1",
+          "prediction": 0.19753086419753085
+        }
+      },
+      "case_id": "uci468:region:9:month:Dec",
+      "cluster_id": "uci468:target-month:Dec",
+      "cohort": {
+        "region": "9",
+        "session_count": 120,
+        "target_month": "Dec"
+      },
+      "matching": {
+        "configuration_hash": null,
+        "model": null,
+        "provider": null,
+        "state": "model_only_control_not_run"
+      },
+      "outcome": {
+        "evidence_refs": [
+          "uci468-csv-sha256:b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+          "aggregate:region:9:month:Dec:n:120"
+        ],
+        "observed_at": "sequence:10",
+        "outcome_id": "outcome:uci468:region:9:month:Dec",
+        "resolution_eligible": true,
+        "value": 0.19166666666666668
+      }
+    }
+  ],
+  "claims_not_supported": [
+    "causal intervention benefit",
+    "general model superiority",
+    "independent calendar chronology",
+    "L1 roadmap completion"
+  ],
+  "controls": {
+    "model_only": "required but not yet run in the offline fixture",
+    "naive_base_rate": "region-local rate frozen from the first two periods",
+    "no_foresight": "last-observation persistence"
+  },
+  "fixture_hash": "sha256:c7919d01586fbedbd23812130e133488f198bdb903817704c68c8abed81bf7b4",
+  "scenario_id": "l1-uci468-region-month-retrospective-v1",
+  "schema_version": 1,
+  "score_contract": {
+    "method": "continuous_absolute_error/v1",
+    "metric": "regional_monthly_revenue_session_rate"
+  },
+  "source": {
+    "csv_sha256": "b3055ee355f59134d851d32641183cb4a8b45def7124d2f50442a042f358e0d9",
+    "derived_case_count": 72,
+    "doi": "10.24432/C5F88Q",
+    "license": "CC BY 4.0",
+    "title": "Online Shoppers Purchasing Intention Dataset",
+    "transform": "Partition by Region and Month; use February and March as the frozen initial base-rate period; for each later listed month, compare the mean of the prior two resolved regional rates with last-observation persistence and the frozen regional base rate."
+  },
+  "title": "Does rolling resolved foresight improve later conversion-rate estimates?"
+}
