@@ -59,6 +59,37 @@ async def test_live_request_records_route_without_claiming_applied_effort():
 
 
 @pytest.mark.asyncio
+async def test_diagnostic_closes_provider_it_resolves(monkeypatch):
+    provider = OpenAICompatProvider(
+        base_url="https://api.openai.com/v1",
+        api_key="redacted-fixture-key",
+    )
+    provider.complete = AsyncMock(return_value="OK")
+    provider.aclose = AsyncMock()
+    monkeypatch.setattr("core.engine.core.llm.get_llm", lambda: provider)
+
+    result = await diagnose_provider(_settings(), live=True)
+
+    assert result.state is ProviderDiagnosticState.REACHABLE
+    provider.aclose.assert_awaited_once_with()
+
+
+@pytest.mark.asyncio
+async def test_diagnostic_does_not_close_caller_owned_provider():
+    provider = OpenAICompatProvider(
+        base_url="https://api.openai.com/v1",
+        api_key="redacted-fixture-key",
+    )
+    provider.complete = AsyncMock(return_value="OK")
+    provider.aclose = AsyncMock()
+
+    result = await diagnose_provider(_settings(), live=True, provider=provider)
+
+    assert result.state is ProviderDiagnosticState.REACHABLE
+    provider.aclose.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("status", "message", "expected"),
     [

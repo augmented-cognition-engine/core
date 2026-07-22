@@ -243,7 +243,7 @@ def _codex_auth_state(settings: object, provider: object, timeout: float) -> Pro
     )
 
 
-async def diagnose_provider(
+async def _diagnose_provider(
     settings: object,
     *,
     live: bool = False,
@@ -353,3 +353,35 @@ async def diagnose_provider(
             detail=detail,
             action=action,
         )
+
+
+async def diagnose_provider(
+    settings: object,
+    *,
+    live: bool = False,
+    timeout: float = 30.0,
+    provider: object | None = None,
+) -> ProviderDiagnosticResult:
+    """Diagnose a route and close providers created solely for this check."""
+    if provider is not None:
+        return await _diagnose_provider(settings, live=live, timeout=timeout, provider=provider)
+
+    try:
+        from core.engine.core.llm import get_llm
+
+        owned_provider = get_llm()
+    except Exception as exc:
+        state, detail, action = _classify_failure(exc)
+        return _result(state=state, checked_live=live, detail=detail, action=action, layer="route_selection")
+
+    try:
+        return await _diagnose_provider(settings, live=live, timeout=timeout, provider=owned_provider)
+    finally:
+        close = getattr(owned_provider, "aclose", None)
+        if callable(close):
+            try:
+                await close()
+            except Exception:
+                # Diagnostics are best-effort and must not replace the actual
+                # route result with a transport-cleanup failure.
+                pass

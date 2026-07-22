@@ -138,6 +138,10 @@ class ClaudeProvider:
             return True
         return False
 
+    async def aclose(self) -> None:
+        """Close the persistent SDK transport on the event loop that used it."""
+        await self._client.close()
+
     async def complete(
         self,
         prompt: str,
@@ -2136,7 +2140,10 @@ def _resolve_llm() -> "LLMProvider":
     # Bearer + oauth-2025-04-20). Draws the same subscription pool as the CLI but
     # with no subprocess. Takes precedence over the CLI and the undocumented slot.
     if not _force_cli:
-        setup_token = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN", "").strip()
+        setup_token = (
+            os.environ.get("CLAUDE_CODE_OAUTH_TOKEN", "").strip()
+            or getattr(settings, "claude_code_oauth_token", "").strip()
+        )
         if setup_token and len(setup_token) > 20:
             logger.info("Using ClaudeProvider via CLAUDE_CODE_OAUTH_TOKEN (sanctioned OAuth bearer)")
             return ClaudeProvider(api_key="", default_model=settings.llm_model, oauth_token=setup_token)
