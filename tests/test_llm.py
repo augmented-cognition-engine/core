@@ -38,6 +38,7 @@ def _scrub_auth(monkeypatch):
     monkeypatch.setattr(llm_mod.settings, "require_subscription", False, raising=False)
     monkeypatch.setattr(llm_mod.settings, "force_cli_provider", False, raising=False)
     monkeypatch.setattr(llm_mod.settings, "allow_oauth_api_path", False, raising=False)
+    monkeypatch.setattr(llm_mod.settings, "claude_code_oauth_token", "", raising=False)
     monkeypatch.setattr(llm_mod.settings, "openai_compat_base_url", None, raising=False)
     monkeypatch.setattr(llm_mod.settings, "openai_compat_api_key", None, raising=False)
     monkeypatch.setattr(llm_mod.settings, "litellm_model", None, raising=False)
@@ -89,6 +90,17 @@ def test_get_llm_prefers_setup_token_over_cli(monkeypatch):
 
     assert isinstance(provider, llm_mod.ClaudeProvider)
     assert provider._oauth_token == "oat-" + "x" * 40
+
+
+def test_get_llm_reads_setup_token_saved_in_settings(monkeypatch):
+    llm_mod = _scrub_auth(monkeypatch)
+    monkeypatch.setattr(llm_mod.settings, "claude_code_oauth_token", "oat-" + "e" * 40, raising=False)
+    monkeypatch.setattr(llm_mod.shutil, "which", lambda _: "/usr/local/bin/claude")
+
+    provider = llm_mod.get_llm()
+
+    assert isinstance(provider, llm_mod.ClaudeProvider)
+    assert provider._oauth_token == "oat-" + "e" * 40
 
 
 def test_get_llm_oauth_api_path_off_by_default_falls_to_cli(monkeypatch):
