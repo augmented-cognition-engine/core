@@ -1,6 +1,6 @@
 # Public roadmap status
 
-Last reconciled: 2026-07-21
+Last reconciled: 2026-07-22
 
 The live operational view is the
 [ACE Public Roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1), organized as
@@ -32,9 +32,9 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | R4 | Now | passed | [Product-builder golden-path evidence](product-builder-golden-path.md) records a checksum-frozen public scenario, live Codex/GPT route, zero-intelligence clean start, inspectable multi-perspective reasoning, decision and correction capture, real service restart, fresh-invocation material reuse, bounded failures, exact eleven-tool preservation, and explicit portability and usability limitations |
 | G1 | Next | passed | [`g1-living-product-graph-evidence.md`](g1-living-product-graph-evidence.md) records the frozen contract, supported `ace landscape` journey, deterministic replay, accepted/provisional/contested/rejected behavior, bounded failures, restart parity, strict read-only authority, and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) |
 | IA-R1 | Next | passed | [Read-only product-map evidence](ia-r1-product-map.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) record the six-question operator hierarchy, strict GET-only boundary, visible uncertainty/failures, local verification, and roadmap closeout |
-| I1 | Next | ready | G1's stable read contract, R4's developer-preview golden path, and IA-R1's bounded operator hierarchy have passed; the separately scoped inspectability slice may start without adding execution authority |
-| I2 | Next | not ready | Attributable perspective selection, bounded contributor positions, disagreement, and synthesis depend on I1 identities and must not expose hidden chain-of-thought |
-| I3 | Next | not ready | Inspectable retained-intelligence use and exact decision effects depend on I1 identities plus R3 route evidence; null, harmful, stale, contested, failure, and degraded cases remain first-class |
+| I1 | Next | passed | [`decision-correction-receipts.md`](decision-correction-receipts.md) records stable identities, complete decision context, all four dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and schema-zero-to-v145 restart continuity |
+| I2 | Next | ready | I1 identities and read contracts have passed; attributable perspective selection, bounded contributor positions, disagreement, synthesis lineage, and honest partial/degraded behavior may start without exposing hidden chain-of-thought |
+| I3 | Next | ready | I1 identities and R3 route evidence have passed; inspectable retained-intelligence states and exact decision effects may start while preserving null, harmful, stale, contested, failure, and degraded cases |
 | T1 | Next | not ready | Recovery, replay, portability, cancellation, and resource guarantees are not yet frozen |
 | E1 | Next | not ready | Depends on conformance evidence and preservation of the eleven-tool boundary |
 | B1 | Later | not ready | Depends on inspectable approval receipts and explicit execution authority |
@@ -42,15 +42,13 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | H1 | Later | not ready | Depends on tenancy, portability, authority, and recovery guarantees |
 | E2 | Later | not ready | Depends on E1 conformance and stable compatibility policy |
 
-I1-01 has a candidate implementation: structured task decisions reuse `task` and `decision`,
-authenticated task feedback supplies human disposition, and linked correction observations are
-retrievable through the existing status/capture/load contracts. The overall I1 outcome remains
-`ready`, not passed: the I1-01 disposable real-API restart test preserves the same decision ID, correction
-ID, and relationship across fresh processes. Production API startup now owns the schema-zero-to-
-v144 replay in that proof; it passes on the supported SurrealDB 3.1.4 pin and 3.2.1, while unknown
-future receipt versions degrade without being reinterpreted as v1. Compatibility reconciliation
-across the full supported journey and the remaining I1 cases are incomplete. This slice is not
-evidence that persistence improves decision correctness or benefit.
+I1 passed through structured task decisions, authenticated human dispositions, and linked
+correction observations exposed through the existing status/capture/load contracts. The disposable
+real-API restart proof preserves the same decision, correction, provenance, lifecycle, and typed
+relationship identities across fresh processes. Production API startup owns schema-zero-to-v145
+replay on the supported SurrealDB 3.1.4 pin and 3.2.1; unknown future receipt versions degrade
+without being reinterpreted as v1. Persistence remains identity-continuity evidence, not evidence
+that a decision or correction is correct or beneficial.
 
 ## Exact next dispatch
 
@@ -64,9 +62,12 @@ evidence that persistence improves decision correctness or benefit.
    visible uncertainty, and strict read-only boundary established by the G1 closeout.
 5. **Completed — IA-R1:** preserve the verified `/landscape` hierarchy, visible uncertainty and
    provenance, bounded failures, and strict read-only boundary established by the IA-R1 closeout.
-6. **Ready, next bounded lane — I1:** keep the slice thin and separate: improve inspection of
-   decisions, evidence, dissent, corrections, approval receipts, and outcomes without adding
-   execution authority.
+6. **Completed — I1:** preserve stable decision/correction identities, structured human
+   dispositions, lifecycle and provenance evidence, restart continuity, and the no-execution
+   boundary.
+7. **Ready, parallel bounded lanes — I2 / I3:** I2 may add attributable deliberation and synthesis
+   receipts without hidden chain-of-thought; I3 may add inspectable retained-intelligence use and
+   exact decision effects. Keep their contracts and evidence separate.
 
 An outcome moves to `passed` only when scope, acceptance checks, evidence, limitations, roadmap
 reconciliation, and downstream readiness have all been recorded. Implementation alone is

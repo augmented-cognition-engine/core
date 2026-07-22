@@ -62,18 +62,17 @@ Roadmap outcome states are used strictly:
 |---|---|---|---|
 | G1 | passed | Promote the read-only Living Product Graph projection into a supported inspectable journey | [`ace landscape`](docs/living-product-graph.md), [reproducible G1 evidence](docs/g1-living-product-graph-evidence.md), and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) prove the versioned, bounded, deterministic, assertion-backed read contract and strict read-only boundary |
 | IA-R1 | passed | Define the read-only information architecture for inspecting ACE state | [`/landscape`](docs/ia-r1-product-map.md), [reconciled IA-R1 evidence](docs/ia-r1-product-map.md), and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) establish the six-question operator hierarchy, visible provenance and uncertainty, bounded failures, stable identity, and strict no-write/no-execution authority |
-| I1 | ready | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | G1's stable read contract, R4's developer-preview golden path, and IA-R1's bounded operator hierarchy have passed; keep I1 separately scoped and add no execution authority |
-| I2 | not ready | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | Depends on I1 identities and read contracts; requires bounded perspective-selection reasons, contributor position artifacts, evidence references, meaningful disagreement, synthesis lineage, and honest partial/degraded coverage |
-| I3 | not ready | Make retained-intelligence use and its decision effect inspectable | Depends on I1 identities and R3 route evidence; requires retrieved/injected/reflected/material states, exact decision-field deltas, restart continuity, and explicit null, stale, contested, harmful, failure, and degraded outcomes |
+| I1 | passed | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | [Decision and correction receipt evidence](docs/decision-correction-receipts.md) proves stable identities, complete decision context, all four human dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and restart continuity through the existing eleven-tool boundary |
+| I2 | ready | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | I1 identities and read contracts have passed; requires bounded perspective-selection reasons, contributor position artifacts, evidence references, meaningful disagreement, synthesis lineage, and honest partial/degraded coverage |
+| I3 | ready | Make retained-intelligence use and its decision effect inspectable | I1 identities and R3 route evidence have passed; requires retrieved/injected/reflected/material states, exact decision-field deltas, restart continuity, and explicit null, stale, contested, harmful, failure, and degraded outcomes |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
 | E1 | not ready | Expand extension examples and conformance coverage | Must preserve the kernel boundary and exactly eleven public MCP tools |
 
-I1-01 is tracked as a bounded candidate implementation only: it adds versioned task-backed
-decision receipts and linked correction provenance through the existing task/status/capture/load
-paths. I1 remains `ready`, not passed; API-owned fresh bootstrap and restart pass on the supported
-SurrealDB 3.1.4 pin, and mixed future receipt versions degrade without v1 reinterpretation, while
-full outcome reconciliation and the remaining I1 acceptance cases are still required. This slice
-makes no correctness, benefit, I2, I3, or R4 claim.
+I1 passed through the existing task/status/capture/load paths with versioned task-backed decision
+receipts and linked correction provenance. API-owned schema-zero-to-v145 bootstrap and restart
+pass on the supported SurrealDB 3.1.4 pin and 3.2.1; mixed future receipt versions degrade without
+v1 reinterpretation. This outcome makes no correctness, benefit, I2, I3, or execution-authority
+claim.
 
 ## Later — build, ship, and learn
 
