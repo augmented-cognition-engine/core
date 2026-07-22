@@ -38,8 +38,8 @@ async def _gather_context(product_id: str, classification: dict) -> dict[str, An
         calibration = parse_rows(
             await db.query(
                 "SELECT archetype, calibration_score, sample_count FROM archetype_calibration "
-                "WHERE discipline = <string>$discipline",
-                {"discipline": discipline},
+                "WHERE product = <record>$product AND discipline = <string>$discipline",
+                {"product": product_id, "discipline": discipline},
             )
         )
     if not decisions:

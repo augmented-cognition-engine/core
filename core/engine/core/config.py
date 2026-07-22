@@ -94,17 +94,35 @@ class Settings(BaseSettings):
     # See get_llm() in core/llm.py for the gate.
     require_subscription: bool = False
 
-    # Explicit subscription-shell selection. ``auto`` preserves the existing
-    # Claude-first resolver. ``codex`` uses the installed Codex CLI and its own
+    # Explicit subscription selection. ``auto`` preserves the existing
+    # Claude-first resolver. ``codex`` uses the installed Codex runtime and its
     # documented ChatGPT sign-in; ACE never reads or forwards cached Codex
     # credentials. ``claude`` explicitly retains the existing Claude-first
     # subscription/token/CLI behavior. This setting does not affect explicit
     # local/router/base-url routes.
     subscription_provider: Literal["auto", "claude", "codex"] = "auto"
+    # ChatGPT subscription transport. ``app_server`` keeps one authenticated
+    # Codex process alive and is the default; ``exec`` retains the older
+    # subprocess-per-completion compatibility route. Neither permits an
+    # automatic API-key fallback.
+    codex_transport: Literal["app_server", "exec"] = "app_server"
     codex_cli_model: str = "gpt-5.6-terra"
     codex_cli_model_map: dict[str, str] = {}
     codex_cli_effort: Literal["default", "none", "low", "medium", "high", "xhigh", "max"] = "default"
     codex_cli_effort_map: dict[str, Literal["default", "none", "low", "medium", "high", "xhigh", "max"]] = {}
+
+    # Shared LLM admission control. These limits apply across every task in one
+    # ACE process, not just within one fan-out pattern. Shell-backed transports
+    # default to one concurrent call because each call starts a full CLI runtime;
+    # persistent subscription and network/local routes may safely multiplex more.
+    llm_subprocess_concurrency: int = Field(default=1, ge=1, le=8)
+    llm_subscription_concurrency: int = Field(default=2, ge=1, le=16)
+    llm_metered_concurrency: int = Field(default=4, ge=1, le=32)
+    llm_local_concurrency: int = Field(default=2, ge=1, le=16)
+    # Receipt estimate only. It never authorizes metered billing and is kept
+    # separate from provider timeouts, which remain hard per-call safety bounds.
+    llm_expected_call_latency_ms: int = Field(default=5_000, ge=100, le=300_000)
+    llm_task_call_soft_limit: int = Field(default=12, ge=1, le=100)
 
     # AI-side briefing: when True, every dispatched AI receives a structured
     # ACE briefing payload (architecture digest + recent decisions + active

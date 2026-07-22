@@ -13,6 +13,18 @@ from pydantic import BaseModel
 from core.engine.core.llm import CLIProvider, get_llm
 
 
+@pytest.fixture(autouse=True)
+def _neutralize_explicit_codex_selection(monkeypatch):
+    """Keep Claude resolver tests independent of a developer's provider configuration."""
+    monkeypatch.setattr("core.engine.core.llm.settings.litellm_model", None, raising=False)
+    monkeypatch.setattr("core.engine.core.llm.settings.anyllm_model", None, raising=False)
+    monkeypatch.setattr("core.engine.core.llm.settings.ollama_host", None, raising=False)
+    monkeypatch.setattr("core.engine.core.llm.settings.openai_compat_base_url", None, raising=False)
+    monkeypatch.setattr("core.engine.core.llm.settings.subscription_provider", "auto", raising=False)
+    monkeypatch.setattr("core.engine.core.llm.settings.claude_code_oauth_token", "", raising=False)
+    monkeypatch.delenv("CLAUDE_CODE_OAUTH_TOKEN", raising=False)
+
+
 @pytest.mark.asyncio
 async def test_cli_subprocess_is_reaped_when_caller_cancels():
     provider = CLIProvider(default_model="claude-haiku-4-5-20251001", claude_bin="claude")

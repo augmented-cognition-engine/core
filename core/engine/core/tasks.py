@@ -14,9 +14,11 @@ are traceable without a stack walk.
 from __future__ import annotations
 
 import asyncio
+import contextvars
 import logging
 
 logger = logging.getLogger(__name__)
+_background_tasks: set[asyncio.Task] = set()
 
 
 def _on_task_done(label: str, task: asyncio.Task) -> None:
@@ -46,13 +48,26 @@ def _on_task_done(label: str, task: asyncio.Task) -> None:
     )
 
 
-def logged_task(coro, *, label: str = "unknown") -> asyncio.Task:
+def logged_task(
+    coro,
+    *,
+    label: str = "unknown",
+    context: contextvars.Context | None = None,
+) -> asyncio.Task:
     """Create an asyncio.Task that logs and records exceptions on failure.
 
     Drop-in replacement for asyncio.create_task() for fire-and-forget usage.
     Exceptions are captured to error_buffer and logged at ERROR level instead
     of being silently discarded.
     """
-    task = asyncio.create_task(coro)
-    task.add_done_callback(lambda t: _on_task_done(label, t))
+    task = asyncio.create_task(coro, context=context)
+    # asyncio keeps only weak references to tasks. Retain fire-and-forget work
+    # until completion so telemetry jobs cannot disappear under GC pressure.
+    _background_tasks.add(task)
+
+    def _done(completed: asyncio.Task) -> None:
+        _background_tasks.discard(completed)
+        _on_task_done(label, completed)
+
+    task.add_done_callback(_done)
     return task

@@ -29,6 +29,8 @@ def test_empty_accumulator():
     assert s["providers"] == []
     assert s["models"] == []
     assert s["stages"] == {}
+    assert s["llm_calls"] == []
+    assert s["latency"]["call_count"] == 0
 
 
 def test_summary_structure():
@@ -41,6 +43,45 @@ def test_summary_structure():
     assert len(s["calls"]) == 1
     assert s["calls"][0]["method"] == "complete"
     assert s["calls"][0]["purpose"] == "test"
+
+
+def test_llm_call_evidence_and_latency_summary():
+    acc = TokenAccumulator()
+    acc.record_llm_call(
+        {
+            "benchmark_id": "task:test:1",
+            "provider": "CodexAppServerProvider",
+            "access_class": "subscription",
+            "requested_model": "claude-sonnet-5",
+            "resolved_model": "gpt-5.6-terra",
+            "stage": "execution",
+            "input_size": 120,
+            "output_size": 40,
+            "queue_ms": 7,
+            "provider_setup_ms": 11,
+            "first_token_ms": 90,
+            "inference_ms": 110,
+            "parse_ms": 2,
+            "wall_ms": 130,
+            "retry_count": 1,
+            "status": "completed",
+            "provenance_available": True,
+        }
+    )
+    summary = acc.summary()
+    assert summary["llm_calls"][0]["resolved_model"] == "gpt-5.6-terra"
+    assert summary["latency"] == {
+        "call_count": 1,
+        "provider_wall_ms": 130,
+        "longest_call_ms": 130,
+        "queue_ms": 7,
+        "provider_setup_ms": 11,
+        "inference_ms": 110,
+        "parse_ms": 2,
+        "retry_count": 1,
+        "failed_calls": 0,
+        "stages": {"execution": {"calls": 1, "wall_ms": 130, "queue_ms": 7, "retry_count": 1}},
+    }
 
 
 def test_explicit_local_cost_and_route_override_default_rates():

@@ -49,7 +49,14 @@ export interface CalibrationOutcome {
   decision_title: string
   archetype: string
   discipline: string
-  calibration_score: number
+  calibration_score: number | null
+  outside_view_comparison?: Record<string, unknown>
+  prediction_score?: Record<string, unknown>
+  comparator_context?: Record<string, unknown>
+  resolution_state: 'open' | 'confirmed' | 'contradicted' | 'mixed' | 'unresolved' | 'invalid'
+  score_eligible: boolean
+  non_score_reason: string | null
+  contract: Record<string, unknown>
   predicted_deltas: Record<string, number>
   actual_deltas: Record<string, number>
   closed_at: string

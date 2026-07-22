@@ -62,8 +62,8 @@ class ProviderDiagnosticResult:
 
 def _credential_source(provider: object) -> str:
     name = type(provider).__name__
-    if name == "CodexCLIProvider":
-        return "Codex CLI managed sign-in"
+    if name in {"CodexCLIProvider", "CodexAppServerProvider"}:
+        return "Codex managed ChatGPT sign-in"
     if name == "CLIProvider":
         return "Claude CLI managed sign-in"
     if name == "ClaudeProvider":
@@ -201,18 +201,19 @@ def _classify_failure(exc: BaseException) -> tuple[ProviderDiagnosticState, str,
 
 
 def _codex_auth_state(settings: object, provider: object, timeout: float) -> ProviderDiagnosticResult | None:
-    if type(provider).__name__ != "CodexCLIProvider":
+    if type(provider).__name__ not in {"CodexCLIProvider", "CodexAppServerProvider"}:
         return None
     configured, resolved, requested, effort_sent = _route_details(settings, provider)
     try:
         completed = subprocess.run(
             [str(getattr(provider, "_codex_bin")), "login", "status"],
             stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             check=False,
             timeout=min(timeout, 15.0),
             env=getattr(provider, "_subprocess_env")(),
+            text=True,
         )
     except subprocess.TimeoutExpired:
         state, detail, action = _classify_failure(TimeoutError("timed out"))
@@ -221,14 +222,16 @@ def _codex_auth_state(settings: object, provider: object, timeout: float) -> Pro
         detail = "The configured Codex CLI executable could not be started."
         action = "Install or repair Codex, run `codex login`, and retry."
     else:
-        if completed.returncode == 0:
+        auth_status = f"{completed.stdout}\n{completed.stderr}".lower()
+        subscription_auth = "chatgpt" in auth_status or "access token" in auth_status
+        if completed.returncode == 0 and subscription_auth and "api key" not in auth_status:
             state = ProviderDiagnosticState.AUTHENTICATED
-            detail = "Codex CLI reports an authenticated session; model reachability was not tested."
+            detail = "Codex reports ChatGPT-managed subscription authentication; model reachability was not tested."
             action = "Run `ace doctor --live-provider` to verify the resolved model with one minimal request."
         else:
             state = ProviderDiagnosticState.UNAUTHORIZED
-            detail = "Codex CLI is installed but does not report an authenticated session."
-            action = "Run `codex login`, then rerun `ace doctor --live-provider`."
+            detail = "Codex does not report ChatGPT-managed subscription authentication."
+            action = "Run `codex login`, choose ChatGPT rather than API-key login, then rerun the check."
     return _result(
         state=state,
         provider=type(provider).__name__,
@@ -377,7 +380,9 @@ async def diagnose_provider(
     try:
         return await _diagnose_provider(settings, live=live, timeout=timeout, provider=owned_provider)
     finally:
-        close = getattr(owned_provider, "aclose", None)
+        close = (
+            None if getattr(owned_provider, "_ace_shared_provider", False) else getattr(owned_provider, "aclose", None)
+        )
         if callable(close):
             try:
                 await close()

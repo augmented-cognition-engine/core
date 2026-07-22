@@ -851,6 +851,7 @@ async def get_decision_prediction(decision_id: str) -> dict[str, Any]:
     """Return the open prediction attached to a decision, plus outcome if closed."""
     from core.engine.core.db import parse_one, parse_rows
     from core.engine.core.db import pool as _pool
+    from core.engine.foresight.contracts import normalize_forecast_record, normalize_resolution_record
 
     async with _pool.connection() as db:
         pred_result = await db.query(
@@ -873,6 +874,12 @@ async def get_decision_prediction(decision_id: str) -> dict[str, Any]:
             )
         rows = parse_rows(out_result)
         outcome = rows[0] if rows else None
+
+    prediction["contract"] = normalize_forecast_record(prediction)
+    prediction["forecast_contract"] = prediction["contract"]
+    if outcome is not None:
+        outcome["contract"] = normalize_resolution_record(outcome)
+        outcome["resolution_contract"] = outcome["contract"]
 
     return {"prediction": prediction, "outcome": outcome}
 

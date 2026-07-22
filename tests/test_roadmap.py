@@ -51,6 +51,7 @@ async def test_compute_roadmap_buckets_lanes(monkeypatch):
             return recs
 
     monkeypatch.setattr(rm_mod, "StrategicPrioritizer", _FakePrioritizer)
+    monkeypatch.setattr(rm_mod, "_project_strategy_items", AsyncMock(return_value=[]))
     monkeypatch.setattr(rm_mod, "_assess_item", AsyncMock(side_effect=lambda item, db: item))  # staleness no-op here
 
     roadmap = await rm_mod.compute_roadmap("product:platform", now_count=1)

@@ -1,0 +1,249 @@
+{
+  "schema_version": 2,
+  "suite_id": "i3-public-data-continuity-v1",
+  "run_kind": "recorded_deterministic_conformance",
+  "evidence_scope": {
+    "source": "Public UCI Online Retail II dataset scenario, DOI 10.24432/C5F88Q",
+    "purpose": "Choose whether a bounded retention cohort should remain staged after a public-data return-rate signal.",
+    "live_provider_case": "evaluations/results/m5_ic_01_live_inputs_v1.json",
+    "causal_boundary": "Only exact matched comparisons over structured I1 fields may support the scoped memory-effect claim."
+  },
+  "defaults": {
+    "receiving": {
+      "product_id": "product:i3-public-retail",
+      "task_id": "task:i3-default",
+      "decision_id": "decision:i3-default",
+      "component": "retention_decision",
+      "stage": "cohort_gate",
+      "invocation_id": "invocation:i3-default"
+    },
+    "material_fields": ["selected_option", "scope", "assumptions", "alternatives", "reconsideration_conditions", "evidence_refs"],
+    "comparison": {
+      "target_intelligence_ids": ["observation:i3-default"],
+      "with_context": {
+        "invocation_id": "invocation:i3-treatment",
+        "decision": {
+          "selected_option": "keep_staged",
+          "scope": "bounded retention cohort",
+          "assumptions": ["return-rate signal remains applicable"],
+          "alternatives": ["general rollout"],
+          "reconsideration_conditions": ["fresh cohort evidence contradicts the signal"],
+          "evidence_refs": ["observation:i3-default"]
+        },
+        "conditions": {
+          "task_hash": "sha256:i3-task",
+          "prompt_contract_hash": "sha256:i3-prompt-v1",
+          "provider": "CodexAppServerProvider",
+          "model": "gpt-5.6",
+          "configuration_hash": "sha256:i3-config",
+          "decision_schema": "decision-receipt-v1",
+          "toolset_hash": "sha256:ace-eleven-tools"
+        },
+        "metrics": {
+          "calls": 1,
+          "input_tokens": 420,
+          "output_tokens": 96,
+          "latency_ms": 840,
+          "retries": 0,
+          "billing_semantics": "subscription_backed_no_per_call_cost",
+          "failures": [],
+          "degraded_states": []
+        },
+        "output_hash": "sha256:i3-treatment-output"
+      },
+      "without_context": {
+        "invocation_id": "invocation:i3-control",
+        "decision": {
+          "selected_option": "general_rollout",
+          "scope": "all eligible customers",
+          "assumptions": [],
+          "alternatives": ["keep staged"],
+          "reconsideration_conditions": [],
+          "evidence_refs": []
+        },
+        "conditions": {
+          "task_hash": "sha256:i3-task",
+          "prompt_contract_hash": "sha256:i3-prompt-v1",
+          "provider": "CodexAppServerProvider",
+          "model": "gpt-5.6",
+          "configuration_hash": "sha256:i3-config",
+          "decision_schema": "decision-receipt-v1",
+          "toolset_hash": "sha256:ace-eleven-tools"
+        },
+        "metrics": {
+          "calls": 1,
+          "input_tokens": 360,
+          "output_tokens": 82,
+          "latency_ms": 790,
+          "retries": 0,
+          "billing_semantics": "subscription_backed_no_per_call_cost",
+          "failures": [],
+          "degraded_states": []
+        },
+        "output_hash": "sha256:i3-control-output"
+      },
+      "limitations": ["A matched deterministic receipt supports only the scoped memory-effect claim."]
+    },
+    "route": {
+      "provider": "CodexAppServerProvider",
+      "model": "gpt-5.6",
+      "configuration_hash": "sha256:i3-config",
+      "calls": 2,
+      "tokens": 958,
+      "latency_ms": 1630,
+      "retries": 0,
+      "billing_semantics": "subscription_backed_no_per_call_cost",
+      "failures": [],
+      "degraded_state": null
+    },
+    "continuity": {
+      "fresh_client_invocation": false,
+      "runtime_restart": "not_exercised",
+      "database_identity_preserved": true
+    },
+    "outcome": {"status": "not_observed"}
+  },
+  "cases": [
+    {
+      "receiving": {"task_id": "task:i3-material", "decision_id": "decision:i3-material", "invocation_id": "invocation:i3-material"},
+      "comparison": {"target_intelligence_ids": ["observation:i3-material"]},
+      "intelligence": [{
+        "intelligence_id": "observation:i3-material", "intelligence_type": "correction", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-material", "trust": 1.0,
+        "retrieval": {"rank": 1, "query": "public retail return rate cohort", "reason": "same decision scope", "relevance": "relevant"},
+        "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "public_dataset", "dataset": "UCI Online Retail II", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-material:selected_option"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-null", "decision_id": "decision:i3-null", "invocation_id": "invocation:i3-null"},
+      "comparison": {
+        "target_intelligence_ids": ["observation:i3-null"],
+        "without_context": {"decision": {"selected_option": "keep_staged", "scope": "bounded retention cohort", "assumptions": ["return-rate signal remains applicable"], "alternatives": ["general rollout"], "reconsideration_conditions": ["fresh cohort evidence contradicts the signal"], "evidence_refs": ["observation:i3-default"]}}
+      },
+      "intelligence": [{
+        "intelligence_id": "observation:i3-null", "intelligence_type": "preference", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-null", "trust": 1.0,
+        "retrieval": {"rank": 1, "reason": "same retention scope", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "human_capture", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "bounded_attribution", "evidence_refs": ["task:i3-null:output"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-irrelevant", "decision_id": "decision:i3-irrelevant", "invocation_id": "invocation:i3-irrelevant"},
+      "comparison": {"target_intelligence_ids": ["insight:i3-irrelevant"]},
+      "intelligence": [{
+        "intelligence_id": "insight:i3-irrelevant", "intelligence_type": "preference", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-irrelevant", "trust": 0.8,
+        "retrieval": {"rank": 9, "reason": "broad lexical match", "relevance": "irrelevant"}, "validity": {"state": "active"}, "relevance": "irrelevant", "provenance": {"source": "human_capture", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": false, "reflected": false}, "reflection": {"method": "unreported"}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-reflected", "decision_id": "decision:i3-reflected", "invocation_id": "invocation:i3-reflected"},
+      "comparison": {
+        "target_intelligence_ids": ["insight:i3-reflected"],
+        "without_context": {"decision": {"selected_option": "keep_staged", "scope": "bounded retention cohort", "assumptions": ["return-rate signal remains applicable"], "alternatives": ["general rollout"], "reconsideration_conditions": ["fresh cohort evidence contradicts the signal"], "evidence_refs": ["observation:i3-default"]}}
+      },
+      "intelligence": [{
+        "intelligence_id": "insight:i3-reflected", "intelligence_type": "pattern", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-reflected", "trust": 0.9,
+        "retrieval": {"rank": 2, "reason": "same retention scope", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "synthesis", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "identifier_mention", "evidence_refs": ["task:i3-reflected:output"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-stale", "decision_id": "decision:i3-stale", "invocation_id": "invocation:i3-stale"},
+      "comparison": {"target_intelligence_ids": ["insight:i3-stale"]},
+      "intelligence": [{
+        "intelligence_id": "insight:i3-stale", "intelligence_type": "pattern", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-stale", "trust": 0.7,
+        "retrieval": {"rank": 3, "reason": "historical cohort match", "relevance": "relevant"}, "validity": {"state": "stale"}, "relevance": "relevant", "provenance": {"source": "historical_observation", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-stale:selected_option"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-invalidated", "decision_id": "decision:i3-invalidated", "invocation_id": "invocation:i3-invalidated"},
+      "comparison": {"target_intelligence_ids": ["observation:i3-invalidated"]},
+      "intelligence": [{
+        "intelligence_id": "observation:i3-invalidated", "intelligence_type": "correction", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-invalidated", "trust": 1.0,
+        "retrieval": {"rank": 1, "reason": "legacy correction match", "relevance": "relevant"}, "validity": {"state": "invalidated", "invalidated_by": "observation:i3-superseding"}, "relevance": "relevant", "provenance": {"source": "human_capture", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "invalidated"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": false, "reflected": false}, "reflection": {"method": "unreported"}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-contested", "decision_id": "decision:i3-contested", "invocation_id": "invocation:i3-contested"},
+      "comparison": {"target_intelligence_ids": ["observation:i3-contested"]},
+      "intelligence": [{
+        "intelligence_id": "observation:i3-contested", "intelligence_type": "correction", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-contested", "trust": 1.0,
+        "retrieval": {"rank": 1, "reason": "contested retention authority", "relevance": "relevant"}, "validity": {"state": "contested"}, "relevance": "relevant", "provenance": {"source": "human_capture", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "contested"}, "contestation": {"state": "contested", "handling": "preserve_disagreement", "conflicts_with": ["observation:i3-counterclaim"]},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-contested:reconsideration_conditions"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-harmful", "decision_id": "decision:i3-harmful", "invocation_id": "invocation:i3-harmful"},
+      "comparison": {"target_intelligence_ids": ["insight:i3-harmful"]},
+      "outcome": {"status": "harmful", "finding": "Later observed returns contradicted the retained pattern."},
+      "intelligence": [{
+        "intelligence_id": "insight:i3-harmful", "intelligence_type": "pattern", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-harmful", "trust": 0.6,
+        "retrieval": {"rank": 1, "reason": "historical return-rate pattern", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "historical_observation", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-harmful:selected_option"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-product-mismatch", "decision_id": "decision:i3-product-mismatch", "invocation_id": "invocation:i3-product-mismatch"},
+      "comparison": {"target_intelligence_ids": ["insight:i3-foreign"]},
+      "intelligence": [{
+        "intelligence_id": "insight:i3-foreign", "intelligence_type": "pattern", "source_product_id": "product:foreign", "content_hash": "sha256:i3-foreign", "trust": 0.9,
+        "retrieval": {"rank": 1, "reason": "isolation failure fixture", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "foreign_product", "product_id": "product:foreign"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-product-mismatch:selected_option"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-route-mismatch", "decision_id": "decision:i3-route-mismatch", "invocation_id": "invocation:i3-route-mismatch"},
+      "comparison": {
+        "target_intelligence_ids": ["observation:i3-route-mismatch"],
+        "without_context": {"conditions": {"provider": "CLIProvider", "model": "claude-sonnet-4-6", "configuration_hash": "sha256:other-config"}}
+      },
+      "intelligence": [{
+        "intelligence_id": "observation:i3-route-mismatch", "intelligence_type": "correction", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-route-mismatch", "trust": 1.0,
+        "retrieval": {"rank": 1, "reason": "route mismatch fixture", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "human_capture", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-route-mismatch:selected_option"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-evaluation-failure", "decision_id": "decision:i3-evaluation-failure", "invocation_id": "invocation:i3-evaluation-failure"},
+      "comparison": {"target_intelligence_ids": ["observation:i3-evaluation-failure"], "failures": ["control_provider_timeout"]},
+      "intelligence": [{
+        "intelligence_id": "observation:i3-evaluation-failure", "intelligence_type": "correction", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-evaluation-failure", "trust": 1.0,
+        "retrieval": {"rank": 1, "reason": "evaluation failure fixture", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "human_capture", "product_id": "product:i3-public-retail"}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-evaluation-failure:selected_option"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-partial-lineage", "decision_id": "decision:i3-partial-lineage", "invocation_id": "invocation:i3-partial-lineage"},
+      "comparison": {"target_intelligence_ids": ["insight:i3-partial-lineage"]},
+      "intelligence": [{
+        "intelligence_id": "insight:i3-partial-lineage", "intelligence_type": "pattern", "source_product_id": "product:i3-public-retail",
+        "retrieval": {"rank": 4, "reason": "partial lineage fixture", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {}, "lifecycle": {"state": "active"}, "contestation": {},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "bounded_attribution", "evidence_refs": ["task:i3-partial-lineage:output"]}
+      }]
+    },
+    {
+      "receiving": {"task_id": "task:i3-restart", "decision_id": "decision:i3-restart", "invocation_id": "invocation:i3-after-restart"},
+      "comparison": {"target_intelligence_ids": ["observation:i3-restart"]},
+      "continuity": {"fresh_client_invocation": true, "runtime_restart": "real_supported_api_database_restart", "database_identity_preserved": true, "receipt_identity_replayed": true},
+      "intelligence": [{
+        "intelligence_id": "observation:i3-restart", "intelligence_type": "correction", "source_product_id": "product:i3-public-retail", "content_hash": "sha256:i3-restart", "trust": 1.0,
+        "retrieval": {"rank": 1, "query": "fresh invocation after restart", "reason": "durable correction matches cohort gate", "relevance": "relevant"}, "validity": {"state": "active"}, "relevance": "relevant", "provenance": {"source": "human_capture", "product_id": "product:i3-public-retail", "captured_before_restart": true}, "lifecycle": {"state": "active"}, "contestation": {"state": "uncontested"},
+        "observed": {"retrieved": true, "injected": true, "reflected": true}, "reflection": {"method": "structured_field_attribution", "evidence_refs": ["decision:i3-restart:selected_option"]}
+      }]
+    }
+  ],
+  "unsupported_claims": [
+    "Retrieval alone is use.",
+    "A reflected identifier or copied wording proves materiality.",
+    "Cross-provider, cross-model, or configuration-mismatched differences prove a memory effect.",
+    "Decision-material retained intelligence is necessarily beneficial.",
+    "I3 establishes the later L1 beneficial-impact claim."
+  ],
+  "limitations": [
+    "The deterministic matrix tests contract semantics, not general model quality.",
+    "The authoritative live route is the existing supported Codex subscription evidence; no new provider work was started.",
+    "Beneficial impact, reliability, and longitudinal quality remain gated on L1 outcome evidence."
+  ]
+}

@@ -43,6 +43,7 @@ def _scrub_auth(monkeypatch):
     monkeypatch.setattr(llm_mod.settings, "openai_compat_api_key", None, raising=False)
     monkeypatch.setattr(llm_mod.settings, "litellm_model", None, raising=False)
     monkeypatch.setattr(llm_mod.settings, "anyllm_model", None, raising=False)
+    monkeypatch.setattr(llm_mod.settings, "subscription_provider", "auto", raising=False)
     monkeypatch.delenv("CLAUDE_CODE_OAUTH_TOKEN", raising=False)
     # Scrub BOTH env-name families so alias tests build Settings hermetically
     # (an ambient OPENAI_API_KEY on a dev machine must not leak in).

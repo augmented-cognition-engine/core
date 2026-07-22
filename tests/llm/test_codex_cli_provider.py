@@ -10,7 +10,7 @@ import pytest
 from pydantic import BaseModel
 
 from core.engine.core.access import AccessClass, access_profile_for
-from core.engine.core.llm import CodexCLIProvider
+from core.engine.core.llm import CodexAppServerProvider, CodexCLIProvider
 
 
 class _Shape(BaseModel):
@@ -18,7 +18,9 @@ class _Shape(BaseModel):
 
 
 def _provider() -> CodexCLIProvider:
-    return CodexCLIProvider(default_model="gpt-5.6-terra", codex_bin="codex")
+    provider = CodexCLIProvider(default_model="gpt-5.6-terra", codex_bin="codex")
+    provider._subscription_auth_verified = True
+    return provider
 
 
 @pytest.mark.asyncio
@@ -94,6 +96,34 @@ async def test_complete_maps_ace_tier_and_records_usage():
 
 
 @pytest.mark.asyncio
+async def test_codex_subscription_usage_reaches_task_receipt():
+    from core.engine.core.tokens import TokenAccumulator, clear_accumulator, set_accumulator
+
+    provider = _provider()
+    provider._run = AsyncMock(
+        return_value=(
+            "hello",
+            {"input_tokens": 12, "output_tokens": 3, "cached_input_tokens": 4},
+        )
+    )
+    provider._persist_usage = AsyncMock()
+    acc = TokenAccumulator()
+    set_accumulator(acc)
+    try:
+        await provider.complete("say hello", model="claude-sonnet-5")
+    finally:
+        clear_accumulator()
+
+    summary = acc.summary()
+    assert summary["input_tokens"] == 12
+    assert summary["output_tokens"] == 3
+    assert summary["cache_read_input_tokens"] == 4
+    assert summary["providers"] == ["CodexCLIProvider"]
+    assert summary["models"] == ["gpt-5.6-terra"]
+    assert summary["cost_usd"] == 0.0
+
+
+@pytest.mark.asyncio
 async def test_complete_json_retries_and_parses_fences():
     provider = _provider()
     provider.complete = AsyncMock(side_effect=["not json", '```json\n{"ok": true}\n```'])
@@ -140,12 +170,28 @@ def test_explicit_codex_subscription_route_resolves(monkeypatch):
     monkeypatch.setattr(llm_mod.settings, "ollama_host", None)
     monkeypatch.setattr(llm_mod.settings, "openai_compat_base_url", None)
     monkeypatch.setattr(llm_mod.settings, "subscription_provider", "codex")
+    monkeypatch.setattr(llm_mod.settings, "codex_transport", "app_server")
     monkeypatch.setattr(llm_mod.settings, "codex_cli_model", "gpt-5.6-terra")
     monkeypatch.setattr(llm_mod, "_find_codex_bin", lambda: "/path/to/codex")
 
     provider = llm_mod._resolve_llm()
-    assert isinstance(provider, CodexCLIProvider)
+    assert isinstance(provider, CodexAppServerProvider)
     assert provider._codex_bin == "/path/to/codex"
+
+
+def test_explicit_codex_exec_compatibility_route_resolves(monkeypatch):
+    from core.engine.core import llm as llm_mod
+
+    monkeypatch.setattr(llm_mod.settings, "litellm_model", None)
+    monkeypatch.setattr(llm_mod.settings, "anyllm_model", None)
+    monkeypatch.setattr(llm_mod.settings, "ollama_host", None)
+    monkeypatch.setattr(llm_mod.settings, "openai_compat_base_url", None)
+    monkeypatch.setattr(llm_mod.settings, "subscription_provider", "codex")
+    monkeypatch.setattr(llm_mod.settings, "codex_transport", "exec")
+    monkeypatch.setattr(llm_mod, "_find_codex_bin", lambda: "/path/to/codex")
+
+    provider = llm_mod._resolve_llm()
+    assert type(provider) is CodexCLIProvider
 
 
 @pytest.mark.asyncio
@@ -162,7 +208,7 @@ async def test_doctor_reports_codex_route():
         openai_compat_base_url=None,
         ollama_host=None,
     )
-    completed = MagicMock(returncode=0)
+    completed = MagicMock(returncode=0, stdout="Logged in using ChatGPT", stderr="")
     with patch("core.engine.core.provider_diagnostics.subprocess.run", return_value=completed):
         result = await diagnose_provider(configured, provider=CodexCLIProvider(codex_bin="/path/to/codex"))
 

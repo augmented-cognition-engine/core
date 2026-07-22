@@ -278,6 +278,7 @@ class TestExecuteEngagement:
             event_callback=None,
             snapshot=None,
             budget_multiplier=1.0,
+            max_tokens=8192,
         ):
             nonlocal call_count
             call_count += 1
@@ -545,6 +546,7 @@ class TestRunEngagementWithArchetypes:
             event_callback=None,
             snapshot=None,
             budget_multiplier=1.0,
+            max_tokens=8192,
         ):
             call_order.append(perspective)
             if perspective == "analyst":
@@ -666,6 +668,7 @@ class TestRunEngagementBackwardCompat:
             event_callback=None,
             snapshot=None,
             budget_multiplier=1.0,
+            max_tokens=8192,
         ):
             call_order.append(perspective)
             return theorist_spin if perspective == "theorist" else executor_spin

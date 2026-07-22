@@ -48,8 +48,10 @@ class _Evaluator:
     def __init__(self, score_map, violations_map=None):
         self.score_map = score_map
         self.violations_map = violations_map or {}
+        self.calls = 0
 
     async def evaluate(self, description, phase_output, phase):
+        self.calls += 1
         key = phase_output.output
         return EvaluationResult(
             score=self.score_map.get(key, 0.4),
@@ -87,6 +89,7 @@ async def test_self_refine_revises_when_gate_fires():
     result = await executor.execute("describe the system", _make_composition(), {})
 
     assert call_idx == 2  # initial + revision (no separate critique call)
+    assert ev.calls == 2  # initial verdict reused; only the revision is re-scored
     assert executor._last_trace[0].get("self_refined") is True
     assert executor._last_trace[0].get("refine_rounds") == 1
     assert json.loads(result)["output"] == "refined"

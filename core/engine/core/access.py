@@ -82,6 +82,19 @@ def access_profile_for(provider) -> AccessProfile:
             selected_by="explicit_subscription_provider",
             billing_source="codex_cli",
         )
+    if name == "CodexAppServerProvider":
+        return AccessProfile(
+            AccessClass.SUBSCRIPTION,
+            name,
+            "persistent_local_broker",
+            "provider_plan_limited",
+            "openai_managed",
+            "broker_account_and_workspace_dependent",
+            "chatgpt_subscription_credit",
+            "ephemeral_threads_over_persistent_transport",
+            selected_by="explicit_subscription_provider",
+            billing_source="chatgpt_oauth",
+        )
     if name == "ClaudeProvider" and getattr(provider, "_oauth_token", None):
         return AccessProfile(
             AccessClass.SUBSCRIPTION,

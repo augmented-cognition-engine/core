@@ -11,7 +11,8 @@ publishing path, and a clean public-index wheel installation have been verified.
 gate is proven in clean macOS and Linux proxy trials. The reproducible product-builder golden path
 now also shows a public evidence-backed decision, inspectable reasoning, a retained human
 correction, real runtime restart, and material later use through the supported CLI and eleven-tool
-MCP boundary.
+MCP boundary. I3 now adds a versioned receipt that distinguishes retrieval, injection, reflection,
+and exact structured decision effects without presenting material influence as beneficial impact.
 
 Roadmap outcome states are used strictly:
 
@@ -43,6 +44,7 @@ Roadmap outcome states are used strictly:
 | R2 | passed | Ship a focused 0.1.1 onboarding, packaging, and documentation release | [Release evidence](docs/r2-release-evidence.md): clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install all passed against verified main commit `1662eaa` |
 | R3 | passed | Validate provider setup, authentication, diagnostics, and degraded behavior | [Provider validation evidence](docs/r3-provider-validation.md): supported matrix, deterministic degraded-state coverage, live Claude and GPT subscription routes, honest effort reporting, and green current-main CI |
 | R4 | passed | Publish a reproducible, product-builder golden-path demonstration | [Golden-path evidence](docs/product-builder-golden-path.md): a checksum-frozen public product decision completed through the supported Codex subscription route, persisted a binding human correction across a real service restart, materially changed a fresh later experiment, retained inspectable provenance, and recorded failures and portability limits without widening the eleven-tool boundary |
+| R5 | candidate | Ship the backward-compatible ace-core 0.1.2 inspectability and foresight release | [0.1.2 readiness packet](docs/r5-release-readiness.md) records aligned metadata, clean artifacts and isolated install, full core/reference-extension regressions, schema v155 restart/Compose health, and the supported-versus-experimental boundary; external review, CI, commit, tag, and publication gates remain |
 
 ## Next — durable product partnership
 
@@ -56,6 +58,8 @@ Roadmap outcome states are used strictly:
 - Strengthen long-running task recovery, replay, portability, and resource reporting.
 - Turn Atrium research into a clearer read-only view of ACE state before adding new write or
   execution authority.
+- Preserve the passed graph-grounded calibrated-foresight contract while keeping broader
+  consequence-learning claims gated by comparative evidence.
 - Expand extension examples and conformance tests without widening the public MCP contract.
 
 | ID | State | Public outcome | Dependency / acceptance evidence |
@@ -64,7 +68,8 @@ Roadmap outcome states are used strictly:
 | IA-R1 | passed | Define the read-only information architecture for inspecting ACE state | [`/landscape`](docs/ia-r1-product-map.md), [reconciled IA-R1 evidence](docs/ia-r1-product-map.md), and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) establish the six-question operator hierarchy, visible provenance and uncertainty, bounded failures, stable identity, and strict no-write/no-execution authority |
 | I1 | passed | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | [Decision and correction receipt evidence](docs/decision-correction-receipts.md) proves stable identities, complete decision context, all four human dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and restart continuity through the existing eleven-tool boundary |
 | I2 | ready | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | I1 identities and read contracts have passed; requires bounded perspective-selection reasons, contributor position artifacts, evidence references, meaningful disagreement, synthesis lineage, and honest partial/degraded coverage |
-| I3 | ready | Make retained-intelligence use and its decision effect inspectable | I1 identities and R3 route evidence have passed; requires retrieved/injected/reflected/material states, exact decision-field deltas, restart continuity, and explicit null, stale, contested, harmful, failure, and degraded outcomes |
+| I3 | passed | Make retained-intelligence use and its decision effect inspectable | [I3 closeout evidence](docs/i3-intelligence-use-evidence.md) proves the bounded `intelligence-use-receipt-v1` projection, exact I1 field deltas, matched live Codex route, real restart/fresh-client continuity, null/stale/contested/harmful/mismatch/failure behavior, and unchanged eleven-tool boundary |
+| F1 | passed | Freeze the honest, conditional contract for graph-grounded calibrated foresight | [F1 closeout evidence](docs/f1-foresight-evidence.md) proves the continuous-delta v1 forecast-to-observation-to-resolution loop through additive schema v154, including cold start, settled analogues, optional planning/comparators, structured measurement ingestion, proper interval scoring, real API/database restart continuity, explicit non-causal limitations, and the unchanged eleven-tool boundary |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
 | E1 | not ready | Expand extension examples and conformance coverage | Must preserve the kernel boundary and exactly eleven public MCP tools |
 
@@ -74,7 +79,19 @@ pass on the supported SurrealDB 3.1.4 pin and 3.2.1; mixed future receipt versio
 v1 reinterpretation. This outcome makes no correctness, benefit, I2, I3, or execution-authority
 claim.
 
+I3 passed through the existing task/status and Living Product Graph read paths. Runtime use without
+a control remains retrieved/injected/reflected with an explicit unknown comparison; only an
+isolated, valid, relevant, reflected item with an exact matched comparison can become
+decision-material. I3 makes no beneficial-impact or L1 claim.
+
 ## Later — build, ship, and learn
+
+**ACE provides graph-grounded, calibrated foresight.** It projects conditional consequences of
+decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
+and uses resolved forecasts to improve later reasoning. The intended system is a bounded,
+inspectable consequence model over a product or domain—not a foundation-scale learned model of the
+physical world. F1 freezes the contract; L1 must prove that resolved forecasts materially and
+beneficially inform later reasoning.
 
 - Carry approved decisions through attributable implementation, review, repair, and promotion.
 - Connect predicted outcomes to observed results so corrections can improve later reasoning.
@@ -84,10 +101,11 @@ claim.
 
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
+| F2 | not ready | Broaden consequence types and independently verified design evidence where product evidence justifies the added complexity | Requires L1 evidence or demonstrated user need; may include binary/categorical scoring, verified assignment/randomization provenance, and independently produced forecast contributions without reopening F1 |
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts and explicit execution authority |
-| L1 | not ready | Connect predicted outcomes to observed results so corrections can improve later reasoning | Requires I3 material-use evidence plus stable outcome identity, provenance, and calibration evidence; material influence alone is not assumed beneficial |
+| L1 | candidate | Use resolved conditional forecasts to improve later reasoning and decision quality | [Initial L1 evidence gate](docs/l1-foresight-impact-evidence.md) implements a bounded sample-aware all-controls evaluator, but the checksum-frozen public-data probe did not beat persistence, its cluster intervals include zero, model-only evidence is absent, and intervention/confounder attribution is unsupported; beneficial impact is not established |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
-| E2 | not ready | Grow the provider-neutral extension and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy |
+| E2 | not ready | Grow the provider-neutral extension, telemetry, and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy; native telemetry sources belong here rather than in F1 |
 
 ## Follow and contribute
 
@@ -109,3 +127,10 @@ unless they independently satisfy a supported user outcome.
 Public roadmap issues should state the user outcome, scope, acceptance evidence, dependencies,
 and maturity impact. They must not contain credentials, vulnerability details, customer
 information, private agreements, or unpublished business and release plans.
+
+L1 is candidate rather than passed. Its first leakage-bounded retrospective probe preserves the
+negative result: rolling resolved forecasts were slightly worse than last-observation persistence,
+the apparent base-rate improvement was not cluster-robust, and observational source data could not
+identify intervention benefit. Passing L1 requires new preregistered outcome evidence against every
+required control; it cannot be achieved by relabeling this probe or selecting only its favorable
+comparison.

@@ -11,6 +11,8 @@ This is the heart of the orchestration layer.  The public API
 from __future__ import annotations
 
 import asyncio
+import contextvars
+import hashlib
 import logging
 import time
 import uuid
@@ -50,6 +52,22 @@ try:
     _cognitive_composer: _CognitiveComposer | None = _CognitiveComposer()
 except Exception:  # pragma: no cover
     _cognitive_composer = None
+
+
+def _composition_classification(request: OrchestrationRequest, classification: dict) -> dict:
+    """Return the classification view used to resolve cognitive depth.
+
+    ``deep=true`` is an execution preference, not a semantic reclassification.
+    Give the composer a depth-3 floor without rewriting the classifier's mode
+    and complexity fields that downstream receipts expose.
+    """
+    if not request.force_frameworks:
+        return classification
+    return {
+        **classification,
+        "mode": "deliberative",
+        "complexity": "complex",
+    }
 
 
 def _spins_to_phase_traces(spins: list[SpinOutput]) -> list[dict]:
@@ -554,6 +572,57 @@ async def _persist_task(
         return None
 
 
+async def _run_shadow_comparison_and_persist(
+    *,
+    description: str,
+    classification: dict,
+    product_id: str,
+    treatment_output: str,
+    task_id: str,
+) -> None:
+    """Run the optional A/B control outside the user-result critical path."""
+    try:
+        from core.engine.core.db import pool as _ab_pool
+        from core.engine.intelligence.ab_judge import run_shadow_comparison as _ab_compare
+
+        result = await _ab_compare(
+            description=description,
+            classification=classification,
+            product_id=product_id,
+            treatment_output=treatment_output,
+        )
+        if not result:
+            return
+        from core.engine.cognition.models import derive_depth as _derive_depth_ab
+
+        depth = _derive_depth_ab(
+            classification.get("mode", "reactive"),
+            classification.get("complexity", "simple"),
+        )
+        async with _ab_pool.connection() as db:
+            await db.query(
+                """CREATE ab_result SET
+                    product = <record>$product,
+                    task_id = <record>$task_id,
+                    discipline = $discipline,
+                    depth = $depth,
+                    judge_preference = $preference,
+                    judge_rationale = $rationale,
+                    created_at = time::now()
+                """,
+                {
+                    "product": product_id,
+                    "task_id": task_id,
+                    "discipline": classification.get("discipline", ""),
+                    "depth": depth,
+                    "preference": result["judge_preference"],
+                    "rationale": result["judge_rationale"],
+                },
+            )
+    except Exception as exc:
+        logger.warning("A/B shadow baseline failed (non-fatal): %s", exc)
+
+
 # ---------------------------------------------------------------------------
 # Loop-context / L5 decision reconciliation
 # ---------------------------------------------------------------------------
@@ -736,6 +805,47 @@ async def run(
     )
 
     try:
+        from core.engine.orchestration.bounded_interactive import (
+            bounded_classification,
+            bounded_contract_for_request,
+            build_bounded_stage_plan,
+            execute_bounded_output,
+            probe_bounded_intelligence,
+        )
+
+        _bounded_contract = bounded_contract_for_request(request)
+        _bounded_execution = None
+        _bounded_stage_plan = None
+        if _bounded_contract is not None:
+            # This high-precision route intentionally runs before semantic
+            # classification: the explicit output contract is the route signal,
+            # and avoiding a classification model call is part of its latency
+            # contract. Two failed deterministic attempts fall through to the
+            # full classifier and reasoning path below.
+            set_stage("intelligence_probe")
+            _bounded_probe = await probe_bounded_intelligence(request.description, request.product_id)
+            _bounded_route_error = None
+            if _bounded_probe.conflicts:
+                _bounded_route_error = "relevant_intelligence_conflict"
+            else:
+                set_stage("bounded_interactive")
+                try:
+                    _bounded_execution = await execute_bounded_output(
+                        request.description,
+                        _bounded_contract,
+                        intelligence_context=_bounded_probe.context,
+                    )
+                    if _bounded_execution is None:
+                        _bounded_route_error = "validation_failed"
+                except Exception as exc:
+                    _bounded_route_error = "provider_error"
+                    logger.warning("Bounded interactive route failed; escalating to full orchestration: %s", exc)
+            _bounded_stage_plan = build_bounded_stage_plan(
+                _bounded_probe,
+                _bounded_execution,
+                route_error=_bounded_route_error,
+            )
+
         # 1b. Load graph context (best-effort, used for classification + intelligence)
         graph_context: dict | None = None
         try:
@@ -748,7 +858,9 @@ async def run(
         # 2. Classify (or use override)
         set_stage("classification")
         _cache_entry_id: str | None = None
-        if request.classification_override:
+        if _bounded_execution is not None:
+            classification = bounded_classification()
+        elif request.classification_override:
             classification = request.classification_override
         else:
             # ── Classification cache lookup (Phase 2) ─────────────────────
@@ -788,6 +900,12 @@ async def run(
                     await _cache_store(request.description, classification, request.product_id)
                 except Exception as _cache_store_err:
                     logger.debug("classification cache store failed (non-fatal): %s", _cache_store_err)
+
+        if _bounded_stage_plan is not None:
+            classification["routing_governance"] = {
+                **(classification.get("routing_governance") or {}),
+                "stage_plan": _bounded_stage_plan,
+            }
 
         await bus.emit(
             ClassificationComplete(
@@ -933,27 +1051,59 @@ async def run(
         # Runs after score_composition so it sees updated perspective_weights.
         try:
             if _cognitive_composer is not None:
-                _composition = await _cognitive_composer.compose(classification, request.product_id)
+                _composition = await _cognitive_composer.compose(
+                    _composition_classification(request, classification),
+                    request.product_id,
+                )
                 classification["cognitive_composition"] = _composition
+                if request.force_frameworks:
+                    classification["routing_governance"] = {
+                        **(classification.get("routing_governance") or {}),
+                        "requested_depth": "deep",
+                        "resolved_depth": getattr(_composition, "depth", None),
+                        "route": "cognitive_composition",
+                    }
         except Exception:
             logger.warning("Cognitive composition failed, continuing without it", exc_info=True)
+
+        # Shadow adaptive planning observes the reasoning shape ACE has already
+        # derived.  It adds no model calls and does not change execution yet;
+        # receipts make its quality/novelty/assurance decision auditable before
+        # the policy is allowed to control live routing.
+        try:
+            from core.engine.orchestration.adaptive_reasoning import build_advisory_stage_plan
+
+            classification["routing_governance"] = {
+                **(classification.get("routing_governance") or {}),
+                "adaptive_stage_plan": build_advisory_stage_plan(request, classification),
+            }
+        except Exception:
+            logger.warning("Adaptive reasoning shadow plan failed (non-fatal)", exc_info=True)
 
         # 2e. Multi-perspective engagement routing
         engagement = classification.get("engagement", {})
         perspectives = engagement.get("perspectives", [])
 
-        if len(perspectives) > 1:
-            from core.engine.orchestrator.engagement import execute_engagement
-            from core.engine.orchestrator.injection import inject_missing_perspectives
+        if _bounded_execution is not None or (len(perspectives) > 1 and not request.force_frameworks):
+            # Engagement is a distinct model-call phase.  Without this boundary
+            # its spin, evaluation, synthesis, and verification calls inherit
+            # the earlier classification label in task receipts.
+            if _bounded_execution is not None:
+                engagement_result = _bounded_execution.result
+                engagement = classification["engagement"]
+            else:
+                from core.engine.orchestrator.engagement import execute_engagement
+                from core.engine.orchestrator.injection import inject_missing_perspectives
 
-            classification = await inject_missing_perspectives(classification, request.product_id)
-            engagement_result = await execute_engagement(
-                request.description,
-                classification,
-                request.product_id,
-                request.workspace_id,
-                perspective_weights=classification.get("perspective_weights"),
-            )
+                set_stage("engagement")
+                classification = await inject_missing_perspectives(classification, request.product_id)
+                engagement_result = await execute_engagement(
+                    request.description,
+                    classification,
+                    request.product_id,
+                    request.workspace_id,
+                    perspective_weights=classification.get("perspective_weights"),
+                )
             output = engagement_result.merged_output
             snapshot = {
                 "perspectives_used": engagement_result.perspectives_used,
@@ -963,6 +1113,15 @@ async def run(
                 "verification_verdict": engagement_result.verification_verdict,
                 "verification_gaps": engagement_result.verification_gaps,
             }
+            if _bounded_execution is not None:
+                snapshot["bounded_interactive"] = {
+                    "selected": True,
+                    "attempts": _bounded_execution.attempts,
+                    "contract": _bounded_execution.contract.description,
+                    "validation": "deterministic_shape",
+                    "semantic_verification": "not_claimed",
+                    "stage_plan": _bounded_stage_plan,
+                }
 
             # Inject PM context from all 4 graph layers
             try:
@@ -1125,15 +1284,16 @@ async def run(
 
             # Record the multi-perspective engagement run into the reasoning_event log — the deepest,
             # most fork-worthy cohort (one keystone, four downstreams). Spins become the phase trace.
-            await _record_reasoning_run(
-                request,
-                classification,
-                depth=len(engagement_result.perspectives_used or []),
-                meta_skills=list(engagement_result.perspectives_used or []),
-                phases=_spins_to_phase_traces(engagement_result.spins),
-                conclusion=output or "",
-                status="complete",
-            )
+            if _bounded_execution is None:
+                await _record_reasoning_run(
+                    request,
+                    classification,
+                    depth=len(engagement_result.perspectives_used or []),
+                    meta_skills=list(engagement_result.perspectives_used or []),
+                    phases=_spins_to_phase_traces(engagement_result.spins),
+                    conclusion=output or "",
+                    status="complete",
+                )
 
             snapshot["token_usage"] = accumulator.summary()
             return OrchestrationResult(
@@ -1615,7 +1775,50 @@ async def run(
             from core.engine.intelligence.utilization import update_utilization
 
             _marker_map = snapshot.get("_marker_map", {})
-            _injected = snapshot.get("specialty_insights", []) + snapshot.get("org_insights", [])
+            _candidates = snapshot.get("specialty_insights", []) + snapshot.get("org_insights", [])
+            if not _candidates:
+                _candidates = list(snapshot.get("insights", []))
+            _marked_context = str(snapshot.get("_intel_context_with_markers") or "")
+            _injected_ids = {str(insight_id) for marker, insight_id in _marker_map.items() if marker in _marked_context}
+            _injected = [ins for ins in _candidates if str(ins.get("id", "")) in _injected_ids]
+            if _candidates:
+                # Retrieval and injection remain separate: candidates came back
+                # from the loader, while only markers that survived the final
+                # bounded context prove actual prompt injection.
+                snapshot["_intelligence_use_trace"] = {
+                    "component": "orchestration.executor",
+                    "stage": "reasoning_context",
+                    "invocation_id": str(task_id or run_id),
+                    "reflection_method": "unreported",
+                    "reflected_ids": [],
+                    "items": [
+                        {
+                            "id": str(ins.get("id", "")),
+                            "intelligence_type": ins.get("insight_type") or ins.get("type"),
+                            "source_product_id": str(ins.get("product") or request.product_id),
+                            "content_hash": (
+                                "sha256:" + hashlib.sha256(str(ins.get("content", "")).encode("utf-8")).hexdigest()
+                            ),
+                            "trust": ins.get("trust"),
+                            "relevance": ins.get("relevance", "unknown"),
+                            "retrieval_score": ins.get("_score"),
+                            "retrieval_reason": "ranked_runtime_context",
+                            "validity": {"state": str(ins.get("status") or "active")},
+                            "lifecycle": {"state": str(ins.get("status") or "active")},
+                            "contestation": ins.get("contestation") or {},
+                            "source_graph": ins.get("source_graph"),
+                            "injected": str(ins.get("id", "")) in _injected_ids,
+                            "provenance": {
+                                "source_graph": ins.get("source_graph"),
+                                "source_record": str(ins.get("id", "")),
+                                "source_observations": ins.get("source_observations") or [],
+                                "captured_at": ins.get("created_at"),
+                            },
+                        }
+                        for ins in _candidates[:64]
+                        if ins.get("id")
+                    ],
+                }
             if _injected:
                 _structural = attribute_structural(
                     output=pattern_result.output,
@@ -1648,6 +1851,16 @@ async def run(
                     injected_insights=_injected,
                     output=pattern_result.output,
                 )
+
+                # I3 continuity trace: bounded identities and observable loading/
+                # attribution facts only.  Content, prompts, and private scratchpads
+                # remain in their existing internal records and never enter the
+                # public receipt.  A later task-status projection will preserve the
+                # missing-control state rather than awarding materiality here.
+                snapshot["_intelligence_use_trace"]["reflection_method"] = (
+                    "model_attribution" if _attribution_result.method == "llm" else "structural_attribution"
+                )
+                snapshot["_intelligence_use_trace"]["reflected_ids"] = sorted(set(_attribution_result.attributed_ids))
 
                 if task_id:
                     try:
@@ -1699,51 +1912,6 @@ async def run(
                         logger.warning("cache feedback failed (non-fatal): %s", _cc_fb_err)
         except Exception as _attr_exc:
             logger.debug("Attribution block failed (non-fatal): %s", _attr_exc)
-
-        # ── A/B shadow baseline — 1-in-20 tasks (Phase 4) ────────────────────
-        if not request.shadow_run and not request.intelligence_override:
-            import random
-
-            if random.random() < 0.05:  # 5% ≈ 1-in-20
-                try:
-                    from core.engine.core.db import pool as _ab_pool
-                    from core.engine.intelligence.ab_judge import run_shadow_comparison as _ab_compare
-
-                    _ab_result = await _ab_compare(
-                        description=request.description,
-                        classification=classification,
-                        product_id=request.product_id,
-                        treatment_output=pattern_result.output,
-                    )
-                    if _ab_result and task_id:
-                        from core.engine.cognition.models import derive_depth as _derive_depth_ab
-
-                        _ab_depth = _derive_depth_ab(
-                            classification.get("mode", "reactive"),
-                            classification.get("complexity", "simple"),
-                        )
-                        async with _ab_pool.connection() as _ab_db:
-                            await _ab_db.query(
-                                """CREATE ab_result SET
-                                    product = <record>$product,
-                                    task_id = <record>$task_id,
-                                    discipline = $discipline,
-                                    depth = $depth,
-                                    judge_preference = $preference,
-                                    judge_rationale = $rationale,
-                                    created_at = time::now()
-                                """,
-                                {
-                                    "product": request.product_id,
-                                    "task_id": str(task_id),
-                                    "discipline": classification.get("discipline", ""),
-                                    "depth": _ab_depth,
-                                    "preference": _ab_result["judge_preference"],
-                                    "rationale": _ab_result["judge_rationale"],
-                                },
-                            )
-                except Exception as _ab_err:
-                    logger.warning("A/B shadow baseline failed (non-fatal): %s", _ab_err)
 
         # 9. Run post-task hooks (if requested)
         if request.run_post_hooks and task_id:
@@ -1843,6 +2011,31 @@ async def run(
             )
 
         snapshot["token_usage"] = accumulator.summary()
+
+        # ── A/B shadow baseline — 1-in-20 durable tasks (Phase 4) ────────────
+        # This experiment never changes the treatment output. Schedule it only
+        # after hooks, event persistence, and the final telemetry snapshot so a
+        # full control orchestration + judge cannot delay or contaminate the
+        # user's answer. The shared scheduler still bounds provider capacity.
+        if task_id and not request.shadow_run and not request.intelligence_override:
+            import random
+
+            if random.random() < 0.05:  # 5% ≈ 1-in-20
+                from core.engine.core.tasks import logged_task
+
+                logged_task(
+                    _run_shadow_comparison_and_persist(
+                        description=request.description,
+                        classification=classification,
+                        product_id=request.product_id,
+                        treatment_output=pattern_result.output,
+                        task_id=str(task_id),
+                    ),
+                    label=f"orchestration.ab_shadow.{task_id}",
+                    # Do not inherit the treatment's TokenAccumulator, active
+                    # event bus, or correlation context into telemetry work.
+                    context=contextvars.Context(),
+                )
         return OrchestrationResult(
             task_id=str(task_id) if task_id else None,
             output=pattern_result.output,

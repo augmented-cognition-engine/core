@@ -2,6 +2,7 @@
 """Tests for logged_task() — safe asyncio.create_task() wrapper."""
 
 import asyncio
+import contextvars
 
 import pytest
 
@@ -9,7 +10,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_logged_task_success_runs_coroutine():
     """A successful coroutine completes normally."""
-    from core.engine.core.tasks import logged_task
+    from core.engine.core.tasks import _background_tasks, logged_task
 
     ran = []
 
@@ -17,8 +18,30 @@ async def test_logged_task_success_runs_coroutine():
         ran.append(True)
 
     t = logged_task(_work(), label="test.success")
+    assert t in _background_tasks
     await t
+    await asyncio.sleep(0)
     assert ran == [True]
+    assert t not in _background_tasks
+
+
+@pytest.mark.asyncio
+async def test_logged_task_can_run_in_isolated_context():
+    from core.engine.core.tasks import logged_task
+
+    marker = contextvars.ContextVar("logged_task_test_marker", default="isolated")
+    marker.set("parent")
+
+    async def _read_marker():
+        return marker.get()
+
+    task = logged_task(
+        _read_marker(),
+        label="test.isolated",
+        context=contextvars.Context(),
+    )
+    assert await task == "isolated"
+    assert marker.get() == "parent"
 
 
 @pytest.mark.asyncio

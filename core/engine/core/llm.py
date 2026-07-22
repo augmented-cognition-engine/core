@@ -2,13 +2,17 @@
 import asyncio
 import contextvars
 import functools
+import hashlib
 import json
 import logging
 import os
 import re
 import shutil
+import subprocess
 import tempfile
 import time
+import weakref
+from dataclasses import dataclass, field
 from typing import AsyncIterator, Protocol, runtime_checkable
 from urllib.parse import urlparse
 
@@ -19,6 +23,7 @@ from pydantic import BaseModel
 from core.engine.core.config import settings
 from core.engine.core.log_context import get_correlation_id
 from core.engine.core.tokens import get_accumulator
+from core.engine.version import VERSION
 
 logger = logging.getLogger(__name__)
 
@@ -386,6 +391,36 @@ def _fix_additional_properties(schema: dict) -> None:
         _fix_additional_properties(schema["items"])
 
 
+def _fix_openai_strict_schema(schema: dict) -> None:
+    """Normalize a Pydantic schema for OpenAI strict structured output.
+
+    The Codex app-server forwards ``outputSchema`` to OpenAI's strict response
+    formatter.  In that dialect every declared object property must appear in
+    ``required``; optional values are expressed with a nullable schema instead
+    of by omitting the property.  Pydantic, by contrast, leaves fields with
+    defaults out of ``required``.  Remove default annotations and recursively
+    close that impedance mismatch without changing the validation model ACE
+    applies to the returned JSON.
+    """
+    if schema.get("type") == "object":
+        properties = schema.get("properties")
+        schema["additionalProperties"] = False
+        if isinstance(properties, dict):
+            schema["required"] = list(properties)
+
+    # Defaults are not part of the supported strict-schema subset.  The model
+    # must emit every property; nullable schemas preserve optionality.
+    schema.pop("default", None)
+
+    for value in schema.values():
+        if isinstance(value, dict):
+            _fix_openai_strict_schema(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    _fix_openai_strict_schema(item)
+
+
 async def _terminate_subprocess(proc: asyncio.subprocess.Process) -> None:
     """Force-reap a subprocess that has run past its timeout.
 
@@ -504,6 +539,24 @@ class CLIProvider:
             "cache_write_tokens": cache_write,
             "cost_usd": cost_usd,
         }
+
+    @staticmethod
+    def _record_task_usage(usage: dict, model: str | None, method: str) -> None:
+        acc = get_accumulator()
+        if acc is None:
+            return
+        acc.record(
+            method=method,
+            input_tokens=usage.get("input_tokens", 0),
+            output_tokens=usage.get("output_tokens", 0),
+            cache_read_input_tokens=usage.get("cache_read_tokens", 0),
+            cache_creation_input_tokens=usage.get("cache_write_tokens", 0),
+            provider="CLIProvider",
+            model=model,
+            # Subscription credit, not a metered charge. Preserve the CLI's
+            # API-equivalent estimate only in its dedicated ledger.
+            cost_usd=0.0,
+        )
 
     async def _persist_usage(self, usage: dict, model: str | None) -> None:
         """Fail-open: persist one token_ledger_entry per completed CLI call so the
@@ -674,6 +727,7 @@ class CLIProvider:
                     if lines:
                         data = json.loads(lines[0])
                         usage = self._track_usage(data)
+                        self._record_task_usage(usage, self._model_arg(model), "complete")
                         # Enrich the active gen_ai span (opened by _TracedLLM) with usage.
                         from core.engine.core.otel import set_gen_ai_usage
 
@@ -773,6 +827,7 @@ class CLIProvider:
         # (When the envelope itself isn't JSON, the CLI gave us no usage to
         # record — there is nothing to persist.)
         if usage is not None:
+            self._record_task_usage(usage, self._model_arg(model), "complete_structured")
             await self._persist_usage(usage, model)
         # Strip markdown code fences that the CLI model sometimes wraps output in
         result_text = result_text.strip()
@@ -1080,6 +1135,8 @@ class CodexCLIProvider(ModelMapMixin):
             raise ValueError(f"invalid Codex reasoning effort: {invalid or [default_effort]}")
         self._default_effort = default_effort
         self._effort_map = merged_efforts
+        self._subscription_auth_verified = False
+        self._subscription_auth_lock = asyncio.Lock()
         self._stats = {
             "calls": 0,
             "input_tokens": 0,
@@ -1137,6 +1194,43 @@ class CodexCLIProvider(ModelMapMixin):
         )
         return {name: os.environ[name] for name in allowed if os.environ.get(name)}
 
+    async def _verify_chatgpt_subscription(self, timeout: float = 15.0) -> None:
+        """Fail closed unless Codex reports ChatGPT-managed authentication."""
+        if self._subscription_auth_verified:
+            return
+        async with self._subscription_auth_lock:
+            if self._subscription_auth_verified:
+                return
+
+            def _status() -> subprocess.CompletedProcess[str]:
+                return subprocess.run(
+                    [self._codex_bin, "login", "status"],
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    check=False,
+                    timeout=timeout,
+                    env=self._subprocess_env(),
+                )
+
+            try:
+                completed = await asyncio.to_thread(_status)
+            except (OSError, subprocess.SubprocessError) as exc:
+                from core.engine.core.exceptions import LLMError
+
+                raise LLMError("could not verify Codex ChatGPT subscription authentication") from exc
+            status = f"{completed.stdout}\n{completed.stderr}".lower()
+            subscription_auth = "chatgpt" in status or "access token" in status
+            if completed.returncode != 0 or not subscription_auth or "api key" in status:
+                from core.engine.core.exceptions import LLMError
+
+                raise LLMError(
+                    "Codex subscription transport requires ChatGPT authentication; "
+                    "run `codex login` and choose ChatGPT, not API-key login"
+                )
+            self._subscription_auth_verified = True
+
     def _track_usage(self, usage: dict) -> dict[str, int]:
         normalized = {
             "input_tokens": int(usage.get("input_tokens") or 0),
@@ -1149,6 +1243,21 @@ class CodexCLIProvider(ModelMapMixin):
             self._stats[key] += value
         return normalized
 
+    def _record_task_usage(self, usage: dict[str, int], model: str, method: str) -> None:
+        """Expose subscription token usage to the current task receipt."""
+        acc = get_accumulator()
+        if acc is None:
+            return
+        acc.record(
+            method=method,
+            input_tokens=usage.get("input_tokens", 0),
+            output_tokens=usage.get("output_tokens", 0),
+            cache_read_input_tokens=usage.get("cached_input_tokens", 0),
+            provider=type(self).__name__,
+            model=model,
+            cost_usd=0.0,
+        )
+
     async def _run(
         self,
         prompt: str,
@@ -1157,6 +1266,7 @@ class CodexCLIProvider(ModelMapMixin):
         timeout: float = 300.0,
     ) -> tuple[str, dict[str, int]]:
         """Run one hermetic Codex completion and parse its JSONL event stream."""
+        await self._verify_chatgpt_subscription(timeout=min(timeout, 15.0))
         effort_args = () if effort == "default" else ("-c", f'model_reasoning_effort="{effort}"')
         proc = await asyncio.create_subprocess_exec(
             self._codex_bin,
@@ -1242,6 +1352,7 @@ class CodexCLIProvider(ModelMapMixin):
             output_tokens=usage.get("output_tokens", 0),
             response_model=resolved_model,
         )
+        self._record_task_usage(usage, resolved_model, "complete")
         await self._persist_usage(usage, resolved_model)
         return text
 
@@ -1306,6 +1417,500 @@ class CodexCLIProvider(ModelMapMixin):
         text = await self.complete("\n\n".join(parts), model=model, max_tokens=max_tokens, system=system)
         if text:
             yield text
+
+
+@dataclass
+class _CodexAppServerTurn:
+    """In-flight app-server turn state, keyed by its ephemeral thread id."""
+
+    thread_id: str
+    done: asyncio.Future[tuple[str, dict[str, int]]]
+    turn_id: str | None = None
+    messages: dict[str, str] = field(default_factory=dict)
+    deltas: list[str] = field(default_factory=list)
+    usage: dict[str, int] = field(default_factory=dict)
+    first_token_at: float | None = None
+    retry_count: int = 0
+    error: str | None = None
+
+
+class CodexAppServerProvider(CodexCLIProvider):
+    """Persistent ChatGPT-subscription transport through ``codex app-server``.
+
+    Codex owns ChatGPT OAuth, token refresh, and upstream communication. ACE
+    communicates only with one long-lived local JSONL process; it never reads or
+    forwards Codex credentials. Each completion gets an ephemeral app-server
+    thread in a neutral directory, with tools disabled and a read-only sandbox.
+
+    The provider deliberately verifies ChatGPT-managed authentication before
+    starting. API-key login is refused so ``REQUIRE_SUBSCRIPTION`` cannot silently
+    become usage-based OpenAI Platform billing.
+    """
+
+    _APP_SERVER_FLAGS: tuple[str, ...] = (
+        "app-server",
+        "--listen",
+        "stdio://",
+        "--disable",
+        "shell_tool",
+        "--disable",
+        "apps",
+        "--disable",
+        "hooks",
+        "--disable",
+        "goals",
+        "--disable",
+        "multi_agent",
+        "--disable",
+        "memories",
+        "-c",
+        'web_search="disabled"',
+    )
+    _THREAD_CONFIG: dict[str, object] = {
+        "web_search": "disabled",
+        "mcp_servers": {},
+        "features": {
+            "shell_tool": False,
+            "apps": False,
+            "hooks": False,
+            "goals": False,
+            "multi_agent": False,
+            "memories": False,
+        },
+    }
+
+    def __init__(
+        self,
+        default_model: str = "gpt-5.6-terra",
+        codex_bin: str = "codex",
+        model_map: dict[str, str] | None = None,
+        default_effort: str = "default",
+        effort_map: dict[str, str] | None = None,
+        startup_timeout: float = 30.0,
+    ) -> None:
+        super().__init__(
+            default_model=default_model,
+            codex_bin=codex_bin,
+            model_map=model_map,
+            default_effort=default_effort,
+            effort_map=effort_map,
+        )
+        self._startup_timeout = startup_timeout
+        self._proc: asyncio.subprocess.Process | None = None
+        self._reader_task: asyncio.Task | None = None
+        self._stderr_task: asyncio.Task | None = None
+        self._start_lock = asyncio.Lock()
+        self._write_lock = asyncio.Lock()
+        self._pending: dict[int, asyncio.Future[dict]] = {}
+        self._turns: dict[str, _CodexAppServerTurn] = {}
+        self._next_request_id = 1
+        self._last_call_metrics: dict[str, int | str | None] = {}
+        self._call_metrics_var: contextvars.ContextVar[dict[str, int | str | None] | None] = contextvars.ContextVar(
+            "ace_codex_app_server_call_metrics",
+            default=None,
+        )
+
+    @property
+    def last_call_metrics(self) -> dict[str, int | str | None]:
+        """Secret-free timing for the most recently completed broker call."""
+        return dict(self._call_metrics_var.get() or self._last_call_metrics)
+
+    async def _ensure_started(self) -> int:
+        """Start and initialize the broker once; return cold setup milliseconds."""
+        if (
+            self._proc is not None
+            and self._proc.returncode is None
+            and self._reader_task is not None
+            and not self._reader_task.done()
+        ):
+            return 0
+        async with self._start_lock:
+            if (
+                self._proc is not None
+                and self._proc.returncode is None
+                and self._reader_task is not None
+                and not self._reader_task.done()
+            ):
+                return 0
+            if self._proc is not None:
+                await self._stop_process()
+            started = time.monotonic()
+            await self._verify_chatgpt_subscription(timeout=min(self._startup_timeout, 15.0))
+            self._proc = await asyncio.create_subprocess_exec(
+                self._codex_bin,
+                *self._APP_SERVER_FLAGS,
+                stdin=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=self._subprocess_env(),
+                cwd=self._NEUTRAL_CWD,
+            )
+            self._reader_task = asyncio.create_task(self._reader_loop(), name="ace-codex-app-server-reader")
+            self._stderr_task = asyncio.create_task(self._drain_stderr(), name="ace-codex-app-server-stderr")
+            try:
+                await self._request_started(
+                    "initialize",
+                    {
+                        "clientInfo": {
+                            "name": "ace_core",
+                            "title": "ACE Core",
+                            "version": VERSION,
+                        }
+                    },
+                    timeout=self._startup_timeout,
+                )
+                await self._send({"method": "initialized", "params": {}})
+            except BaseException:
+                await self._stop_process()
+                raise
+            return int((time.monotonic() - started) * 1000)
+
+    async def _send(self, message: dict) -> None:
+        proc = self._proc
+        if proc is None or proc.stdin is None or proc.returncode is not None:
+            from core.engine.core.exceptions import LLMError
+
+            raise LLMError("Codex app-server is not running")
+        payload = (json.dumps(message, separators=(",", ":")) + "\n").encode()
+        async with self._write_lock:
+            proc.stdin.write(payload)
+            await proc.stdin.drain()
+
+    async def _request_started(self, method: str, params: dict, *, timeout: float = 30.0) -> dict:
+        request_id = self._next_request_id
+        self._next_request_id += 1
+        future = asyncio.get_running_loop().create_future()
+        self._pending[request_id] = future
+        try:
+            await self._send({"method": method, "id": request_id, "params": params})
+            return await asyncio.wait_for(future, timeout=timeout)
+        finally:
+            self._pending.pop(request_id, None)
+
+    async def _request(self, method: str, params: dict, *, timeout: float = 30.0) -> dict:
+        await self._ensure_started()
+        return await self._request_started(method, params, timeout=timeout)
+
+    async def _reader_loop(self) -> None:
+        proc = self._proc
+        if proc is None or proc.stdout is None:
+            return
+        try:
+            while True:
+                line = await proc.stdout.readline()
+                if not line:
+                    raise RuntimeError("Codex app-server closed its output stream")
+                try:
+                    message = json.loads(line)
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    continue
+                await self._handle_message(message)
+        except asyncio.CancelledError:
+            return
+        except Exception as exc:
+            from core.engine.core.exceptions import LLMError
+
+            self._fail_all(LLMError("Codex app-server stopped unexpectedly"), cause=exc)
+
+    async def _drain_stderr(self) -> None:
+        proc = self._proc
+        if proc is None or proc.stderr is None:
+            return
+        try:
+            while await proc.stderr.readline():
+                pass
+        except (asyncio.CancelledError, OSError):
+            return
+
+    def _fail_all(self, error: BaseException, *, cause: BaseException | None = None) -> None:
+        if cause is not None:
+            error.__cause__ = cause
+        for future in tuple(self._pending.values()):
+            if not future.done():
+                future.set_exception(error)
+        for state in tuple(self._turns.values()):
+            if not state.done.done():
+                state.done.set_exception(error)
+
+    @staticmethod
+    def _safe_server_error(value: object) -> str:
+        if isinstance(value, dict):
+            message = value.get("message")
+            if isinstance(message, str) and message:
+                return message.replace("\n", " ")[:240]
+        return "Codex app-server request failed"
+
+    async def _handle_message(self, message: dict) -> None:
+        request_id = message.get("id")
+        if request_id in self._pending and ("result" in message or "error" in message):
+            future = self._pending[request_id]
+            if future.done():
+                return
+            if "error" in message:
+                from core.engine.core.exceptions import LLMError
+
+                future.set_exception(LLMError(self._safe_server_error(message.get("error"))))
+            else:
+                future.set_result(message.get("result") or {})
+            return
+
+        method = message.get("method")
+        params = message.get("params") or {}
+        if request_id is not None and method:
+            # Tools and approvals are disabled. Explicitly reject any unexpected
+            # server-to-client request instead of leaving the broker blocked.
+            await self._send(
+                {
+                    "id": request_id,
+                    "error": {"code": -32601, "message": "ACE completion transport does not support client actions"},
+                }
+            )
+            return
+
+        thread_id = params.get("threadId")
+        state = self._turns.get(thread_id)
+        if state is None:
+            return
+        if method == "item/agentMessage/delta":
+            delta = params.get("delta")
+            if isinstance(delta, str):
+                if state.first_token_at is None:
+                    state.first_token_at = time.monotonic()
+                state.deltas.append(delta)
+        elif method == "item/completed":
+            item = params.get("item") or {}
+            if item.get("type") == "agentMessage" and isinstance(item.get("text"), str):
+                state.messages[str(item.get("id") or len(state.messages))] = item["text"]
+        elif method == "thread/tokenUsage/updated":
+            last = (params.get("tokenUsage") or {}).get("last") or {}
+            state.usage = {
+                "input_tokens": int(last.get("inputTokens") or 0),
+                "output_tokens": int(last.get("outputTokens") or 0),
+                "cached_input_tokens": int(last.get("cachedInputTokens") or 0),
+                "reasoning_output_tokens": int(last.get("reasoningOutputTokens") or 0),
+            }
+        elif method == "error":
+            if params.get("willRetry"):
+                state.retry_count += 1
+            else:
+                state.error = self._safe_server_error(params.get("error"))
+        elif method == "turn/completed" and not state.done.done():
+            turn = params.get("turn") or {}
+            for item in turn.get("items") or []:
+                if item.get("type") == "agentMessage" and isinstance(item.get("text"), str):
+                    state.messages[str(item.get("id") or len(state.messages))] = item["text"]
+            status = turn.get("status")
+            if status != "completed":
+                from core.engine.core.exceptions import LLMError
+
+                detail = state.error or self._safe_server_error(turn.get("error"))
+                state.done.set_exception(LLMError(detail))
+                return
+            text = next(reversed(state.messages.values()), "") if state.messages else "".join(state.deltas)
+            state.done.set_result((text, state.usage))
+
+    async def _interrupt(self, state: _CodexAppServerTurn) -> None:
+        if state.turn_id is None:
+            return
+        try:
+            await self._request_started(
+                "turn/interrupt",
+                {"threadId": state.thread_id, "turnId": state.turn_id},
+                timeout=5.0,
+            )
+        except Exception:
+            pass
+
+    async def _run(
+        self,
+        prompt: str,
+        model: str,
+        effort: str = "default",
+        timeout: float = 300.0,
+        *,
+        output_schema: dict | None = None,
+    ) -> tuple[str, dict[str, int]]:
+        """Run one ephemeral turn over the persistent app-server connection."""
+        started = time.monotonic()
+        setup_ms = await self._ensure_started()
+        thread_response = await self._request_started(
+            "thread/start",
+            {
+                "model": model,
+                "modelProvider": "openai",
+                "cwd": self._NEUTRAL_CWD,
+                "ephemeral": True,
+                "approvalPolicy": "never",
+                "sandbox": "read-only",
+                "baseInstructions": self._SYSTEM_PROMPT,
+                "config": self._THREAD_CONFIG,
+            },
+            timeout=min(timeout, 30.0),
+        )
+        thread_id = str((thread_response.get("thread") or {}).get("id") or "")
+        if not thread_id:
+            from core.engine.core.exceptions import LLMError
+
+            raise LLMError("Codex app-server did not return a thread id")
+        state = _CodexAppServerTurn(thread_id=thread_id, done=asyncio.get_running_loop().create_future())
+        self._turns[thread_id] = state
+        inference_started = time.monotonic()
+        params: dict[str, object] = {
+            "threadId": thread_id,
+            "input": [{"type": "text", "text": prompt}],
+            "model": model,
+            "cwd": self._NEUTRAL_CWD,
+            "approvalPolicy": "never",
+        }
+        if effort != "default":
+            params["effort"] = effort
+        if output_schema is not None:
+            params["outputSchema"] = output_schema
+        try:
+            turn_response = await self._request_started("turn/start", params, timeout=min(timeout, 30.0))
+            state.turn_id = str((turn_response.get("turn") or {}).get("id") or "") or None
+            try:
+                text, usage = await asyncio.wait_for(asyncio.shield(state.done), timeout=timeout)
+            except asyncio.TimeoutError:
+                await self._interrupt(state)
+                from core.engine.core.exceptions import LLMError
+
+                raise LLMError(f"codex app-server turn timed out after {timeout}s")
+            except asyncio.CancelledError:
+                await asyncio.shield(self._interrupt(state))
+                raise
+        finally:
+            self._turns.pop(thread_id, None)
+        finished = time.monotonic()
+        first_token_ms = (
+            int((state.first_token_at - inference_started) * 1000) if state.first_token_at is not None else None
+        )
+        call_metrics: dict[str, int | str | None] = {
+            "queue_ms": None,
+            "provider_setup_ms": setup_ms,
+            "first_token_ms": first_token_ms,
+            "inference_ms": int((finished - inference_started) * 1000),
+            "parse_ms": 0,
+            "wall_ms": int((finished - started) * 1000),
+            "retry_count": state.retry_count,
+            "status": "completed",
+        }
+        self._last_call_metrics = call_metrics
+        self._call_metrics_var.set(call_metrics)
+        if not text:
+            from core.engine.core.exceptions import LLMError
+
+            raise LLMError("codex app-server completion returned no agent message")
+        return text, self._track_usage(usage)
+
+    async def _persist_usage(self, usage: dict[str, int], model: str) -> None:
+        await _persist_usage_row(
+            model_name=model,
+            input_tokens=usage.get("input_tokens", 0),
+            output_tokens=usage.get("output_tokens", 0),
+            task_id="codex_app_server_provider",
+            task_type="broker_completion",
+            source="codex_app_server",
+            billing="chatgpt_subscription",
+            cost_usd=0.0,
+        )
+
+    async def complete_structured(
+        self,
+        prompt: str,
+        schema: type[BaseModel],
+        model: str | None = None,
+        max_tokens: int = 4096,
+    ) -> BaseModel:
+        """Use app-server native outputSchema, avoiding repair model calls."""
+        del max_tokens
+        json_schema = schema.model_json_schema()
+        _fix_additional_properties(json_schema)
+        _fix_openai_strict_schema(json_schema)
+        resolved_model = self._model_arg(model)
+        effort = self._resolve_effort(model, resolved_model)
+        text, usage = await self._run(
+            self._prompt(prompt, None),
+            resolved_model,
+            effort,
+            output_schema=json_schema,
+        )
+        from core.engine.core.otel import set_gen_ai_usage
+
+        set_gen_ai_usage(
+            input_tokens=usage.get("input_tokens", 0),
+            output_tokens=usage.get("output_tokens", 0),
+            response_model=resolved_model,
+        )
+        self._record_task_usage(usage, resolved_model, "complete_structured")
+        await self._persist_usage(usage, resolved_model)
+        return schema.model_validate_json(text)
+
+    async def _stop_process(self) -> None:
+        proc = self._proc
+        current = asyncio.current_task()
+        for task in (self._reader_task, self._stderr_task):
+            if task is not None and task is not current and not task.done():
+                task.cancel()
+        if proc is not None:
+            await _terminate_subprocess(proc)
+        for task in (self._reader_task, self._stderr_task):
+            if task is not None and task is not current:
+                await asyncio.gather(task, return_exceptions=True)
+        from core.engine.core.exceptions import LLMError
+
+        self._fail_all(LLMError("Codex app-server closed"))
+        self._pending.clear()
+        self._turns.clear()
+        self._reader_task = None
+        self._stderr_task = None
+        self._proc = None
+
+    async def aclose(self) -> None:
+        """Terminate and reap the shared local broker."""
+        async with self._start_lock:
+            await self._stop_process()
+
+
+_loop_provider_cache: weakref.WeakKeyDictionary[asyncio.AbstractEventLoop, dict[tuple[object, ...], object]] = (
+    weakref.WeakKeyDictionary()
+)
+
+
+def _cached_loop_provider(cache_key: tuple[object, ...], factory):
+    """Reuse persistent subscription transports inside one asyncio runtime.
+
+    A loop-scoped cache avoids binding an async HTTP client or app-server reader
+    to a later ``asyncio.run()`` loop. Synchronous inspection still receives an
+    unstarted provider, so configuration-only commands remain side-effect free.
+    """
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        return factory()
+    providers = _loop_provider_cache.setdefault(loop, {})
+    provider = providers.get(cache_key)
+    if provider is None:
+        provider = factory()
+        setattr(provider, "_ace_shared_provider", True)
+        providers[cache_key] = provider
+    return provider
+
+
+async def _close_cached_loop_providers() -> None:
+    """Close subscription providers shared by the current async runtime."""
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        return
+    providers = tuple({id(provider): provider for provider in _loop_provider_cache.pop(loop, {}).values()}.values())
+    for provider in providers:
+        close = getattr(provider, "aclose", None)
+        if callable(close):
+            try:
+                await close()
+            except Exception:
+                logger.debug("shared LLM provider cleanup failed", exc_info=True)
 
 
 class OllamaProvider(ModelMapMixin):
@@ -1879,6 +2484,7 @@ def _provider_system(provider) -> str:
         "ClaudeProvider": "anthropic",
         "CLIProvider": "anthropic",  # claude CLI subprocess
         "CodexCLIProvider": "openai",
+        "CodexAppServerProvider": "openai",
         "OllamaProvider": "ollama",
         "OpenAICompatProvider": "openai",
         "LiteLLMProvider": "litellm",
@@ -1887,7 +2493,88 @@ def _provider_system(provider) -> str:
     return mapping.get(name, name.replace("Provider", "").lower() or "unknown")
 
 
-def _wrap_call(method, system: str):
+def _resolved_model_for_call(provider: object, requested_model: str | None) -> str | None:
+    resolver = getattr(provider, "_resolve_model", None)
+    if not callable(resolver):
+        resolver = getattr(provider, "_model_arg", None)
+    try:
+        resolved = resolver(requested_model) if callable(resolver) else requested_model
+    except Exception:
+        resolved = requested_model
+    if resolved is None:
+        resolved = getattr(provider, "_default_model", None)
+    return str(resolved) if resolved is not None else None
+
+
+def _payload_size(value: object) -> int:
+    if value is None:
+        return 0
+    if isinstance(value, str):
+        return len(value.encode("utf-8"))
+    if isinstance(value, BaseModel):
+        value = value.model_dump(mode="json")
+    try:
+        return len(json.dumps(value, default=str, separators=(",", ":")).encode("utf-8"))
+    except Exception:
+        return len(str(value).encode("utf-8"))
+
+
+def _record_call_timing(
+    provider: object,
+    method_name: str,
+    requested_model: str | None,
+    input_size: int,
+    output_size: int,
+    lease,
+    started: float,
+    provider_started: float,
+    status: str,
+    error: BaseException | None,
+    token_calls_before: int,
+    *,
+    first_token_ms: int | None = None,
+) -> None:
+    acc = get_accumulator()
+    if acc is None:
+        return
+    from core.engine.core.access import access_profile_for
+
+    finished = time.monotonic()
+    provider_wall_ms = max(0, int((finished - provider_started) * 1000))
+    metrics = getattr(provider, "last_call_metrics", {})
+    if status != "completed" or not isinstance(metrics, dict):
+        metrics = {}
+    inferred_retries = max(0, acc.token_call_count() - token_calls_before - 1)
+    acc.record_llm_call(
+        {
+            "benchmark_id": f"{get_correlation_id()}:{time.monotonic_ns()}",
+            "provider": type(provider).__name__,
+            "access_class": access_profile_for(provider).access_class.value,
+            "requested_model": requested_model or getattr(provider, "_default_model", None),
+            "resolved_model": _resolved_model_for_call(provider, requested_model),
+            "stage": None,
+            "dependency_stages": [],
+            "input_size": input_size,
+            "output_size": output_size,
+            "queue_ms": lease.queue_ms,
+            "provider_setup_ms": metrics.get("provider_setup_ms", 0),
+            "first_token_ms": metrics.get("first_token_ms", first_token_ms),
+            "inference_ms": metrics.get("inference_ms", provider_wall_ms),
+            "parse_ms": metrics.get("parse_ms", 0),
+            "wall_ms": max(0, int((finished - started) * 1000)),
+            "retry_count": max(int(metrics.get("retry_count") or 0), inferred_retries),
+            "status": status,
+            "error_category": type(error).__name__ if error is not None else None,
+            "provenance_available": True,
+            "notes": (
+                f"method={method_name}; scheduler_route={lease.route}; "
+                f"concurrency_limit={lease.concurrency_limit}; active={lease.active_at_admission}"
+            ),
+        }
+    )
+
+
+def _wrap_call(method, system: str, provider: object):
     """Wrap a coroutine LLM-call method so each top-level invocation opens a gen_ai span.
 
     The span's gen_ai.request.model comes from the `model` kwarg when present
@@ -1899,19 +2586,48 @@ def _wrap_call(method, system: str):
     async def _traced(*args, **kwargs):
         if _in_llm_call.get():
             return await method(*args, **kwargs)  # nested delegated call — already spanned
+        from core.engine.core.llm_scheduler import provider_slot
         from core.engine.core.otel import gen_ai_span
 
         token = _in_llm_call.set(True)
+        started = time.monotonic()
+        requested_model = kwargs.get("model")
+        prompt = kwargs.get("prompt", args[0] if args else None)
+        result = None
+        error: BaseException | None = None
+        acc = get_accumulator()
+        token_calls_before = acc.token_call_count() if acc is not None else 0
         try:
-            with gen_ai_span(system, kwargs.get("model") or "default"):
-                return await method(*args, **kwargs)
+            async with provider_slot(provider) as lease:
+                provider_started = time.monotonic()
+                try:
+                    with gen_ai_span(system, requested_model or "default"):
+                        result = await method(*args, **kwargs)
+                    return result
+                except BaseException as exc:
+                    error = exc
+                    raise
+                finally:
+                    _record_call_timing(
+                        provider,
+                        method.__name__,
+                        requested_model,
+                        _payload_size(prompt),
+                        _payload_size(result),
+                        lease,
+                        started,
+                        provider_started,
+                        "completed" if error is None else "failed",
+                        error,
+                        token_calls_before,
+                    )
         finally:
             _in_llm_call.reset(token)
 
     return _traced
 
 
-def _wrap_stream(method, system: str):
+def _wrap_stream(method, system: str, provider: object):
     """Wrap an async-generator streaming method so the span covers the whole stream."""
 
     @functools.wraps(method)
@@ -1920,13 +2636,46 @@ def _wrap_stream(method, system: str):
             async for chunk in method(*args, **kwargs):
                 yield chunk
             return
+        from core.engine.core.llm_scheduler import provider_slot
         from core.engine.core.otel import gen_ai_span
 
         token = _in_llm_call.set(True)
+        started = time.monotonic()
+        requested_model = kwargs.get("model")
+        prompt = kwargs.get("prompt", args[0] if args else None)
+        output_size = 0
+        first_token_ms = None
+        error: BaseException | None = None
+        acc = get_accumulator()
+        token_calls_before = acc.token_call_count() if acc is not None else 0
         try:
-            with gen_ai_span(system, kwargs.get("model") or "default"):
-                async for chunk in method(*args, **kwargs):
-                    yield chunk
+            async with provider_slot(provider) as lease:
+                provider_started = time.monotonic()
+                try:
+                    with gen_ai_span(system, requested_model or "default"):
+                        async for chunk in method(*args, **kwargs):
+                            if first_token_ms is None:
+                                first_token_ms = max(0, int((time.monotonic() - provider_started) * 1000))
+                            output_size += _payload_size(chunk)
+                            yield chunk
+                except BaseException as exc:
+                    error = exc
+                    raise
+                finally:
+                    _record_call_timing(
+                        provider,
+                        method.__name__,
+                        requested_model,
+                        _payload_size(prompt),
+                        output_size,
+                        lease,
+                        started,
+                        provider_started,
+                        "completed" if error is None else "failed",
+                        error,
+                        token_calls_before,
+                        first_token_ms=first_token_ms,
+                    )
         finally:
             _in_llm_call.reset(token)
 
@@ -1946,11 +2695,11 @@ def _instrument_llm(provider, system: str):
     for name in _TRACED_CALL_METHODS:
         method = getattr(provider, name, None)
         if method is not None:
-            setattr(provider, name, _wrap_call(method, system))
+            setattr(provider, name, _wrap_call(method, system, provider))
     for name in _TRACED_STREAM_METHODS:
         method = getattr(provider, name, None)
         if method is not None:
-            setattr(provider, name, _wrap_stream(method, system))
+            setattr(provider, name, _wrap_stream(method, system, provider))
     try:
         provider._gen_ai_instrumented = True
     except Exception:  # pragma: no cover — exotic providers may block setattr
@@ -1999,9 +2748,11 @@ def _resolve_llm() -> "LLMProvider":
        (an explicit base_url is explicit intent — OpenAI, Azure, Groq, Together,
        OpenRouter, vLLM, LM Studio, Ollama-compat; the api key is optional,
        local servers run keyless)
-    5. SUBSCRIPTION_PROVIDER=codex → CodexCLIProvider through documented
-       ``codex exec`` + ChatGPT sign-in. This is explicit operator intent and
-       never reads or forwards Codex's cached credentials.
+    5. SUBSCRIPTION_PROVIDER=codex → CodexAppServerProvider by default,
+       through a persistent documented ``codex app-server`` connection and
+       ChatGPT sign-in. CODEX_TRANSPORT=exec retains CodexCLIProvider through
+       one ``codex exec`` subprocess per call. Both are explicit operator intent
+       and neither reads or forwards Codex's cached credentials.
     6. Explicit metered API key (LLM_API_KEY — config.py reads no other name;
        the value is passed to AsyncAnthropic explicitly) → ClaudeProvider
        (direct API, fastest, METERED — pay-per-token, not subscription)
@@ -2099,7 +2850,13 @@ def _resolve_llm() -> "LLMProvider":
                 "SUBSCRIPTION_PROVIDER=codex but no Codex CLI executable was found. "
                 "Install Codex, run `codex login` with ChatGPT, and retry."
             )
-        logger.info("Using CodexCLIProvider (%s) via ChatGPT subscription", codex_bin)
+        codex_transport = getattr(settings, "codex_transport", "app_server")
+        provider_type = CodexAppServerProvider if codex_transport == "app_server" else CodexCLIProvider
+        logger.info(
+            "Using %s (%s) via ChatGPT subscription",
+            provider_type.__name__,
+            codex_bin,
+        )
         semantic_efforts = {
             settings.llm_budget_model: getattr(settings, "llm_budget_effort", "default"),
             settings.llm_model: getattr(settings, "llm_effort", "default"),
@@ -2107,13 +2864,22 @@ def _resolve_llm() -> "LLMProvider":
             settings.llm_frontier_model: getattr(settings, "llm_frontier_effort", "xhigh"),
             **(getattr(settings, "codex_cli_effort_map", None) or {}),
         }
-        return CodexCLIProvider(
-            default_model=getattr(settings, "codex_cli_model", "gpt-5.6-terra"),
-            codex_bin=codex_bin,
-            model_map=getattr(settings, "codex_cli_model_map", None),
-            default_effort=getattr(settings, "codex_cli_effort", "default"),
-            effort_map=semantic_efforts,
+        provider_kwargs = {
+            "default_model": getattr(settings, "codex_cli_model", "gpt-5.6-terra"),
+            "codex_bin": codex_bin,
+            "model_map": getattr(settings, "codex_cli_model_map", None),
+            "default_effort": getattr(settings, "codex_cli_effort", "default"),
+            "effort_map": semantic_efforts,
+        }
+        cache_key = (
+            "codex_app_server" if provider_type is CodexAppServerProvider else "codex_exec",
+            codex_bin,
+            provider_kwargs["default_model"],
+            json.dumps(provider_kwargs["model_map"] or {}, sort_keys=True),
+            provider_kwargs["default_effort"],
+            json.dumps(semantic_efforts, sort_keys=True),
         )
+        return _cached_loop_provider(cache_key, lambda: provider_type(**provider_kwargs))
 
     key = settings.llm_api_key
     _looks_real = key and not key.startswith("sk-test") and not key.startswith("sk-ant-...") and len(key) > 20
@@ -2146,7 +2912,11 @@ def _resolve_llm() -> "LLMProvider":
         )
         if setup_token and len(setup_token) > 20:
             logger.info("Using ClaudeProvider via CLAUDE_CODE_OAUTH_TOKEN (sanctioned OAuth bearer)")
-            return ClaudeProvider(api_key="", default_model=settings.llm_model, oauth_token=setup_token)
+            token_fingerprint = hashlib.sha256(setup_token.encode()).hexdigest()
+            return _cached_loop_provider(
+                ("claude_setup_token", settings.llm_model, token_fingerprint),
+                lambda: ClaudeProvider(api_key="", default_model=settings.llm_model, oauth_token=setup_token),
+            )
 
     # Slot 8 — UNDOCUMENTED OAuth-as-API: lift the subscription OAuth access token
     # from the local credentials store and send it as x-api-key. Off by default;
@@ -2230,6 +3000,18 @@ class _LazyLLMProxy:
         # Only invoked for names absent on the proxy itself (e.g. complete);
         # _cached_provider is set in __init__, so this never recurses.
         return getattr(self._resolve(), name)
+
+    async def aclose(self) -> None:
+        """Close and forget a cached provider that owns persistent resources."""
+        provider = self._cached_provider
+        try:
+            await _close_cached_loop_providers()
+            if provider is not None and not getattr(provider, "_ace_shared_provider", False):
+                close = getattr(provider, "aclose", None)
+                if callable(close):
+                    await close()
+        finally:
+            object.__setattr__(self, "_cached_provider", None)
 
 
 llm = _LazyLLMProxy()
