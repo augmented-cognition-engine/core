@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass
 from enum import StrEnum
 from typing import Any
 
-from core.engine.core.access import AccessClass, AccessProfile, access_profile_for
+from core.engine.core.access import AccessClass, AccessProfile, HealthState, access_profile_for
 
 
 class ModelRole(StrEnum):
@@ -48,11 +48,32 @@ class EffectiveModelPolicy:
 
     @property
     def valid(self) -> bool:
+        """Whether configuration is internally valid, not whether it is reachable."""
         return not self.validation_errors
+
+    @property
+    def ready(self) -> bool:
+        """True only after health evidence proves the configured route reachable."""
+        return self.valid and self.access.health is HealthState.HEALTHY
+
+    @property
+    def readiness_state(self) -> str:
+        if self.access.access_class is AccessClass.UNAVAILABLE:
+            return "not_configured"
+        if self.access.health is HealthState.HEALTHY:
+            return "reachable"
+        if self.access.health is HealthState.DEGRADED:
+            return "degraded"
+        if self.access.health is HealthState.UNAVAILABLE:
+            return "unavailable"
+        return "configured_unverified"
 
     def public_dict(self) -> dict[str, Any]:
         return {
             "valid": self.valid,
+            "ready": self.ready,
+            "readiness_state": self.readiness_state,
+            "interactive_suitable": self.ready,
             "access": self.access.public_dict(),
             "roles": [role.public_dict() for role in self.roles],
             "escalation": self.escalation,
