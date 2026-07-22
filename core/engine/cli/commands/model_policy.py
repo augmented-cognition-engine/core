@@ -37,6 +37,11 @@ def model_policy(json_output: bool) -> None:
             f"cost={access['cost_model']}; privacy={access['privacy']}; "
             f"availability={access['availability']}; concurrency={access['concurrency']})"
         )
+        readiness_style = "green" if payload["ready"] else "yellow"
+        console.print(
+            f"Readiness: [{readiness_style}]{payload['readiness_state']}[/{readiness_style}] "
+            f"(interactive_suitable={str(payload['interactive_suitable']).lower()})"
+        )
         for role in payload["roles"]:
             console.print(
                 f"  {role['role']}: {role['resolved_model']} "

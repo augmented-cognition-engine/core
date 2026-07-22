@@ -53,6 +53,8 @@ class ProviderDiagnosticResult:
     action: str
     latency_ms: int | None = None
     usage: dict[str, int] | None = None
+    resolver_slot: int | None = None
+    resolution_reason: str | None = None
 
     def public_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -111,6 +113,8 @@ def _result(
     layer: str = "provider",
     latency_ms: int | None = None,
     usage: dict[str, int] | None = None,
+    resolver_slot: int | None = None,
+    resolution_reason: str | None = None,
 ) -> ProviderDiagnosticResult:
     return ProviderDiagnosticResult(
         ok=state is ProviderDiagnosticState.REACHABLE,
@@ -129,6 +133,8 @@ def _result(
         action=action,
         latency_ms=latency_ms,
         usage=usage,
+        resolver_slot=resolver_slot,
+        resolution_reason=resolution_reason,
     )
 
 
@@ -204,6 +210,7 @@ def _codex_auth_state(settings: object, provider: object, timeout: float) -> Pro
     if type(provider).__name__ not in {"CodexCLIProvider", "CodexAppServerProvider"}:
         return None
     configured, resolved, requested, effort_sent = _route_details(settings, provider)
+    profile = access_profile_for(provider)
     try:
         completed = subprocess.run(
             [str(getattr(provider, "_codex_bin")), "login", "status"],
@@ -235,12 +242,14 @@ def _codex_auth_state(settings: object, provider: object, timeout: float) -> Pro
     return _result(
         state=state,
         provider=type(provider).__name__,
-        route="explicit_subscription_provider",
+        route=profile.selected_by,
         credential_source=_credential_source(provider),
         configured_model=configured,
         resolved_model=resolved,
         requested_effort=requested,
         effort_sent=effort_sent,
+        resolver_slot=profile.resolver_slot,
+        resolution_reason=profile.resolution_reason,
         detail=detail,
         action=action,
     )
@@ -273,6 +282,8 @@ async def _diagnose_provider(
             state=ProviderDiagnosticState.NOT_CONFIGURED,
             provider=name,
             route=profile.selected_by,
+            resolver_slot=profile.resolver_slot,
+            resolution_reason=profile.resolution_reason,
             detail="No usable model-provider route is configured.",
             action="Run `ace setup` and select one provider route, then rerun `ace doctor`.",
             layer="configuration",
@@ -300,6 +311,8 @@ async def _diagnose_provider(
         "resolved_model": resolved,
         "requested_effort": requested,
         "effort_sent": effort_sent,
+        "resolver_slot": profile.resolver_slot,
+        "resolution_reason": profile.resolution_reason,
     }
 
     if not live:

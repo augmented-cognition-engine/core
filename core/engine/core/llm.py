@@ -22,6 +22,7 @@ from pydantic import BaseModel
 
 from core.engine.core.config import settings
 from core.engine.core.log_context import get_correlation_id
+from core.engine.core.provider_runtime import attach_resolution, note_provider_attempt
 from core.engine.core.tokens import get_accumulator
 from core.engine.version import VERSION
 
@@ -183,10 +184,12 @@ class ClaudeProvider:
         response = None
         try:
             try:
+                note_provider_attempt()
                 response = await self._client.messages.create(**kwargs)
             except AuthenticationError:
                 if not self._refresh_client():
                     raise
+                note_provider_attempt()
                 response = await self._client.messages.create(**kwargs)
 
             _record_usage(response, "complete")
@@ -261,10 +264,12 @@ class ClaudeProvider:
             },
         }
         try:
+            note_provider_attempt()
             response = await self._client.messages.create(**kwargs)
         except AuthenticationError:
             if not self._refresh_client():
                 raise
+            note_provider_attempt()
             response = await self._client.messages.create(**kwargs)
         _record_usage(response, "complete_structured")
         text = _extract_text(response)
@@ -286,12 +291,14 @@ class ClaudeProvider:
         if effort_config:
             kwargs["output_config"] = effort_config
         try:
+            note_provider_attempt()
             async with self._client.messages.stream(**kwargs) as s:
                 async for text in s.text_stream:
                     yield text
         except AuthenticationError:
             if not self._refresh_client():
                 raise
+            note_provider_attempt()
             async with self._client.messages.stream(**kwargs) as s:
                 async for text in s.text_stream:
                     yield text
@@ -314,12 +321,14 @@ class ClaudeProvider:
         if effort_config:
             kwargs["output_config"] = effort_config
         try:
+            note_provider_attempt()
             async with self._client.messages.stream(**kwargs) as s:
                 async for text in s.text_stream:
                     yield text
         except AuthenticationError:
             if not self._refresh_client():
                 raise
+            note_provider_attempt()
             async with self._client.messages.stream(**kwargs) as s:
                 async for text in s.text_stream:
                     yield text
@@ -653,6 +662,7 @@ class CLIProvider:
 
     async def _run(self, args: list[str], timeout: float | None = None) -> str:
         """Run claude subprocess and return stdout. Raises on non-zero exit or timeout."""
+        note_provider_attempt()
         effective_timeout = settings.claude_cli_timeout_seconds if timeout is None else timeout
         env = {**os.environ, "HOME": os.path.expanduser("~")}
         proc = await asyncio.create_subprocess_exec(
@@ -842,6 +852,7 @@ class CLIProvider:
         max_tokens: int = 4096,
     ) -> AsyncIterator[str]:
         env = {**os.environ, "HOME": os.path.expanduser("~")}
+        note_provider_attempt()
         proc = await asyncio.create_subprocess_exec(
             self._claude_bin,
             "-p",
@@ -893,6 +904,7 @@ class CLIProvider:
         prompt = "\n\n".join(parts)
 
         env = {**os.environ, "HOME": os.path.expanduser("~")}
+        note_provider_attempt()
         proc = await asyncio.create_subprocess_exec(
             self._claude_bin,
             "-p",
@@ -1267,6 +1279,7 @@ class CodexCLIProvider(ModelMapMixin):
     ) -> tuple[str, dict[str, int]]:
         """Run one hermetic Codex completion and parse its JSONL event stream."""
         await self._verify_chatgpt_subscription(timeout=min(timeout, 15.0))
+        note_provider_attempt()
         effort_args = () if effort == "default" else ("-c", f'model_reasoning_effort="{effort}"')
         proc = await asyncio.create_subprocess_exec(
             self._codex_bin,
@@ -2533,6 +2546,7 @@ def _record_call_timing(
     token_calls_before: int,
     *,
     first_token_ms: int | None = None,
+    physical_attempts: int = 0,
 ) -> None:
     acc = get_accumulator()
     if acc is None:
@@ -2562,7 +2576,11 @@ def _record_call_timing(
             "inference_ms": metrics.get("inference_ms", provider_wall_ms),
             "parse_ms": metrics.get("parse_ms", 0),
             "wall_ms": max(0, int((finished - started) * 1000)),
-            "retry_count": max(int(metrics.get("retry_count") or 0), inferred_retries),
+            "retry_count": max(
+                int(metrics.get("retry_count") or 0),
+                inferred_retries,
+                max(physical_attempts - 1, 0),
+            ),
             "status": status,
             "error_category": type(error).__name__ if error is not None else None,
             "provenance_available": True,
@@ -2588,6 +2606,7 @@ def _wrap_call(method, system: str, provider: object):
             return await method(*args, **kwargs)  # nested delegated call — already spanned
         from core.engine.core.llm_scheduler import provider_slot
         from core.engine.core.otel import gen_ai_span
+        from core.engine.core.provider_runtime import provider_attempt_scope
 
         token = _in_llm_call.set(True)
         started = time.monotonic()
@@ -2600,27 +2619,29 @@ def _wrap_call(method, system: str, provider: object):
         try:
             async with provider_slot(provider) as lease:
                 provider_started = time.monotonic()
-                try:
-                    with gen_ai_span(system, requested_model or "default"):
-                        result = await method(*args, **kwargs)
-                    return result
-                except BaseException as exc:
-                    error = exc
-                    raise
-                finally:
-                    _record_call_timing(
-                        provider,
-                        method.__name__,
-                        requested_model,
-                        _payload_size(prompt),
-                        _payload_size(result),
-                        lease,
-                        started,
-                        provider_started,
-                        "completed" if error is None else "failed",
-                        error,
-                        token_calls_before,
-                    )
+                with provider_attempt_scope() as attempts:
+                    try:
+                        with gen_ai_span(system, requested_model or "default"):
+                            result = await method(*args, **kwargs)
+                        return result
+                    except BaseException as exc:
+                        error = exc
+                        raise
+                    finally:
+                        _record_call_timing(
+                            provider,
+                            method.__name__,
+                            requested_model,
+                            _payload_size(prompt),
+                            _payload_size(result),
+                            lease,
+                            started,
+                            provider_started,
+                            "completed" if error is None else "failed",
+                            error,
+                            token_calls_before,
+                            physical_attempts=attempts.count,
+                        )
         finally:
             _in_llm_call.reset(token)
 
@@ -2638,6 +2659,7 @@ def _wrap_stream(method, system: str, provider: object):
             return
         from core.engine.core.llm_scheduler import provider_slot
         from core.engine.core.otel import gen_ai_span
+        from core.engine.core.provider_runtime import provider_attempt_scope
 
         token = _in_llm_call.set(True)
         started = time.monotonic()
@@ -2651,31 +2673,33 @@ def _wrap_stream(method, system: str, provider: object):
         try:
             async with provider_slot(provider) as lease:
                 provider_started = time.monotonic()
-                try:
-                    with gen_ai_span(system, requested_model or "default"):
-                        async for chunk in method(*args, **kwargs):
-                            if first_token_ms is None:
-                                first_token_ms = max(0, int((time.monotonic() - provider_started) * 1000))
-                            output_size += _payload_size(chunk)
-                            yield chunk
-                except BaseException as exc:
-                    error = exc
-                    raise
-                finally:
-                    _record_call_timing(
-                        provider,
-                        method.__name__,
-                        requested_model,
-                        _payload_size(prompt),
-                        output_size,
-                        lease,
-                        started,
-                        provider_started,
-                        "completed" if error is None else "failed",
-                        error,
-                        token_calls_before,
-                        first_token_ms=first_token_ms,
-                    )
+                with provider_attempt_scope() as attempts:
+                    try:
+                        with gen_ai_span(system, requested_model or "default"):
+                            async for chunk in method(*args, **kwargs):
+                                if first_token_ms is None:
+                                    first_token_ms = max(0, int((time.monotonic() - provider_started) * 1000))
+                                output_size += _payload_size(chunk)
+                                yield chunk
+                    except BaseException as exc:
+                        error = exc
+                        raise
+                    finally:
+                        _record_call_timing(
+                            provider,
+                            method.__name__,
+                            requested_model,
+                            _payload_size(prompt),
+                            output_size,
+                            lease,
+                            started,
+                            provider_started,
+                            "completed" if error is None else "failed",
+                            error,
+                            token_calls_before,
+                            first_token_ms=first_token_ms,
+                            physical_attempts=attempts.count,
+                        )
         finally:
             _in_llm_call.reset(token)
 
@@ -2809,37 +2833,57 @@ def _resolve_llm() -> "LLMProvider":
         from core.engine.core.llm_litellm import LiteLLMProvider
 
         logger.info("Using LiteLLMProvider (%s)", settings.litellm_model)
-        return LiteLLMProvider(
-            default_model=settings.litellm_model,
-            model_map=getattr(settings, "litellm_model_map", None),
+        return attach_resolution(
+            LiteLLMProvider(
+                default_model=settings.litellm_model,
+                model_map=getattr(settings, "litellm_model_map", None),
+            ),
+            1,
+            "explicit_litellm_model",
+            "LITELLM_MODEL explicitly configured",
         )
 
     if getattr(settings, "anyllm_model", None):
         from core.engine.core.llm_anyllm import AnyLLMProvider
 
         logger.info("Using AnyLLMProvider (%s)", settings.anyllm_model)
-        return AnyLLMProvider(
-            default_model=settings.anyllm_model,
-            model_map=getattr(settings, "anyllm_model_map", None),
+        return attach_resolution(
+            AnyLLMProvider(
+                default_model=settings.anyllm_model,
+                model_map=getattr(settings, "anyllm_model_map", None),
+            ),
+            2,
+            "explicit_anyllm_model",
+            "ANYLLM_MODEL explicitly configured",
         )
 
     if settings.ollama_host:
         logger.info("Using OllamaProvider (%s)", settings.ollama_host)
-        return OllamaProvider(
-            host=settings.ollama_host,
-            default_model=settings.ollama_model,
-            model_map=getattr(settings, "ollama_model_map", None),
+        return attach_resolution(
+            OllamaProvider(
+                host=settings.ollama_host,
+                default_model=settings.ollama_model,
+                model_map=getattr(settings, "ollama_model_map", None),
+            ),
+            3,
+            "explicit_ollama_host",
+            "OLLAMA_HOST explicitly configured",
         )
 
     # Slot 4 — explicit OpenAI-compat intent: the operator configured a base_url,
     # so it outranks any Anthropic credentials sitting in the environment.
     if settings.openai_compat_base_url:
         logger.info("Using OpenAICompatProvider (%s)", settings.openai_compat_base_url)
-        return OpenAICompatProvider(
-            base_url=settings.openai_compat_base_url,
-            api_key=settings.openai_compat_api_key,
-            default_model=settings.openai_compat_model,
-            model_map=getattr(settings, "openai_compat_model_map", None),
+        return attach_resolution(
+            OpenAICompatProvider(
+                base_url=settings.openai_compat_base_url,
+                api_key=settings.openai_compat_api_key,
+                default_model=settings.openai_compat_model,
+                model_map=getattr(settings, "openai_compat_model_map", None),
+            ),
+            4,
+            "explicit_openai_compat_base_url",
+            "OPENAI_COMPAT_BASE_URL explicitly configured",
         )
 
     subscription_provider = getattr(settings, "subscription_provider", "auto")
@@ -2879,7 +2923,14 @@ def _resolve_llm() -> "LLMProvider":
             provider_kwargs["default_effort"],
             json.dumps(semantic_efforts, sort_keys=True),
         )
-        return _cached_loop_provider(cache_key, lambda: provider_type(**provider_kwargs))
+        provider = _cached_loop_provider(cache_key, lambda: provider_type(**provider_kwargs))
+        transport = "app-server" if provider_type is CodexAppServerProvider else "exec"
+        return attach_resolution(
+            provider,
+            5,
+            "explicit_subscription_provider",
+            f"SUBSCRIPTION_PROVIDER selected Codex {transport}",
+        )
 
     key = settings.llm_api_key
     _looks_real = key and not key.startswith("sk-test") and not key.startswith("sk-ant-...") and len(key) > 20
@@ -2897,7 +2948,12 @@ def _resolve_llm() -> "LLMProvider":
                 "See core/engine/core/llm.py:get_llm() for the resolver order."
             )
         logger.info("Using ClaudeProvider via direct API key (METERED)")
-        return ClaudeProvider(api_key=key, default_model=settings.llm_model)
+        return attach_resolution(
+            ClaudeProvider(api_key=key, default_model=settings.llm_model),
+            6,
+            "explicit_metered_api_key",
+            "LLM_API_KEY selected the metered Anthropic API",
+        )
 
     _force_cli = getattr(settings, "force_cli_provider", False)
 
@@ -2913,9 +2969,15 @@ def _resolve_llm() -> "LLMProvider":
         if setup_token and len(setup_token) > 20:
             logger.info("Using ClaudeProvider via CLAUDE_CODE_OAUTH_TOKEN (sanctioned OAuth bearer)")
             token_fingerprint = hashlib.sha256(setup_token.encode()).hexdigest()
-            return _cached_loop_provider(
+            provider = _cached_loop_provider(
                 ("claude_setup_token", settings.llm_model, token_fingerprint),
                 lambda: ClaudeProvider(api_key="", default_model=settings.llm_model, oauth_token=setup_token),
+            )
+            return attach_resolution(
+                provider,
+                7,
+                "sanctioned_setup_token",
+                "CLAUDE_CODE_OAUTH_TOKEN selected subscription HTTP",
             )
 
     # Slot 8 — UNDOCUMENTED OAuth-as-API: lift the subscription OAuth access token
@@ -2928,7 +2990,12 @@ def _resolve_llm() -> "LLMProvider":
                 "Using ClaudeProvider via OAuth-as-API (x-api-key) — UNDOCUMENTED shape, "
                 "enabled by ALLOW_OAUTH_API_PATH=1. Prefer CLAUDE_CODE_OAUTH_TOKEN."
             )
-            return ClaudeProvider(api_key=oauth, default_model=settings.llm_model)
+            return attach_resolution(
+                ClaudeProvider(api_key=oauth, default_model=settings.llm_model),
+                8,
+                "opt_in_stored_oauth",
+                "ALLOW_OAUTH_API_PATH selected stored OAuth compatibility mode",
+            )
 
     _fallback_paths = [
         os.path.expanduser("~/.local/bin/claude"),
@@ -2940,7 +3007,14 @@ def _resolve_llm() -> "LLMProvider":
     )
     if claude_bin:
         logger.info("Using CLIProvider (%s) — slow path; subscription OAuth unavailable", claude_bin)
-        return CLIProvider(default_model=settings.llm_model, claude_bin=claude_bin)
+        return attach_resolution(
+            CLIProvider(default_model=settings.llm_model, claude_bin=claude_bin),
+            9,
+            "forced_cli_provider" if _force_cli else "available_cli",
+            "FORCE_CLI_PROVIDER selected Claude CLI"
+            if _force_cli
+            else "Claude CLI was the first available subscription route",
+        )
 
     # Slot 10 — bare OPENAI_COMPAT_API_KEY (alias: OPENAI_API_KEY — the ambient
     # export this slot guards against), last resort above the loud-fail. BELOW
@@ -2955,15 +3029,25 @@ def _resolve_llm() -> "LLMProvider":
     # subprocess).
     if not _force_cli and not getattr(settings, "require_subscription", False) and settings.openai_compat_api_key:
         logger.info("Using OpenAICompatProvider (https://api.openai.com/v1) — bare OPENAI_COMPAT_API_KEY")
-        return OpenAICompatProvider(
-            base_url="https://api.openai.com/v1",
-            api_key=settings.openai_compat_api_key,
-            default_model=settings.openai_compat_model,
-            model_map=getattr(settings, "openai_compat_model_map", None),
+        return attach_resolution(
+            OpenAICompatProvider(
+                base_url="https://api.openai.com/v1",
+                api_key=settings.openai_compat_api_key,
+                default_model=settings.openai_compat_model,
+                model_map=getattr(settings, "openai_compat_model_map", None),
+            ),
+            10,
+            "ambient_openai_compat_api_key",
+            "OPENAI_COMPAT_API_KEY selected the last-resort OpenAI-compatible route",
         )
 
     logger.warning("No LLM provider available — returning non-functional ClaudeProvider")
-    return ClaudeProvider(api_key="", default_model=settings.llm_model)
+    return attach_resolution(
+        ClaudeProvider(api_key="", default_model=settings.llm_model),
+        11,
+        "no_usable_route",
+        "No configured or available provider route was found",
+    )
 
 
 # Module-level provider — import this everywhere: `from core.engine.core.llm import llm`

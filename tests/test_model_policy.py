@@ -34,6 +34,9 @@ def test_policy_projects_existing_router_into_provider_neutral_roles():
     policy = build_model_policy(_settings(), OllamaProvider())
     payload = policy.public_dict()
     assert policy.valid
+    assert policy.ready is False
+    assert payload["readiness_state"] == "configured_unverified"
+    assert payload["interactive_suitable"] is False
     assert payload["access"]["access_class"] == "local"
     assert [role["role"] for role in payload["roles"]] == ["fast", "capable", "reasoning", "frontier"]
     assert [role["resolved_model"] for role in payload["roles"]] == ["small", "medium", "large", "frontier"]

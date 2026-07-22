@@ -239,6 +239,8 @@ def test_get_llm_returns_cliprovider_when_no_api_key_and_no_oauth(monkeypatch):
     with patch("shutil.which", return_value="/usr/local/bin/claude"):
         provider = get_llm()
     assert isinstance(provider, CLIProvider)
+    assert provider._ace_resolution.slot == 9
+    assert provider._ace_resolution.selected_by == "available_cli"
 
 
 def _neutralize_higher_priority_slots(monkeypatch):
@@ -301,6 +303,8 @@ def test_get_llm_oauth_api_path_gated_off_by_default(monkeypatch):
     with patch("shutil.which", return_value="/usr/local/bin/claude"):
         provider = get_llm()
     assert isinstance(provider, CLIProvider)
+    assert provider._ace_resolution.slot == 9
+    assert provider._ace_resolution.selected_by == "available_cli"
 
 
 def test_get_llm_force_cli_overrides_oauth_promotion(monkeypatch):
@@ -314,6 +318,8 @@ def test_get_llm_force_cli_overrides_oauth_promotion(monkeypatch):
     with patch("shutil.which", return_value="/usr/local/bin/claude"):
         provider = get_llm()
     assert isinstance(provider, CLIProvider)
+    assert provider._ace_resolution.slot == 9
+    assert provider._ace_resolution.selected_by == "forced_cli_provider"
 
 
 # ---------------------------------------------------------------------------

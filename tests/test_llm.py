@@ -91,9 +91,12 @@ def test_get_llm_prefers_setup_token_over_cli(monkeypatch):
 
     assert isinstance(provider, llm_mod.ClaudeProvider)
     assert provider._oauth_token == "oat-" + "x" * 40
+    assert provider._ace_resolution.slot == 7
+    assert provider._ace_resolution.selected_by == "sanctioned_setup_token"
 
 
 def test_get_llm_reads_setup_token_saved_in_settings(monkeypatch):
+    """ace setup writes .env; pydantic Settings loads it without exporting it."""
     llm_mod = _scrub_auth(monkeypatch)
     monkeypatch.setattr(llm_mod.settings, "claude_code_oauth_token", "oat-" + "e" * 40, raising=False)
     monkeypatch.setattr(llm_mod.shutil, "which", lambda _: "/usr/local/bin/claude")
@@ -102,6 +105,7 @@ def test_get_llm_reads_setup_token_saved_in_settings(monkeypatch):
 
     assert isinstance(provider, llm_mod.ClaudeProvider)
     assert provider._oauth_token == "oat-" + "e" * 40
+    assert provider._ace_resolution.slot == 7
 
 
 def test_get_llm_oauth_api_path_off_by_default_falls_to_cli(monkeypatch):
@@ -114,6 +118,8 @@ def test_get_llm_oauth_api_path_off_by_default_falls_to_cli(monkeypatch):
     provider = llm_mod.get_llm()
 
     assert isinstance(provider, llm_mod.CLIProvider)
+    assert provider._ace_resolution.slot == 9
+    assert provider._ace_resolution.selected_by == "available_cli"
 
 
 def test_get_llm_oauth_api_path_opt_in_uses_x_api_key(monkeypatch):
