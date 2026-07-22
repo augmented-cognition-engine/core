@@ -13,6 +13,13 @@ _TERMINAL_TASK_STATES = {"completed", "failed", "degraded"}
 _TASK_POLL_TIMEOUT_SECONDS = 900.0
 
 
+def _feedback_payload(feedback: str) -> dict:
+    payload = {"feedback_human": feedback, "surface": "cli"}
+    if feedback == "edited":
+        payload["edited_output"] = click.prompt("Edited result", type=str)
+    return payload
+
+
 def _submit_and_wait(url: str, body: dict, headers: dict) -> tuple[dict | None, str | None]:
     """Submit promptly, then poll the durable receipt for CLI compatibility."""
     payload = {**body, "wait_seconds": 1.0}
@@ -101,7 +108,7 @@ def run(ctx, description, workspace, deep, force_skill, framework_hints):
         if task_id:
             httpx.patch(
                 f"{url}/tasks/{task_id}",
-                json={"feedback_human": feedback_map[feedback]},
+                json=_feedback_payload(feedback_map[feedback]),
                 headers=headers,
                 timeout=10,
             )
@@ -142,7 +149,7 @@ def quick(ctx, description, workspace):
         if task_id:
             httpx.patch(
                 f"{url}/tasks/{task_id}",
-                json={"feedback_human": feedback_map[feedback]},
+                json=_feedback_payload(feedback_map[feedback]),
                 headers=headers,
                 timeout=10,
             )

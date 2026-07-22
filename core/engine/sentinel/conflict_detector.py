@@ -12,11 +12,12 @@ Cost: ~$0.001 per comparison via budget LLM.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 from itertools import combinations
 from typing import Any
 
-from core.engine.core.db import parse_rows
+from core.engine.core.db import parse_record_id, parse_rows
 from core.engine.core.exceptions import ValidationError
 from core.engine.sentinel.registry import register_engine
 
@@ -31,6 +32,83 @@ Statement B: {content_b}
 Return JSON with:
 - "contradicts": true or false
 - "explanation": brief explanation of why they do or do not contradict"""
+
+
+async def _persist_conflict_attention(
+    *,
+    db: Any,
+    product_id: str,
+    insight_a: dict,
+    insight_b: dict,
+    explanation: str,
+) -> str:
+    """Persist a product-scoped conflict, quarantine both claims, and signal attention."""
+    claim_ids = sorted((str(insight_a["id"]), str(insight_b["id"])))
+    digest = hashlib.sha256(f"{product_id}|{claim_ids[0]}|{claim_ids[1]}".encode()).hexdigest()[:32]
+    conflict_id = f"conflict:{digest}"
+    raw = await db.query_raw(
+        """
+        BEGIN;
+        UPSERT $conflict SET
+            product = $product,
+            insight_a = $a,
+            insight_b = $b,
+            explanation = $explanation,
+            status = 'pending',
+            detected_by = 'conflict_detector',
+            created_at = time::now();
+        UPDATE $a SET status = 'contested', updated_at = time::now();
+        UPDATE $b SET status = 'contested', updated_at = time::now();
+        COMMIT
+        """,
+        {
+            "conflict": parse_record_id(conflict_id),
+            "product": parse_record_id(product_id),
+            "a": parse_record_id(str(insight_a["id"])),
+            "b": parse_record_id(str(insight_b["id"])),
+            "explanation": explanation,
+        },
+    )
+    if not isinstance(raw, dict):
+        raise RuntimeError("Conflict transaction returned an invalid result")
+    if raw.get("error"):
+        raise RuntimeError(f"Conflict transaction failed: {raw['error']}")
+    statement_errors = [
+        entry.get("result")
+        for entry in raw.get("result", []) or []
+        if isinstance(entry, dict) and entry.get("status") == "ERR"
+    ]
+    if statement_errors:
+        raise RuntimeError(f"Conflict transaction aborted: {statement_errors}")
+
+    # A durable product-level signal makes the conflict available to briefings
+    # even when an immediate notification channel is disabled or unavailable.
+    try:
+        await db.query(
+            """
+            CREATE proactive_signal SET
+                product = <record>$product,
+                event_type = 'conflict.detected',
+                leverage_points = [{
+                    conflict_id: $conflict,
+                    claim_ids: [$a, $b],
+                    required_action: 'resolve_conflict'
+                }],
+                summary = $summary,
+                status = 'new',
+                created_at = time::now()
+            """,
+            {
+                "product": product_id,
+                "conflict": conflict_id,
+                "a": str(insight_a["id"]),
+                "b": str(insight_b["id"]),
+                "summary": f"Contested intelligence requires resolution: {explanation}"[:500],
+            },
+        )
+    except Exception as exc:
+        logger.warning("Conflict %s persisted but attention signal write failed: %s", conflict_id, exc)
+    return conflict_id
 
 
 def _validate_conflict_inputs(content_a: str, content_b: str) -> None:
@@ -80,10 +158,9 @@ async def check_new_insights(
     """
     pairs_checked = 0
     conflicts_found = 0
+    conflict_ids: list[str] = []
 
     # Fetch new insights — convert string IDs to RecordID for SurrealDB v3
-    from core.engine.core.db import parse_record_id
-
     record_ids = [
         parse_record_id(id_str) if isinstance(id_str, str) and ":" in id_str else id_str for id_str in new_insight_ids
     ]
@@ -136,22 +213,14 @@ async def check_new_insights(
             )
 
             if result["contradicts"]:
-                await db.query(
-                    """
-                    CREATE conflict SET
-                        insight_a = <record>$a,
-                        insight_b = <record>$b,
-                        explanation = $explanation,
-                        status = 'open',
-                        detected_by = 'conflict_detector',
-                        created_at = time::now()
-                    """,
-                    {
-                        "product": product_id,
-                        "a": str(existing_insight["id"]),
-                        "b": str(new_insight["id"]),
-                        "explanation": result["explanation"],
-                    },
+                conflict_ids.append(
+                    await _persist_conflict_attention(
+                        db=db,
+                        product_id=product_id,
+                        insight_a=existing_insight,
+                        insight_b=new_insight,
+                        explanation=result["explanation"],
+                    )
                 )
                 conflicts_found += 1
                 logger.info(f"Conflict found: {existing_insight['id']} vs {new_insight['id']}")
@@ -159,6 +228,8 @@ async def check_new_insights(
     return {
         "pairs_checked": pairs_checked,
         "conflicts_found": conflicts_found,
+        "conflict_ids": conflict_ids,
+        "attention_required": bool(conflict_ids),
         "cost": pairs_checked * 0.001,
     }
 
@@ -177,6 +248,7 @@ async def sweep(
     pairs_checked = 0
     pairs_skipped = 0
     conflicts_found = 0
+    conflict_ids: list[str] = []
 
     # Fetch low-confidence active insights
     rows = await db.query(
@@ -225,22 +297,14 @@ async def sweep(
             )
 
             if result["contradicts"]:
-                await db.query(
-                    """
-                    CREATE conflict SET
-                        insight_a = <record>$a_id,
-                        insight_b = <record>$b_id,
-                        explanation = $explanation,
-                        status = 'open',
-                        detected_by = 'conflict_detector',
-                        created_at = time::now()
-                    """,
-                    {
-                        "product": product_id,
-                        "a_id": str(a["id"]),
-                        "b_id": str(b["id"]),
-                        "explanation": result["explanation"],
-                    },
+                conflict_ids.append(
+                    await _persist_conflict_attention(
+                        db=db,
+                        product_id=product_id,
+                        insight_a=a,
+                        insight_b=b,
+                        explanation=result["explanation"],
+                    )
                 )
                 conflicts_found += 1
 
@@ -252,6 +316,8 @@ async def sweep(
         "pairs_checked": pairs_checked,
         "pairs_skipped": pairs_skipped,
         "conflicts_found": conflicts_found,
+        "conflict_ids": conflict_ids,
+        "attention_required": bool(conflict_ids),
         "cost": pairs_checked * 0.001,
     }
 

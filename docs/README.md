@@ -12,6 +12,10 @@ ACE's public documentation is intentionally small and user-facing:
   authority proof, deterministic replay, failures, verification, and limits.
 - [IA-R1 read-only product map](ia-r1-product-map.md) — the operator question hierarchy,
   strict read-only boundary, degraded-state behavior, verification, and limitations.
+- [Frequently asked questions](faq.md) — partial failure, conflicting claims, confidence,
+  provenance, and multi-product SurrealDB operation.
+- [Decision and correction receipts](decision-correction-receipts.md) — the bounded I1-01 candidate
+  contract, compatibility behavior, privacy boundary, restart evidence, and limitations.
 - [Model providers](providers.md) — provider configuration and routing expectations.
 - [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
 - [Product-builder golden path](product-builder-golden-path.md) — a reproducible public product
@@ -25,6 +29,8 @@ ACE's public documentation is intentionally small and user-facing:
   checks, archive inspection, verification results, public release gates, and limitations.
 - [Build your first extension](build-your-first-extension.md) — the practical extension path.
 - [Extension API](extension-api.md) — contracts available to extension authors.
+- [Capability evolution roadmap](capability-evolution-roadmap.md) — graph-native procedural
+  learning, reviewable revisions, progressive capability discovery, and safe execution sequencing.
 - [Governance](governance.md) — project decisions, compatibility, support, and contributions.
 - [ACE Public Roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) — live
   Now/Next/Later status.

@@ -93,18 +93,33 @@ async def ace_capture(
     domain_path: str,
     confidence: float = 0.7,
     product_id: str = "product:default",
+    affected_decision_id: str | None = None,
+    affected_task_id: str | None = None,
+    lifecycle_state: str = "active",
+    supersedes_correction_id: str | None = None,
+    invalidates_correction_id: str | None = None,
+    contests_correction_id: str | None = None,
 ) -> dict:
     """Record an observation from the session."""
     c = _get_client()
-    r = await c.post(
-        "/observations",
-        json={
-            "observation_type": observation_type,
-            "content": content,
-            "domain_path": domain_path,
-            "confidence": confidence,
-        },
-    )
+    body = {
+        "observation_type": observation_type,
+        "content": content,
+        "domain_path": domain_path,
+        "confidence": confidence,
+        "source_surface": "thin_mcp",
+    }
+    optional = {
+        "affected_decision_id": affected_decision_id,
+        "affected_task_id": affected_task_id,
+        "supersedes_correction_id": supersedes_correction_id,
+        "invalidates_correction_id": invalidates_correction_id,
+        "contests_correction_id": contests_correction_id,
+    }
+    body.update({key: value for key, value in optional.items() if value is not None})
+    if observation_type == "correction":
+        body["lifecycle_state"] = lifecycle_state
+    r = await c.post("/observations", json=body)
     return r
 
 
@@ -120,6 +135,7 @@ async def ace_task(
     skill_hint: str | None = None,
     frameworks_hint: list[str] | None = None,
     request_id: str | None = None,
+    decision: dict | None = None,
 ) -> dict:
     """Submit work to the orchestrator and return a durable receipt or fast result."""
     c = _get_client()
@@ -133,6 +149,8 @@ async def ace_task(
         body["frameworks_hint"] = frameworks_hint
     if request_id:
         body["idempotency_key"] = request_id
+    if decision:
+        body["decision"] = decision
 
     r = await c.submit_task(body)
     return r

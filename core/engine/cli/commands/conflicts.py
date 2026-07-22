@@ -9,17 +9,20 @@ from core.engine.cli.display import console
 
 
 @click.group(invoke_without_command=True)
-@click.option("--org", "-o", default="product:default")
+@click.option("--product", "--org", "-o", default=None, help="Product override (must match the authenticated product)")
 @click.pass_context
-def conflicts(ctx, org):
+def conflicts(ctx, product):
     """List unresolved conflicts."""
     if ctx.invoked_subcommand is None:
         url = ctx.obj["url"]
         headers = get_headers()
 
+        params = {"status": "pending"}
+        if product:
+            params["product"] = product
         resp = httpx.get(
             f"{url}/conflicts",
-            params={"product": org, "status": "pending"},
+            params=params,
             headers=headers,
             timeout=30,
         )
@@ -58,9 +61,8 @@ def conflicts(ctx, org):
 @click.argument("action", type=click.Choice(["keep_a", "keep_b", "keep_both", "merge"]))
 @click.option("--note", "-n", default="", help="Resolution note")
 @click.option("--merged-content", "-m", default=None, help="Merged content (required for merge)")
-@click.option("--org", "-o", default="product:default")
 @click.pass_context
-def resolve_conflict(ctx, conflict_id, action, note, merged_content, org):
+def resolve_conflict(ctx, conflict_id, action, note, merged_content):
     """Resolve a conflict. Actions: keep_a, keep_b, keep_both, merge."""
     if action == "merge" and not merged_content:
         console.print("[red]Error:[/red] --merged-content is required for merge action.")

@@ -113,6 +113,7 @@ async def _attempt_dispatch(
         result = await db.query(
             f"""
             CREATE notification SET
+                product = <record>$product,
                 user = <record>$user,
                 {project_clause}
                 tier = $tier,

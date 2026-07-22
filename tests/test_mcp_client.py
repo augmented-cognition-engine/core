@@ -277,6 +277,7 @@ async def test_ace_capture_posts_observation():
                 "content": "Chose FastAPI over Flask",
                 "domain_path": "architecture.web",
                 "confidence": 0.9,
+                "source_surface": "thin_mcp",
             },
         )
     finally:
@@ -380,6 +381,59 @@ async def test_ace_task_posts_to_tasks():
         mock_client.submit_task.assert_called_once_with(
             {"description": "Review this PR", "workspace_id": "workspace:default"},
         )
+    finally:
+        tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
+async def test_ace_task_passes_structured_decision_without_parsing_prose():
+    import ace_mcp_client.tools as tools_mod
+
+    mock_client = AsyncMock()
+    mock_client.submit_task = AsyncMock(return_value={"id": "task:123", "status": "pending"})
+    decision = {
+        "selected_option": "Keep eleven tools",
+        "scope": "public MCP contract",
+        "assumptions": ["compatibility is required"],
+        "alternatives": ["add a tool"],
+        "reconsideration_conditions": ["a compatible extension is impossible"],
+    }
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    try:
+        await tools_mod.ace_task("Make a decision", decision=decision)
+        mock_client.submit_task.assert_awaited_once_with(
+            {
+                "description": "Make a decision",
+                "workspace_id": "workspace:default",
+                "decision": decision,
+            }
+        )
+    finally:
+        tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
+async def test_ace_capture_passes_linked_correction_fields():
+    import ace_mcp_client.tools as tools_mod
+
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value={"status": "captured", "id": "observation:c1"})
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    try:
+        await tools_mod.ace_capture(
+            observation_type="correction",
+            content="Use option B",
+            domain_path="product.decisions",
+            affected_decision_id="decision:one",
+            affected_task_id="task:one",
+        )
+        body = mock_client.post.await_args.kwargs["json"]
+        assert body["source_surface"] == "thin_mcp"
+        assert body["affected_decision_id"] == "decision:one"
+        assert body["affected_task_id"] == "task:one"
+        assert body["lifecycle_state"] == "active"
     finally:
         tools_mod._client = old_client
 

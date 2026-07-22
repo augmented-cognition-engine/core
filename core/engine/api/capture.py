@@ -1,13 +1,15 @@
 # engine/api/capture.py
 import asyncio
+import hashlib
 import json
 import uuid
 from datetime import datetime
+from typing import Literal
 
 import jwt
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from jwt.exceptions import InvalidTokenError
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from core.engine.capture.pipeline import CapturePipeline
 from core.engine.capture.watchers import SessionImportWatcher, StreamEvent
@@ -42,6 +44,13 @@ class ObservationCreate(BaseModel):
     content: str = Field(..., min_length=1, max_length=10_000, description="Observation text")
     domain_path: str = Field(default="", max_length=500)
     confidence: float = Field(default=0.7, ge=0.0, le=1.0)
+    affected_decision_id: str | None = Field(default=None, max_length=200)
+    affected_task_id: str | None = Field(default=None, max_length=200)
+    source_surface: Literal["api", "cli", "thin_mcp", "capture", "other"] = "api"
+    lifecycle_state: Literal["active", "superseded", "invalidated", "contested"] = "active"
+    supersedes_correction_id: str | None = Field(default=None, max_length=200)
+    invalidates_correction_id: str | None = Field(default=None, max_length=200)
+    contests_correction_id: str | None = Field(default=None, max_length=200)
 
     @field_validator("observation_type")
     @classmethod
@@ -58,13 +67,57 @@ class ObservationCreate(BaseModel):
             raise ValueError("content must not be blank")
         return stripped
 
+    @model_validator(mode="after")
+    def validate_correction_links(self):
+        link_values = (
+            self.affected_decision_id,
+            self.affected_task_id,
+            self.supersedes_correction_id,
+            self.invalidates_correction_id,
+            self.contests_correction_id,
+        )
+        if self.observation_type != "correction" and any(link_values):
+            raise ValueError("decision, task, and correction links are only valid for correction observations")
+        transitions = (
+            self.supersedes_correction_id,
+            self.invalidates_correction_id,
+            self.contests_correction_id,
+        )
+        if sum(value is not None for value in transitions) > 1:
+            raise ValueError("a correction can supersede, invalidate, or contest only one prior correction")
+        return self
+
+
+async def _require_owned_target(db, record_id: str, prefix: str, product_id: str) -> dict:
+    if not record_id.startswith(f"{prefix}:"):
+        raise HTTPException(status_code=404, detail="Not found")
+    row = parse_one(await db.query("SELECT * FROM ONLY <record>$id", {"id": record_id}))
+    if not row or str(row.get("product", "")) != str(product_id):
+        raise HTTPException(status_code=404, detail="Not found")
+    if prefix == "observation" and row.get("observation_type") != "correction":
+        raise HTTPException(status_code=404, detail="Not found")
+    return row
+
 
 @router.post("/observations", status_code=201)
 async def create_observation(body: ObservationCreate, user: dict = Depends(get_current_user)):
     """Create a lightweight observation — simpler than importing a full session transcript."""
     product_id = user.get("product", "product:default")
+    correction_links = {
+        "supersedes": body.supersedes_correction_id,
+        "invalidates": body.invalidates_correction_id,
+        "contests": body.contests_correction_id,
+    }
+    content_hash = hashlib.sha256(body.content.encode("utf-8")).hexdigest()
 
     async with pool.connection() as db:
+        if body.affected_decision_id:
+            await _require_owned_target(db, body.affected_decision_id, "decision", product_id)
+        if body.affected_task_id:
+            await _require_owned_target(db, body.affected_task_id, "task", product_id)
+        for target_id in correction_links.values():
+            if target_id:
+                await _require_owned_target(db, target_id, "observation", product_id)
         result = await db.query(
             """
             CREATE observation SET
@@ -76,7 +129,19 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
                 discipline_hint = $domain_path,
                 confidence = $confidence,
                 source = 'api',
-                status = 'pending',
+                source_surface = $source_surface,
+                actor_ref = $actor_ref,
+                actor_class = 'authenticated_user',
+                content_hash = $content_hash,
+                lifecycle_state = IF $is_correction THEN $lifecycle_state ELSE NONE END,
+                correction_contract_version = IF $is_correction THEN 'correction-v1' ELSE NONE END,
+                affected_decision = IF $affected_decision THEN <record>$affected_decision ELSE NONE END,
+                affected_task = IF $affected_task THEN <record>$affected_task ELSE NONE END,
+                supersedes_correction = IF $supersedes THEN <record>$supersedes ELSE NONE END,
+                invalidates_correction = IF $invalidates THEN <record>$invalidates ELSE NONE END,
+                contests_correction = IF $contests THEN <record>$contests ELSE NONE END,
+                status = IF $is_correction THEN 'processed' ELSE 'pending' END,
+                processed_at = IF $is_correction THEN time::now() ELSE NONE END,
                 created_at = time::now()
             """,
             {
@@ -85,13 +150,34 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
                 "content": body.content,
                 "domain_path": body.domain_path,
                 "confidence": body.confidence,
+                "source_surface": body.source_surface,
+                "actor_ref": str(user.get("sub") or "authenticated_user")[:200],
+                "content_hash": content_hash,
+                "is_correction": body.observation_type == "correction",
+                "lifecycle_state": body.lifecycle_state,
+                "affected_decision": body.affected_decision_id,
+                "affected_task": body.affected_task_id,
+                "supersedes": body.supersedes_correction_id,
+                "invalidates": body.invalidates_correction_id,
+                "contests": body.contests_correction_id,
             },
         )
         row = parse_one(result)
+        if row:
+            target_states = {"supersedes": "superseded", "invalidates": "invalidated", "contests": "contested"}
+            for relationship, target_id in correction_links.items():
+                if target_id:
+                    await db.query(
+                        """
+                        UPDATE <record>$target SET lifecycle_state = $state, updated_at = time::now()
+                        WHERE product = <record>$product AND observation_type = 'correction'
+                        """,
+                        {"target": target_id, "state": target_states[relationship], "product": product_id},
+                    )
 
     # Make the thin-client capture visible to a later invocation immediately;
     # the worker remains the retry path if synthesis is temporarily unavailable.
-    if row:
+    if row and body.observation_type != "correction":
         try:
             from core.engine.capture.synthesizer import Synthesizer
 
@@ -107,7 +193,26 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
         except Exception:
             pass
 
-    return {"status": "captured", "id": str(row.get("id", "")) if row else ""}
+    result = {"status": "captured", "id": str(row.get("id", "")) if row else ""}
+    if row and body.observation_type == "correction":
+        result["correction"] = {
+            "contract_version": "correction-v1",
+            "correction_id": str(row.get("id", "")),
+            "product_id": str(product_id),
+            "affected_decision_id": body.affected_decision_id,
+            "affected_task_id": body.affected_task_id,
+            "source_surface": body.source_surface,
+            "actor": str(user.get("sub") or "authenticated_user")[:200],
+            "actor_class": "authenticated_user",
+            "created_at": row.get("created_at"),
+            "content_hash": content_hash,
+            "confidence": body.confidence,
+            "lifecycle_state": body.lifecycle_state,
+            "supersedes_correction_id": body.supersedes_correction_id,
+            "invalidates_correction_id": body.invalidates_correction_id,
+            "contests_correction_id": body.contests_correction_id,
+        }
+    return result
 
 
 class SessionImport(BaseModel):

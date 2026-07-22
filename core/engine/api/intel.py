@@ -1,6 +1,8 @@
 # engine/api/intel.py
+import re
+
 from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from core.engine.core.auth import get_current_user
 from core.engine.core.db import parse_rows, pool
@@ -8,6 +10,20 @@ from core.engine.intelligence.maturation import calculate_maturation
 from core.engine.orchestrator.loader import load_intelligence
 
 router = APIRouter(prefix="/intel", tags=["intelligence"])
+
+
+def _bounded_public_content(value: object) -> str:
+    text = str(value or "")
+    text = re.sub(
+        r"(?i)\b(bearer|api[_-]?key|token|password|secret)\b\s*[:=]?\s*[^\s,;]+",
+        r"\1=<redacted>",
+        text,
+    )
+    return text[:2_000]
+
+
+def _record_text(value: object) -> str | None:
+    return str(value)[:200] if value is not None else None
 
 
 async def _load_captured_observations(domain_path: str, product: str) -> list[dict]:
@@ -21,7 +37,10 @@ async def _load_captured_observations(domain_path: str, product: str) -> list[di
         async with pool.connection() as db:
             rows = parse_rows(
                 await db.query(
-                    """SELECT id, content, observation_type, confidence, source, created_at
+                    """SELECT id, content, observation_type, confidence, source, created_at,
+                              source_surface, actor_ref, actor_class, content_hash, lifecycle_state,
+                              correction_contract_version, affected_decision, affected_task,
+                              supersedes_correction, invalidates_correction, contests_correction
                        FROM observation
                        WHERE product = <record>$product
                          AND (domain_hint = $domain OR discipline_hint = $domain OR domain_path = $domain)
@@ -30,17 +49,74 @@ async def _load_captured_observations(domain_path: str, product: str) -> list[di
                     {"product": product, "domain": domain_path},
                 )
             )
-        return [
-            {
+        captured = []
+        for row in rows:
+            item = {
                 "id": str(row.get("id", "")),
-                "content": row.get("content", ""),
+                "content": _bounded_public_content(row.get("content")),
                 "insight_type": row.get("observation_type", ""),
                 "confidence": row.get("confidence", 0.7),
                 "created_at": row.get("created_at"),
                 "source": row.get("source") or "observation",
             }
-            for row in rows
-        ]
+            if row.get("observation_type") == "correction":
+                stored_version = row.get("correction_contract_version")
+                contract_compatible = stored_version in {None, "correction-v1"}
+                version_current = stored_version == "correction-v1"
+                required_provenance = (
+                    row.get("source_surface"),
+                    row.get("actor_class"),
+                    row.get("content_hash"),
+                    row.get("created_at"),
+                )
+                item.update(
+                    {
+                        "contract_version": "correction-v1",
+                        "compatibility": {
+                            "state": "complete" if version_current else "degraded",
+                            "reason": (
+                                None
+                                if version_current
+                                else (
+                                    "legacy_missing_contract_version"
+                                    if stored_version is None
+                                    else "unsupported_stored_contract_version"
+                                )
+                            ),
+                            "stored_contract_version": _record_text(stored_version),
+                        },
+                        "correction_id": str(row.get("id", "")),
+                        "product_id": str(product),
+                        "lifecycle_state": row.get("lifecycle_state") if contract_compatible else None,
+                        "content_hash": row.get("content_hash") if contract_compatible else None,
+                        "relationship": {
+                            "affected_decision_id": (
+                                _record_text(row.get("affected_decision")) if contract_compatible else None
+                            ),
+                            "affected_task_id": _record_text(row.get("affected_task")) if contract_compatible else None,
+                            "supersedes_correction_id": (
+                                _record_text(row.get("supersedes_correction")) if contract_compatible else None
+                            ),
+                            "invalidates_correction_id": (
+                                _record_text(row.get("invalidates_correction")) if contract_compatible else None
+                            ),
+                            "contests_correction_id": (
+                                _record_text(row.get("contests_correction")) if contract_compatible else None
+                            ),
+                        },
+                        "provenance": {
+                            "source_surface": row.get("source_surface"),
+                            "actor": _record_text(row.get("actor_ref")),
+                            "actor_class": row.get("actor_class"),
+                            "recorded_at": row.get("created_at"),
+                            "completeness": (
+                                "complete" if version_current and all(required_provenance) else "degraded"
+                            ),
+                        },
+                    }
+                )
+            captured.append(item)
+        return captured
     except Exception:
         return []
 
@@ -51,6 +127,7 @@ class IntelContextResponse(BaseModel):
     corrections: list[dict] = []
     preferences: list[dict] = []
     maturation_level: str = "nascent"
+    maturation: dict = Field(default_factory=dict)
     framework_recommendation: str | None = None
     total_count: int = 0
 
@@ -75,11 +152,21 @@ async def get_intel_context(
 
     insights = list(snapshot.get("insights", []))
     captured = await _load_captured_observations(domain_path, product)
+    captured_corrections = [item for item in captured if item.get("insight_type") == "correction"]
+    correction_content = {item.get("content") for item in captured_corrections}
+    corrections = captured_corrections + [
+        item
+        for item in insights
+        if item.get("insight_type") == "correction" and item.get("content") not in correction_content
+    ]
     seen = {(item.get("content"), item.get("insight_type")) for item in insights}
-    insights.extend(item for item in captured if (item.get("content"), item.get("insight_type")) not in seen)
-    corrections = [i for i in insights if i.get("insight_type") == "correction"]
-    preferences = [i for i in insights if i.get("insight_type") == "preference"]
-    general = [i for i in insights if i.get("insight_type") not in ("correction", "preference")]
+    merged = insights + [
+        item
+        for item in captured
+        if item.get("insight_type") != "correction" and (item.get("content"), item.get("insight_type")) not in seen
+    ]
+    preferences = [i for i in merged if i.get("insight_type") == "preference"]
+    general = [i for i in merged if i.get("insight_type") not in ("correction", "preference")]
 
     # A flat topic is a discipline. Dotted paths progressively identify deeper
     # specialty nodes; `domain` was the pre-v54 name and is no longer accepted
@@ -90,8 +177,13 @@ async def get_intel_context(
     else:
         node_type = "discipline"
 
-    maturation = await calculate_maturation(node_type, domain_path, product)
-    maturation_level = maturation.get("phase_name", "nascent")
+    try:
+        maturation = await calculate_maturation(node_type, domain_path, product)
+        maturation_level = maturation.get("phase_name", "nascent")
+        maturation_state = {"state": "complete", "reason": None}
+    except Exception:
+        maturation_level = "nascent"
+        maturation_state = {"state": "degraded", "reason": "maturation_unavailable"}
 
     return {
         "domain_path": domain_path,
@@ -99,8 +191,9 @@ async def get_intel_context(
         "corrections": corrections,
         "preferences": preferences,
         "maturation_level": maturation_level,
+        "maturation": maturation_state,
         "framework_recommendation": None,
-        "total_count": len(insights),
+        "total_count": len(general) + len(corrections) + len(preferences),
     }
 
 

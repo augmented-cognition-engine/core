@@ -275,6 +275,63 @@ def test_nested_agent_error_is_used_when_top_level_failure_is_empty():
     assert "secret-value" not in message
 
 
+def test_execution_coverage_surfaces_partial_committee_without_exposing_secrets():
+    result = _result()
+    result.pattern_result = SimpleNamespace(
+        pattern_name="team",
+        agent_results=[
+            SimpleNamespace(agent_id="researcher", status="completed", duration_ms=120, error=None),
+            SimpleNamespace(
+                agent_id="skeptic",
+                status="timeout",
+                duration_ms=300_000,
+                error="tool timed out at /internal/tools token=secret-value",
+            ),
+            SimpleNamespace(agent_id="synthesizer", status="completed", duration_ms=80, error=None),
+        ],
+    )
+
+    coverage = tasks._execution_coverage(result)
+
+    assert coverage["state"] == "partial"
+    assert coverage["usable_output"] is True
+    assert coverage["contributors"]["total"] == 3
+    assert coverage["contributors"]["completed"] == 2
+    assert coverage["contributors"]["timed_out"] == 1
+    assert coverage["contributors"]["coverage_ratio"] == 0.6667
+    assert coverage["attention"]["required"] is True
+    public_error = coverage["contributors"]["items"][1]["error"]["message"]
+    assert "/internal/" not in public_error
+    assert "secret-value" not in public_error
+
+
+@pytest.mark.asyncio
+async def test_usable_partial_result_stays_completed_but_receipt_exposes_coverage():
+    store = MemoryReceiptStore()
+    result = _result()
+    result.pattern_result = SimpleNamespace(
+        pattern_name="fanout",
+        agent_results=[
+            SimpleNamespace(agent_id="arm-a", status="failed", duration_ms=10, error="provider timeout"),
+            SimpleNamespace(agent_id="arm-b", status="completed", duration_ms=20, error=None),
+        ],
+    )
+    with (
+        patch.object(tasks, "_update_receipt", new=store.update),
+        patch("core.engine.orchestration.orchestrate", new=AsyncMock(return_value=result)),
+    ):
+        await tasks._execute_receipt(
+            store.task_id,
+            TaskCreate(description="partial", workspace_id="workspace:test"),
+            {"sub": "user:test", "product": "product:test"},
+        )
+
+    assert store.state["status"] == "completed"
+    assert store.state["output"] == "durable output"
+    assert store.state["execution"]["state"] == "partial"
+    assert store.state["execution"]["contributors"]["failed"] == 1
+
+
 def test_budget_model_alias_resolves_before_provider_execution():
     from core.engine.core.config import settings
 

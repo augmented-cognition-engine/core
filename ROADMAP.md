@@ -47,7 +47,12 @@ Roadmap outcome states are used strictly:
 ## Next — durable product partnership
 
 - Make product context, decisions, evidence, corrections, and outcomes easier to inspect.
-- Improve evidence-bound reasoning, dissent, uncertainty, and human approval receipts.
+- Give decisions and human corrections stable identity, provenance, authority, disposition, and
+  typed relationships that survive restart.
+- Make problem classification, perspective selection, bounded contributor positions,
+  disagreement, and synthesis attributable without exposing hidden chain-of-thought.
+- Show when retained intelligence was retrieved, injected, reflected, and materially changed a
+  later decision—including null, stale, contested, harmful, and degraded cases.
 - Strengthen long-running task recovery, replay, portability, and resource reporting.
 - Turn Atrium research into a clearer read-only view of ACE state before adding new write or
   execution authority.
@@ -58,8 +63,17 @@ Roadmap outcome states are used strictly:
 | G1 | passed | Promote the read-only Living Product Graph projection into a supported inspectable journey | [`ace landscape`](docs/living-product-graph.md), [reproducible G1 evidence](docs/g1-living-product-graph-evidence.md), and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) prove the versioned, bounded, deterministic, assertion-backed read contract and strict read-only boundary |
 | IA-R1 | passed | Define the read-only information architecture for inspecting ACE state | [`/landscape`](docs/ia-r1-product-map.md), [reconciled IA-R1 evidence](docs/ia-r1-product-map.md), and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) establish the six-question operator hierarchy, visible provenance and uncertainty, bounded failures, stable identity, and strict no-write/no-execution authority |
 | I1 | ready | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | G1's stable read contract, R4's developer-preview golden path, and IA-R1's bounded operator hierarchy have passed; keep I1 separately scoped and add no execution authority |
+| I2 | not ready | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | Depends on I1 identities and read contracts; requires bounded perspective-selection reasons, contributor position artifacts, evidence references, meaningful disagreement, synthesis lineage, and honest partial/degraded coverage |
+| I3 | not ready | Make retained-intelligence use and its decision effect inspectable | Depends on I1 identities and R3 route evidence; requires retrieved/injected/reflected/material states, exact decision-field deltas, restart continuity, and explicit null, stale, contested, harmful, failure, and degraded outcomes |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
 | E1 | not ready | Expand extension examples and conformance coverage | Must preserve the kernel boundary and exactly eleven public MCP tools |
+
+I1-01 is tracked as a bounded candidate implementation only: it adds versioned task-backed
+decision receipts and linked correction provenance through the existing task/status/capture/load
+paths. I1 remains `ready`, not passed; API-owned fresh bootstrap and restart pass on the supported
+SurrealDB 3.1.4 pin, and mixed future receipt versions degrade without v1 reinterpretation, while
+full outcome reconciliation and the remaining I1 acceptance cases are still required. This slice
+makes no correctness, benefit, I2, I3, or R4 claim.
 
 ## Later — build, ship, and learn
 
@@ -72,7 +86,7 @@ Roadmap outcome states are used strictly:
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts and explicit execution authority |
-| L1 | not ready | Connect predicted outcomes to observed results so corrections improve later reasoning | Requires stable outcome identity, provenance, and calibration evidence |
+| L1 | not ready | Connect predicted outcomes to observed results so corrections can improve later reasoning | Requires I3 material-use evidence plus stable outcome identity, provenance, and calibration evidence; material influence alone is not assumed beneficial |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
 | E2 | not ready | Grow the provider-neutral extension and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy |
 
@@ -86,6 +100,12 @@ individual outcomes.
 [`docs/roadmap-status.md`](docs/roadmap-status.md) records the latest reconciled evidence snapshot,
 dependencies, and exact next dispatch. The GitHub Project is the live operational view; neither
 strategy prose nor an unverified implementation claim advances an outcome to `passed`.
+
+The I1–I3 outcomes are reasoning-product infrastructure, not demonstration scaffolding. A demo may
+reveal or exercise these gaps, but recording needs do not define their acceptance criteria or pull
+them ahead of the onboarding and compatibility spine. Frozen scenarios, raw-model controls,
+scorecards, video renderers, and recording automation remain evaluation/communication tooling
+unless they independently satisfy a supported user outcome.
 
 Public roadmap issues should state the user outcome, scope, acceptance evidence, dependencies,
 and maturity impact. They must not contain credentials, vulnerability details, customer
