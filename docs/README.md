@@ -38,8 +38,9 @@ ACE's public documentation is intentionally small and user-facing:
   observed friction, fixes, verification, passing activation outcomes, and explicit limitations.
 - [R2 release evidence](r2-release-evidence.md) — the focused 0.1.1 scope, clean installed-artifact
   checks, archive inspection, verification results, public release gates, and limitations.
-- [R5 0.1.2 release readiness](r5-release-readiness.md) — candidate scope, supported-versus-
-  experimental boundary, local artifact gates, and the external publication steps still required.
+- [R5 0.1.2 release evidence](r5-release-readiness.md) — supported-versus-experimental scope,
+  local gates, verified main/tag identity, GitHub Release, trusted PyPI publication, provenance,
+  artifact hashes, and clean public-index installation.
 - [Build your first extension](build-your-first-extension.md) — the practical extension path.
 - [Extension API](extension-api.md) — contracts available to extension authors.
 - [Capability evolution roadmap](capability-evolution-roadmap.md) — graph-native procedural

@@ -30,7 +30,7 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | R2 | Now | passed | [0.1.1 release evidence](r2-release-evidence.md) records clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install against verified main commit `1662eaa` |
 | R3 | Now | passed | [`r3-provider-validation.md`](r3-provider-validation.md) records the frozen provider/auth matrix, structured diagnostics, deterministic degraded states, live Claude and Codex/GPT subscription smokes, honest effort limits, and green current-main CI |
 | R4 | Now | passed | [Product-builder golden-path evidence](product-builder-golden-path.md) records a checksum-frozen public scenario, live Codex/GPT route, zero-intelligence clean start, inspectable multi-perspective reasoning, decision and correction capture, real service restart, fresh-invocation material reuse, bounded failures, exact eleven-tool preservation, and explicit portability and usability limitations |
-| R5 | Now | candidate | [`r5-release-readiness.md`](r5-release-readiness.md) records the backward-compatible 0.1.2 scope and passed local artifact, install, regression, schema-restart, security, Canvas, image, and Compose gates; external review/CI/commit/tag/trusted-publishing/public-index gates remain intentionally undone |
+| R5 | Now | passed | [`r5-release-readiness.md`](r5-release-readiness.md) records the backward-compatible 0.1.2 scope, passed local gates, verified main/tag identity, GitHub Release, trusted PyPI publication, cryptographic provenance, matching archive hashes, and a clean public-index install |
 | G1 | Next | passed | [`g1-living-product-graph-evidence.md`](g1-living-product-graph-evidence.md) records the frozen contract, supported `ace landscape` journey, deterministic replay, accepted/provisional/contested/rejected behavior, bounded failures, restart parity, strict read-only authority, and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) |
 | IA-R1 | Next | passed | [Read-only product-map evidence](ia-r1-product-map.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) record the six-question operator hierarchy, strict GET-only boundary, visible uncertainty/failures, local verification, and roadmap closeout |
 | I1 | Next | passed | [`decision-correction-receipts.md`](decision-correction-receipts.md) records stable identities, complete decision context, all four dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and schema-zero-to-v145 restart continuity |
@@ -61,9 +61,9 @@ without L1 outcome evidence.
 
 ## Exact next dispatch
 
-1. **Candidate — R5:** review the locally green 0.1.2 candidate and exact supported/experimental
-   boundary; commit and open the release PR, require green PR and merged-main CI, rebuild from the
-   verified commit, then tag and publish only through the documented trusted release path.
+1. **Completed — R5:** preserve the 0.1.2 supported/experimental boundary, verified tag and release
+   commit, trusted publication evidence, artifact hashes, provenance verification, and clean
+   public-index installation; R5 passed on 2026-07-22.
 2. **Completed — R2:** keep the 0.1.1 release evidence, PyPI package, GitHub Release, and living
    roadmap links intact; R2 passed on 2026-07-21.
 3. **Completed — R3:** preserve the supported provider/auth matrix, redacted live Claude and
