@@ -14,8 +14,8 @@ ACE's public documentation is intentionally small and user-facing:
   strict read-only boundary, degraded-state behavior, verification, and limitations.
 - [Frequently asked questions](faq.md) — partial failure, conflicting claims, confidence,
   provenance, and multi-product SurrealDB operation.
-- [Decision and correction receipts](decision-correction-receipts.md) — the bounded I1-01 candidate
-  contract, compatibility behavior, privacy boundary, restart evidence, and limitations.
+- [Decision and correction receipts](decision-correction-receipts.md) — the supported I1 contract,
+  lifecycle, compatibility behavior, privacy boundary, replay evidence, and limitations.
 - [Model providers](providers.md) — provider configuration and routing expectations.
 - [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
 - [Product-builder golden path](product-builder-golden-path.md) — a reproducible public product

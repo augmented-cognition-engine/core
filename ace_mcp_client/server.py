@@ -58,6 +58,7 @@ async def ace_capture_tool(
     supersedes_correction_id: str | None = None,
     invalidates_correction_id: str | None = None,
     contests_correction_id: str | None = None,
+    expires_at: str | None = None,
 ) -> dict:
     """Record an observation from this session. Types: correction, decision, preference, pattern, learning, error. Call when user corrects output ("that's wrong", "use X not Y"), makes a decision, states a preference, or when you discover a useful fact. ACE processes these into durable intelligence."""
     return await ace_capture(
@@ -71,6 +72,7 @@ async def ace_capture_tool(
         supersedes_correction_id=supersedes_correction_id,
         invalidates_correction_id=invalidates_correction_id,
         contests_correction_id=contests_correction_id,
+        expires_at=expires_at,
     )
 
 

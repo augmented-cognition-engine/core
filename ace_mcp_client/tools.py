@@ -99,6 +99,7 @@ async def ace_capture(
     supersedes_correction_id: str | None = None,
     invalidates_correction_id: str | None = None,
     contests_correction_id: str | None = None,
+    expires_at: str | None = None,
 ) -> dict:
     """Record an observation from the session."""
     c = _get_client()
@@ -115,6 +116,7 @@ async def ace_capture(
         "supersedes_correction_id": supersedes_correction_id,
         "invalidates_correction_id": invalidates_correction_id,
         "contests_correction_id": contests_correction_id,
+        "expires_at": expires_at,
     }
     body.update({key: value for key, value in optional.items() if value is not None})
     if observation_type == "correction":

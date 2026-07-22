@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException
+from fastapi.testclient import TestClient
 
 from core.engine.api import capture, intel, tasks
 from core.engine.api.capture import ObservationCreate
 from core.engine.api.tasks import StructuredDecisionCreate, TaskCreate
+from core.engine.product.correction_receipts import effective_correction_lifecycle
 from core.engine.product.decision_receipts import (
     build_decision_receipt,
     human_disposition,
@@ -31,6 +33,25 @@ class FakePool:
         yield self.db
 
 
+def test_existing_i1_read_and_write_surfaces_require_authentication():
+    app = FastAPI()
+    app.include_router(tasks.router)
+    app.include_router(capture.router)
+    app.include_router(intel.router)
+    client = TestClient(app)
+
+    assert client.get("/tasks/task:one").status_code == 401
+    assert client.patch("/tasks/task:one", json={"feedback_human": "accepted"}).status_code == 401
+    assert (
+        client.post(
+            "/observations",
+            json={"observation_type": "correction", "content": "private", "domain_path": "i1"},
+        ).status_code
+        == 401
+    )
+    assert client.get("/intel/context", params={"q": "i1", "product": "product:other"}).status_code == 401
+
+
 def test_complete_receipt_serializes_only_structured_facts():
     receipt = build_decision_receipt(
         task_id="task:one",
@@ -43,6 +64,8 @@ def test_complete_receipt_serializes_only_structured_facts():
             "alternatives": ["Parallel memory subsystem"],
             "reconsideration_conditions": ["Eleven-tool compatibility cannot be preserved"],
             "evidence_refs": ["test:i1"],
+            "originating_actor": "user:owner",
+            "originating_actor_class": "authenticated_user",
             "created_at": "2026-07-21T12:00:00Z",
         },
         route={"provider": "LocalProvider", "model": "local:test"},
@@ -51,6 +74,31 @@ def test_complete_receipt_serializes_only_structured_facts():
     assert receipt["decision_id"] == "decision:one"
     assert receipt["human_disposition"]["state"] == "unresolved"
     assert receipt["completeness"] == {"state": "complete", "missing_fields": [], "degraded_reason": None}
+    assert receipt["provenance"] == {"state": "complete", "missing_fields": []}
+
+
+def test_decision_receipt_redacts_credentials_in_every_public_text_field():
+    receipt = build_decision_receipt(
+        task_id="task:one",
+        product_id="product:alpha",
+        decision={
+            "id": "decision:one",
+            "selected_option": "Use token=do-not-return-this",
+            "scope": "password: also-private",
+            "assumptions": ["api_key=hidden"],
+            "alternatives": ["Bearer abc123"],
+            "reconsideration_conditions": ["secret=private"],
+            "evidence_refs": ["evidence:public"],
+            "originating_actor": "user:owner",
+            "originating_actor_class": "authenticated_user",
+            "created_at": "2026-07-21T12:00:00Z",
+        },
+        route={"provider": "LocalProvider", "model": "local:test"},
+    )
+    public_text = str(receipt)
+    for secret in ("do-not-return-this", "also-private", "hidden", "abc123", "private"):
+        assert secret not in public_text
+    assert public_text.count("<redacted>") == 5
 
 
 def test_legacy_prose_acceptance_never_becomes_human_acceptance():
@@ -155,6 +203,8 @@ async def test_structured_task_creates_canonical_pending_decision_once():
                     "alternatives": ["Add a twelfth tool"],
                     "reconsideration_conditions": ["Compatibility cannot be preserved"],
                     "evidence_refs": [],
+                    "originating_actor": "user:owner",
+                    "originating_actor_class": "authenticated_user",
                     "created_at": "2026-07-21T12:00:00Z",
                 }
             ],
@@ -225,6 +275,7 @@ async def test_linked_correction_capture_returns_stable_bounded_receipt():
         affected_decision_id="decision:one",
         affected_task_id="task:one",
         source_surface="thin_mcp",
+        expires_at="2020-01-01T00:00:00Z",
     )
     with (
         patch.object(capture, "pool", new=FakePool(db)),
@@ -240,6 +291,9 @@ async def test_linked_correction_capture_returns_stable_bounded_receipt():
     assert correction["affected_task_id"] == "task:one"
     assert correction["actor"] == "user:owner"
     assert len(correction["content_hash"]) == 64
+    assert correction["stored_lifecycle_state"] == "active"
+    assert correction["lifecycle_state"] == "expired"
+    assert correction["expires_at"].isoformat() == "2020-01-01T00:00:00+00:00"
 
 
 @pytest.mark.asyncio
@@ -257,6 +311,51 @@ async def test_correction_target_access_fails_closed_across_products():
             await capture.create_observation(body, {"sub": "user:owner", "product": "product:alpha"})
     assert exc.value.status_code == 404
     assert db.query.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_status_and_feedback_fail_closed_across_products():
+    foreign = {
+        "id": "task:foreign",
+        "product": "product:other",
+        "status": "completed",
+        "decision_receipt": {"contract_version": "decision-receipt-v1"},
+    }
+    with patch.object(tasks, "_get_task_record", new=AsyncMock(return_value=foreign)):
+        with pytest.raises(HTTPException) as status_exc:
+            await tasks.get_task("task:foreign", {"sub": "user:owner", "product": "product:alpha"})
+    assert status_exc.value.status_code == 404
+
+    db = AsyncMock()
+    db.query = AsyncMock(return_value=[foreign])
+    body = tasks.TaskFeedbackRequest(feedback_human="accepted")
+    with patch.object(tasks, "pool", new=FakePool(db)):
+        with pytest.raises(HTTPException) as feedback_exc:
+            await tasks.patch_task_feedback(
+                "task:foreign",
+                body,
+                {"sub": "user:owner", "product": "product:alpha"},
+            )
+    assert feedback_exc.value.status_code == 404
+    assert db.query.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_load_ignores_requested_foreign_product_and_uses_authenticated_product():
+    db = AsyncMock()
+    db.query = AsyncMock(return_value=[])
+    with (
+        patch.object(intel, "pool", new=FakePool(db)),
+        patch.object(intel, "load_intelligence", new=AsyncMock(return_value={"insights": []})) as load,
+        patch.object(intel, "calculate_maturation", new=AsyncMock(return_value={"phase_name": "nascent"})),
+    ):
+        await intel.get_intel_context(
+            q="product decisions",
+            product="product:other",
+            user={"sub": "user:owner", "product": "product:alpha"},
+        )
+    assert load.await_args.args[1] == "product:alpha"
+    assert db.query.await_args.args[1]["product"] == "product:alpha"
 
 
 @pytest.mark.asyncio
@@ -294,6 +393,40 @@ async def test_correction_relationship_transitions_preserve_prior_row(field: str
     transition_call = db.query.await_args_list[2]
     assert transition_call.args[1]["state"] == target_state
     assert result["correction"][field] == "observation:prior"
+
+
+def test_correction_expiry_is_projected_without_overwriting_stored_lifecycle():
+    now = datetime(2026, 7, 22, tzinfo=timezone.utc)
+    assert effective_correction_lifecycle("active", now - timedelta(seconds=1), now=now) == "expired"
+    assert effective_correction_lifecycle("active", now + timedelta(seconds=1), now=now) == "active"
+    assert effective_correction_lifecycle("superseded", now - timedelta(seconds=1), now=now) == "superseded"
+
+
+@pytest.mark.asyncio
+async def test_ace_load_projects_expiry_and_explicit_incomplete_provenance():
+    db = AsyncMock()
+    db.query = AsyncMock(
+        return_value=[
+            {
+                "id": "observation:expired",
+                "content": "Time-bounded correction",
+                "observation_type": "correction",
+                "correction_contract_version": "correction-v1",
+                "lifecycle_state": "active",
+                "expires_at": "2020-01-01T00:00:00Z",
+                "source_surface": "thin_mcp",
+                "actor_class": "authenticated_user",
+                "created_at": "2026-07-21T12:00:00Z",
+            }
+        ]
+    )
+    with patch.object(intel, "pool", new=FakePool(db)):
+        correction = (await intel._load_captured_observations("product.decisions", "product:alpha"))[0]
+    assert correction["lifecycle_state"] == "expired"
+    assert correction["stored_lifecycle_state"] == "active"
+    assert correction["expires_at"] == "2020-01-01T00:00:00Z"
+    assert correction["provenance"]["completeness"] == "incomplete"
+    assert correction["provenance"]["missing_fields"] == ["actor", "content_hash"]
 
 
 @pytest.mark.asyncio
@@ -373,3 +506,11 @@ def test_v144_migration_is_additive_and_does_not_infer_legacy_facts():
     assert "affected_decision" in migration
     assert "content_hash" in migration
     assert "UPDATE task SET decision_receipt" not in migration
+
+
+def test_v145_closeout_migration_is_additive_and_preserves_history():
+    migration = (Path(__file__).parents[1] / "core/schema/v145_i1_closeout.surql").read_text()
+    assert "originating_actor_class" in migration
+    assert "expires_at" in migration
+    assert "REMOVE" not in migration
+    assert "DELETE" not in migration

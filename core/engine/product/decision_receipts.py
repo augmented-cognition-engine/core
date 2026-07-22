@@ -7,6 +7,7 @@ infers decision facts from task prose or model output.
 
 from __future__ import annotations
 
+import re
 from copy import deepcopy
 from datetime import datetime
 
@@ -22,6 +23,19 @@ _REQUIRED_CAPTURED_FIELDS = (
     "assumptions",
     "alternatives",
     "reconsideration_conditions",
+    "evidence_refs",
+    "originating_actor",
+    "originating_actor_class",
+    "product_id",
+    "created_at",
+    "route.provider",
+    "route.model",
+)
+
+_PROVENANCE_FIELDS = (
+    "originating_task_id",
+    "originating_actor",
+    "originating_actor_class",
     "product_id",
     "created_at",
     "route.provider",
@@ -29,10 +43,18 @@ _REQUIRED_CAPTURED_FIELDS = (
 )
 
 
+def _redact_credentials(value: str) -> str:
+    return re.sub(
+        r"(?i)\b(bearer|api[_-]?key|token|password|secret)\b\s*[:=]?\s*[^\s,;]+",
+        r"\1=<redacted>",
+        value,
+    )
+
+
 def _bounded_text(value: object, limit: int = 1_000) -> str | None:
     if value is None:
         return None
-    text = " ".join(str(value).split())
+    text = _redact_credentials(" ".join(str(value).split()))
     return text[:limit] if text else None
 
 
@@ -42,6 +64,46 @@ def _bounded_list(value: object, *, limit: int = 25) -> list[str] | None:
     if not isinstance(value, (list, tuple)):
         return None
     return [item for raw in value[:limit] if (item := _bounded_text(raw)) is not None]
+
+
+def _field_value(receipt: dict, field: str) -> object:
+    if field.startswith("route."):
+        return receipt["route"].get(field.split(".", 1)[1])
+    return receipt.get(field)
+
+
+def _missing_fields(receipt: dict, fields: tuple[str, ...]) -> list[str]:
+    missing = []
+    for field in fields:
+        value = _field_value(receipt, field)
+        if value is None or value == "":
+            missing.append(field)
+    return missing
+
+
+def _provenance(receipt: dict) -> dict:
+    missing = _missing_fields(receipt, _PROVENANCE_FIELDS)
+    return {"state": "incomplete" if missing else "complete", "missing_fields": missing}
+
+
+def _normalized_disposition(value: object) -> tuple[dict, bool]:
+    stored = value if isinstance(value, dict) else {}
+    compatible = not stored or (
+        stored.get("contract_version") == HUMAN_DISPOSITION_VERSION and stored.get("state") in HUMAN_DISPOSITION_STATES
+    )
+    if not compatible:
+        return unresolved_disposition(), False
+    return {
+        **unresolved_disposition(),
+        "state": stored.get("state", "unresolved"),
+        "actor": _bounded_text(stored.get("actor"), 200),
+        "actor_class": _bounded_text(stored.get("actor_class"), 80),
+        "authority": _bounded_text(stored.get("authority"), 120),
+        "surface": _bounded_text(stored.get("surface"), 80),
+        "rationale": _bounded_text(stored.get("rationale"), 2_000),
+        "recorded_at": stored.get("recorded_at"),
+        "policy_version": _bounded_text(stored.get("policy_version"), 120),
+    }, True
 
 
 def unresolved_disposition() -> dict:
@@ -104,7 +166,9 @@ def build_decision_receipt(
         "assumptions": _bounded_list(decision.get("assumptions")),
         "alternatives": _bounded_list(decision.get("alternatives")),
         "reconsideration_conditions": _bounded_list(decision.get("reconsideration_conditions")),
-        "evidence_refs": _bounded_list(decision.get("evidence_refs")),
+        "evidence_refs": _bounded_list(decision.get("evidence_refs"), limit=50),
+        "originating_actor": _bounded_text(decision.get("originating_actor"), 200),
+        "originating_actor_class": _bounded_text(decision.get("originating_actor_class"), 80),
         "product_id": _bounded_text(product_id, 200),
         "created_at": decision.get("created_at"),
         "route": {
@@ -113,14 +177,7 @@ def build_decision_receipt(
         },
         "human_disposition": deepcopy(disposition) if disposition else unresolved_disposition(),
     }
-    missing = []
-    for field in _REQUIRED_CAPTURED_FIELDS:
-        if field.startswith("route."):
-            value = receipt["route"].get(field.split(".", 1)[1])
-        else:
-            value = receipt.get(field)
-        if value is None:
-            missing.append(field)
+    missing = _missing_fields(receipt, _REQUIRED_CAPTURED_FIELDS)
     if receipt["decision_id"] is None:
         state = "degraded"
     elif missing:
@@ -132,6 +189,7 @@ def build_decision_receipt(
         "missing_fields": missing,
         "degraded_reason": _bounded_text(degraded_reason, 400),
     }
+    receipt["provenance"] = _provenance(receipt)
     return receipt
 
 
@@ -162,37 +220,28 @@ def normalize_decision_receipt(receipt: dict | None, *, task: dict) -> dict:
             degraded_reason=f"unsupported_decision_receipt_version:{stored_version}",
         )
     route = receipt.get("route") if isinstance(receipt.get("route"), dict) else {}
-    stored_disposition = receipt.get("human_disposition") if isinstance(receipt.get("human_disposition"), dict) else {}
-    disposition_compatible = not stored_disposition or (
-        stored_disposition.get("contract_version") == HUMAN_DISPOSITION_VERSION
-        and stored_disposition.get("state") in HUMAN_DISPOSITION_STATES
-    )
-    disposition = (
-        {**unresolved_disposition(), **stored_disposition} if disposition_compatible else unresolved_disposition()
-    )
+    disposition, disposition_compatible = _normalized_disposition(receipt.get("human_disposition"))
     normalized = {
         "contract_version": DECISION_RECEIPT_VERSION,
-        "decision_id": receipt.get("decision_id"),
-        "originating_task_id": receipt.get("originating_task_id") or _bounded_text(task.get("id"), 200),
-        "selected_option": receipt.get("selected_option"),
-        "scope": receipt.get("scope"),
-        "assumptions": receipt.get("assumptions"),
-        "alternatives": receipt.get("alternatives"),
-        "reconsideration_conditions": receipt.get("reconsideration_conditions"),
-        "evidence_refs": receipt.get("evidence_refs"),
-        "product_id": receipt.get("product_id") or _bounded_text(task.get("product"), 200),
+        "decision_id": _bounded_text(receipt.get("decision_id"), 200),
+        "originating_task_id": _bounded_text(receipt.get("originating_task_id") or task.get("id"), 200),
+        "selected_option": _bounded_text(receipt.get("selected_option")),
+        "scope": _bounded_text(receipt.get("scope"), 2_000),
+        "assumptions": _bounded_list(receipt.get("assumptions")),
+        "alternatives": _bounded_list(receipt.get("alternatives")),
+        "reconsideration_conditions": _bounded_list(receipt.get("reconsideration_conditions")),
+        "evidence_refs": _bounded_list(receipt.get("evidence_refs"), limit=50),
+        "originating_actor": _bounded_text(receipt.get("originating_actor"), 200),
+        "originating_actor_class": _bounded_text(receipt.get("originating_actor_class"), 80),
+        "product_id": _bounded_text(receipt.get("product_id") or task.get("product"), 200),
         "created_at": receipt.get("created_at"),
-        "route": {"provider": route.get("provider"), "model": route.get("model")},
+        "route": {
+            "provider": _bounded_text(route.get("provider"), 200),
+            "model": _bounded_text(route.get("model"), 300),
+        },
         "human_disposition": disposition,
     }
-    missing = []
-    for field in _REQUIRED_CAPTURED_FIELDS:
-        if field.startswith("route."):
-            value = normalized["route"].get(field.split(".", 1)[1])
-        else:
-            value = normalized.get(field)
-        if value is None:
-            missing.append(field)
+    missing = _missing_fields(normalized, _REQUIRED_CAPTURED_FIELDS)
     if not disposition_compatible:
         missing.append("human_disposition.contract_version_or_state")
     stored_completeness = receipt.get("completeness") if isinstance(receipt.get("completeness"), dict) else {}
@@ -211,6 +260,7 @@ def normalize_decision_receipt(receipt: dict | None, *, task: dict) -> dict:
             else stored_completeness.get("degraded_reason")
         ),
     }
+    normalized["provenance"] = _provenance(normalized)
     return normalized
 
 

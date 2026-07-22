@@ -44,6 +44,13 @@ async def test_captured_observation_load_preserves_durable_identity_and_provenan
     assert {key: rows[0][key] for key in expected} == expected
     assert rows[0]["contract_version"] == "correction-v1"
     assert rows[0]["correction_id"] == "observation:durable-guidance"
-    assert rows[0]["provenance"]["completeness"] == "degraded"
+    assert rows[0]["provenance"]["completeness"] == "incomplete"
+    assert rows[0]["provenance"]["missing_fields"] == [
+        "contract_version",
+        "source_surface",
+        "actor",
+        "actor_class",
+        "content_hash",
+    ]
     query = db.query.await_args.args[0]
     assert "SELECT id, content" in query

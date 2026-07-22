@@ -17,6 +17,7 @@ from core.engine.core.auth import get_current_user
 from core.engine.core.config import settings
 from core.engine.core.db import parse_one, pool
 from core.engine.core.tasks import logged_task
+from core.engine.product.correction_receipts import effective_correction_lifecycle
 
 router = APIRouter(tags=["capture"])
 
@@ -51,6 +52,7 @@ class ObservationCreate(BaseModel):
     supersedes_correction_id: str | None = Field(default=None, max_length=200)
     invalidates_correction_id: str | None = Field(default=None, max_length=200)
     contests_correction_id: str | None = Field(default=None, max_length=200)
+    expires_at: datetime | None = None
 
     @field_validator("observation_type")
     @classmethod
@@ -78,6 +80,8 @@ class ObservationCreate(BaseModel):
         )
         if self.observation_type != "correction" and any(link_values):
             raise ValueError("decision, task, and correction links are only valid for correction observations")
+        if self.observation_type != "correction" and self.expires_at is not None:
+            raise ValueError("expiry is only valid for correction observations")
         transitions = (
             self.supersedes_correction_id,
             self.invalidates_correction_id,
@@ -140,6 +144,7 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
                 supersedes_correction = IF $supersedes THEN <record>$supersedes ELSE NONE END,
                 invalidates_correction = IF $invalidates THEN <record>$invalidates ELSE NONE END,
                 contests_correction = IF $contests THEN <record>$contests ELSE NONE END,
+                expires_at = IF $is_correction THEN $expires_at ELSE NONE END,
                 status = IF $is_correction THEN 'processed' ELSE 'pending' END,
                 processed_at = IF $is_correction THEN time::now() ELSE NONE END,
                 created_at = time::now()
@@ -160,6 +165,7 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
                 "supersedes": body.supersedes_correction_id,
                 "invalidates": body.invalidates_correction_id,
                 "contests": body.contests_correction_id,
+                "expires_at": body.expires_at,
             },
         )
         row = parse_one(result)
@@ -207,7 +213,9 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
             "created_at": row.get("created_at"),
             "content_hash": content_hash,
             "confidence": body.confidence,
-            "lifecycle_state": body.lifecycle_state,
+            "lifecycle_state": effective_correction_lifecycle(body.lifecycle_state, body.expires_at),
+            "stored_lifecycle_state": body.lifecycle_state,
+            "expires_at": body.expires_at,
             "supersedes_correction_id": body.supersedes_correction_id,
             "invalidates_correction_id": body.invalidates_correction_id,
             "contests_correction_id": body.contests_correction_id,

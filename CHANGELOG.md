@@ -15,9 +15,11 @@ Notable user- and contributor-visible changes are recorded here.
 - The experimental conflict workflow now persists product-scoped pending conflicts and quarantines
   both claims atomically, writes a durable attention signal, and returns provenance-bearing claims
   and resolution actions through the authenticated conflict API.
-- Candidate I1 decision and correction receipts preserve structured decisions, authenticated human
-  disposition, typed correction relationships, explicit legacy/future-version degradation, and
-  API-owned restart persistence without widening the eleven-tool MCP surface.
+- Complete I1 decision and correction inspection with structured evidence, assumptions,
+  alternatives and reconsideration conditions; all four human dispositions; preserved
+  supersession, invalidation, contestation and expiry; explicit incomplete provenance; fail-closed
+  authorization, isolation and redaction; and schema-zero-to-v145 replay without widening the
+  eleven-tool MCP surface.
 - API startup and the standalone schema installer share one audited historical-migration
   compatibility policy while migrations v142 and later remain fail-closed.
 
