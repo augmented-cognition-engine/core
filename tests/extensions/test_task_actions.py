@@ -107,11 +107,16 @@ async def test_provider_free_conformance_covers_manifest_plan_outcome_and_receip
     assert result["passed"] is True
     assert {check["name"] for check in result["checks"]} == {
         "capability_manifest",
+        "deterministic_manifest",
         "input_contract_negotiation",
         "preparation_and_reference_accounting",
         "outcome_projection_and_validation",
+        "public_receipt_schema",
         "bounded_public_receipt",
         "private_plan_not_public",
+        "private_resolver_content_not_public",
+        "projection_failure_preserves_raw_core_output",
+        "credential_redaction",
     }
 
 

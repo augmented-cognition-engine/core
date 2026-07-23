@@ -105,8 +105,26 @@ recorded as unavailable and rejected.
 The in-tree reference extension registers `product:product-check`, which declares reference
 identities without pretending to retrieve records it cannot access. The provider-free
 `run_task_action_conformance` helper checks manifest shape, input-version negotiation, exact
-reference accounting, outcome validation, receipt bounds, and private-plan exclusion. It does not
-replace runtime, persistence, isolation, cancellation, or version-skew tests.
+reference accounting, outcome validation, receipt schema and bounds, private-plan and resolver
+content exclusion, projection-failure preservation, and credential redaction. It does not replace
+runtime, persistence, isolation, cancellation, or version-skew tests.
+
+The reusable helper and Core runtime suite divide conformance evidence as follows:
+
+| Conformance case | Evidence owner |
+|---|---|
+| Registration, deterministic discovery, negotiation, valid preparation, completed receipt | `run_task_action_conformance` plus `tests/extensions/test_task_actions.py` |
+| Idempotent replay and duplicate-key conflict | Core durable-task contract in `tests/test_task_public_contract.py` |
+| Projection failure, missing resolver accounting, bounded/redacted output | Provider-free helper and extension contract/fixture tests |
+| Extension unavailable after restart, foreign-product access | `tests/test_extension_invocations_api.py` |
+| Runtime restart | Real SurrealKV two-process test in `tests/test_i1_restart_persistence.py` |
+| Concurrent resume and attempt N+1 | `tests/test_extension_invocations_api.py` |
+| Cancellation states | Extension API and Core task public-contract tests |
+| Unknown contract versions and malicious stored payloads | Compatibility fixtures in `tests/fixtures/extension_invocations` |
+
+An extension can run the provider-free helper for its own action implementation. Runtime-wide
+claims remain Core-owned and must use the Core API/persistence suite; an extension callback alone
+cannot prove database isolation, restart recovery, or concurrency.
 
 ## Authority and isolation
 
@@ -156,24 +174,30 @@ Production startup replays schema zero through v157.
 The prior attempt becomes degraded and resumable. The fresh successor completes with attempt
 number 2, links back to the prior task, updates the predecessor's successor link, retains
 provider/model provenance, and preserves the existing I1/I2/I3 receipts in the same restart
-journey. Observed result: **1 passed in 31.44 seconds**.
+journey. Observed result: **1 passed in 27.11 seconds**.
 
 ## Verification record
 
 | Gate | Result |
 |---|---|
-| Focused invocation/task/kernel/migration contracts | **76 passed** |
-| Broader extension/kernel/MCP contracts | **96 passed** |
+| Focused invocation/task/kernel/migration contracts | **78 passed** |
+| Broader extension/kernel/MCP contracts | **98 passed** |
 | Real schema-zero-to-v157 database/API restart | **1 passed** |
 | Canvas resume helper | **30 passed** |
 | Naked Canvas build and extension-leakage boundary | **9 passed; build passed** |
-| Full Canvas suite and production build | **290 passed; build passed** |
-| Full non-E2E suite with extensions | **6,621 passed, 46 skipped, 235 deselected** |
-| Full non-E2E naked-kernel suite | **6,613 passed, 47 skipped, 242 deselected** |
+| Core-only Canvas suite and production build | **290 passed; build passed** |
+| Wired Marketing Canvas fixture | **452 passed; build passed** |
+| Full non-E2E suite with extensions | **6,636 passed, 46 skipped, 235 deselected** |
+| Full non-E2E naked-kernel suite | **6,628 passed, 47 skipped, 242 deselected** |
 | Reference/scaffold/fixture contract | **39 passed** |
-| Repository Ruff and format | **passed; 1,816 files formatted** |
+| Repository Ruff and format | **passed; 1,819 files formatted** |
 | actionlint | **passed** |
 | Wheel and sdist build/inventory from commit archive | **passed; v157, API, contracts, reference action, and evidence present; tests/UI/private files absent** |
+
+The two full-suite totals include nine passing tests from the merged L1 preregistration packet.
+The wired Marketing Canvas figure is the fixture-backed result for the same merged runtime and
+Marketing integration; the current Core worktree has no adjacent Marketing UI fixture, so the
+current-turn rerun is the 290-test Core-only row.
 
 Commands executed from the repository root:
 
