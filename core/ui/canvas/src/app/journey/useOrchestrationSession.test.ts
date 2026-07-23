@@ -20,9 +20,26 @@ import { describe, expect, test } from 'vitest'
 import {
   applyRemoteEvent,
   freshInitialState,
+  orchestrationSessionStartMode,
   reconnectBackoffMs,
   steerFrame,
 } from './useOrchestrationSession'
+
+describe('orchestrationSessionStartMode', () => {
+  test('replays only when both durable session and run coordinates are present', () => {
+    expect(orchestrationSessionStartMode(null, {
+      resumeSessionId: 'session:one',
+      resumeRunId: 'run:one',
+    })).toBe('resume')
+    expect(orchestrationSessionStartMode(null, { resumeSessionId: 'session:one' })).toBe('idle')
+  })
+
+  test('starts fresh only from a non-empty topic', () => {
+    expect(orchestrationSessionStartMode('  decide this  ', {})).toBe('fresh')
+    expect(orchestrationSessionStartMode('  ', {})).toBe('idle')
+    expect(orchestrationSessionStartMode(null, {})).toBe('idle')
+  })
+})
 
 describe('steerFrame', () => {
   test('builds the same {type:message} frame the initial topic uses', () => {

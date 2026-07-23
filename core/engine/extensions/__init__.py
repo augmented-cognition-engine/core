@@ -11,7 +11,32 @@ Public surface:
 """
 
 from core.engine.extensions.base import Extension
+from core.engine.extensions.conformance import run_task_action_conformance
+from core.engine.extensions.invocation import (
+    ContextResolution,
+    ExtensionActorContext,
+    ExtensionArtifactProvenance,
+    ExtensionInvocationEnvelope,
+    ExtensionOutcome,
+    ExtensionReference,
+    ExtensionTaskPlan,
+    ResolvedContextRecord,
+)
 from core.engine.extensions.loader import load_extensions, loaded_extensions
 from core.engine.extensions.registry import Registry
 
-__all__ = ["Extension", "Registry", "load_extensions", "loaded_extensions"]
+__all__ = [
+    "ContextResolution",
+    "Extension",
+    "ExtensionActorContext",
+    "ExtensionArtifactProvenance",
+    "ExtensionInvocationEnvelope",
+    "ExtensionOutcome",
+    "ExtensionReference",
+    "ExtensionTaskPlan",
+    "ResolvedContextRecord",
+    "Registry",
+    "load_extensions",
+    "loaded_extensions",
+    "run_task_action_conformance",
+]

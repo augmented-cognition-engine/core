@@ -16,6 +16,13 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
+from core.engine.extensions.invocation import (
+    PrepareTaskAction,
+    ProjectOutcome,
+    RegisteredTaskAction,
+    ValidateOutcome,
+)
+
 # Extension-contributed stores the kernel reads from (instruments are the exception —
 # they go straight to the existing instrument registry).
 _recipes: dict[str, Any] = {}
@@ -35,10 +42,17 @@ _briefing_sections: list[dict[str, Any]] = []  # {"builder": async fn, "metrics_
 # violation = {rule, severity ('enforced'|'advisory'), file, line, snippet}. Enforced ones
 # fail the build closed; advisory ones only surface. Kept generic — no policy names here.
 _verify_checks: list[Callable[[list[dict]], list[dict]]] = []
+# Extension-owned task preparation and outcome projection. Core owns the
+# invocation lifecycle; these callables are the domain resolution boundary.
+_task_actions: dict[str, RegisteredTaskAction] = {}
 
 
 class Registry:
     """The extension facade. An extension's ``register(reg)`` calls these methods."""
+
+    def __init__(self, *, extension_id: str | None = None, extension_version: str | None = None) -> None:
+        self._extension_id = extension_id
+        self._extension_version = extension_version
 
     def register_instrument(self, slug: str, module_path: str) -> None:
         """Register an LLM pipeline instrument (module exposing ``run(**kwargs)``)."""
@@ -137,6 +151,59 @@ class Registry:
         """
         _briefing_sections.append({"builder": builder, "metrics_key": metrics_key, "timeout": timeout})
 
+    def register_task_action(
+        self,
+        action: str,
+        prepare: PrepareTaskAction,
+        *,
+        project_outcome: ProjectOutcome | None = None,
+        validate_outcome: ValidateOutcome | None = None,
+        input_contract: str = "extension-invocation-v1",
+        accepted_input_contract_versions: list[str] | None = None,
+        output_contract: str = "extension-outcome-v1",
+        description: str = "",
+        lifecycle_operations: list[str] | None = None,
+        cancellation_supported: bool = False,
+        resolver_capabilities: list[str] | None = None,
+        artifact_capabilities: list[str] | None = None,
+        required_authority: list[str] | None = None,
+        feature_flags: list[str] | None = None,
+    ) -> None:
+        """Register an extension-owned resolver/projector on Core's task lifecycle.
+
+        ``prepare`` receives the structured invocation envelope plus an
+        authenticated actor scope and returns an ``ExtensionTaskPlan``.
+        ``project_outcome`` may convert completed output into bounded domain JSON.
+        Core remains responsible for idempotency, persistence, attempt lineage,
+        provider execution, and the public receipt.
+
+        This method requires the scoped Registry supplied by the extension loader;
+        a bare ``Registry()`` cannot claim an extension identity.
+        """
+        if not self._extension_id or not self._extension_version:
+            raise RuntimeError("register_task_action requires an extension-scoped Registry")
+        registered = RegisteredTaskAction(
+            extension_id=self._extension_id,
+            extension_version=self._extension_version,
+            action=action,
+            prepare=prepare,
+            project_outcome=project_outcome,
+            validate_outcome=validate_outcome,
+            input_contract=input_contract,
+            accepted_input_contract_versions=accepted_input_contract_versions or [input_contract],
+            output_contract=output_contract,
+            description=description,
+            lifecycle_operations=lifecycle_operations or ["submit", "retrieve", "history", "retry"],
+            cancellation_supported=cancellation_supported,
+            resolver_capabilities=resolver_capabilities or [],
+            artifact_capabilities=artifact_capabilities or [],
+            required_authority=required_authority or [],
+            feature_flags=feature_flags or [],
+        )
+        if registered.key in _task_actions:
+            raise RuntimeError(f"Task action '{registered.key}' is already registered")
+        _task_actions[registered.key] = registered
+
 
 # ---- read-side accessors (kernel consumes these as each capability is wired) ----
 # Each accessor ensures extensions are loaded first, so a consume-side reader never
@@ -196,3 +263,13 @@ def registered_briefing_sections() -> list[dict[str, Any]]:
 def registered_verify_checks() -> list[Callable[[list[dict]], list[dict]]]:
     _ensure_extensions_loaded()
     return list(_verify_checks)
+
+
+def registered_task_actions() -> dict[str, RegisteredTaskAction]:
+    _ensure_extensions_loaded()
+    return dict(_task_actions)
+
+
+def registered_task_action(extension_id: str, action: str) -> RegisteredTaskAction | None:
+    _ensure_extensions_loaded()
+    return _task_actions.get(f"{extension_id}:{action}")

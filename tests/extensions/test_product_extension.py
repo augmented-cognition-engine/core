@@ -28,6 +28,7 @@ def test_product_extension_register_wires_recipe_instruments_tool():
     from extensions.reference import ProductExtension
 
     captured = {
+        "task_actions": [],
         "instruments": [],
         "recipes": [],
         "tools": [],
@@ -35,6 +36,9 @@ def test_product_extension_register_wires_recipe_instruments_tool():
     }
 
     class _FakeRegistry:
+        def register_task_action(self, action, prepare, **kwargs):
+            captured["task_actions"].append((action, prepare, kwargs))
+
         def register_instrument(self, slug, module_path):
             captured["instruments"].append((slug, module_path))
 
@@ -48,6 +52,14 @@ def test_product_extension_register_wires_recipe_instruments_tool():
             captured["sentinels"].append((name, cron))
 
     ProductExtension().register(_FakeRegistry())
+
+    # Durable domain action — one bounded reference-aware example.
+    assert len(captured["task_actions"]) == 1
+    action, prepare, options = captured["task_actions"][0]
+    assert action == "product-check"
+    assert callable(prepare)
+    assert options["cancellation_supported"] is True
+    assert "history" in options["lifecycle_operations"]
 
     # Instruments — exactly the two bespoke ones
     slugs = {s for s, _ in captured["instruments"]}

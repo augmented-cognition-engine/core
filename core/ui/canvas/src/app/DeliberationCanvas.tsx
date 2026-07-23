@@ -243,13 +243,18 @@ const monoOverline =
   'font-mono text-[10px] tabular-nums tracking-widest text-muted-foreground/80'
 
 export function DeliberationCanvas() {
-  // Live session — topic / session id come from the URL (?topic=…, ?session=…); the AceFlyout and
-  // resume links populate these. No params → no live session, and the surface shows the warm demo.
+  // Live session — fresh work uses ?topic; durable replay uses ?session + ?run
+  // (+ optional ?seq cursor). No complete launch coordinates means no live session.
   const [params, setParams] = useSearchParams()
   const urlTopic = params.get('topic')
   const urlSession = params.get('session')
+  const urlRun = params.get('run')
+  const rawSeq = params.get('seq')
+  const urlSeq = rawSeq !== null && /^\d+$/.test(rawSeq) ? Number(rawSeq) : undefined
   const live = useOrchestrationSession(urlTopic, {
     resumeSessionId: urlSession ?? undefined,
+    resumeRunId: urlRun ?? undefined,
+    resumeLastSeq: urlSeq,
     autoReconnect: true,
   })
 
@@ -278,8 +283,8 @@ export function DeliberationCanvas() {
           ? { label: 'disconnected', pulse: false }
           : { label: 'connecting', pulse: true }
     : playing
-      ? { label: 'live', pulse: true }
-      : { label: 'paused', pulse: false }
+      ? { label: 'prepared demo', pulse: false }
+      : { label: 'demo paused', pulse: false }
 
   // The voice line narrates THIS room. Live mode speaks from the projected state — the speaking seat
   // and the current stage — never the demo script.
@@ -296,8 +301,8 @@ export function DeliberationCanvas() {
             ? `The room is in ${currentStage.name}.`
             : 'The room is warming up — seats arrive as the committee composes.'
     : playing
-      ? 'Architect just bridged Researcher\'s framing — the room is converging on outcomes-first with a pricing receipt.'
-      : 'Paused. The room will pick up where it left off when you press play.'
+      ? 'Prepared demonstration — Architect bridges Researcher\'s framing in this scripted scenario.'
+      : 'Prepared demonstration paused. Press play to continue the script.'
 
   const pins: readonly PinnedNote[] = [...localPins, ...view.pins]
 

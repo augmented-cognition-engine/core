@@ -45,6 +45,24 @@ class ProductExtension:
     version = "0.1.2"
 
     def register(self, reg: "Registry") -> None:
+        from extensions.reference.invocation import (
+            OUTCOME_CONTRACT,
+            prepare_product_check,
+            project_product_check,
+        )
+
+        reg.register_task_action(
+            "product-check",
+            prepare_product_check,
+            project_outcome=project_product_check,
+            output_contract=OUTCOME_CONTRACT,
+            description="Evaluate a bounded product question through Core's durable task runtime.",
+            lifecycle_operations=["submit", "retrieve", "history", "retry", "cancel"],
+            cancellation_supported=True,
+            resolver_capabilities=["declared-reference-identities"],
+            artifact_capabilities=[],
+        )
+
         # --- 1. Instruments — bespoke LLM pipeline steps used by the recipe ----
         for slug, module_path in _INSTRUMENTS.items():
             reg.register_instrument(slug, module_path)

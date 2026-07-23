@@ -1,0 +1,42 @@
+{
+  "contract_version": "extension-invocation-receipt-v1",
+  "receipt_id": "extension-invocation:task:fixture",
+  "invocation_id": "task:fixture",
+  "correlation_id": "corr:fixture-degraded",
+  "capability": {},
+  "attempt": {
+    "number": 1,
+    "status": "degraded",
+    "terminal": true,
+    "resumable": false
+  },
+  "input": {
+    "envelope_hash": null,
+    "references": [],
+    "context_resolution": []
+  },
+  "outcome": {},
+  "raw_core_output": {
+    "available": false,
+    "content": null
+  },
+  "artifacts": [],
+  "human_decision": null,
+  "adoption": null,
+  "cancellation": {
+    "supported": false,
+    "state": "unavailable"
+  },
+  "provenance": {},
+  "coverage": {
+    "state": "degraded",
+    "missing_or_degraded": [
+      "extension_unavailable"
+    ]
+  },
+  "failures": [],
+  "retrieval": {
+    "http": "GET /tasks/task:fixture",
+    "resume_http": null
+  }
+}

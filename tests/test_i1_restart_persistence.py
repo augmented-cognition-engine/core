@@ -126,6 +126,36 @@ async def _assert_schema_version(db_url: str, expected: int) -> None:
         await db.close()
 
 
+async def _seed_interrupted_extension_invocation(db_url: str, source_task_id: str) -> str:
+    """Clone durable invocation coordinates into a prior-runtime running attempt."""
+    interrupted_id = "task:i1extensioninterrupted"
+    db = AsyncSurreal(db_url)
+    await db.connect()
+    await db.signin({"username": "root", "password": "root"})
+    await db.use("ace_i1_restart", "ace_i1_restart")
+    try:
+        rows = await db.query(
+            "SELECT extension_invocation FROM ONLY <record>$source",
+            {"source": source_task_id},
+        )
+        row = rows if isinstance(rows, dict) else rows[0]
+        assert isinstance(row.get("extension_invocation"), dict)
+        await db.query(
+            "UPSERT <record>$task SET "
+            "product = product:i1restart, workspace = workspace:default, user = user:i1restart, "
+            "description = 'Interrupted extension invocation', source = 'direct', status = 'running', "
+            "contract_version = 'async-receipt-v1', runtime_id = 'prior-runtime', "
+            "extension_invocation = $extension_invocation, accepted_at = time::now(), updated_at = time::now()",
+            {
+                "task": interrupted_id,
+                "extension_invocation": row["extension_invocation"],
+            },
+        )
+        return interrupted_id
+    finally:
+        await db.close()
+
+
 async def _seed_intervention_prediction(db_url: str, decision_id: str) -> str:
     from core.engine.foresight.contracts import build_comparator_plan
 
@@ -378,10 +408,40 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         await _wait_port(db_port, db_process)
         api_process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=api_log, stderr=subprocess.STDOUT)
         await _wait_health(api_url, api_process)
-        await _assert_schema_version(db_url, 156)
+        await _assert_schema_version(db_url, 157)
         await _verify_legacy_rows_survive_v144(db_url)
         client = AceClient(base_url=api_url, token=token, timeout=10)
         thin_tools._client = client
+
+        extension_submission = await client.post(
+            "/extension-invocations",
+            json={
+                "contract_version": "extension-invocation-v1",
+                "extension_id": "restart_fixture",
+                "extension_version": "1.0.0",
+                "action": "durable-retry",
+                "workspace_id": "workspace:default",
+                "question": "the restart fixture",
+                "references": [
+                    {
+                        "namespace": "restart_fixture",
+                        "kind": "evidence",
+                        "id": "evidence:restart",
+                        "version": "1",
+                    }
+                ],
+                "correlation_id": "corr:i1-extension-restart",
+                "idempotency_key": "i1-extension-restart-source",
+            },
+        )
+        extension_task_id = extension_submission["id"]
+        for _ in range(50):
+            extension_status = await client.get(f"/tasks/{extension_task_id}")
+            if extension_status["status"] == "completed":
+                break
+            await asyncio.sleep(0.1)
+        assert extension_status["extension_receipt"]["coverage"]["state"] == "complete"
+        interrupted_extension_id = await _seed_interrupted_extension_invocation(db_url, extension_task_id)
 
         deliberation_ids: dict[str, str] = {}
 
@@ -655,6 +715,26 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         thin_tools._client = fresh_client
         after_load = await thin_tools.ace_load("i1.restart")
         after = {item["correction_id"]: item for item in after_load["corrections"]}
+        interrupted_extension = await fresh_client.get(f"/tasks/{interrupted_extension_id}")
+        assert interrupted_extension["status"] == "degraded"
+        assert interrupted_extension["extension_receipt"]["attempt"]["resumable"] is True
+        resumed_extension = await fresh_client.post(
+            f"/extension-invocations/{interrupted_extension_id}/resume",
+            json={},
+        )
+        resumed_extension_id = resumed_extension["id"]
+        for _ in range(50):
+            resumed_extension = await fresh_client.get(f"/tasks/{resumed_extension_id}")
+            if resumed_extension["status"] == "completed":
+                break
+            await asyncio.sleep(0.1)
+        resumed_receipt = resumed_extension["extension_receipt"]
+        assert resumed_receipt["attempt"]["number"] == 2
+        assert resumed_receipt["attempt"]["retry_of_task_id"] == interrupted_extension_id
+        assert resumed_receipt["coverage"]["state"] == "complete"
+        assert resumed_receipt["provenance"]["provider"] == "DeterministicFixtureProvider"
+        prior_after_resume = await fresh_client.get(f"/tasks/{interrupted_extension_id}")
+        assert prior_after_resume["extension_receipt"]["attempt"]["resumed_by_task_id"] == resumed_extension_id
         i3_task = await thin_tools.ace_task(
             "Exercise I3 material continuity after the real runtime restart",
             request_id="i3-closeout-fresh-restart-v1",

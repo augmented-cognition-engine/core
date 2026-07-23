@@ -1,0 +1,21 @@
+{
+  "contract_version": "extension-invocation-v1",
+  "extension_id": "product",
+  "extension_version": "0.1.2",
+  "action": "product-check",
+  "workspace_id": "workspace:fixture",
+  "question": "Which reversible test should run first?",
+  "references": [
+    {
+      "namespace": "product",
+      "kind": "experiment",
+      "id": "experiment:one",
+      "version": "1"
+    }
+  ],
+  "parameters": {
+    "time_horizon": "30-days"
+  },
+  "correlation_id": "corr:fixture-valid",
+  "idempotency_key": "fixture:valid"
+}

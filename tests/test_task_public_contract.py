@@ -128,6 +128,7 @@ async def test_simulated_31_second_task_returns_receipt_then_survives_disconnect
     assert completed["decision_receipt"]["contract_version"] == "decision-receipt-v1"
     assert completed["deliberation_receipt"]["contract_version"] == "deliberation-receipt-v1"
     assert completed["intelligence_use_receipt"]["contract_version"] == "intelligence-use-receipt-v1"
+    assert completed["extension_receipt"] == {}
 
 
 def test_pre_acceptance_call_estimate_is_bounded_and_explained():
@@ -529,6 +530,8 @@ async def test_runtime_restart_reconciliation_marks_interrupted_rows_degraded():
     query = db.query.call_args.args[0]
     assert "status = 'degraded'" in query
     assert "runtime_id != $runtime_id" in query
+    assert "process_stopped_during_cancellation" in query
+    assert "cancellation_process_unavailable" in query
 
 
 @pytest.mark.asyncio
@@ -558,3 +561,73 @@ async def test_ace_status_retrieves_task_through_existing_tool():
     assert result["status"] == "completed"
     assert result["task"]["output"] == "ok"
     client.get.assert_awaited_once_with("/tasks/task:done")
+
+
+@pytest.mark.asyncio
+async def test_cancellation_records_completed_before_request(monkeypatch):
+    monkeypatch.setattr(
+        tasks,
+        "_get_task_record",
+        AsyncMock(return_value={"id": "task:done", "status": "completed"}),
+    )
+    update = AsyncMock(side_effect=lambda task_id, fields: {"id": task_id, "status": "completed", **fields})
+    monkeypatch.setattr(tasks, "_update_receipt", update)
+
+    result = await tasks.cancel_task_execution("task:done", actor="user:one", reason="too late")
+
+    assert result["cancellation"]["state"] == "completed_before_cancellation"
+    assert result["status"] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_cancellation_records_process_stopped_when_runtime_job_is_absent(monkeypatch):
+    monkeypatch.setattr(
+        tasks,
+        "_get_task_record",
+        AsyncMock(return_value={"id": "task:orphan", "status": "running"}),
+    )
+    updates: list[dict] = []
+
+    async def update(task_id, fields):
+        updates.append(fields)
+        return {"id": task_id, **fields}
+
+    monkeypatch.setattr(tasks, "_update_receipt", update)
+    monkeypatch.setattr(tasks, "_active_tasks", {})
+
+    result = await tasks.cancel_task_execution("task:orphan", actor="user:one", reason="stop")
+
+    assert result["status"] == "degraded"
+    assert result["cancellation"]["state"] == "process_stopped_during_cancellation"
+    assert [item["cancellation"]["state"] for item in updates] == [
+        "requested",
+        "process_stopped_during_cancellation",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_cancellation_rechecks_terminal_state_before_reporting_stopped_process(monkeypatch):
+    get = AsyncMock(
+        side_effect=[
+            {"id": "task:raced", "status": "running"},
+            {"id": "task:raced", "status": "completed"},
+        ]
+    )
+    monkeypatch.setattr(tasks, "_get_task_record", get)
+    updates: list[dict] = []
+
+    async def update(task_id, fields):
+        updates.append(fields)
+        return {"id": task_id, "status": "completed", **fields}
+
+    monkeypatch.setattr(tasks, "_update_receipt", update)
+    monkeypatch.setattr(tasks, "_active_tasks", {})
+
+    result = await tasks.cancel_task_execution("task:raced", actor="user:one", reason="stop")
+
+    assert result["status"] == "completed"
+    assert result["cancellation"]["state"] == "completed_before_cancellation"
+    assert [item["cancellation"]["state"] for item in updates] == [
+        "requested",
+        "completed_before_cancellation",
+    ]

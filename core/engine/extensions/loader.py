@@ -25,7 +25,6 @@ from core.engine.extensions.registry import Registry
 logger = logging.getLogger(__name__)
 
 _loaded: set[str] = set()
-_registry = Registry()
 _ensured = False
 
 
@@ -75,7 +74,9 @@ def load_extensions() -> list[str]:
             continue
         try:
             extension = extension_obj() if isinstance(extension_obj, type) else extension_obj
-            extension.register(_registry)
+            extension_id = str(getattr(extension, "name", name))
+            extension_version = str(getattr(extension, "version", "0.0.0"))
+            extension.register(Registry(extension_id=extension_id, extension_version=extension_version))
             _loaded.add(name)
             logger.info("loaded extension: %s", getattr(extension, "name", name))
         except Exception:

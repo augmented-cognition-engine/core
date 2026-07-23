@@ -1,0 +1,31 @@
+{
+  "contract_version": "extension-invocation-v1",
+  "correlation_id": "corr:malicious",
+  "capability": {
+    "extension_id": "product",
+    "extension_version": "0.1.2",
+    "action": "product-check",
+    "input_contract": "extension-invocation-v1",
+    "output_contract": "product.product-check-outcome-v1",
+    "cancellation_supported": false,
+    "private_prompt": "authorization=do-not-leak"
+  },
+  "request": {
+    "references": []
+  },
+  "envelope_hash": "sha256:fixture",
+  "context_resolution": [],
+  "attempt": {
+    "number": 1,
+    "retry_of_task_id": null,
+    "resumed_by_task_id": null,
+    "root_invocation_id": null,
+    "retry_reason": null,
+    "retry_actor": null,
+    "retry_requested_at": null,
+    "retry_policy_version": null
+  },
+  "arbitrary_resolver_state": {
+    "api_key": "do-not-leak"
+  }
+}

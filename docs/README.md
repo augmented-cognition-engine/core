@@ -46,6 +46,9 @@ ACE's public documentation is intentionally small and user-facing:
   artifact hashes, and clean public-index installation.
 - [Build your first extension](build-your-first-extension.md) — the practical extension path.
 - [Extension API](extension-api.md) — contracts available to extension authors.
+- [Experimental extension-invocation contract](extension-invocation-contract.md) — authenticated
+  structured envelopes, exact reference-resolution accounting, linked retry attempts, restart
+  evidence, authority boundaries, failures, and the remaining E1 gap.
 - [Capability evolution roadmap](capability-evolution-roadmap.md) — graph-native procedural
   learning, reviewable revisions, progressive capability discovery, and safe execution sequencing.
 - [Governance](governance.md) — project decisions, compatibility, support, and contributions.

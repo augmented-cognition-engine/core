@@ -24,6 +24,11 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from core.engine.core.auth import get_current_user, verify_ownership
 from core.engine.core.db import parse_one, parse_rows, pool
 from core.engine.core.tasks import logged_task
+from core.engine.extensions.invocation import (
+    build_extension_receipt,
+    normalize_extension_receipt,
+    project_action_outcome,
+)
 from core.engine.product.decision_receipts import (
     build_decision_receipt,
     human_disposition,
@@ -68,6 +73,7 @@ class TaskResponse(BaseModel):
     decision_receipt: dict = Field(default_factory=dict)
     deliberation_receipt: dict = Field(default_factory=dict)
     intelligence_use_receipt: dict = Field(default_factory=dict)
+    extension_receipt: dict = Field(default_factory=dict)
 
 
 def _execution_coverage(result: object) -> dict:
@@ -321,7 +327,7 @@ class TaskCreate(BaseModel):
 
 
 _CONTRACT_VERSION = "async-receipt-v1"
-_TERMINAL_STATES = {"completed", "failed", "degraded"}
+_TERMINAL_STATES = {"completed", "failed", "degraded", "cancelled"}
 _RUNTIME_ID = uuid.uuid4().hex
 _active_tasks: dict[str, asyncio.Task] = {}
 _submission_lock: asyncio.Lock | None = None
@@ -350,8 +356,8 @@ def _task_fingerprint(body: TaskCreate) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def _resolve_idempotency(body: TaskCreate) -> tuple[str, str, str]:
-    fingerprint = _task_fingerprint(body)
+def _resolve_idempotency(body: TaskCreate, *, fingerprint: str | None = None) -> tuple[str, str, str]:
+    fingerprint = fingerprint or _task_fingerprint(body)
     if body.idempotency_key:
         return body.idempotency_key, "explicit", fingerprint
     # Automatic retries within an hour reuse the same receipt.  A still-active
@@ -364,7 +370,7 @@ def _resolve_idempotency(body: TaskCreate) -> tuple[str, str, str]:
 def _bounded_public_error(error: object, *, code: str = "orchestration_failed") -> dict:
     raw = str(error or "Task execution did not produce a result.")
     raw = re.sub(
-        r"(?i)\b(bearer|api[_-]?key|token|password|secret)\b\s*[:=]?\s*[^\s,;]+",
+        r"(?i)\b(bearer|api[_-]?key|token|password|secret|authorization)\b\s*[:=]?\s*[^\s,;]+",
         r"\1=<redacted>",
         raw,
     )
@@ -501,6 +507,7 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
     result["intelligence_use_receipt"] = normalize_intelligence_use_receipt(
         result.get("intelligence_use_receipt"), task=result
     )
+    result["extension_receipt"] = normalize_extension_receipt(result.get("extension_receipt"), task=result)
     # Persisted execution coordinates and private prompt text are not public
     # receipt fields.  The output remains available, but the original prompt
     # and retained-intelligence payload do not ride along with ace_status.
@@ -541,9 +548,32 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
         "request_fingerprint",
         "runtime_id",
         "request_options",
+        "extension_invocation",
     ):
         result.pop(key, None)
     return result
+
+
+def _verify_task_access(task: dict, user: dict) -> None:
+    """Apply the stronger user/workspace boundary for extension invocations."""
+    verify_ownership(task, user)
+    if not isinstance(task.get("extension_invocation"), dict):
+        return
+    task_user = str(task.get("user") or "")
+    user_id = str(user.get("sub") or "")
+    if task_user and user_id and task_user != user_id:
+        raise HTTPException(status_code=404, detail="Task not found")
+    workspace = str(task.get("workspace") or "")
+    claimed_workspace = user.get("workspace")
+    claimed_workspaces = user.get("workspaces")
+    if workspace and claimed_workspace is not None and workspace != str(claimed_workspace):
+        raise HTTPException(status_code=404, detail="Task not found")
+    if (
+        workspace
+        and isinstance(claimed_workspaces, list)
+        and workspace not in {str(value) for value in claimed_workspaces}
+    ):
+        raise HTTPException(status_code=404, detail="Task not found")
 
 
 async def _persist_structured_decision(
@@ -636,10 +666,17 @@ async def _get_task_record(task_id: str) -> dict | None:
         return parse_one(await db.query("SELECT * FROM ONLY <record>$task_id", {"task_id": task_id}))
 
 
-async def _create_or_get_receipt(body: TaskCreate, user: dict) -> tuple[dict, bool]:
+async def _create_or_get_receipt(
+    body: TaskCreate,
+    user: dict,
+    *,
+    extension_invocation: dict | None = None,
+    retry_of_task_id: str | None = None,
+    fingerprint_override: str | None = None,
+) -> tuple[dict, bool]:
     product_id = user.get("product", "product:default")
     user_id = user.get("sub", "user:default")
-    key, mode, fingerprint = _resolve_idempotency(body)
+    key, mode, fingerprint = _resolve_idempotency(body, fingerprint=fingerprint_override)
 
     async with _lock_for_current_loop():
         async with pool.connection() as db:
@@ -698,6 +735,8 @@ async def _create_or_get_receipt(body: TaskCreate, user: dict) -> tuple[dict, bo
                         idempotency_mode = $mode,
                         request_fingerprint = $fingerprint,
                         request_options = $options,
+                        extension_invocation = $extension_invocation,
+                        retry_of_task_id = $retry_of_task_id,
                         call_estimate = $call_estimate,
                         runtime_id = $runtime_id,
                         accepted_at = time::now(),
@@ -713,6 +752,8 @@ async def _create_or_get_receipt(body: TaskCreate, user: dict) -> tuple[dict, bo
                         "mode": mode,
                         "fingerprint": fingerprint,
                         "options": options,
+                        "extension_invocation": extension_invocation,
+                        "retry_of_task_id": retry_of_task_id,
                         "call_estimate": call_estimate,
                         "runtime_id": _RUNTIME_ID,
                     },
@@ -733,7 +774,72 @@ async def _update_receipt(task_id: str, fields: dict) -> dict | None:
         )
 
 
-async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
+async def cancel_task_execution(task_id: str, *, actor: str, reason: str) -> dict | None:
+    """Request cancellation and return the durable terminal/acknowledgement state."""
+    task = await _get_task_record(task_id)
+    if not task:
+        return None
+    now = datetime.now(timezone.utc)
+    status = str(task.get("status") or "degraded")
+    if status in _TERMINAL_STATES:
+        cancellation = {
+            "state": "completed_before_cancellation",
+            "requested_at": now,
+            "acknowledged_at": now,
+            "actor": actor[:200],
+            "reason": reason[:500],
+        }
+        return await _update_receipt(task_id, {"cancellation": cancellation, "updated_at": now})
+
+    cancellation = {
+        "state": "requested",
+        "requested_at": now,
+        "acknowledged_at": None,
+        "actor": actor[:200],
+        "reason": reason[:500],
+    }
+    await _update_receipt(task_id, {"cancellation": dict(cancellation), "updated_at": now})
+    job = _active_tasks.get(task_id)
+    if job is not None and not job.done():
+        job.cancel()
+        await asyncio.gather(job, return_exceptions=True)
+        return await _get_task_record(task_id)
+
+    latest = await _get_task_record(task_id) or task
+    latest_status = str(latest.get("status") or "degraded")
+    if latest_status in _TERMINAL_STATES:
+        cancellation["state"] = "completed_before_cancellation"
+        cancellation["acknowledged_at"] = datetime.now(timezone.utc)
+        return await _update_receipt(
+            task_id,
+            {"cancellation": cancellation, "updated_at": datetime.now(timezone.utc)},
+        )
+
+    cancellation["state"] = "process_stopped_during_cancellation"
+    cancellation["acknowledged_at"] = datetime.now(timezone.utc)
+    return await _update_receipt(
+        task_id,
+        {
+            "status": "degraded",
+            "cancellation": cancellation,
+            "error": {
+                "code": "cancellation_process_unavailable",
+                "message": "The execution process was unavailable while cancellation was requested.",
+            },
+            "execution": {"state": "interrupted", "usable_output": False},
+            "completed_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
+        },
+    )
+
+
+async def _execute_receipt(
+    task_id: str,
+    body: TaskCreate,
+    user: dict,
+    *,
+    extension_invocation: dict | None = None,
+) -> None:
     try:
         now = datetime.now(timezone.utc)
         await _update_receipt(task_id, {"status": "running", "started_at": now, "updated_at": now})
@@ -831,6 +937,41 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                 "degraded_state": status if status != "completed" else None,
             },
         )
+        extension_receipt: dict = {}
+        if extension_invocation is not None:
+            from core.engine.extensions.registry import registered_task_action
+
+            capability = extension_invocation.get("capability") or {}
+            action = registered_task_action(
+                str(capability.get("extension_id") or ""),
+                str(capability.get("action") or ""),
+            )
+            projection_error = None
+            projected_outcome = None
+            if action is None:
+                projection_error = "The registered extension action was unavailable at outcome projection time."
+            else:
+                try:
+                    projected_outcome = await project_action_outcome(action, result.output, execution)
+                except Exception as exc:
+                    logger.warning("extension outcome projection failed for %s", task_id, exc_info=True)
+                    projection_error = _bounded_public_error(exc, code="outcome_projection_failed")["message"]
+            extension_receipt = build_extension_receipt(
+                {
+                    "id": task_id,
+                    "status": status,
+                    "output": result.output,
+                    "execution": execution,
+                    "reasoning_trace": reasoning_trace,
+                    "decision_receipt": decision_receipt,
+                    "deliberation_receipt": deliberation_receipt,
+                    "intelligence_use_receipt": intelligence_use_receipt,
+                    "error": error,
+                },
+                extension_invocation,
+                outcome=projected_outcome,
+                projection_error=projection_error,
+            )
         adaptive_plan = execution.get("adaptive_stage_plan")
         if isinstance(adaptive_plan, dict):
             from core.engine.orchestration.adaptive_reasoning import evaluate_advisory_stage_plan
@@ -865,12 +1006,55 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                 "decision_receipt": decision_receipt,
                 "deliberation_receipt": deliberation_receipt,
                 "intelligence_use_receipt": intelligence_use_receipt,
+                "extension_receipt": extension_receipt,
                 "error": error,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
             },
         )
     except asyncio.CancelledError:
+        current = await _get_task_record(task_id) or {}
+        cancellation = current.get("cancellation") if isinstance(current.get("cancellation"), dict) else {}
+        user_cancelled = cancellation.get("state") == "requested"
+        if user_cancelled:
+            cancellation = {
+                **cancellation,
+                "state": "acknowledged",
+                "acknowledged_at": datetime.now(timezone.utc),
+            }
+            cancelled_task = {
+                "id": task_id,
+                "status": "cancelled",
+                "cancellation": cancellation,
+                "error": {"code": "invocation_cancelled", "message": "The invocation was cancelled."},
+                "execution": {"state": "cancelled", "usable_output": False},
+            }
+            extension_receipt = build_extension_receipt(cancelled_task, extension_invocation)
+            await _update_receipt(
+                task_id,
+                {
+                    "status": "cancelled",
+                    "cancellation": cancellation,
+                    "error": cancelled_task["error"],
+                    "execution": cancelled_task["execution"],
+                    "extension_receipt": extension_receipt,
+                    "completed_at": datetime.now(timezone.utc),
+                    "updated_at": datetime.now(timezone.utc),
+                },
+            )
+            raise
+        extension_receipt = build_extension_receipt(
+            {
+                "id": task_id,
+                "status": "degraded",
+                "error": {
+                    "code": "runtime_stopped",
+                    "message": "The API runtime stopped before orchestration completed.",
+                },
+                "execution": {"state": "interrupted", "usable_output": False},
+            },
+            extension_invocation,
+        )
         await _update_receipt(
             task_id,
             {
@@ -888,6 +1072,7 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                         "message": "Execution stopped before contributor coverage could complete.",
                     },
                 },
+                "extension_receipt": extension_receipt,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
             },
@@ -895,11 +1080,21 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
         raise
     except Exception as exc:
         logger.exception("Asynchronous task execution failed for %s", task_id)
+        public_error = _bounded_public_error(exc)
+        extension_receipt = build_extension_receipt(
+            {
+                "id": task_id,
+                "status": "failed",
+                "error": public_error,
+                "execution": {"state": "failed", "usable_output": False},
+            },
+            extension_invocation,
+        )
         await _update_receipt(
             task_id,
             {
                 "status": "failed",
-                "error": _bounded_public_error(exc),
+                "error": public_error,
                 "execution": {
                     "state": "failed",
                     "usable_output": False,
@@ -909,6 +1104,7 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                         "message": "Execution failed before a usable result was produced.",
                     },
                 },
+                "extension_receipt": extension_receipt,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
             },
@@ -924,16 +1120,28 @@ async def initialize_task_runtime() -> int:
                 """
                 UPDATE task SET
                     status = 'degraded',
-                    error = {
+                    cancellation = IF cancellation.state = 'requested' THEN {
+                        state: 'process_stopped_during_cancellation',
+                        requested_at: cancellation.requested_at,
+                        acknowledged_at: time::now(),
+                        actor: cancellation.actor,
+                        reason: cancellation.reason
+                    } ELSE cancellation END,
+                    error = IF cancellation.state IN ['requested', 'process_stopped_during_cancellation'] THEN {
+                        code: 'cancellation_process_unavailable',
+                        message: 'The execution process stopped while cancellation was pending.'
+                    } ELSE {
                         code: 'runtime_restarted',
                         message: 'The API runtime restarted before orchestration completed; retry with a new explicit idempotency key to run again.'
-                    },
+                    } END,
                     execution = {
                         state: 'interrupted',
                         usable_output: false,
                         attention: {
                             required: true,
-                            code: 'runtime_restarted',
+                            code: IF cancellation.state IN ['requested', 'process_stopped_during_cancellation']
+                                THEN 'process_stopped_during_cancellation'
+                                ELSE 'runtime_restarted' END,
                             message: 'Execution coverage is incomplete because the runtime restarted.'
                         }
                     },
@@ -987,16 +1195,38 @@ async def _increment_optimizer_counter(db, product_id: str) -> None:
         pass
 
 
-@router.post("", status_code=202, response_model=TaskResponse)
-async def create_task(body: TaskCreate, user: dict = Depends(get_current_user)):
+async def submit_task(
+    body: TaskCreate,
+    user: dict,
+    *,
+    extension_invocation: dict | None = None,
+    retry_of_task_id: str | None = None,
+    fingerprint_override: str | None = None,
+) -> dict:
+    """Submit through the one durable task lifecycle used by public and extension callers."""
     if not _accepting_tasks:
         raise HTTPException(status_code=503, detail="Task runtime is stopping; retry after the API is ready")
 
-    receipt, created = await _create_or_get_receipt(body, user)
+    receipt_kwargs = {}
+    if extension_invocation is not None:
+        receipt_kwargs["extension_invocation"] = extension_invocation
+    if retry_of_task_id is not None:
+        receipt_kwargs["retry_of_task_id"] = retry_of_task_id
+    if fingerprint_override is not None:
+        receipt_kwargs["fingerprint_override"] = fingerprint_override
+    receipt, created = await _create_or_get_receipt(body, user, **receipt_kwargs)
     task_id = str(receipt["id"])
     job = _active_tasks.get(task_id)
     if created:
-        job = logged_task(_execute_receipt(task_id, body, user), label=f"tasks.public.{task_id}")
+        job = logged_task(
+            _execute_receipt(
+                task_id,
+                body,
+                user,
+                extension_invocation=extension_invocation,
+            ),
+            label=f"tasks.public.{task_id}",
+        )
         _active_tasks[task_id] = job
 
         def _forget(completed: asyncio.Task) -> None:
@@ -1017,12 +1247,17 @@ async def create_task(body: TaskCreate, user: dict = Depends(get_current_user)):
     return _public_task(current, idempotent_replay=not created)
 
 
+@router.post("", status_code=202, response_model=TaskResponse)
+async def create_task(body: TaskCreate, user: dict = Depends(get_current_user)):
+    return await submit_task(body, user)
+
+
 @router.get("/{task_id}")
 async def get_task(task_id: str, user: dict = Depends(get_current_user)):
     task = await _get_task_record(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
-    verify_ownership(task, user)
+    _verify_task_access(task, user)
     return _public_task(task)
 
 
@@ -1099,7 +1334,7 @@ async def patch_task_feedback(
         task = parse_one(await db.query("SELECT * FROM ONLY <record>$task_id", {"task_id": task_id}))
         if not task:
             raise HTTPException(status_code=404, detail="Task not found")
-        verify_ownership(task, user)
+        _verify_task_access(task, user)
         disposition = await _persist_human_disposition(db, task, body, user)
         if body.feedback_human == FeedbackType.edited:
             await db.query(
