@@ -1,0 +1,37 @@
+{
+  "analysis_ready": false,
+  "beneficial_impact_evaluated": false,
+  "beneficial_impact_supported": false,
+  "cases": [],
+  "computed_registration_hash": "sha256:bf558acda007ed04c24eb247749aad23ed89124c5ae38264add92061050135e7",
+  "contract_version": "ace.foresight.impact-readiness/v1",
+  "limitations": [
+    "A valid preregistration is study-readiness evidence, not evidence of benefit.",
+    "The intake checks provenance completeness; they do not independently prove that a receipt is truthful.",
+    "No outcome comparison is computed until one fixed, independently timed cohort closes.",
+    "Passing intake cannot establish correctness, causality, generality, or product benefit."
+  ],
+  "missing_required_failure_cases": [
+    "null",
+    "harmful",
+    "missing_outcome",
+    "failed_route",
+    "degraded_lineage"
+  ],
+  "protocol_valid": true,
+  "reason_codes": [
+    "no_independently_timed_cohort_submitted"
+  ],
+  "registration_hash": "sha256:bf558acda007ed04c24eb247749aad23ed89124c5ae38264add92061050135e7",
+  "registration_id": "l1-prospective-independent-outcomes-v1",
+  "sample": {
+    "duplicate_allocation_units": [],
+    "eligible_case_count": 0,
+    "independent_cluster_count": 0,
+    "maximum_cases": 256,
+    "minimum_complete_cases": 30,
+    "minimum_independent_clusters": 8,
+    "submitted_case_count": 0
+  },
+  "state": "collection_not_started"
+}

@@ -208,7 +208,10 @@ material later use, outcome provenance, adequate independent clusters, supported
 quasi-experimental attribution, and favorable cluster-adjusted comparisons against no-foresight,
 naïve/base-rate, and matched model-only controls. The first checksum-frozen public-data probe did
 not beat persistence and its apparent base-rate gain included zero; a model-only run could not
-rescue the all-controls rule and was not invoked. See
+rescue the all-controls rule and was not invoked. A prospective, tamper-evident protocol now freezes
+assignment/exposure evidence, non-overlap, exact route matching, F1/I3/outcome lineage, one fixed
+analysis, and required failure coverage. Its executed state is `collection_not_started`, which is
+readiness evidence rather than benefit evidence. See
 [`l1-foresight-impact-evidence.md`](l1-foresight-impact-evidence.md). L1 is not passed and F2 remains
 gated.
 

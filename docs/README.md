@@ -28,8 +28,8 @@ ACE's public documentation is intentionally small and user-facing:
   exact I1 decision deltas, matched comparisons, restart continuity, failure cases, and the boundary
   between material influence and beneficial impact.
 - [L1 foresight-impact evidence gate](l1-foresight-impact-evidence.md) — sample-aware all-controls
-  evaluation, the preserved negative public-data result, and the evidence still required to claim
-  beneficial impact.
+  evaluation, the preserved negative public-data result, the frozen prospective protocol and
+  `collection_not_started` receipt, and the evidence still required to claim beneficial impact.
 - [Model providers](providers.md) — provider configuration and routing expectations.
 - [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
 - [Product-builder golden path](product-builder-golden-path.md) — a reproducible public product

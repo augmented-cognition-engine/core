@@ -1,6 +1,6 @@
 # Public roadmap status
 
-Last reconciled: 2026-07-22
+Last reconciled: 2026-07-23
 
 The live operational view is the
 [ACE Public Roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1), organized as
@@ -41,7 +41,7 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | E1 | Next | not ready | The [`extension-invocation-v1` evidence](extension-invocation-contract.md) freezes the experimental durable bridge, fail-closed reference accounting, and linked restart attempts; packaged-example/version-skew conformance evidence and eleven-tool preservation are still required |
 | F2 | Later | not ready | Broader consequence types and independently verified design evidence require L1 evidence or demonstrated user need; they do not keep F1 open |
 | B1 | Later | not ready | Depends on inspectable approval receipts and explicit execution authority |
-| L1 | Later | candidate | [`l1-foresight-impact-evidence.md`](l1-foresight-impact-evidence.md) records the bounded all-controls evaluator and checksum-frozen 72-case public-data probe; benefit is not established because persistence slightly outperformed ACE, eight-cluster intervals include zero, matched model-only evidence is absent, and intervention/confounder attribution is unsupported |
+| L1 | Later | candidate | [`l1-foresight-impact-evidence.md`](l1-foresight-impact-evidence.md) preserves the negative 72-case probe and freezes a tamper-evident prospective all-controls protocol; the executed readiness receipt is honestly `collection_not_started`, so benefit remains unestablished |
 | H1 | Later | not ready | Depends on tenancy, portability, authority, and recovery guarantees |
 | E2 | Later | not ready | Depends on E1 conformance and stable compatibility policy; native telemetry sources belong to this adapter lane |
 
@@ -90,8 +90,10 @@ foreign, and future-version cases fail closed.
    v146-v154 contracts, real measurement-to-resolution restart evidence, limitations, and exact
    eleven-tool boundary. Do not reopen F1 for forecast breadth or adapters.
 10. **Candidate evidence gate — L1:** preserve the negative public-data result and collect a new
-   preregistered, independently timed outcome cohort with verified attribution. Do not run or select
-   a model-only comparison as a substitute for the failed persistence gate; eventual promotion
+   cohort under the frozen preregistration, with independently timed non-overlapping decisions,
+   verified assignment/exposure, F1/I3/outcome lineage, exact route matching, and declared failure
+   coverage. The current readiness state is `collection_not_started`. Do not run or select a
+   model-only comparison as a substitute for the failed persistence gate; eventual promotion
    requires favorable cluster-adjusted evidence against every declared control.
 
 An outcome moves to `passed` only when scope, acceptance checks, evidence, limitations, roadmap

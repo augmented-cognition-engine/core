@@ -1,0 +1,87 @@
+{
+  "analysis": {
+    "maximum_cases": 256,
+    "minimum_complete_cases": 30,
+    "minimum_independent_clusters": 8,
+    "promotion_rule": "lower_cluster_adjusted_95_bound_above_zero_for_every_comparison",
+    "required_comparisons": [
+      "no_foresight",
+      "naive_base_rate",
+      "model_only"
+    ],
+    "score_contract": "continuous_absolute_error/v1",
+    "stopping_rule": "analyze_once_after_fixed_cohort_closes"
+  },
+  "arms": [
+    {
+      "id": "ace_foresight",
+      "policy": "materially use eligible pre-decision F1 resolutions through an I3-traced decision"
+    },
+    {
+      "id": "no_foresight",
+      "policy": "same decision task without forecast retrieval or injection"
+    },
+    {
+      "id": "naive_base_rate",
+      "policy": "same decision task with only the frozen cohort-local base-rate policy"
+    },
+    {
+      "id": "model_only",
+      "policy": "same task, provider, model, configuration, schema, and toolset without ACE foresight"
+    }
+  ],
+  "assignment": {
+    "allocation_unit": "non-overlapping decision identity",
+    "design": "blocked_randomized",
+    "required_evidence": [
+      "immutable assignment receipt",
+      "arm exposure receipt",
+      "allocation-unit hash",
+      "block identity"
+    ]
+  },
+  "claims_not_supported": [
+    "benefit before the fixed cohort closes",
+    "correctness of any individual decision",
+    "general model superiority",
+    "access to hidden reasoning",
+    "causality without verified assignment and exposure"
+  ],
+  "collection_state": "not_started",
+  "contract_version": "ace.foresight.impact-preregistration/v1",
+  "first_decision_not_before": "2026-07-24T00:00:00Z",
+  "lineage": {
+    "required_receipts": [
+      "f1_resolution_id",
+      "i3_intelligence_use_receipt_id",
+      "decision_id",
+      "outcome_id"
+    ]
+  },
+  "matching": {
+    "required_dimensions": [
+      "task_hash",
+      "prompt_contract_hash",
+      "provider",
+      "model",
+      "configuration_hash",
+      "decision_schema_hash",
+      "toolset_hash"
+    ]
+  },
+  "outcome": {
+    "direction": "lower_absolute_error_is_better",
+    "eligibility": "declared primary outcome observed after the decision with immutable evidence references",
+    "metric": "declared later decision-quality outcome"
+  },
+  "registered_at": "2026-07-23T07:30:00-07:00",
+  "registration_hash": "sha256:bf558acda007ed04c24eb247749aad23ed89124c5ae38264add92061050135e7",
+  "registration_id": "l1-prospective-independent-outcomes-v1",
+  "required_failure_cases": [
+    "null",
+    "harmful",
+    "missing_outcome",
+    "failed_route",
+    "degraded_lineage"
+  ]
+}
