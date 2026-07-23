@@ -125,6 +125,9 @@ async def test_simulated_31_second_task_returns_receipt_then_survives_disconnect
             "models": ["qwen3:4b"],
         },
     }
+    assert completed["decision_receipt"]["contract_version"] == "decision-receipt-v1"
+    assert completed["deliberation_receipt"]["contract_version"] == "deliberation-receipt-v1"
+    assert completed["intelligence_use_receipt"]["contract_version"] == "intelligence-use-receipt-v1"
 
 
 def test_pre_acceptance_call_estimate_is_bounded_and_explained():

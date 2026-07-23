@@ -7,7 +7,7 @@ import click
 import httpx
 
 from core.engine.cli.auth import get_headers
-from core.engine.cli.display import console, print_task_result
+from core.engine.cli.display import console, print_deliberation_receipt, print_task_result
 
 _TERMINAL_TASK_STATES = {"completed", "failed", "degraded"}
 _TASK_POLL_TIMEOUT_SECONDS = 900.0
@@ -69,8 +69,14 @@ def _submit_and_wait(url: str, body: dict, headers: dict) -> tuple[dict | None, 
     help="Legacy experimental compatibility selector",
 )
 @click.option("--framework", "framework_hints", multiple=True, help="Suggest a reasoning framework (repeatable)")
+@click.option(
+    "--show-deliberation",
+    is_flag=True,
+    default=False,
+    help="Print the bounded attributable-deliberation receipt after the result.",
+)
 @click.pass_context
-def run(ctx, description, workspace, deep, force_skill, framework_hints):
+def run(ctx, description, workspace, deep, force_skill, framework_hints, show_deliberation):
     """Submit a task and wait for the result."""
     url = ctx.obj["url"]
     headers = get_headers()
@@ -117,6 +123,8 @@ def run(ctx, description, workspace, deep, force_skill, framework_hints):
         console.print(f"[yellow]Task {result.get('id', '?')}: {result.get('status', 'unknown')}[/yellow]")
         if result.get("error"):
             console.print(result["error"].get("message", "Task did not complete"))
+    if show_deliberation and result:
+        print_deliberation_receipt(result)
 
 
 @click.command()

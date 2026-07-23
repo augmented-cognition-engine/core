@@ -1,0 +1,999 @@
+{
+  "contract_version": "deliberation-receipt-v1",
+  "receipts": [
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "conflicts": [],
+      "continuity": {},
+      "contract_version": "deliberation-receipt-v1",
+      "contributors": [
+        {
+          "artifact": {
+            "assumptions": [
+              "Invoice identifiers preserve the documented prefix"
+            ],
+            "confidence": 0.98,
+            "evidence_ids": [
+              "doi:10.24432/C5F88Q",
+              "uci:online-retail-ii:invoice-c-prefix"
+            ],
+            "gaps": [],
+            "position": "Treat C-prefixed invoices as cancellations and keep the definition visible in every reported rate.",
+            "recommendation": "Use the documented cancellation marker before comparing cohorts.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:dae1d4e2e23f150f47f08dbc",
+          "contributor_id": "execution:independent-1",
+          "execution": {
+            "duration_ms": 12,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "independent",
+          "sequence": 1
+        }
+      ],
+      "coverage": {
+        "coverage_ratio": 1.0,
+        "degraded_synthesis": false,
+        "expected_contributors": 1,
+        "failed_contribution_ids": [],
+        "missing_contributors": [],
+        "observed_contributors": 1,
+        "partial_coverage": false,
+        "state": "complete",
+        "tainted_phases": [],
+        "timed_out_contribution_ids": []
+      },
+      "limitations": [
+        "Inspectable attribution records bounded final artifacts and execution facts, not hidden reasoning.",
+        "Attribution does not establish correctness, causality, benefit, or decision quality."
+      ],
+      "receipt_id": "deliberation:e69048fcae2e12f3ac4e51a2",
+      "receiving": {
+        "product_id": "product:i2-public-retail",
+        "task_id": "task:i2-independent"
+      },
+      "route": {
+        "calls": 0,
+        "provider": "deterministic_fixture",
+        "tokens": 0
+      },
+      "selection": {
+        "mode": "reactive",
+        "observable_classification_only": true,
+        "reasoning_shape": "independent",
+        "selection_reasons": [
+          "A bounded data-definition check needs one execution unit."
+        ],
+        "signals": {
+          "complexity": "simple",
+          "explicit_pattern_override": false,
+          "supplied_agent_count": 0
+        }
+      },
+      "synthesis": {
+        "by_disposition": {
+          "accepted": [],
+          "bounded": [
+            {
+              "contribution_id": "contribution:dae1d4e2e23f150f47f08dbc",
+              "contributor_evidence_ids": [
+                "doi:10.24432/C5F88Q",
+                "uci:online-retail-ii:invoice-c-prefix"
+              ],
+              "position": "Treat C-prefixed invoices as cancellations and keep the definition visible in every reported rate.",
+              "reason": "single_path",
+              "status": "bounded",
+              "synthesis_evidence_ids": [
+                "uci:online-retail-ii:invoice-c-prefix"
+              ]
+            }
+          ],
+          "contested": [],
+          "rejected": []
+        },
+        "degraded": false,
+        "dispositions": [
+          {
+            "contribution_id": "contribution:dae1d4e2e23f150f47f08dbc",
+            "contributor_evidence_ids": [
+              "doi:10.24432/C5F88Q",
+              "uci:online-retail-ii:invoice-c-prefix"
+            ],
+            "position": "Treat C-prefixed invoices as cancellations and keep the definition visible in every reported rate.",
+            "reason": "single_path",
+            "status": "bounded",
+            "synthesis_evidence_ids": [
+              "uci:online-retail-ii:invoice-c-prefix"
+            ]
+          }
+        ],
+        "state": "not_applicable",
+        "summary": "The single bounded position is the final result.",
+        "unresolved_contribution_ids": []
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "conflicts": [
+        {
+          "conflict_id": "deliberation_conflict:bc154f010d114a62aae8a1a3",
+          "contribution_ids": [
+            "contribution:4635ff292a523b15ac588172",
+            "contribution:5c27f9876c598c8963d6b239"
+          ],
+          "derivation": "bounded_contributor_or_synthesis_artifact",
+          "derived_from_persona_or_role_labels": false,
+          "evidence_ids": [
+            "metric:cancelled-invoice-rate",
+            "metric:repeat-purchase-90d"
+          ],
+          "issue": "A cancellation-only gate is well defined but insufficient to bound retention risk."
+        }
+      ],
+      "continuity": {},
+      "contract_version": "deliberation-receipt-v1",
+      "contributors": [
+        {
+          "artifact": {
+            "assumptions": [
+              "The public invoice convention applies throughout the dataset"
+            ],
+            "confidence": 0.96,
+            "evidence_ids": [
+              "doi:10.24432/C5F88Q",
+              "uci:online-retail-ii:invoice-c-prefix"
+            ],
+            "gaps": [],
+            "position": "Cancellation outcomes must use the documented C-prefix and exclude ordinary returns from the primary rate.",
+            "recommendation": "Freeze the cancellation denominator before rollout analysis.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:5c27f9876c598c8963d6b239",
+          "contributor_id": "execution:pipeline-definition",
+          "execution": {
+            "duration_ms": 18,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "pipeline_step_1",
+          "sequence": 1
+        },
+        {
+          "artifact": {
+            "assumptions": [
+              "Customer identifiers are available for the declared repeat-purchase window"
+            ],
+            "confidence": 0.84,
+            "evidence_ids": [
+              "metric:cancelled-invoice-rate",
+              "metric:repeat-purchase-90d"
+            ],
+            "gaps": [
+              "No causal assignment is available in the public dataset"
+            ],
+            "position": "A cancellation-rate guardrail alone can hide retention harm.",
+            "recommendation": "Pair cancelled-invoice rate with 90-day repeat purchase before general rollout.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:4635ff292a523b15ac588172",
+          "contributor_id": "execution:pipeline-measurement",
+          "execution": {
+            "duration_ms": 22,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "pipeline_step_2",
+          "sequence": 2
+        },
+        {
+          "artifact": {
+            "assumptions": [
+              "Manual review capacity is a binding constraint"
+            ],
+            "confidence": 0.81,
+            "evidence_ids": [
+              "metric:cancelled-invoice-rate",
+              "metric:repeat-purchase-90d",
+              "policy:manual-review-capacity"
+            ],
+            "gaps": [
+              "The public data does not measure review workload directly"
+            ],
+            "position": "General rollout is not justified until both guardrails and review capacity are observed.",
+            "recommendation": "Keep the policy staged and publish both measurement definitions.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:f50dbe953a2c5a2b8e8ab1b9",
+          "contributor_id": "execution:pipeline-policy",
+          "execution": {
+            "duration_ms": 16,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "pipeline_step_3",
+          "sequence": 3
+        }
+      ],
+      "coverage": {
+        "coverage_ratio": 1.0,
+        "degraded_synthesis": false,
+        "expected_contributors": 3,
+        "failed_contribution_ids": [],
+        "missing_contributors": [],
+        "observed_contributors": 3,
+        "partial_coverage": false,
+        "state": "complete",
+        "tainted_phases": [],
+        "timed_out_contribution_ids": []
+      },
+      "limitations": [
+        "Inspectable attribution records bounded final artifacts and execution facts, not hidden reasoning.",
+        "Attribution does not establish correctness, causality, benefit, or decision quality."
+      ],
+      "receipt_id": "deliberation:9e171676a4c1ae6e8370c8a1",
+      "receiving": {
+        "product_id": "product:i2-public-retail",
+        "task_id": "task:i2-pipeline"
+      },
+      "route": {
+        "calls": 0,
+        "provider": "deterministic_fixture",
+        "tokens": 0
+      },
+      "selection": {
+        "mode": "deliberative",
+        "observable_classification_only": true,
+        "reasoning_shape": "pipeline",
+        "selection_reasons": [
+          "The decision needs sequential definition, measurement, and policy synthesis."
+        ],
+        "signals": {
+          "complexity": "complex",
+          "planned_step_count": 3,
+          "planner_used": true
+        }
+      },
+      "synthesis": {
+        "by_disposition": {
+          "accepted": [
+            {
+              "contribution_id": "contribution:5c27f9876c598c8963d6b239",
+              "contributor_evidence_ids": [
+                "doi:10.24432/C5F88Q",
+                "uci:online-retail-ii:invoice-c-prefix"
+              ],
+              "position": "Cancellation outcomes must use the documented C-prefix and exclude ordinary returns from the primary rate.",
+              "reason": "Defines the primary metric",
+              "status": "accepted",
+              "synthesis_evidence_ids": [
+                "uci:online-retail-ii:invoice-c-prefix"
+              ]
+            },
+            {
+              "contribution_id": "contribution:4635ff292a523b15ac588172",
+              "contributor_evidence_ids": [
+                "metric:cancelled-invoice-rate",
+                "metric:repeat-purchase-90d"
+              ],
+              "position": "A cancellation-rate guardrail alone can hide retention harm.",
+              "reason": "Adds the decision-relevant retention guardrail",
+              "status": "accepted",
+              "synthesis_evidence_ids": [
+                "metric:repeat-purchase-90d"
+              ]
+            }
+          ],
+          "bounded": [
+            {
+              "contribution_id": "contribution:f50dbe953a2c5a2b8e8ab1b9",
+              "contributor_evidence_ids": [
+                "metric:cancelled-invoice-rate",
+                "metric:repeat-purchase-90d",
+                "policy:manual-review-capacity"
+              ],
+              "position": "General rollout is not justified until both guardrails and review capacity are observed.",
+              "reason": "Capacity is a declared constraint, not measured by the dataset",
+              "status": "bounded",
+              "synthesis_evidence_ids": [
+                "policy:manual-review-capacity"
+              ]
+            }
+          ],
+          "contested": [],
+          "rejected": []
+        },
+        "degraded": false,
+        "dispositions": [
+          {
+            "contribution_id": "contribution:5c27f9876c598c8963d6b239",
+            "contributor_evidence_ids": [
+              "doi:10.24432/C5F88Q",
+              "uci:online-retail-ii:invoice-c-prefix"
+            ],
+            "position": "Cancellation outcomes must use the documented C-prefix and exclude ordinary returns from the primary rate.",
+            "reason": "Defines the primary metric",
+            "status": "accepted",
+            "synthesis_evidence_ids": [
+              "uci:online-retail-ii:invoice-c-prefix"
+            ]
+          },
+          {
+            "contribution_id": "contribution:4635ff292a523b15ac588172",
+            "contributor_evidence_ids": [
+              "metric:cancelled-invoice-rate",
+              "metric:repeat-purchase-90d"
+            ],
+            "position": "A cancellation-rate guardrail alone can hide retention harm.",
+            "reason": "Adds the decision-relevant retention guardrail",
+            "status": "accepted",
+            "synthesis_evidence_ids": [
+              "metric:repeat-purchase-90d"
+            ]
+          },
+          {
+            "contribution_id": "contribution:f50dbe953a2c5a2b8e8ab1b9",
+            "contributor_evidence_ids": [
+              "metric:cancelled-invoice-rate",
+              "metric:repeat-purchase-90d",
+              "policy:manual-review-capacity"
+            ],
+            "position": "General rollout is not justified until both guardrails and review capacity are observed.",
+            "reason": "Capacity is a declared constraint, not measured by the dataset",
+            "status": "bounded",
+            "synthesis_evidence_ids": [
+              "policy:manual-review-capacity"
+            ]
+          }
+        ],
+        "state": "complete",
+        "summary": "Keep the rollout staged; use the documented cancellation marker, pair it with repeat purchase, and treat capacity as an explicit bound.",
+        "unresolved_contribution_ids": []
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "completeness": {
+        "missing_or_degraded": [
+          "Do not portray this team run as complete",
+          "contribution:3e4fe4ea9a5512809e85bb17.assumptions_unreported",
+          "contribution:3e4fe4ea9a5512809e85bb17.confidence_unreported",
+          "contribution:3e4fe4ea9a5512809e85bb17.evidence_ids_unreported",
+          "contribution:3e4fe4ea9a5512809e85bb17.execution_timed_out",
+          "contribution:dec54b2073ad5aca4a17d7ef.assumptions_unreported",
+          "contribution:dec54b2073ad5aca4a17d7ef.confidence_unreported",
+          "contribution:dec54b2073ad5aca4a17d7ef.evidence_ids_unreported",
+          "contribution:dec54b2073ad5aca4a17d7ef.execution_failed",
+          "contribution:dec54b2073ad5aca4a17d7ef.position_or_recommendation_unreported",
+          "contribution:dec54b2073ad5aca4a17d7ef.structured_final_artifact_unavailable",
+          "failed_contributors",
+          "missing_contributors",
+          "synthesis_based_on_partial_execution",
+          "synthesis_lineage_incomplete",
+          "tainted_phases",
+          "timed_out_contributors"
+        ],
+        "state": "degraded"
+      },
+      "conflicts": [],
+      "continuity": {},
+      "contract_version": "deliberation-receipt-v1",
+      "contributors": [
+        {
+          "artifact": {
+            "assumptions": [
+              "The derived metrics are reproducible"
+            ],
+            "confidence": 0.9,
+            "evidence_ids": [
+              "metric:cancelled-invoice-rate",
+              "metric:repeat-purchase-90d"
+            ],
+            "gaps": [
+              "No verified intervention assignment"
+            ],
+            "position": "The observed rates can describe cohorts but cannot identify policy benefit.",
+            "recommendation": "Report descriptive guardrails only.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:dcf2fc0b777d5d37dba40a28",
+          "contributor_id": "execution:team-measurement",
+          "execution": {
+            "duration_ms": 30,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "team_position",
+          "sequence": 1
+        },
+        {
+          "artifact": {
+            "assumptions": [],
+            "confidence": null,
+            "evidence_ids": [],
+            "gaps": [
+              "Provider timed out"
+            ],
+            "position": "Operations evidence was not returned.",
+            "recommendation": null,
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [
+              "assumptions_unreported",
+              "confidence_unreported",
+              "evidence_ids_unreported",
+              "execution_timed_out"
+            ],
+            "state": "degraded"
+          },
+          "contribution_id": "contribution:3e4fe4ea9a5512809e85bb17",
+          "contributor_id": "execution:team-operations",
+          "execution": {
+            "duration_ms": 300000,
+            "error": "provider timeout token=<redacted>",
+            "status": "timed_out"
+          },
+          "phase": "team_position",
+          "sequence": 2
+        },
+        {
+          "artifact": {
+            "assumptions": [],
+            "confidence": null,
+            "evidence_ids": [],
+            "gaps": [
+              "Execution failed before a final artifact"
+            ],
+            "position": null,
+            "recommendation": null,
+            "source": "unreported"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [
+              "assumptions_unreported",
+              "confidence_unreported",
+              "evidence_ids_unreported",
+              "execution_failed",
+              "position_or_recommendation_unreported",
+              "structured_final_artifact_unavailable"
+            ],
+            "state": "degraded"
+          },
+          "contribution_id": "contribution:dec54b2073ad5aca4a17d7ef",
+          "contributor_id": "execution:team-risk",
+          "execution": {
+            "duration_ms": 9,
+            "error": "credential api_key=<redacted> rejected",
+            "status": "failed"
+          },
+          "phase": "team_position",
+          "sequence": 3
+        }
+      ],
+      "coverage": {
+        "coverage_ratio": 0.75,
+        "degraded_synthesis": true,
+        "expected_contributors": 4,
+        "failed_contribution_ids": [
+          "contribution:dec54b2073ad5aca4a17d7ef"
+        ],
+        "missing_contributors": [
+          "planned-contributor-4"
+        ],
+        "observed_contributors": 3,
+        "partial_coverage": true,
+        "state": "partial",
+        "tainted_phases": [
+          "team_synthesis"
+        ],
+        "timed_out_contribution_ids": [
+          "contribution:3e4fe4ea9a5512809e85bb17"
+        ]
+      },
+      "limitations": [
+        "Inspectable attribution records bounded final artifacts and execution facts, not hidden reasoning.",
+        "Attribution does not establish correctness, causality, benefit, or decision quality."
+      ],
+      "receipt_id": "deliberation:9a59e04e83aceef703c4bee4",
+      "receiving": {
+        "product_id": "product:i2-public-retail",
+        "task_id": "task:i2-team-partial"
+      },
+      "route": {
+        "calls": 0,
+        "failures": [
+          "timeout",
+          "execution failure"
+        ],
+        "provider": "deterministic_fixture"
+      },
+      "selection": {
+        "mode": "deliberative",
+        "observable_classification_only": true,
+        "reasoning_shape": "team",
+        "selection_reasons": [
+          "Concurrent measurement and operations artifacts were requested."
+        ],
+        "signals": {
+          "classified_perspective_count": 4,
+          "complexity": "complex"
+        }
+      },
+      "synthesis": {
+        "by_disposition": {
+          "accepted": [],
+          "bounded": [
+            {
+              "contribution_id": "contribution:dcf2fc0b777d5d37dba40a28",
+              "contributor_evidence_ids": [
+                "metric:cancelled-invoice-rate",
+                "metric:repeat-purchase-90d"
+              ],
+              "position": "The observed rates can describe cohorts but cannot identify policy benefit.",
+              "reason": "Usable descriptive evidence only",
+              "status": "bounded",
+              "synthesis_evidence_ids": [
+                "metric:cancelled-invoice-rate",
+                "metric:repeat-purchase-90d"
+              ]
+            }
+          ],
+          "contested": [],
+          "rejected": []
+        },
+        "degraded": true,
+        "dispositions": [
+          {
+            "contribution_id": "contribution:dcf2fc0b777d5d37dba40a28",
+            "contributor_evidence_ids": [
+              "metric:cancelled-invoice-rate",
+              "metric:repeat-purchase-90d"
+            ],
+            "position": "The observed rates can describe cohorts but cannot identify policy benefit.",
+            "reason": "Usable descriptive evidence only",
+            "status": "bounded",
+            "synthesis_evidence_ids": [
+              "metric:cancelled-invoice-rate",
+              "metric:repeat-purchase-90d"
+            ]
+          }
+        ],
+        "state": "degraded",
+        "summary": "Only the descriptive measurement position is usable; operations and risk coverage are incomplete.",
+        "unresolved_contribution_ids": [
+          "contribution:3e4fe4ea9a5512809e85bb17",
+          "contribution:dec54b2073ad5aca4a17d7ef"
+        ]
+      }
+    },
+    {
+      "authority": {
+        "execution_authority": false,
+        "mode": "read_only_projection"
+      },
+      "completeness": {
+        "missing_or_degraded": [],
+        "state": "complete"
+      },
+      "conflicts": [
+        {
+          "conflict_id": "deliberation_conflict:e7681460862f092493238a2b",
+          "contribution_ids": [
+            "contribution:94c9af8e17d0455b0047059f",
+            "contribution:b02dd1dc729ab54f74fe9ac3"
+          ],
+          "derivation": "bounded_contributor_or_synthesis_artifact",
+          "derived_from_persona_or_role_labels": false,
+          "evidence_ids": [
+            "metric:cancelled-invoice-rate",
+            "metric:repeat-purchase-90d"
+          ],
+          "issue": "Immediate rollout treats cancellation observability as sufficient while the opposing artifact requires a retention guardrail."
+        },
+        {
+          "conflict_id": "deliberation_conflict:47c16999293a9fb86b67049c",
+          "contribution_ids": [
+            "contribution:94c9af8e17d0455b0047059f",
+            "contribution:a6753b2f50f09e8cf30d8ef6"
+          ],
+          "derivation": "bounded_contributor_or_synthesis_artifact",
+          "derived_from_persona_or_role_labels": false,
+          "evidence_ids": [
+            "policy:manual-review-capacity"
+          ],
+          "issue": "The rollout position omits the declared manual-review capacity bound."
+        }
+      ],
+      "continuity": {},
+      "contract_version": "deliberation-receipt-v1",
+      "contributors": [
+        {
+          "artifact": {
+            "assumptions": [
+              "Observable cancellation is a sufficient safety gate"
+            ],
+            "confidence": 0.61,
+            "evidence_ids": [
+              "uci:online-retail-ii:invoice-c-prefix",
+              "metric:cancelled-invoice-rate"
+            ],
+            "gaps": [
+              "Retention and capacity are not included"
+            ],
+            "position": "Proceed to general rollout because the cancellation marker is observable.",
+            "recommendation": "Roll out now with cancellation monitoring.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:94c9af8e17d0455b0047059f",
+          "contributor_id": "execution:adv-rollout",
+          "execution": {
+            "duration_ms": 20,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "adversarial_position",
+          "sequence": 1
+        },
+        {
+          "artifact": {
+            "assumptions": [
+              "Repeat purchase is decision relevant"
+            ],
+            "confidence": 0.88,
+            "evidence_ids": [
+              "metric:repeat-purchase-90d"
+            ],
+            "gaps": [
+              "Observational association is not causal"
+            ],
+            "position": "Cancellation monitoring cannot bound retention harm.",
+            "recommendation": "Keep staged until repeat purchase is measured.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:b02dd1dc729ab54f74fe9ac3",
+          "contributor_id": "execution:adv-retention",
+          "execution": {
+            "duration_ms": 24,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "adversarial_position",
+          "sequence": 2
+        },
+        {
+          "artifact": {
+            "assumptions": [
+              "The declared capacity constraint is current"
+            ],
+            "confidence": 0.74,
+            "evidence_ids": [
+              "policy:manual-review-capacity"
+            ],
+            "gaps": [
+              "Capacity is declared rather than observed in the dataset"
+            ],
+            "position": "Manual-review capacity can bound the rollout even if customer metrics are favorable.",
+            "recommendation": "Cap exposure at verified review capacity.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:a6753b2f50f09e8cf30d8ef6",
+          "contributor_id": "execution:adv-capacity",
+          "execution": {
+            "duration_ms": 21,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "adversarial_position",
+          "sequence": 3
+        },
+        {
+          "artifact": {
+            "assumptions": [
+              "No verified assignment metadata is available"
+            ],
+            "confidence": 0.99,
+            "evidence_ids": [
+              "doi:10.24432/C5F88Q"
+            ],
+            "gaps": [
+              "A future controlled evaluation would be required"
+            ],
+            "position": "The public observational data cannot establish policy benefit.",
+            "recommendation": "Do not make a causal rollout claim.",
+            "source": "structured_final_artifact"
+          },
+          "attribution": {
+            "basis": "execution_identity",
+            "persona_or_role_label_used_as_identity": false
+          },
+          "completeness": {
+            "missing_or_degraded": [],
+            "state": "complete"
+          },
+          "contribution_id": "contribution:5f38e67bcedaa49c2169f385",
+          "contributor_id": "execution:adv-causality",
+          "execution": {
+            "duration_ms": 19,
+            "error": null,
+            "status": "completed"
+          },
+          "phase": "adversarial_position",
+          "sequence": 4
+        }
+      ],
+      "coverage": {
+        "coverage_ratio": 1.0,
+        "degraded_synthesis": false,
+        "expected_contributors": 4,
+        "failed_contribution_ids": [],
+        "missing_contributors": [],
+        "observed_contributors": 4,
+        "partial_coverage": false,
+        "state": "complete",
+        "tainted_phases": [],
+        "timed_out_contribution_ids": []
+      },
+      "limitations": [
+        "Inspectable attribution records bounded final artifacts and execution facts, not hidden reasoning.",
+        "Attribution does not establish correctness, causality, benefit, or decision quality."
+      ],
+      "receipt_id": "deliberation:89761948a1880747c8b7e72e",
+      "receiving": {
+        "product_id": "product:i2-public-retail",
+        "task_id": "task:i2-adversarial"
+      },
+      "route": {
+        "calls": 0,
+        "provider": "deterministic_fixture",
+        "tokens": 0
+      },
+      "selection": {
+        "mode": "deliberative",
+        "observable_classification_only": true,
+        "reasoning_shape": "adversarial",
+        "selection_reasons": [
+          "The rollout decision contains a material metric-versus-capacity conflict requiring explicit challenge."
+        ],
+        "signals": {
+          "assurance": true,
+          "complexity": "complex",
+          "critic_or_evaluator_supplied": true
+        }
+      },
+      "synthesis": {
+        "by_disposition": {
+          "accepted": [
+            {
+              "contribution_id": "contribution:b02dd1dc729ab54f74fe9ac3",
+              "contributor_evidence_ids": [
+                "metric:repeat-purchase-90d"
+              ],
+              "position": "Cancellation monitoring cannot bound retention harm.",
+              "reason": "Adds the missing decision-relevant guardrail",
+              "status": "accepted",
+              "synthesis_evidence_ids": [
+                "metric:repeat-purchase-90d"
+              ]
+            }
+          ],
+          "bounded": [
+            {
+              "contribution_id": "contribution:a6753b2f50f09e8cf30d8ef6",
+              "contributor_evidence_ids": [
+                "policy:manual-review-capacity"
+              ],
+              "position": "Manual-review capacity can bound the rollout even if customer metrics are favorable.",
+              "reason": "Capacity bounds exposure but is not observed in the public dataset",
+              "status": "bounded",
+              "synthesis_evidence_ids": [
+                "policy:manual-review-capacity"
+              ]
+            }
+          ],
+          "contested": [
+            {
+              "contribution_id": "contribution:5f38e67bcedaa49c2169f385",
+              "contributor_evidence_ids": [
+                "doi:10.24432/C5F88Q"
+              ],
+              "position": "The public observational data cannot establish policy benefit.",
+              "reason": "Preserve the no-causal-claim limit while a later controlled evaluation remains absent",
+              "status": "contested",
+              "synthesis_evidence_ids": [
+                "doi:10.24432/C5F88Q"
+              ]
+            }
+          ],
+          "rejected": [
+            {
+              "contribution_id": "contribution:94c9af8e17d0455b0047059f",
+              "contributor_evidence_ids": [
+                "uci:online-retail-ii:invoice-c-prefix",
+                "metric:cancelled-invoice-rate"
+              ],
+              "position": "Proceed to general rollout because the cancellation marker is observable.",
+              "reason": "Cancellation observability does not cover retention or capacity",
+              "status": "rejected",
+              "synthesis_evidence_ids": [
+                "metric:repeat-purchase-90d",
+                "policy:manual-review-capacity"
+              ]
+            }
+          ]
+        },
+        "degraded": false,
+        "dispositions": [
+          {
+            "contribution_id": "contribution:94c9af8e17d0455b0047059f",
+            "contributor_evidence_ids": [
+              "uci:online-retail-ii:invoice-c-prefix",
+              "metric:cancelled-invoice-rate"
+            ],
+            "position": "Proceed to general rollout because the cancellation marker is observable.",
+            "reason": "Cancellation observability does not cover retention or capacity",
+            "status": "rejected",
+            "synthesis_evidence_ids": [
+              "metric:repeat-purchase-90d",
+              "policy:manual-review-capacity"
+            ]
+          },
+          {
+            "contribution_id": "contribution:b02dd1dc729ab54f74fe9ac3",
+            "contributor_evidence_ids": [
+              "metric:repeat-purchase-90d"
+            ],
+            "position": "Cancellation monitoring cannot bound retention harm.",
+            "reason": "Adds the missing decision-relevant guardrail",
+            "status": "accepted",
+            "synthesis_evidence_ids": [
+              "metric:repeat-purchase-90d"
+            ]
+          },
+          {
+            "contribution_id": "contribution:a6753b2f50f09e8cf30d8ef6",
+            "contributor_evidence_ids": [
+              "policy:manual-review-capacity"
+            ],
+            "position": "Manual-review capacity can bound the rollout even if customer metrics are favorable.",
+            "reason": "Capacity bounds exposure but is not observed in the public dataset",
+            "status": "bounded",
+            "synthesis_evidence_ids": [
+              "policy:manual-review-capacity"
+            ]
+          },
+          {
+            "contribution_id": "contribution:5f38e67bcedaa49c2169f385",
+            "contributor_evidence_ids": [
+              "doi:10.24432/C5F88Q"
+            ],
+            "position": "The public observational data cannot establish policy benefit.",
+            "reason": "Preserve the no-causal-claim limit while a later controlled evaluation remains absent",
+            "status": "contested",
+            "synthesis_evidence_ids": [
+              "doi:10.24432/C5F88Q"
+            ]
+          }
+        ],
+        "state": "complete",
+        "summary": "Keep the rollout staged. Accept the retention guardrail, reject cancellation-only rollout, preserve the causality limit as contested, and use review capacity to bound exposure.",
+        "unresolved_contribution_ids": []
+      }
+    }
+  ],
+  "scenario": {
+    "decision": "Keep the cancellation-policy rollout staged until cancellation and repeat-purchase guardrails are measured.",
+    "evidence_catalog": {
+      "doi:10.24432/C5F88Q": "Public dataset identity",
+      "metric:cancelled-invoice-rate": "Derived cancellation-rate measurement",
+      "metric:repeat-purchase-90d": "Derived repeat-purchase measurement",
+      "policy:manual-review-capacity": "Declared operational capacity constraint",
+      "uci:online-retail-ii:invoice-c-prefix": "Dataset documentation identifies cancellations by invoice numbers beginning with C"
+    },
+    "public_source": "UCI Online Retail II",
+    "title": "Online Retail II cancellation-policy rollout"
+  },
+  "summary": {
+    "complete": 3,
+    "conflicts": 3,
+    "degraded": 1,
+    "public_mcp_tools": 11,
+    "reasoning_shapes": [
+      "adversarial",
+      "independent",
+      "pipeline",
+      "team"
+    ],
+    "receipts": 4
+  }
+}

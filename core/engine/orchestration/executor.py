@@ -16,7 +16,7 @@ import hashlib
 import logging
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -1408,6 +1408,22 @@ async def run(
 
         # 4. Dispatch: select mode + pattern
         decision = dispatch(request, classification)
+        deliberation_selection = {
+            "reasoning_shape": decision.pattern,
+            "mode": decision.mode,
+            "signals": {
+                "source": request.source,
+                "complexity": classification.get("complexity"),
+                "classified_mode": classification.get("mode"),
+                "explicit_pattern_override": request.pattern is not None,
+                "forced_skill": bool(request.force_skill),
+                "supplied_agent_count": len(request.agent_configs or []),
+                "critic_or_evaluator_supplied": any(
+                    config.role in {"critic", "evaluator"} for config in (request.agent_configs or [])
+                ),
+            },
+            "selection_reasons": [decision.reasoning],
+        }
 
         # 5. Plan (if deliberative and no explicit agent_configs)
         agent_configs = request.agent_configs
@@ -1424,6 +1440,13 @@ async def run(
                 llm=llm,
             )
             pattern_name = plan.pattern
+            deliberation_selection["reasoning_shape"] = pattern_name
+            deliberation_selection["mode"] = plan.mode
+            deliberation_selection["selection_reasons"].append(
+                f"Planner selected {pattern_name} with {len(plan.steps)} observable execution steps."
+            )
+            deliberation_selection["signals"]["planner_used"] = True
+            deliberation_selection["signals"]["planned_step_count"] = len(plan.steps)
             # Convert plan steps to AgentConfigs
             agent_configs = [
                 AgentConfig(
@@ -1437,6 +1460,11 @@ async def run(
                 )
                 for step in plan.steps
             ]
+
+        classification["routing_governance"] = {
+            **(classification.get("routing_governance") or {}),
+            "deliberation_selection": deliberation_selection,
+        }
 
         if not agent_configs:
             composition = classification.get("cognitive_composition")
@@ -1550,6 +1578,14 @@ async def run(
                         from core.engine.orchestration.agent import AgentResult
                         from core.engine.orchestration.patterns.base import PatternResult
 
+                        deliberation_selection["reasoning_shape"] = "multi-phase"
+                        deliberation_selection["selection_reasons"].append(
+                            "Cognitive composition selected sequential observable phases."
+                        )
+                        classification["routing_governance"] = {
+                            **(classification.get("routing_governance") or {}),
+                            "deliberation_selection": deliberation_selection,
+                        }
                         pattern_result = PatternResult(
                             run_id=run_id,
                             pattern_name="multi-phase",
@@ -1608,6 +1644,7 @@ async def run(
                             output=multi_output,
                             classification=classification,
                             snapshot=snapshot,
+                            pattern_result=pattern_result,
                             events=bus.events(),
                             status="completed",
                             duration_ms=duration,
@@ -1692,6 +1729,22 @@ async def run(
                     use_agent_sdk=request.use_agent_sdk,
                 )
             ]
+
+        classification["routing_governance"] = {
+            **(classification.get("routing_governance") or {}),
+            "deliberation_selection": deliberation_selection,
+        }
+        agent_configs = [
+            replace(
+                config,
+                metadata={
+                    **config.metadata,
+                    "i2_artifact_kind": config.metadata.get("i2_artifact_kind", "contribution"),
+                    "i2_phase": config.metadata.get("i2_phase", "execution"),
+                },
+            )
+            for config in agent_configs
+        ]
 
         await bus.emit(
             PlanCreated(

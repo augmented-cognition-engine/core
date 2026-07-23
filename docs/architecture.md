@@ -277,6 +277,25 @@ provider; synthesis resolves contributions into a recommendation. Decisions, rec
 traces, and provenance can then be written through the capture and graph boundary. The model
 contributes inference inside these stages; it does not choose the architecture around them.
 
+### Attributable deliberation and synthesis
+
+I2 makes the transition from reasoning shape to final synthesis an explicit bounded receipt.
+`deliberation-receipt-v1` records observable classification/dispatch signals and selection reasons,
+execution-identity-backed contributor position artifacts, artifact-grounded conflicts, synthesis
+dispositions, and complete/partial/degraded coverage. Generated roles or persona labels are
+context, never attribution identity or disagreement evidence.
+
+Provider calls may return a small final-answer metadata block containing only a position or
+recommendation, assumptions, evidence identifiers, confidence, gaps, conflicts, and synthesis
+dispositions. The adapter strips that block from ordinary output, bounds and redacts its allowlisted
+fields, and persists the projection. Missing or malformed metadata, contributor failures, timeouts,
+tainted phases, and incomplete synthesis remain explicit. Prompts, tool transcripts, scratchpads,
+private reasoning tokens, and chain-of-thought never enter the contract.
+
+The existing task/status API, thin client, CLI, and read-only Living Product Graph expose the same
+additive receipt. It grants no write or execution authority and does not establish correctness,
+causality, benefit, or access to hidden model reasoning.
+
 ### Inspectable retained-intelligence use
 
 I3 makes the transition from memory to later decision an explicit read receipt rather than an

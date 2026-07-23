@@ -21,6 +21,9 @@ ACE's public documentation is intentionally small and user-facing:
   provenance, and multi-product SurrealDB operation.
 - [Decision and correction receipts](decision-correction-receipts.md) — the supported I1 contract,
   lifecycle, compatibility behavior, privacy boundary, replay evidence, and limitations.
+- [I2 attributable deliberation evidence](i2-attributable-deliberation-evidence.md) — bounded
+  routing reasons, execution-identity-backed positions, artifact-grounded conflict, synthesis
+  lineage, partial coverage, restart evidence, and hidden-reasoning boundary.
 - [I3 intelligence-use evidence](i3-intelligence-use-evidence.md) — retained-intelligence states,
   exact I1 decision deltas, matched comparisons, restart continuity, failure cases, and the boundary
   between material influence and beneficial impact.

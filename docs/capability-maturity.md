@@ -64,6 +64,13 @@ privacy boundary, lifecycle history, and replay evidence are documented in
 [Decision and correction receipts](decision-correction-receipts.md). I1 is passed without widening
 the eleven-tool surface or adding execution authority.
 
+The supported I2 `deliberation-receipt-v1` projection is exposed through existing task/status,
+opt-in CLI, thin-client, and read-only Living Product Graph paths. It records bounded observable
+shape selection, execution-identity contributor artifacts, artifact-grounded conflicts, synthesis
+dispositions, and honest partial/degraded coverage without exposing hidden reasoning or adding
+execution authority. I2 is passed, but attribution does not establish correctness, causality, or
+benefit. See [I2 closeout evidence](i2-attributable-deliberation-evidence.md).
+
 The supported I3 `intelligence-use-receipt-v1` projection is exposed through the existing
 `ace_status` task result and read-only Living Product Graph. It distinguishes retrieved, injected,
 reflected, and decision-material evidence; limits comparison to the six structured I1 fields; and

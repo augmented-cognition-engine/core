@@ -1,0 +1,285 @@
+{
+  "contract_version": "deliberation-receipt-v1",
+  "scenario": {
+    "title": "Online Retail II cancellation-policy rollout",
+    "public_source": "UCI Online Retail II",
+    "evidence_catalog": {
+      "doi:10.24432/C5F88Q": "Public dataset identity",
+      "uci:online-retail-ii:invoice-c-prefix": "Dataset documentation identifies cancellations by invoice numbers beginning with C",
+      "metric:cancelled-invoice-rate": "Derived cancellation-rate measurement",
+      "metric:repeat-purchase-90d": "Derived repeat-purchase measurement",
+      "policy:manual-review-capacity": "Declared operational capacity constraint"
+    },
+    "decision": "Keep the cancellation-policy rollout staged until cancellation and repeat-purchase guardrails are measured."
+  },
+  "cases": [
+    {
+      "case_id": "independent-complete",
+      "receiving": {"task_id": "task:i2-independent", "product_id": "product:i2-public-retail"},
+      "selection": {
+        "reasoning_shape": "independent",
+        "mode": "reactive",
+        "signals": {"complexity": "simple", "supplied_agent_count": 0, "explicit_pattern_override": false},
+        "selection_reasons": ["A bounded data-definition check needs one execution unit."]
+      },
+      "expected_contributors": 1,
+      "contributors": [
+        {
+          "contributor_id": "execution:independent-1",
+          "phase": "independent",
+          "artifact": {
+            "position": "Treat C-prefixed invoices as cancellations and keep the definition visible in every reported rate.",
+            "recommendation": "Use the documented cancellation marker before comparing cohorts.",
+            "assumptions": ["Invoice identifiers preserve the documented prefix"],
+            "evidence_ids": ["doi:10.24432/C5F88Q", "uci:online-retail-ii:invoice-c-prefix"],
+            "confidence": 0.98,
+            "gaps": [],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 12}
+        }
+      ],
+      "conflicts": [],
+      "synthesis": {
+        "state": "not_applicable",
+        "summary": "The single bounded position is the final result.",
+        "dispositions": [
+          {"contributor_id": "execution:independent-1", "status": "bounded", "reason": "single_path", "evidence_ids": ["uci:online-retail-ii:invoice-c-prefix"]}
+        ],
+        "gaps": []
+      },
+      "route": {"provider": "deterministic_fixture", "calls": 0, "tokens": 0}
+    },
+    {
+      "case_id": "pipeline-complete",
+      "receiving": {"task_id": "task:i2-pipeline", "product_id": "product:i2-public-retail"},
+      "selection": {
+        "reasoning_shape": "pipeline",
+        "mode": "deliberative",
+        "signals": {"complexity": "complex", "planned_step_count": 3, "planner_used": true},
+        "selection_reasons": ["The decision needs sequential definition, measurement, and policy synthesis."]
+      },
+      "expected_contributors": 3,
+      "contributors": [
+        {
+          "contributor_id": "execution:pipeline-definition",
+          "phase": "pipeline_step_1",
+          "artifact": {
+            "position": "Cancellation outcomes must use the documented C-prefix and exclude ordinary returns from the primary rate.",
+            "recommendation": "Freeze the cancellation denominator before rollout analysis.",
+            "assumptions": ["The public invoice convention applies throughout the dataset"],
+            "evidence_ids": ["doi:10.24432/C5F88Q", "uci:online-retail-ii:invoice-c-prefix"],
+            "confidence": 0.96,
+            "gaps": [],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 18}
+        },
+        {
+          "contributor_id": "execution:pipeline-measurement",
+          "phase": "pipeline_step_2",
+          "artifact": {
+            "position": "A cancellation-rate guardrail alone can hide retention harm.",
+            "recommendation": "Pair cancelled-invoice rate with 90-day repeat purchase before general rollout.",
+            "assumptions": ["Customer identifiers are available for the declared repeat-purchase window"],
+            "evidence_ids": ["metric:cancelled-invoice-rate", "metric:repeat-purchase-90d"],
+            "confidence": 0.84,
+            "gaps": ["No causal assignment is available in the public dataset"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 22}
+        },
+        {
+          "contributor_id": "execution:pipeline-policy",
+          "phase": "pipeline_step_3",
+          "artifact": {
+            "position": "General rollout is not justified until both guardrails and review capacity are observed.",
+            "recommendation": "Keep the policy staged and publish both measurement definitions.",
+            "assumptions": ["Manual review capacity is a binding constraint"],
+            "evidence_ids": ["metric:cancelled-invoice-rate", "metric:repeat-purchase-90d", "policy:manual-review-capacity"],
+            "confidence": 0.81,
+            "gaps": ["The public data does not measure review workload directly"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 16}
+        }
+      ],
+      "conflicts": [
+        {
+          "contributor_ids": ["execution:pipeline-definition", "execution:pipeline-measurement"],
+          "issue": "A cancellation-only gate is well defined but insufficient to bound retention risk.",
+          "evidence_ids": ["metric:cancelled-invoice-rate", "metric:repeat-purchase-90d"]
+        }
+      ],
+      "synthesis": {
+        "summary": "Keep the rollout staged; use the documented cancellation marker, pair it with repeat purchase, and treat capacity as an explicit bound.",
+        "dispositions": [
+          {"contributor_id": "execution:pipeline-definition", "status": "accepted", "reason": "Defines the primary metric", "evidence_ids": ["uci:online-retail-ii:invoice-c-prefix"]},
+          {"contributor_id": "execution:pipeline-measurement", "status": "accepted", "reason": "Adds the decision-relevant retention guardrail", "evidence_ids": ["metric:repeat-purchase-90d"]},
+          {"contributor_id": "execution:pipeline-policy", "status": "bounded", "reason": "Capacity is a declared constraint, not measured by the dataset", "evidence_ids": ["policy:manual-review-capacity"]}
+        ],
+        "gaps": []
+      },
+      "route": {"provider": "deterministic_fixture", "calls": 0, "tokens": 0}
+    },
+    {
+      "case_id": "team-partial-degraded",
+      "receiving": {"task_id": "task:i2-team-partial", "product_id": "product:i2-public-retail"},
+      "selection": {
+        "reasoning_shape": "team",
+        "mode": "deliberative",
+        "signals": {"complexity": "complex", "classified_perspective_count": 4},
+        "selection_reasons": ["Concurrent measurement and operations artifacts were requested."]
+      },
+      "expected_contributors": 4,
+      "missing_contributors": ["planned-contributor-4"],
+      "tainted_phases": ["team_synthesis"],
+      "contributors": [
+        {
+          "contributor_id": "execution:team-measurement",
+          "phase": "team_position",
+          "artifact": {
+            "position": "The observed rates can describe cohorts but cannot identify policy benefit.",
+            "recommendation": "Report descriptive guardrails only.",
+            "assumptions": ["The derived metrics are reproducible"],
+            "evidence_ids": ["metric:cancelled-invoice-rate", "metric:repeat-purchase-90d"],
+            "confidence": 0.9,
+            "gaps": ["No verified intervention assignment"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 30}
+        },
+        {
+          "contributor_id": "execution:team-operations",
+          "phase": "team_position",
+          "artifact": {
+            "position": "Operations evidence was not returned.",
+            "recommendation": null,
+            "assumptions": [],
+            "evidence_ids": [],
+            "confidence": null,
+            "gaps": ["Provider timed out"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "timed_out", "duration_ms": 300000, "error": "provider timeout token=fixture-secret"}
+        },
+        {
+          "contributor_id": "execution:team-risk",
+          "phase": "team_position",
+          "artifact": {
+            "position": null,
+            "recommendation": null,
+            "assumptions": [],
+            "evidence_ids": [],
+            "confidence": null,
+            "gaps": ["Execution failed before a final artifact"],
+            "source": "unreported"
+          },
+          "execution": {"status": "failed", "duration_ms": 9, "error": "credential api_key=fixture-secret rejected"}
+        }
+      ],
+      "conflicts": [],
+      "synthesis": {
+        "state": "degraded",
+        "summary": "Only the descriptive measurement position is usable; operations and risk coverage are incomplete.",
+        "dispositions": [
+          {"contributor_id": "execution:team-measurement", "status": "bounded", "reason": "Usable descriptive evidence only", "evidence_ids": ["metric:cancelled-invoice-rate", "metric:repeat-purchase-90d"]}
+        ],
+        "gaps": ["Do not portray this team run as complete"]
+      },
+      "route": {"provider": "deterministic_fixture", "calls": 0, "failures": ["timeout", "execution failure"]}
+    },
+    {
+      "case_id": "adversarial-complete",
+      "receiving": {"task_id": "task:i2-adversarial", "product_id": "product:i2-public-retail"},
+      "selection": {
+        "reasoning_shape": "adversarial",
+        "mode": "deliberative",
+        "signals": {"complexity": "complex", "critic_or_evaluator_supplied": true, "assurance": true},
+        "selection_reasons": ["The rollout decision contains a material metric-versus-capacity conflict requiring explicit challenge."]
+      },
+      "expected_contributors": 4,
+      "contributors": [
+        {
+          "contributor_id": "execution:adv-rollout",
+          "phase": "adversarial_position",
+          "artifact": {
+            "position": "Proceed to general rollout because the cancellation marker is observable.",
+            "recommendation": "Roll out now with cancellation monitoring.",
+            "assumptions": ["Observable cancellation is a sufficient safety gate"],
+            "evidence_ids": ["uci:online-retail-ii:invoice-c-prefix", "metric:cancelled-invoice-rate"],
+            "confidence": 0.61,
+            "gaps": ["Retention and capacity are not included"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 20}
+        },
+        {
+          "contributor_id": "execution:adv-retention",
+          "phase": "adversarial_position",
+          "artifact": {
+            "position": "Cancellation monitoring cannot bound retention harm.",
+            "recommendation": "Keep staged until repeat purchase is measured.",
+            "assumptions": ["Repeat purchase is decision relevant"],
+            "evidence_ids": ["metric:repeat-purchase-90d"],
+            "confidence": 0.88,
+            "gaps": ["Observational association is not causal"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 24}
+        },
+        {
+          "contributor_id": "execution:adv-capacity",
+          "phase": "adversarial_position",
+          "artifact": {
+            "position": "Manual-review capacity can bound the rollout even if customer metrics are favorable.",
+            "recommendation": "Cap exposure at verified review capacity.",
+            "assumptions": ["The declared capacity constraint is current"],
+            "evidence_ids": ["policy:manual-review-capacity"],
+            "confidence": 0.74,
+            "gaps": ["Capacity is declared rather than observed in the dataset"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 21}
+        },
+        {
+          "contributor_id": "execution:adv-causality",
+          "phase": "adversarial_position",
+          "artifact": {
+            "position": "The public observational data cannot establish policy benefit.",
+            "recommendation": "Do not make a causal rollout claim.",
+            "assumptions": ["No verified assignment metadata is available"],
+            "evidence_ids": ["doi:10.24432/C5F88Q"],
+            "confidence": 0.99,
+            "gaps": ["A future controlled evaluation would be required"],
+            "source": "structured_final_artifact"
+          },
+          "execution": {"status": "completed", "duration_ms": 19}
+        }
+      ],
+      "conflicts": [
+        {
+          "contributor_ids": ["execution:adv-rollout", "execution:adv-retention"],
+          "issue": "Immediate rollout treats cancellation observability as sufficient while the opposing artifact requires a retention guardrail.",
+          "evidence_ids": ["metric:cancelled-invoice-rate", "metric:repeat-purchase-90d"]
+        },
+        {
+          "contributor_ids": ["execution:adv-rollout", "execution:adv-capacity"],
+          "issue": "The rollout position omits the declared manual-review capacity bound.",
+          "evidence_ids": ["policy:manual-review-capacity"]
+        }
+      ],
+      "synthesis": {
+        "summary": "Keep the rollout staged. Accept the retention guardrail, reject cancellation-only rollout, preserve the causality limit as contested, and use review capacity to bound exposure.",
+        "dispositions": [
+          {"contributor_id": "execution:adv-rollout", "status": "rejected", "reason": "Cancellation observability does not cover retention or capacity", "evidence_ids": ["metric:repeat-purchase-90d", "policy:manual-review-capacity"]},
+          {"contributor_id": "execution:adv-retention", "status": "accepted", "reason": "Adds the missing decision-relevant guardrail", "evidence_ids": ["metric:repeat-purchase-90d"]},
+          {"contributor_id": "execution:adv-capacity", "status": "bounded", "reason": "Capacity bounds exposure but is not observed in the public dataset", "evidence_ids": ["policy:manual-review-capacity"]},
+          {"contributor_id": "execution:adv-causality", "status": "contested", "reason": "Preserve the no-causal-claim limit while a later controlled evaluation remains absent", "evidence_ids": ["doi:10.24432/C5F88Q"]}
+        ],
+        "gaps": []
+      },
+      "route": {"provider": "deterministic_fixture", "calls": 0, "tokens": 0}
+    }
+  ]
+}

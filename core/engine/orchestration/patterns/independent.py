@@ -9,6 +9,7 @@ benefit from multi-agent coordination.
 from __future__ import annotations
 
 import time
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from core.engine.orchestration.agent import AgentConfig, AgentResult
@@ -41,6 +42,10 @@ class IndependentPattern(PatternStrategy):
         self._validate_config(config)
         start = time.monotonic()
         ac = agent_configs[0] if agent_configs else AgentConfig(role="executor")
+        ac = replace(
+            ac,
+            metadata={**ac.metadata, "i2_artifact_kind": "contribution", "i2_phase": "independent"},
+        )
 
         # Compose shell if system_prompt provided
         shell = (
@@ -77,6 +82,7 @@ class IndependentPattern(PatternStrategy):
                 agent_id=agent.agent_id,
                 status="failed",
                 error=str(exc),
+                metadata={"i2_artifact_kind": "contribution", "i2_phase": "independent"},
             )
             return PatternResult(
                 run_id=config.run_id,
@@ -87,6 +93,11 @@ class IndependentPattern(PatternStrategy):
                 duration_ms=duration,
             )
 
+        result.metadata = {
+            **result.metadata,
+            "i2_artifact_kind": "contribution",
+            "i2_phase": "independent",
+        }
         duration = int((time.monotonic() - start) * 1000)
         return PatternResult(
             run_id=config.run_id,

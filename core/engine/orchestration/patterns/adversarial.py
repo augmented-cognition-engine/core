@@ -19,6 +19,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from core.engine.orchestration.agent import AgentConfig, AgentResult
@@ -93,6 +94,14 @@ class AdversarialPattern(PatternStrategy):
         independent_outputs: list[dict] = []
 
         async def _run_independent(ac: AgentConfig) -> tuple[AgentConfig, AgentResult]:
+            ac = replace(
+                ac,
+                metadata={
+                    **ac.metadata,
+                    "i2_artifact_kind": "contribution",
+                    "i2_phase": "adversarial_position",
+                },
+            )
             shell = ComposedShell(
                 system_prompt=ac.system_prompt,
                 user_prompt=task,
@@ -119,6 +128,12 @@ class AdversarialPattern(PatternStrategy):
                     status="failed",
                     error=str(exc),
                 )
+
+            result.metadata = {
+                **result.metadata,
+                "i2_artifact_kind": "contribution",
+                "i2_phase": "adversarial_position",
+            }
 
             await self.bus.publish(
                 BusMessage(
@@ -167,8 +182,19 @@ class AdversarialPattern(PatternStrategy):
             round_challenge_outputs: list[dict] = []
 
             for i, ac in enumerate(agent_configs):
+                ac = replace(
+                    ac,
+                    metadata={
+                        **ac.metadata,
+                        "i2_artifact_kind": "challenge",
+                        "i2_phase": f"challenge_round_{round_num}",
+                        "i2_contributor_ids": [item["agent_id"] for item in independent_outputs],
+                    },
+                )
                 others = [o for j, o in enumerate(current_positions) if j != i]
-                others_text = "\n\n".join(f"### {o['role']}:\n{o['output']}" for o in others)
+                others_text = "\n\n".join(
+                    f"### Contributor {o.get('agent_id', 'unreported')} ({o['role']}):\n{o['output']}" for o in others
+                )
                 challenge_prompt = (
                     f"You previously produced this output:\n"
                     f"{current_positions[i]['output']}\n\n"
@@ -210,8 +236,20 @@ class AdversarialPattern(PatternStrategy):
                         error=str(exc),
                     )
 
+                result.metadata = {
+                    **result.metadata,
+                    "i2_artifact_kind": "challenge",
+                    "i2_phase": f"challenge_round_{round_num}",
+                }
+
                 agent_results.append(result)
-                round_challenge_outputs.append({"role": ac.role, "output": result.output})
+                round_challenge_outputs.append(
+                    {
+                        "role": ac.role,
+                        "output": result.output,
+                        "agent_id": independent_outputs[i]["agent_id"],
+                    }
+                )
 
             all_challenge_outputs.append(round_challenge_outputs)
             # Update current_positions to the outputs from this round
@@ -228,7 +266,9 @@ class AdversarialPattern(PatternStrategy):
         # ------------------------------------------------------------------
         # Phase 3: Synthesis — incorporates all challenge rounds
         # ------------------------------------------------------------------
-        all_text = "\n\n".join(f"### {o['role']} (position):\n{o['output']}" for o in independent_outputs)
+        all_text = "\n\n".join(
+            f"### Contributor {o['agent_id']} ({o['role']}, position):\n{o['output']}" for o in independent_outputs
+        )
         for round_idx, round_outputs in enumerate(all_challenge_outputs, start=1):
             all_text += f"\n\n---\n\n## Round {round_idx} Challenges\n\n"
             all_text += "\n\n".join(
@@ -245,6 +285,11 @@ class AdversarialPattern(PatternStrategy):
         synthesis_config = AgentConfig(
             role="synthesizer",
             system_prompt=("You synthesize multiple agent outputs into a coherent, balanced result."),
+            metadata={
+                "i2_artifact_kind": "synthesis",
+                "i2_phase": "synthesis",
+                "i2_contributor_ids": [item["agent_id"] for item in independent_outputs],
+            },
         )
         shell = ComposedShell(
             system_prompt=synthesis_config.system_prompt,
@@ -269,6 +314,12 @@ class AdversarialPattern(PatternStrategy):
                 status="failed",
                 error=str(exc),
             )
+
+        synth_result.metadata = {
+            **synth_result.metadata,
+            "i2_artifact_kind": "synthesis",
+            "i2_phase": "synthesis",
+        }
 
         agent_results.append(synth_result)
 

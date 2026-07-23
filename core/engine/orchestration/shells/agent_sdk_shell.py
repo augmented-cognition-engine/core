@@ -48,9 +48,18 @@ class AgentSDKShell:
             shell = self._shell or ComposedShell(system_prompt="", user_prompt=task)
             default_root = str(Path(__file__).resolve().parent.parent.parent.parent)
             cwd = self._config.metadata.get("cwd", default_root)
+            system_prompt = shell.resolved_system_prompt()
+            artifact_kind = str(self._config.metadata.get("i2_artifact_kind") or "")
+            if artifact_kind:
+                from core.engine.product.deliberation import attribution_instruction
+
+                system_prompt += attribution_instruction(
+                    artifact_kind,
+                    contributor_ids=list(self._config.metadata.get("i2_contributor_ids") or []),
+                )
 
             options = ClaudeAgentOptions(
-                system_prompt=shell.resolved_system_prompt(),
+                system_prompt=system_prompt,
                 allowed_tools=shell.tools or self._config.tools or [],
                 permission_mode="acceptEdits",
                 cwd=cwd,
@@ -64,6 +73,11 @@ class AgentSDKShell:
                             collected_text = block.text
 
             duration = int((time.monotonic() - start) * 1000)
+            structured_output = None
+            if artifact_kind:
+                from core.engine.product.deliberation import extract_attribution_artifact
+
+                collected_text, structured_output = extract_attribution_artifact(collected_text)
 
             await self._bus.publish(
                 BusMessage(
@@ -79,6 +93,13 @@ class AgentSDKShell:
                 status="completed",
                 output=collected_text,
                 duration_ms=duration,
+                structured_output=structured_output,
+                metadata={
+                    "i2_artifact_kind": artifact_kind,
+                    "i2_phase": self._config.metadata.get("i2_phase") or "execution",
+                }
+                if artifact_kind
+                else {},
             )
         except Exception as e:
             duration = int((time.monotonic() - start) * 1000)
@@ -87,6 +108,10 @@ class AgentSDKShell:
                 status="failed",
                 error=str(e),
                 duration_ms=duration,
+                metadata={
+                    "i2_artifact_kind": str(self._config.metadata.get("i2_artifact_kind") or "contribution"),
+                    "i2_phase": self._config.metadata.get("i2_phase") or "execution",
+                },
             )
 
     async def execute_streaming(self, task: str, context: dict[str, Any] | None = None) -> AsyncIterator[str]:

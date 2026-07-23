@@ -1,10 +1,12 @@
-"""Real API fixture for I1/F1/I3 restart persistence without any model call."""
+"""Real API fixture for I1/I2/I3/F1 restart persistence without any model call."""
 
 import hashlib
 
 from core.engine.api.main import app
 from core.engine.core.db import parse_rows, pool
+from core.engine.orchestration.agent import AgentResult
 from core.engine.orchestration.executor import OrchestrationResult
+from core.engine.orchestration.patterns.base import PatternResult
 
 __all__ = ["app"]
 
@@ -122,6 +124,14 @@ async def _deterministic_orchestrate(request):
             "discipline": "product",
             "archetype": "advisor",
             "mode": "deliberative",
+            "routing_governance": {
+                "deliberation_selection": {
+                    "reasoning_shape": "independent",
+                    "mode": "reactive",
+                    "signals": {"complexity": "simple", "deterministic_fixture": True},
+                    "selection_reasons": ["The restart fixture has one bounded execution artifact."],
+                }
+            },
         },
         snapshot={
             "total_count": 0,
@@ -134,6 +144,30 @@ async def _deterministic_orchestrate(request):
             **({"_intelligence_use_trace": trace} if trace else {}),
         },
         events=[],
+        pattern_result=PatternResult(
+            run_id="run_i2_restart_fixture",
+            pattern_name="independent",
+            status="completed",
+            output="Deterministic restart receipt fixture output.",
+            agent_results=[
+                AgentResult(
+                    agent_id="execution:i2-restart-fixture",
+                    status="completed",
+                    output="Deterministic restart receipt fixture output.",
+                    duration_ms=1,
+                    structured_output={
+                        "position": "Preserve the bounded receipt across restart.",
+                        "recommendation": "Use the same persisted task identity after restart.",
+                        "assumptions": ["The disposable store preserves the task row"],
+                        "evidence_ids": ["test:i2:restart"],
+                        "confidence": 1.0,
+                        "gaps": [],
+                    },
+                    metadata={"i2_artifact_kind": "contribution", "i2_phase": "independent"},
+                )
+            ],
+            duration_ms=1,
+        ),
         status="completed",
         duration_ms=1,
     )
