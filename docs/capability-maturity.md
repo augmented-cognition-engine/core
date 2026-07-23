@@ -89,8 +89,9 @@ material influence is not beneficial impact and does not imply L1 success. See
 
 The experimental L1 `ace.foresight.impact-evaluation/v1` evaluator now computes bounded,
 cluster-aware later-outcome comparisons without accepting caller-supplied quality labels. Its first
-checksum-frozen public-data probe did not establish benefit, so L1 is candidate and no beneficial-
-impact capability is part of the supported preview contract. See the
+checksum-frozen public-data probe did not establish benefit. A tamper-evident prospective protocol
+is now frozen, but its executed readiness receipt is `collection_not_started`. L1 therefore remains
+candidate and no beneficial-impact capability is part of the supported preview contract. See the
 [L1 evidence gate](l1-foresight-impact-evidence.md).
 
 Atrium is repository beta source and is not included in the Python wheel or sdist. It is a

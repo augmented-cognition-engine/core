@@ -111,7 +111,7 @@ beneficially inform later reasoning.
 |---|---|---|---|
 | F2 | not ready | Broaden consequence types and independently verified design evidence where product evidence justifies the added complexity | Requires L1 evidence or demonstrated user need; may include binary/categorical scoring, verified assignment/randomization provenance, and independently produced forecast contributions without reopening F1 |
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts and explicit execution authority |
-| L1 | candidate | Use resolved conditional forecasts to improve later reasoning and decision quality | [Initial L1 evidence gate](docs/l1-foresight-impact-evidence.md) implements a bounded sample-aware all-controls evaluator, but the checksum-frozen public-data probe did not beat persistence, its cluster intervals include zero, model-only evidence is absent, and intervention/confounder attribution is unsupported; beneficial impact is not established |
+| L1 | candidate | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence gate](docs/l1-foresight-impact-evidence.md) preserves the negative public-data probe and freezes a tamper-evident prospective all-controls protocol; the executed readiness receipt is `collection_not_started`, so beneficial impact is not established |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
 | E2 | not ready | Grow the provider-neutral extension, telemetry, and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy; native telemetry sources belong here rather than in F1 |
 
@@ -141,4 +141,5 @@ negative result: rolling resolved forecasts were slightly worse than last-observ
 the apparent base-rate improvement was not cluster-robust, and observational source data could not
 identify intervention benefit. Passing L1 requires new preregistered outcome evidence against every
 required control; it cannot be achieved by relabeling this probe or selecting only its favorable
-comparison.
+comparison. The prospective v1 protocol is now frozen, but its `collection_not_started` receipt is
+readiness evidence only and does not advance L1.

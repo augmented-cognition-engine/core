@@ -97,3 +97,15 @@ provenance, and supported intervention/confounder attribution. The current probe
 `benefit_not_established`: it is slightly worse than persistence, its eight-cluster intervals span
 zero, and it has no matched model-only or intervention evidence. See the
 [L1 evidence gate](../docs/l1-foresight-impact-evidence.md).
+
+The separately frozen prospective protocol can be checked before any cohort exists:
+
+```bash
+python3 -m scripts.verify_l1_preregistration \
+  --registration evaluations/fixtures/l1_preregistration_v1.json \
+  --result evaluations/results/l1_preregistration_readiness_v1.json
+```
+
+Its recorded state is `collection_not_started`. A valid preregistration is not beneficial-impact
+evidence; it prevents a later cohort, if collected, from silently changing arms, matching rules,
+sample thresholds, stopping rules, failure coverage, or the all-controls promotion rule.
