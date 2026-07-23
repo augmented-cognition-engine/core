@@ -629,6 +629,7 @@ async def api_version():
 
 # Include Phase 1a routers
 from core.engine.api.capture import router as capture_router
+from core.engine.api.extension_invocations import router as extension_invocations_router
 from core.engine.api.foresight import router as foresight_router
 from core.engine.api.intel import router as intel_router
 from core.engine.api.landscape import router as landscape_router
@@ -636,6 +637,7 @@ from core.engine.api.sentinels import router as sentinels_router
 from core.engine.api.tasks import router as tasks_router
 
 app.include_router(tasks_router)
+app.include_router(extension_invocations_router)
 app.include_router(capture_router)
 app.include_router(intel_router)
 app.include_router(landscape_router)

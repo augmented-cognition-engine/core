@@ -1,0 +1,10 @@
+{
+  "contract_version": "extension-invocation-v999",
+  "extension_id": "product",
+  "action": "product-check",
+  "workspace_id": "workspace:fixture",
+  "question": "This contract must fail closed.",
+  "references": [],
+  "parameters": {},
+  "correlation_id": "corr:fixture-unknown"
+}

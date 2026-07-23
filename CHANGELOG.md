@@ -13,14 +13,36 @@ Notable user- and contributor-visible changes are recorded here.
 - Preserve the existing async task contract, I1 decision/correction and I3 intelligence-use
   receipts, and exactly eleven public MCP tools; no write or execution authority is added.
 
+### Experimental
+
+- Add the authenticated `extension-invocation-v1` HTTP envelope and
+  `extension-invocation-receipt-v1` projection for extension-owned reference resolution and
+  outcome projection over Core's durable task lifecycle. Failed or restart-degraded work resumes
+  as a linked successor attempt, never as a fictitious continuation of a lost provider stream.
+  This adds experimental HTTP execution authority but no CLI command or MCP tool; E1 remains not
+  ready.
+- Expand the experimental runtime with deterministic capability negotiation, schema discovery,
+  product/user/workspace-scoped listing and attempt history, strict resolved-record provenance,
+  idempotent concurrent resume, explicit retry policy/actor/reason lineage, cooperative
+  cancellation states, output-contract validation hooks, immutable artifact references, and a
+  provider-free reusable conformance helper. The shipped reference extension now registers the
+  minimal `product:product-check` action.
+
 ### Migration
 
-- Add schema v156 as one optional task receipt field without rewriting legacy rows.
+- Add schema v156 as one optional task receipt field and v157 as optional extension invocation,
+  receipt, retry-lineage, cancellation, and retry-parent index fields without rewriting legacy rows.
 
 ### Known limitations
 
 - Inspectable attribution is bounded final-artifact and execution evidence. It does not establish
   correctness, causality, benefit, decision quality, or access to hidden chain-of-thought.
+- Extension task actions are trusted in-process code. Attempt-level resume is not distributed
+  recovery or exactly-once external execution, and a complete receipt does not establish a
+  correct or beneficial domain outcome.
+- Cancellation is cooperative and process-local; it cannot undo completed provider calls or
+  extension-owned external side effects. Capability negotiation and task actions remain
+  experimental until the multi-package conformance/version-skew matrix is complete.
 
 ## 0.1.2
 

@@ -4,11 +4,48 @@ import hashlib
 
 from core.engine.api.main import app
 from core.engine.core.db import parse_rows, pool
+from core.engine.extensions import (
+    ContextResolution,
+    ExtensionOutcome,
+    ExtensionTaskPlan,
+    Registry,
+)
 from core.engine.orchestration.agent import AgentResult
 from core.engine.orchestration.executor import OrchestrationResult
 from core.engine.orchestration.patterns.base import PatternResult
 
 __all__ = ["app"]
+
+
+def _prepare_restart_extension(envelope, actor):
+    return ExtensionTaskPlan(
+        description=f"Exercise durable extension retry for {envelope.question}",
+        context_resolution=[
+            ContextResolution(
+                reference=reference,
+                status="declared",
+                resolver="tests.i1_restart_app",
+                provenance={"product_id": actor.product_id},
+            )
+            for reference in envelope.references
+        ],
+        outcome_contract="restart-fixture-outcome-v1",
+    )
+
+
+def _project_restart_extension(output, execution):
+    return ExtensionOutcome(
+        contract_version="restart-fixture-outcome-v1",
+        data={"content": output, "execution_state": execution.get("state")},
+    )
+
+
+Registry(extension_id="restart_fixture", extension_version="1.0.0").register_task_action(
+    "durable-retry",
+    _prepare_restart_extension,
+    project_outcome=_project_restart_extension,
+    output_contract="restart-fixture-outcome-v1",
+)
 
 
 async def _deterministic_orchestrate(request):

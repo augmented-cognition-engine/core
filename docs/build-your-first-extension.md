@@ -34,6 +34,7 @@ That command produces:
       green_energy_extension/
         __init__.py
         extension.py
+        invocation.py
         recipe.py
         sentinels.py
         instruments/
@@ -70,6 +71,7 @@ place, whether or not the open kernel consumes them yet.
 | `recipe.py` | `reg.register_recipe(name, module_path, disciplines=[...])` | The meta-skill the composer selects when a thought classifies to your discipline |
 | `tools/green_energy_pulse.py` | `reg.register_tool(fn, title=...)` | An MCP tool — `ace_green_energy_pulse` — exposed to any MCP client the same way kernel tools are |
 | `sentinels.py` | `reg.register_sentinel(name, cron=..., fn=...)` | A 24/7 engine the kernel scheduler runs on a cron, present or not |
+| `invocation.py` | `reg.register_task_action(...)` | An experimental structured action using Core's durable task, retry, history, cancellation, and receipt runtime |
 
 Read `recipe.py`: five phases (Frame → Reality → Voices → Tradeoffs →
 Recommend) that turn a raw thought into a bounded recommendation with kill
@@ -84,6 +86,41 @@ Each of these files maps one-to-one to a `Registry` method, and every method
 you see called is listed, with its exact contract, in
 [`extension-api.md`](extension-api.md) — that document is the map; this
 package is the territory.
+
+### Add a structured task action
+
+The shipped reference extension registers `product:product-check`. Its preparation
+function receives an `ExtensionInvocationEnvelope` and authenticated
+`ExtensionActorContext`, accounts for every input reference, and returns an
+`ExtensionTaskPlan`. It reports unsupported repository types as `declared`; it never
+calls an identifier `resolved` merely because it appeared in the prompt.
+
+Copy that action, then replace the declared-reference adapter with your repository.
+For each reference return exactly one `ContextResolution`:
+
+- `resolved`: include `record_version`, `content_hash`, `product_scope`, and one
+  matching private `ResolvedContextRecord`;
+- `declared`: identity consumed, content not retrieved;
+- `missing` or `rejected`: include a bounded `failure_reason`.
+
+Register the capability explicitly:
+
+```python
+reg.register_task_action(
+    "domain-check",
+    prepare_domain_check,
+    project_outcome=project_domain_outcome,
+    output_contract="green-energy.domain-check-outcome-v1",
+    lifecycle_operations=["submit", "retrieve", "history", "retry", "cancel"],
+    cancellation_supported=True,
+    resolver_capabilities=["green-energy-artifact-v1"],
+    artifact_capabilities=["immutable-artifact-references"],
+)
+```
+
+Run the provider-free `run_task_action_conformance(...)` helper in your extension
+tests, then exercise the HTTP runtime for idempotency, isolation, restart, concurrent
+resume, and cancellation. The helper deliberately makes no provider call.
 
 ## 3. Run it (dev loop)
 

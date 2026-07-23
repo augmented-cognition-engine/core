@@ -76,13 +76,60 @@ thin MCP / CLI
 The receipt is created before provider or orchestration work, so losing the submitting connection
 does not erase task identity or cancel execution. Retry identity is product/user scoped. The
 single-process preview reconciles receipts left `pending` or `running` by a runtime restart to
-`degraded`; it does not claim resumable distributed execution or public cancellation. Pattern
+`degraded`; it does not claim resumable distributed execution, and the ordinary task API has no
+public cancellation endpoint. An extension invocation whose manifest explicitly negotiates
+cancellation can request process-local cancellation through its experimental HTTP surface.
+Extension invocations can also resume a degraded operation by creating a linked successor task;
+they do not claim to continue a lost provider stream mid-token. Pattern
 deadlines (normally 600 seconds), agent/provider deadlines, database acquisition/connect bounds,
 and the thin client's ordinary 30-second HTTP timeout remain independent. Because submission no
 longer waits for orchestration, MCP-host or proxy request limits do not set the reasoning duration.
 Public semantic model aliases are resolved before orchestration, and receipt provenance falls back
 to the selected provider and resolved request model when nested execution does not populate the
 aggregate provider/model counters.
+
+### Structured extension-invocation lifecycle
+
+`POST /extension-invocations` is the domain-neutral bridge between an extension's records and the
+same durable task runtime:
+
+```text
+versioned envelope + typed references
+→ authenticated extension action lookup
+→ extension-owned preparation and per-reference resolution status
+→ Core task receipt persisted before provider work
+→ ordinary orchestration and reasoning receipts
+→ extension-owned bounded outcome projection
+→ extension-invocation-receipt-v1
+```
+
+Core owns the envelope/receipt versions, capability negotiation, identity, product/user/workspace
+scope, bounds and public normalization, idempotency, execution lifecycle, provider/model/token/
+latency provenance, attempt lineage, cooperative cancellation states, public errors, durable
+receipt/history/list retrieval, and conformance helpers. The registered extension owns domain
+reference types and authorization, repository adapters, task preparation, domain output
+validation/projection, artifact creation, and any human-decision/adoption workflow. Reference
+handling is explicit:
+`resolved`, `declared`, `missing`, or `rejected`. `declared` means the identifier influenced
+preparation without a claim that its record content was retrieved.
+
+Resolved content is private task context, separated from instructions and omitted from public
+metadata/receipts. Raw Core output, extension projection, immutable artifact references, an
+explicit human decision, and later adoption are different states; a recommendation does not
+silently become an approved decision or retained memory.
+
+`POST /extension-invocations/{task_id}/resume` returns active and completed receipts unchanged.
+For a terminal failed or restart-degraded attempt, it validates the persisted envelope again and
+creates one immutable successor with `retry_of_task_id`; the prior receipt records
+`resumed_by_task_id`. The real SurrealKV/two-API-process restart test verifies the degraded prior
+attempt, fresh-process reconstruction, linked successor, completed outcome receipt, and preserved
+provider provenance.
+
+`GET /extension-invocations/{task_id}/history` returns the bounded correlation chain, and
+`GET /extension-invocations?workspace_id=...` lists only the authenticated product/user scope.
+Concurrent resumes reuse one deterministic successor key. Cancellation is exposed only when the
+manifest negotiates it and records requested, acknowledged, completed-before-request,
+unavailable, or stopped-process states without claiming cancellation of external side effects.
 
 ### Actual inward dependencies and duplication
 
@@ -455,7 +502,7 @@ composition seams rather than a separate privileged path.
 
 | You want to… | You touch… |
 |---|---|
-| Reason about a new domain | an **extension** — personas, frameworks, recipes, instruments, tools, schema, registered via the `ace.extensions` entry point |
+| Reason about a new domain | an **extension** — personas, frameworks, recipes, instruments, tools, schema, and optional structured task actions registered via the `ace.extensions` entry point |
 | Add a reasoning capability | a **recipe + instrument** pair, addressable by slug; the composer routes to it by discipline, never by name |
 | Contribute a pre-built team | a **committee** builder — a composed set of voices |
 | Use a supported model route | configure one of the documented provider paths; the ACE loop remains separate from the provider |

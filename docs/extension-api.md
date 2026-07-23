@@ -27,6 +27,13 @@ names the commitment; the source names the types.
 
 ## Experimental
 
+- `Registry.register_task_action(...)` — register extension-owned structured
+  context preparation and optional outcome projection on Core's durable task
+  lifecycle. The public wire contracts are `extension-invocation-v1` and
+  `extension-invocation-receipt-v1`; interrupted execution resumes as a linked
+  successor attempt, never a fictitious continuation of a lost provider stream.
+  See the [experimental invocation contract](extension-invocation-contract.md) for wire fields,
+  authority, failure behavior, restart evidence, and limitations.
 - `Registry.register_sentinel(...)` — sentinel engine contribution.
 - `Registry.register_briefing_section(...)` — briefing composition hooks.
 - Canvas extension wiring (`core/ui/canvas/src/app/ext/`).
@@ -37,6 +44,23 @@ names the commitment; the source names the types.
 Would it be useless to a different domain? Then it is extension config, not
 kernel. The dependency direction is one-way — extensions import `core`;
 `core` never imports extensions (enforced by `tests/test_kernel_boundary.py`).
+
+For task actions, that rule means Core owns authentication, product/user scope,
+workspace-claim enforcement, contract negotiation, idempotency, task persistence,
+provider execution, attempt lineage, cancellation state, and receipt normalization.
+The extension owns reference resolution, domain authorization, prompt preparation,
+artifact creation, and domain outcome projection. A resolver must report each
+reference as `resolved`, `declared`, `missing`, or `rejected`; carrying an
+identifier into a prompt is not reported as retrieval. `resolved` requires matching
+private context content plus immutable version, hash, resolver, and product-scope
+evidence. Projected recommendations remain separate from human decisions and later
+adoption.
+
+The experimental capability manifest negotiates accepted input versions, one output
+version, lifecycle operations, cancellation support, resolver/artifact capabilities,
+required authorities, and feature flags. Discovery is deterministic, bounded to 200
+actions, and rejects duplicate registrations. Machine-readable schemas are available
+from authenticated `GET /extension-invocations/schemas`.
 
 ## Starting point
 

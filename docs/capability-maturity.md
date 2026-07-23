@@ -55,9 +55,18 @@ hooks are implemented parts of ACE. They are not stable 0.1.x contracts: their A
 end-to-end journeys, and compatibility guarantees can change. This maturity label limits the public
 promise; it does not reduce those systems to roadmap concepts or peripheral demos.
 
+The authenticated `extension-invocation-v1` HTTP envelope and
+`extension-invocation-receipt-v1` projection are experimental. They add an extension-owned
+preparation/outcome bridge over Core's durable task lifecycle, including linked attempt-level
+resume after restart. This is real HTTP execution authority, not a supported CLI/MCP surface, and
+does not promote E1. See the
+[experimental extension-invocation contract](extension-invocation-contract.md).
+
 Long-running public tasks use persisted receipts and expose pending, running, completed, failed,
 and degraded outcomes. The single-process preview does not claim distributed task claiming,
-transparent resumption after interruption, or public cancellation.
+transparent resumption after interruption, or general task cancellation. The experimental
+extension-invocation surface separately supports explicit linked retries and negotiated
+process-local cancellation; neither is a distributed guarantee.
 
 The supported I1 nested decision/correction receipt contract, explicit incomplete provenance,
 privacy boundary, lifecycle history, and replay evidence are documented in

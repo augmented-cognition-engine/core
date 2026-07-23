@@ -679,6 +679,18 @@ export interface UseOrchestrationSessionOptions {
   maxReconnectAttempts?: number
 }
 
+export type OrchestrationSessionStartMode = 'idle' | 'fresh' | 'resume'
+
+/** Decide whether the hook should create work, replay work, or remain idle. */
+export function orchestrationSessionStartMode(
+  topic: string | null,
+  opts: Pick<UseOrchestrationSessionOptions, 'resumeSessionId' | 'resumeRunId'>,
+): OrchestrationSessionStartMode {
+  if (opts.resumeSessionId !== undefined && opts.resumeRunId !== undefined) return 'resume'
+  if (topic !== null && topic.trim().length > 0) return 'fresh'
+  return 'idle'
+}
+
 const RECONNECT_BACKOFF_MS = [1_000, 2_000, 4_000, 8_000, 16_000, 30_000] as const
 
 /** Pure helper — given the attempt number (1-indexed), return the
@@ -720,12 +732,14 @@ export function useOrchestrationSession(
   const wsRef = useRef<WebSocket | null>(null)
 
   useEffect(() => {
-    if (topic === null || topic.trim().length === 0) return
+    const startMode = orchestrationSessionStartMode(topic, opts)
+    if (startMode === 'idle') return
+    const sessionTopic = topic?.trim() || opts.lensSourceLabel || 'Resumed deliberation'
 
     let cancelled = false
     let ws: WebSocket | null = null
 
-    dispatch({ type: 'reset', topic })
+    dispatch({ type: 'reset', topic: sessionTopic })
 
     void (async () => {
       try {
@@ -733,11 +747,11 @@ export function useOrchestrationSession(
         // `?session=<id>` in the URL). Skip POST /canvas/sessions and
         // just reconnect the WS — the backend's replay protocol fills
         // in missed events when `resumeRunId` is also supplied.
-        let sessionId = opts.resumeSessionId
+        let sessionId = startMode === 'resume' ? opts.resumeSessionId : undefined
         if (sessionId === undefined) {
           const title = opts.lensSourceLabel
-            ? `${opts.lensSourceLabel} · ${topic.slice(0, 80)}`
-            : topic.slice(0, 120)
+            ? `${opts.lensSourceLabel} · ${sessionTopic.slice(0, 80)}`
+            : sessionTopic.slice(0, 120)
           const resp = await fetch('/canvas/sessions', {
             method: 'POST',
             headers: {
@@ -770,7 +784,7 @@ export function useOrchestrationSession(
           //     (it'll send replay_start, a stream of past events, then
           //     replay_done). M3: sends last_seq (per-event cursor).
           //   - Otherwise → fire the user message as a new run.
-          if (opts.resumeSessionId !== undefined && opts.resumeRunId !== undefined) {
+          if (startMode === 'resume') {
             ws.send(
               JSON.stringify({
                 type: 'resume',
@@ -779,14 +793,14 @@ export function useOrchestrationSession(
               }),
             )
           } else {
-            ws.send(JSON.stringify({ type: 'message', content: topic }))
+            ws.send(JSON.stringify({ type: 'message', content: sessionTopic }))
           }
         })
         ws.addEventListener('message', (e: MessageEvent<string>) => {
           if (cancelled) return
           try {
             const evt = JSON.parse(e.data) as WsInbound
-            dispatch({ type: 'remote', event: evt, topic })
+            dispatch({ type: 'remote', event: evt, topic: sessionTopic })
           } catch {
             // malformed frame — ignore
           }
