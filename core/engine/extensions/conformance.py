@@ -8,6 +8,7 @@ from core.engine.extensions.invocation import (
     ExtensionActorContext,
     ExtensionCapabilityManifest,
     ExtensionInvocationEnvelope,
+    ExtensionInvocationReceipt,
     RegisteredTaskAction,
     build_extension_receipt,
     invocation_metadata,
@@ -36,10 +37,13 @@ async def run_task_action_conformance(
         checks.append({"name": name, "passed": passed, "detail": detail[:500]})
 
     try:
-        ExtensionCapabilityManifest.model_validate(action.public_manifest())
+        first_manifest = action.public_manifest()
+        ExtensionCapabilityManifest.model_validate(first_manifest)
         record("capability_manifest", True)
+        record("deterministic_manifest", first_manifest == action.public_manifest())
     except Exception as exc:
         record("capability_manifest", False, str(exc))
+        record("deterministic_manifest", False, str(exc))
 
     record(
         "input_contract_negotiation",
@@ -73,8 +77,44 @@ async def run_task_action_conformance(
             outcome=outcome,
         )
         serialized = str(receipt)
+        try:
+            ExtensionInvocationReceipt.model_validate(receipt)
+            record("public_receipt_schema", True)
+        except Exception as exc:
+            record("public_receipt_schema", False, str(exc))
         record("bounded_public_receipt", len(serialized) <= 100_000)
         record("private_plan_not_public", plan.description not in serialized)
+        record(
+            "private_resolver_content_not_public",
+            all(context.content not in serialized for context in plan.context_records),
+        )
+
+        projection_failure = build_extension_receipt(
+            {
+                "id": "task:conformance-projection-failure",
+                "status": "completed",
+                "output": sample_output,
+                "execution": {"state": "complete"},
+                "reasoning_trace": {"provenance": {"provider": "fixture", "model": "fixture:model"}},
+            },
+            metadata,
+            projection_error="token=conformance-private",
+        )
+        record(
+            "projection_failure_preserves_raw_core_output",
+            projection_failure["raw_core_output"] == {"available": True, "content": sample_output}
+            and projection_failure["coverage"]["state"] == "degraded"
+            and any(
+                failure.get("code") == "outcome_projection_failed"
+                for failure in projection_failure["failures"]
+                if isinstance(failure, dict)
+            ),
+        )
+        failure_serialized = str(projection_failure)
+        record(
+            "credential_redaction",
+            "conformance-private" not in failure_serialized and "<redacted>" in failure_serialized,
+        )
 
     return {
         "contract_version": CONFORMANCE_VERSION,

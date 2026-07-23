@@ -152,6 +152,97 @@ async def test_resume_interrupted_invocation_creates_linked_successor(monkeypatc
 
 
 @pytest.mark.asyncio
+async def test_retrying_failed_successor_creates_attempt_n_plus_one(monkeypatch):
+    envelope = _envelope()
+    action = _action()
+    plan = await action.prepare(
+        envelope,
+        api.ExtensionActorContext(
+            product_id="product:one",
+            workspace_id="workspace:one",
+            user_id="user:one",
+        ),
+    )
+    metadata = api.invocation_metadata(
+        envelope,
+        plan,
+        action,
+        attempt_number=2,
+        retry_of_task_id="task:root",
+        retry_reason="runtime_restart",
+        retry_actor="user:one",
+        retry_policy_version="extension-retry-v1",
+        root_invocation_id="task:root",
+    )
+    failed_successor = {
+        "id": "task:attempt-two",
+        "product": "product:one",
+        "user": "user:one",
+        "workspace": "workspace:one",
+        "status": "failed",
+        "extension_invocation": metadata,
+    }
+    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=failed_successor))
+    monkeypatch.setattr(api, "registered_task_action", lambda extension_id, action_name: action)
+    submit = AsyncMock(return_value={"id": "task:attempt-three", "status": "pending"})
+    monkeypatch.setattr(api, "submit_task", submit)
+    monkeypatch.setattr(api, "_update_receipt", AsyncMock(return_value=failed_successor))
+
+    result = await api.resume_extension_invocation(
+        "task:attempt-two",
+        body=api.ResumeRequest(reason="retry_failed_successor"),
+        user={"product": "product:one", "sub": "user:one"},
+    )
+
+    assert result["id"] == "task:attempt-three"
+    successor_metadata = submit.await_args.kwargs["extension_invocation"]
+    assert successor_metadata["attempt"]["number"] == 3
+    assert successor_metadata["attempt"]["retry_of_task_id"] == "task:attempt-two"
+    assert successor_metadata["attempt"]["root_invocation_id"] == "task:root"
+    assert successor_metadata["attempt"]["retry_reason"] == "retry_failed_successor"
+    assert successor_metadata["request"]["idempotency_key"] == "resume-v1:task:attempt-two:3"
+
+
+@pytest.mark.asyncio
+async def test_resume_fails_closed_when_extension_is_unavailable_after_restart(monkeypatch):
+    envelope = _envelope()
+    action = _action()
+    plan = await action.prepare(
+        envelope,
+        api.ExtensionActorContext(
+            product_id="product:one",
+            workspace_id="workspace:one",
+            user_id="user:one",
+        ),
+    )
+    prior = {
+        "id": "task:extension-unavailable",
+        "product": "product:one",
+        "user": "user:one",
+        "workspace": "workspace:one",
+        "status": "degraded",
+        "extension_invocation": api.invocation_metadata(envelope, plan, action),
+    }
+    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=prior))
+    monkeypatch.setattr(api, "registered_task_action", lambda extension_id, action_name: None)
+    submit = AsyncMock()
+    update = AsyncMock()
+    monkeypatch.setattr(api, "submit_task", submit)
+    monkeypatch.setattr(api, "_update_receipt", update)
+
+    with pytest.raises(HTTPException) as raised:
+        await api.resume_extension_invocation(
+            "task:extension-unavailable",
+            user={"product": "product:one", "sub": "user:one"},
+        )
+
+    assert raised.value.status_code == 404
+    assert raised.value.detail == {"code": "extension_action_not_registered"}
+    submit.assert_not_awaited()
+    update.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_resume_rejects_foreign_product_before_submission(monkeypatch):
     prior = {
         "id": "task:foreign",
