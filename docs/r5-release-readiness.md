@@ -1,12 +1,13 @@
-# R5 ace-core 0.1.2 release-candidate readiness
+# R5 ace-core 0.1.2 release evidence
 
 Date: 2026-07-22
 
-Outcome: **candidate — all local release gates passed; external release gates remain; nothing published**
+Outcome: **passed — verified tag, GitHub Release, trusted PyPI publication, provenance, artifact
+hashes, and clean public-index installation completed**
 
 ## Intended release
 
-R5 prepares `ace-core` 0.1.2 as a backward-compatible developer-preview patch release. It keeps
+R5 ships `ace-core` 0.1.2 as a backward-compatible developer-preview patch release. It keeps
 the supported CLI, import package, extension entry point, and exactly eleven thin MCP tools stable
 while packaging the completed G1, I1, and I3 inspectability work and the R3-supported Codex
 subscription route.
@@ -18,7 +19,7 @@ impact, unlock F2, or add autonomous execution authority.
 
 ## Version and compatibility scope
 
-The candidate aligns these identities at `0.1.2`:
+The release aligns these identities at `0.1.2`:
 
 - Python distribution metadata;
 - `ace.__version__`;
@@ -33,7 +34,7 @@ Schemas v143-v155 are additive. The package remains Python 3.12-only. Atrium/Can
 repository beta and outside the wheel/sdist. The complete self-hosted Compose journey still uses a
 source checkout for pinned runtime assets.
 
-## Candidate scope
+## Release scope
 
 Supported:
 
@@ -73,24 +74,39 @@ then passed alone, its complete 11-test forget sequence passed, and the full 6,5
 rerun passed. No product-code retry or suppression was added; the transient observation remains
 recorded here for CI comparison.
 
-Local artifact hashes belong in the release handoff rather than this packaged document: embedding
-an archive's digest inside a document contained by that archive would make the digest
-self-referential. Maintainers must rebuild from the reviewed release commit and record those
-resulting release hashes; local candidate hashes are not publication attestations. `pip-audit`
-necessarily skipped the unpublished `ace-core==0.1.2` distribution itself while auditing its
-installed third-party dependency set.
+The candidate-stage `pip-audit` necessarily skipped the then-unpublished
+`ace-core==0.1.2` distribution itself while auditing its installed third-party dependency set.
 
-## Non-local release gates
+## Public release gates
 
-R5 cannot move to `passed` until maintainers intentionally complete the external release process:
+Completed on 2026-07-22:
 
-1. review and commit the exact candidate scope;
-2. open and merge a release PR with required CI green;
-3. verify merged-main CI and the release commit;
-4. create tag `v0.1.2` on that verified commit;
-5. publish the GitHub Release and allow trusted PyPI publishing;
-6. verify attestations and archive hashes; and
-7. install `ace-core==0.1.2` from the public index in a clean Python 3.12 environment.
+- release scope merged through [PR #23](https://github.com/augmented-cognition-engine/core/pull/23)
+  and the recovered provider-runtime work through
+  [PR #24](https://github.com/augmented-cognition-engine/core/pull/24);
+- verified release commit
+  [`d9e8baffd70b95821af751612bac6c499a81ab8f`](https://github.com/augmented-cognition-engine/core/commit/d9e8baffd70b95821af751612bac6c499a81ab8f)
+  matched `origin/main`, with [all six merged-main CI jobs](https://github.com/augmented-cognition-engine/core/actions/runs/29966719164)
+  green;
+- annotated tag [`v0.1.2`](https://github.com/augmented-cognition-engine/core/tree/v0.1.2)
+  resolves to that exact verified commit;
+- [GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.1.2)
+  published and triggered the
+  [trusted-publishing workflow](https://github.com/augmented-cognition-engine/core/actions/runs/29967200238);
+- the workflow validated tag/package-version equality, built and checked both distributions, and
+  published [ace-core 0.1.2 on PyPI](https://pypi.org/project/ace-core/0.1.2/);
+- downloaded workflow artifacts matched PyPI's SHA-256 digests exactly:
+  - `ace_core-0.1.2-py3-none-any.whl` —
+    `63379684a46f5ecac461b0900dbfd88f632895d5aa2c45a02add26b957d85a85`;
+  - `ace_core-0.1.2.tar.gz` —
+    `e2e2e2bef7da0997735552d3cc9c705f67c80872491943ef6813498ec6e69109`;
+- `pypi-attestations verify pypi` cryptographically verified both public distributions against
+  `https://github.com/augmented-cognition-engine/core`; and
+- a cache-free public-index installation in a fresh Python 3.12.13 environment confirmed
+  distribution/import/thin-client version `0.1.2`, a working `ace --help`, and the exact eleven
+  public MCP tools.
 
-No commit, branch, PR, tag, push, GitHub Release, or PyPI publication is part of this local
-readiness packet.
+Trusted publishing emitted GitHub's known Node.js 20 deprecation warnings for the v4 artifact
+actions, which GitHub ran on Node.js 24. The clean install also reported normalized invalid
+version specifiers from transitive upstream package metadata. Neither warning changed the built
+artifacts, provenance result, installed ACE identity, or public contract verification.
