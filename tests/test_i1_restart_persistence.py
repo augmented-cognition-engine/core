@@ -1,4 +1,4 @@
-"""Fresh-process HTTP/MCP persistence proof for I1, F1, and I3 closeout.
+"""Fresh-process HTTP/MCP persistence proof for I1, I2, I3, and F1 closeout.
 
 This test starts a disposable SurrealKV store and two separate uvicorn API
 processes. The orchestration fixture is deterministic and makes zero model
@@ -378,10 +378,12 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         await _wait_port(db_port, db_process)
         api_process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=api_log, stderr=subprocess.STDOUT)
         await _wait_health(api_url, api_process)
-        await _assert_schema_version(db_url, 155)
+        await _assert_schema_version(db_url, 156)
         await _verify_legacy_rows_survive_v144(db_url)
         client = AceClient(base_url=api_url, token=token, timeout=10)
         thin_tools._client = client
+
+        deliberation_ids: dict[str, str] = {}
 
         async def submit_decision(state: str) -> tuple[str, str]:
             task = await thin_tools.ace_task(
@@ -402,6 +404,10 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
                 status = await thin_tools.ace_status(task_id=task_id)
                 if status["task"]["status"] == "completed":
                     receipt = status["task"]["decision_receipt"]
+                    i2_receipt = status["task"]["deliberation_receipt"]
+                    assert i2_receipt["contract_version"] == "deliberation-receipt-v1"
+                    assert i2_receipt["completeness"]["state"] == "complete"
+                    deliberation_ids[state] = i2_receipt["receipt_id"]
                     return task_id, receipt["decision_id"]
                 await asyncio.sleep(0.1)
             raise AssertionError("deterministic task did not complete")
@@ -728,6 +734,10 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
             assert receipt["human_disposition"]["state"] == state
             assert receipt["completeness"]["state"] == "complete"
             assert receipt["provenance"]["state"] == "complete"
+            i2_receipt = after_status["task"]["deliberation_receipt"]
+            assert i2_receipt["receipt_id"] == deliberation_ids[state]
+            assert i2_receipt["coverage"]["state"] == "complete"
+            assert i2_receipt["contributors"][0]["artifact"]["evidence_ids"] == ["test:i2:restart"]
 
         assert after.keys() >= {base_id, superseding_id, contesting_id, invalidating_id, expired_id}
         for correction_id in (base_id, superseding_id, contesting_id, invalidating_id, expired_id):

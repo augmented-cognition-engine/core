@@ -343,6 +343,7 @@ _RECORD_FIELDS: dict[str, tuple[str, ...]] = {
         "source",
         "status",
         "decision_receipt",
+        "deliberation_receipt",
         "intelligence_use_receipt",
         "session_id",
         "created_at",
@@ -542,8 +543,10 @@ def _lifecycle_state(record: dict[str, Any]) -> str:
 def _project_record(family: str, record: dict[str, Any]) -> dict[str, Any]:
     result = {key: _json_value(record.get(key)) for key in _RECORD_FIELDS[family] if key in record}
     if family == "tasks":
+        from core.engine.product.deliberation import normalize_deliberation_receipt
         from core.engine.product.intelligence_use import normalize_intelligence_use_receipt
 
+        result["deliberation_receipt"] = normalize_deliberation_receipt(record.get("deliberation_receipt"), task=record)
         result["intelligence_use_receipt"] = normalize_intelligence_use_receipt(
             record.get("intelligence_use_receipt"), task=record
         )

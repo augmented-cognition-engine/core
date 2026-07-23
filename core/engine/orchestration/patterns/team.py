@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from core.engine.orchestration.agent import AgentConfig, AgentResult
@@ -67,6 +68,10 @@ class TeamPattern(PatternStrategy):
         agent_config_map: dict[str, AgentConfig] = {}  # agent_id -> AgentConfig
 
         for ac in agent_configs:
+            ac = replace(
+                ac,
+                metadata={**ac.metadata, "i2_artifact_kind": "contribution", "i2_phase": "team_position"},
+            )
             shell = ComposedShell(
                 system_prompt=ac.system_prompt,
                 user_prompt=task,
@@ -111,7 +116,7 @@ class TeamPattern(PatternStrategy):
                     )
                 )
                 try:
-                    return await agent.execute(
+                    result = await agent.execute(
                         task,
                         context={
                             "run_id": config.run_id,
@@ -119,11 +124,18 @@ class TeamPattern(PatternStrategy):
                             "team_size": len(agents),
                         },
                     )
+                    result.metadata = {
+                        **result.metadata,
+                        "i2_artifact_kind": "contribution",
+                        "i2_phase": "team_position",
+                    }
+                    return result
                 except Exception as exc:
                     return AgentResult(
                         agent_id=agent.agent_id,
                         status="failed",
                         error=str(exc),
+                        metadata={"i2_artifact_kind": "contribution", "i2_phase": "team_position"},
                     )
 
         agent_ids = list(agents.keys())
@@ -188,6 +200,11 @@ class TeamPattern(PatternStrategy):
         synthesis_config = AgentConfig(
             role="synthesizer",
             system_prompt="You synthesize multiple agent outputs into a coherent, balanced result.",
+            metadata={
+                "i2_artifact_kind": "synthesis",
+                "i2_phase": "synthesis",
+                "i2_contributor_ids": [result.agent_id for result in agent_results],
+            },
         )
         synthesis_shell = ComposedShell(
             system_prompt=synthesis_config.system_prompt,
@@ -215,6 +232,12 @@ class TeamPattern(PatternStrategy):
                 status="failed",
                 error=str(exc),
             )
+
+        synth_result.metadata = {
+            **synth_result.metadata,
+            "i2_artifact_kind": "synthesis",
+            "i2_phase": "synthesis",
+        }
 
         agent_results.append(synth_result)
 

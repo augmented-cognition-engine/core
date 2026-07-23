@@ -47,12 +47,27 @@ class LLMShell:
             shell = self._shell or ComposedShell(system_prompt="", user_prompt=task)
             system_prompt = shell.resolved_system_prompt()
 
+            artifact_kind = str(self._config.metadata.get("i2_artifact_kind") or "")
+            if artifact_kind:
+                from core.engine.product.deliberation import attribution_instruction
+
+                system_prompt += attribution_instruction(
+                    artifact_kind,
+                    contributor_ids=list(self._config.metadata.get("i2_contributor_ids") or []),
+                )
+
             # Pass system prompt properly via system= parameter
             output = await self._llm.complete(
                 shell.user_prompt,
                 system=system_prompt or None,
                 model=shell.model or self._config.model,
             )
+
+            structured_output = None
+            if artifact_kind:
+                from core.engine.product.deliberation import extract_attribution_artifact
+
+                output, structured_output = extract_attribution_artifact(output)
 
             duration = int((time.monotonic() - start) * 1000)
 
@@ -70,6 +85,13 @@ class LLMShell:
                 status="completed",
                 output=output,
                 duration_ms=duration,
+                structured_output=structured_output,
+                metadata={
+                    "i2_artifact_kind": artifact_kind,
+                    "i2_phase": self._config.metadata.get("i2_phase") or "execution",
+                }
+                if artifact_kind
+                else {},
             )
         except Exception as e:
             duration = int((time.monotonic() - start) * 1000)
@@ -78,6 +100,10 @@ class LLMShell:
                 status="failed",
                 error=str(e),
                 duration_ms=duration,
+                metadata={
+                    "i2_artifact_kind": str(self._config.metadata.get("i2_artifact_kind") or "contribution"),
+                    "i2_phase": self._config.metadata.get("i2_phase") or "execution",
+                },
             )
 
     async def execute_streaming(self, task: str, context: dict[str, Any] | None = None) -> AsyncIterator[str]:

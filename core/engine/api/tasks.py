@@ -30,6 +30,10 @@ from core.engine.product.decision_receipts import (
     normalize_decision_receipt,
     with_human_disposition,
 )
+from core.engine.product.deliberation import (
+    normalize_deliberation_receipt,
+    runtime_deliberation_receipt,
+)
 from core.engine.product.intelligence_use import (
     normalize_intelligence_use_receipt,
     runtime_intelligence_use_receipt,
@@ -62,6 +66,7 @@ class TaskResponse(BaseModel):
     reasoning_trace: dict | None = None
     execution: dict = Field(default_factory=dict)
     decision_receipt: dict = Field(default_factory=dict)
+    deliberation_receipt: dict = Field(default_factory=dict)
     intelligence_use_receipt: dict = Field(default_factory=dict)
 
 
@@ -101,12 +106,29 @@ def _execution_coverage(result: object) -> dict:
 
     snapshot = getattr(result, "snapshot", {}) or {}
     phase_traces = (snapshot.get("phase_traces") or []) if isinstance(snapshot, dict) else []
-    tainted_phases = sum(1 for phase in phase_traces if isinstance(phase, dict) and phase.get("tainted") is True)
+    tainted_phase_ids = [
+        str(phase.get("phase_name") or phase.get("cognitive_function") or f"phase-{index + 1}")[:120]
+        for index, phase in enumerate(phase_traces)
+        if isinstance(phase, dict) and phase.get("tainted") is True
+    ]
+    tainted_phases = len(tainted_phase_ids)
     total = len(contributors)
+    expected = total
+    plan = next(
+        (
+            event
+            for event in (getattr(result, "events", None) or [])
+            if getattr(event, "event_type", "") == "plan_created"
+        ),
+        None,
+    )
+    planned_count = getattr(plan, "agent_count", None)
+    if isinstance(planned_count, int) and planned_count >= 0:
+        expected = planned_count
     unavailable = counts["failed"] + counts["timed_out"] + counts["other"]
     if total == 0:
-        state = "unreported"
-    elif counts["completed"] == total:
+        state = "failed" if expected else "unreported"
+    elif counts["completed"] == total and total >= expected:
         state = "complete"
     elif counts["completed"] > 0:
         state = "partial"
@@ -119,13 +141,16 @@ def _execution_coverage(result: object) -> dict:
         "pattern": getattr(pattern_result, "pattern_name", None),
         "contributors": {
             "total": total,
+            "expected": expected,
             **counts,
-            "coverage_ratio": round(counts["completed"] / total, 4) if total else None,
+            "coverage_ratio": min(1.0, round(counts["completed"] / expected, 4)) if expected else None,
+            "missing": [f"planned-contributor-{index}" for index in range(total + 1, expected + 1)],
             "items": contributors,
         },
         "phases": {
             "total": len(phase_traces),
             "tainted": tainted_phases,
+            "tainted_ids": tainted_phase_ids,
         },
     }
     bounded = snapshot.get("bounded_interactive") if isinstance(snapshot, dict) else None
@@ -139,8 +164,10 @@ def _execution_coverage(result: object) -> dict:
         coverage["stage_plan"] = routing["stage_plan"]
     if isinstance(routing, dict) and isinstance(routing.get("adaptive_stage_plan"), dict):
         coverage["adaptive_stage_plan"] = routing["adaptive_stage_plan"]
-    if state == "partial" or tainted_phases:
+    if state in {"partial", "failed"} or tainted_phases:
         partial_reasons = []
+        if expected > total:
+            partial_reasons.append(f"{expected - total} missing execution unit(s)")
         if unavailable:
             partial_reasons.append(f"{unavailable} unavailable execution unit(s)")
         if tainted_phases:
@@ -183,6 +210,41 @@ def _reasoning_trace(result) -> dict:
         measured_route = providers[0]
         if models:
             measured_route = f"{measured_route}:{models[0]}"
+    routing = classification.get("routing_governance") if isinstance(classification, dict) else {}
+    selection = routing.get("deliberation_selection") if isinstance(routing, dict) else None
+    allowed_selection_signals = {
+        "source",
+        "complexity",
+        "classified_mode",
+        "explicit_pattern_override",
+        "forced_skill",
+        "supplied_agent_count",
+        "critic_or_evaluator_supplied",
+        "planner_used",
+        "planned_step_count",
+    }
+    if isinstance(selection, dict):
+        raw_signals = selection.get("signals") if isinstance(selection.get("signals"), dict) else {}
+        public_selection = {
+            "reasoning_shape": str(selection.get("reasoning_shape") or pattern or "")[:120] or None,
+            "mode": str(selection.get("mode") or classification.get("mode") or "")[:120] or None,
+            "signals": {
+                key: raw_signals.get(key)
+                for key in sorted(allowed_selection_signals)
+                if key in raw_signals and isinstance(raw_signals.get(key), (str, int, float, bool, type(None)))
+            },
+            "selection_reasons": [
+                _bounded_public_error(reason, code="selection_reason")["message"]
+                for reason in list(selection.get("selection_reasons") or [])[:8]
+            ],
+        }
+    else:
+        public_selection = {
+            "reasoning_shape": pattern,
+            "mode": classification.get("mode"),
+            "signals": {key: classification.get(key) for key in ("complexity", "mode", "archetype")},
+            "selection_reasons": [],
+        }
     return {
         "classification": {
             key: classification.get(key) for key in ("domain_path", "discipline", "archetype", "mode", "complexity")
@@ -192,6 +254,7 @@ def _reasoning_trace(result) -> dict:
             "agent_count": getattr(plan, "agent_count", None),
             "stages": getattr(plan, "steps", None) or [],
         },
+        "selection": public_selection,
         "composition": {
             "meta_skills": composition.get("meta_skills", []) if isinstance(composition, dict) else [],
             "depth": composition.get("depth") if isinstance(composition, dict) else None,
@@ -434,6 +497,7 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
     result.setdefault("model_calls", None)
     result.setdefault("latency", None)
     result["decision_receipt"] = normalize_decision_receipt(result.get("decision_receipt"), task=result)
+    result["deliberation_receipt"] = normalize_deliberation_receipt(result.get("deliberation_receipt"), task=result)
     result["intelligence_use_receipt"] = normalize_intelligence_use_receipt(
         result.get("intelligence_use_receipt"), task=result
     )
@@ -751,6 +815,22 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                 "degraded_state": status if status != "completed" else None,
             },
         )
+        deliberation_receipt = runtime_deliberation_receipt(
+            task_id=task_id,
+            product_id=user.get("product", "product:default"),
+            result=result,
+            reasoning_trace=reasoning_trace,
+            execution=execution,
+            route={
+                "provider": provenance.get("provider"),
+                "model": provenance.get("model"),
+                "requested_model": provenance.get("requested_model"),
+                "calls": actual_calls,
+                "retries": model_calls["retry_count"],
+                "failures": [error] if error else [],
+                "degraded_state": status if status != "completed" else None,
+            },
+        )
         adaptive_plan = execution.get("adaptive_stage_plan")
         if isinstance(adaptive_plan, dict):
             from core.engine.orchestration.adaptive_reasoning import evaluate_advisory_stage_plan
@@ -783,6 +863,7 @@ async def _execute_receipt(task_id: str, body: TaskCreate, user: dict) -> None:
                 "reasoning_trace": reasoning_trace,
                 "execution": execution,
                 "decision_receipt": decision_receipt,
+                "deliberation_receipt": deliberation_receipt,
                 "intelligence_use_receipt": intelligence_use_receipt,
                 "error": error,
                 "completed_at": datetime.now(timezone.utc),

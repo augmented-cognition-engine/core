@@ -36,6 +36,7 @@ class AgentResult:
     duration_ms: int = 0
     error: str | None = None
     structured_output: dict[str, Any] | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @runtime_checkable

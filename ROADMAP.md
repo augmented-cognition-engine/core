@@ -13,6 +13,9 @@ now also shows a public evidence-backed decision, inspectable reasoning, a retai
 correction, real runtime restart, and material later use through the supported CLI and eleven-tool
 MCP boundary. I3 now adds a versioned receipt that distinguishes retrieval, injection, reflection,
 and exact structured decision effects without presenting material influence as beneficial impact.
+I2 now has a locally accepted candidate receipt for observable routing, bounded contributor
+artifacts, artifact-grounded disagreement, synthesis lineage, and degraded coverage;
+authoritative branch CI remains its final promotion gate.
 
 Roadmap outcome states are used strictly:
 
@@ -67,7 +70,7 @@ Roadmap outcome states are used strictly:
 | G1 | passed | Promote the read-only Living Product Graph projection into a supported inspectable journey | [`ace landscape`](docs/living-product-graph.md), [reproducible G1 evidence](docs/g1-living-product-graph-evidence.md), and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) prove the versioned, bounded, deterministic, assertion-backed read contract and strict read-only boundary |
 | IA-R1 | passed | Define the read-only information architecture for inspecting ACE state | [`/landscape`](docs/ia-r1-product-map.md), [reconciled IA-R1 evidence](docs/ia-r1-product-map.md), and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) establish the six-question operator hierarchy, visible provenance and uncertainty, bounded failures, stable identity, and strict no-write/no-execution authority |
 | I1 | passed | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | [Decision and correction receipt evidence](docs/decision-correction-receipts.md) proves stable identities, complete decision context, all four human dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and restart continuity through the existing eleven-tool boundary |
-| I2 | ready | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | I1 identities and read contracts have passed; requires bounded perspective-selection reasons, contributor position artifacts, evidence references, meaningful disagreement, synthesis lineage, and honest partial/degraded coverage |
+| I2 | candidate | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | [I2 candidate evidence](docs/i2-attributable-deliberation-evidence.md) records the frozen receipt, public-data four-path matrix, artifact-grounded conflict and synthesis lineage, real restart continuity, failure/redaction/isolation behavior, and unchanged eleven-tool boundary; final-head branch CI remains required for `passed` |
 | I3 | passed | Make retained-intelligence use and its decision effect inspectable | [I3 closeout evidence](docs/i3-intelligence-use-evidence.md) proves the bounded `intelligence-use-receipt-v1` projection, exact I1 field deltas, matched live Codex route, real restart/fresh-client continuity, null/stale/contested/harmful/mismatch/failure behavior, and unchanged eleven-tool boundary |
 | F1 | passed | Freeze the honest, conditional contract for graph-grounded calibrated foresight | [F1 closeout evidence](docs/f1-foresight-evidence.md) proves the continuous-delta v1 forecast-to-observation-to-resolution loop through additive schema v154, including cold start, settled analogues, optional planning/comparators, structured measurement ingestion, proper interval scoring, real API/database restart continuity, explicit non-causal limitations, and the unchanged eleven-tool boundary |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
@@ -83,6 +86,12 @@ I3 passed through the existing task/status and Living Product Graph read paths. 
 a control remains retrieved/injected/reflected with an explicit unknown comparison; only an
 isolated, valid, relevant, reflected item with an exact matched comparison can become
 decision-material. I3 makes no beneficial-impact or L1 claim.
+
+I2 is candidate through the same existing task/status and Living Product Graph reads plus opt-in
+CLI rendering. Complete means required bounded artifacts and executions are present, not that the
+synthesis is correct or beneficial. Missing structured artifacts, contributors, failures,
+timeouts, tainted phases, and incomplete lineage remain degraded; final promotion requires green
+authoritative branch CI.
 
 ## Later — build, ship, and learn
 

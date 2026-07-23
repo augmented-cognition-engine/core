@@ -184,8 +184,14 @@ and hands back a reasoned recommendation — with the kill criteria it would rev
 ```bash
 ace login                                            # one-time: authenticate the CLI
 ace run "should we ship the freemium tier this quarter?"
+ace run --show-deliberation "should we ship the freemium tier this quarter?"
 # → committee convenes: PM · Skeptic · Growth — deliberates — recommends
 ```
+
+`--show-deliberation` prints the bounded `deliberation-receipt-v1`: observable routing reasons,
+execution-identity-backed positions and evidence, artifact-grounded conflicts, synthesis
+dispositions, and honest partial/degraded coverage. It does not expose prompts, transcripts,
+scratchpads, or chain-of-thought.
 
 ### `Atrium` — experimental visual-product research
 Atrium is the experimental visual-product/research track where Canvas interactions are prototyped

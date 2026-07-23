@@ -4,6 +4,24 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+### Supported
+
+- Add the bounded `deliberation-receipt-v1` projection through existing task/status, CLI, thin
+  client, and Living Product Graph reads. It records observable reasoning-shape selection,
+  execution-identity-backed contributor artifacts, artifact-grounded conflicts, synthesis
+  dispositions, and honest partial/degraded coverage without exposing hidden reasoning.
+- Preserve the existing async task contract, I1 decision/correction and I3 intelligence-use
+  receipts, and exactly eleven public MCP tools; no write or execution authority is added.
+
+### Migration
+
+- Add schema v156 as one optional task receipt field without rewriting legacy rows.
+
+### Known limitations
+
+- Inspectable attribution is bounded final-artifact and execution evidence. It does not establish
+  correctness, causality, benefit, decision quality, or access to hidden chain-of-thought.
+
 ## 0.1.2
 
 ### Supported

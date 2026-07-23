@@ -1,8 +1,11 @@
 # engine/cli/display.py
 """Pretty-print helpers for CLI output."""
 
+import json
+
 from rich.console import Console
 from rich.panel import Panel
+from rich.syntax import Syntax
 from rich.table import Table
 
 console = Console()
@@ -22,6 +25,20 @@ def print_task_result(result: dict) -> None:
             result.get("output", "(no output)"),
             title=f"[bold]{result.get('domain_path', 'unknown')}[/bold]",
             subtitle=f"intel loaded: {result.get('intelligence_loaded', {}).get('total_count', 0)} insights",
+        )
+    )
+
+
+def print_deliberation_receipt(result: dict) -> None:
+    """Print the bounded I2 receipt without exposing private task inputs."""
+    receipt = result.get("deliberation_receipt")
+    if not isinstance(receipt, dict):
+        console.print("[yellow]No deliberation receipt is available from this server.[/yellow]")
+        return
+    console.print(
+        Panel(
+            Syntax(json.dumps(receipt, indent=2, sort_keys=True), "json", word_wrap=True),
+            title="[bold]Attributable deliberation[/bold]",
         )
     )
 

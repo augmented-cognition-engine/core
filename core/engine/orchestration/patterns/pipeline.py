@@ -13,6 +13,7 @@ first-class orchestration strategy.
 from __future__ import annotations
 
 import time
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from core.engine.orchestration.agent import AgentConfig
@@ -58,6 +59,14 @@ class PipelinePattern(PatternStrategy):
             )
 
         for i, ac in enumerate(agent_configs):
+            ac = replace(
+                ac,
+                metadata={
+                    **ac.metadata,
+                    "i2_artifact_kind": "contribution",
+                    "i2_phase": f"pipeline_step_{i + 1}",
+                },
+            )
             # Build shell with accumulated context from prior steps
             step_prompt = task if i == 0 else f"{task}\n\n## Prior Steps Output\n{accumulated_context}"
 
@@ -108,6 +117,11 @@ class PipelinePattern(PatternStrategy):
                 )
 
             agent_results.append(result)
+            result.metadata = {
+                **result.metadata,
+                "i2_artifact_kind": "contribution",
+                "i2_phase": f"pipeline_step_{i + 1}",
+            }
 
             if result.status == "failed":
                 duration = int((time.monotonic() - start) * 1000)
