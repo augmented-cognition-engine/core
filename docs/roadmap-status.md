@@ -34,7 +34,7 @@ did not have the Claude CLI installed; the canonical Codex subscription run rema
 | G1 | Next | passed | [`g1-living-product-graph-evidence.md`](g1-living-product-graph-evidence.md) records the frozen contract, supported `ace landscape` journey, deterministic replay, accepted/provisional/contested/rejected behavior, bounded failures, restart parity, strict read-only authority, and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) |
 | IA-R1 | Next | passed | [Read-only product-map evidence](ia-r1-product-map.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) record the six-question operator hierarchy, strict GET-only boundary, visible uncertainty/failures, local verification, and roadmap closeout |
 | I1 | Next | passed | [`decision-correction-receipts.md`](decision-correction-receipts.md) records stable identities, complete decision context, all four dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and schema-zero-to-v145 restart continuity |
-| I2 | Next | candidate | [`i2-attributable-deliberation-evidence.md`](i2-attributable-deliberation-evidence.md) records the frozen v1 receipt, public-data independent/pipeline/team/adversarial matrix, artifact-grounded conflict and synthesis lineage, real schema-zero-to-v156 restart continuity, failure/redaction/isolation behavior, and exact eleven-tool preservation; final-head branch CI remains the promotion gate |
+| I2 | Next | passed | [`i2-attributable-deliberation-evidence.md`](i2-attributable-deliberation-evidence.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29976761503) record the frozen v1 receipt, public-data independent/pipeline/team/adversarial matrix, artifact-grounded conflict and synthesis lineage, real schema-zero-to-v156 restart continuity, failure/redaction/isolation behavior, and exact eleven-tool preservation |
 | I3 | Next | passed | [`i3-intelligence-use-evidence.md`](i3-intelligence-use-evidence.md) records the bounded task/graph receipt, exact I1 decision deltas, matched live Codex route, real restart/fresh-client material continuity, null/stale/invalidated/contested/harmful/mismatch/failure matrix, and exact eleven-tool preservation through schema v155 |
 | F1 | Next | passed | [`f1-foresight-evidence.md`](f1-foresight-evidence.md) records the bounded continuous-delta v1 contract, real structured-measurement-to-comparator-to-resolution API/database scenario, restart-safe replay, cold-start behavior, proper scoring, limitations, and exact eleven-tool preservation through schema v154 |
 | T1 | Next | not ready | Recovery, replay, portability, cancellation, and resource guarantees are not yet frozen |
@@ -59,11 +59,10 @@ metrics, exact changed and unchanged I1 fields, and explicit reasons for every u
 state. Material influence remains distinct from beneficial impact, which is still unsupported
 without L1 outcome evidence.
 
-I2 is a locally accepted candidate through `deliberation-receipt-v1` on the same task/status and
-Living Product Graph reads plus opt-in CLI rendering. Attribution is based on execution identities
-and bounded final artifacts, never persona labels or hidden reasoning. Missing, failed, timed-out,
-tainted, partial, foreign, and future-version cases fail closed. Green final-head branch CI is still
-required before promotion to `passed`.
+I2 passed through `deliberation-receipt-v1` on the same task/status and Living Product Graph reads
+plus opt-in CLI rendering. Attribution is based on execution identities and bounded final
+artifacts, never persona labels or hidden reasoning. Missing, failed, timed-out, tainted, partial,
+foreign, and future-version cases fail closed.
 
 ## Exact next dispatch
 
@@ -83,10 +82,10 @@ required before promotion to `passed`.
 7. **Completed — I1:** preserve stable decision/correction identities, structured human
    dispositions, lifecycle and provenance evidence, restart continuity, and the no-execution
    boundary.
-8. **Candidate closeout — I2:** preserve the frozen bounded receipt, execution-identity attribution,
-   artifact-grounded conflict, synthesis dispositions, degraded coverage, restart evidence, and
-   exact eleven-tool boundary. Promote only after required final-head branch CI passes; keep I2
-   distinct from claims of correctness, benefit, causality, or hidden-reasoning access.
+8. **Completed — I2:** preserve the frozen bounded receipt, execution-identity attribution,
+   artifact-grounded conflict, synthesis dispositions, degraded coverage, restart evidence, green
+   branch CI, and exact eleven-tool boundary. Keep I2 distinct from claims of correctness, benefit,
+   causality, or hidden-reasoning access.
 9. **Completed — F1:** preserve the canonical definition, continuous-delta v1 scope, additive
    v146-v154 contracts, real measurement-to-resolution restart evidence, limitations, and exact
    eleven-tool boundary. Do not reopen F1 for forecast breadth or adapters.

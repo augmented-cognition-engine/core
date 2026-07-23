@@ -150,15 +150,16 @@ Acceptance evidence:
   chain-of-thought;
 - provider or extension failures cannot be rendered as complete deliberation.
 
-**Closeout candidate (2026-07-22): local acceptance passed; authoritative CI pending.** The
+**Closeout (2026-07-22): passed.** The
 additive `deliberation-receipt-v1` projection now records bounded observable shape-selection
 signals, execution-identity-backed position artifacts, artifact-grounded conflicts, synthesis
 dispositions, and honest missing/failed/timed-out/tainted/degraded coverage through existing task,
 status, CLI, thin-client, and Living Product Graph reads. A checksum-frozen UCI Online Retail II
 matrix covers independent, pipeline, team, and adversarial paths, and schema-zero-to-v156 restart
 evidence preserves I1/I2/I3 receipts through a fresh API/client process. The MCP boundary remains
-exactly eleven tools and gains no execution authority. Final promotion requires green final-head
-branch CI; see [`i2-attributable-deliberation-evidence.md`](i2-attributable-deliberation-evidence.md).
+exactly eleven tools and gains no execution authority. Local acceptance and
+[authoritative branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29976761503)
+passed; see [`i2-attributable-deliberation-evidence.md`](i2-attributable-deliberation-evidence.md).
 
 ### I3. Inspectable continuity and material intelligence use
 

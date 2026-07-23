@@ -2,7 +2,7 @@
 
 Date: 2026-07-22
 
-Outcome: **I2 candidate; local acceptance complete, authoritative branch CI pending**
+Outcome: **I2 passed**
 
 ## Frozen claim and boundary
 
@@ -170,9 +170,35 @@ contributor or synthesis is correct.
 | actionlint | **passed**, actionlint 1.7.12 |
 | Final wheel and sdist build/inventory | **passed**; v156, I2 implementation, fixture, results, verifier, and evidence are present in both artifacts |
 | Exact naked-kernel / eleven-tool boundary | **passed** in focused and full zero-extension runs |
+| Roadmap reconciliation contracts | **17 passed** |
+| Authoritative candidate-head branch CI | **passed**: [run 29976761503](https://github.com/augmented-cognition-engine/core/actions/runs/29976761503) — Lint, Security Audit, Canvas, fast tests, naked kernel, and Docker Build |
+
+Commands executed from the repository root:
+
+```bash
+uv run python scripts/verify_i2_deliberation.py \
+  --fixture evaluations/fixtures/i2_attributable_deliberation_v1.json --write
+uv run pytest tests/test_i2_deliberation.py tests/test_task_public_contract.py \
+  tests/test_orchestration_patterns.py tests/test_orchestration_dispatcher.py \
+  tests/test_dispatch_planner.py tests/test_executor.py tests/test_runtime_executor.py \
+  tests/test_mcp_specs.py tests/test_mcp_tools.py tests/test_kernel_boundary.py \
+  tests/test_schema_migration_lint.py tests/test_schema_migration_errors.py \
+  tests/test_migration_safety.py -q --tb=short
+uv run pytest tests/test_i1_restart_persistence.py -q --tb=short
+uv run pytest -m "not e2e" -q --tb=short
+ACE_DISABLE_EXTENSIONS=1 uv run pytest -m "not e2e and not requires_extensions" -q --tb=short
+uv run ruff check .
+uv run ruff format --check .
+actionlint
+uv run pytest tests/test_roadmap.py tests/test_roadmap_staleness.py \
+  tests/test_roadmap_reconciler.py tests/test_roadmap_generator.py \
+  tests/test_ace_roadmap_tool.py -q --tb=short
+uv build --out-dir /tmp/ace-i2-dist
+```
 
 The suites emitted only existing dependency/deprecation and asynchronous-mock warnings; no I2
-test failed. Authoritative branch/main CI is recorded during work-packet closeout.
+test failed. The ready [pull request #26](https://github.com/augmented-cognition-engine/core/pull/26)
+is the stable final-head reconciliation and merge record.
 
 ## Explicit limitations
 
@@ -194,7 +220,7 @@ test failed. Authoritative branch/main CI is recorded during work-packet closeou
 ## Work-packet reconciliation
 
 The implementation, local acceptance evidence, compatibility checks, persistence proof, public
-scenario, limitations, and roadmap links are complete on `codex/i2-attributable-deliberation`.
-I2 remains `candidate` until the ready pull request's required checks pass at final head. The
-closeout commit will then record authoritative CI links and move both roadmaps to `passed`; any
-attributable failure reopens the outcome rather than weakening a gate.
+scenario, limitations, roadmap reconciliation, and authoritative candidate-head branch CI are
+complete on `codex/i2-attributable-deliberation`. I2 is `passed`. Pull request #26 remains the
+stable final-head and merge record; any attributable reconciliation or main-branch failure reopens
+the outcome rather than weakening a gate.
