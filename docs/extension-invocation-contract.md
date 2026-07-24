@@ -2,7 +2,8 @@
 
 Date: 2026-07-22
 
-Outcome: **experimental contract verified; E1 remains not ready**
+Outcome: **experimental contract verified; Phase 5 candidate SDK acceptance is recorded
+separately; E1 remains not ready**
 
 ## Frozen boundary
 
@@ -105,9 +106,11 @@ recorded as unavailable and rejected.
 The in-tree reference extension registers `product:product-check`, which declares reference
 identities without pretending to retrieve records it cannot access. The provider-free
 `run_task_action_conformance` helper checks manifest shape, input-version negotiation, exact
-reference accounting, outcome validation, receipt schema and bounds, private-plan and resolver
-content exclusion, projection-failure preservation, and credential redaction. It does not replace
-runtime, persistence, isolation, cancellation, or version-skew tests.
+reference accounting, deterministic outcome projection, outcome validation, receipt schema and
+bounds, recommendation/decision/adoption separation, private-plan and resolver content exclusion,
+projection-failure preservation, credential redaction, callable-free manifest output, and
+immutable artifact/provenance rejection. It does not replace runtime, persistence, isolation,
+cancellation, or version-skew tests.
 
 The reusable helper and Core runtime suite divide conformance evidence as follows:
 
@@ -161,6 +164,7 @@ cannot prove database isolation, restart recovery, or concurrency.
 | Unsupported cancellation | Durable unavailable state plus generic 409 |
 | Supported cancellation | Core acknowledges cancellation or reports a degraded stopped-process state |
 | Future envelope/receipt | Empty degraded v1 projection; no artifact reinterpretation |
+| Future or malformed stored outcome | Empty degraded negotiated-contract projection; no artifact reinterpretation |
 | Credentials in errors/outcomes/notes or sensitive-keyed fields | Keys and values are redacted before public projection |
 | Zero extensions | Kernel, Canvas, and eleven-tool MCP boundary remain operable |
 
@@ -174,27 +178,29 @@ Production startup replays schema zero through v157.
 The prior attempt becomes degraded and resumable. The fresh successor completes with attempt
 number 2, links back to the prior task, updates the predecessor's successor link, retains
 provider/model provenance, and preserves the existing I1/I2/I3 receipts in the same restart
-journey. Observed result: **1 passed in 27.11 seconds**.
+journey. Phase 3 acceptance also reads the complete two-attempt chain through the public history
+endpoint. Observed result: **1 passed in 25.65 seconds**.
 
 ## Verification record
 
 | Gate | Result |
 |---|---|
-| Focused invocation/task/kernel/migration contracts | **78 passed** |
-| Broader extension/kernel/MCP contracts | **98 passed** |
+| Focused invocation/task/kernel/migration contracts | **86 passed** |
+| Broader extension/kernel/MCP contracts | **105 passed** |
 | Real schema-zero-to-v157 database/API restart | **1 passed** |
 | Canvas resume helper | **30 passed** |
 | Naked Canvas build and extension-leakage boundary | **9 passed; build passed** |
 | Core-only Canvas suite and production build | **290 passed; build passed** |
 | Wired Marketing Canvas fixture | **452 passed; build passed** |
-| Full non-E2E suite with extensions | **6,636 passed, 46 skipped, 235 deselected** |
-| Full non-E2E naked-kernel suite | **6,628 passed, 47 skipped, 242 deselected** |
+| Full non-E2E suite with extensions after Phase 4 | **6,653 passed, 46 skipped, 235 deselected** |
+| Full non-E2E naked-kernel suite after Phase 4 | **6,644 passed, 47 skipped, 243 deselected** |
 | Reference/scaffold/fixture contract | **39 passed** |
 | Repository Ruff and format | **passed; 1,819 files formatted** |
 | actionlint | **passed** |
 | Wheel and sdist build/inventory from commit archive | **passed; v157, API, contracts, reference action, and evidence present; tests/UI/private files absent** |
 
-The two full-suite totals include nine passing tests from the merged L1 preregistration packet.
+The Phase 4 full-suite totals add nine passing structured-outcome cases to the Phase 3
+extension-enabled baseline and eight to the naked-kernel selection.
 The wired Marketing Canvas figure is the fixture-backed result for the same merged runtime and
 Marketing integration; the current Core worktree has no adjacent Marketing UI fixture, so the
 current-turn rerun is the 290-test Core-only row.

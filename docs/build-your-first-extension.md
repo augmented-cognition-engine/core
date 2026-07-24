@@ -103,10 +103,12 @@ For each reference return exactly one `ContextResolution`:
 - `declared`: identity consumed, content not retrieved;
 - `missing` or `rejected`: include a bounded `failure_reason`.
 
-Register the capability explicitly:
+Register the capability explicitly. The experimental registration call returns the
+exact action handle accepted by the provider-free conformance helper; callers that
+do not need the handle can continue to ignore the return value:
 
 ```python
-reg.register_task_action(
+action = reg.register_task_action(
     "domain-check",
     prepare_domain_check,
     project_outcome=project_domain_outcome,
@@ -118,9 +120,57 @@ reg.register_task_action(
 )
 ```
 
-Run the provider-free `run_task_action_conformance(...)` helper in your extension
-tests, then exercise the HTTP runtime for idempotency, isolation, restart, concurrent
-resume, and cancellation. The helper deliberately makes no provider call.
+The scaffold itself uses `prepare_green_energy_check` and
+`project_green_energy_check`. A minimal provider-free test can use those shipped
+functions without copying any other extension:
+
+```python
+from core.engine.extensions import (
+    ExtensionActorContext,
+    ExtensionInvocationEnvelope,
+    Registry,
+    run_task_action_conformance,
+)
+from green_energy_extension.invocation import (
+    OUTCOME_CONTRACT,
+    prepare_green_energy_check,
+    project_green_energy_check,
+)
+
+
+async def test_task_action_conformance():
+    action = Registry(
+        extension_id="green_energy",
+        extension_version="0.1.0",
+    ).register_task_action(
+        "green_energy-check",
+        prepare_green_energy_check,
+        project_outcome=project_green_energy_check,
+        output_contract=OUTCOME_CONTRACT,
+    )
+    envelope = ExtensionInvocationEnvelope(
+        extension_id="green_energy",
+        extension_version="0.1.0",
+        action="green_energy-check",
+        workspace_id="workspace:test",
+        question="Which reversible test should run first?",
+    )
+    result = await run_task_action_conformance(
+        action,
+        envelope,
+        ExtensionActorContext(
+            product_id="product:test",
+            workspace_id="workspace:test",
+            user_id="user:test",
+        ),
+    )
+    assert result["passed"], result["checks"]
+```
+
+Run that helper in your extension tests, then exercise the HTTP runtime for
+idempotency, isolation, restart, concurrent resume, and cancellation. The helper
+deliberately makes no provider call. Runtime-wide behavior remains Core's
+responsibility and cannot be proven by an extension callback alone.
 
 ## 3. Run it (dev loop)
 

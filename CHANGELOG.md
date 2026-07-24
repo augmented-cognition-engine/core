@@ -27,6 +27,10 @@ Notable user- and contributor-visible changes are recorded here.
   cancellation states, output-contract validation hooks, immutable artifact references, and a
   provider-free reusable conformance helper. The shipped reference extension now registers the
   minimal `product:product-check` action.
+- Harden the candidate Extension SDK with unambiguous tuple registration identities,
+  registration-time action bounds, duplicate lifecycle rejection, self-validating public
+  manifests, callable-free discovery, immutable-artifact conformance checks, an action handle
+  returned from registration, and an independently executable scaffold conformance example.
 
 ### Migration
 

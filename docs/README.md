@@ -49,6 +49,15 @@ ACE's public documentation is intentionally small and user-facing:
 - [Experimental extension-invocation contract](extension-invocation-contract.md) — authenticated
   structured envelopes, exact reference-resolution accounting, linked retry attempts, restart
   evidence, authority boundaries, failures, and the remaining E1 gap.
+- [Phase 3 extension-invocation lifecycle acceptance](phase-3-extension-invocation-lifecycle-acceptance.md)
+  — accepted attempt history, N+1 retry, concurrency, cancellation, isolation, real restart
+  evidence, exact verification, and explicit recovery limitations.
+- [Phase 4 structured extension-outcomes acceptance](phase-4-extension-outcome-acceptance.md) —
+  accepted bounded projection, fail-closed outcome and artifact validation, honest projection
+  degradation, recommendation/decision/adoption separation, and exact verification evidence.
+- [Phase 5 candidate Extension SDK acceptance](phase-5-extension-sdk-acceptance.md) — independent
+  reference/scaffold conformance, deterministic bounded manifests, current-version compatibility,
+  naked-kernel evidence, and remaining experimental stability limits.
 - [Capability evolution roadmap](capability-evolution-roadmap.md) — graph-native procedural
   learning, reviewable revisions, progressive capability discovery, and safe execution sequencing.
 - [Governance](governance.md) — project decisions, compatibility, support, and contributions.

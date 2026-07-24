@@ -735,6 +735,15 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         assert resumed_receipt["provenance"]["provider"] == "DeterministicFixtureProvider"
         prior_after_resume = await fresh_client.get(f"/tasks/{interrupted_extension_id}")
         assert prior_after_resume["extension_receipt"]["attempt"]["resumed_by_task_id"] == resumed_extension_id
+        extension_history = await fresh_client.get(f"/extension-invocations/{resumed_extension_id}/history")
+        assert [attempt["id"] for attempt in extension_history["attempts"]] == [
+            interrupted_extension_id,
+            resumed_extension_id,
+        ]
+        assert [attempt["extension_receipt"]["attempt"]["number"] for attempt in extension_history["attempts"]] == [
+            1,
+            2,
+        ]
         i3_task = await thin_tools.ace_task(
             "Exercise I3 material continuity after the real runtime restart",
             request_id="i3-closeout-fresh-restart-v1",

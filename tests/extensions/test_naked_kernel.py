@@ -16,11 +16,15 @@ import core.engine.extensions.loader as loader
 
 @pytest.mark.unit
 def test_disable_extensions_env_skips_all_discovery(monkeypatch):
+    from core.engine.extensions import registry
+
     monkeypatch.setenv("ACE_DISABLE_EXTENSIONS", "1")
     monkeypatch.setattr(loader, "_loaded", set())
     monkeypatch.setattr(loader, "_ensured", False)
+    monkeypatch.setattr(registry, "_task_actions", {})
     assert loader.load_extensions() == []
     assert loader.loaded_extensions() == []
+    assert registry.registered_task_actions() == {}
 
 
 @pytest.mark.unit

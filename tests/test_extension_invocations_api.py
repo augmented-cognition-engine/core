@@ -323,7 +323,11 @@ async def test_history_query_is_rooted_in_retry_lineage_not_correlation(monkeypa
         retry_of_task_id="task:prior",
         root_invocation_id="task:root",
     )
-    task = {"id": "task:successor", "extension_invocation": metadata}
+    task = {
+        "id": "task:successor",
+        "workspace": "workspace:one",
+        "extension_invocation": metadata,
+    }
     db = AsyncMock()
     db.query.return_value = []
 
@@ -347,7 +351,10 @@ async def test_history_query_is_rooted_in_retry_lineage_not_correlation(monkeypa
     query, params = db.query.await_args.args
     assert "extension_invocation.attempt.root_invocation_id" in query
     assert "correlation_id" not in query
+    assert "workspace = <record>$workspace" in query
+    assert "LIMIT" not in query
     assert params["root_task_id"] == "task:root"
+    assert params["workspace"] == "workspace:one"
 
 
 @pytest.mark.asyncio
@@ -380,11 +387,15 @@ def test_action_lookup_failures_do_not_reflect_untrusted_identifiers(monkeypatch
 
     action = _action()
     monkeypatch.setattr(api, "registered_task_action", lambda extension_id, action_name: action)
+    assert api._resolve_action(_envelope()) is action
     assert api._resolve_action(_envelope().model_copy(update={"extension_version": None})) is action
     with pytest.raises(HTTPException) as mismatch:
         api._resolve_action(_envelope().model_copy(update={"extension_version": "secret=private"}))
     assert mismatch.value.detail == {"code": "extension_version_mismatch"}
     assert "private" not in str(mismatch.value.detail)
+    with pytest.raises(HTTPException) as unsupported:
+        api._resolve_action(_envelope().model_copy(update={"contract_version": "extension-invocation-v2"}))
+    assert unsupported.value.detail == {"code": "extension_contract_not_accepted"}
 
 
 def test_action_authority_and_feature_requirements_fail_closed():
@@ -437,6 +448,37 @@ async def test_capability_and_schema_catalogs_are_bounded_and_callable_free(monk
         "extension-capability-v1",
         "extension-invocation-receipt-v1",
     }
+
+
+@pytest.mark.asyncio
+async def test_capability_discovery_is_deterministic_across_registration_order(monkeypatch):
+    first = _action().model_copy(update={"extension_id": "zeta", "action": "last"})
+    second = _action().model_copy(update={"extension_id": "alpha", "action": "first"})
+
+    monkeypatch.setattr(
+        api,
+        "registered_task_actions",
+        lambda: {
+            first.identity: first,
+            second.identity: second,
+        },
+    )
+    forward = await api.list_extension_invocation_capabilities({})
+    monkeypatch.setattr(
+        api,
+        "registered_task_actions",
+        lambda: {
+            second.identity: second,
+            first.identity: first,
+        },
+    )
+    reverse = await api.list_extension_invocation_capabilities({})
+
+    assert forward == reverse
+    assert [(item["extension_id"], item["action_name"]) for item in forward["capabilities"]] == [
+        ("alpha", "first"),
+        ("zeta", "last"),
+    ]
 
 
 @pytest.mark.asyncio
@@ -527,7 +569,7 @@ async def test_supported_cancellation_delegates_to_core_lifecycle(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_history_returns_complete_bounded_chain(monkeypatch):
+async def test_history_returns_complete_ordered_chain(monkeypatch):
     envelope = _envelope()
     action = _action()
     plan = await action.prepare(
@@ -550,6 +592,19 @@ async def test_history_returns_complete_bounded_chain(monkeypatch):
         retry_policy_version="extension-retry-v1",
         root_invocation_id="task:one",
     )
+    third_metadata = api.invocation_metadata(
+        envelope,
+        plan,
+        action,
+        attempt_number=3,
+        retry_of_task_id="task:two",
+        retry_reason="retry again",
+        retry_actor="user:one",
+        retry_policy_version="extension-retry-v1",
+        root_invocation_id="task:one",
+    )
+    first_metadata["attempt"]["resumed_by_task_id"] = "task:two"
+    second_metadata["attempt"]["resumed_by_task_id"] = "task:three"
     first = {
         "id": "task:one",
         "product": "product:one",
@@ -564,17 +619,186 @@ async def test_history_returns_complete_bounded_chain(monkeypatch):
         "status": "completed",
         "extension_invocation": second_metadata,
     }
-    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=second))
-    monkeypatch.setattr(api, "_history_records", AsyncMock(return_value=[first, second]))
+    third = {
+        **first,
+        "id": "task:three",
+        "status": "completed",
+        "extension_invocation": third_metadata,
+    }
+    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=third))
+    monkeypatch.setattr(api, "_history_records", AsyncMock(return_value=[first, second, third]))
 
     result = await api.get_extension_invocation_history(
-        "task:two",
+        "task:three",
         user={"product": "product:one", "sub": "user:one", "workspace": "workspace:one"},
     )
 
     assert result["contract_version"] == "extension-invocation-history-v1"
-    assert [item["id"] for item in result["attempts"]] == ["task:one", "task:two"]
+    assert [item["id"] for item in result["attempts"]] == ["task:one", "task:two", "task:three"]
     assert result["attempts"][1]["extension_receipt"]["attempt"]["number"] == 2
+    assert result["attempts"][2]["extension_receipt"]["attempt"]["number"] == 3
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status", ["pending", "running", "completed", "cancelled"])
+async def test_resume_replays_non_retryable_attempt_states_idempotently(monkeypatch, status):
+    envelope = _envelope()
+    action = _action()
+    plan = await action.prepare(
+        envelope,
+        api.ExtensionActorContext(
+            product_id="product:one",
+            workspace_id="workspace:one",
+            user_id="user:one",
+        ),
+    )
+    task = {
+        "id": f"task:{status}",
+        "product": "product:one",
+        "user": "user:one",
+        "workspace": "workspace:one",
+        "status": status,
+        "extension_invocation": api.invocation_metadata(envelope, plan, action),
+    }
+    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=task))
+    submit = AsyncMock()
+    monkeypatch.setattr(api, "submit_task", submit)
+
+    result = await api.resume_extension_invocation(
+        task["id"],
+        user={"product": "product:one", "sub": "user:one", "workspace": "workspace:one"},
+    )
+
+    assert result["id"] == task["id"]
+    assert result["status"] == status
+    assert result["idempotent_replay"] is True
+    submit.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_malformed_lineage_fails_closed_for_resume_and_history(monkeypatch):
+    task = {
+        "id": "task:malformed",
+        "product": "product:one",
+        "user": "user:one",
+        "workspace": "workspace:one",
+        "status": "failed",
+        "extension_invocation": {
+            "contract_version": "extension-invocation-v1",
+            "attempt": {
+                "number": 2,
+                "retry_of_task_id": None,
+            },
+        },
+    }
+    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=task))
+    history = AsyncMock()
+    submit = AsyncMock()
+    monkeypatch.setattr(api, "_history_records", history)
+    monkeypatch.setattr(api, "submit_task", submit)
+    user = {"product": "product:one", "sub": "user:one", "workspace": "workspace:one"}
+
+    with pytest.raises(HTTPException) as resume_error:
+        await api.resume_extension_invocation(task["id"], user=user)
+    with pytest.raises(HTTPException) as history_error:
+        await api.get_extension_invocation_history(task["id"], user=user)
+
+    assert resume_error.value.status_code == 409
+    assert resume_error.value.detail == {"code": "invocation_attempt_lineage_invalid"}
+    assert history_error.value.status_code == 409
+    assert history_error.value.detail == {"code": "invocation_attempt_lineage_invalid"}
+    submit.assert_not_awaited()
+    history.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_history_fails_closed_on_incomplete_successor_link(monkeypatch):
+    envelope = _envelope()
+    action = _action()
+    plan = await action.prepare(
+        envelope,
+        api.ExtensionActorContext(
+            product_id="product:one",
+            workspace_id="workspace:one",
+            user_id="user:one",
+        ),
+    )
+    root = {
+        "id": "task:one",
+        "product": "product:one",
+        "user": "user:one",
+        "workspace": "workspace:one",
+        "status": "failed",
+        "extension_invocation": api.invocation_metadata(envelope, plan, action),
+    }
+    successor = {
+        **root,
+        "id": "task:two",
+        "extension_invocation": api.invocation_metadata(
+            envelope,
+            plan,
+            action,
+            attempt_number=2,
+            retry_of_task_id="task:one",
+            retry_reason="retry",
+            retry_actor="user:one",
+            retry_policy_version="extension-retry-v1",
+            root_invocation_id="task:one",
+        ),
+    }
+    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=successor))
+    monkeypatch.setattr(api, "_history_records", AsyncMock(return_value=[root, successor]))
+
+    with pytest.raises(HTTPException) as raised:
+        await api.get_extension_invocation_history(
+            "task:two",
+            user={"product": "product:one", "sub": "user:one", "workspace": "workspace:one"},
+        )
+
+    assert raised.value.status_code == 409
+    assert raised.value.detail == {"code": "invocation_attempt_chain_invalid"}
+
+
+@pytest.mark.asyncio
+async def test_resume_and_history_reject_foreign_workspace(monkeypatch):
+    envelope = _envelope()
+    action = _action()
+    plan = await action.prepare(
+        envelope,
+        api.ExtensionActorContext(
+            product_id="product:one",
+            workspace_id="workspace:one",
+            user_id="user:one",
+        ),
+    )
+    task = {
+        "id": "task:workspace-one",
+        "product": "product:one",
+        "user": "user:one",
+        "workspace": "workspace:one",
+        "status": "failed",
+        "extension_invocation": api.invocation_metadata(envelope, plan, action),
+    }
+    monkeypatch.setattr(api, "_get_task_record", AsyncMock(return_value=task))
+    history = AsyncMock()
+    submit = AsyncMock()
+    monkeypatch.setattr(api, "_history_records", history)
+    monkeypatch.setattr(api, "submit_task", submit)
+    foreign_user = {
+        "product": "product:one",
+        "sub": "user:one",
+        "workspace": "workspace:foreign",
+    }
+
+    with pytest.raises(HTTPException) as resume_error:
+        await api.resume_extension_invocation(task["id"], user=foreign_user)
+    with pytest.raises(HTTPException) as history_error:
+        await api.get_extension_invocation_history(task["id"], user=foreign_user)
+
+    assert resume_error.value.status_code == 404
+    assert history_error.value.status_code == 404
+    submit.assert_not_awaited()
+    history.assert_not_awaited()
 
 
 @pytest.mark.asyncio

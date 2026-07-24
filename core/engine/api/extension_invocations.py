@@ -39,12 +39,15 @@ from core.engine.extensions.invocation import (
     task_description_with_context,
     valid_attempt_lineage,
 )
-from core.engine.extensions.registry import registered_task_action, registered_task_actions
+from core.engine.extensions.registry import (
+    MAX_TASK_ACTIONS,
+    registered_task_action,
+    registered_task_actions,
+)
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/extension-invocations", tags=["extension-invocations"])
-_MAX_CAPABILITIES = 200
 _MAX_HISTORY = 50
 _resume_locks: weakref.WeakValueDictionary[str, asyncio.Lock] = weakref.WeakValueDictionary()
 
@@ -141,7 +144,7 @@ def _task_body(envelope: ExtensionInvocationEnvelope, plan) -> TaskCreate:
 async def list_extension_invocation_capabilities(user: dict = Depends(get_current_user)):
     """Return callable manifests without exposing resolver functions."""
     actions = registered_task_actions()
-    if len(actions) > _MAX_CAPABILITIES:
+    if len(actions) > MAX_TASK_ACTIONS:
         raise HTTPException(status_code=503, detail={"code": "extension_capability_limit_exceeded"})
     manifests = [
         ExtensionCapabilityManifest.model_validate(actions[key].public_manifest()).model_dump(mode="json")
@@ -245,6 +248,9 @@ async def _history_records(task: dict, user: dict) -> list[dict]:
     root_task_id = str(attempt.get("root_invocation_id") or task.get("id") or "")
     if not root_task_id:
         return []
+    workspace_id = str(task.get("workspace") or "")
+    if not workspace_id:
+        return []
     async with pool.connection() as db:
         return parse_rows(
             await db.query(
@@ -252,21 +258,74 @@ async def _history_records(task: dict, user: dict) -> list[dict]:
                 SELECT * FROM task
                 WHERE product = <record>$product
                   AND user = <record>$user
+                  AND workspace = <record>$workspace
                   AND (
                     id = <record>$root_task_id
                     OR extension_invocation.attempt.root_invocation_id = $root_task_id
                   )
                 ORDER BY extension_invocation.attempt.number ASC, accepted_at ASC
-                LIMIT $limit
                 """,
                 {
                     "product": user.get("product", "product:default"),
                     "user": user.get("sub", "user:default"),
+                    "workspace": workspace_id,
                     "root_task_id": root_task_id,
-                    "limit": _MAX_HISTORY,
                 },
             )
         )
+
+
+def _validate_history_chain(rows: list[dict], root_task_id: str) -> tuple[bool, str | None]:
+    """Validate one complete immutable predecessor/successor attempt chain."""
+    if not rows:
+        return False, "invocation_attempt_chain_missing"
+
+    root_metadata = rows[0].get("extension_invocation")
+    if not isinstance(root_metadata, dict):
+        return False, "invocation_attempt_chain_invalid"
+    root_coordinates = (
+        root_metadata.get("correlation_id"),
+        root_metadata.get("envelope_hash"),
+        root_metadata.get("capability"),
+    )
+    previous_id: str | None = None
+    previous_attempt: dict | None = None
+
+    for expected_number, row in enumerate(rows, start=1):
+        row_id = str(row.get("id") or "")
+        metadata = row.get("extension_invocation")
+        if not row_id or not isinstance(metadata, dict):
+            return False, "invocation_attempt_chain_invalid"
+        lineage_valid, _ = valid_attempt_lineage(metadata)
+        if not lineage_valid:
+            return False, "invocation_attempt_chain_invalid"
+        if (
+            metadata.get("correlation_id"),
+            metadata.get("envelope_hash"),
+            metadata.get("capability"),
+        ) != root_coordinates:
+            return False, "invocation_attempt_chain_invalid"
+
+        attempt = metadata["attempt"]
+        if attempt.get("number") != expected_number:
+            return False, "invocation_attempt_chain_invalid"
+        if expected_number == 1:
+            if row_id != root_task_id:
+                return False, "invocation_attempt_chain_invalid"
+        else:
+            if attempt.get("retry_of_task_id") != previous_id:
+                return False, "invocation_attempt_chain_invalid"
+            if attempt.get("root_invocation_id") != root_task_id:
+                return False, "invocation_attempt_chain_invalid"
+            if not isinstance(previous_attempt, dict) or previous_attempt.get("resumed_by_task_id") != row_id:
+                return False, "invocation_attempt_chain_invalid"
+
+        previous_id = row_id
+        previous_attempt = attempt
+
+    if isinstance(previous_attempt, dict) and previous_attempt.get("resumed_by_task_id") is not None:
+        return False, "invocation_attempt_chain_incomplete"
+    return True, None
 
 
 @router.get("/{task_id}/history")
@@ -275,14 +334,23 @@ async def get_extension_invocation_history(task_id: str, user: dict = Depends(ge
     if not task:
         raise HTTPException(status_code=404, detail="Invocation not found")
     _verify_invocation_access(task, user)
-    if not isinstance(task.get("extension_invocation"), dict):
+    metadata = task.get("extension_invocation")
+    if not isinstance(metadata, dict):
         raise HTTPException(status_code=409, detail="Task is not an extension invocation")
-    rows = await _history_records(task, user) or [task]
+    lineage_valid, lineage_error = valid_attempt_lineage(metadata)
+    if not lineage_valid:
+        raise HTTPException(status_code=409, detail={"code": lineage_error or "invocation_attempt_invalid"})
+    attempt = metadata["attempt"]
+    root_task_id = str(attempt.get("root_invocation_id") or task.get("id") or "")
+    rows = await _history_records(task, user)
     for row in rows:
         _verify_invocation_access(row, user)
+    chain_valid, chain_error = _validate_history_chain(rows, root_task_id)
+    if not chain_valid:
+        raise HTTPException(status_code=409, detail={"code": chain_error or "invocation_attempt_chain_invalid"})
     return {
         "contract_version": "extension-invocation-history-v1",
-        "correlation_id": task["extension_invocation"].get("correlation_id"),
+        "correlation_id": metadata.get("correlation_id"),
         "attempts": [_public_task(row) for row in rows],
     }
 

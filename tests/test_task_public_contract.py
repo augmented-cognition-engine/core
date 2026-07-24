@@ -13,6 +13,13 @@ from fastapi import HTTPException
 
 from core.engine.api import tasks
 from core.engine.api.tasks import TaskCreate
+from core.engine.extensions.invocation import (
+    ExtensionInvocationEnvelope,
+    ExtensionOutcome,
+    ExtensionTaskPlan,
+    RegisteredTaskAction,
+    invocation_metadata,
+)
 from core.engine.orchestration.executor import OrchestrationResult, _persist_task
 from core.engine.orchestration.request import OrchestrationRequest
 
@@ -395,6 +402,90 @@ async def test_failed_and_degraded_states_are_explicit_and_errors_are_bounded():
     assert tasks._public_task(store.state)["error"]["code"] == "runtime_restarted"
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("failure_mode", ["projector_exception", "validator_rejection"])
+async def test_projection_failure_preserves_completed_task_and_raw_output(failure_mode):
+    store = MemoryReceiptStore(task_id=f"task:{failure_mode}")
+    envelope = ExtensionInvocationEnvelope(
+        extension_id="example",
+        extension_version="1.0.0",
+        action="project",
+        workspace_id="workspace:test",
+        question="Return one bounded recommendation.",
+        references=[],
+        correlation_id="corr:projection-failure",
+    )
+    plan = ExtensionTaskPlan(
+        description="Return one bounded recommendation.",
+        outcome_contract="example-outcome-v1",
+    )
+
+    def project(output, _execution):
+        if failure_mode == "projector_exception":
+            raise RuntimeError("token=projector-private")
+        return ExtensionOutcome(
+            contract_version="example-outcome-v1",
+            data={"recommendation": output},
+        )
+
+    def validate(_outcome):
+        if failure_mode == "validator_rejection":
+            raise ValueError("api_key=validator-private")
+
+    action = RegisteredTaskAction(
+        extension_id="example",
+        extension_version="1.0.0",
+        action="project",
+        prepare=lambda _envelope, _actor: plan,
+        project_outcome=project,
+        validate_outcome=validate,
+        output_contract="example-outcome-v1",
+    )
+    metadata = invocation_metadata(envelope, plan, action)
+    metadata_attempt = dict(metadata["attempt"])
+    body = TaskCreate(description=plan.description, workspace_id="workspace:test")
+    user = {"sub": "user:test", "product": "product:test"}
+
+    with (
+        patch.object(tasks, "_update_receipt", new=store.update),
+        patch.object(tasks, "_get_task_record", new=store.get),
+        patch.object(
+            tasks,
+            "_persist_structured_decision",
+            new=AsyncMock(return_value={"contract_version": "decision-receipt-v1"}),
+        ),
+        patch("core.engine.orchestration.orchestrate", new=AsyncMock(return_value=_result())),
+        patch("core.engine.extensions.registry.registered_task_action", return_value=action),
+    ):
+        await tasks._execute_receipt(
+            store.task_id,
+            body,
+            user,
+            extension_invocation=metadata,
+        )
+
+    receipt = store.state["extension_receipt"]
+    serialized = str(receipt)
+    assert store.state["status"] == "completed"
+    assert store.state["output"] == "durable output"
+    assert store.state["error"] is None
+    assert receipt["attempt"]["status"] == "completed"
+    assert receipt["raw_core_output"] == {
+        "available": True,
+        "content": "durable output",
+    }
+    assert receipt["outcome"]["data"] == {}
+    assert receipt["coverage"]["state"] == "degraded"
+    assert "extension_outcome_projection" in receipt["coverage"]["missing_or_degraded"]
+    assert receipt["failures"][0]["code"] == "outcome_projection_failed"
+    assert receipt["human_decision"] is None
+    assert receipt["adoption"] is None
+    assert metadata["attempt"] == metadata_attempt
+    assert "projector-private" not in serialized
+    assert "validator-private" not in serialized
+    assert "<redacted>" in serialized
+
+
 def test_nested_agent_error_is_used_when_top_level_failure_is_empty():
     result = _result(status="failed")
     result.pattern_result = SimpleNamespace(
@@ -577,6 +668,45 @@ async def test_cancellation_records_completed_before_request(monkeypatch):
 
     assert result["cancellation"]["state"] == "completed_before_cancellation"
     assert result["status"] == "completed"
+
+
+@pytest.mark.asyncio
+async def test_supported_cancellation_persists_requested_then_acknowledged():
+    store = MemoryReceiptStore(task_id="task:cancel-active")
+    release = asyncio.Event()
+    updates: list[str] = []
+
+    async def blocked_orchestrate(_request):
+        await release.wait()
+        return _result()
+
+    async def update(task_id, fields):
+        cancellation = fields.get("cancellation")
+        if isinstance(cancellation, dict):
+            updates.append(str(cancellation.get("state")))
+        return await store.update(task_id, fields)
+
+    body = TaskCreate(description="cancel this work", workspace_id="workspace:test")
+    user = {"sub": "user:test", "product": "product:test"}
+    with (
+        patch.object(tasks, "_create_or_get_receipt", new=store.create_or_get),
+        patch.object(tasks, "_update_receipt", new=update),
+        patch.object(tasks, "_get_task_record", new=store.get),
+        patch("core.engine.orchestration.orchestrate", new=blocked_orchestrate),
+    ):
+        await tasks.create_task(body, user)
+        await asyncio.sleep(0)
+        result = await tasks.cancel_task_execution(
+            store.task_id,
+            actor="user:test",
+            reason="no longer needed",
+        )
+
+    assert result["status"] == "cancelled"
+    assert result["cancellation"]["state"] == "acknowledged"
+    assert result["cancellation"]["requested_at"] is not None
+    assert result["cancellation"]["acknowledged_at"] is not None
+    assert updates == ["requested", "acknowledged"]
 
 
 @pytest.mark.asyncio

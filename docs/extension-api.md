@@ -34,6 +34,8 @@ names the commitment; the source names the types.
   successor attempt, never a fictitious continuation of a lost provider stream.
   See the [experimental invocation contract](extension-invocation-contract.md) for wire fields,
   authority, failure behavior, restart evidence, and limitations.
+  Registration returns the experimental `RegisteredTaskAction` handle used by
+  `run_task_action_conformance(...)`; ignoring the return remains valid.
 - `Registry.register_sentinel(...)` — sentinel engine contribution.
 - `Registry.register_briefing_section(...)` — briefing composition hooks.
 - Canvas extension wiring (`core/ui/canvas/src/app/ext/`).
@@ -59,8 +61,22 @@ adoption.
 The experimental capability manifest negotiates accepted input versions, one output
 version, lifecycle operations, cancellation support, resolver/artifact capabilities,
 required authorities, and feature flags. Discovery is deterministic, bounded to 200
-actions, and rejects duplicate registrations. Machine-readable schemas are available
+actions, and rejects exact duplicate registrations. The registration store uses the
+`(extension_id, action_name)` pair directly, so delimiter characters cannot collapse
+two distinct identities. Invalid identifiers, empty required lists, duplicate list
+values, and cancellation without the `cancel` lifecycle operation are rejected before
+discovery. The 200-action limit is enforced at registration and defensively at
+discovery. Manifests are sorted by the identity pair and never serialize preparation,
+resolver, projector, or validator callables. Machine-readable schemas are available
 from authenticated `GET /extension-invocations/schemas`.
+
+The candidate Python SDK surface for task actions is exported from
+`core.engine.extensions`: `Registry`, `RegisteredTaskAction`,
+`ExtensionCapabilityManifest`, `ExtensionInvocationEnvelope`,
+`ExtensionActorContext`, `ExtensionReference`, `ContextResolution`,
+`ResolvedContextRecord`, `ExtensionTaskPlan`, `ExtensionOutcome`,
+`ExtensionArtifactProvenance`, `ExtensionInvocationReceipt`, and
+`run_task_action_conformance`. The entire task-action surface remains experimental.
 
 ## Starting point
 

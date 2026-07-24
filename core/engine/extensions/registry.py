@@ -44,7 +44,9 @@ _briefing_sections: list[dict[str, Any]] = []  # {"builder": async fn, "metrics_
 _verify_checks: list[Callable[[list[dict]], list[dict]]] = []
 # Extension-owned task preparation and outcome projection. Core owns the
 # invocation lifecycle; these callables are the domain resolution boundary.
-_task_actions: dict[str, RegisteredTaskAction] = {}
+MAX_TASK_ACTIONS = 200
+TaskActionIdentity = tuple[str, str]
+_task_actions: dict[TaskActionIdentity, RegisteredTaskAction] = {}
 
 
 class Registry:
@@ -168,7 +170,7 @@ class Registry:
         artifact_capabilities: list[str] | None = None,
         required_authority: list[str] | None = None,
         feature_flags: list[str] | None = None,
-    ) -> None:
+    ) -> RegisteredTaskAction:
         """Register an extension-owned resolver/projector on Core's task lifecycle.
 
         ``prepare`` receives the structured invocation envelope plus an
@@ -190,19 +192,27 @@ class Registry:
             project_outcome=project_outcome,
             validate_outcome=validate_outcome,
             input_contract=input_contract,
-            accepted_input_contract_versions=accepted_input_contract_versions or [input_contract],
+            accepted_input_contract_versions=(
+                [input_contract] if accepted_input_contract_versions is None else accepted_input_contract_versions
+            ),
             output_contract=output_contract,
             description=description,
-            lifecycle_operations=lifecycle_operations or ["submit", "retrieve", "history", "retry"],
+            lifecycle_operations=(
+                ["submit", "retrieve", "history", "retry"] if lifecycle_operations is None else lifecycle_operations
+            ),
             cancellation_supported=cancellation_supported,
             resolver_capabilities=resolver_capabilities or [],
             artifact_capabilities=artifact_capabilities or [],
             required_authority=required_authority or [],
             feature_flags=feature_flags or [],
         )
-        if registered.key in _task_actions:
+        identity = registered.identity
+        if identity in _task_actions:
             raise RuntimeError(f"Task action '{registered.key}' is already registered")
-        _task_actions[registered.key] = registered
+        if len(_task_actions) >= MAX_TASK_ACTIONS:
+            raise RuntimeError(f"Task action registry is limited to {MAX_TASK_ACTIONS} actions")
+        _task_actions[identity] = registered
+        return registered
 
 
 # ---- read-side accessors (kernel consumes these as each capability is wired) ----
@@ -265,11 +275,11 @@ def registered_verify_checks() -> list[Callable[[list[dict]], list[dict]]]:
     return list(_verify_checks)
 
 
-def registered_task_actions() -> dict[str, RegisteredTaskAction]:
+def registered_task_actions() -> dict[TaskActionIdentity, RegisteredTaskAction]:
     _ensure_extensions_loaded()
     return dict(_task_actions)
 
 
 def registered_task_action(extension_id: str, action: str) -> RegisteredTaskAction | None:
     _ensure_extensions_loaded()
-    return _task_actions.get(f"{extension_id}:{action}")
+    return _task_actions.get((extension_id, action))
