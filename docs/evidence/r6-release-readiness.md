@@ -1,12 +1,13 @@
-# R6 ace-core 0.1.3 release readiness
+# R6 ace-core 0.1.3 release evidence
 
 Date: 2026-07-23
 
-Outcome: **candidate — local release gates passed; public release gates pending**
+Outcome: **passed — verified tag, GitHub Release, trusted PyPI publication, provenance, artifact
+hashes, and clean public-index installation completed**
 
 ## Intended release
 
-R6 packages `ace-core` 0.1.3 as a backward-compatible developer-preview patch release. It adds
+R6 ships `ace-core` 0.1.3 as a backward-compatible developer-preview patch release. It adds
 the supported bounded I2 attributable-deliberation receipt and ships the current extension
 invocation lifecycle, SDK, conformance helper, reference action, HTTP routes, and Canvas wiring as
 explicitly experimental surfaces.
@@ -17,7 +18,7 @@ reasoning access, or add general unattended execution authority.
 
 ## Version and compatibility scope
 
-The candidate aligns these identities at `0.1.3`:
+The release aligns these identities at `0.1.3`:
 
 - Python distribution metadata and editable lockfile;
 - `ace.__version__`;
@@ -62,7 +63,7 @@ Phase 7 conditionally passed current-version stabilization. Version 0.1.3 does n
 
 These are promotion or later-outcome gates, not hidden release claims.
 
-## Candidate verification
+## Local gates
 
 | Gate | Result |
 |---|---|
@@ -100,20 +101,42 @@ Candidate artifact SHA-256 values:
 - `ace_core-0.1.3.tar.gz` —
   `6fbad095bcabc7d016b2a5f3b60b0183dbe676eade3070235550a790d596dfc2`.
 
-These are local candidate hashes only. The trusted-publishing artifacts will be rebuilt from the
-verified tag and independently compared with PyPI after publication.
+These local candidate hashes differ from the trusted-publishing rebuild recorded below because
+the candidate preceded final evidence-only wording and Python archives also include build
+metadata. Both builds were independently inspected, and the workflow artifacts match PyPI
+exactly.
 
 ## Public release gates
 
-Promotion to `passed` requires:
+Completed on 2026-07-23:
 
-1. a reviewed release-preparation PR and green PR CI;
-2. a verified merge commit on `main` with all six merged-main CI jobs green;
-3. an annotated `v0.1.3` tag resolving to that exact commit;
-4. a published GitHub Release triggering the trusted PyPI workflow;
-5. successful tag/package-version validation and distribution checks;
-6. matching GitHub/PyPI artifact SHA-256 digests and verified PyPI attestations; and
-7. a cache-free public-index install confirming version identities, CLI, schema v157, reference
-   extension discovery, and exactly eleven MCP tools.
+- release preparation merged through [PR #32](https://github.com/augmented-cognition-engine/core/pull/32)
+  after [all six PR CI jobs](https://github.com/augmented-cognition-engine/core/actions/runs/30065307192)
+  passed;
+- verified release commit
+  [`6e7d28b864b591cad473572e38ffdc7dc28a86de`](https://github.com/augmented-cognition-engine/core/commit/6e7d28b864b591cad473572e38ffdc7dc28a86de)
+  matched `origin/main`, with
+  [all six merged-main CI jobs](https://github.com/augmented-cognition-engine/core/actions/runs/30065533622)
+  green;
+- annotated tag [`v0.1.3`](https://github.com/augmented-cognition-engine/core/tree/v0.1.3)
+  resolves to that exact verified commit;
+- [GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.1.3)
+  published and triggered the
+  [trusted-publishing workflow](https://github.com/augmented-cognition-engine/core/actions/runs/30065775723);
+- the workflow validated tag/package-version equality, built and checked both distributions, and
+  published [ace-core 0.1.3 on PyPI](https://pypi.org/project/ace-core/0.1.3/);
+- downloaded workflow artifacts matched PyPI's SHA-256 digests exactly:
+  - `ace_core-0.1.3-py3-none-any.whl` —
+    `963353a66942956d20e50f2c2aa6707476ca749511bf10a986d1e706ffd326c7`;
+  - `ace_core-0.1.3.tar.gz` —
+    `bedc2b3b9b2a83d2768082d91ed42b67c87dd389d789fb65800bb5752ec12846`;
+- `pypi-attestations verify pypi` cryptographically verified both public distributions against
+  `https://github.com/augmented-cognition-engine/core`; and
+- a cache-free public-index installation in a fresh Python 3.12.13 environment confirmed all five
+  distribution/import/thin-client/engine/reference-extension version identities at `0.1.3`, a
+  working `ace --help`, exactly eleven MCP tools, the `product` extension entry point, 156 schema
+  files through v157, and the packaged R6 evidence record.
 
-No artifact has been published at candidate preparation time.
+The clean install reported normalized invalid version specifiers from transitive upstream package
+metadata. The warning did not change resolution, the installed ACE identity, or any public
+contract verification.

@@ -6,11 +6,11 @@ Priorities may change as maintainers learn from users and contributors.
 
 ## Current release checkpoint
 
-`ace-core` 0.1.2 is published on PyPI and GitHub. The release, package artifacts, trusted
+`ace-core` 0.1.3 is published on PyPI and GitHub. The release, package artifacts, trusted
 publishing path, provenance, and a clean public-index wheel installation have been verified.
-The backward-compatible 0.1.3 candidate packages attributable deliberation receipts and the
-experimental extension-invocation runtime without widening the eleven-tool MCP boundary or
-promoting extension invocation to stable. The onboarding
+The backward-compatible release packages attributable deliberation receipts and the experimental
+extension-invocation runtime without widening the eleven-tool MCP boundary or promoting extension
+invocation to stable. The onboarding
 gate is proven in clean macOS and Linux proxy trials. The reproducible product-builder golden path
 now also shows a public evidence-backed decision, inspectable reasoning, a retained human
 correction, real runtime restart, and material later use through the supported CLI and eleven-tool
@@ -51,7 +51,7 @@ Roadmap outcome states are used strictly:
 | R3 | passed | Validate provider setup, authentication, diagnostics, and degraded behavior | [Provider validation evidence](docs/evidence/r3-provider-validation.md): supported matrix, deterministic degraded-state coverage, live Claude and GPT subscription routes, honest effort reporting, and green current-main CI |
 | R4 | passed | Publish a reproducible, product-builder golden-path demonstration | [Golden-path evidence](docs/product-builder-golden-path.md): a checksum-frozen public product decision completed through the supported Codex subscription route, persisted a binding human correction across a real service restart, materially changed a fresh later experiment, retained inspectable provenance, and recorded failures and portability limits without widening the eleven-tool boundary |
 | R5 | passed | Ship the backward-compatible ace-core 0.1.2 inspectability and foresight release | [0.1.2 release evidence](docs/evidence/r5-release-readiness.md) records aligned metadata, clean artifacts and isolated install, full regressions, schema v155 restart/Compose health, verified main/tag identity, GitHub Release, trusted PyPI publication, cryptographic provenance, matching archive hashes, and a clean public-index install |
-| R6 | candidate | Ship the backward-compatible ace-core 0.1.3 attributable-deliberation and experimental extension-invocation release | [0.1.3 release readiness](docs/evidence/r6-release-readiness.md) defines the supported/experimental boundary and release gates; promotion requires a verified release commit, green merged-main CI, clean artifacts/install, tag identity, trusted publication, provenance, and public-index verification |
+| R6 | passed | Ship the backward-compatible ace-core 0.1.3 attributable-deliberation and experimental extension-invocation release | [0.1.3 release evidence](docs/evidence/r6-release-readiness.md) records the supported/experimental boundary, full local regressions, verified release commit and tag, green PR/main CI, trusted PyPI publication, matching artifact hashes, provenance, and clean public-index verification |
 
 ## Next — durable product partnership
 
