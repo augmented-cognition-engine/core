@@ -18,7 +18,7 @@ The 0.1.x public identities are:
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.1.2`
+- version: `0.1.3`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -78,21 +78,21 @@ opt-in CLI, thin-client, and read-only Living Product Graph paths. It records bo
 shape selection, execution-identity contributor artifacts, artifact-grounded conflicts, synthesis
 dispositions, and honest partial/degraded coverage without exposing hidden reasoning or adding
 execution authority. I2 is passed, but attribution does not establish correctness, causality, or
-benefit. See [I2 closeout evidence](i2-attributable-deliberation-evidence.md).
+benefit. See [I2 closeout evidence](evidence/i2-attributable-deliberation-evidence.md).
 
 The supported I3 `intelligence-use-receipt-v1` projection is exposed through the existing
 `ace_status` task result and read-only Living Product Graph. It distinguishes retrieved, injected,
 reflected, and decision-material evidence; limits comparison to the six structured I1 fields; and
 degrades missing, mismatched, failed, or partial controls without reconstruction. I3 is passed, but
 material influence is not beneficial impact and does not imply L1 success. See
-[I3 closeout evidence](i3-intelligence-use-evidence.md).
+[I3 closeout evidence](evidence/i3-intelligence-use-evidence.md).
 
 The experimental L1 `ace.foresight.impact-evaluation/v1` evaluator now computes bounded,
 cluster-aware later-outcome comparisons without accepting caller-supplied quality labels. Its first
 checksum-frozen public-data probe did not establish benefit. A tamper-evident prospective protocol
 is now frozen, but its executed readiness receipt is `collection_not_started`. L1 therefore remains
 candidate and no beneficial-impact capability is part of the supported preview contract. See the
-[L1 evidence gate](l1-foresight-impact-evidence.md).
+[L1 evidence gate](evidence/l1-foresight-impact-evidence.md).
 
 Atrium is repository beta source and is not included in the Python wheel or sdist. It is a
 research surface, not a required installation or interaction path.

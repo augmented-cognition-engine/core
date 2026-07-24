@@ -61,7 +61,7 @@ def test_complete_product_snapshot_is_versioned_provenance_bearing_and_read_only
     }
     assert snapshot["authority"] == {
         "mode": "read_only",
-        "operational_roadmap": "docs/roadmap-status.md",
+        "operational_roadmap": "ROADMAP.md",
         "writes_permitted": False,
         "autonomous_dispatch": False,
         "operational_truth": "relationships.operational",

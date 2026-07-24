@@ -17,7 +17,7 @@ extension-owned, the Canvas extension seam remains experimental, and this
 decision does not accept Phase 7.
 
 Phase 5's recorded PASS is the prerequisite baseline:
-[`docs/phase-5-extension-sdk-acceptance.md`](phase-5-extension-sdk-acceptance.md).
+[`docs/evidence/phase-5-extension-sdk-acceptance.md`](phase-5-extension-sdk-acceptance.md).
 
 ## Tested journey and scenario matrix
 

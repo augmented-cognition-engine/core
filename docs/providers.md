@@ -56,7 +56,7 @@ Structured states are `not_configured`, `configured_unverified`, `authenticated`
 `rate_limited`, `unauthorized`, `unavailable`, `timed_out`, `unsupported_model`,
 `unsupported_effort`, `local_dependency_unavailable`, and
 `provider_operational_but_degraded`. Diagnostics return only credential-source names, never values
-or raw upstream bodies. See the [R3 evidence report](r3-provider-validation.md) for the frozen
+or raw upstream bodies. See the [R3 evidence report](evidence/r3-provider-validation.md) for the frozen
 matrix and current live-validation limit.
 
 ## The resolution chain

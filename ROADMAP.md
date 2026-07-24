@@ -6,8 +6,11 @@ Priorities may change as maintainers learn from users and contributors.
 
 ## Current release checkpoint
 
-`ace-core` 0.1.0 is published on PyPI and GitHub. The release, package artifacts, trusted
-publishing path, and a clean public-index wheel installation have been verified. The onboarding
+`ace-core` 0.1.2 is published on PyPI and GitHub. The release, package artifacts, trusted
+publishing path, provenance, and a clean public-index wheel installation have been verified.
+The backward-compatible 0.1.3 candidate packages attributable deliberation receipts and the
+experimental extension-invocation runtime without widening the eleven-tool MCP boundary or
+promoting extension invocation to stable. The onboarding
 gate is proven in clean macOS and Linux proxy trials. The reproducible product-builder golden path
 now also shows a public evidence-backed decision, inspectable reasoning, a retained human
 correction, real runtime restart, and material later use through the supported CLI and eleven-tool
@@ -43,11 +46,12 @@ Roadmap outcome states are used strictly:
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
 | R0 | passed | Publish `ace-core` 0.1.0 through a credential-free release path | GitHub Release, PyPI release, successful OIDC workflow, and public-index install verified |
-| R1 | passed | Make first use effortless and outcome-led for product builders, not only developers | [Clean-trial evidence](docs/r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
-| R2 | passed | Ship a focused 0.1.1 onboarding, packaging, and documentation release | [Release evidence](docs/r2-release-evidence.md): clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install all passed against verified main commit `1662eaa` |
-| R3 | passed | Validate provider setup, authentication, diagnostics, and degraded behavior | [Provider validation evidence](docs/r3-provider-validation.md): supported matrix, deterministic degraded-state coverage, live Claude and GPT subscription routes, honest effort reporting, and green current-main CI |
+| R1 | passed | Make first use effortless and outcome-led for product builders, not only developers | [Clean-trial evidence](docs/evidence/r1-onboarding-evidence.md): isolated macOS and Linux journeys both reached useful recommendations without maintainer help or architecture knowledge; intentional recovery and `ace doctor` passed |
+| R2 | passed | Ship a focused 0.1.1 onboarding, packaging, and documentation release | [Release evidence](docs/evidence/r2-release-evidence.md): clean macOS/Linux installs, artifacts, required PR/main CI, `v0.1.1`, trusted PyPI publication, GitHub Release, and a fresh public-index install all passed against verified main commit `1662eaa` |
+| R3 | passed | Validate provider setup, authentication, diagnostics, and degraded behavior | [Provider validation evidence](docs/evidence/r3-provider-validation.md): supported matrix, deterministic degraded-state coverage, live Claude and GPT subscription routes, honest effort reporting, and green current-main CI |
 | R4 | passed | Publish a reproducible, product-builder golden-path demonstration | [Golden-path evidence](docs/product-builder-golden-path.md): a checksum-frozen public product decision completed through the supported Codex subscription route, persisted a binding human correction across a real service restart, materially changed a fresh later experiment, retained inspectable provenance, and recorded failures and portability limits without widening the eleven-tool boundary |
-| R5 | passed | Ship the backward-compatible ace-core 0.1.2 inspectability and foresight release | [0.1.2 release evidence](docs/r5-release-readiness.md) records aligned metadata, clean artifacts and isolated install, full regressions, schema v155 restart/Compose health, verified main/tag identity, GitHub Release, trusted PyPI publication, cryptographic provenance, matching archive hashes, and a clean public-index install |
+| R5 | passed | Ship the backward-compatible ace-core 0.1.2 inspectability and foresight release | [0.1.2 release evidence](docs/evidence/r5-release-readiness.md) records aligned metadata, clean artifacts and isolated install, full regressions, schema v155 restart/Compose health, verified main/tag identity, GitHub Release, trusted PyPI publication, cryptographic provenance, matching archive hashes, and a clean public-index install |
+| R6 | candidate | Ship the backward-compatible ace-core 0.1.3 attributable-deliberation and experimental extension-invocation release | [0.1.3 release readiness](docs/evidence/r6-release-readiness.md) defines the supported/experimental boundary and release gates; promotion requires a verified release commit, green merged-main CI, clean artifacts/install, tag identity, trusted publication, provenance, and public-index verification |
 
 ## Next — durable product partnership
 
@@ -67,14 +71,14 @@ Roadmap outcome states are used strictly:
 
 | ID | State | Public outcome | Dependency / acceptance evidence |
 |---|---|---|---|
-| G1 | passed | Promote the read-only Living Product Graph projection into a supported inspectable journey | [`ace landscape`](docs/living-product-graph.md), [reproducible G1 evidence](docs/g1-living-product-graph-evidence.md), and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) prove the versioned, bounded, deterministic, assertion-backed read contract and strict read-only boundary |
-| IA-R1 | passed | Define the read-only information architecture for inspecting ACE state | [`/landscape`](docs/ia-r1-product-map.md), [reconciled IA-R1 evidence](docs/ia-r1-product-map.md), and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) establish the six-question operator hierarchy, visible provenance and uncertainty, bounded failures, stable identity, and strict no-write/no-execution authority |
+| G1 | passed | Promote the read-only Living Product Graph projection into a supported inspectable journey | [`ace landscape`](docs/living-product-graph.md), [reproducible G1 evidence](docs/evidence/g1-living-product-graph-evidence.md), and [green acceptance CI](https://github.com/augmented-cognition-engine/core/actions/runs/29872552736) prove the versioned, bounded, deterministic, assertion-backed read contract and strict read-only boundary |
+| IA-R1 | passed | Define the read-only information architecture for inspecting ACE state | [`/landscape`](docs/evidence/ia-r1-product-map.md), [reconciled IA-R1 evidence](docs/evidence/ia-r1-product-map.md), and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29889892587) establish the six-question operator hierarchy, visible provenance and uncertainty, bounded failures, stable identity, and strict no-write/no-execution authority |
 | I1 | passed | Make decisions, evidence, dissent, uncertainty, corrections, approval receipts, and outcomes easier to inspect | [Decision and correction receipt evidence](docs/decision-correction-receipts.md) proves stable identities, complete decision context, all four human dispositions, correction supersession/invalidation/contestation/expiry, authorization, isolation, redaction, explicit provenance gaps, and restart continuity through the existing eleven-tool boundary |
-| I2 | passed | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | [I2 closeout evidence](docs/i2-attributable-deliberation-evidence.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29976761503) prove the frozen receipt, public-data four-path matrix, artifact-grounded conflict and synthesis lineage, real restart continuity, failure/redaction/isolation behavior, and unchanged eleven-tool boundary |
-| I3 | passed | Make retained-intelligence use and its decision effect inspectable | [I3 closeout evidence](docs/i3-intelligence-use-evidence.md) proves the bounded `intelligence-use-receipt-v1` projection, exact I1 field deltas, matched live Codex route, real restart/fresh-client continuity, null/stale/contested/harmful/mismatch/failure behavior, and unchanged eleven-tool boundary |
-| F1 | passed | Freeze the honest, conditional contract for graph-grounded calibrated foresight | [F1 closeout evidence](docs/f1-foresight-evidence.md) proves the continuous-delta v1 forecast-to-observation-to-resolution loop through additive schema v154, including cold start, settled analogues, optional planning/comparators, structured measurement ingestion, proper interval scoring, real API/database restart continuity, explicit non-causal limitations, and the unchanged eleven-tool boundary |
+| I2 | passed | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | [I2 closeout evidence](docs/evidence/i2-attributable-deliberation-evidence.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29976761503) prove the frozen receipt, public-data four-path matrix, artifact-grounded conflict and synthesis lineage, real restart continuity, failure/redaction/isolation behavior, and unchanged eleven-tool boundary |
+| I3 | passed | Make retained-intelligence use and its decision effect inspectable | [I3 closeout evidence](docs/evidence/i3-intelligence-use-evidence.md) proves the bounded `intelligence-use-receipt-v1` projection, exact I1 field deltas, matched live Codex route, real restart/fresh-client continuity, null/stale/contested/harmful/mismatch/failure behavior, and unchanged eleven-tool boundary |
+| F1 | passed | Freeze the honest, conditional contract for graph-grounded calibrated foresight | [F1 closeout evidence](docs/evidence/f1-foresight-evidence.md) proves the continuous-delta v1 forecast-to-observation-to-resolution loop through additive schema v154, including cold start, settled analogues, optional planning/comparators, structured measurement ingestion, proper interval scoring, real API/database restart continuity, explicit non-causal limitations, and the unchanged eleven-tool boundary |
 | T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
-| E1 | not ready | Expand extension examples and conformance coverage | The [experimental extension-invocation contract](docs/extension-invocation-contract.md) freezes a durable bridge and restart boundary, but E1 still requires packaged-example and version-skew conformance evidence while preserving exactly eleven public MCP tools |
+| E1 | not ready | Expand extension examples and conformance coverage | The [experimental extension-invocation contract](docs/extension-invocation-contract.md) and [Phase 7 review](docs/evidence/phase-7-extension-invocation-stabilization-review.md) establish current-version packaged-example, consumer, recovery, security-regression, and naked-kernel evidence. Stable promotion remains blocked on N-1 package skew, isolation/security review, distributed recovery/effect semantics, and complete operability evidence |
 
 I1 passed through the existing task/status/capture/load paths with versioned task-backed decision
 receipts and linked correction provenance. API-owned schema-zero-to-v145 bootstrap and restart
@@ -111,7 +115,7 @@ beneficially inform later reasoning.
 |---|---|---|---|
 | F2 | not ready | Broaden consequence types and independently verified design evidence where product evidence justifies the added complexity | Requires L1 evidence or demonstrated user need; may include binary/categorical scoring, verified assignment/randomization provenance, and independently produced forecast contributions without reopening F1 |
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts and explicit execution authority |
-| L1 | candidate | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence gate](docs/l1-foresight-impact-evidence.md) preserves the negative public-data probe and freezes a tamper-evident prospective all-controls protocol; the executed readiness receipt is `collection_not_started`, so beneficial impact is not established |
+| L1 | candidate | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence gate](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative public-data probe and freezes a tamper-evident prospective all-controls protocol; the executed readiness receipt is `collection_not_started`, so beneficial impact is not established |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
 | E2 | not ready | Grow the provider-neutral extension, telemetry, and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy; native telemetry sources belong here rather than in F1 |
 
@@ -122,9 +126,9 @@ for current Now/Next/Later status. This file preserves the versioned outcome def
 public planning principles; repository issues carry discussion and acceptance evidence for
 individual outcomes.
 
-[`docs/roadmap-status.md`](docs/roadmap-status.md) records the latest reconciled evidence snapshot,
-dependencies, and exact next dispatch. The GitHub Project is the live operational view; neither
-strategy prose nor an unverified implementation claim advances an outcome to `passed`.
+The GitHub Project is the live operational view; neither strategy prose nor an unverified
+implementation claim advances an outcome to `passed`. Point-in-time verification records remain
+available in the [evidence archive](docs/evidence/README.md).
 
 The I1–I3 outcomes are reasoning-product infrastructure, not demonstration scaffolding. A demo may
 reveal or exercise these gaps, but recording needs do not define their acceptance criteria or pull

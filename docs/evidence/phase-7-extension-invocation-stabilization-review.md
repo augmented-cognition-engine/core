@@ -258,10 +258,10 @@ parallel-contention run is not counted as acceptance evidence.
 
 Core changes owned by Phase 7:
 
-- `docs/phase-7-extension-invocation-stabilization-review.md` — this decision,
+- `docs/evidence/phase-7-extension-invocation-stabilization-review.md` — this decision,
   evidence, limitations, and promotion blockers;
 - `docs/README.md` — Phase 6 and Phase 7 evidence links;
-- `docs/roadmap-status.md` — reconciled E1 without promoting it.
+- `ROADMAP.md` — reconciled E1 without promoting it.
 
 Marketing changes owned by Phase 7:
 

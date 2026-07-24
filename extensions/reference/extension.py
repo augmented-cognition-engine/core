@@ -42,7 +42,7 @@ class ProductExtension:
     """The open `product` extension — copy this file to start your own."""
 
     name = "product"
-    version = "0.1.2"
+    version = "0.1.3"
 
     def register(self, reg: "Registry") -> None:
         from extensions.reference.invocation import (

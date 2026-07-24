@@ -829,7 +829,7 @@ def project_product_snapshot(product_id: str, source: LivingProductGraphRecords)
         "projection_version": PROJECTION_VERSION,
         "authority": {
             "mode": "read_only",
-            "operational_roadmap": "docs/roadmap-status.md",
+            "operational_roadmap": "ROADMAP.md",
             "writes_permitted": False,
             "autonomous_dispatch": False,
             "operational_truth": "relationships.operational",

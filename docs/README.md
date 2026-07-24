@@ -1,76 +1,47 @@
 # ACE documentation
 
-ACE's public documentation is intentionally small and user-facing:
+These pages describe the current product, supported interfaces, and contributor-facing contracts.
+Point-in-time release and acceptance records live in the
+[evidence archive](evidence/README.md) so they do not obscure the durable documentation.
 
-- [Architecture](architecture.md) — how the reasoning engine and supported boundaries fit
-  together.
-- [Graph-grounded calibrated foresight](foresight.md) — the canonical definition, current maturity
-  boundary, versioned forecast/intervention/indicator/outside-view/resolution/scoring contracts, and F1 acceptance
-  evidence.
-- [F1 foresight closeout evidence](f1-foresight-evidence.md) — continuous-v1 scope, real
-  measurement-to-resolution restart proof, limitations, and deferred work.
-- [Capability maturity](capability-maturity.md) — what is supported in 0.1.x and what remains
+## Start here
+
+- [Project quickstart](../README.md) — install ACE and reach a first useful result.
+- [Capability maturity](capability-maturity.md) — what 0.1.x supports and what remains
   experimental.
-- [Living Product Graph read contract](living-product-graph.md) — inspect product objects,
-  relationships, evidence, uncertainty, history, and outcomes without mutation authority.
-- [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md) — as-built audit,
-  authority proof, deterministic replay, failures, verification, and limits.
-- [IA-R1 read-only product map](ia-r1-product-map.md) — the operator question hierarchy,
-  strict read-only boundary, degraded-state behavior, verification, and limitations.
-- [Frequently asked questions](faq.md) — partial failure, conflicting claims, confidence,
-  provenance, and multi-product SurrealDB operation.
-- [Decision and correction receipts](decision-correction-receipts.md) — the supported I1 contract,
-  lifecycle, compatibility behavior, privacy boundary, replay evidence, and limitations.
-- [I2 attributable deliberation evidence](i2-attributable-deliberation-evidence.md) — bounded
-  routing reasons, execution-identity-backed positions, artifact-grounded conflict, synthesis
-  lineage, partial coverage, restart evidence, and hidden-reasoning boundary.
-- [I3 intelligence-use evidence](i3-intelligence-use-evidence.md) — retained-intelligence states,
-  exact I1 decision deltas, matched comparisons, restart continuity, failure cases, and the boundary
-  between material influence and beneficial impact.
-- [L1 foresight-impact evidence gate](l1-foresight-impact-evidence.md) — sample-aware all-controls
-  evaluation, the preserved negative public-data result, the frozen prospective protocol and
-  `collection_not_started` receipt, and the evidence still required to claim beneficial impact.
-- [Model providers](providers.md) — provider configuration and routing expectations.
-- [R3 provider validation](r3-provider-validation.md) — frozen auth matrix, live evidence, degraded states, and limits.
-- [Product-builder golden path](product-builder-golden-path.md) — a reproducible public product
-  decision, human correction, durable restart, material later reuse, provenance, and honest
-  failure behavior.
-- [Clean-user onboarding trial](onboarding-trials.md) — measure time to first useful result,
-  recovery, and independence from maintainer help.
-- [R1 onboarding evidence](r1-onboarding-evidence.md) — the reconciled macOS/Linux trial results,
-  observed friction, fixes, verification, passing activation outcomes, and explicit limitations.
-- [R2 release evidence](r2-release-evidence.md) — the focused 0.1.1 scope, clean installed-artifact
-  checks, archive inspection, verification results, public release gates, and limitations.
-- [R5 0.1.2 release evidence](r5-release-readiness.md) — supported-versus-experimental scope,
-  local gates, verified main/tag identity, GitHub Release, trusted PyPI publication, provenance,
-  artifact hashes, and clean public-index installation.
-- [Build your first extension](build-your-first-extension.md) — the practical extension path.
-- [Extension API](extension-api.md) — contracts available to extension authors.
-- [Experimental extension-invocation contract](extension-invocation-contract.md) — authenticated
-  structured envelopes, exact reference-resolution accounting, linked retry attempts, restart
-  evidence, authority boundaries, failures, and the remaining E1 gap.
-- [Phase 3 extension-invocation lifecycle acceptance](phase-3-extension-invocation-lifecycle-acceptance.md)
-  — accepted attempt history, N+1 retry, concurrency, cancellation, isolation, real restart
-  evidence, exact verification, and explicit recovery limitations.
-- [Phase 4 structured extension-outcomes acceptance](phase-4-extension-outcome-acceptance.md) —
-  accepted bounded projection, fail-closed outcome and artifact validation, honest projection
-  degradation, recommendation/decision/adoption separation, and exact verification evidence.
-- [Phase 5 candidate Extension SDK acceptance](phase-5-extension-sdk-acceptance.md) — independent
-  reference/scaffold conformance, deterministic bounded manifests, current-version compatibility,
-  naked-kernel evidence, and remaining experimental stability limits.
-- [Phase 6 extension-invocation product-experience acceptance](phase-6-extension-product-experience-acceptance.md)
-  — durable history and receipt UX, refresh/recovery, retry/cancellation, prepared/live separation,
-  mobile usability, accessibility, privacy, and naked/wired Canvas evidence.
-- [Phase 7 extension-invocation stabilization review](phase-7-extension-invocation-stabilization-review.md)
-  — current-version conformance, security and operability review, clean-package verification,
-  conditional acceptance, and the explicit blockers to stable promotion.
-- [Capability evolution roadmap](capability-evolution-roadmap.md) — graph-native procedural
-  learning, reviewable revisions, progressive capability discovery, and safe execution sequencing.
-- [Governance](governance.md) — project decisions, compatibility, support, and contributions.
-- [ACE Public Roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) — live
-  Now/Next/Later status.
-- [Versioned roadmap](../ROADMAP.md) — public outcome definitions and planning principles.
+- [Architecture](architecture.md) — the as-built system map and responsibility boundaries.
+- [Frequently asked questions](faq.md) — failure behavior, provenance, confidence, and operating
+  boundaries.
 
-The root [README](../README.md) is the installation and quickstart authority. User-visible release
-changes live in the [changelog](../CHANGELOG.md). Security reports follow the
-[security policy](../SECURITY.md).
+## Use ACE
+
+- [Model providers](providers.md) — configure model access and understand routing behavior.
+- [Product-builder golden path](product-builder-golden-path.md) — reproduce an evidence-backed
+  decision, correction, restart, and later reuse.
+- [Clean-user onboarding trial](onboarding-trials.md) — evaluate setup, first value, and recovery.
+
+## Product contracts
+
+- [Living Product Graph](living-product-graph.md) — the supported read-only product projection.
+- [Decision and correction receipts](decision-correction-receipts.md) — structured decisions,
+  dispositions, corrections, and restart behavior.
+- [Graph-grounded calibrated foresight](foresight.md) — forecasts, observations, resolution,
+  scoring, and current maturity.
+- [Experimental extension invocation](extension-invocation-contract.md) — the authenticated
+  extension runtime boundary and its limitations.
+
+## Build extensions
+
+- [Build your first extension](build-your-first-extension.md) — scaffold, run, and package an
+  extension.
+- [Extension API](extension-api.md) — stable and experimental extension-author contracts.
+
+## Project
+
+- [Governance and support](governance.md)
+- [Versioned public roadmap](../ROADMAP.md)
+- [Changelog](../CHANGELOG.md)
+- [Security policy](../SECURITY.md)
+
+Longer-term concepts that are not current roadmap commitments live under
+[design notes](design/capability-evolution.md).

@@ -38,9 +38,9 @@ verified chronology.
 
 Artifacts:
 
-- [`evaluations/fixtures/l1_foresight_impact_v1.json`](../evaluations/fixtures/l1_foresight_impact_v1.json)
-- [`evaluations/results/l1_foresight_impact_v1.json`](../evaluations/results/l1_foresight_impact_v1.json)
-- [`scripts/evaluate_l1_foresight_impact.py`](../scripts/evaluate_l1_foresight_impact.py)
+- [`evaluations/fixtures/l1_foresight_impact_v1.json`](../../evaluations/fixtures/l1_foresight_impact_v1.json)
+- [`evaluations/results/l1_foresight_impact_v1.json`](../../evaluations/results/l1_foresight_impact_v1.json)
+- [`scripts/evaluate_l1_foresight_impact.py`](../../scripts/evaluate_l1_foresight_impact.py)
 
 ## Result
 
@@ -85,9 +85,9 @@ time. The immutable protocol fixes:
 
 Artifacts:
 
-- [`evaluations/fixtures/l1_preregistration_v1.json`](../evaluations/fixtures/l1_preregistration_v1.json)
-- [`evaluations/results/l1_preregistration_readiness_v1.json`](../evaluations/results/l1_preregistration_readiness_v1.json)
-- [`scripts/verify_l1_preregistration.py`](../scripts/verify_l1_preregistration.py)
+- [`evaluations/fixtures/l1_preregistration_v1.json`](../../evaluations/fixtures/l1_preregistration_v1.json)
+- [`evaluations/results/l1_preregistration_readiness_v1.json`](../../evaluations/results/l1_preregistration_readiness_v1.json)
+- [`scripts/verify_l1_preregistration.py`](../../scripts/verify_l1_preregistration.py)
 
 The recorded `ace.foresight.impact-readiness/v1` receipt is:
 

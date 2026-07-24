@@ -3,7 +3,7 @@
   "correlation_id": "corr:malicious",
   "capability": {
     "extension_id": "product",
-    "extension_version": "0.1.2",
+    "extension_version": "0.1.3",
     "action": "product-check",
     "input_contract": "extension-invocation-v1",
     "output_contract": "product.product-check-outcome-v1",

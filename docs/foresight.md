@@ -2,7 +2,7 @@
 
 > **Status:** F1 passed on 2026-07-22. The implemented engine remains experimental and the v1
 > contract below is not yet a general 0.1.x compatibility promise. See the
-> [F1 closeout evidence](f1-foresight-evidence.md).
+> [F1 closeout evidence](evidence/f1-foresight-evidence.md).
 
 **ACE provides graph-grounded, calibrated foresight. It projects conditional consequences of
 decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,

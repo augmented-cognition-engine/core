@@ -7,6 +7,7 @@ decision:lv6stu70piemfwypde2e — Layer 5 context assembly.
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -32,8 +33,18 @@ _PRODUCT = "product:test_l5_loader"
 
 
 @pytest.fixture(autouse=True)
-def _reset_breaker():
+def _reset_breaker_and_isolate_semantic_tests(monkeypatch):
+    """Keep semantic DB assertions independent from host scheduling latency.
+
+    Production timeout values are pinned in ``tests/test_config.py`` and timeout
+    behavior is covered directly below. The query-plan regression is pinned in
+    ``test_decision_context_indexes.py`` because timing a live database is not a
+    deterministic index assertion.
+    """
     _reset_circuit_breaker_state()
+    monkeypatch.setattr(l5.settings, "layer5_tier_timeout_capability_ms", 5_000)
+    monkeypatch.setattr(l5.settings, "layer5_tier_timeout_discipline_ms", 5_000)
+    monkeypatch.setattr(l5.settings, "layer5_tier_timeout_recency_ms", 5_000)
     yield
     _reset_circuit_breaker_state()
 
@@ -237,6 +248,19 @@ def test_result_dataclass_has_required_fields():
     assert r.degraded_tiers == frozenset()
     assert r.elapsed_ms == 0.0
     assert r.contradictions == []
+
+
+@pytest.mark.asyncio
+async def test_tier_deadline_returns_explicit_degradation():
+    async def slow_loader():
+        await asyncio.sleep(0.05)
+        return []
+
+    tier, decisions, failed = await l5._run_tier_with_deadline("recency", 1, slow_loader)
+
+    assert tier == "recency"
+    assert decisions == []
+    assert failed is True
 
 
 # -----------------------------------------------------------------------------

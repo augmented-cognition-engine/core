@@ -5,7 +5,9 @@ identity into a general-purpose autonomous agent. It is capability-led: the usef
 graph-native procedural learning, reviewable evolution, efficient capability discovery, and safe
 execution—not parity with another product or growth in tool count for its own sake.
 
-This document is a companion to the [public roadmap](../ROADMAP.md). The public roadmap remains the
+> This is a design note, not the current roadmap or an implementation work packet.
+
+This document is a companion to the [public roadmap](../../ROADMAP.md). The public roadmap remains the
 authority for outcome state and dispatch. Nothing here advances an outcome to `ready`, `active`, or
 `passed`, and the current onboarding spine remains ahead of this work.
 
@@ -119,7 +121,7 @@ complete decision context, all four dispositions, correction supersession/invali
 contestation/expiry, authorization and product isolation, credential redaction, explicit missing
 provenance, and schema-zero-to-v145 replay on SurrealDB 3.1.4 and 3.2.1. The thin MCP surface
 remains exactly eleven tools and gains no execution authority. See
-[`decision-correction-receipts.md`](decision-correction-receipts.md) for evidence and limitations.
+[`decision-correction-receipts.md`](../decision-correction-receipts.md) for evidence and limitations.
 
 ### I2. Attributable deliberation and synthesis
 
@@ -159,7 +161,7 @@ matrix covers independent, pipeline, team, and adversarial paths, and schema-zer
 evidence preserves I1/I2/I3 receipts through a fresh API/client process. The MCP boundary remains
 exactly eleven tools and gains no execution authority. Local acceptance and
 [authoritative branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29976761503)
-passed; see [`i2-attributable-deliberation-evidence.md`](i2-attributable-deliberation-evidence.md).
+passed; see [`i2-attributable-deliberation-evidence.md`](../evidence/i2-attributable-deliberation-evidence.md).
 
 ### I3. Inspectable continuity and material intelligence use
 
@@ -199,7 +201,7 @@ fields, matched comparison metadata, route/resource/failure evidence, and explic
 every unearned state. The deterministic public-data matrix, matched live Codex subscription pair,
 and real database/API restart acceptance cover material, null, irrelevant, reflected-only, stale,
 invalidated, contested, harmful, isolation, mismatch, failure, and partial-lineage behavior. See
-[`i3-intelligence-use-evidence.md`](i3-intelligence-use-evidence.md). Beneficial impact remains an
+[`i3-intelligence-use-evidence.md`](../evidence/i3-intelligence-use-evidence.md). Beneficial impact remains an
 L1 claim and the thin MCP surface remains exactly eleven tools.
 
 **L1 evidence gate (2026-07-22): candidate.** The bounded
@@ -212,7 +214,7 @@ rescue the all-controls rule and was not invoked. A prospective, tamper-evident 
 assignment/exposure evidence, non-overlap, exact route matching, F1/I3/outcome lineage, one fixed
 analysis, and required failure coverage. Its executed state is `collection_not_started`, which is
 readiness evidence rather than benefit evidence. See
-[`l1-foresight-impact-evidence.md`](l1-foresight-impact-evidence.md). L1 is not passed and F2 remains
+[`l1-foresight-impact-evidence.md`](../evidence/l1-foresight-impact-evidence.md). L1 is not passed and F2 remains
 gated.
 
 ### Product/evaluation boundary

@@ -33,12 +33,10 @@ def test_public_product_copy_does_not_claim_a_world_model() -> None:
 
 def test_f1_roadmap_state_and_target_contract_are_explicit() -> None:
     roadmap = _normalized("ROADMAP.md")
-    status = _normalized("docs/roadmap-status.md")
     contract = _normalized("docs/foresight.md")
-    evidence = _normalized("docs/f1-foresight-evidence.md")
+    evidence = _normalized("docs/evidence/f1-foresight-evidence.md")
 
     assert "| F1 | passed |" in roadmap
-    assert "| F1 | Next | passed |" in status
     assert "| L1 | candidate | Use resolved conditional forecasts" in roadmap
     assert "beneficial impact is not established" in roadmap
     assert "first leakage-bounded retrospective probe preserves the negative result" in roadmap
