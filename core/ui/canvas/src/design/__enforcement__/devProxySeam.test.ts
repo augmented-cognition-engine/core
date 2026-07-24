@@ -12,6 +12,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import {
+  KERNEL_DEV_PROXY_ROUTES,
   ProxyCollisionError,
   mergeExtensionProxies,
   type DeclaredProxy,
@@ -30,6 +31,12 @@ const entry = (extension: string, prefix: string, target = 'http://127.0.0.1:999
 })
 
 describe('extension dev-proxy seam', () => {
+  it('routes the public task and extension-invocation APIs used by durable Canvas journeys', () => {
+    expect(KERNEL_DEV_PROXY_ROUTES).toContainEqual(['/tasks', false])
+    expect(KERNEL_DEV_PROXY_ROUTES).toContainEqual(['/extension-invocations', false])
+    expect(new Set(KERNEL_DEV_PROXY_ROUTES.map(([route]) => route)).size).toBe(KERNEL_DEV_PROXY_ROUTES.length)
+  })
+
   it('forwards an extension prefix the kernel does not own', () => {
     const merged = mergeExtensionProxies(KERNEL, [entry('metrics', '/api/v2', 'http://127.0.0.1:8788')])
     expect(merged['/api/v2']).toMatchObject({ target: 'http://127.0.0.1:8788', changeOrigin: true })

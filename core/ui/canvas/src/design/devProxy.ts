@@ -31,6 +31,24 @@
 
 import type { ProxyOptions } from 'vite'
 
+/** Public Core routes that Canvas must forward to the configured Core API in development. */
+export const KERNEL_DEV_PROXY_ROUTES = [
+  ['/canvas', true],
+  ['/proactive', true],
+  ['/briefings', false],
+  ['/portal', false],
+  ['/product', false],
+  ['/auth', false],
+  ['/recommendations', false],
+  ['/decisions', false],
+  ['/foresight', false],
+  ['/atc', false],
+  ['/health', false],
+  ['/sentinels', false],
+  ['/tasks', false],
+  ['/extension-invocations', false],
+] as const
+
 /** What an extension is allowed to declare in `ui/canvas/canvas_proxy.json`. */
 export interface ExtensionProxyEntry {
   /** Where the dev server forwards to, e.g. `http://127.0.0.1:8788`. */

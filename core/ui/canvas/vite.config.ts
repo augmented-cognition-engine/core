@@ -7,6 +7,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 import {
+  KERNEL_DEV_PROXY_ROUTES,
   mergeExtensionProxies,
   type DeclaredProxy,
   type ExtensionProxyFile,
@@ -104,22 +105,7 @@ function serveExtensionStaticHtml(): Plugin {
 
 /** The kernel's own routes. An extension may not claim any of these (fail-closed). */
 const kernelProxy: Record<string, ProxyOptions | string> = Object.fromEntries(
-  (
-    [
-      ['/canvas', true],
-      ['/proactive', true],
-      ['/briefings', false],
-      ['/portal', false],
-      ['/product', false],
-      ['/auth', false],
-      ['/recommendations', false],
-      ['/decisions', false],
-      ['/foresight', false],
-      ['/atc', false],
-      ['/health', false],
-      ['/sentinels', false],
-    ] as const
-  ).map(([route, ws]) => [
+  KERNEL_DEV_PROXY_ROUTES.map(([route, ws]) => [
     route,
     {
       target: process.env.VITE_API_BASE_URL ?? 'http://localhost:3000',
