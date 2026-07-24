@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "0.1.2"
+version = "0.1.3"
 description = "Self-hosted reasoning that turns product decisions into durable recommendations"
 readme = "README.md"
 license = "Apache-2.0"
@@ -157,6 +157,12 @@ include = ["ace", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evalua
 ]
 "share/doc/ace/docs" = [
     "docs/*.md",
+]
+"share/doc/ace/docs/evidence" = [
+    "docs/evidence/*.md",
+]
+"share/doc/ace/docs/design" = [
+    "docs/design/*.md",
 ]
 
 # Extensions discovered by core.engine.extensions.load_extensions().

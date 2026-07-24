@@ -5,7 +5,7 @@
 **Evidence date:** 2026-07-21
 
 **Supported journey:** `ace landscape` → optional `ace assertion <stable-id>`
-**Contract:** [`living-product-graph.md`](living-product-graph.md)
+**Contract:** [`living-product-graph.md`](../living-product-graph.md)
 
 ## As-built audit
 
@@ -40,7 +40,7 @@ supported; and no standalone G1 replay or compatibility evidence existed.
 ## Frozen read contract and journey
 
 The complete field, absence, identifier, ordering, bound, redaction, degraded-state, and
-compatibility rules are frozen in [`living-product-graph.md`](living-product-graph.md). The public
+compatibility rules are frozen in [`living-product-graph.md`](../living-product-graph.md). The public
 journey uses the existing supported CLI host:
 
 ```bash

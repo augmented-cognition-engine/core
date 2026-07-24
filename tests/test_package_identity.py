@@ -19,7 +19,7 @@ def test_distribution_import_cli_and_version_identities() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
     assert project["name"] == "ace-core"
-    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.1.2"
+    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.1.3"
     assert ProductExtension.version == project["version"]
     assert project["scripts"]["ace"] == "core.engine.cli.main:cli"
 
@@ -40,7 +40,7 @@ def test_package_copy_and_public_links_are_release_ready() -> None:
 def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
 
-    assert "default: v0.1.2" in workflow
+    assert "default: v0.1.3" in workflow
     assert "Validate release tag matches package version" in workflow
     assert 'if [ "$RELEASE_TAG" != "v$package_version" ]' in workflow
 
@@ -78,4 +78,6 @@ def test_installed_documentation_paths_do_not_collide() -> None:
     assert "README.md" in data_files["share/doc/ace"]
     assert "ROADMAP.md" in data_files["share/doc/ace"]
     assert "docs/*.md" in data_files["share/doc/ace/docs"]
+    assert "docs/evidence/*.md" in data_files["share/doc/ace/docs/evidence"]
+    assert "docs/design/*.md" in data_files["share/doc/ace/docs/design"]
     assert all("launch" not in path for paths in data_files.values() for path in paths)

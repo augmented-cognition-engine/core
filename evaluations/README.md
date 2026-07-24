@@ -96,7 +96,7 @@ controls, cluster-aware uncertainty, pre-outcome resolution lineage, material us
 provenance, and supported intervention/confounder attribution. The current probe is intentionally
 `benefit_not_established`: it is slightly worse than persistence, its eight-cluster intervals span
 zero, and it has no matched model-only or intervention evidence. See the
-[L1 evidence gate](../docs/l1-foresight-impact-evidence.md).
+[L1 evidence gate](../docs/evidence/l1-foresight-impact-evidence.md).
 
 The separately frozen prospective protocol can be checked before any cohort exists:
 

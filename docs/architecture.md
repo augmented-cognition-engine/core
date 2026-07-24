@@ -433,7 +433,7 @@ decisions, exposes the mechanisms and uncertainty behind them, observes what act
 and uses resolved forecasts to improve later reasoning. This is a bounded, inspectable consequence
 model over a product or domain, not a foundation-scale learned model of the physical world. The
 [foresight contract](foresight.md) records the current maturity boundary; the
-[F1 closeout evidence](f1-foresight-evidence.md) records the passed continuous-delta v1 scope and
+[F1 closeout evidence](evidence/f1-foresight-evidence.md) records the passed continuous-delta v1 scope and
 the claims that remain gated by I3 and L1.
 
 Sentinel engines run on registered schedules or explicit triggers and record correlated runs and

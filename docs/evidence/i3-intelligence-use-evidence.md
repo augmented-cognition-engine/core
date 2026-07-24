@@ -81,10 +81,10 @@ limitations remain inspectable.
 The frozen scenario uses the public UCI Online Retail II dataset context, DOI
 `10.24432/C5F88Q`. The bounded product decision is whether to keep a cancellation-handling cohort
 staged or proceed to general rollout. The fixture is
-[`evaluations/fixtures/i3_intelligence_use_v1.json`](../evaluations/fixtures/i3_intelligence_use_v1.json);
+[`evaluations/fixtures/i3_intelligence_use_v1.json`](../../evaluations/fixtures/i3_intelligence_use_v1.json);
 generated receipts and a compact report are in
-[`evaluations/results/i3_intelligence_use_v1.json`](../evaluations/results/i3_intelligence_use_v1.json)
-and [`evaluations/results/i3_intelligence_use_v1.md`](../evaluations/results/i3_intelligence_use_v1.md).
+[`evaluations/results/i3_intelligence_use_v1.json`](../../evaluations/results/i3_intelligence_use_v1.json)
+and [`evaluations/results/i3_intelligence_use_v1.md`](../../evaluations/results/i3_intelligence_use_v1.md).
 
 The deterministic matrix contains 13 receipts: 11 matched comparisons, one provider/model/config
 mismatch, and one evaluation failure. Ten are complete and three are intentionally degraded. Four
@@ -109,7 +109,7 @@ continuity. The null and reflected-only cases preserve no-delta behavior.
 
 ## Live matched provider route
 
-[`evaluations/results/i3_live_provider_v1.json`](../evaluations/results/i3_live_provider_v1.json)
+[`evaluations/results/i3_live_provider_v1.json`](../../evaluations/results/i3_live_provider_v1.json)
 records the frozen one-treatment/one-control stopping rule on the supported subscription-backed
 Codex route. Both invocations used `CodexCLIProvider`, exact model `gpt-5.6-terra`, the same task and
 prompt contracts, configuration hash, decision schema, toolset hash, and provider-default

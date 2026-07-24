@@ -1,7 +1,7 @@
 {
   "contract_version": "extension-invocation-v1",
   "extension_id": "product",
-  "extension_version": "0.1.2",
+  "extension_version": "0.1.3",
   "action": "product-check",
   "workspace_id": "workspace:fixture",
   "question": "Which reversible test should run first?",

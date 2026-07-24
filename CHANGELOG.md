@@ -4,6 +4,10 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.1.3
+
 ### Supported
 
 - Add the bounded `deliberation-receipt-v1` projection through existing task/status, CLI, thin
@@ -36,6 +40,20 @@ Notable user- and contributor-visible changes are recorded here.
 
 - Add schema v156 as one optional task receipt field and v157 as optional extension invocation,
   receipt, retry-lineage, cancellation, and retry-parent index fields without rewriting legacy rows.
+
+### Release maintenance
+
+- Align the Python distribution, import package, engine, thin MCP client, reference extension,
+  editable lockfile, and trusted-publishing workflow at `0.1.3`.
+- Separate durable product and contributor documentation from point-in-time evidence and design
+  notes, with `ROADMAP.md` as the versioned operational authority and packaged evidence/design
+  archives retained for auditability.
+- Make Layer 5 decision-context integration tests independent of nondeterministic host scheduling
+  while separately pinning production timeout defaults, index selection, and explicit degraded
+  timeout behavior.
+- Preserve Python 3.12 support, the existing CLI identities, and exactly eleven public MCP tools.
+- Keep extension invocation explicitly experimental: this release does not establish an N-1
+  compatibility promise, isolated execution, distributed recovery, or exactly-once external effects.
 
 ### Known limitations
 
