@@ -58,6 +58,12 @@ ACE's public documentation is intentionally small and user-facing:
 - [Phase 5 candidate Extension SDK acceptance](phase-5-extension-sdk-acceptance.md) — independent
   reference/scaffold conformance, deterministic bounded manifests, current-version compatibility,
   naked-kernel evidence, and remaining experimental stability limits.
+- [Phase 6 extension-invocation product-experience acceptance](phase-6-extension-product-experience-acceptance.md)
+  — durable history and receipt UX, refresh/recovery, retry/cancellation, prepared/live separation,
+  mobile usability, accessibility, privacy, and naked/wired Canvas evidence.
+- [Phase 7 extension-invocation stabilization review](phase-7-extension-invocation-stabilization-review.md)
+  — current-version conformance, security and operability review, clean-package verification,
+  conditional acceptance, and the explicit blockers to stable promotion.
 - [Capability evolution roadmap](capability-evolution-roadmap.md) — graph-native procedural
   learning, reviewable revisions, progressive capability discovery, and safe execution sequencing.
 - [Governance](governance.md) — project decisions, compatibility, support, and contributions.
