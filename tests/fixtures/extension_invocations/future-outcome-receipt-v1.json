@@ -1,0 +1,31 @@
+{
+  "contract_version": "extension-invocation-receipt-v1",
+  "outcome": {
+    "contract_version": "product.product-check-outcome-v99",
+    "data": {
+      "private_prompt": "future-outcome-private"
+    },
+    "artifact_refs": [
+      {
+        "namespace": "product",
+        "kind": "report",
+        "id": "artifact:future",
+        "digest": "sha256:future"
+      }
+    ],
+    "artifact_provenance": [
+      {
+        "reference": {
+          "namespace": "product",
+          "kind": "report",
+          "id": "artifact:future",
+          "digest": "sha256:future"
+        },
+        "producer": "future.projector",
+        "provenance_receipt_ids": []
+      }
+    ],
+    "warnings": []
+  },
+  "failures": []
+}

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from core.engine.extensions.invocation import (
@@ -9,6 +10,7 @@ from core.engine.extensions.invocation import (
     ExtensionCapabilityManifest,
     ExtensionInvocationEnvelope,
     ExtensionInvocationReceipt,
+    ExtensionOutcome,
     RegisteredTaskAction,
     build_extension_receipt,
     invocation_metadata,
@@ -26,7 +28,7 @@ async def run_task_action_conformance(
     *,
     sample_output: str = "A bounded sample output.",
 ) -> dict[str, Any]:
-    """Exercise the stable, non-metered portion of an action's public contract.
+    """Exercise the provider-free portion of an experimental action contract.
 
     Runtime restart, database isolation, idempotency, concurrency, and cancellation
     remain API/runtime tests because a pure extension callback cannot prove them.
@@ -41,9 +43,14 @@ async def run_task_action_conformance(
         ExtensionCapabilityManifest.model_validate(first_manifest)
         record("capability_manifest", True)
         record("deterministic_manifest", first_manifest == action.public_manifest())
+        record(
+            "public_manifest_excludes_callables",
+            all(name not in first_manifest for name in ("prepare", "project_outcome", "validate_outcome")),
+        )
     except Exception as exc:
         record("capability_manifest", False, str(exc))
         record("deterministic_manifest", False, str(exc))
+        record("public_manifest_excludes_callables", False, str(exc))
 
     record(
         "input_contract_negotiation",
@@ -60,8 +67,11 @@ async def run_task_action_conformance(
     try:
         outcome = await project_action_outcome(action, sample_output, {"state": "complete"})
         record("outcome_projection_and_validation", outcome.contract_version == action.output_contract)
+        repeated_outcome = await project_action_outcome(action, sample_output, {"state": "complete"})
+        record("deterministic_outcome_projection", outcome == repeated_outcome)
     except Exception as exc:
         record("outcome_projection_and_validation", False, str(exc))
+        record("deterministic_outcome_projection", False, str(exc))
 
     if plan is not None:
         metadata = invocation_metadata(envelope, plan, action)
@@ -76,7 +86,7 @@ async def run_task_action_conformance(
             metadata,
             outcome=outcome,
         )
-        serialized = str(receipt)
+        serialized = json.dumps(receipt, sort_keys=True)
         try:
             ExtensionInvocationReceipt.model_validate(receipt)
             record("public_receipt_schema", True)
@@ -87,6 +97,10 @@ async def run_task_action_conformance(
         record(
             "private_resolver_content_not_public",
             all(context.content not in serialized for context in plan.context_records),
+        )
+        record(
+            "recommendation_decision_adoption_separation",
+            receipt["human_decision"] is None and receipt["adoption"] is None,
         )
 
         projection_failure = build_extension_receipt(
@@ -115,6 +129,40 @@ async def run_task_action_conformance(
             "credential_redaction",
             "conformance-private" not in failure_serialized and "<redacted>" in failure_serialized,
         )
+
+    invalid_artifacts = [
+        {
+            "contract_version": action.output_contract,
+            "artifact_refs": [
+                {
+                    "namespace": action.extension_id,
+                    "kind": "artifact",
+                    "id": "artifact:mutable",
+                }
+            ],
+        },
+        {
+            "contract_version": action.output_contract,
+            "artifact_refs": [
+                {
+                    "namespace": action.extension_id,
+                    "kind": "artifact",
+                    "id": "artifact:unaccounted",
+                    "digest": "sha256:conformance",
+                }
+            ],
+        },
+    ]
+    rejected = 0
+    for candidate in invalid_artifacts:
+        try:
+            ExtensionOutcome.model_validate(candidate)
+        except Exception:
+            rejected += 1
+    record(
+        "immutable_artifact_provenance_rules",
+        rejected == len(invalid_artifacts),
+    )
 
     return {
         "contract_version": CONFORMANCE_VERSION,

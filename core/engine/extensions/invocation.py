@@ -39,7 +39,10 @@ MAX_DESCRIPTION_CHARS = 10_000
 MAX_PUBLIC_ITEMS = 200
 _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,159}$")
 _CREDENTIAL = re.compile(r"(?i)\b(bearer|api[_-]?key|token|password|secret|authorization)\b\s*[:=]?\s*[^\s,;]+")
-_SENSITIVE_KEY = re.compile(r"(?i)(api[_-]?key|token|password|secret|authorization|credential|private[_-]?prompt)")
+_SENSITIVE_KEY = re.compile(
+    r"(?i)(api[_-]?key|token|password|secret|authorization|credential|private[_-]?prompt|"
+    r"resolver[_-]?state|private[_-]?resolver)"
+)
 BoundedWarning = Annotated[str, Field(min_length=1, max_length=500)]
 CapabilityToken = Annotated[str, Field(min_length=1, max_length=200)]
 
@@ -202,6 +205,8 @@ class ExtensionOutcome(BaseModel):
         if any(not (reference.version or reference.digest) for reference in self.artifact_refs):
             raise ValueError("artifact references require an immutable version or digest")
         references = {_reference_identity(reference) for reference in self.artifact_refs}
+        if len(references) != len(self.artifact_refs):
+            raise ValueError("artifact references must not contain duplicates")
         provenance = {_reference_identity(item.reference) for item in self.artifact_provenance}
         if len(provenance) != len(self.artifact_provenance):
             raise ValueError("artifact provenance must not contain duplicate references")
@@ -266,6 +271,7 @@ class RegisteredTaskAction(BaseModel):
             raise ValueError("cancellation_supported requires the cancel lifecycle operation")
         for values in (
             self.accepted_input_contract_versions,
+            self.lifecycle_operations,
             self.resolver_capabilities,
             self.artifact_capabilities,
             self.required_authority,
@@ -278,6 +284,11 @@ class RegisteredTaskAction(BaseModel):
     @property
     def key(self) -> str:
         return f"{self.extension_id}:{self.action}"
+
+    @property
+    def identity(self) -> tuple[str, str]:
+        """Unambiguous internal identity even when either identifier contains ``:``."""
+        return self.extension_id, self.action
 
     def public_manifest(self) -> dict[str, Any]:
         manifest = self.model_dump(exclude={"prepare", "project_outcome", "validate_outcome"})
@@ -294,19 +305,41 @@ class ExtensionCapabilityManifest(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    extension_id: str
-    extension_version: str
-    action_name: str
-    description: str = ""
-    accepted_input_contract_versions: list[CapabilityToken]
+    extension_id: str = Field(min_length=1, max_length=160)
+    extension_version: str = Field(min_length=1, max_length=120)
+    action_name: str = Field(min_length=1, max_length=160)
+    description: str = Field(default="", max_length=1_000)
+    accepted_input_contract_versions: list[CapabilityToken] = Field(min_length=1, max_length=10)
     output_contract_version: CapabilityToken
-    lifecycle_operations: list[str]
+    lifecycle_operations: list[Literal["submit", "retrieve", "history", "retry", "cancel"]] = Field(
+        min_length=1,
+        max_length=5,
+    )
     cancellation_supported: bool
-    resolver_capabilities: list[CapabilityToken]
-    artifact_capabilities: list[CapabilityToken]
-    required_authority: list[CapabilityToken]
-    feature_flags: list[CapabilityToken]
+    resolver_capabilities: list[CapabilityToken] = Field(max_length=25)
+    artifact_capabilities: list[CapabilityToken] = Field(max_length=25)
+    required_authority: list[CapabilityToken] = Field(max_length=25)
+    feature_flags: list[CapabilityToken] = Field(max_length=25)
     stability: Literal["experimental"]
+
+    @model_validator(mode="after")
+    def validate_manifest(self):
+        for name in ("extension_id", "action_name"):
+            if not _IDENTIFIER.fullmatch(getattr(self, name)):
+                raise ValueError(f"{name} contains unsupported characters")
+        if self.cancellation_supported and "cancel" not in self.lifecycle_operations:
+            raise ValueError("cancellation_supported requires the cancel lifecycle operation")
+        for values in (
+            self.accepted_input_contract_versions,
+            self.lifecycle_operations,
+            self.resolver_capabilities,
+            self.artifact_capabilities,
+            self.required_authority,
+            self.feature_flags,
+        ):
+            if len(values) != len(set(values)):
+                raise ValueError("capability manifest lists must not contain duplicates")
+        return self
 
 
 class ExtensionInvocationReceipt(BaseModel):
@@ -529,6 +562,35 @@ def _bounded_json(value: object, *, limit: int = MAX_OUTCOME_CHARS) -> object:
     return {"truncated": True, "sha256": hashlib.sha256(serialized.encode("utf-8")).hexdigest()}
 
 
+def _empty_public_outcome(contract_version: object) -> dict[str, Any]:
+    version = contract_version if isinstance(contract_version, str) and contract_version else "extension-outcome-v1"
+    return {
+        "contract_version": version,
+        "data": {},
+        "artifact_refs": [],
+        "artifact_provenance": [],
+        "warnings": [],
+    }
+
+
+def _validated_public_outcome(
+    outcome: ExtensionOutcome | dict[str, Any] | None,
+    *,
+    expected_contract: object,
+) -> tuple[dict[str, Any], str | None]:
+    """Validate projected or stored outcome data before public reinterpretation."""
+    empty = _empty_public_outcome(expected_contract)
+    if outcome is None:
+        return empty, None
+    try:
+        validated = outcome if isinstance(outcome, ExtensionOutcome) else ExtensionOutcome.model_validate(outcome)
+    except Exception:
+        return empty, "extension_outcome_invalid"
+    if validated.contract_version != empty["contract_version"]:
+        return empty, "unsupported_extension_outcome_version"
+    return validated.model_dump(mode="json"), None
+
+
 def _attempt_number(value: object) -> int:
     try:
         return max(1, int(value or 1))
@@ -544,6 +606,9 @@ def valid_attempt_lineage(metadata: dict[str, Any]) -> tuple[bool, str | None]:
     if not isinstance(number, int) or isinstance(number, bool) or number < 1:
         return False, "invocation_attempt_invalid"
     retry_of = attempt.get("retry_of_task_id")
+    resumed_by = attempt.get("resumed_by_task_id")
+    if resumed_by is not None and (not isinstance(resumed_by, str) or not resumed_by):
+        return False, "invocation_attempt_lineage_invalid"
     if number == 1 and retry_of is not None:
         return False, "invocation_attempt_lineage_invalid"
     if number > 1 and (not isinstance(retry_of, str) or not retry_of):
@@ -712,18 +777,12 @@ def build_extension_receipt(
     reasoning = task.get("reasoning_trace") if isinstance(task.get("reasoning_trace"), dict) else {}
     route = reasoning.get("provenance") if isinstance(reasoning.get("provenance"), dict) else {}
 
-    if isinstance(outcome, ExtensionOutcome):
-        public_outcome: object = outcome.model_dump(mode="json")
-    elif isinstance(outcome, dict):
-        public_outcome = outcome
-    else:
-        public_outcome = {
-            "contract_version": capability.get("output_contract") or "extension-outcome-v1",
-            "data": {},
-            "artifact_refs": [],
-            "artifact_provenance": [],
-            "warnings": [],
-        }
+    public_outcome, outcome_error = _validated_public_outcome(
+        outcome,
+        expected_contract=capability.get("output_contract"),
+    )
+    if status == "completed" and outcome is None and not projection_error:
+        outcome_error = "extension_outcome_missing"
 
     references: list[dict[str, Any]] = []
     reference_gaps: list[str] = []
@@ -742,6 +801,8 @@ def build_extension_receipt(
         missing.append("completed_outcome")
     if projection_error:
         missing.append("extension_outcome_projection")
+    if outcome_error:
+        missing.append(outcome_error)
     if not route.get("provider"):
         missing.append("provider")
     if not route.get("model"):
@@ -766,6 +827,18 @@ def build_extension_receipt(
     failures = [error] if isinstance(error, dict) else []
     if projection_error:
         failures.append({"code": "outcome_projection_failed", "message": str(projection_error)[:500]})
+    if outcome_error:
+        failure_messages = {
+            "extension_outcome_invalid": "The stored extension outcome failed validation.",
+            "unsupported_extension_outcome_version": "The stored extension outcome contract is unsupported.",
+            "extension_outcome_missing": "The completed task has no validated extension outcome.",
+        }
+        failures.append(
+            {
+                "code": outcome_error,
+                "message": failure_messages[outcome_error],
+            }
+        )
     artifact_provenance = (
         public_outcome.get("artifact_provenance")
         if isinstance(public_outcome, dict) and isinstance(public_outcome.get("artifact_provenance"), list)

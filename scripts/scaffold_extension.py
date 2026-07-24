@@ -107,6 +107,8 @@ def scaffold(name: str, target_root: Path) -> Path:
         ("product_heartbeat", f"{name}_heartbeat"),
         ("product.product-check-outcome-v1", f"{name}.{name}-check-outcome-v1"),
         ("product-check", f"{name}-check"),
+        ("prepare_product_check", f"prepare_{name}_check"),
+        ("project_product_check", f"project_{name}_check"),
         (
             'domain_intelligences=["product", "product_strategy"]',
             f'domain_intelligences=["{name}", "{name}_strategy"]',

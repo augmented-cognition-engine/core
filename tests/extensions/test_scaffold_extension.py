@@ -3,6 +3,8 @@ cannot drift (extension-api.md 'Starting point' contract)."""
 
 from __future__ import annotations
 
+import importlib
+
 import pytest
 
 from scripts.scaffold_extension import scaffold
@@ -23,6 +25,8 @@ def test_scaffold_generates_standalone_package(tmp_path):
     text = (pkg / "extension.py").read_text(encoding="utf-8")
     assert "GreenEnergyExtension" in text
     assert 'name = "green_energy"' in text
+    assert "prepare_green_energy_check" in text
+    assert "project_green_energy_check" in text
     # The docstring's entry-point example must show the scaffold's own key,
     # not `product = ...` (it must match the generated pyproject).
     assert 'green_energy = "green_energy_extension.extension:GreenEnergyExtension"' in text
@@ -49,6 +53,72 @@ def test_scaffolded_extension_loads_via_dev_env(tmp_path, monkeypatch):
 
     loaded = loader.load_extensions()
     assert spec in loaded
+
+
+@pytest.mark.asyncio
+async def test_scaffolded_action_passes_provider_free_conformance(tmp_path, monkeypatch):
+    root = scaffold("clean_room", tmp_path)
+    monkeypatch.syspath_prepend(str(root))
+    monkeypatch.setattr("core.engine.extensions.registry._task_actions", {})
+
+    from core.engine.extensions import (
+        ExtensionActorContext,
+        ExtensionInvocationEnvelope,
+        Registry,
+        registry,
+        run_task_action_conformance,
+    )
+
+    extension_module = importlib.import_module("clean_room_extension.extension")
+
+    class ScaffoldRegistry(Registry):
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.action_handles = []
+
+        def register_task_action(self, *args, **kwargs):
+            handle = super().register_task_action(*args, **kwargs)
+            self.action_handles.append(handle)
+            return handle
+
+        def register_instrument(self, *args, **kwargs):
+            return None
+
+        def register_recipe(self, *args, **kwargs):
+            return None
+
+        def register_tool(self, *args, **kwargs):
+            return None
+
+        def register_sentinel(self, *args, **kwargs):
+            return None
+
+    extension = extension_module.CleanRoomExtension()
+    scoped_registry = ScaffoldRegistry(
+        extension_id=extension.name,
+        extension_version=extension.version,
+    )
+    extension.register(scoped_registry)
+    action = scoped_registry.action_handles[0]
+    assert action is registry._task_actions[("clean_room", "clean_room-check")]
+    result = await run_task_action_conformance(
+        action,
+        ExtensionInvocationEnvelope(
+            extension_id="clean_room",
+            extension_version=extension.version,
+            action="clean_room-check",
+            workspace_id="workspace:clean",
+            question="What is the smallest reversible test?",
+            references=[],
+        ),
+        ExtensionActorContext(
+            product_id="product:clean",
+            workspace_id="workspace:clean",
+            user_id="user:clean",
+        ),
+    )
+
+    assert result["passed"] is True
 
 
 @pytest.mark.requires_extensions

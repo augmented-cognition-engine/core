@@ -100,6 +100,7 @@ versioned envelope + typed references
 → Core task receipt persisted before provider work
 → ordinary orchestration and reasoning receipts
 → extension-owned bounded outcome projection
+→ Core validation against the negotiated outcome contract
 → extension-invocation-receipt-v1
 ```
 
@@ -118,6 +119,12 @@ metadata/receipts. Raw Core output, extension projection, immutable artifact ref
 explicit human decision, and later adoption are different states; a recommendation does not
 silently become an approved decision or retained memory.
 
+Projector exceptions, extension-validator rejection, malformed stored outcomes, and unsupported
+stored outcome versions do not change a completed Core task into a failed task. Core retains the
+bounded raw output and attempt lineage, emits no unvalidated artifacts, and marks the extension
+receipt degraded with a bounded, credential-redacted failure. Artifact references require a
+version or digest and exactly one matching producer-provenance record.
+
 `POST /extension-invocations/{task_id}/resume` returns active and completed receipts unchanged.
 For a terminal failed or restart-degraded attempt, it validates the persisted envelope again and
 creates one immutable successor with `retry_of_task_id`; the prior receipt records
@@ -125,7 +132,7 @@ creates one immutable successor with `retry_of_task_id`; the prior receipt recor
 attempt, fresh-process reconstruction, linked successor, completed outcome receipt, and preserved
 provider provenance.
 
-`GET /extension-invocations/{task_id}/history` returns the bounded correlation chain, and
+`GET /extension-invocations/{task_id}/history` returns the complete validated root attempt chain, and
 `GET /extension-invocations?workspace_id=...` lists only the authenticated product/user scope.
 Concurrent resumes reuse one deterministic successor key. Cancellation is exposed only when the
 manifest negotiates it and records requested, acknowledged, completed-before-request,

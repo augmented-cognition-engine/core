@@ -1,5 +1,7 @@
 """Tests for the open ProductExtension — ACE's canonical extension example."""
 
+from pathlib import Path
+
 import pytest
 
 pytestmark = pytest.mark.requires_extensions
@@ -19,6 +21,81 @@ def test_product_extension_class_exists_and_has_metadata():
     f = ProductExtension()
     assert f.name == "product"
     assert isinstance(f.version, str) and len(f.version) > 0
+
+
+@pytest.mark.unit
+def test_reference_projector_is_generic_deterministic_bounded_content():
+    from extensions.reference.invocation import OUTCOME_CONTRACT, project_product_check
+
+    output = "Recommendation: run the reversible pricing test first."
+    first = project_product_check(output, {"state": "complete"})
+    second = project_product_check(output, {"state": "complete"})
+
+    assert first == second
+    assert first.contract_version == OUTCOME_CONTRACT
+    assert first.data == {
+        "recommendation_content": output,
+        "execution_state": "complete",
+        "projection": "bounded_content_container",
+    }
+    assert first.artifact_refs == []
+    assert first.artifact_provenance == []
+
+
+@pytest.mark.asyncio
+async def test_reference_action_passes_provider_free_conformance_without_marketing():
+    from core.engine.extensions import (
+        ExtensionActorContext,
+        ExtensionInvocationEnvelope,
+        run_task_action_conformance,
+    )
+    from core.engine.extensions.invocation import RegisteredTaskAction
+    from extensions.reference import ProductExtension
+    from extensions.reference.invocation import (
+        OUTCOME_CONTRACT,
+        prepare_product_check,
+        project_product_check,
+    )
+
+    action = RegisteredTaskAction(
+        extension_id=ProductExtension.name,
+        extension_version=ProductExtension.version,
+        action="product-check",
+        prepare=prepare_product_check,
+        project_outcome=project_product_check,
+        output_contract=OUTCOME_CONTRACT,
+        description="Evaluate a bounded generic question through Core's durable task runtime.",
+        lifecycle_operations=["submit", "retrieve", "history", "retry", "cancel"],
+        cancellation_supported=True,
+        resolver_capabilities=["declared-reference-identities"],
+    )
+    result = await run_task_action_conformance(
+        action,
+        ExtensionInvocationEnvelope(
+            extension_id="product",
+            extension_version=ProductExtension.version,
+            action="product-check",
+            workspace_id="workspace:reference",
+            question="Which reversible test should run first?",
+            references=[
+                {
+                    "namespace": "example",
+                    "kind": "record",
+                    "id": "record:one",
+                    "version": "1",
+                }
+            ],
+        ),
+        ExtensionActorContext(
+            product_id="product:reference",
+            workspace_id="workspace:reference",
+            user_id="user:reference",
+        ),
+    )
+
+    assert result["passed"] is True
+    source = (Path(__file__).parents[2] / "extensions" / "reference" / "invocation.py").read_text()
+    assert "marketing" not in source.lower()
 
 
 @pytest.mark.unit
