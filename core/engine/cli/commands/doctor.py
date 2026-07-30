@@ -1,4 +1,4 @@
-"""ace doctor — diagnose the developer-preview golden path."""
+"""ace doctor — diagnose operational readiness for the developer-preview golden path."""
 
 from __future__ import annotations
 
@@ -106,7 +106,10 @@ async def _database_check(settings) -> tuple[bool, str, bool, str]:
 )
 @click.pass_context
 def doctor(ctx, json_output: bool, live_provider: bool, provider_timeout: float):
-    """Check configuration, database, schema, auth, provider, API, and MCP."""
+    """Check operational readiness: config, DB, schema, auth, provider, API, and MCP.
+
+    This command does not audit the correctness of data already stored in the graph.
+    """
     checks: dict[str, dict[str, object]] = {}
     try:
         from core.engine.core.config import settings
@@ -209,7 +212,18 @@ def doctor(ctx, json_output: bool, live_provider: bool, provider_timeout: float)
     if json_output:
         import json
 
-        click.echo(json.dumps({"ok": ok, "checks": checks, "recovery": recovery}, indent=2))
+        click.echo(
+            json.dumps(
+                {
+                    "ok": ok,
+                    "scope": "operational_readiness",
+                    "data_correctness_checked": False,
+                    "checks": checks,
+                    "recovery": recovery,
+                },
+                indent=2,
+            )
+        )
     else:
         for name, item in checks.items():
             if item["ok"]:
@@ -222,7 +236,10 @@ def doctor(ctx, json_output: bool, live_provider: bool, provider_timeout: float)
             console.print(f"[{color}]{mark}[/{color}] {name}{state}: {item['detail']}")
             if item.get("action") and not item["ok"]:
                 console.print(f"  Next: {item['action']}")
-        console.print("\n[green]ACE is ready.[/green]" if ok else "\n[red]ACE is not ready.[/red]")
+        console.print(
+            "\n[green]ACE is operationally ready.[/green]" if ok else "\n[red]ACE is not operationally ready.[/red]"
+        )
+        console.print("[dim]Stored graph data correctness was not audited by this command.[/dim]")
         if recovery:
             console.print("\n[bold]Recovery[/bold]")
             for action in recovery:

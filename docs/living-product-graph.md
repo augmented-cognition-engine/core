@@ -31,7 +31,7 @@ and does not change the meaning or signature of an existing one.
 | Snapshot schema | `ace.living-product-snapshot.v1` | Public response shape and field semantics |
 | Projection | `ace.living-product-projection.g1.v1` | Deterministic selection, filtering, ordering, and issue policy |
 | Assertion ontology | `ace.relationships.v1` | Canonical predicate vocabulary and endpoint typing |
-| Assertion resolver | `ace.assertion-resolver.v1` | Deterministic assertion-state and operational-edge policy |
+| Assertion resolver | `ace.assertion-resolver.v2` | Deterministic assertion-state and operational-edge policy, including symmetric canonicalization and reciprocal directional-conflict quarantine |
 | Result identity | `product_snapshot:<sha256>` | Content identity computed from the canonical snapshot before this field is added |
 
 Clients may pin the projection:

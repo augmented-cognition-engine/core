@@ -107,7 +107,9 @@ async def test_check_new_insights_creates_conflict_records():
     assert result["conflict_ids"][0].startswith("conflict:")
 
     queries = [call.args[0] for call in mock_db.query.call_args_list]
+    candidate_query = next(query for query in queries if "ORDER BY confidence DESC" in query)
     transaction = mock_db.query_raw.call_args.args[0]
+    assert "subdomain = <record>$subdomain" in candidate_query
     assert "BEGIN;" in transaction
     assert "product = $product" in transaction
     assert "status = 'pending'" in transaction
@@ -156,6 +158,62 @@ async def test_check_new_insights_skips_when_no_contradiction():
     )
     assert result["conflicts_found"] == 0
     assert result["pairs_checked"] == 1
+
+
+@pytest.mark.asyncio
+async def test_check_new_insights_matches_record_subdomain_in_surrealdb(db_pool):
+    """A stringified record subdomain must match the record-typed insight field."""
+    from core.engine.sentinel.conflict_detector import check_new_insights
+
+    product = "product:conflict_subdomain_regression_51002"
+    domain = "domain:conflict_subdomain_regression_51002"
+    subdomain = "subdomain:conflict_subdomain_regression_51002"
+    new_id = "insight:conflict_subdomain_new_51002"
+    old_id = "insight:conflict_subdomain_old_51002"
+    async with db_pool.connection() as db:
+        await db.query(
+            "CREATE domain:conflict_subdomain_regression_51002 SET "
+            "slug = 'conflict-subdomain-regression-51002', "
+            "name = 'Conflict Subdomain Regression', executive = 'CTO'"
+        )
+        await db.query(
+            "CREATE subdomain:conflict_subdomain_regression_51002 SET "
+            "slug = 'conflict-subdomain-regression-51002', "
+            "name = 'Conflict Subdomain Regression', domain = <record>$domain",
+            {"domain": domain},
+        )
+        for insight_id, content, confidence in (
+            (new_id, "React 19 is current", 0.9),
+            (old_id, "React 18 is current", 0.8),
+        ):
+            await db.query(
+                "CREATE <record>$id SET product = <record>$product, content = $content, "
+                "insight_type = 'fact', tier = 'subdomain', subdomain = <record>$subdomain, "
+                "confidence = $confidence, source_domain = 'test', status = 'active'",
+                {
+                    "id": insight_id,
+                    "product": product,
+                    "content": content,
+                    "subdomain": subdomain,
+                    "confidence": confidence,
+                },
+            )
+
+        llm = AsyncMock()
+        llm.complete_json = AsyncMock(return_value={"contradicts": False, "explanation": "fixture"})
+        try:
+            result = await check_new_insights(
+                new_insight_ids=[new_id],
+                product_id=product,
+                db=db,
+                llm=llm,
+            )
+            assert result["pairs_checked"] == 1
+            llm.complete_json.assert_awaited_once()
+        finally:
+            await db.query("DELETE insight WHERE product = <record>$product", {"product": product})
+            await db.query("DELETE <record>$subdomain", {"subdomain": subdomain})
+            await db.query("DELETE <record>$domain", {"domain": domain})
 
 
 @pytest.mark.asyncio

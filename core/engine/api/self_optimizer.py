@@ -105,22 +105,14 @@ async def approve_proposal(
         raise HTTPException(status_code=409, detail="Cannot approve a dismissed proposal")
 
     proposal_type = proposal.get("type")
+    if proposal_type not in {"skill", "framework"}:
+        raise HTTPException(status_code=422, detail=f"Unsupported proposal type: {proposal_type!r}")
+
     draft = proposal.get("draft") or {}
     name = proposal.get("name", "Untitled")
     description = proposal.get("description", "")
 
-    created_record: dict | None = None
-
     async with pool.connection() as db:
-        # Mark proposal approved
-        await db.query(
-            """UPDATE <record>$id SET
-                   status = 'approved',
-                   reviewed_at = time::now()""",
-            {"id": proposal_id},
-        )
-
-        # Materialise based on type
         if proposal_type == "skill":
             slug = _slugify(name)
             jobs = draft.get("jobs") or []
@@ -129,14 +121,15 @@ async def approve_proposal(
 
             skill_result = await db.query(
                 """CREATE skill SET
+                       product = <record>$product,
                        slug = $slug,
                        name = $name,
                        description = $description,
                        domain_path = $domain_path,
                        tier = 'custom',
+                       steps = [],
                        jobs = $jobs,
                        activation_signals = $signals,
-                       source = 'self_optimizer',
                        created_at = time::now()""",
                 {
                     "product": product,
@@ -149,40 +142,63 @@ async def approve_proposal(
                 },
             )
             skill_rows = parse_rows(skill_result)
-            created_record = skill_rows[0] if skill_rows else {"slug": slug, "status": "created"}
+            if not skill_rows:
+                raise HTTPException(status_code=500, detail="Skill proposal could not be materialised")
+            created_record = skill_rows[0]
 
-        elif proposal_type == "framework":
+        else:
             slug = _slugify(name)
             system_prompt = draft.get("system_prompt", "")
             activation_signals = draft.get("activation_signals") or []
             family = draft.get("family", "custom")
-            domain_path = draft.get("domain_path")
+            archetype_affinity = draft.get("archetype_affinity") or {}
+            mode_affinity = draft.get("mode_affinity") or {}
+            composability = draft.get("composability") or {}
 
             fw_result = await db.query(
                 """CREATE framework SET
+                       product = <record>$product,
                        slug = $slug,
                        name = $name,
                        family = $family,
                        tier = 'custom',
-                       domain_path = $domain_path,
                        description = $description,
                        system_prompt = $prompt,
                        activation_signals = $signals,
-                       source = 'self_optimizer',
+                       archetype_affinity = $archetype_affinity,
+                       mode_affinity = $mode_affinity,
+                       composability = $composability,
                        created_at = time::now()""",
                 {
                     "product": product,
                     "slug": slug,
                     "name": name,
                     "family": family,
-                    "domain_path": domain_path,
                     "description": description,
                     "prompt": system_prompt,
                     "signals": activation_signals,
+                    "archetype_affinity": archetype_affinity,
+                    "mode_affinity": mode_affinity,
+                    "composability": composability,
                 },
             )
             fw_rows = parse_rows(fw_result)
-            created_record = fw_rows[0] if fw_rows else {"slug": slug, "status": "created"}
+            if not fw_rows:
+                raise HTTPException(status_code=500, detail="Framework proposal could not be materialised")
+            created_record = fw_rows[0]
+
+        # A rejected materialisation must leave the proposal pending so it can
+        # be corrected and retried instead of advertising a phantom approval.
+        approved = parse_rows(
+            await db.query(
+                """UPDATE <record>$id SET
+                       status = 'approved',
+                       reviewed_at = time::now()""",
+                {"id": proposal_id},
+            )
+        )
+        if not approved:
+            raise HTTPException(status_code=500, detail="Proposal approval could not be persisted")
 
     return {
         "proposal_id": proposal_id,

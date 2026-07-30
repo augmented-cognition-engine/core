@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from scripts.schema_apply import (
+    _REQUIRED_TABLES,
     _is_known_legacy_compatibility_error,
     apply_file,
     validate_schema,
@@ -40,35 +41,19 @@ async def test_apply_file_accepts_only_audited_legacy_event():
 @pytest.mark.asyncio
 async def test_validate_schema_requires_version_and_runtime_tables(monkeypatch):
     db = AsyncMock()
-    db.query.return_value = [
-        {
-            "tables": {
-                name: "definition"
-                for name in {
-                    "config_entry",
-                    "decision",
-                    "discipline",
-                    "insight",
-                    "observation",
-                    "product",
-                    "reasoning_event",
-                    "specialty",
-                    "task",
-                    "workspace",
-                }
-            }
-        }
-    ]
-    monkeypatch.setattr("scripts.schema_apply.get_current_version", AsyncMock(return_value=141))
+    db.query.return_value = [{"tables": {name: "definition" for name in _REQUIRED_TABLES}}]
+    monkeypatch.setattr("scripts.schema_apply.get_current_version", AsyncMock(return_value=157))
 
-    await validate_schema(db, 141)
+    await validate_schema(db, 157)
 
 
 @pytest.mark.asyncio
 async def test_validate_schema_rejects_missing_runtime_table(monkeypatch):
     db = AsyncMock()
-    db.query.return_value = [{"tables": {}}]
-    monkeypatch.setattr("scripts.schema_apply.get_current_version", AsyncMock(return_value=141))
+    db.query.return_value = [
+        {"tables": {name: "definition" for name in _REQUIRED_TABLES if name != "relationship_assertion"}}
+    ]
+    monkeypatch.setattr("scripts.schema_apply.get_current_version", AsyncMock(return_value=157))
 
-    with pytest.raises(RuntimeError, match="missing required tables"):
-        await validate_schema(db, 141)
+    with pytest.raises(RuntimeError, match="relationship_assertion"):
+        await validate_schema(db, 157)

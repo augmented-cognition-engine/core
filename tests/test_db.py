@@ -7,8 +7,8 @@ pytestmark = pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_pool_connects_and_queries(db_pool):
     async with db_pool.connection() as db:
-        result = await db.query("SELECT * FROM nonexistent_table LIMIT 1")
-    # SurrealDB returns empty list for missing table, not an error
+        result = await db.query("RETURN 1")
+    # SDK 2 correctly raises for missing tables; connectivity uses valid SurrealQL.
     assert result is not None
 
 

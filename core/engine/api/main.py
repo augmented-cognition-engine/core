@@ -148,7 +148,9 @@ async def lifespan(app: FastAPI):
         # __cause__ and dump the full chained traceback under real `make dev`.)
         raise SystemExit(1) from None
 
-    # Auto-apply pending schema migrations
+    # Runtime code and schema ship as one contract. Starting on a partially
+    # migrated database would turn rejected writes and zero-row reads back into
+    # apparently healthy behavior, so migration failure is a startup failure.
     try:
         from core.engine.core.schema import apply_pending
 
@@ -156,7 +158,21 @@ async def lifespan(app: FastAPI):
         if applied:
             logger.info("Applied %d schema migration(s) on startup", applied)
     except Exception as exc:
-        logger.warning("Schema migration failed (non-fatal): %s", exc)
+        logger.error("Schema migration failed: %s", exc)
+        raise RuntimeError("ACE cannot start with unapplied schema migrations") from exc
+
+    # Framework prompts are executable reasoning content, not optional sample
+    # data. Fail closed if the built-in library cannot be repaired and verified;
+    # otherwise every composition silently falls back to generic placeholder
+    # text while the API still reports healthy.
+    try:
+        from core.engine.cognition.seed import ensure_frameworks_seeded
+
+        framework_count = await ensure_frameworks_seeded()
+        logger.info("Verified %d built-in framework prompts", framework_count)
+    except Exception as exc:
+        logger.error("Framework prompt library unavailable: %s", exc)
+        raise RuntimeError("ACE cannot start without its built-in framework prompt library") from exc
 
     # Reconcile durable public-task receipts before accepting requests.  The
     # preview runtime executes these jobs in-process: an API restart is visible

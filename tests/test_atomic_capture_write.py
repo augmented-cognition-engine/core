@@ -23,8 +23,14 @@ async def test_observation_ids_create_derived_from_edges(db_pool):
     broke every edge write (informed_by/derived_from) in the original A+ code."""
     product = "product:test_atomicedges_31416"
     async with db_pool.connection() as db:
-        await db.query("CREATE observation:atomicedge_a SET content='o', product=<record>$p", {"p": product})
-        await db.query("CREATE observation:atomicedge_b SET content='o', product=<record>$p", {"p": product})
+        await db.query(
+            "CREATE observation:atomicedge_a SET content='o', observation_type='fact', product=<record>$p",
+            {"p": product},
+        )
+        await db.query(
+            "CREATE observation:atomicedge_b SET content='o', observation_type='fact', product=<record>$p",
+            {"p": product},
+        )
     try:
         iid = await atomic_capture_write(
             db_pool,
@@ -56,6 +62,54 @@ async def test_observation_ids_create_derived_from_edges(db_pool):
             await db.query("DELETE derived_from WHERE out.product = <record>$p", {"p": product})
             await db.query("DELETE insight WHERE product = <record>$p", {"p": product})
             await db.query("DELETE observation WHERE product = <record>$p", {"p": product})
+
+
+@pytest.mark.asyncio
+async def test_specialty_field_falls_back_for_informed_by_edge(db_pool):
+    """A resolved specialty field must also drive provenance when no slug is passed."""
+    product = "product:test_atomicedge_specialty_27182"
+    specialty = "specialty:atomicedge_specialty_27182"
+    async with db_pool.connection() as db:
+        await db.query(
+            "CREATE specialty:atomicedge_specialty_27182 SET slug='atomicedge-specialty-27182', "
+            "name='Atomic Edge Specialty', product=<record>$product",
+            {"product": product},
+        )
+    try:
+        iid = await atomic_capture_write(
+            db_pool,
+            insight_fields={
+                "product": product,
+                "content": "atomic-specialty-edge-unique-27182",
+                "insight_type": "fact",
+                "tier": "domain",
+                "clearance": "open",
+                "confidence": 0.8,
+                "source_domain": "test",
+                "domain_path": "test",
+                "domain": None,
+                "subdomain": None,
+                "specialty": specialty,
+                "tags": [],
+            },
+            embedding=None,
+            specialty_slug=None,
+            observation_ids=[],
+        )
+        async with db_pool.connection() as db:
+            edge = parse_one(
+                await db.query(
+                    "SELECT count() AS n FROM informed_by "
+                    "WHERE in = <record>$insight AND out = <record>$specialty GROUP ALL",
+                    {"insight": iid, "specialty": specialty},
+                )
+            )
+        assert edge is not None and edge["n"] == 1
+    finally:
+        async with db_pool.connection() as db:
+            await db.query("DELETE informed_by WHERE out = <record>$specialty", {"specialty": specialty})
+            await db.query("DELETE insight WHERE product = <record>$product", {"product": product})
+            await db.query("DELETE specialty:atomicedge_specialty_27182")
 
 
 @pytest.mark.asyncio

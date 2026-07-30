@@ -6,6 +6,40 @@ Notable user- and contributor-visible changes are recorded here.
 
 No unreleased changes.
 
+## 0.1.4
+
+### Fixed
+
+- Restore the complete 177-prompt built-in reasoning-framework library. Schema v158 makes the
+  three nested framework object fields `FLEXIBLE`; API and worker startup now seed and verify every
+  authored prompt and fail closed instead of silently substituting generic reasoning text.
+- Make self-optimizer framework proposals persist and materialise correctly. Schema v160 accepts
+  nested proposal drafts and evidence, proposal generation writes its required product/type/name
+  identity, and approval creates product-scoped frameworks with complete affinity and
+  composability data before marking the proposal approved.
+- Correct relational-assertion maintenance: use typed record IDs while pruning projections,
+  canonicalise symmetric endpoints, and contest contradictory directional assertions across
+  unordered endpoint pairs.
+- Rank insight-neighbour recall by proposal confidence rather than saturated evidence strength,
+  preserve `informed_by` edges through the resolved insight specialty, and cast conflict-detector
+  subdomain bindings to records.
+- Finish the runner's product-scoping schema migration and allow recommendation queue metadata.
+  API startup and restart verification now exercise that schema against the real database.
+- Make schema installation fail closed on unknown database errors, validate required runtime
+  tables, require API startup and test schema setup to succeed, and lint modern migrations for
+  restart safety.
+
+### Runtime and migration
+
+- Upgrade the default standalone SurrealDB server from 3.1.4 to 3.2.3 and the Python client from
+  the 1.x line to `surrealdb` 2.x.
+- Raise GitPython to 3.1.55 or later to exclude four fixed upstream security advisories.
+- Add restart-safe schemas v158-v160 for framework nested objects, runner product scope, and
+  self-optimizer proposal payloads. Existing installations are upgraded in place; fresh schema
+  replay is validated through v160.
+- Clarify that `ace doctor` certifies operational readiness—configuration, connectivity, schema,
+  authentication, provider routing, API, and MCP registration—not stored-graph correctness.
+
 ## 0.1.3
 
 ### Supported

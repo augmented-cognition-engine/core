@@ -9,7 +9,7 @@ ACE composes a problem-fit set of perspectives, routes them through the model
 provider you configure, and synthesizes a recommendation. Accepted decisions
 and corrections can persist, giving later work the context of what came before.
 
-> **Developer preview — 0.1.3.** The supported self-hosted interaction path is
+> **Developer preview — 0.1.4.** The supported self-hosted interaction path is
 > the `ace` CLI and exactly 11 thin MCP tools.
 
 [Get started](#start-here-get-a-product-recommendation) · [What works today](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md) · [FAQ](https://github.com/augmented-cognition-engine/core/blob/main/docs/faq.md) · [Documentation](https://github.com/augmented-cognition-engine/core/blob/main/docs/README.md) · [Architecture](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
@@ -154,7 +154,7 @@ flowchart TB
   better informed. The architecture is explicit about provenance and discounts self-generated
   material; it does not promise that every run learns or improves automatically.
 - **The experimental visual-product/research track** — Atrium prototypes Canvas interactions.
-  Think Tank is its deep-deliberation research mode. Atrium releases with 0.1.3 as a public
+  Think Tank is its deep-deliberation research mode. Atrium releases with 0.1.4 as a public
   repository beta, not as a supported Python artifact.
 - **Extensions grow new arms** — teach ACE your domain without forking the core. The shipped [reference extension](#extensions-are-real-not-hypothetical) exercises that public mechanism.
 
@@ -165,7 +165,7 @@ Full deep-dive with every layer: [`docs/architecture.md`](https://github.com/aug
 ## Two preview interaction surfaces
 
 Interact with the same reasoning core through MCP or the terminal. Atrium is a separate
-experimental visual-product/research track released as a repository beta, not a supported 0.1.3
+experimental visual-product/research track released as a repository beta, not a supported 0.1.4
 interaction surface.
 
 ### `MCP` — in the AI you already use
@@ -209,7 +209,7 @@ path, supported-runtime claims, or launch promise.
 Bring a real, half-formed thought to ACE through MCP or CLI. ACE classifies what
 kind of thinking it needs, convenes a problem-fit composition, and synthesizes
 a position grounded in what it already knows. Atrium research prototypes study how that process
-might take visual form; a supported partnership interface is outside 0.1.3.
+might take visual form; a supported partnership interface is outside 0.1.4.
 
 That loop is the whole product:
 
@@ -255,11 +255,11 @@ This is the authoritative developer-preview path. It passed isolated clean-user 
 both macOS and Linux; the exact evidence and limitations remain public.
 
 The Python distribution is `ace-core`; it preserves the `ace` import package,
-the `ace` CLI command, and version `0.1.3`. A package-only installation provides the Python
+the `ace` CLI command, and version `0.1.4`. A package-only installation provides the Python
 package and commands for inspection or an existing ACE service:
 
 ```bash
-python -m pip install ace-core==0.1.3
+python -m pip install ace-core==0.1.4
 python -c "import ace; print(ace.__version__)"
 ace --help
 ace setup --help
@@ -334,6 +334,10 @@ uv run ace doctor
 uv run ace doctor --live-provider  # one explicitly requested minimal model call
 uv run ace model-policy
 ```
+
+`ace doctor` verifies operational readiness only: configuration, database reachability, schema,
+authentication, provider routing, API, and MCP registration. It does not certify the correctness
+of data already stored in the graph; its text and JSON output state that boundary explicitly.
 
 Inspect the current product landscape without triggering reasoning or writes:
 
@@ -441,7 +445,7 @@ cd ..
 ```
 
 Atrium is an experimental visual-product/research track released as a repository beta and is
-separately gated. Its setup is not part of the 0.1.3 golden path or supported runtime.
+separately gated. Its setup is not part of the 0.1.4 golden path or supported runtime.
 
 ---
 
@@ -620,8 +624,8 @@ ace/
 Apache-2.0 — see [`LICENSE`](https://github.com/augmented-cognition-engine/core/blob/main/LICENSE) for the full text and [`NOTICE`](https://github.com/augmented-cognition-engine/core/blob/main/NOTICE). Existing ACE code is
 copyright Edwin Amirian; contributors retain copyright in their contributions and license them
 under Apache-2.0. QueryLabs LLC is the founding sponsor. Atrium source in this repository is
-Apache-2.0 repository beta source, not part of the supported Python 0.1.3 artifact. Separately
-distributed extensions state their own license. The default stack runs SurrealDB 3.1.4 separately;
+Apache-2.0 repository beta source, not part of the supported Python 0.1.4 artifact. Separately
+distributed extensions state their own license. The default stack runs SurrealDB 3.2.3 separately;
 the SurrealDB server is source-available under BSL 1.1 rather than OSI open source.
 
 <div align="center">

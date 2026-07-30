@@ -435,8 +435,19 @@ async def db_pool():
     except Exception as exc:
         pytest.skip(f"SurrealDB unreachable at {pool._redact_url(settings.surreal_url)}: {exc}")
 
-    # Apply schema (idempotent)
-    subprocess.run([sys.executable, "scripts/schema_apply.py"], capture_output=True, text=True)
+    # Apply schema (idempotent). A reachable database with a broken migration is
+    # a hard failure, not an unavailable-service skip; discarding the return code
+    # let a partially applied schema masquerade as a healthy test substrate.
+    schema_result = subprocess.run(
+        [sys.executable, "scripts/schema_apply.py"],
+        capture_output=True,
+        text=True,
+    )
+    if schema_result.returncode != 0:
+        pytest.fail(
+            "schema_apply.py failed against the reachable test database:\n"
+            f"{schema_result.stdout}\n{schema_result.stderr}"
+        )
 
     # Ensure wildcard sub-fields for object columns are defined
     # (SurrealDB v3 SCHEMAFULL rejects nested writes without these)

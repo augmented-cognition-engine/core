@@ -5,17 +5,18 @@
 Run: uv run python engine/cognition/seed.py
 
 This seeds:
-1. New instrument framework entries (~120 slugs) to the `framework` table
-2. Meta-skill definitions (22) to the `meta_skill` table
+1. New instrument framework entries (177 slugs) to the `framework` table
+2. Meta-skill definitions (23) to the `meta_skill` table
 
-Idempotent: uses delete-then-create. Existing frameworks from seed_frameworks.py are NOT touched.
+Framework seeding is idempotent and preserves authored or demonstration-mode
+system-prompt edits on existing records.
 """
 
 import asyncio
 import importlib
 
 from core.engine.cognition.composer import _RECIPE_MODULES
-from core.engine.core.db import pool
+from core.engine.core.db import parse_rows, pool
 
 NEW_FRAMEWORKS = [
     # ═══════════════════════════════════════════════════════════════
@@ -5446,7 +5447,7 @@ NEW_FRAMEWORKS = [
 ]
 
 
-async def seed_frameworks() -> None:
+async def seed_frameworks() -> tuple[int, int]:
     """Seed new instrument frameworks to the framework table.
 
     Uses create-or-update semantics: new frameworks are created with their seed
@@ -5510,6 +5511,46 @@ async def seed_frameworks() -> None:
                     created += 1
 
     print(f"✓ {created} created, {updated} updated, {errors} errors")
+    if errors:
+        raise RuntimeError(f"framework seed incomplete: {errors} write(s) failed")
+    return created, updated
+
+
+async def ensure_frameworks_seeded() -> int:
+    """Ensure every built-in framework has a non-empty authored prompt.
+
+    A row-count-only check is insufficient: one surviving row would hide 176
+    missing prompts. Seed only when needed, then fail closed if any expected
+    prompt is still absent so startup cannot advertise healthy reasoning while
+    PromptFusion is using its generic fallback.
+    """
+    expected = {fw["slug"] for fw in NEW_FRAMEWORKS}
+
+    async def _available() -> set[str]:
+        async with pool.connection() as db:
+            rows = parse_rows(
+                await db.query(
+                    "SELECT slug, system_prompt FROM framework WHERE product IS NONE AND slug IN $slugs",
+                    {"slugs": sorted(expected)},
+                )
+            )
+        return {
+            str(row["slug"])
+            for row in rows
+            if row.get("slug") and isinstance(row.get("system_prompt"), str) and row["system_prompt"].strip()
+        }
+
+    available = await _available()
+    if available != expected:
+        await seed_frameworks()
+        available = await _available()
+
+    missing = sorted(expected - available)
+    if missing:
+        preview = ", ".join(missing[:5])
+        suffix = "…" if len(missing) > 5 else ""
+        raise RuntimeError(f"framework prompt library incomplete: {len(missing)} missing ({preview}{suffix})")
+    return len(available)
 
 
 async def seed_meta_skills() -> None:

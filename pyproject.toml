@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "0.1.3"
+version = "0.1.4"
 description = "Self-hosted reasoning that turns product decisions into durable recommendations"
 readme = "README.md"
 license = "Apache-2.0"
@@ -15,7 +15,7 @@ classifiers = [
 dependencies = [
     "fastapi>=0.136",  # starlette>=1.0.1 compat (PYSEC-2026-161)
     "uvicorn[standard]>=0.30",
-    "surrealdb>=1.0,<2.0",
+    "surrealdb>=2.0,<3.0",
     "pydantic-settings>=2.0",
     "PyJWT[crypto]>=2.13",  # PYSEC-2026-175/177/178/179 fixed in 2.13.0
     "anthropic>=0.40",
@@ -24,7 +24,7 @@ dependencies = [
     "rich>=13.0",
     "apscheduler>=3.11.2",
     "croniter>=6.2.2",
-    "gitpython>=3.1.51",  # GHSA-2f96-g7mh-g2hx, GHSA-v396-v7q4-x2qj, GHSA-956x-8gvw-wg5v
+    "gitpython>=3.1.55",  # GHSA-fjr4-x663-mwxc, GHSA-6p8h-3wgx-97gf, GHSA-r9mr-m37c-5fr3, GHSA-94p4-4cq8-9g67
     "sse-starlette>=2.0",
     "fastmcp>=2.0",
     "mcp>=1.28.1",  # CVE-2026-59950 fixed in 1.28.1

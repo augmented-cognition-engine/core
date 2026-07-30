@@ -44,7 +44,7 @@ async def load_insight_neighbors(
             rows = parse_rows(
                 await db.query(
                     "SELECT in, out, predicate, assertion_id, "
-                    "assertion_id.evidence_strength AS confidence FROM operational_relationship "
+                    "assertion_id.proposal_confidence AS confidence FROM operational_relationship "
                     "WHERE in IN $seeds OR out IN $seeds ORDER BY confidence DESC LIMIT $cap",
                     {"seeds": seed_records, "cap": total_cap},
                 )
