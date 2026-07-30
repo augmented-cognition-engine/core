@@ -143,25 +143,20 @@ async def _live_observe_loop() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from core.engine.core.db import parse_rows, pool
+    from core.engine.core.db import pool
 
     await pool.init()
 
-    # Auto-seed frameworks if table is empty (prevents silent fallback sentinel)
+    # A row-count check misses partially seeded libraries. Workers execute the
+    # same reasoning path as the API, so require all authored prompts here too.
     try:
-        async with pool.connection() as db:
-            rows = parse_rows(await db.query("SELECT count() AS n FROM framework GROUP ALL"))
-            count = rows[0].get("n", 0) if rows else 0
-        if count == 0:
-            logger.info("Framework table empty — running auto-seed")
-            from core.engine.cognition.seed import seed_all
+        from core.engine.cognition.seed import ensure_frameworks_seeded
 
-            await seed_all()
-            logger.info("Framework auto-seed complete")
-        else:
-            logger.debug("Framework table has %d entries — skip seed", count)
+        framework_count = await ensure_frameworks_seeded()
+        logger.info("Verified %d built-in framework prompts", framework_count)
     except Exception as exc:
-        logger.warning("Framework auto-seed check failed (non-fatal): %s", exc)
+        logger.error("Framework prompt library unavailable: %s", exc)
+        raise RuntimeError("ACE worker cannot start without its built-in framework prompt library") from exc
 
     observe_task = asyncio.create_task(_live_observe_loop())
 

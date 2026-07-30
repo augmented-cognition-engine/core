@@ -138,12 +138,11 @@ def _assert_no_stmt_error(raw: object, *, source: str) -> None:
     """Raise RuntimeError if a query_raw response carries any error.
 
     query_raw returns either {'error': {...}} (parse/auth) or
-    {'result': [{'status': 'OK'|'ERR', 'result': ...}, ...]}. The surrealdb
-    client's db.query() raises only on the top-level 'error' shape and SILENTLY
-    discards per-statement 'ERR' entries — which is how a failed migration
-    statement (e.g. a non-OVERWRITE DEFINE FIELD that errors 'already exists')
-    went unnoticed and masked the v113 SCHEMAFULL bug. The migration runner must
-    fail loud on either shape.
+    {'result': [{'status': 'OK'|'ERR', 'result': ...}, ...]}. Older surrealdb
+    SDKs silently discarded per-statement ``ERR`` entries from ``db.query()``;
+    newer SDKs raise, but only after selecting a response entry. Using
+    ``query_raw`` keeps every statement visible and gives the migration runner
+    consistent fail-loud behavior across supported SDKs.
     """
     if error := _stmt_error(raw):
         raise RuntimeError(f"migration statement failed [{source}]: {error}")

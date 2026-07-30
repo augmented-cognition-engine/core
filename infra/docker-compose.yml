@@ -1,6 +1,6 @@
 # ACE contributor and CI bring-up.
 #
-# `docker compose -f infra/docker-compose.yml up` starts SurrealDB 3.1.4,
+# `docker compose -f infra/docker-compose.yml up` starts SurrealDB 3.2.3,
 # applies every packaged schema migration, and starts the ACE API. The stack
 # writes only to its Docker-managed `ace_surreal_data` volume and maps host port
 # 8001 by default. Set ACE_SURREAL_HOST_PORT if that port is already occupied.
@@ -16,7 +16,7 @@ services:
     restart: "no"
 
   surrealdb:
-    image: surrealdb/surrealdb:v3.1.4
+    image: surrealdb/surrealdb:v3.2.3
     depends_on:
       surrealdb-volume-init:
         condition: service_completed_successfully

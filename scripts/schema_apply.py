@@ -21,13 +21,20 @@ from core.engine.core.migration_compat import (
 SCHEMA_DIR = Path(__file__).parent.parent / "core" / "schema"
 
 _REQUIRED_TABLES = {
+    "assertion_dependency",
+    "assertion_event",
+    "assertion_review",
     "config_entry",
     "decision",
     "discipline",
+    "framework",
     "insight",
     "observation",
+    "operational_relationship",
     "product",
     "reasoning_event",
+    "relationship_assertion",
+    "relationship_proposal",
     "specialty",
     "task",
     "workspace",
@@ -98,9 +105,9 @@ _is_known_legacy_compatibility_error = is_known_legacy_compatibility_error
 async def apply_file(db: AsyncSurreal, version: int, name: str, sql: str) -> list[str]:
     """Execute a migration file's statements one by one; return compatibility events.
 
-    SurrealDB reports many statement failures as error *strings* rather than
-    raising, so the result of every query is checked. Unknown failures always
-    abort. Only audited legacy compatibility events are allowed to continue.
+    SDK versions differ in whether statement failures are raised or returned as
+    error strings, so both paths are checked. Unknown failures always abort.
+    Only audited legacy compatibility events are allowed to continue.
     """
     compatibility_events: list[str] = []
     for stmt in _split_statements(sql):

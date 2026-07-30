@@ -74,6 +74,8 @@ async def test_relationship_query_uses_operational_projection_only():
     edge_queries = [s for s in seen if "FROM insight" not in s]
     assert len(edge_queries) == 1
     assert "FROM operational_relationship" in edge_queries[0]
+    assert "assertion_id.proposal_confidence AS confidence" in edge_queries[0]
+    assert "evidence_strength" not in edge_queries[0]
 
 
 @pytest.mark.asyncio

@@ -21,6 +21,10 @@ def test_v142_uses_surreal_v3_flexible_and_relation_endpoint_syntax():
     assert "TYPE object FLEXIBLE" in schema
     assert "DEFINE FIELD in ON assertion_dependency" not in schema
     assert "DEFINE FIELD out ON assertion_dependency" not in schema
+    assert "DEFINE TABLE relationship_" not in schema
+    assert "DEFINE TABLE IF NOT EXISTS relationship_" in schema
+    assert "DEFINE FIELD subject ON relationship_" not in schema
+    assert "DEFINE FIELD IF NOT EXISTS subject ON relationship_" in schema
 
 
 def test_closeout_verifier_is_disposable_and_checks_both_schema_paths():

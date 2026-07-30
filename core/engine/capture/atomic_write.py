@@ -216,13 +216,19 @@ async def atomic_capture_write(
         spec_val = _record_id(specialty_record_id)
     params["specialty"] = spec_val
 
+    # Prefer the slug-resolved specialty to preserve the existing provenance
+    # contract, but fall back to the already-resolved insight.specialty record.
+    # The synthesizer can supply that record while omitting specialty_slug; in
+    # that path the old code wrote the field but silently dropped informed_by.
+    edge_specialty = _record_id(specialty_record_id) if specialty_record_id else spec_val
+
     # informed_by edge. The RELATE endpoint MUST be bound as a RecordID object —
     # SurrealDB v3 rejects a string param as a RELATE endpoint ("Cannot execute
     # RELATE statement where property 'id' is: '<str>'"), so binding the id as a
     # plain string silently breaks every edge write.
-    if specialty_record_id:
+    if edge_specialty is not None:
         statements.append(_RELATE_INFORMED_BY)
-        params["specialty_id"] = _record_id(specialty_record_id)
+        params["specialty_id"] = edge_specialty
 
     # derived_from edges — each uses a unique bound param to avoid collisions
     for idx, obs_id in enumerate(observation_ids):

@@ -92,8 +92,9 @@ async def test_confirmed_erase_removes_edges(db_pool):
     iid = await _make_insight(db_pool, content="forget-edges-unique-55501")
     assert iid.startswith("insight:")  # validated shape — safe to interpolate
     async with db_pool.connection() as db:
-        await db.query("CREATE observation:fedge_a_55501 SET product = <record>$p", {"p": _TEST_PRODUCT})
-        await db.query("CREATE observation:fedge_b_55501 SET product = <record>$p", {"p": _TEST_PRODUCT})
+        observation_fields = "content = 'forget edge fixture', observation_type = 'fact', product = <record>$p"
+        await db.query(f"CREATE observation:fedge_a_55501 SET {observation_fields}", {"p": _TEST_PRODUCT})
+        await db.query(f"CREATE observation:fedge_b_55501 SET {observation_fields}", {"p": _TEST_PRODUCT})
         await db.query(f"RELATE {iid}->derived_from->observation:fedge_a_55501 SET created_at = time::now()")
         await db.query(f"RELATE {iid}->derived_from->observation:fedge_b_55501 SET created_at = time::now()")
         before = parse_one(

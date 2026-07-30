@@ -1,3 +1,4 @@
+import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
@@ -71,15 +72,20 @@ def test_doctor_reports_all_preview_checks(monkeypatch):
     ):
         get.return_value.status_code = 200
         result = CliRunner().invoke(cli, ["doctor", "--json-output"])
-    assert "configuration" in result.output
-    assert "surrealdb" in result.output
-    assert "schema" in result.output
-    assert "model_provider" in result.output
-    assert "model_policy" in result.output
-    assert "authentication" in result.output
-    assert "api" in result.output
-    assert "mcp" in result.output
     assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["scope"] == "operational_readiness"
+    assert payload["data_correctness_checked"] is False
+    assert {
+        "configuration",
+        "surrealdb",
+        "schema",
+        "model_provider",
+        "model_policy",
+        "authentication",
+        "api",
+        "mcp",
+    } <= payload["checks"].keys()
 
 
 def test_doctor_rejects_stale_saved_token(monkeypatch):

@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from core.engine.core.db import parse_one
@@ -10,7 +12,14 @@ _TEST_PRODUCT = "product:test_provenance_44120"
 async def _cleanup(db_pool):
     yield
     async with db_pool.connection() as db:
-        await db.query("DELETE insight WHERE product = <record>$p", {"p": _TEST_PRODUCT})
+        for attempt in range(3):
+            try:
+                await db.query("DELETE insight WHERE product = <record>$p", {"p": _TEST_PRODUCT})
+                break
+            except Exception as exc:
+                if "Transaction conflict" not in str(exc) or attempt == 2:
+                    raise
+                await asyncio.sleep(0.01 * (attempt + 1))
 
 
 async def _make(db_pool, source_domain: str) -> str:

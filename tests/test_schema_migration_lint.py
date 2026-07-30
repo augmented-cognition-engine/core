@@ -210,3 +210,30 @@ def test_capture_front_doors_write_every_required_field():
             f"every CREATE {table} on a fresh install will fail (v034/v032 class). "
             f"Widen/remove the field via migration or set it in the writer."
         )
+
+
+def test_modern_define_statements_are_restart_safe():
+    """A partially applied strict migration must be safe to resume.
+
+    The standalone runner advances the version only after every statement in a
+    file succeeds. Any bare DEFINE before a later failure would already exist
+    on retry and permanently wedge that migration, as v142 once did.
+    """
+    unsafe: list[str] = []
+    modifier = re.compile(
+        r"^DEFINE (?:TABLE|FIELD|INDEX) (?:IF NOT EXISTS|OVERWRITE)\b",
+        re.IGNORECASE,
+    )
+    for version, name, text in load_schema_files():
+        if version < OVERWRITE_LINT_FROM_VERSION:
+            continue
+        for stmt in _split_statements(text):
+            normalized = " ".join(stmt.split())
+            if re.match(r"^DEFINE (?:TABLE|FIELD|INDEX)\b", normalized, re.IGNORECASE) and not modifier.match(
+                normalized
+            ):
+                unsafe.append(f"{name}: {normalized[:100]}")
+    assert unsafe == [], (
+        "Modern DEFINE statements must use IF NOT EXISTS or OVERWRITE so a "
+        f"partially applied migration can resume: {unsafe}"
+    )

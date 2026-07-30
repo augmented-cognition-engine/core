@@ -26,7 +26,7 @@ def frameworks(ctx, org):
         fw_list = data.get("frameworks", [])
 
         if not fw_list:
-            console.print("\n[dim]No frameworks found. Run: python scripts/seed_frameworks.py[/dim]\n")
+            console.print("\n[dim]No frameworks found. Run: uv run python -m core.engine.cognition.seed[/dim]\n")
             return
 
         console.print(f"\n[bold]Reasoning Frameworks ({len(fw_list)})[/bold]\n")

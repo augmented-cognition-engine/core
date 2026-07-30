@@ -179,7 +179,7 @@ async def check_new_insights(
         existing_rows = await db.query(
             """
             SELECT id, content, confidence FROM insight
-            WHERE subdomain = $subdomain
+            WHERE subdomain = <record>$subdomain
               AND product = <record>$product
               AND status = 'active'
               AND id != <record>$new_id

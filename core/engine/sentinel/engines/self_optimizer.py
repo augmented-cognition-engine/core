@@ -336,6 +336,9 @@ async def run_self_optimizer(product_id: str, budget: int = 20) -> dict:
 
             await db.query(
                 """CREATE self_optimizer_proposal SET
+                    product = <record>$product,
+                    type = $type,
+                    name = $name,
                     description = $desc, draft = $draft,
                     evidence = $evidence,
                     source_tasks = $tasks, source_insights = $insights""",

@@ -122,6 +122,7 @@ async def enqueue(req: EnqueueRequest, user=Depends(get_current_user)):
         result = await db.query(
             """
             CREATE task_queue SET
+                product = <record>$product,
                 title = $title,
                 description = $description,
                 priority = $priority,

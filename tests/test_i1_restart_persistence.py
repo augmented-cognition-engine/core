@@ -408,7 +408,7 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         await _wait_port(db_port, db_process)
         api_process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=api_log, stderr=subprocess.STDOUT)
         await _wait_health(api_url, api_process)
-        await _assert_schema_version(db_url, 157)
+        await _assert_schema_version(db_url, 160)
         await _verify_legacy_rows_survive_v144(db_url)
         client = AceClient(base_url=api_url, token=token, timeout=10)
         thin_tools._client = client

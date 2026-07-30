@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 from core.engine.core.db import parse_one, parse_record_id, parse_rows, serialize_record
 from core.engine.graph.ontology import ONTOLOGY_VERSION, RELATIONSHIPS, normalize_predicate, type_allowed
 
-RESOLVER_VERSION = "ace.assertion-resolver.v1"
+RESOLVER_VERSION = "ace.assertion-resolver.v2"
 _PERSIST_LOCK = asyncio.Lock()
 AssertionStatus = Literal[
     "proposed", "provisional", "accepted", "contested", "rejected", "superseded", "stale", "retired"
@@ -204,6 +204,11 @@ def resolve_proposals(
         predicate, swap = normalized
         subject, object_ = (p.object, p.subject) if swap else (p.subject, p.object)
         contract = RELATIONSHIPS[predicate]
+        # Symmetric relationships have one semantic identity regardless of the
+        # proposal's endpoint order. Canonicalize the unordered pair before
+        # deriving the stable assertion id so A↔B and B↔A replay as one claim.
+        if contract.symmetric and object_ < subject:
+            subject, object_ = object_, subject
         key = _semantic_key(subject, predicate, object_, p.polarity, p.scope, p.valid_from, p.valid_to)
         aid = _stable_id("relationship_assertion", key)
         grouped.setdefault(aid, (key, [], contract))[1].append(p)
@@ -291,6 +296,37 @@ def resolve_proposals(
             if mutually_exclusive:
                 a.status, a.projection_eligible = "contested", False
                 a.explanation = "Contested: mutually exclusive assertions exist in the same scope."
+
+    # Directional relationships are asymmetric within one scope and validity
+    # interval. Reciprocal claims (A→B and B→A) must not both become operational
+    # truth. Group by unordered endpoints to find the otherwise-distinct stable
+    # assertion ids, then quarantine both directions for explicit resolution.
+    by_unordered_pair: dict[tuple, list[CanonicalAssertion]] = {}
+    for a in result:
+        contract = RELATIONSHIPS.get(a.predicate)
+        if contract is None or contract.symmetric or a.subject == a.object:
+            continue
+        by_unordered_pair.setdefault(
+            (
+                a.predicate,
+                tuple(sorted((a.subject, a.object))),
+                a.polarity,
+                json.dumps(a.scope, sort_keys=True),
+                str(a.valid_from),
+                str(a.valid_to),
+            ),
+            [],
+        ).append(a)
+    inactive = {"rejected", "retired", "superseded"}
+    for assertions in by_unordered_pair.values():
+        active = [a for a in assertions if a.status not in inactive]
+        directions = {(a.subject, a.object) for a in active}
+        if len(directions) > 1:
+            for a in active:
+                a.status, a.projection_eligible = "contested", False
+                a.explanation = (
+                    "Contested: reciprocal assertions violate directional relationship asymmetry in the same scope."
+                )
     return sorted(result, key=lambda a: a.id)
 
 
@@ -363,10 +399,10 @@ async def rebuild_projection(*, pool=None, db=None) -> int:
         await db.query("SELECT * FROM relationship_assertion WHERE projection_eligible = true AND status = 'accepted'")
     )
     wanted = {str(a["id"]): a for a in assertions}
-    existing = parse_rows(await db.query("SELECT id, assertion_id FROM operational_relationship"))
+    existing = parse_rows(await db.query("SELECT id, assertion_id, projection_version FROM operational_relationship"))
     for edge in existing:
-        if str(edge.get("assertion_id")) not in wanted:
-            await db.query("DELETE $id", {"id": edge["id"]})
+        if str(edge.get("assertion_id")) not in wanted or edge.get("projection_version") != RESOLVER_VERSION:
+            await _query_or_raise(db, "DELETE $id", {"id": parse_record_id(str(edge["id"]))})
     for aid, a in sorted(wanted.items()):
         eid = _stable_id("operational_relationship", {"assertion_id": aid, "projection_version": RESOLVER_VERSION})
         await db.query(

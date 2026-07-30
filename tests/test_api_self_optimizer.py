@@ -202,8 +202,8 @@ async def test_approve_skill_proposal(authed_client):
     mock_pool, _ = _make_pool(
         [
             proposal,  # fetch proposal (ONLY query -> single dict)
-            [{}],  # UPDATE approved
             [created_skill],  # CREATE skill
+            [proposal | {"status": "approved"}],  # UPDATE approved
         ]
     )
 
@@ -230,6 +230,9 @@ async def test_approve_framework_proposal(authed_client):
             "system_prompt": "Always reason from first principles.",
             "activation_signals": [],
             "family": "epistemic",
+            "archetype_affinity": {"analyst": 0.9},
+            "mode_affinity": {"deliberative": 0.8},
+            "composability": {"complements": ["inversion"], "conflicts": []},
         },
     }
     created_fw = {"id": "framework:xyz", "slug": "clarity-lens", "name": "Clarity Lens"}
@@ -237,8 +240,8 @@ async def test_approve_framework_proposal(authed_client):
     mock_pool, _ = _make_pool(
         [
             proposal,
-            [{}],
             [created_fw],
+            [proposal | {"status": "approved"}],
         ]
     )
 
@@ -250,6 +253,14 @@ async def test_approve_framework_proposal(authed_client):
     assert data["status"] == "approved"
     assert data["type"] == "framework"
     assert data["created"] is not None
+    create_query = mock_pool.connection.return_value.__aenter__.return_value.query.await_args_list[1]
+    sql, params = create_query.args
+    assert "product = <record>$product" in sql
+    assert "domain_path" not in sql
+    assert "source" not in sql
+    assert params["archetype_affinity"] == {"analyst": 0.9}
+    assert params["mode_affinity"] == {"deliberative": 0.8}
+    assert params["composability"] == {"complements": ["inversion"], "conflicts": []}
 
 
 @pytest.mark.asyncio
@@ -289,8 +300,8 @@ async def test_approve_dismissed_returns_409(authed_client):
 
 
 @pytest.mark.asyncio
-async def test_approve_unknown_type_still_marks_approved(authed_client):
-    """A proposal with type='neither' should be approved with created=None."""
+async def test_approve_unknown_type_is_rejected(authed_client):
+    """Unknown proposal types must not become phantom approvals."""
     proposal = {
         "id": "self_optimizer_proposal:7",
         "product": "product:default",
@@ -299,20 +310,35 @@ async def test_approve_unknown_type_still_marks_approved(authed_client):
         "name": "Unknown Type",
         "draft": {},
     }
-    mock_pool, _ = _make_pool(
-        [
-            proposal,
-            [{}],
-        ]
-    )
+    mock_pool, mock_conn = _make_pool([proposal])
 
     with patch("core.engine.api.self_optimizer.pool", mock_pool):
         resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:7/approve")
 
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["status"] == "approved"
-    assert data["created"] is None
+    assert resp.status_code == 422
+    assert "Unsupported proposal type" in resp.json()["detail"]
+    assert mock_conn.query.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_failed_framework_materialisation_does_not_mark_proposal_approved(authed_client):
+    proposal = {
+        "id": "self_optimizer_proposal:8",
+        "product": "product:default",
+        "type": "framework",
+        "status": "pending",
+        "name": "Broken Framework",
+        "description": "Must remain retryable",
+        "draft": {"system_prompt": "Reason carefully."},
+    }
+    mock_pool, mock_conn = _make_pool([proposal, "schema rejected nested object"])
+
+    with patch("core.engine.api.self_optimizer.pool", mock_pool):
+        resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:8/approve")
+
+    assert resp.status_code == 500
+    assert resp.json()["detail"] == "Framework proposal could not be materialised"
+    assert mock_conn.query.await_count == 2
 
 
 # ---------------------------------------------------------------------------

@@ -502,7 +502,10 @@ async def test_atomic_capture_write_sets_specialty_field(db_pool):
 
     product = "product:test_specialty_30201"
     async with db_pool.connection() as db:
-        await db.query("CREATE specialty:test_arch_30201 SET slug='test_arch_30201', name='Test Arch'")
+        await db.query(
+            "CREATE specialty:test_arch_30201 SET slug='test_arch_30201', name='Test Arch', product=<record>$product",
+            {"product": product},
+        )
     try:
         iid = await atomic_capture_write(
             db_pool,
