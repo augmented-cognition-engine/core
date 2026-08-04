@@ -1,11 +1,11 @@
 # R7 ace-core 0.2.0 release-candidate readiness
 
-Status: **local release-candidate gates passed; draft PR and CI reconciliation pending; publication not authorized**
+Status: **candidate; not passed; publication not authorized**
 
 R7 reconciles the complete TP0-TP8 and K1-K3 State Engine work into an inspectable `ace-core`
-0.2.0 candidate. This record is intentionally not a release closeout. It may become a candidate
-authorization packet after the pushed branch, a draft pull request, and available CI have been
-recorded. R7 cannot become `passed` until a separately
+0.2.0 candidate. This record is intentionally not a release closeout. The pushed branch, draft pull
+request, and available CI are recorded below as a candidate authorization packet. R7 cannot become
+`passed` until a separately
 authorized merge, `v0.2.0` tag, GitHub Release, trusted PyPI publication, provenance, matching
 artifact hashes, and fresh public-index installation have all been verified.
 
@@ -201,6 +201,7 @@ The local release-critical verification completed with the following results:
 | Checkout-free corpus/package regression | 119 passed in 3.03 s after the clean-wheel blocker fix |
 | Worker watcher/startup regression | 34 passed in 1.21 s; real threaded file activity remained healthy |
 | Clean wheel State Engine journey | fresh v168 schema plus belief/transition/action-no-action rollout/I3 receipt completed with zero provider calls and zero simulated-as-observed violations |
+| GitHub CI run 82 | passed: lint, security audit, 6,672-test fast gate, 6,659-test naked kernel, Canvas, and Docker build |
 
 The exact primary commands were:
 
@@ -279,7 +280,7 @@ deleted nor staged. The complete canonical machine receipt, readable report, fin
 failure summary are included instead. Ignored `.env`, virtual environments, caches, local database
 stores, credentials, and Git metadata are not release inputs.
 
-R7 preflight found and corrected five release blockers without weakening a gate:
+R7 preflight and draft-PR CI found and corrected six release blockers without weakening a gate:
 
 - the first source archive included the locally preserved K1-K3 raw directory; `MANIFEST.in` now
   prunes it and the archive regression enforces the exclusion;
@@ -293,7 +294,12 @@ R7 preflight found and corrected five release blockers without weakening a gate:
   grounded-state runtime, defaults resolve there, and the package regression prevents drift; and
 - the first isolated worker startup exposed watchdog callbacks scheduling on a thread without an
   event loop; callbacks now marshal debounce work to the lifespan's owning loop, with both a
-  threaded regression and a real installed-wheel filesystem-activity smoke.
+  threaded regression and a real installed-wheel filesystem-activity smoke; and
+- the first hosted Python jobs found that the frozen TP0 baseline test allowed release identity
+  drift but incorrectly rejected Linux runner facts. The assertion now permits only the explicit
+  non-semantic machine/version fields while keeping execution mode, public surface,
+  provider/model/database routes, and Python implementation frozen. The focused replay passed 7/7,
+  and the complete hosted rerun passed both Python jobs.
 
 The Dockerfile also now consumes the frozen lock with `uv sync --frozen --no-dev --no-editable`
 instead of resolving a new environment independently during every image build.
@@ -307,19 +313,24 @@ public-safe, and separately subject to final staged review.
 
 - release branch: `codex/release-0.2.0`;
 - exact artifact/source commit: `34486ab7b857a8bf1b3315fe795491c7a133a3ac`;
-- local commit series: `acbfe756199d6e45db244473a8dc3b93840b9051`,
+- candidate commit series through the CI-tested head: `acbfe756199d6e45db244473a8dc3b93840b9051`,
   `8cc16c2b71d909e850235d273624e2edccad8aa8`,
   `539ff2e1749115c78eb63fc959fb5a95475a6afe`,
-  `a11c018eb5177a7727b17a6e717427f412eb3109`, and
-  `34486ab7b857a8bf1b3315fe795491c7a133a3ac`;
-- draft PR: **pending**;
-- CI: **pending pushed candidate**;
+  `a11c018eb5177a7727b17a6e717427f412eb3109`,
+  `34486ab7b857a8bf1b3315fe795491c7a133a3ac`, followed by evidence and CI-only test commits through
+  `5b2e654055588200a938ae1c5f4a168712effe96`;
+- draft PR: [#35 — ACE 0.2.0 State Engine release candidate](https://github.com/augmented-cognition-engine/core/pull/35),
+  open, mergeable, and draft;
+- CI: [run 82](https://github.com/augmented-cognition-engine/core/actions/runs/30957157837) passed all six
+  jobs at code head `5b2e654055588200a938ae1c5f4a168712effe96`: lint, security audit, fast gate
+  (6,672 passed, 231 skipped, 246 deselected), naked kernel (6,659 passed, 232 skipped,
+  258 deselected), Canvas, and Docker build;
 - artifact identities and clean install: **passed locally as recorded above**;
 - publication authorization: **not requested and not granted**.
 
-The local release-candidate verdict is `candidate`. The overall R7 verdict remains not-passed until
-the pushed branch, draft PR, and available CI result are reconciled here; publication remains under
-the separate authorization boundary below.
+The release-candidate verdict is `candidate`. This evidence-only reconciliation commit does not
+alter the artifact/source commit or runtime and intentionally follows the CI-tested code head. R7
+remains not-passed, and publication remains under the separate authorization boundary below.
 
 ## Publication boundary
 
