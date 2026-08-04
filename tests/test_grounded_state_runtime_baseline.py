@@ -104,16 +104,25 @@ def test_current_ace_baseline_records_all_cases_as_unsupported_without_vacuous_c
     result = _run()
 
     assert result.corpus_hash == CORPUS_HASH
-    # TP0 is frozen historical evidence.  It may be replayed from the exact
-    # reference revision or from a later release candidate; only release
-    # identity is allowed to differ from that recorded environment.
+    # TP0 is frozen historical evidence. It may be replayed from the exact
+    # reference environment or from a later release candidate/CI runner. Only
+    # machine facts and release identity may differ; execution mode, public
+    # surface, provider/model/database routes, and Python implementation stay
+    # bound to the frozen baseline.
     if result.environment_matches_reference:
         assert result.environment_differences == ()
     else:
         assert result.environment_differences
-        assert all(
-            difference.startswith(("ace_version:", "source_revision:")) for difference in result.environment_differences
-        )
+        drifted_fields = {difference.partition(":")[0] for difference in result.environment_differences}
+        assert drifted_fields <= {
+            "ace_version",
+            "logical_cpu_count",
+            "machine",
+            "python_version",
+            "release",
+            "source_revision",
+            "system",
+        }
     assert result.summary.total_cases == 40
     assert result.summary.exact_matches == 0
     assert result.summary.unsupported == 40
