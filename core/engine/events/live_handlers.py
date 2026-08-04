@@ -34,6 +34,8 @@ async def on_agent_state_changed(event_type: str, payload: dict) -> None:
                     observation_type = $obs_type, confidence = 0.7,
                     discipline_hint = 'architecture', domain_hint = 'architecture',
                     source = 'agent_lifecycle', synthesized = false,
+                    status = 'pending', processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()""",
                 {"product": product_id, "content": content, "obs_type": obs_type},
             )

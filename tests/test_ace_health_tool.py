@@ -77,6 +77,86 @@ async def test_ace_health_reports_stale():
 
 
 @pytest.mark.asyncio
+async def test_ace_health_is_degraded_when_observation_outcome_policy_is_breached():
+    """Recent worker activity cannot hide retry/dead-letter/legacy outcome gaps."""
+    from core.engine.mcp.tools import ace_health
+
+    worker_status = {
+        "pipeline_status": "active",
+        "hook_post_count": 42,
+        "capture_count": 15,
+        "idle_seconds": 5.0,
+        "last_synthesis_at": 1000.0,
+        "uptime_seconds": 3600.0,
+        "last_error": None,
+        "worker_version": "1.0.0",
+    }
+    outcome_health = {
+        "status": "degraded",
+        "pending_count": 0,
+        "processing_count": 0,
+        "succeeded_by_disposition": {},
+        "retryable_failure_count": 1,
+        "dead_letter_count": 0,
+        "legacy_unexplained_count": 0,
+        "policy_breaches": ["retryable_failed"],
+    }
+    mock_db = AsyncMock()
+    mock_db.query = AsyncMock(return_value=[])
+    mock_ctx = AsyncMock()
+    mock_ctx.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_ctx.__aexit__ = AsyncMock(return_value=False)
+
+    with (
+        patch("core.engine.mcp.tools.pool") as mock_pool,
+        patch("core.engine.mcp.tools.parse_rows", return_value=[]),
+        patch("core.engine.mcp.tools._fetch_worker_health_status", return_value=worker_status),
+        patch(
+            "core.engine.capture.lifecycle.observation_outcome_health",
+            new=AsyncMock(return_value=outcome_health),
+        ),
+    ):
+        mock_pool.connection.return_value = mock_ctx
+        result = await ace_health()
+
+    assert result["status"] == "degraded"
+    assert result["observation_outcomes"]["retryable_failure_count"] == 1
+
+
+@pytest.mark.asyncio
+async def test_ace_health_fails_closed_when_queue_visibility_is_unavailable():
+    from core.engine.mcp.tools import ace_health
+
+    worker_status = {
+        "pipeline_status": "active",
+        "hook_post_count": 42,
+        "capture_count": 15,
+        "idle_seconds": 5.0,
+        "uptime_seconds": 3600.0,
+    }
+    mock_db = AsyncMock()
+    mock_db.query = AsyncMock(return_value=[])
+    mock_ctx = AsyncMock()
+    mock_ctx.__aenter__ = AsyncMock(return_value=mock_db)
+    mock_ctx.__aexit__ = AsyncMock(return_value=False)
+
+    with (
+        patch("core.engine.mcp.tools.pool") as mock_pool,
+        patch("core.engine.mcp.tools.parse_rows", return_value=[]),
+        patch("core.engine.mcp.tools._fetch_worker_health_status", return_value=worker_status),
+        patch(
+            "core.engine.capture.lifecycle.observation_outcome_health",
+            new=AsyncMock(side_effect=RuntimeError("database unavailable")),
+        ),
+    ):
+        mock_pool.connection.return_value = mock_ctx
+        result = await ace_health()
+
+    assert result["status"] == "degraded"
+    assert "visibility" in result["summary"]
+
+
+@pytest.mark.asyncio
 async def test_ace_health_worker_unreachable_restart_fails():
     """ace_health status='down' when worker unreachable and restart fails."""
     from core.engine.mcp.tools import ace_health

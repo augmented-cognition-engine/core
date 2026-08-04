@@ -1,7 +1,7 @@
 # ACE contributor and CI bring-up.
 #
 # `docker compose -f infra/docker-compose.yml up` starts SurrealDB 3.2.3,
-# applies every packaged schema migration, and starts the ACE API. The stack
+# applies every packaged schema migration, and starts the ACE API and observation worker. The stack
 # writes only to its Docker-managed `ace_surreal_data` volume and maps host port
 # 8001 by default. Set ACE_SURREAL_HOST_PORT if that port is already occupied.
 # A fresh clone starts with an empty knowledge graph.
@@ -39,6 +39,8 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
+      args:
+        ACE_VERSION: "0.2.0"
     depends_on:
       surrealdb:
         condition: service_healthy
@@ -58,6 +60,10 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
+      args:
+        ACE_VERSION: "0.2.0"
+    labels:
+      org.opencontainers.image.version: "0.2.0"
     depends_on:
       surrealdb:
         condition: service_healthy
@@ -83,6 +89,55 @@ services:
       PYTHONFAULTHANDLER: "1"
     ports:
       - "127.0.0.1:${ACE_API_HOST_PORT:-3000}:3000"
+    restart: unless-stopped
+
+  # Supervised observation processor. LIVE SELECT is only a low-latency wakeup;
+  # the continuous bounded drain and database leases own reliable delivery.
+  ace-worker:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        ACE_VERSION: "0.2.0"
+    labels:
+      org.opencontainers.image.version: "0.2.0"
+    depends_on:
+      surrealdb:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      SURREAL_URL: ws://surrealdb:8000
+      SURREAL_NS: ace
+      SURREAL_DB: ace
+      SURREAL_USER: root
+      SURREAL_PASS: root
+      LLM_API_KEY: ${LLM_API_KEY:-sk-test}
+      JWT_SECRET: ${JWT_SECRET:-dev-insecure-change-me}
+      API_KEY: ${API_KEY:-local-dev-only-not-a-secret}
+      OLLAMA_HOST: ${OLLAMA_HOST:-}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-onnx}
+      REQUIRE_SUBSCRIPTION: ${REQUIRE_SUBSCRIPTION:-0}
+      ACE_PRODUCT_ID: ${ACE_PRODUCT_ID:-product:platform}
+      ACE_WORKER_HOST: 0.0.0.0
+      ACE_WORKER_PORT: 37778
+      PYTHONFAULTHANDLER: "1"
+    command: python core/engine/worker/start.py
+    ports:
+      - "127.0.0.1:${ACE_WORKER_HOST_PORT:-37778}:37778"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:37778/health')",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
 
 volumes:

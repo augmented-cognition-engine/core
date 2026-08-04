@@ -143,6 +143,7 @@ async def atomic_capture_write(
     embedding: list[float] | None,
     specialty_slug: str | None,
     observation_ids: list[str],
+    insight_id: str | None = None,
 ) -> str:
     """Write one insight + its edges + embedding atomically. Returns insight id.
 
@@ -172,6 +173,26 @@ async def atomic_capture_write(
     """
     needs_embedding = embedding is None
 
+    # A lifecycle attempt supplies a deterministic ID.  An exact replay returns
+    # the existing row, while changed material at that identity fails closed.
+    if insight_id:
+        async with db_pool.connection() as db:
+            existing = parse_one(
+                await db.query(
+                    """
+                    SELECT id, content, insight_type FROM ONLY <record>$id
+                    WHERE product = <record>$product
+                    """,
+                    {"id": insight_id, "product": insight_fields["product"]},
+                )
+            )
+        if existing:
+            if existing.get("content") != insight_fields.get("content") or existing.get(
+                "insight_type"
+            ) != insight_fields.get("insight_type"):
+                raise RuntimeError("deterministic insight identity already contains different material")
+            return insight_id
+
     # --- resolve specialty id synchronously so we can inline it into the txn ---
     # We look it up BEFORE opening the transaction to keep the transaction block
     # short (no nested async work inside BEGIN…COMMIT).
@@ -194,13 +215,18 @@ async def atomic_capture_write(
                 logger.warning("specialty slug %r not found — informed_by edge skipped", specialty_slug)
 
     # --- build the multi-statement transaction block ---
-    statements: list[str] = ["BEGIN", _CREATE_STMT]
+    create_stmt = _CREATE_STMT
+    if insight_id:
+        create_stmt = create_stmt.replace("CREATE ONLY insight SET", "CREATE ONLY <record>$insight_id SET", 1)
+    statements: list[str] = ["BEGIN", create_stmt]
 
     params: dict[str, Any] = {
         **insight_fields,
         "embedding": embedding,
         "needs_embedding": needs_embedding,
     }
+    if insight_id:
+        params["insight_id"] = insight_id
 
     # insight.specialty MUST be set as a record link — dual_loader retrieves
     # insights with `SELECT * FROM insight WHERE specialty IN $ids`, reading the
@@ -246,5 +272,28 @@ async def atomic_capture_write(
     async with db_pool.connection() as db:
         raw = await db.query_raw(sql, params)
 
-    _check_txn_errors(raw)
+    try:
+        _check_txn_errors(raw)
+    except RuntimeError:
+        if not insight_id:
+            raise
+        # Resolve a create race only when the winner stored the exact same
+        # product-scoped material.  Never overwrite a conflicting row.
+        async with db_pool.connection() as db:
+            raced = parse_one(
+                await db.query(
+                    """
+                    SELECT id, content, insight_type FROM ONLY <record>$id
+                    WHERE product = <record>$product
+                    """,
+                    {"id": insight_id, "product": insight_fields["product"]},
+                )
+            )
+        if (
+            raced
+            and raced.get("content") == insight_fields.get("content")
+            and raced.get("insight_type") == insight_fields.get("insight_type")
+        ):
+            return insight_id
+        raise
     return _extract_insight_id(raw)

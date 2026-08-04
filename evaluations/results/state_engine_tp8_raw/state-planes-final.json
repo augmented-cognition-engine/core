@@ -1,0 +1,20 @@
+{
+  "corpus_claims": 200000,
+  "cost_usd": 0.0,
+  "input_tokens": 0,
+  "operation": "belief_transition_rollout_planes",
+  "output_tokens": 0,
+  "projection_id": "grounded_belief_projection:ab21373dd4cafdc42494d899fb04ba20",
+  "provider_calls": 0,
+  "reasoning_use_receipt_id": "grounded_reasoning_use:4bc5a9f90f76be8532aed8c80629d7a1",
+  "rollout_revision_id": "grounded_rollout_revision:216be3ee453ee67daebf05f4f574d809",
+  "simulated_as_observed_violations": 0,
+  "status": "completed",
+  "timings": {
+    "belief_projection_ms": 7.493,
+    "consequence_rollout_ms": 13.131,
+    "reasoning_use_persistence_ms": 9.071,
+    "transition_resolution_ms": 10.815
+  },
+  "transition_revision_id": "grounded_transition_revision:629d3d8082efc7e943ac669c5da9417b"
+}

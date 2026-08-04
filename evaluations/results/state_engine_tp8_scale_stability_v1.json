@@ -1,0 +1,262 @@
+{
+  "contract_version": "ace.grounded-state.tp8-result/v1",
+  "benchmark_id": "state-engine-tp8-scale-stability-v1",
+  "benchmark_manifest": "evaluations/fixtures/state_engine_tp8_scale_stability_v1.json",
+  "dataset": {
+    "raw_dataset_sha256": "c58e36030f3835b71e82268e13b2f5d753ee6fb530a860b4075eb1ccd9cbcad8",
+    "manifest_set_sha256": "2e7c8b0a37fa6a7e7062c2cf077af7adfda41b6e83822b99a20f29fad498d2eb",
+    "manifests": 63,
+    "claims": 200000,
+    "semantic_records": 236000,
+    "sources": 2000,
+    "entities": 5000,
+    "aliases": 5000,
+    "events": 2000,
+    "event_participants": 2000,
+    "relations": 20000,
+    "corrections": 2000,
+    "contradictions": 4000,
+    "unknown_time_records": 10000,
+    "negative_controls": 5000
+  },
+  "environment": {
+    "hardware": "Apple MacBook Pro Mac15,6; Apple M3 Pro; 11 CPU cores; 18 GB unified memory",
+    "operating_system": "macOS 26.6 build 25G72; Darwin 25.6.0 arm64",
+    "database": "SurrealDB 3.2.1 macOS aarch64 with SurrealKV",
+    "python": "CPython 3.12.13",
+    "package_runtime": "uv 0.11.14 aarch64-apple-darwin",
+    "topology": "one SurrealDB process and one single-connection benchmark client on loopback; distributed guarantees not tested"
+  },
+  "initial_load": {
+    "status": "completed_after_injected_failures",
+    "claims": 200000,
+    "semantic_records": 236000,
+    "item_receipts": 2360,
+    "batch_receipts": 63,
+    "supersession_edges": 2000,
+    "duplicate_semantic_rows": 0,
+    "lowest_observed_process_claims_per_second": 659.037854,
+    "frozen_minimum_claims_per_second": 20.0,
+    "largest_observed_manifest_p95_ms": 4079.167,
+    "frozen_manifest_p95_ms_max": 120000,
+    "initial_storage_bytes": 826015744,
+    "frozen_storage_bytes_max": 2147483648,
+    "queue_backlog": 0,
+    "queue_note": "The supported ingestion service is synchronous and receipt-terminal; it has no per-claim synthesis queue. Association and index maintenance commit inside each bounded manifest."
+  },
+  "failure_and_recovery": {
+    "database_hard_stop": {
+      "at_claim": 40000,
+      "restart_seconds": 11,
+      "frozen_restart_seconds_max": 15,
+      "replayed_manifest_duration_ms": 20.689,
+      "count_after_restart": 40000,
+      "duplicate_semantic_rows": 0
+    },
+    "adapter_unavailable": {
+      "before_claim": 120000,
+      "committed_boundary": 116000,
+      "green_receipt_for_failed_submission": false,
+      "resumed": true
+    },
+    "client_hard_stop": {
+      "at_claim": 160000,
+      "exit_code": 143,
+      "resumed_in_fresh_client": true
+    },
+    "transaction_child_failure": {
+      "green_receipt": false,
+      "stranded_semantic_rows": 0,
+      "evidence": "tests/test_grounded_state_ingestion.py::test_item_transaction_rolls_back_all_children_and_receipt_on_failure"
+    },
+    "migration_client_hard_stop": {
+      "base_schema": 167,
+      "target_schema": 168,
+      "statements_committed_before_stop": 8,
+      "target_statements": 53,
+      "schema_version_advanced_before_stop": false,
+      "resume_status": "schema v168 validated",
+      "second_application": "0 files applied; schema v168 validated"
+    }
+  },
+  "sustained_ingestion": {
+    "claims": 20000,
+    "persisted": 20000,
+    "duration_seconds": 20.193666,
+    "claims_per_second": 990.409543,
+    "daily_equivalent_claims": 85571384.474,
+    "frozen_reference_daily_peak": 34000,
+    "frozen_two_x_target_claims_per_day": 68000,
+    "failures": 0
+  },
+  "plane_measurements": {
+    "source_ingestion_and_persistence": {
+      "semantic_rows": 2000,
+      "terminal_count_reconciled": true
+    },
+    "entity_and_relation_mapping": {
+      "entities": 5000,
+      "aliases": 5000,
+      "event_participants": 2000,
+      "relations": 20000,
+      "supersession_edges": 2000,
+      "terminal_count_reconciled": true
+    },
+    "association_and_index_maintenance": {
+      "mode": "synchronous per bounded manifest",
+      "backlog_at_terminal_receipt": 0,
+      "largest_manifest_p95_ms": 4079.167
+    },
+    "candidate_retrieval": {
+      "queries": 20,
+      "median_ms": 6.532,
+      "p95_ms": 14.189,
+      "max_ms": 15.862,
+      "threshold_p95_ms": 1000
+    },
+    "evidence_query_and_pack": {
+      "queries": 20,
+      "median_ms": 14.443,
+      "p95_ms": 16.51,
+      "max_ms": 17.294,
+      "threshold_p95_ms": 1500
+    },
+    "belief_projection": {
+      "latency_ms": 7.493,
+      "threshold_ms": 2000
+    },
+    "transition_resolution": {
+      "latency_ms": 10.815,
+      "threshold_ms": 2000
+    },
+    "consequence_rollout": {
+      "latency_ms": 13.131,
+      "threshold_ms": 3000,
+      "simulated_as_observed_violations": 0
+    },
+    "reasoning_use_persistence": {
+      "latency_ms": 9.071,
+      "receipt_id": "grounded_reasoning_use:4bc5a9f90f76be8532aed8c80629d7a1"
+    },
+    "task_reasoning_promotion_and_later_retrieval": {
+      "status": "production journey passed",
+      "measurement_scope": "single deterministic provider-free acceptance journey, not a p95 sample",
+      "evidence": "tests/test_grounded_state_ingestion.py::test_tp6_rollout_reasoning_use_and_reconciliation_survive_restart"
+    }
+  },
+  "semantic_and_authority_checks": {
+    "cross_product_violations": 0,
+    "unknown_time_visible": true,
+    "contested_rejected_stale_invalidated_superseded_states_distinct": true,
+    "simulated_as_observed_violations": 0,
+    "raw_claim_memory_leaks": 0,
+    "attacker_product_scope_overrides": 0,
+    "source_instruction_authority_grants": 0,
+    "malformed_oversized_cyclic_collision_inputs_fail_closed": true,
+    "archive_and_reactivate_lifecycle_tested": true
+  },
+  "adapter_comparison": {
+    "same_database_adapter": "surrealkv-inline-v1",
+    "external_content_adapter": "filesystem-digest-input-v1",
+    "external_digest_verifications": 10,
+    "stable_record_ids_identical": true,
+    "receipt_ids_distinct": true,
+    "replay_semantics_identical": true,
+    "duration_ms": 151.827
+  },
+  "migration_backup_restore_and_compatibility": {
+    "schema_zero": {
+      "files_applied": 167,
+      "duration_seconds": 21.66,
+      "schema_head": 168,
+      "second_application_files": 0
+    },
+    "v0_1_x_upgrade": {
+      "starting_schema": 157,
+      "files_applied": 11,
+      "schema_head": 168,
+      "sentinel_preserved": true
+    },
+    "backup": {
+      "bytes": 520154734,
+      "duration_seconds": 5,
+      "threshold_seconds": 300
+    },
+    "restore": {
+      "duration_seconds": 28.97,
+      "threshold_seconds": 300,
+      "claims_after_sustained_restore": 220000,
+      "semantic_records": 256000,
+      "item_receipts": 2560,
+      "batch_receipts": 68,
+      "supersession_edges": 2000,
+      "replay_manifest_identity_preserved": true,
+      "replay_duration_ms": 27.901
+    },
+    "extension_n_minus_one": "passed extension 0.1.3 envelope against Core 0.1.4",
+    "naked_kernel": "passed",
+    "extension_failure_without_core_corruption": "passed",
+    "fresh_database_api_and_thin_client_restart": "passed in 31.84s at schema v168",
+    "fresh_worker_process_restart": "two separate worker PIDs reached healthy v0.1.4 against the retained v168 store and shut down cleanly",
+    "thin_mcp_tools": 11,
+    "package_boundary": "passed",
+    "core_domain_extension_imports": 0
+  },
+  "provider_usage": {
+    "primary_model_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "retries": 0,
+    "cost_usd": 0.0,
+    "paid_or_hosted_services": false
+  },
+  "preliminary_failures": [
+    {
+      "attempt": "preliminary-load-1",
+      "status": "failed",
+      "cause": "unbounded bulk preflight scans caused latency growth; an early typed-product comparison also rejected valid rows",
+      "preserved_at": "/private/tmp/ace-tp8-benchmark-dLIBel",
+      "correction": "direct record preloads, indexed coordinate reconciliation, and typed product comparison"
+    },
+    {
+      "attempt": "large-corpus-planes-1",
+      "status": "failed",
+      "candidate_p95_ms": 1952.053,
+      "evidence_pack_p95_ms": 2073.16,
+      "pack_count": 0,
+      "cause": "unbounded query plan plus an as-of timestamp earlier than ACE creation time",
+      "raw_result": "evaluations/results/state_engine_tp8_raw/large-corpus-planes.json"
+    },
+    {
+      "attempt": "large-corpus-planes-2",
+      "status": "threshold_failed",
+      "candidate_p95_ms": 1302.377,
+      "cause": "correct semantics but source-filter query still missed the intended compound index",
+      "raw_result": "evaluations/results/state_engine_tp8_raw/large-corpus-planes-final.json"
+    },
+    {
+      "attempt": "legacy-schema-zero-mid-v14-interruption",
+      "status": "failed_to_resume",
+      "cause": "pre-strict v014 is not statement-idempotent after an arbitrary mid-file stop",
+      "disposition": "published limitation; supported v167-to-v168 interruption and recovery passed"
+    }
+  ],
+  "raw_results_directory": "evaluations/results/state_engine_tp8_raw",
+  "verification": {
+    "freeze_check": "passed; 63 manifests and both frozen hashes matched",
+    "focused_tp8_and_grounded_state": "19 passed in 92.86s",
+    "complete_tp0_through_tp8_regression": "144 passed in 100.04s",
+    "schema_migration_and_tp8_lane": "41 passed in 12.52s",
+    "production_regression_and_structured_decision_compatibility": "2 passed in 17.99s",
+    "naked_kernel_exact_eleven_tool_and_package_boundary": "32 passed in 2.29s",
+    "extension_disabled_non_e2e_repository_gate": "6835 passed, 47 skipped, 258 deselected, 28 warnings in 533.22s",
+    "kernel_boundary_post_gate": "4 passed in 1.36s",
+    "fresh_database_api_and_thin_client_restart": "1 passed in 31.84s after correcting the stale v167 acceptance expectation to v168",
+    "fresh_worker_process_restart": "two healthy process starts and two clean shutdowns against schema v168",
+    "ruff_lint": "all 1873-file repository checks passed",
+    "ruff_format": "1873 files already formatted",
+    "whitespace": "git diff --check passed",
+    "static_type_checker": "not configured in the repository; no static type-check command claimed"
+  },
+  "passed": true
+}

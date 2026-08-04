@@ -1,0 +1,14 @@
+{
+  "duration_ms": 6706.866,
+  "migration_versions": [
+    142,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168
+  ],
+  "operation": "prepare",
+  "status": "completed"
+}

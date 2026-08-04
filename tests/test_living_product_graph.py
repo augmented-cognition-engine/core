@@ -120,6 +120,109 @@ def test_sparse_product_has_explicit_unknowns_without_fabricated_fields():
     assert snapshot["product"]["provenance"]["record_refs"] == ["product:sparse"]
 
 
+def test_tp6_rollouts_are_read_only_simulations_not_observations_or_beliefs():
+    source = _records()
+    source.records["consequence_rollouts"] = [
+        {
+            "id": "grounded_consequence_rollout:one",
+            "product": "product:alpha",
+            "stable_id": "grounded_rollout_revision:one",
+            "material_hash": "a" * 64,
+            "contract_version": "ace.grounded-state.consequence-rollout/v1",
+            "task_id": "task:one",
+            "invocation_id": "invocation:one",
+            "rollout_id": "consequence_rollout:one",
+            "revision": 1,
+            "projection_id": "grounded_belief_projection:one",
+            "disposition": "eligible",
+            "transition_revision_ids": ["grounded_transition_revision:one"],
+        }
+    ]
+    source.records["rollout_reconciliations"] = [
+        {
+            "id": "grounded_rollout_reconciliation:one",
+            "product": "product:alpha",
+            "stable_id": "grounded_rollout_reconciliation:one",
+            "material_hash": "b" * 64,
+            "contract_version": "ace.grounded-state.rollout-reconciliation/v1",
+            "rollout_revision_id": "grounded_rollout_revision:one",
+            "predicted_outcome_id": "rollout_predicted_outcome:one",
+            "observation_id": "grounded_rollout_outcome:one",
+            "branch_id": "branch:action",
+            "disposition": "matched",
+        }
+    ]
+
+    snapshot = project_product_snapshot("product:alpha", source)
+
+    rollout = snapshot["state_engine"]["consequence_rollouts"][0]
+    reconciliation = snapshot["state_engine"]["rollout_reconciliations"][0]
+    assert rollout["authority"] == "read_only_simulation_projection"
+    assert rollout["record_meaning"] == "simulated_consequence_not_observation"
+    assert reconciliation["record_meaning"] == "observed_outcome_reconciliation_not_simulated_fact"
+    assert rollout not in snapshot["intelligence"]["observations"]
+    assert rollout not in snapshot["intelligence"]["insights"]
+    assert "payload" not in rollout
+
+
+def test_tp7_promotion_lifecycle_is_read_only_metadata_not_source_evidence():
+    source = _records()
+    source.records["promotion_proposals"] = [
+        {
+            "id": "grounded_promotion_proposal:one",
+            "product": "product:alpha",
+            "stable_id": "grounded_promotion_proposal:one",
+            "material_hash": "a" * 64,
+            "contract_version": "ace.grounded-state.promotion-proposal/v1",
+            "task_id": "task:one",
+            "target_kind": "durable_conclusion",
+            "content_hash": "b" * 64,
+            "evidence_pack_id": "grounded_evidence_pack:one",
+            "rollout_revision_id": "grounded_rollout_revision:one",
+            "payload": {"content": "must not leak"},
+        }
+    ]
+    source.records["promotion_receipts"] = [
+        {
+            "id": "grounded_promotion_receipt:one",
+            "product": "product:alpha",
+            "stable_id": "grounded_promotion_receipt:one",
+            "material_hash": "c" * 64,
+            "contract_version": "ace.grounded-state.promotion-receipt/v1",
+            "proposal_id": "grounded_promotion_proposal:one",
+            "review_id": "grounded_promotion_review:one",
+            "disposition": "accepted",
+            "memory_id": "insight:promotion_one",
+        }
+    ]
+    source.records["promotion_memory_lineage"] = [
+        {
+            "id": "grounded_promotion_memory_lineage:one",
+            "product": "product:alpha",
+            "stable_id": "grounded_promotion_memory_lineage:one",
+            "material_hash": "d" * 64,
+            "contract_version": "ace.grounded-state.promotion-memory-lineage/v1",
+            "memory_id": "insight:promotion_one",
+            "proposal_id": "grounded_promotion_proposal:one",
+            "receipt_id": "grounded_promotion_receipt:one",
+            "task_id": "task:one",
+            "evidence_pack_id": "grounded_evidence_pack:one",
+            "rollout_revision_id": "grounded_rollout_revision:one",
+        }
+    ]
+
+    snapshot = project_product_snapshot("product:alpha", source)
+
+    promotion = snapshot["state_engine"]["promotion"]
+    assert promotion["proposals"][0]["authority"] == "read_only_promotion_lifecycle"
+    assert promotion["receipts"][0]["disposition"] == "accepted"
+    assert promotion["memory_lineage"][0]["memory_id"] == "insight:promotion_one"
+    assert "payload" not in promotion["proposals"][0]
+    assert "must not leak" not in serialize_product_snapshot(snapshot).decode()
+    assert promotion["proposals"][0] not in snapshot["intelligence"]["observations"]
+    assert promotion["proposals"][0] not in snapshot["intelligence"]["insights"]
+
+
 def test_contested_assertion_remains_inspectable_but_cannot_become_operational_truth():
     source = _records()
     source.records["operational_relationships"].append(
@@ -385,6 +488,12 @@ class _FixtureDatabase:
         "observation": "observations",
         "insight": "insights",
         "task": "tasks",
+        "grounded_consequence_rollout": "consequence_rollouts",
+        "grounded_rollout_reconciliation": "rollout_reconciliations",
+        "grounded_promotion_proposal": "promotion_proposals",
+        "grounded_promotion_review": "promotion_reviews",
+        "grounded_promotion_receipt": "promotion_receipts",
+        "grounded_promotion_memory_lineage": "promotion_memory_lineage",
         "initiative": "initiatives",
         "milestone": "milestones",
         "work_item": "work_items",

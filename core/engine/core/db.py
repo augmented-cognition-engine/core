@@ -119,6 +119,24 @@ class SurrealPool:
         except Exception:  # noqa: BLE001 — a dead loop cannot close its own socket
             pass
 
+    async def _return_or_discard(self, conn: AsyncSurrealDB) -> None:
+        """Return a connection without ever waiting for impossible pool capacity.
+
+        An acquire timeout may create a temporary connection while every configured
+        slot is checked out. If an ordinary connection returns first, the queue can
+        already be full when that temporary connection is released. Awaiting
+        ``Queue.put`` in that state deadlocks: no acquirer can run until the releasing
+        context manager exits. Keep the configured bound and discard the overflow.
+        """
+        if self._pool is None:
+            await self._discard(conn)
+            return
+        try:
+            self._pool.put_nowait(conn)
+        except asyncio.QueueFull:
+            self._logger.debug("Pool already full — discarding overflow connection [%s]", get_correlation_id())
+            await self._discard(conn)
+
     async def init(self) -> None:
         if self._initialized:
             return
@@ -190,7 +208,7 @@ class SurrealPool:
                     for _ in range(min(deficit, 3)):  # max 3 per sweep to avoid thundering herd
                         try:
                             conn = await asyncio.wait_for(self._create_connection(), timeout=5.0)
-                            await self._pool.put(conn)
+                            await self._return_or_discard(conn)
                             replenished += 1
                         except Exception:
                             break
@@ -254,7 +272,7 @@ class SurrealPool:
         if not self._is_own_loop(conn):
             await self._discard(conn)
             try:
-                await self._pool.put(await self._create_connection())
+                await self._return_or_discard(await self._create_connection())
             except Exception as exc:  # noqa: BLE001
                 self._logger.error(
                     "Failed to replace a foreign-loop connection: %s [%s]",
@@ -266,7 +284,7 @@ class SurrealPool:
         try:
             # Health check: verify connection is still alive
             await asyncio.wait_for(conn.query("RETURN true"), timeout=2.0)
-            await self._pool.put(conn)
+            await self._return_or_discard(conn)
         except Exception:
             self._total_recycled += 1
             self._logger.warning("Dead connection recycled — replacing [%s]", get_correlation_id())
@@ -276,7 +294,7 @@ class SurrealPool:
                 pass
             try:
                 fresh = await self._create_connection()
-                await self._pool.put(fresh)
+                await self._return_or_discard(fresh)
             except Exception as exc:
                 self._logger.error("Failed to create replacement: %s [%s]", exc, get_correlation_id())
 

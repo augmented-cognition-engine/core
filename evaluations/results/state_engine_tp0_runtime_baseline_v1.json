@@ -1,0 +1,942 @@
+{
+  "adapter_version": "ace.grounded-state.current-thin-mcp-adapter/v1",
+  "baseline_id": "state-engine-tp0-current-ace-thin-mcp-v1",
+  "cases": [
+    {
+      "adapter_input_hash": "9c9fe12e87f3858d2f91a5f1dc412430f5b34d9adfbc66e7b8dc7acb7f186fc7",
+      "case_hash": "33271f08e8137cc9fca7408628f0b2511c48e7b02c6e7a8b6e4f8fbf5d7daa6f",
+      "case_id": "temporal_reference_case:33271f08e8137cc9fca7408628f0b251",
+      "case_key": "action_only_rollout_rejected",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "5145d05d54fe3c3b56df8f5dc40ceb18adf2faa2f69fb3b445a5ac22493bc6bd",
+      "case_hash": "909185d8d867b43446b2161c98d0bc32453529630e6ad59bae19d71c89dffe8e",
+      "case_id": "temporal_reference_case:909185d8d867b43446b2161c98d0bc32",
+      "case_key": "alias_registry_version_change",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 7,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "666a84537534aa08d988efac82f43231b57ad1a415f51b868b0c97352f59ccea",
+      "case_hash": "e5b045f9c33ace1fd0df269e0be2ef126ff3712cfe0223f76243df145353cd8f",
+      "case_id": "temporal_reference_case:e5b045f9c33ace1fd0df269e0be2ef12",
+      "case_key": "ambiguous_heron_mention",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "52e5349d5acf1628c75ad1840b9b289d06e0764c4ec300a9e3ebaf0dc66c5277",
+      "case_hash": "6df949ed1dd62c09e6fc3a50bbda7a4ad7608f55649ad9f979deb0a086b13033",
+      "case_id": "temporal_reference_case:6df949ed1dd62c09e6fc3a50bbda7a4a",
+      "case_key": "attributed_source_dependency",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "430059b58068aa20f722c24655de940763e72a756b3c75752ff535ae0035e5ac",
+      "case_hash": "fb1afc9b76c7d6ee09e5f53bc13c4e006f5a8d7b842c5a8f8b19e472a3ecbd24",
+      "case_id": "temporal_reference_case:fb1afc9b76c7d6ee09e5f53bc13c4e00",
+      "case_key": "causal_claim_requires_human_gate",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 7,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "c8a305635a53768598796e4f025004e99c13247fd33b0e15a570674954046ec3",
+      "case_hash": "bd065d3bf4dca796a8cba67c627bc24a429d153c7dae28faa3827aea32d57096",
+      "case_id": "temporal_reference_case:bd065d3bf4dca796a8cba67c627bc24a",
+      "case_key": "closed_maintenance_window",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "74529cf058a48f122b76603bbcffab91153ea8dddb9998e63f8d9566706f776d",
+      "case_hash": "d268a8e88210b8b8f21eb95f4d0db58945a3c4d7dd86be3bcd698a2c1e2d4701",
+      "case_id": "temporal_reference_case:d268a8e88210b8b8f21eb95f4d0db589",
+      "case_key": "complete_action_no_action_rollout",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "43bc752b72a7da171a15ab26654329fe0052af4ba8c6e9944a136d3bb8cdbacb",
+      "case_hash": "a4278a5c68f957f5603038ed83e2f10dd0c0f76c1a74283088010352aaeb4913",
+      "case_id": "temporal_reference_case:a4278a5c68f957f5603038ed83e2f10d",
+      "case_key": "contested_delivery_belief",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "4e4c50037fcf2fb6d3a5c3c68e27ce0ad0c493e2d96bedb1a2155a52831b3b42",
+      "case_hash": "29cd448a9576cb8aa32edded5ffeddc0ed31de7bf5cac10724b4d3a664531c0a",
+      "case_id": "temporal_reference_case:29cd448a9576cb8aa32edded5ffeddc0",
+      "case_key": "duplicate_arrivals_different_ingestion",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "4b582be653fc02551e1a8a5ece6ab3db08bbd341278ca5af5a855d132821c4c1",
+      "case_hash": "10f1bde5dcded9b43bf40e6667430e6e8da59fb8a2c01bbb89bc342859c56c45",
+      "case_id": "temporal_reference_case:10f1bde5dcded9b43bf40e6667430e6e",
+      "case_key": "entity_alias_same_identity",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "482824f2ab53bd434183429ac88ff2546daa30cf439ba1c932f8ec8e4c8a9027",
+      "case_hash": "3286d33a276b1c1e31bb5785b051d20e633c2eaa2cc7d16cd1412d53e1559540",
+      "case_id": "temporal_reference_case:3286d33a276b1c1e31bb5785b051d20e",
+      "case_key": "entity_legal_name_change",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "c17bc179073eddb21941b3239a2cd01de0a2e510d96fa67d1aed74be09dbfd53",
+      "case_hash": "06ec3539d59670c232bde74c5bfbd7ba8e054bbd53eaa5517eb2bccbde55f081",
+      "case_id": "temporal_reference_case:06ec3539d59670c232bde74c5bfbd7ba",
+      "case_key": "entity_name_collision",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "3399c3156d60846c00d0d7a01b1f2c4d85bc8c6faf8e39880b1f6a7eb7acd9a8",
+      "case_hash": "11529f754cb8fab2b1f41c7ba67cf88d1c6f2e33c90904700916ac597cade881",
+      "case_id": "temporal_reference_case:11529f754cb8fab2b1f41c7ba67cf88d",
+      "case_key": "exact_replay_identical",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "f1937fa854055a5691c199cdb8f23cdfb39ad191992017eab9e0942ac69708b2",
+      "case_hash": "b859ef2709cc3c2d85ed2f9ffd48e66f4482984576859663009cfbaab64adf00",
+      "case_id": "temporal_reference_case:b859ef2709cc3c2d85ed2f9ffd48e66f",
+      "case_key": "foreign_product_evidence_isolated",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 7,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "cc87e53efebdcdd07b36c8e2b1b6f235450a19bd95d337e5528ee25373c22dd9",
+      "case_hash": "7f018e592f77515f8e6faf268f3b31ff4c874a4ea42e190a13d745dad700d0b7",
+      "case_id": "temporal_reference_case:7f018e592f77515f8e6faf268f3b31ff",
+      "case_key": "four_time_meanings_separated",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "6468031621dd4cd95ceb3d59f462310a5677011689ce4448b41c7045ffccc429",
+      "case_hash": "d563cc470626ee4a679719032c8b58fe99a1c05ebe0c8c8ebe589c005b4c9edc",
+      "case_id": "temporal_reference_case:d563cc470626ee4a679719032c8b58fe",
+      "case_key": "independent_factory_corroboration",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "f36bdfb745c6c325a5a337ec89b3636151bf03d7e7e95b4594751dee12e69044",
+      "case_hash": "4bc20dd35ca9fb2757268a697b5ee0f8dc81789c51b88e15e523c042b6dc721c",
+      "case_id": "temporal_reference_case:4bc20dd35ca9fb2757268a697b5ee0f8",
+      "case_key": "inferred_date_with_provenance",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "e0c839ab92e641404aa0ee2bc75713abc59017370163e852b09feafc0b6b6f09",
+      "case_hash": "11017b9da5baa26bd46957134687032cc5613f5a9cbb3b883a2e57ecebb4ee53",
+      "case_id": "temporal_reference_case:11017b9da5baa26bd46957134687032c",
+      "case_key": "late_extraction_preserves_event_time",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "02e052630b5de94e364878f11c44d61d4e2d3a8193d8f481971fa13d0692b520",
+      "case_hash": "a6e5a34ab50d6a83363ce324161e7bebb4725fae64eafe35f9c092f3a1635d54",
+      "case_id": "temporal_reference_case:a6e5a34ab50d6a83363ce324161e7beb",
+      "case_key": "lexically_similar_unrelated_control",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "7167a22649a60bfeb6c110b580d68210068da1fab669577f3480749d103c47b5",
+      "case_hash": "4e0db4c7d5c6677a15b7aad1df66a198760a5f1ec0c6f3d60b29774ebe6d15dd",
+      "case_id": "temporal_reference_case:4e0db4c7d5c6677a15b7aad1df66a198",
+      "case_key": "mechanism_supported_transition",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "edc3d9438f5efd4eaa3dd03cb23455ff754f005fe980146925b978be64d30c14",
+      "case_hash": "ab968d810b2c12d435dafd7aaf780b9c6c574eff6aec7fb6a3fcda914134f93c",
+      "case_id": "temporal_reference_case:ab968d810b2c12d435dafd7aaf780b9c",
+      "case_key": "mechanism_with_contrary_evidence",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "3ecdb47536240094c9c28bbb2edaf6816885669e424af14727b57df8ced42651",
+      "case_hash": "0c752db4ce003e6eaff9b5d0938a838ffab50c56452602f6d35ca91e5ed9132d",
+      "case_id": "temporal_reference_case:0c752db4ce003e6eaff9b5d0938a838f",
+      "case_key": "open_ended_supply_contract",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "3e236a3fb60bb082e7bb7777854abfb16d956037059123dc07dcc253f0713e83",
+      "case_hash": "5e53f63edb9ce3f7f653df2f8b2c7b0690e35c7521f320c198e3d102f65e7ffd",
+      "case_id": "temporal_reference_case:5e53f63edb9ce3f7f653df2f8b2c7b06",
+      "case_key": "open_start_legacy_license",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "7e2a4b6711b24ff8f6d5a4ea8233549a3277ddfe2bea7d1b1216d9bbca7a4194",
+      "case_hash": "641a649b7400ca860d6b326a22e06f8e791b66c4b8c2ea26e74f68c109bdb2f4",
+      "case_id": "temporal_reference_case:641a649b7400ca860d6b326a22e06f8e",
+      "case_key": "overlapping_capacity_reports",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 7,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "fde88d4b73ac53fe7bd989bcc668aa378ee90dea951b60fec77f134511c25bed",
+      "case_hash": "fa22a96c4ee1c0aec04763bea382c86f51b9a4375a2a9e998acb265893dea0d3",
+      "case_id": "temporal_reference_case:fa22a96c4ee1c0aec04763bea382c86f",
+      "case_key": "prediction_never_becomes_observation",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "02d6dae87dfebaf30b5cf9bf8df9cd7688ae47ed50c2c716f2e2bae3362b82f3",
+      "case_hash": "b6d90f1a744861b635895b2e8b547abc8c0aea34286ec291e9c28804faf29a3a",
+      "case_id": "temporal_reference_case:b6d90f1a744861b635895b2e8b547abc",
+      "case_key": "price_reaction_not_causal_fact",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "f6d148607255ba44ec3cb1f7dac284017609d5e58dccaa819bac62b23ccfa127",
+      "case_hash": "6446fb7f0e281b7f669422ea290038f6379ec0c9f17bf2dd67fea7969e296b01",
+      "case_id": "temporal_reference_case:6446fb7f0e281b7f669422ea290038f6",
+      "case_key": "provisional_single_source_belief",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "ef7bf8e300cc971c997dcfb59fe6f19b05616a4c43cbdd3a39cb89f053abe928",
+      "case_hash": "87faeeb62d88e79651ed8dc7ea2710ab8173bd3b7037d265dcd3102da981b691",
+      "case_id": "temporal_reference_case:87faeeb62d88e79651ed8dc7ea2710ab",
+      "case_key": "publication_precedes_future_event",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "b4d93c249db221afbcb9d85f0661250565dd458ae80f71afbc9492501a810c2c",
+      "case_hash": "d05f9919e1cc1d1c029d6fa041f167a7302b1d502959323d43a41ed87a7f4003",
+      "case_id": "temporal_reference_case:d05f9919e1cc1d1c029d6fa041f167a7",
+      "case_key": "restatement_not_corroboration",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "27c1938a17c81effe1060a1ec3db559d8fc61942672ce4379ce61e48ea52defa",
+      "case_hash": "d5ce74bbe828fcb0d4c3806543d70b00e382fb52a0e93ba7d03c67c2c7f7f26f",
+      "case_id": "temporal_reference_case:d5ce74bbe828fcb0d4c3806543d70b00",
+      "case_key": "rollout_missing_frozen_baseline",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "286f4611f720bbe27eaa77e73f47262e2592dcd3d56a7bd904813f51578724c1",
+      "case_hash": "c599f74d92ad31e66ca10e2a8273ec820276069ab97cb9da3af3c093617b2adf",
+      "case_id": "temporal_reference_case:c599f74d92ad31e66ca10e2a8273ec82",
+      "case_key": "rollout_missing_horizon",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "d50b6acca8f8c5fcc389053bac135f6f49dad01a4bf2a7eae6a0ffcd34f65abc",
+      "case_hash": "ff811899716a5b5bd994573ae086a5c2afd12b914f0fd09b6fbc3bfc658d6e74",
+      "case_id": "temporal_reference_case:ff811899716a5b5bd994573ae086a5c2",
+      "case_key": "same_interval_operating_conflict",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "9b5bd8176469580b47c6a5ca09dc9816df8bc41dc6056cb5c8f64eb37ffad887",
+      "case_hash": "557bae581059e64b22a5d77feef465f70e474a8e0af2a8de66f757ec4ab11a24",
+      "case_id": "temporal_reference_case:557bae581059e64b22a5d77feef465f7",
+      "case_key": "sequence_without_causal_promotion",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "49e9d774daa25d88cd6e5882818d1dd7385214d90e8c1cd2190c84f4a528b17d",
+      "case_hash": "3c3c168620953288f530211ddaa91f4d11c5a1449a2fe31a4c6afeb77ad2d1f0",
+      "case_id": "temporal_reference_case:3c3c168620953288f530211ddaa91f4d",
+      "case_key": "source_version_replaces_prior",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 7,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "cfd5d3fe326e5832b01983989ac96188315980eb11448d6437d1e24d77437da9",
+      "case_hash": "c5d5447afa99934ad77d95e7c68f5517f1ea3a5626ee9cf044300682ebf4e588",
+      "case_id": "temporal_reference_case:c5d5447afa99934ad77d95e7c68f5517",
+      "case_key": "stale_inventory_belief",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "b486422a27f85ce4c60fccfc78abb0b602e463dd5f0b1b06bd782ad0100f85e0",
+      "case_hash": "34cb09eb12a5047705e49300af24071dedf61e50bc40437fcc229c9e05d8718f",
+      "case_id": "temporal_reference_case:34cb09eb12a5047705e49300af24071d",
+      "case_key": "superseded_capacity_belief",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 7,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "ef6b4b65a4452c518d803a310c2e2769e987696cfd608480f838f5168f4a6486",
+      "case_hash": "b555b631c50d82fdf39297cee43d212051a44f2f9a84a964b0c710522f0320f6",
+      "case_id": "temporal_reference_case:b555b631c50d82fdf39297cee43d2120",
+      "case_key": "syndicated_source_duplication",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "41d7c68e69005684e9bf8f8fc30735e08f3674d0a7c0ddb3868af0bcb50de032",
+      "case_hash": "63cfc5d1c2e7e881271042f4037870696ba976df742a049749015b12149ee150",
+      "case_id": "temporal_reference_case:63cfc5d1c2e7e881271042f403787069",
+      "case_key": "unknown_event_time_remains_unknown",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "33e1555fa11713204fa6b6e2c0fa7568e925438f69d5f2dd1098496ad6ba170f",
+      "case_hash": "83b6531c64028a86841fcfd36a45adc7891bfdea73209cb8b88d2986087d2da5",
+      "case_id": "temporal_reference_case:83b6531c64028a86841fcfd36a45adc7",
+      "case_key": "unknown_property_belief",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 6,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    },
+    {
+      "adapter_input_hash": "d082335b80ffa3d64ae667e133e240bbd6c00347a4286793f59fdd6261e5c04f",
+      "case_hash": "06e8a9a482af0b08485286a039cca8f9f31da516feddc18ef775a6b5a8fdbce5",
+      "case_id": "temporal_reference_case:06e8a9a482af0b08485286a039cca8f9",
+      "case_key": "world_state_changes_over_time",
+      "database_writes": 0,
+      "disposition": "unsupported",
+      "estimated_cost_usd": 0.0,
+      "exact_match": false,
+      "expected_judgments": 7,
+      "input_tokens": 0,
+      "matched_judgments": 0,
+      "model_calls": 0,
+      "output_tokens": 0,
+      "prohibited_violations": 0,
+      "reason_codes": [
+        "unsupported_grounded_evidence_ingest_contract",
+        "unsupported_structured_state_output_contract"
+      ]
+    }
+  ],
+  "conclusion": "capability_not_established",
+  "config_hash": "6c8391536f55f8685fa10178fbbe7d3482f93415cd03233c1c2328e5d68080a9",
+  "contract_version": "ace.grounded-state.runtime-baseline-result/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "declared_limitations": [
+    "A future State Engine implementation requires a new adapter and a new result; this baseline must not be rewritten into success.",
+    "The no-write route does not claim persistence, restart continuity, replay continuity, or database-enforced product isolation.",
+    "The provider-free route cannot measure model variability, token consumption, or provider latency because no model call is permitted.",
+    "This evaluates the supported thin MCP contract, not private Core functions or direct database access.",
+    "This is a structured architecture-capability baseline, not an LLM prose-quality comparison."
+  ],
+  "duration_ms": 13,
+  "environment_differences": [],
+  "environment_matches_reference": true,
+  "executed_at": "2026-08-03T17:55:11.462317Z",
+  "outcome_hash": "7aed1cdd929dc6159b7233ebab5bc90bdb9a7e07be7ed38529dc959b2930357f",
+  "public_surface": {
+    "source_path": "server.py",
+    "source_sha256": "7bf2e0959cf19a9aa65d1b53d64e940346ddcc564eccee2d218ee0c616c9662c",
+    "tools": [
+      {
+        "name": "ace_briefing",
+        "parameters": [
+          "date"
+        ],
+        "return_annotation": "dict"
+      },
+      {
+        "name": "ace_capture",
+        "parameters": [
+          "observation_type",
+          "content",
+          "domain_path",
+          "confidence",
+          "affected_decision_id",
+          "affected_task_id",
+          "lifecycle_state",
+          "supersedes_correction_id",
+          "invalidates_correction_id",
+          "contests_correction_id",
+          "expires_at",
+          "intervention",
+          "indicator",
+          "comparator",
+          "measurement"
+        ],
+        "return_annotation": "dict"
+      },
+      {
+        "name": "ace_capture_idea",
+        "parameters": [
+          "raw_idea",
+          "context"
+        ],
+        "return_annotation": "dict"
+      },
+      {
+        "name": "ace_history",
+        "parameters": [
+          "file_path",
+          "graph_id"
+        ],
+        "return_annotation": "str"
+      },
+      {
+        "name": "ace_impact",
+        "parameters": [
+          "file_path",
+          "graph_id"
+        ],
+        "return_annotation": "str"
+      },
+      {
+        "name": "ace_load",
+        "parameters": [
+          "topic"
+        ],
+        "return_annotation": "dict"
+      },
+      {
+        "name": "ace_related",
+        "parameters": [
+          "file_path",
+          "graph_id"
+        ],
+        "return_annotation": "str"
+      },
+      {
+        "name": "ace_search",
+        "parameters": [
+          "query",
+          "knowledge_type"
+        ],
+        "return_annotation": "dict"
+      },
+      {
+        "name": "ace_start",
+        "parameters": [],
+        "return_annotation": "dict"
+      },
+      {
+        "name": "ace_status",
+        "parameters": [
+          "filter",
+          "task_id"
+        ],
+        "return_annotation": "dict"
+      },
+      {
+        "name": "ace_task",
+        "parameters": [
+          "description",
+          "skill_hint",
+          "frameworks_hint",
+          "request_id",
+          "decision"
+        ],
+        "return_annotation": "dict"
+      }
+    ]
+  },
+  "summary": {
+    "database_writes": 0,
+    "errors": 0,
+    "estimated_cost_usd": 0.0,
+    "exact_match_rate": 0.0,
+    "exact_matches": 0,
+    "expected_judgments": 247,
+    "input_tokens": 0,
+    "matched_judgments": 0,
+    "mismatches": 0,
+    "model_calls": 0,
+    "output_tokens": 0,
+    "total_cases": 40,
+    "unsupported": 40
+  }
+}

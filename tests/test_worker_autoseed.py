@@ -1,11 +1,12 @@
 # tests/test_worker_autoseed.py
-"""Regression tests for framework integrity on worker startup.
+"""Regression tests for framework integrity and worker lifecycle startup.
 
 A missing or partial framework library causes phases to fall back to the
 sentinel string "Apply {fn} reasoning to structure your thinking here."
 Workers verify the same complete 177-prompt contract as the API.
 """
 
+import asyncio
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -42,6 +43,17 @@ async def test_seed_all_calls_both_seeders():
 
 @pytest.mark.asyncio
 async def test_lifespan_verifies_complete_framework_library():
+    started: set[str] = set()
+    cancelled: set[str] = set()
+
+    async def blocked(name: str, *_args, **_kwargs):
+        started.add(name)
+        try:
+            await asyncio.Event().wait()
+        except asyncio.CancelledError:
+            cancelled.add(name)
+            raise
+
     with (
         patch("core.engine.core.db.pool") as mock_pool,
         patch(
@@ -49,7 +61,12 @@ async def test_lifespan_verifies_complete_framework_library():
             new_callable=AsyncMock,
             return_value=177,
         ) as mock_ensure,
-        patch("core.engine.worker.processor.run_poll_cycle", new_callable=AsyncMock),
+        patch("core.engine.worker.app._live_observe_loop", new=lambda: blocked("live")),
+        patch("core.engine.worker.app._continuous_drain_loop", new=lambda: blocked("drain")),
+        patch(
+            "core.engine.worker.fs_watcher.run_fs_watcher",
+            new=lambda **kwargs: blocked("watcher", **kwargs),
+        ),
     ):
         mock_pool.init = AsyncMock()
         mock_pool.close = AsyncMock()
@@ -59,12 +76,13 @@ async def test_lifespan_verifies_complete_framework_library():
 
         ctx = lifespan(worker_app)
         await ctx.__aenter__()
-        try:
-            await ctx.__aexit__(None, None, None)
-        except Exception:
-            pass
+        await asyncio.sleep(0)
+        await ctx.__aexit__(None, None, None)
 
     mock_ensure.assert_awaited_once()
+    assert started == {"live", "drain", "watcher"}
+    assert cancelled == started
+    mock_pool.close.assert_awaited_once()
 
 
 @pytest.mark.asyncio

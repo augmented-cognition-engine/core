@@ -101,6 +101,10 @@ class CapturePipeline:
                     source_memory = $source_memory,
                     session_id = $session_id,
                     session_source = $session_source,
+                    source = 'capture_pipeline',
+                    status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     synthesized = false,
                     created_at = time::now()
                 """,
@@ -171,10 +175,26 @@ class CapturePipeline:
             async for chunk, memory_id in self.chunker.process(events):
                 observations = await self.observer.evaluate_chunk(chunk, memory_id)
                 for obs in observations:
-                    # Write observation to DB
                     if self._db_pool:
-                        await self._write_observation(obs)
-                    await self.synthesizer.add_observation(obs)
+                        obs_id = await self._write_observation(obs)
+                        if obs_id:
+                            from core.engine.capture.lifecycle import process_observation_attempt
+
+                            persisted = dict(obs)
+                            persisted["id"] = str(obs_id)
+                            persisted["product"] = self.observer.product_id
+                            persisted["source"] = "capture_pipeline"
+                            await process_observation_attempt(
+                                persisted,
+                                db_pool=self._db_pool,
+                                route="capture_pipeline",
+                                scope_prevalidated=True,
+                            )
+                    else:
+                        # Provider-only/transient compatibility path used when no
+                        # persistence substrate is configured. It cannot claim a
+                        # durable processing outcome.
+                        await self.synthesizer.add_observation(obs)
         finally:
             self._running = False
             timer_task.cancel()
@@ -184,12 +204,13 @@ class CapturePipeline:
                 pass
             # Flush remaining observations
             logger.info("CapturePipeline stopping — flushing pending observations")
-            await self.synthesizer.flush()
+            if not self._db_pool:
+                await self.synthesizer.flush()
 
     async def _periodic_synthesis(self) -> None:
         """Force synthesis every N seconds during active sessions."""
         while self._running:
             await asyncio.sleep(self._synthesis_interval)
-            if self.synthesizer.pending_count > 0:
+            if not self._db_pool and self.synthesizer.pending_count > 0:
                 logger.debug("Periodic synthesis triggered (%d pending)", self.synthesizer.pending_count)
                 await self.synthesizer.synthesize()

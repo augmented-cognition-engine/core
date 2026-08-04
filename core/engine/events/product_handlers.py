@@ -35,6 +35,7 @@ async def on_task_completed(event_type: str, payload: dict) -> None:
             await db.query(
                 """
                 CREATE observation SET
+                    product = <record>$product,
                     content = $content,
                     observation_type = 'discovery',
                     confidence = 0.6,
@@ -43,6 +44,9 @@ async def on_task_completed(event_type: str, payload: dict) -> None:
                     source = 'task_output',
                     source_task = $task_id,
                     synthesized = false,
+                    status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()
                 """,
                 {
@@ -174,6 +178,7 @@ async def on_initiative_created(event_type: str, payload: dict) -> None:
             await db.query(
                 """
                 CREATE observation SET
+                    product = <record>$product,
                     content = $content,
                     observation_type = 'decision',
                     confidence = 0.9,
@@ -181,6 +186,9 @@ async def on_initiative_created(event_type: str, payload: dict) -> None:
                     domain_hint = 'business_logic',
                     source = 'initiative_created',
                     synthesized = false,
+                    status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()
                 """,
                 {

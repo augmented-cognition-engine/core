@@ -100,10 +100,14 @@ async def run_pm_optimizer(product_id: str, budget: int = 20) -> dict:
                 try:
                     await db.query(
                         """CREATE observation SET
+                            product = <record>$product,
                             content = $content,
                             observation_type = 'pattern',
                             source = 'pm_optimizer',
                             confidence = 0.7,
+                            status = 'pending',
+                            processing_state = 'pending',
+                            processing_attempt_count = 0,
                             created_at = time::now()""",
                         {
                             "product": product_id,

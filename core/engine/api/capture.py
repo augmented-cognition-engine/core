@@ -2,6 +2,7 @@
 import asyncio
 import hashlib
 import json
+import logging
 import uuid
 from datetime import datetime, timezone
 from typing import Literal
@@ -15,7 +16,7 @@ from core.engine.capture.pipeline import CapturePipeline
 from core.engine.capture.watchers import SessionImportWatcher, StreamEvent
 from core.engine.core.auth import get_current_user
 from core.engine.core.config import settings
-from core.engine.core.db import parse_one, pool
+from core.engine.core.db import parse_one, parse_record_id, pool
 from core.engine.core.tasks import logged_task
 from core.engine.foresight.contracts import (
     INTERVENTION_OBSERVATION_CONTRACT_VERSION,
@@ -26,6 +27,7 @@ from core.engine.foresight.contracts import (
 from core.engine.product.correction_receipts import effective_correction_lifecycle
 
 router = APIRouter(tags=["capture"])
+logger = logging.getLogger(__name__)
 
 
 _VALID_OBSERVATION_TYPES = frozenset(
@@ -548,7 +550,7 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
         result = await db.query(
             """
             CREATE observation SET
-                product = <record>$product,
+                product = $product,
                 observation_type = $type,
                 content = $content,
                 domain_path = $domain_path,
@@ -569,11 +571,13 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
                 contests_correction = IF $contests THEN <record>$contests ELSE NONE END,
                 expires_at = IF $is_correction THEN $expires_at ELSE NONE END,
                 status = IF $is_correction THEN 'processed' ELSE 'pending' END,
+                processing_state = IF $is_correction THEN NONE ELSE 'pending' END,
+                processing_attempt_count = IF $is_correction THEN NONE ELSE 0 END,
                 processed_at = IF $is_correction THEN time::now() ELSE NONE END,
                 created_at = time::now()
             """,
             {
-                "product": product_id,
+                "product": parse_record_id(product_id),
                 "type": body.observation_type,
                 "content": body.content,
                 "domain_path": body.domain_path,
@@ -593,36 +597,60 @@ async def create_observation(body: ObservationCreate, user: dict = Depends(get_c
         )
         row = parse_one(result)
         if row:
+            # Some SurrealDB projections/drivers return only the created ID.
+            # Keep the shared lifecycle input complete without a second lookup.
+            row.setdefault("product", product_id)
+            row.setdefault("content", body.content)
+            row.setdefault("observation_type", body.observation_type)
+            row.setdefault("domain_path", body.domain_path)
+            row.setdefault("discipline_hint", body.domain_path)
+            row.setdefault("confidence", body.confidence)
+            row.setdefault("source", "api")
             target_states = {"supersedes": "superseded", "invalidates": "invalidated", "contests": "contested"}
             for relationship, target_id in correction_links.items():
                 if target_id:
                     await db.query(
                         """
                         UPDATE <record>$target SET lifecycle_state = $state, updated_at = time::now()
-                        WHERE product = <record>$product AND observation_type = 'correction'
+                        WHERE product = $product AND observation_type = 'correction'
                         """,
-                        {"target": target_id, "state": target_states[relationship], "product": product_id},
+                        {
+                            "target": target_id,
+                            "state": target_states[relationship],
+                            "product": parse_record_id(product_id),
+                        },
                     )
 
+    outcome_receipt = None
     # Make the thin-client capture visible to a later invocation immediately;
     # the worker remains the retry path if synthesis is temporarily unavailable.
     if row and body.observation_type != "correction":
         try:
-            from core.engine.capture.synthesizer import Synthesizer
+            from core.engine.capture.lifecycle import process_observation_attempt
 
-            synth = Synthesizer(product_id=product_id, workspace_id=None, batch_size=1)
-            synth._db_pool = pool
-            await synth.add_observation(row)
-            await synth.flush()
+            outcome_receipt = await process_observation_attempt(
+                row,
+                db_pool=pool,
+                route="api_inline",
+                scope_prevalidated=True,
+            )
+        except Exception as exc:
+            # A receipt persistence/finalization failure must never fall through
+            # to a success marker. Restore queue eligibility for the worker.
+            logger.warning("Inline observation lifecycle failed before durable finalization: %s", exc)
             async with pool.connection() as db:
                 await db.query(
-                    "UPDATE <record>$id SET status = 'processed', processed_at = time::now()",
-                    {"id": str(row.get("id", ""))},
+                    """
+                    UPDATE <record>$id SET status = 'pending', processing_state = 'pending',
+                        last_error = $error, updated_at = time::now()
+                    WHERE product = <record>$product
+                    """,
+                    {"id": str(row.get("id", "")), "product": product_id, "error": type(exc).__name__[:160]},
                 )
-        except Exception:
-            pass
 
     result = {"status": "captured", "id": str(row.get("id", "")) if row else ""}
+    if outcome_receipt is not None:
+        result["synthesis_outcome"] = outcome_receipt.model_dump(mode="json", exclude_none=True)
     if row and body.observation_type == "correction":
         result["correction"] = {
             "contract_version": "correction-v1",

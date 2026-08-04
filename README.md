@@ -9,7 +9,7 @@ ACE composes a problem-fit set of perspectives, routes them through the model
 provider you configure, and synthesizes a recommendation. Accepted decisions
 and corrections can persist, giving later work the context of what came before.
 
-> **Developer preview — 0.1.4.** The supported self-hosted interaction path is
+> **Developer preview — 0.2.0.** The supported self-hosted interaction path is
 > the `ace` CLI and exactly 11 thin MCP tools.
 
 [Get started](#start-here-get-a-product-recommendation) · [What works today](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md) · [FAQ](https://github.com/augmented-cognition-engine/core/blob/main/docs/faq.md) · [Documentation](https://github.com/augmented-cognition-engine/core/blob/main/docs/README.md) · [Architecture](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
@@ -95,7 +95,7 @@ flowchart LR
 | **Deep, inspectable deliberation** | Multiple perspectives can contribute, disagree, critique, and converge. Receipts, traces, provenance, and retained decisions make the result inspectable beyond the final prose. |
 | **Meta-Intelligence + the Living Product Graph** | Observations, insights, decisions, capabilities, work, predictions, and outcomes live as durable nodes connected by typed semantic edges—not as one flattened chat history. Grounding edges can identify which beliefs depend on a changed object. |
 | **Continuous learning with epistemic guardrails** | Corrections and accepted decisions can persist; outcomes can be detected; forecasts can be reconciled; calibration can return to later orchestration. Provenance and trust priors deliberately discount ACE's own generated material, and no automatic improvement is assumed. |
-| **MAKE and SHIP arms** | MAKE turns approved reasoning into code, design, data, and scaffolds. SHIP challenges security, testing, observability, DevOps, and scale before work leaves. They are implemented first-class arms; their public end-to-end paths are still experimental in 0.1.x. |
+| **MAKE and SHIP arms** | MAKE turns approved reasoning into code, design, data, and scaffolds. SHIP challenges security, testing, observability, DevOps, and scale before work leaves. They are implemented first-class arms; their public end-to-end paths are still experimental in 0.2.x. |
 | **Extensions without a fork** | Builders can add personas, committees, frameworks, recipes, instruments, tools, and schema through a public extension boundary while keeping the core provider-neutral and BYOK. |
 
 The [architecture deep dive](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) maps the as-built boundaries,
@@ -112,7 +112,7 @@ the graph carries nodes, semantic edges, provenance, predictions, outcomes,
 and the context that can inform what happens next.
 
 The analogy describes the design, not a literal ratio of code or intelligence.
-It also describes more than the 0.1.x compatibility surface: MAKE, SHIP,
+It also describes more than the 0.2.x compatibility surface: MAKE, SHIP,
 sentinel, foresight, calibration, and learning are first-class parts of the
 implemented architecture even where their public APIs and end-to-end paths are
 still experimental.
@@ -148,13 +148,13 @@ flowchart TB
   design, data, and scaffold artifacts. SHIP challenges production readiness across security,
   testing, observability, DevOps, and scale; its current gate assesses and proposes rather than
   mutating. Their implementations ship in the repository, while their APIs and end-to-end
-  execution paths are not yet compatibility-stable 0.1.x contracts.
+  execution paths are not yet compatibility-stable 0.2.x contracts.
 - **Continuous learning closes the loop.** Captured evidence and outcomes can update graph context,
   effectiveness signals, predictions, and calibration so later composition and reasoning can start
   better informed. The architecture is explicit about provenance and discounts self-generated
   material; it does not promise that every run learns or improves automatically.
 - **The experimental visual-product/research track** — Atrium prototypes Canvas interactions.
-  Think Tank is its deep-deliberation research mode. Atrium releases with 0.1.4 as a public
+  Think Tank is its deep-deliberation research mode. Atrium releases with 0.2.0 as a public
   repository beta, not as a supported Python artifact.
 - **Extensions grow new arms** — teach ACE your domain without forking the core. The shipped [reference extension](#extensions-are-real-not-hypothetical) exercises that public mechanism.
 
@@ -165,7 +165,7 @@ Full deep-dive with every layer: [`docs/architecture.md`](https://github.com/aug
 ## Two preview interaction surfaces
 
 Interact with the same reasoning core through MCP or the terminal. Atrium is a separate
-experimental visual-product/research track released as a repository beta, not a supported 0.1.4
+experimental visual-product/research track released as a repository beta, not a supported 0.2.0
 interaction surface.
 
 ### `MCP` — in the AI you already use
@@ -209,7 +209,7 @@ path, supported-runtime claims, or launch promise.
 Bring a real, half-formed thought to ACE through MCP or CLI. ACE classifies what
 kind of thinking it needs, convenes a problem-fit composition, and synthesizes
 a position grounded in what it already knows. Atrium research prototypes study how that process
-might take visual form; a supported partnership interface is outside 0.1.4.
+might take visual form; a supported partnership interface is outside 0.2.0.
 
 That loop is the whole product:
 
@@ -255,11 +255,11 @@ This is the authoritative developer-preview path. It passed isolated clean-user 
 both macOS and Linux; the exact evidence and limitations remain public.
 
 The Python distribution is `ace-core`; it preserves the `ace` import package,
-the `ace` CLI command, and version `0.1.4`. A package-only installation provides the Python
+the `ace` CLI command, and version `0.2.0`. A package-only installation provides the Python
 package and commands for inspection or an existing ACE service:
 
 ```bash
-python -m pip install ace-core==0.1.4
+python -m pip install ace-core==0.2.0
 python -c "import ace; print(ace.__version__)"
 ace --help
 ace setup --help
@@ -349,6 +349,49 @@ The versioned snapshot shows product intent, capabilities, decisions, correction
 accepted/provisional/contested/rejected relationships, history, work, and outcomes. It is scoped to
 the authenticated product, deterministically ordered, explicitly degraded when data is incomplete,
 and documented in the [Living Product Graph read contract](https://github.com/augmented-cognition-engine/core/blob/main/docs/living-product-graph.md).
+
+### Reproduce the v0.2 State Engine journey
+
+ACE 0.2.0 adds a supported, product-scoped single-node State Engine contract inside Core and its
+existing task/status projections. The reference journey is deliberately provider-free: it proves
+the runtime and receipt chain without presenting a model answer as evidence. From a source checkout
+with the SurrealDB 3.2.3 executable available, run:
+
+```bash
+uv run ace doctor
+uv run pytest \
+  tests/test_grounded_state_ingestion.py::test_tp6_rollout_reasoning_use_and_reconciliation_survive_restart \
+  -q --tb=short
+uv run python scripts/run_state_engine_readiness.py freeze-check
+```
+
+The first command checks the configured service. The end-to-end acceptance then uses the shipped
+reference adapter and real production services to ingest a bounded corpus; verifies terminal item
+and batch receipts; retrieves a frozen evidence pack; builds a reviewed as-of belief projection;
+resolves a transition hypothesis; compares action and no-action rollouts; persists actual task-time
+I3 use; creates an eligible promotion proposal; applies an explicit human-authority disposition;
+restarts the database; retrieves the promoted memory in a fresh service; applies a correction; and
+proves the prior receipt is superseded without rewriting its lineage. The final command verifies
+that the retained K1-K3 target and evidence identities have not drifted.
+
+For a new corpus, implement the bounded adapter proposal interface demonstrated by
+[`extensions/reference/grounded_state_adapter.py`](https://github.com/augmented-cognition-engine/core/blob/main/extensions/reference/grounded_state_adapter.py).
+Core—not the adapter or source content—supplies authenticated product scope, stable IDs,
+transactions, replay, and receipts. Inspect counts, terminal/degraded states, provenance,
+uncertainty, simulation labels, and promotion/correction history through the returned contracts and
+the read-only Living Product Graph. The reference `evidence-query` and `promotion-review` task
+actions use the explicitly experimental extension-invocation HTTP surface; they add no MCP tool and
+give model output no review or promotion authority.
+
+The measured envelope is one API/worker deployment plus one SurrealDB/SurrealKV database, with
+200 records per item, 200 items per manifest, and a 200,000-claim/236,000-semantic-record initial
+reference corpus under a 2 GiB store budget on an 11-core, 18 GB M3 Pro. Read the
+[operations and recovery runbook](https://github.com/augmented-cognition-engine/core/blob/main/docs/state-engine-operations.md)
+before migration or material ingestion; it covers v168 upgrades, backup/restore, interruption
+replay, archival, health, and exact stop conditions. This evidence does not claim distributed or
+multi-writer guarantees, arbitrary pre-v142 mid-file migration recovery, real-world causal
+accuracy or calibration, autonomous learning, a general-purpose environment simulator, or L1
+beneficial impact.
 
 The default install uses the CPU-friendly ONNX embedding path. The optional
 1.3B-parameter CodeSage backend is intentionally not part of the release image;
@@ -445,7 +488,7 @@ cd ..
 ```
 
 Atrium is an experimental visual-product/research track released as a repository beta and is
-separately gated. Its setup is not part of the 0.1.4 golden path or supported runtime.
+separately gated. Its setup is not part of the 0.2.0 golden path or supported runtime.
 
 ---
 
@@ -495,7 +538,7 @@ about, wearing your domain's terms instead of ACE's defaults. Domain-specific
 extensions live in their own repos, outside this tree, owned by whoever builds
 them.
 
-The `0.1.x` preview treats designated **Stable** extension seams as compatibility
+The `0.2.x` preview treats designated **Stable** extension seams as compatibility
 aims. Changes require proposal and migration evidence, while experimental and
 internal seams may still change on preview minor releases. See the [stability
 contract](https://github.com/augmented-cognition-engine/core/blob/main/docs/extension-api.md).
@@ -624,7 +667,7 @@ ace/
 Apache-2.0 — see [`LICENSE`](https://github.com/augmented-cognition-engine/core/blob/main/LICENSE) for the full text and [`NOTICE`](https://github.com/augmented-cognition-engine/core/blob/main/NOTICE). Existing ACE code is
 copyright Edwin Amirian; contributors retain copyright in their contributions and license them
 under Apache-2.0. QueryLabs LLC is the founding sponsor. Atrium source in this repository is
-Apache-2.0 repository beta source, not part of the supported Python 0.1.4 artifact. Separately
+Apache-2.0 repository beta source, not part of the supported Python 0.2.0 artifact. Separately
 distributed extensions state their own license. The default stack runs SurrealDB 3.2.3 separately;
 the SurrealDB server is source-available under BSL 1.1 rather than OSI open source.
 

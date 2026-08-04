@@ -30,6 +30,17 @@ import pytest
 from core.engine.core.db import DBUnreachable, SurrealPool
 
 
+class _HealthyFakeConnection:
+    def __init__(self) -> None:
+        self.closed = False
+
+    async def query(self, _query: str) -> list[dict]:
+        return [{"result": True}]
+
+    async def close(self) -> None:
+        self.closed = True
+
+
 def _closed_port() -> int:
     """A localhost port guaranteed to have nothing listening on it right now.
 
@@ -48,6 +59,27 @@ def _closed_port() -> int:
 # --------------------------------------------------------------------------- #
 # Part A — db.py: _create_connection can never hang                           #
 # --------------------------------------------------------------------------- #
+
+
+@pytest.mark.asyncio
+async def test_release_discards_overflow_instead_of_waiting_on_a_full_pool():
+    """A temporary timeout connection must not deadlock while returning to a full pool."""
+    pool = SurrealPool(max_connections=1)
+    pool._pool = asyncio.Queue(maxsize=1)
+    pool._initialized = True
+
+    incumbent = _HealthyFakeConnection()
+    overflow = _HealthyFakeConnection()
+    current_loop = asyncio.get_running_loop()
+    setattr(incumbent, pool._LOOP_ATTR, current_loop)
+    setattr(overflow, pool._LOOP_ATTR, current_loop)
+    pool._pool.put_nowait(incumbent)
+
+    await asyncio.wait_for(pool.release(overflow), timeout=0.2)
+
+    assert pool._pool.get_nowait() is incumbent
+    assert overflow.closed is True
+    assert pool.stats()["total_recycled"] == 1
 
 
 @pytest.mark.asyncio

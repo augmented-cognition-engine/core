@@ -1,0 +1,16 @@
+{
+  "contract_version": "ace.grounded-state.rollout-evaluation-preliminary-failure/v1",
+  "attempt": 2,
+  "stage": "corpus_binding",
+  "target_file_sha256": "03dede642b95710df7a118126fcaa8b88fe6a94a1ff40633863d0ada144c1d8d",
+  "cases_started": 0,
+  "provider_calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "estimated_cost_usd": 0.0,
+  "passed": false,
+  "failure_type": "ValueError",
+  "failure_code": "corpus_hash_method_not_called",
+  "failure": "The evaluator compared the corpus_hash method object instead of its returned frozen digest.",
+  "correction_scope": "Evaluator corpus-binding call only; the frozen target, corpus, expected states, labels, bounds, and provider budget remain unchanged."
+}

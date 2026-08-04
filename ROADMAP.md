@@ -6,11 +6,12 @@ Priorities may change as maintainers learn from users and contributors.
 
 ## Current release checkpoint
 
-`ace-core` 0.1.3 is published on PyPI and GitHub. The release, package artifacts, trusted
-publishing path, provenance, and a clean public-index wheel installation have been verified.
-The backward-compatible release packages attributable deliberation receipts and the experimental
-extension-invocation runtime without widening the eleven-tool MCP boundary or promoting extension
-invocation to stable. The onboarding
+`ace-core` 0.1.4 is published on PyPI and GitHub from main commit `2fc4fe6`. The public release and
+package files were independently rechecked during R7 after this checkpoint had incorrectly remained
+at 0.1.3. The 0.1.4 release packages the framework, schema, optimizer, assertion, dependency, and
+runtime corrections recorded in the changelog. The backward-compatible 0.1.3 release introduced
+attributable deliberation receipts and the experimental extension-invocation runtime without
+widening the eleven-tool MCP boundary or promoting extension invocation to stable. The onboarding
 gate is proven in clean macOS and Linux proxy trials. The reproducible product-builder golden path
 now also shows a public evidence-backed decision, inspectable reasoning, a retained human
 correction, real runtime restart, and material later use through the supported CLI and eleven-tool
@@ -52,6 +53,7 @@ Roadmap outcome states are used strictly:
 | R4 | passed | Publish a reproducible, product-builder golden-path demonstration | [Golden-path evidence](docs/product-builder-golden-path.md): a checksum-frozen public product decision completed through the supported Codex subscription route, persisted a binding human correction across a real service restart, materially changed a fresh later experiment, retained inspectable provenance, and recorded failures and portability limits without widening the eleven-tool boundary |
 | R5 | passed | Ship the backward-compatible ace-core 0.1.2 inspectability and foresight release | [0.1.2 release evidence](docs/evidence/r5-release-readiness.md) records aligned metadata, clean artifacts and isolated install, full regressions, schema v155 restart/Compose health, verified main/tag identity, GitHub Release, trusted PyPI publication, cryptographic provenance, matching archive hashes, and a clean public-index install |
 | R6 | passed | Ship the backward-compatible ace-core 0.1.3 attributable-deliberation and experimental extension-invocation release | [0.1.3 release evidence](docs/evidence/r6-release-readiness.md) records the supported/experimental boundary, full local regressions, verified release commit and tag, green PR/main CI, trusted PyPI publication, matching artifact hashes, provenance, and clean public-index verification |
+| R7 | candidate | Reconcile and publish the ace-core 0.2.0 State Engine release candidate without authorizing release | [R7 candidate evidence](docs/evidence/r7-release-readiness.md) records the integrated architecture audit, version/support boundary, v168 upgrade and operations checks, full regressions, retained scale hashes, clean artifacts/install, branch, draft PR, and CI. R7 cannot pass before merge/tag/GitHub/PyPI/provenance/public-index verification under separate release authorization |
 
 ## Next — durable product partnership
 
@@ -77,7 +79,7 @@ Roadmap outcome states are used strictly:
 | I2 | passed | Make deliberation and synthesis attributable without exposing hidden chain-of-thought | [I2 closeout evidence](docs/evidence/i2-attributable-deliberation-evidence.md) and [green branch CI](https://github.com/augmented-cognition-engine/core/actions/runs/29976761503) prove the frozen receipt, public-data four-path matrix, artifact-grounded conflict and synthesis lineage, real restart continuity, failure/redaction/isolation behavior, and unchanged eleven-tool boundary |
 | I3 | passed | Make retained-intelligence use and its decision effect inspectable | [I3 closeout evidence](docs/evidence/i3-intelligence-use-evidence.md) proves the bounded `intelligence-use-receipt-v1` projection, exact I1 field deltas, matched live Codex route, real restart/fresh-client continuity, null/stale/contested/harmful/mismatch/failure behavior, and unchanged eleven-tool boundary |
 | F1 | passed | Freeze the honest, conditional contract for graph-grounded calibrated foresight | [F1 closeout evidence](docs/evidence/f1-foresight-evidence.md) proves the continuous-delta v1 forecast-to-observation-to-resolution loop through additive schema v154, including cold start, settled analogues, optional planning/comparators, structured measurement ingestion, proper interval scoring, real API/database restart continuity, explicit non-causal limitations, and the unchanged eleven-tool boundary |
-| T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | Requires explicit single-process versus distributed guarantees and failure evidence |
+| T1 | not ready | Strengthen durable task recovery, replay, portability, cancellation semantics, and resource reporting | [State Engine TP1](docs/evidence/state-engine-tp1-reliable-memory-lifecycle-v1.md) closes reliable observation claiming/recovery; T1 still requires task cancellation, portability, resource reporting, and explicit single-process versus distributed guarantees |
 | E1 | not ready | Expand extension examples and conformance coverage | The [experimental extension-invocation contract](docs/extension-invocation-contract.md) and [Phase 7 review](docs/evidence/phase-7-extension-invocation-stabilization-review.md) establish current-version packaged-example, consumer, recovery, security-regression, and naked-kernel evidence. Stable promotion remains blocked on N-1 package skew, isolation/security review, distributed recovery/effect semantics, and complete operability evidence |
 
 I1 passed through the existing task/status/capture/load paths with versioned task-backed decision
@@ -107,6 +109,9 @@ beneficially inform later reasoning.
 
 - Carry approved decisions through attributable implementation, review, repair, and promotion.
 - Connect predicted outcomes to observed results so corrections can improve later reasoning.
+- Build a product-scoped State Engine over large knowledge bases: temporal
+  epistemic state, inspectable dynamics hypotheses, and reconciled consequence simulation without
+  turning every claim into durable cognitive memory or claiming a general learned world model.
 - Support secure collaboration and managed operation without making the hosted service the
   owner of a user's durable intelligence.
 - Grow a provider-neutral ecosystem of extensions and execution adapters.
@@ -116,8 +121,21 @@ beneficially inform later reasoning.
 | F2 | not ready | Broaden consequence types and independently verified design evidence where product evidence justifies the added complexity | Requires L1 evidence or demonstrated user need; may include binary/categorical scoring, verified assignment/randomization provenance, and independently produced forecast contributions without reopening F1 |
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts and explicit execution authority |
 | L1 | candidate | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence gate](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative public-data probe and freezes a tamper-evident prospective all-controls protocol; the executed readiness receipt is `collection_not_started`, so beneficial impact is not established |
+| K1 | ready | Maintain grounded temporal state over large product-scoped knowledge bases | [State Engine K1-K3 readiness](docs/evidence/state-engine-k1-k3-readiness-v1.md) revalidates the frozen TP8 identities and boundary against the retained 220,000-claim/256,000-semantic-record store; TP8 supplies the named single-node interruption, replay, backup/restore, migration, isolation, ingestion, and query evidence |
+| K2 | ready | Model inspectable world dynamics and state-transition hypotheses | The [frozen K1-K3 audit](docs/evidence/state-engine-k1-k3-readiness-v1.md) repeats all eight TP5 domains five times beside the large corpus: 40/40 exact cases and replays, 35 required abstentions, five predeclared calibrations, 8.924 ms p95, and zero unsupported acceptances, provenance failures, isolation leaks, or provider use |
+| K3 | ready | Simulate, compare, and reconcile consequences of possible actions | The [frozen K1-K3 audit](docs/evidence/state-engine-k1-k3-readiness-v1.md) passes 5/5 repeated database/API/worker/thin-client journeys with matched outcome reconciliation, durable task identity, correction/supersession, exact later material use, 81.799 ms task / 42.534 ms promotion / 11.214 ms retrieval p95, 2.186 s maximum restart, and zero degraded, isolation, semantic-separation, retry, or provider failures |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
 | E2 | not ready | Grow the provider-neutral extension, telemetry, and execution-adapter ecosystem | Requires E1 conformance and stable compatibility policy; native telemetry sources belong here rather than in F1 |
+
+K1–K3 name a grounded epistemic-state and consequence capability. They do not claim a general
+learned world model, latent physical simulator, or current F1 capability.
+
+TP8 closes the single-node scale, recovery, portability, and Core-boundary packet. The subsequent
+[bounded readiness audit](evaluations/results/state_engine_k1_k3_readiness_v1.md) closes its explicit
+pre-R7 matrix and repeated-process requirements and advances K1, K2, and K3 to `ready`. R7 is
+unblocked but was not started or authorized by that audit. These decisions do not advance L1
+beneficial-impact readiness, T1, B1, E1, or ACE v0.2.0 release readiness and make no general
+world-model, real-world causal-accuracy, calibrated-forecasting, or beneficial-impact claim.
 
 ## Follow and contribute
 

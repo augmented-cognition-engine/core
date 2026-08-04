@@ -19,6 +19,10 @@ repos:
       - id: end-of-file-fixer
       - id: check-added-large-files
         args: ['--maxkb=500']
+        # The bounded K1-K3 machine receipt intentionally retains all 40 K2
+        # cases and five K3 repetitions. Raw process/store artifacts remain
+        # excluded, and the independent secret scan still inspects this file.
+        exclude: ^evaluations/results/state_engine_k1_k3_readiness_v1\.json$
   - repo: local
     hooks:
       - id: secret-scan

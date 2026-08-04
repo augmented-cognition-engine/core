@@ -1,0 +1,260 @@
+{
+  "contract_version": "ace.grounded-state.tp8-benchmark/v1",
+  "frozen_at": "2026-08-04T16:30:00Z",
+  "benchmark_id": "state-engine-tp8-scale-stability-v1",
+  "dataset": {
+    "generator_version": "ace.grounded-state.tp8-synthetic-public-generator/v1",
+    "seed": 8042026,
+    "product_id": "product:tp8-scale-primary",
+    "foreign_product_id": "product:tp8-scale-foreign",
+    "base_time": "2025-01-01T00:00:00Z",
+    "source_count": 2000,
+    "entity_count": 5000,
+    "alias_count": 5000,
+    "claim_count": 200000,
+    "event_count": 2000,
+    "event_participant_count": 2000,
+    "relation_count": 20000,
+    "correction_count": 2000,
+    "contradiction_count": 4000,
+    "unknown_time_count": 10000,
+    "negative_control_count": 5000,
+    "daily_claim_counts": [
+      10000,
+      12000,
+      14000,
+      16000,
+      18000,
+      20000,
+      22000,
+      24000,
+      30000,
+      34000
+    ],
+    "records_per_item": 100,
+    "items_per_manifest": 40,
+    "raw_dataset_sha256": "c58e36030f3835b71e82268e13b2f5d753ee6fb530a860b4075eb1ccd9cbcad8",
+    "manifest_set_sha256": "2e7c8b0a37fa6a7e7062c2cf077af7adfda41b6e83822b99a20f29fad498d2eb",
+    "expected_manifest_count": 63,
+    "expected_semantic_counts": {
+      "sources": 2000,
+      "entities": 5000,
+      "aliases": 5000,
+      "claims": 200000,
+      "events": 2000,
+      "event_participants": 2000,
+      "relations": 20000,
+      "extraction_failures": 0
+    }
+  },
+  "reference_workload": {
+    "identity": "synthetic-public-ten-day-reference-v1",
+    "measured_daily_claim_counts": [
+      10000,
+      12000,
+      14000,
+      16000,
+      18000,
+      20000,
+      22000,
+      24000,
+      30000,
+      34000
+    ],
+    "measured_daily_peak_claims": 34000,
+    "sustained_target_claims_per_day": 68000,
+    "sustained_sample_claims": 20000,
+    "sustained_sample_start_index": 200000,
+    "note": "The reference peak is the frozen synthetic public workload peak, not a private OLC or customer measurement."
+  },
+  "reference_environment": {
+    "hardware": "Apple MacBook Pro Mac15,6; Apple M3 Pro; 11 CPU cores (5 performance, 6 efficiency); 18 GB unified memory",
+    "operating_system": "macOS 26.6 build 25G72; Darwin 25.6.0 arm64",
+    "database": "SurrealDB 3.2.1 macOS aarch64 with SurrealKV",
+    "python": "CPython 3.12.13",
+    "package_runtime": "uv 0.11.14 aarch64-apple-darwin",
+    "ace_version": "0.1.4",
+    "storage": "local internal SSD; disposable private temporary directory",
+    "network": "loopback only",
+    "paid_or_hosted_services": false
+  },
+  "process_topology": {
+    "database": "one fresh external SurrealDB process using SurrealKV",
+    "benchmark_client": "one CPython process using the supported Core ingestion service",
+    "api": "one fresh uvicorn process for restart and public-contract checks",
+    "worker": "one fresh ACE worker process for lifecycle checks; no primary-model synthesis queue for bulk claims",
+    "mcp_client": "one fresh thin-client process for exact eleven-tool checks",
+    "ingestion_concurrency": 1,
+    "query_concurrency": 8,
+    "distributed_guarantee": "not claimed"
+  },
+  "storage_adapters": [
+    {
+      "id": "surrealkv-inline-v1",
+      "kind": "same_database",
+      "content_mode": "bounded optional source content plus immutable evidence metadata",
+      "authoritative_identity_owner": "Core"
+    },
+    {
+      "id": "filesystem-digest-input-v1",
+      "kind": "external_content",
+      "content_mode": "read-only external source bodies verified by SHA-256 before identical adapter proposals enter Core",
+      "authoritative_identity_owner": "Core",
+      "limitation": "external adapter stores source input, not Core receipts or semantic identity rows"
+    }
+  ],
+  "versions": {
+    "schema_head_before_tp8": 167,
+    "expected_schema_head": 168,
+    "tp8_migration": "v168_state_engine_tp8_operations.surql",
+    "tp2_schema": "grounded-state-schema/v1",
+    "tp2_manifest": "ace.grounded-state.ingestion-manifest/v1",
+    "tp2_processor": "ace.grounded-state.ingestion-processor/v1",
+    "tp3_candidate_policy": "ace.candidate.multi-signal-policy/v1",
+    "tp3_candidate_index": "ace.candidate.index-snapshot/v1",
+    "tp4_ontology": "ace.grounded-state.epistemic-ontology/v1",
+    "tp4_resolver": "ace.grounded-state.belief-resolver/v1",
+    "tp4_projection": "ace.grounded-state.belief-projection/v1",
+    "tp4_challenge": "ace.grounded-state.counterevidence-search/v1",
+    "tp5_ontology": "ace.grounded-state.transition-ontology/v1",
+    "tp5_resolver": "ace.grounded-state.transition-resolver/v1",
+    "tp5_challenge": "ace.grounded-state.transition-challenge/v1",
+    "tp5_calibration": "ace.grounded-state.transition-calibration/v1",
+    "tp6_evidence_query": "ace.grounded-state.evidence-query/v1",
+    "tp6_rollout": "ace.grounded-state.consequence-rollout/v1",
+    "tp6_challenge": "ace.grounded-state.rollout-challenge/v1",
+    "tp6_reasoning_use": "ace.grounded-state.reasoning-use/v1",
+    "tp6_reconciliation": "ace.grounded-state.rollout-reconciliation/v1",
+    "tp7_promotion": "ace.grounded-state.promotion-policy/v1",
+    "tp7_review": "ace.grounded-state.promotion-review-policy/v1",
+    "tp7_resolver": "ace.grounded-state.promotion-resolver/v1",
+    "tp8_operations": "ace.grounded-state.operational-receipt/v1"
+  },
+  "deterministic_ordering": [
+    "record families: source, entity, alias, event, event participant, base claim, correction, relation",
+    "family-local ascending integer identity",
+    "Core manifest canonical item ordering",
+    "Core record-kind ordering inside each item",
+    "seed 8042026",
+    "canonical JSON uses sorted keys and compact UTF-8 encoding",
+    "all stable identities derive from exact immutable material"
+  ],
+  "failure_injections": [
+    {
+      "id": "database-hard-stop-40000",
+      "after_committed_claims": 40000,
+      "fault": "terminate database process and restart with a fresh process",
+      "expected": "replay committed manifests exactly; no duplicate semantic rows"
+    },
+    {
+      "id": "adapter-unavailable-120000",
+      "before_claim": 120000,
+      "fault": "raise bounded adapter-unavailable error before manifest submission",
+      "expected": "no green receipt; resume from exact manifest boundary"
+    },
+    {
+      "id": "client-hard-stop-160000",
+      "after_committed_claims": 160000,
+      "fault": "terminate benchmark client and resume in a fresh process",
+      "expected": "receipt-derived replay converges to exact counts"
+    },
+    {
+      "id": "transaction-child-write-failure",
+      "fault": "fail one child write inside a bounded ingestion item transaction",
+      "expected": "no semantic child or green item receipt remains"
+    }
+  ],
+  "extension_compatibility": [
+    {
+      "extension_version": "0.1.4",
+      "core_version": "0.1.4",
+      "expected": "supported"
+    },
+    {
+      "extension_version": "0.1.3",
+      "core_version": "0.1.4",
+      "expected": "supported N-1 envelope and lifecycle behavior"
+    },
+    {
+      "extension_version": "none",
+      "core_version": "0.1.4",
+      "expected": "naked kernel and exact eleven-tool thin MCP operation"
+    }
+  ],
+  "provider_budget": {
+    "bulk_ingestion_primary_model_calls": 0,
+    "bulk_ingestion_input_tokens": 0,
+    "bulk_ingestion_output_tokens": 0,
+    "bulk_ingestion_cost_usd": 0.0,
+    "candidate_and_state_engine_provider_calls": 0,
+    "task_reasoning_route": "deterministic provider-free acceptance double",
+    "paid_provider_authorized": false
+  },
+  "budgets": {
+    "manifest_items_max": 200,
+    "records_per_item_max": 200,
+    "manifest_chunk_size_max": 50,
+    "candidate_records_max": 200,
+    "candidate_k_max": 50,
+    "evidence_pack_records_max": 20,
+    "runtime_evidence_pack_records_max": 8,
+    "runtime_context_chars_max": 2400,
+    "rollout_branches_max": 8,
+    "rollout_steps_max": 8,
+    "rollout_transitions_max": 8,
+    "promotion_retrieval_max": 20,
+    "database_restart_seconds": 15,
+    "api_worker_client_restart_seconds": 45,
+    "recovery_seconds": 120,
+    "backup_seconds": 300,
+    "restore_seconds": 300
+  },
+  "thresholds": {
+    "initial_claims_min": 200000,
+    "semantic_total_expected": 236000,
+    "item_receipts_expected": 2360,
+    "batch_receipts_expected": 63,
+    "supersession_edges_expected": 2000,
+    "initial_claims_per_second_min": 20.0,
+    "sustained_claims_per_second_min": 20.0,
+    "sustained_daily_equivalent_min": 68000,
+    "manifest_latency_p95_ms_max": 120000,
+    "candidate_latency_p95_ms_max": 1000,
+    "evidence_query_latency_p95_ms_max": 1500,
+    "evidence_pack_latency_p95_ms_max": 1500,
+    "belief_projection_latency_p95_ms_max": 2000,
+    "transition_resolution_latency_p95_ms_max": 2000,
+    "consequence_rollout_latency_p95_ms_max": 3000,
+    "task_reasoning_latency_p95_ms_max": 5000,
+    "promotion_latency_p95_ms_max": 2000,
+    "fresh_retrieval_latency_p95_ms_max": 1000,
+    "query_concurrency": 8,
+    "query_error_rate_max": 0.0,
+    "duplicate_semantic_rows_max": 0,
+    "cross_product_violations_max": 0,
+    "simulated_as_observed_violations_max": 0,
+    "raw_claim_memory_leaks_max": 0,
+    "green_receipt_stranded_row_violations_max": 0,
+    "storage_bytes_max": 2147483648,
+    "provider_calls_max": 0,
+    "provider_tokens_max": 0,
+    "provider_cost_usd_max": 0.0
+  },
+  "required_planes": [
+    "source ingestion and persistence",
+    "entity and relation mapping",
+    "association and index maintenance",
+    "candidate retrieval",
+    "evidence query and evidence pack",
+    "belief projection",
+    "transition resolution and calibration",
+    "consequence rollout and reconciliation",
+    "real task reasoning and I3 use",
+    "promotion, correction, and fresh retrieval",
+    "storage growth",
+    "queue, interruption, replay, and recovery",
+    "backup and restore",
+    "migration and compatibility",
+    "provider calls, tokens, latency, retries, and cost"
+  ]
+}

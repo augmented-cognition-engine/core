@@ -1,0 +1,8 @@
+{
+  "audited_legacy_compatibility_events": 110,
+  "duration_seconds": 24.78075,
+  "migration_files_applied": 166,
+  "operation": "prepare_migration_interruption_base",
+  "schema_version": 167,
+  "status": "completed"
+}

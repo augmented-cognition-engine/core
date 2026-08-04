@@ -13,7 +13,7 @@ Endpoints:
     GET  /health             — health check
 
 Run:  python core/engine/worker/start.py
-Port: 37778 (env: ACE_WORKER_PORT not used — port is fixed in start.py)
+Port: 37778 (override with ACE_WORKER_HOST and ACE_WORKER_PORT)
 """
 
 from __future__ import annotations
@@ -50,6 +50,7 @@ PRODUCT_ID = os.environ.get("ACE_PRODUCT_ID", "product:platform")
 # LIVE SELECT settings
 _LIVE_RECONNECT_DELAY = 5.0  # seconds between reconnect attempts on error
 _LIVE_IDLE_TIMEOUT = 120.0  # reconnect if no events for 2 minutes (keepalive)
+_DRAIN_INTERVAL_SECONDS = 1.0
 
 
 async def _live_observe_loop() -> None:
@@ -66,18 +67,14 @@ async def _live_observe_loop() -> None:
       downtime or reconnects.
     - Reconnects automatically on connection loss or 2-minute idle timeout
       (keepalive). Each reconnect re-drains pending observations.
-    - Falls back gracefully: if LIVE SELECT unavailable, worker still starts
-      and a one-time drain runs; observations will accumulate until restart.
+    - Falls back gracefully: a separate continuous, bounded drain loop remains
+      active when LIVE SELECT is unavailable, so queued work does not depend on
+      reconnect or process restart.
     """
     from surrealdb import AsyncSurreal
 
     from core.engine.core.config import settings
-    from core.engine.worker.processor import (
-        dedup_insights,
-        embed_new_insights,
-        process_observation,
-        run_poll_cycle,
-    )
+    from core.engine.worker.processor import run_poll_cycle
 
     logger.info("Observation LIVE SELECT starting")
 
@@ -105,16 +102,17 @@ async def _live_observe_loop() -> None:
                 async for record in subscription:
                     timer.reschedule(asyncio.get_event_loop().time() + _LIVE_IDLE_TIMEOUT)
 
-                    if not isinstance(record, dict) or record.get("status") != "pending":
+                    if (
+                        not isinstance(record, dict)
+                        or record.get("status") != "pending"
+                        or str(record.get("product") or "") != PRODUCT_ID
+                    ):
                         continue
 
                     try:
-                        await process_observation(record)
-                        disc = record.get("domain_path") or record.get("discipline_hint", "")
-                        if disc:
-                            await dedup_insights(PRODUCT_ID, disc)
-                        await embed_new_insights(PRODUCT_ID, limit=5)
-                        logger.debug("LIVE: processed observation %s", record.get("id"))
+                        # LIVE is a low-latency wake-up only. The shared poll
+                        # cycle still owns the atomic lease and fencing checks.
+                        await run_poll_cycle(PRODUCT_ID)
                     except Exception as exc:
                         logger.warning("LIVE observation handler error: %s", exc)
 
@@ -141,6 +139,30 @@ async def _live_observe_loop() -> None:
                     pass
 
 
+async def _continuous_drain_loop() -> None:
+    """Bounded fallback drain that runs even when LIVE SELECT is unavailable."""
+    from core.engine.worker.processor import run_drain_cycle
+
+    logger.info("Continuous observation drain starting")
+    while True:
+        try:
+            drained = await run_drain_cycle(PRODUCT_ID)
+            get_health_state().record_drain_cycle()
+            # A full bounded drain means more work may already be ready. Yield
+            # once, then continue instead of imposing the idle delay.
+            if drained:
+                await asyncio.sleep(0)
+            else:
+                await asyncio.sleep(_DRAIN_INTERVAL_SECONDS)
+        except asyncio.CancelledError:
+            logger.info("Continuous observation drain cancelled")
+            raise
+        except Exception as exc:
+            logger.warning("Continuous observation drain failed: %s", exc)
+            get_health_state().record_error(str(exc))
+            await asyncio.sleep(_DRAIN_INTERVAL_SECONDS)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from core.engine.core.db import pool
@@ -159,18 +181,24 @@ async def lifespan(app: FastAPI):
         raise RuntimeError("ACE worker cannot start without its built-in framework prompt library") from exc
 
     observe_task = asyncio.create_task(_live_observe_loop())
+    drain_task = asyncio.create_task(_continuous_drain_loop())
 
     # File system watcher — closes the out-of-Claude-Code observation gap.
     # Watches CLAUDE_PROJECT_DIR and POSTs synthetic /observe payloads on file changes.
     from core.engine.worker.fs_watcher import run_fs_watcher
 
     fs_watch_task = asyncio.create_task(run_fs_watcher(product_id=PRODUCT_ID))
-    logger.info("ACE Worker started (v%s) — LIVE SELECT + fs_watcher active", VERSION)
+    logger.info("ACE Worker started (v%s) — leased drain + LIVE wake-up + fs_watcher active", VERSION)
     yield
     observe_task.cancel()
+    drain_task.cancel()
     fs_watch_task.cancel()
     try:
         await observe_task
+    except asyncio.CancelledError:
+        pass
+    try:
+        await drain_task
     except asyncio.CancelledError:
         pass
     try:
@@ -201,8 +229,19 @@ async def health_status():
     """Detailed pipeline health — hook activity, capture counts, synthesis status."""
     state = get_health_state()
     idle = state.idle_seconds
+    outcome_health = {"status": "unavailable", "reason": "database_query_failed"}
+    try:
+        from core.engine.capture.lifecycle import observation_outcome_health
+        from core.engine.core.db import pool
+
+        outcome_health = await observation_outcome_health(pool, product_id=PRODUCT_ID)
+    except Exception as exc:
+        logger.warning("Observation outcome health unavailable: %s", exc)
+    pipeline_status = state.pipeline_status
+    if outcome_health.get("status") != "healthy":
+        pipeline_status = "degraded"
     return {
-        "pipeline_status": state.pipeline_status,
+        "pipeline_status": pipeline_status,
         "hook_post_count": state.hook_post_count,
         "last_hook_post_at": state.last_hook_post_at,
         "idle_seconds": round(idle, 1) if idle is not None else None,
@@ -211,6 +250,16 @@ async def health_status():
         "uptime_seconds": round(state.uptime_seconds, 1),
         "last_error": state.last_error,
         "worker_version": VERSION,
+        "lease_claim_count": state.lease_claim_count,
+        "recovered_lease_count": state.recovered_lease_count,
+        "lease_loss_count": state.lease_loss_count,
+        "leased_outcome_count": state.leased_outcome_count,
+        "leased_outcomes_last_5m": state.leased_outcomes_last_5m,
+        "leased_outcomes_per_minute": state.leased_outcomes_per_minute,
+        "drain_cycle_count": state.drain_cycle_count,
+        "last_drain_at": state.last_drain_at,
+        "last_lease_loss": state.last_lease_loss,
+        "observation_outcomes": outcome_health,
     }
 
 
@@ -253,6 +302,8 @@ async def post_observe(payload: ObservationPayload):
                     source = $source,
                     file_path = $file_path,
                     status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()
                 """,
                 {
@@ -575,6 +626,7 @@ async def _synthesize_transcript(session_id: str, transcript_path: str, product_
                     observation_type = 'learning', content = $content,
                     discipline_hint = 'architecture', domain_path = 'architecture',
                     confidence = 0.7, source = 'session_end', status = 'pending',
+                    processing_state = 'pending', processing_attempt_count = 0,
                     created_at = time::now()""",
                     {"product": product_id, "content": f"Session summary: {summary}"},
                 )
@@ -588,6 +640,7 @@ async def _synthesize_transcript(session_id: str, transcript_path: str, product_
                         observation_type = 'decision', content = $content,
                         discipline_hint = 'architecture', domain_path = 'architecture',
                         confidence = 0.75, source = 'session_end', status = 'pending',
+                        processing_state = 'pending', processing_attempt_count = 0,
                         created_at = time::now()""",
                         {"product": product_id, "content": f"{title}: {rationale}"},
                     )
@@ -600,6 +653,7 @@ async def _synthesize_transcript(session_id: str, transcript_path: str, product_
                         observation_type = 'pattern', content = $content,
                         discipline_hint = 'architecture', domain_path = 'architecture',
                         confidence = 0.7, source = 'session_end', status = 'pending',
+                        processing_state = 'pending', processing_attempt_count = 0,
                         created_at = time::now()""",
                         {"product": product_id, "content": text},
                     )

@@ -22,7 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from core.engine.core.auth import get_current_user, verify_ownership
-from core.engine.core.db import parse_one, parse_rows, pool
+from core.engine.core.db import parse_one, parse_record_id, parse_rows, pool
 from core.engine.core.tasks import logged_task
 from core.engine.extensions.invocation import (
     build_extension_receipt,
@@ -673,6 +673,7 @@ async def _create_or_get_receipt(
     extension_invocation: dict | None = None,
     retry_of_task_id: str | None = None,
     fingerprint_override: str | None = None,
+    requested_task_id: str | None = None,
 ) -> tuple[dict, bool]:
     product_id = user.get("product", "product:default")
     user_id = user.get("sub", "user:default")
@@ -684,12 +685,16 @@ async def _create_or_get_receipt(
                 await db.query(
                     """
                     SELECT * FROM task
-                    WHERE product = <record>$product
-                      AND user = <record>$user
+                    WHERE product = $product
+                      AND user = $user
                       AND idempotency_key = $key
                     LIMIT 1
                     """,
-                    {"product": product_id, "user": user_id, "key": key},
+                    {
+                        "product": parse_record_id(product_id),
+                        "user": parse_record_id(user_id),
+                        "key": key,
+                    },
                 )
             )
             if existing:
@@ -698,6 +703,11 @@ async def _create_or_get_receipt(
                         status_code=409,
                         detail="That idempotency key is already associated with a different task request",
                     )
+                if requested_task_id is not None and str(existing.get("id")) != requested_task_id:
+                    raise HTTPException(
+                        status_code=409,
+                        detail="The extension task identity conflicts with an existing idempotent receipt",
+                    )
                 return existing, False
 
             if mode == "automatic":
@@ -705,14 +715,18 @@ async def _create_or_get_receipt(
                     await db.query(
                         """
                         SELECT * FROM task
-                        WHERE product = <record>$product
-                          AND user = <record>$user
+                        WHERE product = $product
+                          AND user = $user
                           AND request_fingerprint = $fingerprint
                           AND status IN ['pending', 'running']
                         ORDER BY accepted_at DESC
                         LIMIT 1
                         """,
-                        {"product": product_id, "user": user_id, "fingerprint": fingerprint},
+                        {
+                            "product": parse_record_id(product_id),
+                            "user": parse_record_id(user_id),
+                            "fingerprint": fingerprint,
+                        },
                     )
                 )
                 if active:
@@ -720,13 +734,14 @@ async def _create_or_get_receipt(
 
             options = body.model_dump(exclude={"idempotency_key", "wait_seconds"}, exclude_none=True)
             call_estimate = _estimate_task_model_calls(body)
+            create_target = "<record>$requested_task_id" if requested_task_id is not None else "task"
             created = parse_one(
                 await db.query(
-                    """
-                    CREATE task SET
-                        product = <record>$product,
-                        workspace = <record>$workspace,
-                        user = <record>$user,
+                    f"""
+                    CREATE ONLY {create_target} SET
+                        product = $product,
+                        workspace = $workspace,
+                        user = $user,
                         description = $description,
                         source = 'direct',
                         status = 'pending',
@@ -743,9 +758,9 @@ async def _create_or_get_receipt(
                         updated_at = time::now()
                     """,
                     {
-                        "product": product_id,
-                        "workspace": body.workspace_id,
-                        "user": user_id,
+                        "product": parse_record_id(product_id),
+                        "workspace": parse_record_id(body.workspace_id),
+                        "user": parse_record_id(user_id),
                         "description": body.description,
                         "contract_version": _CONTRACT_VERSION,
                         "key": key,
@@ -756,6 +771,9 @@ async def _create_or_get_receipt(
                         "retry_of_task_id": retry_of_task_id,
                         "call_estimate": call_estimate,
                         "runtime_id": _RUNTIME_ID,
+                        "requested_task_id": (
+                            parse_record_id(requested_task_id) if requested_task_id is not None else None
+                        ),
                     },
                 )
             )
@@ -1012,6 +1030,62 @@ async def _execute_receipt(
                 "updated_at": datetime.now(timezone.utc),
             },
         )
+        # TP6/TP7 completion must run only after the actual terminal task,
+        # decision, and execution receipts exist.  This is the production
+        # bridge that evaluator-only service calls cannot substitute for.
+        try:
+            from core.engine.grounded_state.task_runtime import (
+                complete_state_engine_task,
+                record_promoted_memory_task_use,
+            )
+
+            state_engine_runtime = await complete_state_engine_task(
+                pool=pool,
+                task_id=task_id,
+                product_id=user.get("product", "product:default"),
+                extension_invocation=extension_invocation,
+            )
+            promoted_use = await record_promoted_memory_task_use(
+                pool=pool,
+                task_id=task_id,
+                product_id=user.get("product", "product:default"),
+                trace=result.snapshot.get("_intelligence_use_trace"),
+            )
+            completion_fields: dict = {}
+            if state_engine_runtime is not None:
+                completion_fields["state_engine_runtime"] = state_engine_runtime
+            if promoted_use is not None:
+                completion_fields["intelligence_use_receipt"] = promoted_use
+            if completion_fields:
+                completion_fields["updated_at"] = datetime.now(timezone.utc)
+                await _update_receipt(task_id, completion_fields)
+        except Exception as exc:
+            coordinates = (
+                extension_invocation.get("runtime_coordinates") if isinstance(extension_invocation, dict) else None
+            )
+            if isinstance(coordinates, dict) and coordinates.get("contract_version") == (
+                "ace.grounded-state.task-runtime/v1"
+            ):
+                logger.warning("state-engine task completion failed for %s", task_id, exc_info=True)
+                await _update_receipt(
+                    task_id,
+                    {
+                        "status": "degraded",
+                        "state_engine_runtime": {
+                            "contract_version": "ace.grounded-state.task-runtime/v1",
+                            "completion_state": "failed_closed",
+                            "task_id": task_id,
+                            "product_id": user.get("product", "product:default"),
+                            "failure": type(exc).__name__[:160],
+                        },
+                        "error": _bounded_public_error(exc, code="state_engine_completion_failed"),
+                        "updated_at": datetime.now(timezone.utc),
+                    },
+                )
+            else:
+                # Ordinary tasks do not depend on optional promoted-memory use
+                # accounting.  Preserve their terminal result and log the gap.
+                logger.warning("promoted-memory task-use accounting failed for %s", task_id, exc_info=True)
     except asyncio.CancelledError:
         current = await _get_task_record(task_id) or {}
         cancellation = current.get("cancellation") if isinstance(current.get("cancellation"), dict) else {}
@@ -1202,6 +1276,7 @@ async def submit_task(
     extension_invocation: dict | None = None,
     retry_of_task_id: str | None = None,
     fingerprint_override: str | None = None,
+    requested_task_id: str | None = None,
 ) -> dict:
     """Submit through the one durable task lifecycle used by public and extension callers."""
     if not _accepting_tasks:
@@ -1214,6 +1289,8 @@ async def submit_task(
         receipt_kwargs["retry_of_task_id"] = retry_of_task_id
     if fingerprint_override is not None:
         receipt_kwargs["fingerprint_override"] = fingerprint_override
+    if requested_task_id is not None:
+        receipt_kwargs["requested_task_id"] = requested_task_id
     receipt, created = await _create_or_get_receipt(body, user, **receipt_kwargs)
     task_id = str(receipt["id"])
     job = _active_tasks.get(task_id)

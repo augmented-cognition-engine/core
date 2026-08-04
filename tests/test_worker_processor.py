@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -147,18 +148,17 @@ async def test_dedup_insights_runs_without_error():
 
 @pytest.mark.asyncio
 async def test_run_poll_cycle_calls_extract_and_emit_in_order():
-    """run_poll_cycle must call extract_signals then emit_signals_to_bus after dedup/embed."""
-    mock_db = AsyncMock()
-    mock_db.query = AsyncMock(return_value=[[]])
-
-    class FakeConn:
-        async def __aenter__(self):
-            return mock_db
-
-        async def __aexit__(self, *a):
-            pass
-
+    """A leased poll cycle extracts then emits after processing its claim."""
     call_order = []
+    claimed = SimpleNamespace(
+        lease=SimpleNamespace(recovered_attempt=False),
+        observation={
+            "id": "observation:test1",
+            "content": "test",
+            "domain_path": "architecture",
+            "product": "product:platform",
+        },
+    )
 
     async def fake_extract(product_id):
         call_order.append("extract")
@@ -167,38 +167,41 @@ async def test_run_poll_cycle_calls_extract_and_emit_in_order():
     async def fake_emit(signals):
         call_order.append("emit")
 
-    with patch("core.engine.worker.processor.pool") as mock_pool:
-        mock_pool.connection.return_value = FakeConn()
-        with patch("core.engine.worker.processor.Synthesizer") as MockSynth:
-            mock_synth = AsyncMock()
-            mock_synth.add_observation = AsyncMock()
-            mock_synth.flush = AsyncMock()
-            MockSynth.return_value = mock_synth
-            with patch("core.engine.worker.processor.get_embedder") as mock_embedder:
-                mock_emb = MagicMock()
-                mock_emb.dimensions = 0  # skip embedding
-                mock_embedder.return_value = mock_emb
-                with patch("core.engine.worker.signals.extract_signals", new=fake_extract):
-                    with patch("core.engine.worker.bus_bridge.emit_signals_to_bus", new=fake_emit):
-                        # Patch fetch_pending to return one obs so the cycle runs
-                        with patch(
-                            "core.engine.worker.processor.fetch_pending",
-                            new=AsyncMock(
-                                return_value=[
-                                    {
-                                        "id": MagicMock(__str__=lambda s: "observation:test1"),
-                                        "content": "test",
-                                        "domain_path": "architecture",
-                                        "product": MagicMock(__str__=lambda s: "product:platform"),
-                                    }
-                                ]
-                            ),
-                        ):
-                            from core.engine.worker.processor import run_poll_cycle
+    with (
+        patch(
+            "core.engine.worker.processor.claim_observation",
+            new=AsyncMock(side_effect=[claimed, None]),
+        ) as claim,
+        patch(
+            "core.engine.worker.processor.process_claimed_observation",
+            new=AsyncMock(return_value=SimpleNamespace()),
+        ) as process,
+        patch("core.engine.worker.processor.dedup_insights", new=AsyncMock(return_value=0)),
+        patch("core.engine.worker.processor.embed_new_insights", new=AsyncMock(return_value=0)),
+        patch("core.engine.worker.signals.extract_signals", new=fake_extract),
+        patch("core.engine.worker.bus_bridge.emit_signals_to_bus", new=fake_emit),
+    ):
+        from core.engine.worker.processor import run_poll_cycle
 
-                            result = await run_poll_cycle("product:platform")
+        result = await run_poll_cycle("product:platform")
 
-    assert isinstance(result, int), "run_poll_cycle must return int"
+    assert result == 1
+    assert claim.await_count == 2
+    process.assert_awaited_once_with(claimed, lease_seconds=120.0, heartbeat_seconds=30.0)
     assert "extract" in call_order, "extract_signals must be called"
     assert "emit" in call_order, "emit_signals_to_bus must be called"
     assert call_order.index("extract") < call_order.index("emit"), "extract must precede emit"
+
+
+@pytest.mark.asyncio
+async def test_run_drain_cycle_is_continuous_but_bounded():
+    """The fallback drain loops over full batches without running forever."""
+    with patch(
+        "core.engine.worker.processor.run_poll_cycle",
+        new=AsyncMock(side_effect=[10, 10, 10]),
+    ) as poll:
+        from core.engine.worker.processor import run_drain_cycle
+
+        assert await run_drain_cycle("product:platform", max_batches=3) == 30
+
+    assert poll.await_count == 3

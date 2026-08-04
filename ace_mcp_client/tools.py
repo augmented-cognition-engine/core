@@ -40,6 +40,7 @@ async def ace_start(product_id: str = "product:default") -> dict:
         health = await c.get("/health")
     except Exception:
         health = {"status": "unreachable"}
+    observation_outcomes = health.get("observation_outcomes", {"status": "unavailable"})
 
     try:
         pulse = await c.get("/portal/attention", params={"product": product_id})
@@ -54,11 +55,15 @@ async def ace_start(product_id: str = "product:default") -> dict:
         briefing_available = False
         last_briefing_date = None
 
+    status = health.get("status", "unknown")
+    if status != "unreachable" and observation_outcomes.get("status") != "healthy":
+        status = "degraded"
     return {
-        "status": health.get("status", "unknown"),
+        "status": status,
         "briefing_available": briefing_available,
         "last_briefing_date": last_briefing_date,
         "attention_items": pulse.get("items", []),
+        "observation_outcomes": observation_outcomes,
     }
 
 

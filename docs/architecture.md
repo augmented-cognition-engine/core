@@ -51,12 +51,36 @@ engine. Atrium consumes API and event state and is not a kernel composition root
 | Worker | `core/engine/worker/app.py` owns a separate FastAPI lifecycle, SurrealDB live query, capture processing, filesystem watcher, and session services | **Verified:** optional automation/runtime host; not required by the preview allowlist |
 | Brain | `orchestrator/`, `orchestration/`, and `cognition/` implement classification, dispatch, patterns, composition, engagement, synthesis, and run traces | **Verified:** `orchestration/executor.py` is the principal reasoning use-case coordinator |
 | Meta-Intelligence | `capture/`, `graph/`, `intelligence/`, `learning/`, `foresight/`, and `sentinel/` load and write durable intelligence, outcomes, predictions, and background signals | **Verified:** many modules access the shared DB pool directly; store boundaries are mixed with service logic |
+| Grounded State Engine | `grounded_state/` owns temporal evidence, deterministic candidate receipts, reviewed epistemic assertion revisions, as-of belief projections, transition hypotheses, bounded consequence rollouts, reasoning-use receipts, promotion lineage, and later-outcome reconciliation | **Verified:** TP0–TP8 plus the repeated provider-free readiness audit cover product-fenced append-only persistence, task integration, restart/replay, the retained 220,000-claim single-node corpus, 40 frozen K2 domain cases, and five K3 fresh-process journeys; K1/K2/K3 ready for the named bounded capability; no benefit, distributed, causal-accuracy, calibration, or general-world-model claim |
 | MAKE / SHIP | `arms/base.py` defines the abstract arm contract; code/design/data/scaffold are MAKE implementations and `ship_arm.py` is the composite gate | **Verified:** arm discovery is lazy but registration is decorator/import based in `arms/registry.py` |
 | Model providers | `core/llm.py` owns `LLMProvider`, provider resolution, and several concrete routes; LiteLLM and any-llm adapters are optional extras and lazy imports | **Verified:** protocol is narrow; the main module still combines contract, resolver, and concrete Anthropic/subprocess implementations |
 | Execution adapters | `runtime/adapters/`, `session/adapters/`, arm execution modules, Git/GitHub and command tooling connect approved intent to tools | **Verified:** multiple seams exist; there is not yet one preview-stable execution-adapter contract |
 | Extensions | `extensions/base.py` defines `Extension`; `extensions/registry.py` is the facade; `loader.py` discovers `ace.extensions` entry points and `ACE_EXTENSIONS` | **Verified:** individual failures are logged and skipped; `ACE_DISABLE_EXTENSIONS=1` supports a naked kernel; the in-tree `extensions/reference` package is registered by `pyproject.toml` |
 | SurrealDB/schema | `core/db.py` owns the pool; `core/schema.py`, `scripts/schema_apply.py`, and the versioned `core/schema/v*.surql` files own core migration order | **Verified:** graph/capture/intelligence services frequently query through the concrete global pool; extension schema registration exists but is documented as not consumed by the kernel migration runner |
 | Atrium | `core/ui/canvas` is a separate React/Vite client using HTTP, WebSocket, and canvas/event APIs | **Verified:** it depends outward on host state and can fail independently of the MCP/CLI golden path |
+
+### Grounded evidence and belief-state boundary
+
+The internal State Engine keeps four meanings separate: source-grounded temporal evidence,
+retrieval candidates, reviewed epistemic assertions, and derived external-world insight. TP2 records
+publication, ingestion, extraction, and ACE-creation time without substituting one for another. TP3
+selects a bounded deterministic evidence set and records the exact signals and omissions. TP4 freezes
+that set before review, persists append-only assertion revisions, and projects the supported,
+contested, provisional, superseded, or unknown state as of an explicit time.
+
+An evidence relation such as `precedes` or `reacts_to` is not operational causal truth. Causal
+acceptance requires exact-material human review, independent sources, and completed
+counterevidence search. Projection entries retain evidence, review, and assertion-revision lineage.
+Derived insight adds its own hypothesis and inference receipt instead of rewriting a source claim.
+Every authoritative identity is product-scoped, and foreign-product reads fail closed. These
+services are provider-neutral and internal; the thin public MCP boundary remains exactly eleven
+tools. The detailed contract and current limits are recorded in the
+[State Engine roadmap](design/state-engine-roadmap.md) and
+[TP8 evidence](evidence/state-engine-tp8-scale-stability-v1.md) and
+[K1-K3 readiness evidence](evidence/state-engine-k1-k3-readiness-v1.md). The frozen TP8 stable
+versus experimental surface is classified in the
+[State Engine Core boundary](design/state-engine-core-boundary-v1.md); the later readiness delta is
+recorded in its [addendum](design/state-engine-core-boundary-readiness-v1.md).
 
 ### Durable public-task lifecycle
 

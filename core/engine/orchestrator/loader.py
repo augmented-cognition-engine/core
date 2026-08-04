@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import logging
 
-from core.engine.core.db import parse_rows, pool
+from core.engine.core.db import parse_record_id, parse_rows, pool
 from core.engine.graph.insight_neighbors import expand_snapshot_relationships
 from core.engine.orchestrator.trust_ranking import trust_weighted
 
@@ -55,6 +55,7 @@ async def load_intelligence(
     # Build optional topic clause (FTS on tags — insight_tags_search index, v084)
     topic_clause = "AND tags @@ $topic" if topic_filter else ""
 
+    insights: list[dict] = []
     async with pool.connection() as db:
         if specialties:
             # Load insights tagged with any of the specialty slugs OR discipline(s)
@@ -62,14 +63,16 @@ async def load_intelligence(
                 f"""SELECT *, confidence FROM insight
                    WHERE product = <record>$product
                      AND status = 'active'
-                     AND (tags CONTAINSANY $specialties OR tags CONTAINSANY $disciplines)
+                     AND (tags CONTAINSANY $specialties OR tags CONTAINSANY $disciplines
+                          OR (source_kind = 'grounded_promotion' AND domain_path = $promotion_domain))
                      {topic_clause}
                    ORDER BY confidence DESC
                    LIMIT $limit""",
                 {
-                    "product": product_id,
+                    "product": parse_record_id(product_id),
                     "specialties": specialties,
                     "disciplines": discipline_filter,
+                    "promotion_domain": discipline,
                     "limit": _MAX_PER_TIER * 4,
                     **({"topic": topic_filter} if topic_filter else {}),
                 },
@@ -80,13 +83,15 @@ async def load_intelligence(
                 f"""SELECT *, confidence FROM insight
                    WHERE product = <record>$product
                      AND status = 'active'
-                     AND tags CONTAINSANY $disciplines
+                     AND (tags CONTAINSANY $disciplines
+                          OR (source_kind = 'grounded_promotion' AND domain_path = $promotion_domain))
                      {topic_clause}
                    ORDER BY confidence DESC
                    LIMIT $limit""",
                 {
-                    "product": product_id,
+                    "product": parse_record_id(product_id),
                     "disciplines": discipline_filter,
+                    "promotion_domain": discipline,
                     "limit": _MAX_PER_TIER * 4,
                     **({"topic": topic_filter} if topic_filter else {}),
                 },
@@ -97,8 +102,26 @@ async def load_intelligence(
             insights = result
         elif isinstance(result, list) and result and isinstance(result[0], list):
             insights = result[0]  # legacy nested format
-        else:
-            insights = []
+
+    # TP7 memories are ordinary insight rows, but their authoritative lifecycle
+    # is append-only in promotion receipts. Exclude all promotion-managed rows
+    # from the legacy status-only view, then add only the currently authoritative
+    # projections. This prevents an old active row from leaking after correction.
+    has_promotion_candidates = any(item.get("source_kind") == "grounded_promotion" for item in insights)
+    insights = [item for item in insights if item.get("source_kind") != "grounded_promotion"]
+    if has_promotion_candidates:
+        try:
+            from core.engine.grounded_state.promotion import promoted_memory_as_insight, retrieve_promoted_memories
+
+            promoted = await retrieve_promoted_memories(
+                pool=pool,
+                product_id=product_id,
+                domain_path=discipline or None,
+                limit=20,
+            )
+            insights.extend(promoted_memory_as_insight(item) for item in promoted)
+        except Exception as exc:
+            logger.warning("Authoritative promoted-memory load failed (non-fatal): %s", exc)
 
     # Trust-weighted ranking: the SQL fetched a generous candidate set by confidence; re-rank by
     # confidence × trust so insights explicitly scored low-trust (self-generated reasoning conclusions)
@@ -132,6 +155,13 @@ async def load_intelligence(
                 "status": i.get("status", "active"),
                 "created_at": i.get("created_at"),
                 "source_observations": i.get("source_observations") or [],
+                "source_kind": i.get("source_kind"),
+                "source_ref": i.get("source_ref"),
+                "source_graph": i.get("source_graph"),
+                "promotion_receipt_id": i.get("promotion_receipt_id"),
+                "promotion_evidence_pack_id": i.get("promotion_evidence_pack_id"),
+                "promotion_evidence_pack_hash": i.get("promotion_evidence_pack_hash"),
+                "promotion_lineage_id": i.get("promotion_lineage_id"),
             }
             for i in insights[: _MAX_PER_TIER * 4]
         ],

@@ -22,9 +22,11 @@ def test_disable_extensions_env_skips_all_discovery(monkeypatch):
     monkeypatch.setattr(loader, "_loaded", set())
     monkeypatch.setattr(loader, "_ensured", False)
     monkeypatch.setattr(registry, "_task_actions", {})
+    monkeypatch.setattr(registry, "_grounded_state_adapters", {})
     assert loader.load_extensions() == []
     assert loader.loaded_extensions() == []
     assert registry.registered_task_actions() == {}
+    assert registry.registered_grounded_state_adapters() == {}
 
 
 @pytest.mark.unit

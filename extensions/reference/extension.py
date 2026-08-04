@@ -15,7 +15,7 @@ Discovered via the ``ace.extensions`` entry point in pyproject:
     [project.entry-points."ace.extensions"]
     product = "extensions.reference.extension:ProductExtension"
 
-Four live extension points are demonstrated below. Five additional Registry
+Six live extension points are demonstrated below. Five additional Registry
 points (committee, personas, frameworks, schema, briefing-section) are shown
 as commented one-liners so a contributor copying this file sees the FULL
 extension surface in one place.
@@ -42,14 +42,33 @@ class ProductExtension:
     """The open `product` extension — copy this file to start your own."""
 
     name = "product"
-    version = "0.1.4"
+    version = "0.2.0"
 
     def register(self, reg: "Registry") -> None:
+        from extensions.reference.evidence_query import (
+            OUTCOME_CONTRACT as EVIDENCE_QUERY_OUTCOME_CONTRACT,
+        )
+        from extensions.reference.evidence_query import (
+            prepare_evidence_query,
+            project_evidence_query,
+        )
+        from extensions.reference.grounded_state_adapter import OLCStyleReferenceAdapter
         from extensions.reference.invocation import (
             OUTCOME_CONTRACT,
             prepare_product_check,
             project_product_check,
         )
+        from extensions.reference.promotion import (
+            OUTCOME_CONTRACT as PROMOTION_OUTCOME_CONTRACT,
+        )
+        from extensions.reference.promotion import (
+            prepare_promotion_review,
+            project_promotion_review,
+        )
+
+        # Source-specific mapping only: Core derives scope, identity, lineage,
+        # persistence, and receipts after the adapter returns a bounded manifest.
+        reg.register_grounded_state_adapter("olc-style-reference", OLCStyleReferenceAdapter())
 
         reg.register_task_action(
             "product-check",
@@ -61,6 +80,33 @@ class ProductExtension:
             cancellation_supported=True,
             resolver_capabilities=["declared-reference-identities"],
             artifact_capabilities=[],
+        )
+        reg.register_task_action(
+            "evidence-query",
+            prepare_evidence_query,
+            project_outcome=project_evidence_query,
+            output_contract=EVIDENCE_QUERY_OUTCOME_CONTRACT,
+            description="Resolve bounded product-scoped grounded evidence into untrusted reasoning context.",
+            lifecycle_operations=["submit", "retrieve", "history", "retry", "cancel"],
+            cancellation_supported=True,
+            resolver_capabilities=["ace.grounded-state.evidence-query/v1"],
+            artifact_capabilities=[],
+            feature_flags=["state-engine-tp6"],
+        )
+        reg.register_task_action(
+            "promotion-review",
+            prepare_promotion_review,
+            project_outcome=project_promotion_review,
+            output_contract=PROMOTION_OUTCOME_CONTRACT,
+            description="Apply an explicit authenticated disposition to one exact TP7 promotion proposal.",
+            lifecycle_operations=["submit", "retrieve", "history", "retry", "cancel"],
+            # The authoritative append-only receipt is persisted during
+            # preparation; cancelling later reporting cannot undo it.
+            cancellation_supported=False,
+            resolver_capabilities=["ace.grounded-state.promotion-resolver/v1"],
+            artifact_capabilities=[],
+            required_authority=["state-engine-promotion-review"],
+            feature_flags=["state-engine-tp7"],
         )
 
         # --- 1. Instruments — bespoke LLM pipeline steps used by the recipe ----

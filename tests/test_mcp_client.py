@@ -206,7 +206,11 @@ async def test_ace_start_calls_health_and_attention():
     mock_client = AsyncMock()
     mock_client.get = AsyncMock(
         side_effect=[
-            {"status": "ok", "version": "0.2.0"},  # /health
+            {
+                "status": "ok",
+                "version": "0.2.0",
+                "observation_outcomes": {"status": "healthy"},
+            },  # /health
             {"items": [{"type": "conflict", "title": "test"}]},  # /portal/attention
             {"content": "Morning briefing", "created_at": "2026-03-26"},  # /briefings/latest
         ]

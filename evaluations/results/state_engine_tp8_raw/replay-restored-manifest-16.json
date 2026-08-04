@@ -1,0 +1,48 @@
+{
+  "claim_position": 40000,
+  "claims_per_second_this_process": 2212.486106,
+  "cost_usd": 0.0,
+  "duration_seconds": 1.807921,
+  "failure": null,
+  "finished_at": "2026-08-04T17:04:19.642270+00:00",
+  "input_tokens": 0,
+  "manifests": [
+    {
+      "batch_receipt_replayed": true,
+      "claims": 4000,
+      "duration_ms": 27.901,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0009",
+      "manifest_id": "grounded_ingestion_manifest:30566bc76c972ad14c465491836b94e8",
+      "manifest_index": 16,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    }
+  ],
+  "operation": "initial_load",
+  "operational_receipt_id": "grounded_operational_receipt:24eacee148891973cebfe864a11417ce",
+  "output_tokens": 0,
+  "processed_claims_this_process": 4000,
+  "provider_calls": 0,
+  "start_manifest": 16,
+  "started_at": "2026-08-04T17:04:17.834320+00:00",
+  "status": "completed",
+  "stop_manifest": 17
+}

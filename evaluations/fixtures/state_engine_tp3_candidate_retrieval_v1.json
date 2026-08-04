@@ -1,0 +1,36 @@
+{
+  "contract_version": "ace.grounded-state.tp3-candidate-evaluation-config/v1",
+  "corpus_contract_version": "ace.grounded-state.temporal-reference-corpus/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "evaluation_seed": 1729,
+  "candidate_k": 20,
+  "minimum_gold_neighbor_recall": 0.95,
+  "negative_control_k": 10,
+  "maximum_false_association_rate": 0.1,
+  "maximum_records": 200,
+  "maximum_candidates_scored_per_query": 200,
+  "signals": {
+    "lexical": "ace.candidate.lexical-token-overlap/v1",
+    "vector": "ace.candidate.hashed-token-vector/v1",
+    "entity": "ace.candidate.entity-overlap/v1",
+    "temporal": "ace.candidate.temporal-window/v1",
+    "graph": "ace.candidate.graph-neighborhood/v1",
+    "source_diversity": "ace.candidate.source-diversity/v1"
+  },
+  "required_ablations": [
+    "without_vector",
+    "without_entity",
+    "without_temporal"
+  ],
+  "provider_budget": {
+    "model_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "estimated_cost_usd": 0.0
+  },
+  "notes": [
+    "Targets were frozen before the TP3 implementation was executed.",
+    "Gold neighbors come only from frozen TP0 supporting-evidence pairs; expected unrelated and cross-product pairs are negative controls.",
+    "Candidate generation does not classify epistemic or causal relationships."
+  ]
+}

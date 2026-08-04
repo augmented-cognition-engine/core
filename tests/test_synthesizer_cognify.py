@@ -67,6 +67,11 @@ async def test_candidate_finder_ranks_existing_by_cosine():
     finder = s._cognify_candidate_finder(existing)
     ranked = await finder({"id": "insight:new", "content": "x", "embedding": [0.9, 0.1]})
     assert [c["id"] for c in ranked] == ["insight:near", "insight:far"]
+    assert s._last_cognify_candidate_receipt.primary_model_calls == 0
+    assert s._last_cognify_candidate_receipt.applied_signals == (
+        "lexical",
+        "vector",
+    )
 
 
 @pytest.mark.asyncio
@@ -113,7 +118,11 @@ async def test_maybe_cognify_runs_cognify_when_enabled(monkeypatch):
     assert result == 1
     assert seen["records"][0]["id"] == "insight:new"
     assert seen["candidates"][0]["id"] == "insight:cand"
-    assert seen["kw"] == {"min_confidence": 0.6, "candidate_k": 8}
+    assert seen["kw"] == {
+        "product_id": "product:test",
+        "min_confidence": 0.6,
+        "candidate_k": 8,
+    }
 
 
 @pytest.mark.asyncio

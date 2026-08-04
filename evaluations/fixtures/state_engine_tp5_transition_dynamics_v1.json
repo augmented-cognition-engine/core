@@ -1,0 +1,89 @@
+{
+  "contract_version": "ace.grounded-state.transition-evaluation-config/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "ontology_version": "ace.grounded-state.transition-ontology/v1",
+  "resolver_policy_version": "ace.grounded-state.transition-resolver/v1",
+  "challenge_policy_version": "ace.grounded-state.transition-challenge/v1",
+  "calibration_policy_version": "ace.grounded-state.transition-calibration/v1",
+  "expected_cases": {
+    "mechanism_supported_transition": {
+      "review_state": "provisional",
+      "causal_strength": "mechanistic",
+      "rollout_eligible": true,
+      "degraded": false
+    },
+    "mechanism_with_contrary_evidence": {
+      "review_state": "contested",
+      "causal_strength": "mechanistic",
+      "rollout_eligible": false,
+      "degraded": true
+    },
+    "causal_claim_requires_human_gate": {
+      "review_state": "proposed",
+      "causal_strength": "predictive",
+      "rollout_eligible": false,
+      "degraded": true
+    },
+    "sequence_without_causal_promotion": {
+      "review_state": "rejected",
+      "causal_strength": "associative",
+      "rollout_eligible": false,
+      "degraded": false
+    },
+    "price_reaction_not_causal_fact": {
+      "review_state": "rejected",
+      "causal_strength": "associative",
+      "rollout_eligible": false,
+      "degraded": false
+    },
+    "world_state_changes_over_time": {
+      "review_state": "proposed",
+      "causal_strength": "associative",
+      "rollout_eligible": false,
+      "degraded": true
+    },
+    "unknown_event_time_remains_unknown": {
+      "review_state": "proposed",
+      "causal_strength": "associative",
+      "rollout_eligible": false,
+      "degraded": true
+    },
+    "foreign_product_evidence_isolated": {
+      "review_state": "rejected",
+      "causal_strength": "associative",
+      "rollout_eligible": false,
+      "degraded": true
+    }
+  },
+  "required_checks": [
+    "causal_human_gate",
+    "challenge_pack_complete",
+    "deterministic_branch_inputs",
+    "impossible_transition_blocked",
+    "later_outcome_calibrates_without_rewrite",
+    "original_revision_preserved",
+    "product_isolation",
+    "provider_free",
+    "reverse_order_replay",
+    "unknown_time_preserved"
+  ],
+  "bounds": {
+    "max_hypotheses": 100,
+    "max_rules": 50,
+    "max_evidence_records": 200,
+    "max_reasons": 100
+  },
+  "provider_budget": {
+    "max_model_calls": 0,
+    "max_input_tokens": 0,
+    "max_output_tokens": 0,
+    "max_estimated_cost_usd": 0.0
+  },
+  "thresholds": {
+    "case_matches": 8,
+    "deterministic_replays": 8,
+    "required_check_failures": 0,
+    "product_isolation_violations": 0,
+    "causal_gate_violations": 0
+  }
+}

@@ -80,6 +80,12 @@ _SCOPED_FAMILIES = frozenset(
         "observations",
         "insights",
         "tasks",
+        "consequence_rollouts",
+        "rollout_reconciliations",
+        "promotion_proposals",
+        "promotion_reviews",
+        "promotion_receipts",
+        "promotion_memory_lineage",
         "initiatives",
         "milestones",
         "work_items",
@@ -113,6 +119,12 @@ _OBJECT_TYPES = {
     "observations": "observation",
     "insights": "insight",
     "tasks": "task",
+    "consequence_rollouts": "consequence_rollout",
+    "rollout_reconciliations": "rollout_reconciliation",
+    "promotion_proposals": "promotion_proposal",
+    "promotion_reviews": "promotion_review",
+    "promotion_receipts": "promotion_receipt",
+    "promotion_memory_lineage": "promotion_memory_lineage",
     "initiatives": "initiative",
     "milestones": "milestone",
     "work_items": "work_item",
@@ -349,6 +361,86 @@ _RECORD_FIELDS: dict[str, tuple[str, ...]] = {
         "created_at",
         "completed_at",
     ),
+    "consequence_rollouts": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "task_id",
+        "invocation_id",
+        "rollout_id",
+        "revision",
+        "projection_id",
+        "disposition",
+        "transition_revision_ids",
+        "created_at",
+    ),
+    "rollout_reconciliations": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "rollout_revision_id",
+        "predicted_outcome_id",
+        "observation_id",
+        "branch_id",
+        "disposition",
+        "reconciled_at",
+        "created_at",
+    ),
+    "promotion_proposals": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "task_id",
+        "target_kind",
+        "content_hash",
+        "evidence_pack_id",
+        "rollout_revision_id",
+        "proposed_at",
+        "created_at",
+    ),
+    "promotion_reviews": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "proposal_id",
+        "disposition",
+        "authority",
+        "reviewed_at",
+        "created_at",
+    ),
+    "promotion_receipts": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "proposal_id",
+        "review_id",
+        "disposition",
+        "memory_id",
+        "supersedes_receipt_ids",
+        "invalidates_receipt_ids",
+        "contests_receipt_ids",
+        "expires_at",
+        "effective_at",
+        "created_at",
+    ),
+    "promotion_memory_lineage": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "memory_id",
+        "proposal_id",
+        "receipt_id",
+        "task_id",
+        "evidence_pack_id",
+        "rollout_revision_id",
+        "created_at",
+    ),
     "initiatives": (
         "id",
         "project",
@@ -565,7 +657,22 @@ def _project_record(family: str, record: dict[str, Any]) -> dict[str, Any]:
     rid = _record_id(record)
     result["object_type"] = _OBJECT_TYPES[family]
     result["lifecycle_state"] = _lifecycle_state(record)
-    result["authority"] = "source_record"
+    if family == "consequence_rollouts":
+        result["authority"] = "read_only_simulation_projection"
+        result["record_meaning"] = "simulated_consequence_not_observation"
+    elif family == "rollout_reconciliations":
+        result["authority"] = "read_only_reconciliation_projection"
+        result["record_meaning"] = "observed_outcome_reconciliation_not_simulated_fact"
+    elif family in {
+        "promotion_proposals",
+        "promotion_reviews",
+        "promotion_receipts",
+        "promotion_memory_lineage",
+    }:
+        result["authority"] = "read_only_promotion_lifecycle"
+        result["record_meaning"] = "append_only_promotion_metadata_not_source_evidence"
+    else:
+        result["authority"] = "source_record"
     result["provenance"] = {"record_refs": [rid] if rid else [], "source_family": family}
     return result
 
@@ -867,6 +974,21 @@ def project_product_snapshot(product_id: str, source: LivingProductGraphRecords)
         "intelligence": {
             "observations": projected["observations"],
             "insights": projected["insights"],
+        },
+        "state_engine": {
+            "consequence_rollouts": projected["consequence_rollouts"],
+            "rollout_reconciliations": projected["rollout_reconciliations"],
+            "promotion": {
+                "proposals": projected["promotion_proposals"],
+                "reviews": projected["promotion_reviews"],
+                "receipts": projected["promotion_receipts"],
+                "memory_lineage": projected["promotion_memory_lineage"],
+                "authority": "Proposal is non-authoritative; receipt disposition governs memory eligibility.",
+            },
+            "boundary": (
+                "Rollouts are simulations, never historical observations or beliefs; promotion metadata "
+                "does not turn source evidence into cognitive memory."
+            ),
         },
         "work": {
             "authority": "runtime_records_only_not_living_roadmap",

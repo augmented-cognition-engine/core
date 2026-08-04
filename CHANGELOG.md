@@ -6,6 +6,77 @@ Notable user- and contributor-visible changes are recorded here.
 
 No unreleased changes.
 
+## 0.2.0
+
+### Supported
+
+- Add the product-scoped State Engine Core contract: bounded adapter manifests, exact item and
+  batch receipts, grounded temporal source/entity/claim/event records, deterministic candidate
+  receipts and evidence packs, reviewed belief-state projections, transition hypotheses,
+  action/no-action consequence rollouts, later-outcome reconciliation, I3 reasoning-use receipts,
+  and authority-gated promotion/correction lineage.
+- Make the ordinary durable task path own State Engine execution rather than leaving it in an
+  evaluator. Authenticated reference task actions can prepare a bounded evidence query and rollout;
+  terminal Core task execution persists actual reasoning use and a promotion proposal, and the
+  existing task/status, intelligence, and Living Product Graph reads expose the resulting receipts.
+- Add a supported single-node adapter and operations boundary. Core owns product scope, stable
+  identity, validation, transactions, replay, and receipts; extensions own connectors, extraction
+  policy, source mappings, and domain ontologies.
+- Keep the supported public MCP adapter at exactly eleven HTTP-backed tools. State Engine contracts
+  and reference actions do not add a twelfth tool or a second memory plane.
+
+### Reliability and operations
+
+- Replace ambiguous observation processing with database leases, heartbeats, retry/dead-letter
+  states, immutable synthesis-outcome receipts, and a continuously supervised worker drain. A
+  terminal green receipt cannot precede semantic persistence, and restart recovery is explicit.
+- Add append-only product lifecycle and operational receipts, bounded archive/reactivation,
+  health/backlog reporting, and a supervised API/worker Compose topology.
+- Raise the base `aiohttp` and `cryptography` safety floors to 3.14.3 and 50.0.0 respectively,
+  excluding PYSEC-2026-3545/3546/3547 and PYSEC-2026-3552 from fresh installations.
+- Validate exact replay, interruption recovery, current-head migration resume, backup/restore,
+  product isolation, adapter equivalence, and fresh database/API/worker/thin-client restarts at
+  schema v168.
+
+### Scale and readiness
+
+- Retain the frozen TP8 result for 200,000 initial claims and 236,000 semantic records, followed by
+  220,000 claims and 256,000 semantic records after the sustained sample. The measured single-node
+  path includes bounded ingestion, candidate/evidence queries, belief projection, transitions,
+  rollouts, replay, restart, migration, backup/restore, and isolation.
+- Record K1, K2, and K3 as `ready` for their bounded single-node meanings. The repeated readiness
+  audit produced 40/40 exact transition cases and replays across eight domains, five predeclared
+  calibration sequences, and 5/5 fresh-process task/promotion/restart/retrieval/correction journeys.
+
+### Compatibility and migration
+
+- Align the distribution, `ace` import, engine and health output, thin MCP client, reference
+  extension, lockfile, container metadata, and trusted-publishing default at `0.2.0`.
+- Add restart-safe migrations v161-v168. Schema zero and the public 0.1.4 predecessor upgrade to
+  v168 are supported; current-head partial application resumes through the ordinary installer.
+- Preserve existing CLI identities, the eleven-tool thin MCP contract, I1-I3 receipt meanings, the
+  existing `insight` memory plane, and current/N-1 extension-envelope conformance.
+
+### Experimental
+
+- The reference `evidence-query` and `promotion-review` task actions remain on the experimental
+  extension-invocation HTTP surface. They are real production-router integration, but are not a new
+  stable CLI or MCP contract and do not establish general exactly-once external effects.
+- Candidate weights, physical indexes, deterministic transition/rollout implementations, and broad
+  automatic promotion policy remain versioned/internal or experimental behind stable receipts.
+
+### Known limitations
+
+- The measured deployment is one ACE API/worker deployment and one SurrealDB/SurrealKV database.
+  Distributed ordering, multi-writer consistency, multi-region failover, and exactly-once delivery
+  across independent databases are not claimed.
+- Arbitrary interruption inside historical pre-v142 migration files is unsupported; restore a
+  pre-migration backup and replay schema installation instead. Python 3.12 remains required.
+- Synthetic/public-safe fixtures and deterministic provider-free trials establish contract,
+  isolation, replay, and bounded performance—not real-world causal accuracy, calibrated
+  forecasting, autonomous learning, a general world model, decision quality, or L1 beneficial
+  impact.
+
 ## 0.1.4
 
 ### Fixed

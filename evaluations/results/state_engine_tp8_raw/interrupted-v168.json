@@ -1,0 +1,11 @@
+{
+  "duration_ms": 56.303,
+  "failure": "injected_client_hard_stop",
+  "operation": "migration_interruption",
+  "schema_version_before": 167,
+  "schema_version_receipt_advanced": false,
+  "statements_committed_before_stop": 8,
+  "status": "failed",
+  "target_schema_version": 168,
+  "target_statements": 53
+}

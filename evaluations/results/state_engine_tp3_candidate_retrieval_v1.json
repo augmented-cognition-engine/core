@@ -1,0 +1,1011 @@
+{
+  "ablations": [
+    {
+      "gold_neighbor_queries": 38,
+      "gold_neighbors_found": 38,
+      "mean_reciprocal_rank": 1,
+      "mean_reciprocal_rank_delta": 0,
+      "name": "without_vector",
+      "recall": 1,
+      "recall_delta": 0,
+      "removed_signal": "vector",
+      "removed_signal_mean_contribution": 0.6024209568421053
+    },
+    {
+      "gold_neighbor_queries": 38,
+      "gold_neighbors_found": 38,
+      "mean_reciprocal_rank": 1,
+      "mean_reciprocal_rank_delta": 0,
+      "name": "without_entity",
+      "recall": 1,
+      "recall_delta": 0,
+      "removed_signal": "entity",
+      "removed_signal_mean_contribution": 1
+    },
+    {
+      "gold_neighbor_queries": 38,
+      "gold_neighbors_found": 38,
+      "mean_reciprocal_rank": 1,
+      "mean_reciprocal_rank_delta": 0,
+      "name": "without_temporal",
+      "recall": 1,
+      "recall_delta": 0,
+      "removed_signal": "temporal",
+      "removed_signal_mean_contribution": 0.7191660605263157
+    }
+  ],
+  "candidate_k": 20,
+  "candidate_recall": 1,
+  "config_hash": "fd58d16af282e5b5c86083879ac288246318157598f30bc9b75d497a6d277238",
+  "contract_version": "ace.grounded-state.tp3-candidate-evaluation-result/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "deterministic_replay": true,
+  "estimated_cost_usd": 0,
+  "false_association_ceiling": 0.1,
+  "false_association_rate": 0,
+  "false_association_target_met": true,
+  "false_associations": 0,
+  "gold_neighbor_queries": 38,
+  "gold_neighbors_found": 38,
+  "input_tokens": 0,
+  "mean_reciprocal_rank": 1,
+  "negative_control_k": 10,
+  "negative_control_queries": 6,
+  "outcome_hash": "79b3007be96e4959349930ad867f23086215fb7840d487dfe0ca18ba45511ccd",
+  "output_tokens": 0,
+  "passed": true,
+  "primary_model_calls": 0,
+  "query_results": [
+    {
+      "case_key": "alias_registry_version_change",
+      "expected_input_key": "old",
+      "expected_record_id": "tp3_evidence_occurrence:ac06898ac31a1036762a1e73595bc99f",
+      "expected_score": 0.78822096,
+      "found": true,
+      "query_input_key": "new",
+      "query_record_id": "tp3_evidence_occurrence:70faf0549b20a6062a7a8f214dfd575e",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:e48bcc8ab0c712f74fdf13eb9ebd289d",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.66666667,
+        "lexical": 0.55555556,
+        "source_diversity": 0,
+        "temporal": 0.99999997,
+        "vector": 0.77443814
+      }
+    },
+    {
+      "case_key": "alias_registry_version_change",
+      "expected_input_key": "new",
+      "expected_record_id": "tp3_evidence_occurrence:70faf0549b20a6062a7a8f214dfd575e",
+      "expected_score": 0.78822096,
+      "found": true,
+      "query_input_key": "old",
+      "query_record_id": "tp3_evidence_occurrence:ac06898ac31a1036762a1e73595bc99f",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:18e959964824cdbfc6064e9eea5eecec",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.66666667,
+        "lexical": 0.55555556,
+        "source_diversity": 0,
+        "temporal": 0.99999997,
+        "vector": 0.77443814
+      }
+    },
+    {
+      "case_key": "attributed_source_dependency",
+      "expected_input_key": "origin",
+      "expected_record_id": "tp3_evidence_occurrence:080ad39eaf89bd1e2abe88424f067e0e",
+      "expected_score": 0.5867602,
+      "found": true,
+      "query_input_key": "blog",
+      "query_record_id": "tp3_evidence_occurrence:331304639da787fcce2ad741a34ab85e",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:2d392733bb13b5741f0c9415ccb14bc6",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.42857143,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.61237244
+      }
+    },
+    {
+      "case_key": "attributed_source_dependency",
+      "expected_input_key": "blog",
+      "expected_record_id": "tp3_evidence_occurrence:331304639da787fcce2ad741a34ab85e",
+      "expected_score": 0.5867602,
+      "found": true,
+      "query_input_key": "origin",
+      "query_record_id": "tp3_evidence_occurrence:080ad39eaf89bd1e2abe88424f067e0e",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:08683c6bee4779cb969842d45e5de2b6",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.42857143,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.61237244
+      }
+    },
+    {
+      "case_key": "causal_claim_requires_human_gate",
+      "expected_input_key": "trial",
+      "expected_record_id": "tp3_evidence_occurrence:b66d1f780fe2b49a615afb3bfc69886c",
+      "expected_score": 0.48677286,
+      "found": true,
+      "query_input_key": "study",
+      "query_record_id": "tp3_evidence_occurrence:c6d0ae55999ec77d87ccd4f9ad9d242a",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:0adf5bf73afaf868bc77c374020ea2da",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.17647059,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.30151134
+      }
+    },
+    {
+      "case_key": "causal_claim_requires_human_gate",
+      "expected_input_key": "study",
+      "expected_record_id": "tp3_evidence_occurrence:c6d0ae55999ec77d87ccd4f9ad9d242a",
+      "expected_score": 0.48677286,
+      "found": true,
+      "query_input_key": "trial",
+      "query_record_id": "tp3_evidence_occurrence:b66d1f780fe2b49a615afb3bfc69886c",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:3b7c9994a2af973e29394c90f37662bc",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.17647059,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.30151134
+      }
+    },
+    {
+      "case_key": "contested_delivery_belief",
+      "expected_input_key": "not_delivered",
+      "expected_record_id": "tp3_evidence_occurrence:ab0c5ece694f42ffa8147e8dc4aae9c0",
+      "expected_score": 0.72742978,
+      "found": true,
+      "query_input_key": "delivered",
+      "query_record_id": "tp3_evidence_occurrence:0e649fb9421f3ec25a0197d70dcc841c",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:a5c50aa16a2212b07d3e4f59526753b3",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.4,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.58714889
+      }
+    },
+    {
+      "case_key": "contested_delivery_belief",
+      "expected_input_key": "delivered",
+      "expected_record_id": "tp3_evidence_occurrence:0e649fb9421f3ec25a0197d70dcc841c",
+      "expected_score": 0.72742978,
+      "found": true,
+      "query_input_key": "not_delivered",
+      "query_record_id": "tp3_evidence_occurrence:ab0c5ece694f42ffa8147e8dc4aae9c0",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:58e4ae19744bac010bc231d5c72c7f45",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.4,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.58714889
+      }
+    },
+    {
+      "case_key": "duplicate_arrivals_different_ingestion",
+      "expected_input_key": "late",
+      "expected_record_id": "tp3_evidence_occurrence:88eeb6eaca2239f810f572aa6bfd475e",
+      "expected_score": 0.8,
+      "found": true,
+      "query_input_key": "early",
+      "query_record_id": "tp3_evidence_occurrence:fc0c79b21e14afcc967b4b836f19ef86",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:68c42c8c42d08771c70ada9d4d940cd9",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 1,
+        "source_diversity": 0,
+        "temporal": 0,
+        "vector": 1
+      }
+    },
+    {
+      "case_key": "duplicate_arrivals_different_ingestion",
+      "expected_input_key": "early",
+      "expected_record_id": "tp3_evidence_occurrence:fc0c79b21e14afcc967b4b836f19ef86",
+      "expected_score": 0.8,
+      "found": true,
+      "query_input_key": "late",
+      "query_record_id": "tp3_evidence_occurrence:88eeb6eaca2239f810f572aa6bfd475e",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:96083184349205812f09196b689a4b11",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 1,
+        "source_diversity": 0,
+        "temporal": 0,
+        "vector": 1
+      }
+    },
+    {
+      "case_key": "entity_legal_name_change",
+      "expected_input_key": "old",
+      "expected_record_id": "tp3_evidence_occurrence:83d64bb228c5098a468fa603ef2d57a6",
+      "expected_score": 0.79715119,
+      "found": true,
+      "query_input_key": "new",
+      "query_record_id": "tp3_evidence_occurrence:cf753dfb364bb5747f66433ebd4964ec",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:c453c1f56d001d89970dd035c5487734",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 0.46153846,
+        "source_diversity": 0,
+        "temporal": 0.99999997,
+        "vector": 0.63960215
+      }
+    },
+    {
+      "case_key": "entity_legal_name_change",
+      "expected_input_key": "new",
+      "expected_record_id": "tp3_evidence_occurrence:cf753dfb364bb5747f66433ebd4964ec",
+      "expected_score": 0.79715119,
+      "found": true,
+      "query_input_key": "old",
+      "query_record_id": "tp3_evidence_occurrence:83d64bb228c5098a468fa603ef2d57a6",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:01a9a3649d9c2e0870cf0ab67e2f9ff0",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 0.46153846,
+        "source_diversity": 0,
+        "temporal": 0.99999997,
+        "vector": 0.63960215
+      }
+    },
+    {
+      "case_key": "exact_replay_identical",
+      "expected_input_key": "replay",
+      "expected_record_id": "tp3_evidence_occurrence:96922db43e284a742c58b649e6fd6337",
+      "expected_score": 0.95,
+      "found": true,
+      "query_input_key": "first",
+      "query_record_id": "tp3_evidence_occurrence:35a8ed1a3cc5480b371f81172326caad",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:671a341dbfaabf2f9831b53ebd18acb4",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 1,
+        "source_diversity": 0,
+        "temporal": 1,
+        "vector": 1
+      }
+    },
+    {
+      "case_key": "exact_replay_identical",
+      "expected_input_key": "first",
+      "expected_record_id": "tp3_evidence_occurrence:35a8ed1a3cc5480b371f81172326caad",
+      "expected_score": 0.95,
+      "found": true,
+      "query_input_key": "replay",
+      "query_record_id": "tp3_evidence_occurrence:96922db43e284a742c58b649e6fd6337",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:ce8589bc90bcb86d0c8dfb207762c9a7",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 1,
+        "source_diversity": 0,
+        "temporal": 1,
+        "vector": 1
+      }
+    },
+    {
+      "case_key": "independent_factory_corroboration",
+      "expected_input_key": "registry",
+      "expected_record_id": "tp3_evidence_occurrence:2c9421b9c4d91bda692de87fe5d8aae8",
+      "expected_score": 0.7507293,
+      "found": true,
+      "query_input_key": "filing",
+      "query_record_id": "tp3_evidence_occurrence:b9f7fc262f5e203f3f3c59b67364afc0",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:cf5d150bfd7dbd625bb8c0308b0d998b",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.5,
+        "lexical": 0.35294118,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.61394061
+      }
+    },
+    {
+      "case_key": "independent_factory_corroboration",
+      "expected_input_key": "filing",
+      "expected_record_id": "tp3_evidence_occurrence:b9f7fc262f5e203f3f3c59b67364afc0",
+      "expected_score": 0.7507293,
+      "found": true,
+      "query_input_key": "registry",
+      "query_record_id": "tp3_evidence_occurrence:2c9421b9c4d91bda692de87fe5d8aae8",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:6eac908feb7f51cfeb2cc722444286eb",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.5,
+        "lexical": 0.35294118,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.61394061
+      }
+    },
+    {
+      "case_key": "mechanism_supported_transition",
+      "expected_input_key": "state",
+      "expected_record_id": "tp3_evidence_occurrence:c49296ecb3bb0604b5a7395eb84b69e6",
+      "expected_score": 0.46728283,
+      "found": true,
+      "query_input_key": "mechanism",
+      "query_record_id": "tp3_evidence_occurrence:c9b910bece30a7d041d7dd5568928a5d",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:3e7d0c1a4c65cd2523945d91f6b7bcbd",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.07142857,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.28284271
+      }
+    },
+    {
+      "case_key": "mechanism_supported_transition",
+      "expected_input_key": "mechanism",
+      "expected_record_id": "tp3_evidence_occurrence:c9b910bece30a7d041d7dd5568928a5d",
+      "expected_score": 0.46728283,
+      "found": true,
+      "query_input_key": "state",
+      "query_record_id": "tp3_evidence_occurrence:c49296ecb3bb0604b5a7395eb84b69e6",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:f9eca90fd3bb9ea39f103c96389ba1ec",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.07142857,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.28284271
+      }
+    },
+    {
+      "case_key": "mechanism_with_contrary_evidence",
+      "expected_input_key": "support",
+      "expected_record_id": "tp3_evidence_occurrence:f7427683ce9f23b3129f339a8c9b3705",
+      "expected_score": 0.49986643,
+      "found": true,
+      "query_input_key": "contrary",
+      "query_record_id": "tp3_evidence_occurrence:1352ca27e9329d211cbac571c2e87fd7",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:16841bc3a71a1f0f7112673107472110",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.15789474,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.3809111
+      }
+    },
+    {
+      "case_key": "mechanism_with_contrary_evidence",
+      "expected_input_key": "contrary",
+      "expected_record_id": "tp3_evidence_occurrence:1352ca27e9329d211cbac571c2e87fd7",
+      "expected_score": 0.49986643,
+      "found": true,
+      "query_input_key": "support",
+      "query_record_id": "tp3_evidence_occurrence:f7427683ce9f23b3129f339a8c9b3705",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:2033b03598a05e3d841a68a4c5fc4658",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.15789474,
+        "source_diversity": 1,
+        "temporal": 0,
+        "vector": 0.3809111
+      }
+    },
+    {
+      "case_key": "overlapping_capacity_reports",
+      "expected_input_key": "weekly",
+      "expected_record_id": "tp3_evidence_occurrence:9c964a1f8a323c1fae9230d2c2b05004",
+      "expected_score": 0.69468069,
+      "found": true,
+      "query_input_key": "midweek",
+      "query_record_id": "tp3_evidence_occurrence:1066e049ab3cf3f34f603aff12eeaa3a",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:86c74061cab5282d44c13cdce83a9dbe",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.26666667,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.52340344
+      }
+    },
+    {
+      "case_key": "overlapping_capacity_reports",
+      "expected_input_key": "midweek",
+      "expected_record_id": "tp3_evidence_occurrence:1066e049ab3cf3f34f603aff12eeaa3a",
+      "expected_score": 0.69468069,
+      "found": true,
+      "query_input_key": "weekly",
+      "query_record_id": "tp3_evidence_occurrence:9c964a1f8a323c1fae9230d2c2b05004",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:95945942decc239f37d41649e685095b",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.26666667,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.52340344
+      }
+    },
+    {
+      "case_key": "price_reaction_not_causal_fact",
+      "expected_input_key": "market",
+      "expected_record_id": "tp3_evidence_occurrence:a7d2bae5797c08b5410b040138fc0df1",
+      "expected_score": 0.66921884,
+      "found": true,
+      "query_input_key": "announcement",
+      "query_record_id": "tp3_evidence_occurrence:48796918b1f0d799b08ca3a26e534c76",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:331fca796fe973e280da6eff9f5e34f3",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.1875,
+        "source_diversity": 1,
+        "temporal": 0.99977169,
+        "vector": 0.45564043
+      }
+    },
+    {
+      "case_key": "price_reaction_not_causal_fact",
+      "expected_input_key": "announcement",
+      "expected_record_id": "tp3_evidence_occurrence:48796918b1f0d799b08ca3a26e534c76",
+      "expected_score": 0.66921884,
+      "found": true,
+      "query_input_key": "market",
+      "query_record_id": "tp3_evidence_occurrence:a7d2bae5797c08b5410b040138fc0df1",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:d463c2f572d71ef9cb5063cebaf26845",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.1875,
+        "source_diversity": 1,
+        "temporal": 0.99977169,
+        "vector": 0.45564043
+      }
+    },
+    {
+      "case_key": "restatement_not_corroboration",
+      "expected_input_key": "wire",
+      "expected_record_id": "tp3_evidence_occurrence:a0652daddec99a483e7b837ffac2991e",
+      "expected_score": 0.87950102,
+      "found": true,
+      "query_input_key": "origin",
+      "query_record_id": "tp3_evidence_occurrence:b3127e6cdbcda714382c2d9ab3da2828",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:c6977680a656d69e30cf956a2752b63d",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.5,
+        "lexical": 0.8,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.92250509
+      }
+    },
+    {
+      "case_key": "restatement_not_corroboration",
+      "expected_input_key": "origin",
+      "expected_record_id": "tp3_evidence_occurrence:b3127e6cdbcda714382c2d9ab3da2828",
+      "expected_score": 0.87950102,
+      "found": true,
+      "query_input_key": "wire",
+      "query_record_id": "tp3_evidence_occurrence:a0652daddec99a483e7b837ffac2991e",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:24055ca27163ffcfb0df5d326d40dda2",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.5,
+        "lexical": 0.8,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.92250509
+      }
+    },
+    {
+      "case_key": "same_interval_operating_conflict",
+      "expected_input_key": "open",
+      "expected_record_id": "tp3_evidence_occurrence:5f2d75dbd15eb3b1f8ede58c0bf340fa",
+      "expected_score": 0.70141851,
+      "found": true,
+      "query_input_key": "closed",
+      "query_record_id": "tp3_evidence_occurrence:0c5f02c31e51b1ef9c235ef21572df72",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:24384d0ea64ba17c6245e99a29566715",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.33333333,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.50709255
+      }
+    },
+    {
+      "case_key": "same_interval_operating_conflict",
+      "expected_input_key": "closed",
+      "expected_record_id": "tp3_evidence_occurrence:0c5f02c31e51b1ef9c235ef21572df72",
+      "expected_score": 0.70141851,
+      "found": true,
+      "query_input_key": "open",
+      "query_record_id": "tp3_evidence_occurrence:5f2d75dbd15eb3b1f8ede58c0bf340fa",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:c80235ebe652b1b4fc9fa7c1e9d8fb66",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.33333333,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 0.50709255
+      }
+    },
+    {
+      "case_key": "sequence_without_causal_promotion",
+      "expected_input_key": "training",
+      "expected_record_id": "tp3_evidence_occurrence:6e1a2d98fd88a355fc0d4c6db9439942",
+      "expected_score": 0.66726741,
+      "found": true,
+      "query_input_key": "outage",
+      "query_record_id": "tp3_evidence_occurrence:89d330b92b8eb3ab78273a7d1969aa15",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:0a1e543a8967e8804837d581b695a581",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.25,
+        "source_diversity": 1,
+        "temporal": 0.99726027,
+        "vector": 0.40089186
+      }
+    },
+    {
+      "case_key": "sequence_without_causal_promotion",
+      "expected_input_key": "outage",
+      "expected_record_id": "tp3_evidence_occurrence:89d330b92b8eb3ab78273a7d1969aa15",
+      "expected_score": 0.66726741,
+      "found": true,
+      "query_input_key": "training",
+      "query_record_id": "tp3_evidence_occurrence:6e1a2d98fd88a355fc0d4c6db9439942",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:c004e4fee7294f7e6ff17f6b56d6e99f",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.25,
+        "source_diversity": 1,
+        "temporal": 0.99726027,
+        "vector": 0.40089186
+      }
+    },
+    {
+      "case_key": "source_version_replaces_prior",
+      "expected_input_key": "old",
+      "expected_record_id": "tp3_evidence_occurrence:a26508a170ac918266bb3a87e77a2052",
+      "expected_score": 0.70567956,
+      "found": true,
+      "query_input_key": "new",
+      "query_record_id": "tp3_evidence_occurrence:500160db619cf22989060402339aaffc",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:264231de3dfa7c23d72191f250f67775",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.66666667,
+        "lexical": 0.36363636,
+        "source_diversity": 0,
+        "temporal": 0.99726027,
+        "vector": 0.5077253
+      }
+    },
+    {
+      "case_key": "source_version_replaces_prior",
+      "expected_input_key": "new",
+      "expected_record_id": "tp3_evidence_occurrence:500160db619cf22989060402339aaffc",
+      "expected_score": 0.70567956,
+      "found": true,
+      "query_input_key": "old",
+      "query_record_id": "tp3_evidence_occurrence:a26508a170ac918266bb3a87e77a2052",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:6f618815d97f84b07df4b4b537cdcaeb",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.66666667,
+        "lexical": 0.36363636,
+        "source_diversity": 0,
+        "temporal": 0.99726027,
+        "vector": 0.5077253
+      }
+    },
+    {
+      "case_key": "superseded_capacity_belief",
+      "expected_input_key": "old",
+      "expected_record_id": "tp3_evidence_occurrence:8614b7cab2a779790b10096cf9cc5456",
+      "expected_score": 0.72225216,
+      "found": true,
+      "query_input_key": "new",
+      "query_record_id": "tp3_evidence_occurrence:8d9787b7afb0a336203ea131b73dab96",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:9486be9f0c5e5e03956a08fc9004576d",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 0.33333333,
+        "source_diversity": 0,
+        "temporal": 0.79315067,
+        "vector": 0.51639778
+      }
+    },
+    {
+      "case_key": "superseded_capacity_belief",
+      "expected_input_key": "new",
+      "expected_record_id": "tp3_evidence_occurrence:8d9787b7afb0a336203ea131b73dab96",
+      "expected_score": 0.72225216,
+      "found": true,
+      "query_input_key": "old",
+      "query_record_id": "tp3_evidence_occurrence:8614b7cab2a779790b10096cf9cc5456",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:7fe9839c7234bb817395ad477c691efa",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 1,
+        "lexical": 0.33333333,
+        "source_diversity": 0,
+        "temporal": 0.79315067,
+        "vector": 0.51639778
+      }
+    },
+    {
+      "case_key": "syndicated_source_duplication",
+      "expected_input_key": "wire",
+      "expected_record_id": "tp3_evidence_occurrence:e905743e166f6d479c60af05fa347cf8",
+      "expected_score": 0.9,
+      "found": true,
+      "query_input_key": "paper",
+      "query_record_id": "tp3_evidence_occurrence:345ec00ba043e673f97c814598c05bbf",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:bcc513b88e58f979b66ba915eba8d78a",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 1,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 1
+      }
+    },
+    {
+      "case_key": "syndicated_source_duplication",
+      "expected_input_key": "paper",
+      "expected_record_id": "tp3_evidence_occurrence:345ec00ba043e673f97c814598c05bbf",
+      "expected_score": 0.9,
+      "found": true,
+      "query_input_key": "wire",
+      "query_record_id": "tp3_evidence_occurrence:e905743e166f6d479c60af05fa347cf8",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:b3aacb5164e12c67abecf9e68ef88c57",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 1,
+        "source_diversity": 1,
+        "temporal": 1,
+        "vector": 1
+      }
+    },
+    {
+      "case_key": "world_state_changes_over_time",
+      "expected_input_key": "open",
+      "expected_record_id": "tp3_evidence_occurrence:bf857970c6cf6701cc24d8ffd12e2184",
+      "expected_score": 0.64542172,
+      "found": true,
+      "query_input_key": "closed",
+      "query_record_id": "tp3_evidence_occurrence:b1e226c4641c49bf697f49887852af07",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:1ebb5a2bf29d93dd0ab88394b41626e8",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.2,
+        "source_diversity": 1,
+        "temporal": 0.87671231,
+        "vector": 0.41957435
+      }
+    },
+    {
+      "case_key": "world_state_changes_over_time",
+      "expected_input_key": "closed",
+      "expected_record_id": "tp3_evidence_occurrence:b1e226c4641c49bf697f49887852af07",
+      "expected_score": 0.64542172,
+      "found": true,
+      "query_input_key": "open",
+      "query_record_id": "tp3_evidence_occurrence:bf857970c6cf6701cc24d8ffd12e2184",
+      "rank": 1,
+      "receipt_id": "candidate_receipt:67f4f05116f7089627f0d5d8e8930359",
+      "signal_scores": {
+        "entity": 1,
+        "graph": 0.33333333,
+        "lexical": 0.2,
+        "source_diversity": 1,
+        "temporal": 0.87671231,
+        "vector": 0.41957435
+      }
+    },
+    {
+      "case_key": "entity_name_collision",
+      "expected_input_key": "company",
+      "expected_record_id": "tp3_evidence_occurrence:09686d813ecf1789b4c81dcf6da5ab5e",
+      "expected_score": null,
+      "found": false,
+      "query_input_key": "city",
+      "query_record_id": "tp3_evidence_occurrence:c0998da472ac9727b29b2b66f85e734f",
+      "rank": null,
+      "receipt_id": "candidate_receipt:da2c2736e9f6831b45a2fb9d65f2ea5e",
+      "signal_scores": {}
+    },
+    {
+      "case_key": "entity_name_collision",
+      "expected_input_key": "city",
+      "expected_record_id": "tp3_evidence_occurrence:c0998da472ac9727b29b2b66f85e734f",
+      "expected_score": null,
+      "found": false,
+      "query_input_key": "company",
+      "query_record_id": "tp3_evidence_occurrence:09686d813ecf1789b4c81dcf6da5ab5e",
+      "rank": null,
+      "receipt_id": "candidate_receipt:148fd35fa62968aeef182db67f4a6b6b",
+      "signal_scores": {}
+    },
+    {
+      "case_key": "foreign_product_evidence_isolated",
+      "expected_input_key": "local",
+      "expected_record_id": "tp3_evidence_occurrence:de6d99d853062811ceb256bb93d63469",
+      "expected_score": null,
+      "found": false,
+      "query_input_key": "foreign",
+      "query_record_id": "tp3_evidence_occurrence:1082cb7d69d29a004022883f957a6274",
+      "rank": null,
+      "receipt_id": "candidate_receipt:ba2ca1058fb35ac9d03a19f71703a085",
+      "signal_scores": {}
+    },
+    {
+      "case_key": "foreign_product_evidence_isolated",
+      "expected_input_key": "foreign",
+      "expected_record_id": "tp3_evidence_occurrence:1082cb7d69d29a004022883f957a6274",
+      "expected_score": null,
+      "found": false,
+      "query_input_key": "local",
+      "query_record_id": "tp3_evidence_occurrence:de6d99d853062811ceb256bb93d63469",
+      "rank": null,
+      "receipt_id": "candidate_receipt:6ee50679a88e19f545eb938816c84725",
+      "signal_scores": {}
+    },
+    {
+      "case_key": "lexically_similar_unrelated_control",
+      "expected_input_key": "jade",
+      "expected_record_id": "tp3_evidence_occurrence:f7a09bc2abf03121c85b4e20de35c300",
+      "expected_score": null,
+      "found": false,
+      "query_input_key": "iris",
+      "query_record_id": "tp3_evidence_occurrence:5e6d98a224f5e9194910fdc4eabd874b",
+      "rank": null,
+      "receipt_id": "candidate_receipt:a85a6b872b92f08f7219c3c03efbe3b8",
+      "signal_scores": {}
+    },
+    {
+      "case_key": "lexically_similar_unrelated_control",
+      "expected_input_key": "iris",
+      "expected_record_id": "tp3_evidence_occurrence:5e6d98a224f5e9194910fdc4eabd874b",
+      "expected_score": null,
+      "found": false,
+      "query_input_key": "jade",
+      "query_record_id": "tp3_evidence_occurrence:f7a09bc2abf03121c85b4e20de35c300",
+      "rank": null,
+      "receipt_id": "candidate_receipt:f73b13c1cc902996f9007378b77b93f1",
+      "signal_scores": {}
+    }
+  ],
+  "recall_target": 0.95,
+  "recall_target_met": true,
+  "records_indexed": 62,
+  "snapshot_id": "candidate_index:9071058690f53a4c6d4cf601be0d40b6",
+  "unavailable_index_receipt": {
+    "applied_signals": [
+      "entity",
+      "graph",
+      "lexical",
+      "source_diversity",
+      "temporal"
+    ],
+    "candidates": [
+      {
+        "contributions": [
+          {
+            "applied": true,
+            "reason": "signal_scored",
+            "score": 1,
+            "signal": "entity",
+            "weight": 0.3
+          },
+          {
+            "applied": true,
+            "reason": "signal_scored",
+            "score": 0.66666667,
+            "signal": "graph",
+            "weight": 0.15
+          },
+          {
+            "applied": true,
+            "reason": "signal_scored",
+            "score": 0.55555556,
+            "signal": "lexical",
+            "weight": 0.15
+          },
+          {
+            "applied": true,
+            "reason": "same_source",
+            "score": 0,
+            "signal": "source_diversity",
+            "weight": 0.05
+          },
+          {
+            "applied": true,
+            "reason": "signal_scored",
+            "score": 0.99999997,
+            "signal": "temporal",
+            "weight": 0.15
+          }
+        ],
+        "degraded_reasons": [],
+        "rank": 1,
+        "record_id": "tp3_evidence_occurrence:ac06898ac31a1036762a1e73595bc99f",
+        "score": 0.63333333
+      },
+      {
+        "contributions": [
+          {
+            "applied": false,
+            "reason": "entity_identity_unavailable",
+            "score": 0,
+            "signal": "entity",
+            "weight": 0.3
+          },
+          {
+            "applied": true,
+            "reason": "signal_scored",
+            "score": 0,
+            "signal": "graph",
+            "weight": 0.15
+          },
+          {
+            "applied": true,
+            "reason": "signal_scored",
+            "score": 0.1,
+            "signal": "lexical",
+            "weight": 0.15
+          },
+          {
+            "applied": true,
+            "reason": "independent_source",
+            "score": 1,
+            "signal": "source_diversity",
+            "weight": 0.05
+          },
+          {
+            "applied": false,
+            "reason": "unknown_time_not_scored",
+            "score": 0,
+            "signal": "temporal",
+            "weight": 0.15
+          }
+        ],
+        "degraded_reasons": [
+          "entity_identity_unavailable",
+          "unknown_time_not_scored"
+        ],
+        "rank": 2,
+        "record_id": "tp3_evidence_occurrence:2212ba9c380614904fb40f887b5c9af9",
+        "score": 0.065
+      }
+    ],
+    "candidates_returned": 2,
+    "candidates_scored": 2,
+    "contract_version": "ace.candidate.receipt/v1",
+    "deterministic": true,
+    "explicit_filtered": 1,
+    "fallback_reasons": [
+      "vector_index_unavailable"
+    ],
+    "filters": {
+      "allowed_record_kinds": [],
+      "allowed_source_ids": [],
+      "contract_version": "ace.candidate.filters/v1",
+      "excluded_record_ids": [],
+      "include_unknown_time": true,
+      "occurred_after": null,
+      "occurred_before": null,
+      "required_entity_ids": []
+    },
+    "index_versions": {
+      "entity": "ace.candidate.entity-overlap/v1",
+      "graph": "ace.candidate.graph-neighborhood/v1",
+      "lexical": "ace.candidate.lexical-token-overlap/v1",
+      "source_diversity": "ace.candidate.source-diversity/v1",
+      "temporal": "ace.candidate.temporal-window/v1",
+      "tp0_corpus": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+      "vector": "ace.candidate.hashed-token-vector/v1"
+    },
+    "max_candidates": 200,
+    "policy_version": "ace.candidate.multi-signal-policy/v1",
+    "primary_model_calls": 0,
+    "product_filtered": 1,
+    "product_id": "product:tp0-fictional",
+    "receipt_id": "candidate_receipt:bafb644655988716adf65e7caaff2f1b",
+    "records_in_snapshot": 62,
+    "request_id": "candidate_request:8e75776eefee7ee38d17e54d1763d5e3",
+    "requested_k": 20,
+    "requested_signals": [
+      "entity",
+      "graph",
+      "lexical",
+      "source_diversity",
+      "temporal",
+      "vector"
+    ],
+    "return_cap_omitted": 0,
+    "score_cap_omitted": 0,
+    "snapshot_id": "candidate_index:3f7793824ce4d991ba8c2bab1c694c44",
+    "temporal_window_days": 365,
+    "truncated": false,
+    "unavailable_signals": [
+      "vector"
+    ],
+    "zero_score_filtered": 58
+  }
+}

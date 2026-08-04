@@ -1,6 +1,6 @@
-# ACE 0.1.x capability maturity
+# ACE 0.2.0 capability maturity
 
-ACE 0.1.x is a developer preview. This page distinguishes the public contract from implemented
+ACE 0.2.0 is a developer preview. This page distinguishes the public contract from implemented
 surfaces that remain experimental.
 
 ## Preview contract
@@ -12,13 +12,13 @@ install ace-core → configure a provider and SurrealDB → start ACE → authen
 → ace doctor → reason and capture → load retained intelligence → stop cleanly
 ```
 
-The 0.1.x public identities are:
+The 0.2.0 public identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.1.4`
+- version: `0.2.0`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -37,7 +37,7 @@ The thin MCP surface contains exactly eleven tools:
 | `ace_related` | Find related code and knowledge |
 
 The CLI, thin MCP adapter, persistence migrations, reference extension mechanism, and documented
-provider routes are the compatibility focus for 0.1.x. Changes to these surfaces receive
+provider routes are the compatibility focus for 0.2.x. Changes to these surfaces receive
 migration notes when needed.
 
 The supported CLI also includes `ace landscape`, a versioned, authenticated, strictly read-only
@@ -45,13 +45,63 @@ Living Product Graph snapshot. It exposes stable object identity, canonical and 
 assertion states, evidence, provenance, uncertainty, history, decisions, corrections, and outcomes
 without adding an MCP tool or any write, execution, extension, or model-inference authority. Its
 [read contract](living-product-graph.md) freezes ordering, bounds, absence, failure, redaction, and
-0.1.x compatibility behavior.
+0.2.x compatibility behavior.
+
+## Supported v0.2 State Engine boundary and journey
+
+The product-scoped State Engine v1 contracts are supported for the measured single-node topology:
+one ACE API/worker deployment, one SurrealDB/SurrealKV database, and bounded synchronous adapter
+clients. The supported Core boundary includes material-derived evidence identities; item/batch and
+operational receipts; deterministic candidate/evidence packs; reviewed as-of belief projections;
+reviewed transition revisions; labeled action/no-action simulations and reconciliation; I3
+reasoning-use receipts; and human-authority promotion, correction, and supersession lineage.
+
+The shipped reference journey is executable from a source checkout as documented in the
+[README](../README.md#reproduce-the-v02-state-engine-journey). It performs, in order:
+
+1. install/configuration diagnostics;
+2. bounded adapter ingestion;
+3. count and terminal-receipt inspection;
+4. grounded evidence query and frozen pack retrieval;
+5. reviewed temporal belief projection;
+6. transition hypothesis challenge/review;
+7. action/no-action consequence reasoning;
+8. provenance, uncertainty, degraded-coverage, simulation, and I3 receipt inspection;
+9. explicit eligible promotion with authenticated human authority;
+10. real restart and fresh authoritative retrieval; and
+11. correction plus append-only supersession inspection.
+
+The adapter supplies bounded, untrusted proposals and content digests. Authenticated Core context
+owns product scope, stable identity, validation, transactions, replay, and receipts. Source or model
+content cannot select product, task, tool, review, mutation, causal, or promotion authority. Source
+claims stay in the grounded evidence plane unless an independently eligible conclusion completes
+the explicit promotion lifecycle; simulations remain separate from observations and beliefs.
+
+The reference `evidence-query` and `promotion-review` task actions are real production-router
+integration but remain on the explicitly experimental extension-invocation HTTP surface. They are
+not a new stable CLI/MCP contract. The public thin MCP adapter remains exactly eleven tools, and the
+legacy in-process engine MCP surface is not the supported public MCP boundary.
+
+The frozen reference envelope is 200 records per item, 200 items per manifest, 200 candidate
+records, 50 returned candidates, 20 evidence-pack records, 8 runtime evidence records, 8 rollout
+branches/steps/transitions, and 20 promotion retrieval results. The measured initial corpus was
+200,000 claims and 236,000 semantic records under a 2 GiB store budget on an 11-core, 18 GB M3 Pro;
+the retained post-sustained store held 220,000 claims and 256,000 semantic records. K1-K3 `ready`
+means only the published bounded single-node contracts and repeated journeys.
+
+Schema zero and the public 0.1.4 predecessor upgrade to v168 are supported. Current-head partial
+application resumes through the ordinary installer; arbitrary interruption inside historical
+pre-v142 migrations requires restoring a pre-migration backup. The
+[operations runbook](state-engine-operations.md) covers health, backup/restore, interrupted replay,
+archival/reactivation, and stop conditions. Distributed ordering, multi-writer consistency,
+multi-region recovery, real-world causal accuracy or calibration, autonomous learning, general
+world-model intelligence, and L1 beneficial impact are not supported claims.
 
 ## Implemented architecture beyond the compatibility contract
 
 The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,
 foresight, calibration, proactive intelligence, continuous-learning paths, and advanced extension
-hooks are implemented parts of ACE. They are not stable 0.1.x contracts: their APIs, supported
+hooks are implemented parts of ACE. They are not stable 0.2.x contracts: their APIs, supported
 end-to-end journeys, and compatibility guarantees can change. This maturity label limits the public
 promise; it does not reduce those systems to roadmap concepts or peripheral demos.
 

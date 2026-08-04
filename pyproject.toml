@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "0.1.4"
+version = "0.2.0"
 description = "Self-hosted reasoning that turns product decisions into durable recommendations"
 readme = "README.md"
 license = "Apache-2.0"
@@ -16,8 +16,10 @@ dependencies = [
     "fastapi>=0.136",  # starlette>=1.0.1 compat (PYSEC-2026-161)
     "uvicorn[standard]>=0.30",
     "surrealdb>=2.0,<3.0",
+    "aiohttp>=3.14.3",  # PYSEC-2026-3545/3546/3547 fixed in 3.14.3; SurrealDB uses aiohttp
     "pydantic-settings>=2.0",
     "PyJWT[crypto]>=2.13",  # PYSEC-2026-175/177/178/179 fixed in 2.13.0
+    "cryptography>=50.0.0",  # PYSEC-2026-3552 fixed in 50.0.0
     "anthropic>=0.40",
     "httpx>=0.27",
     "click>=8.0",
@@ -71,7 +73,6 @@ dev = [
 ]
 discord = [
     "discord.py>=2.3",
-    "aiohttp>=3.14",  # CVE-2026-34993 / CVE-2026-47265 fixed in 3.14.0
 ]
 browser = [
     "playwright>=1.40",
@@ -142,6 +143,7 @@ include = ["ace", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evalua
 "core.schema" = ["*.surql"]
 "core.engine.onboarding" = ["*.json"]
 "core.engine.runtime" = ["*.yml"]
+"core.engine.grounded_state" = ["fixtures/*.json"]
 "core.engine.cognition.recipes" = ["*.yaml"]
 "core.engine.generation" = ["templates/*.j2"]
 "core.engine.reports" = ["templates/*.html", "templates/*.css", "static/*.js"]

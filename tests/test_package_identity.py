@@ -8,6 +8,7 @@ from packaging.utils import canonicalize_name
 
 import ace
 import ace_mcp_client
+from core.engine.grounded_state import belief_evaluation, candidate_evaluation
 from core.engine.version import VERSION
 from extensions.reference.extension import ProductExtension
 from scripts import release_inventory
@@ -19,9 +20,11 @@ def test_distribution_import_cli_and_version_identities() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
     assert project["name"] == "ace-core"
-    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.1.4"
+    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.2.0"
     assert ProductExtension.version == project["version"]
     assert project["scripts"]["ace"] == "core.engine.cli.main:cli"
+    assert "aiohttp>=3.14.3" in project["dependencies"]
+    assert "cryptography>=50.0.0" in project["dependencies"]
 
 
 def test_package_copy_and_public_links_are_release_ready() -> None:
@@ -40,7 +43,7 @@ def test_package_copy_and_public_links_are_release_ready() -> None:
 def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
 
-    assert "default: v0.1.4" in workflow
+    assert "default: v0.2.0" in workflow
     assert "Validate release tag matches package version" in workflow
     assert 'if [ "$RELEASE_TAG" != "v$package_version" ]' in workflow
 
@@ -48,6 +51,13 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
 def test_docker_image_includes_public_cli_package() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     assert "COPY ace/ ace/" in dockerfile
+    assert "ARG ACE_VERSION=0.2.0" in dockerfile
+    assert 'org.opencontainers.image.version="${ACE_VERSION}"' in dockerfile
+    assert "uv sync --frozen --no-dev --no-editable --no-cache" in dockerfile
+
+    compose = (ROOT / "infra" / "docker-compose.yml").read_text(encoding="utf-8")
+    assert compose.count('ACE_VERSION: "0.2.0"') == 3
+    assert compose.count('org.opencontainers.image.version: "0.2.0"') == 2
 
 
 def test_lock_tracks_the_distribution_identity() -> None:
@@ -70,6 +80,14 @@ def test_release_inventory_reads_ace_core_requirements(monkeypatch) -> None:
     assert requested == ["ace-core"]
 
 
+def test_release_inventory_records_installed_ace_core_version(monkeypatch) -> None:
+    monkeypatch.setattr(release_inventory.metadata, "distributions", lambda: [])
+    monkeypatch.setattr(release_inventory.metadata, "requires", lambda _name: [])
+    monkeypatch.setattr(release_inventory.metadata, "version", lambda name: "0.2.0" if name == "ace-core" else "")
+
+    assert release_inventory.build_inventory()["ace_core_version"] == "0.2.0"
+
+
 def test_installed_documentation_paths_do_not_collide() -> None:
     data_files = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["tool"]["setuptools"][
         "data-files"
@@ -81,3 +99,22 @@ def test_installed_documentation_paths_do_not_collide() -> None:
     assert "docs/evidence/*.md" in data_files["share/doc/ace/docs/evidence"]
     assert "docs/design/*.md" in data_files["share/doc/ace/docs/design"]
     assert all("launch" not in path for paths in data_files.values() for path in paths)
+
+
+def test_release_archives_exclude_host_specific_k1_k3_raw_trials() -> None:
+    manifest = (ROOT / "MANIFEST.in").read_text(encoding="utf-8")
+    dockerignore = (ROOT / ".dockerignore").read_text(encoding="utf-8")
+
+    assert "prune evaluations/results/state_engine_k1_k3_raw" in manifest
+    assert "evaluations/results/state_engine_k1_k3_raw" in dockerignore
+
+
+def test_frozen_state_engine_corpus_is_packaged_for_checkout_free_smoke_runs() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    runtime_corpus = ROOT / "core/engine/grounded_state/fixtures/temporal_reference_candidate_v1.json"
+    review_corpus = ROOT / "tests/fixtures/grounded_state/temporal_reference_candidate_v1.json"
+
+    assert runtime_corpus.read_bytes() == review_corpus.read_bytes()
+    assert belief_evaluation.DEFAULT_CORPUS == runtime_corpus
+    assert candidate_evaluation.DEFAULT_CORPUS == runtime_corpus
+    assert "fixtures/*.json" in project["tool"]["setuptools"]["package-data"]["core.engine.grounded_state"]

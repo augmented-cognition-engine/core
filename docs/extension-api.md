@@ -38,6 +38,12 @@ names the commitment; the source names the types.
   `run_task_action_conformance(...)`; ignoring the return remains valid.
 - `Registry.register_sentinel(...)` — sentinel engine contribution.
 - `Registry.register_briefing_section(...)` — briefing composition hooks.
+- `Registry.register_grounded_state_adapter(name, adapter)` — register a bounded,
+  provider-neutral source-extraction mapper. The adapter may propose domain
+  records and entity-resolution bindings, but it never receives a persistence
+  handle: Core injects product scope, derives identity and hashes, validates
+  temporal/lifecycle semantics, writes the append-only substrate, and owns
+  per-item and batch receipts. The adapter must expose `build_manifest(...)`.
 - Canvas extension wiring (`core/ui/canvas/src/app/ext/`).
 - `ACE_EXTENSIONS` dev-list loading (unpackaged local extensions).
 
@@ -57,6 +63,23 @@ identifier into a prompt is not reported as retrieval. `resolved` requires match
 private context content plus immutable version, hash, resolver, and product-scope
 evidence. Projected recommendations remain separate from human decisions and later
 adoption.
+
+For grounded-state ingestion, extensions own source parsing, domain extraction,
+raw surface forms, and optional resolution proposals. Core owns the canonical
+product boundary, record identity, exact idempotency, timestamps, correction and
+supersession lineage, storage, replay, isolation, and receipts. Extensions must
+not write source claims through `observation` or `insight`, and ingestion adapters
+must not require a primary-model call per record. The shipped
+`extensions/reference/grounded_state_adapter.py` is a fixture-backed OLC-style
+example; it is not a claim that the full OLC corpus is import-ready.
+
+For TP6 reasoning, the shipped reference extension also registers the experimental
+`evidence-query` task action. Authenticated Core actor context supplies product, workspace, user,
+invocation, and authorization scope; caller parameters cannot override product identity. The action
+uses Core's TP3/TP4 resolver to return one bounded `ResolvedContextRecord` with immutable context-pack
+version/hash and product scope. Retrieved text is enclosed as untrusted evidence data and receives
+no task, system, tool, secret, mutation, or scope authority. The action uses the existing durable
+task/status lifecycle and adds no MCP tool or public endpoint.
 
 The experimental capability manifest negotiates accepted input versions, one output
 version, lifecycle operations, cancellation support, resolver/artifact capabilities,

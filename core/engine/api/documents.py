@@ -25,6 +25,7 @@ async def create_document(body: DocumentCreate, user: dict = Depends(get_current
         result = await db.query(
             """
             CREATE document SET
+                product = <record>$product,
                 title = $title,
                 content = $content,
                 doc_type = $doc_type,
@@ -89,13 +90,12 @@ async def get_document(doc_id: str, user: dict = Depends(get_current_user)):
 async def _ingest_document(doc_id: str, content: str, product_id: str, workspace_id: str | None) -> None:
     """Ingest a document through the capture pipeline."""
     from core.engine.capture.document_chunker import chunk_document
+    from core.engine.capture.lifecycle import process_observation_attempt
     from core.engine.capture.observer import Observer
-    from core.engine.capture.synthesizer import Synthesizer
 
     sections = chunk_document(content)
     observer = Observer(product_id=product_id, workspace_id=workspace_id)
-    synthesizer = Synthesizer(product_id=product_id, workspace_id=workspace_id)
-    synthesizer._db_pool = pool
+    pending_observations: list[dict] = []
 
     async with pool.connection() as db:
         for section in sections:
@@ -103,6 +103,7 @@ async def _ingest_document(doc_id: str, content: str, product_id: str, workspace
             mem_result = await db.query(
                 """
                 CREATE memory SET
+                    product = <record>$product,
                     content = $content,
                     memory_type = 'document_fragment',
                     source = 'document_ingestion',
@@ -137,14 +138,21 @@ async def _ingest_document(doc_id: str, content: str, product_id: str, workspace
             observations = await observer.evaluate_chunk(chunk, memory_id=memory_id)
             for obs in observations:
                 # Write observation
-                await db.query(
+                obs_result = await db.query(
                     """
                     CREATE observation SET
+                        product = <record>$product,
                         content = $content,
                         observation_type = $type,
                         confidence = $conf,
+                        domain_path = $domain_hint,
                         domain_hint = $domain_hint,
+                        discipline_hint = $domain_hint,
                         source_memory = $source_memory,
+                        source = 'document_ingestion',
+                        status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         synthesized = false,
                         created_at = time::now()
                     """,
@@ -158,12 +166,24 @@ async def _ingest_document(doc_id: str, content: str, product_id: str, workspace
                         "source_memory": memory_id,
                     },
                 )
-                await synthesizer.add_observation(obs)
-
-        await synthesizer.flush()
+                obs_row = parse_one(obs_result)
+                if obs_row:
+                    material = dict(obs)
+                    material.update(obs_row)
+                    material["product"] = product_id
+                    material["source"] = "document_ingestion"
+                    pending_observations.append(material)
 
         # Mark document as ingested
         await db.query(
             "UPDATE <record>$id SET last_ingested = time::now()",
             {"id": doc_id},
+        )
+
+    for observation in pending_observations:
+        await process_observation_attempt(
+            observation,
+            db_pool=pool,
+            route="document_ingestion",
+            scope_prevalidated=True,
         )

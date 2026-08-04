@@ -101,6 +101,9 @@ async def extract_session_observations(
                         confidence = $confidence,
                         source = 'chat_session',
                         source_session = $sess,
+                        status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         created_at = time::now()
                     """,
                     {

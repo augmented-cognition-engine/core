@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import copy
+import hashlib
+import json
 import logging
 import weakref
 
@@ -118,12 +120,29 @@ def _authorize_action(action, user: dict) -> None:
         raise HTTPException(status_code=404, detail={"code": "extension_feature_unavailable"})
 
 
-def _actor(envelope: ExtensionInvocationEnvelope, user: dict) -> ExtensionActorContext:
+def _planned_task_id(envelope: ExtensionInvocationEnvelope, user: dict, *, attempt_number: int) -> str:
+    """Predeclare the exact task identity used by preparation and persistence."""
+    material = {
+        "contract_version": "extension-task-identity-v1",
+        "product_id": str(user.get("product", "product:default")),
+        "workspace_id": envelope.workspace_id,
+        "user_id": str(user.get("sub", "user:default")),
+        "extension_id": envelope.extension_id,
+        "action": envelope.action,
+        "correlation_id": envelope.correlation_id,
+        "attempt_number": attempt_number,
+    }
+    encoded = json.dumps(material, sort_keys=True, separators=(",", ":")).encode()
+    return f"task:extension_{hashlib.sha256(encoded).hexdigest()[:32]}"
+
+
+def _actor(envelope: ExtensionInvocationEnvelope, user: dict, *, task_id: str | None = None) -> ExtensionActorContext:
     _verify_workspace_authority(envelope.workspace_id, user)
     return ExtensionActorContext(
         product_id=user.get("product", "product:default"),
         workspace_id=envelope.workspace_id,
         user_id=user.get("sub", "user:default"),
+        task_id=task_id,
     )
 
 
@@ -135,6 +154,7 @@ def _task_body(envelope: ExtensionInvocationEnvelope, plan) -> TaskCreate:
         deep=plan.deep,
         force_skill=plan.force_skill,
         frameworks_hint=plan.frameworks_hint,
+        decision=plan.runtime_coordinates.get("structured_decision") or None,
         idempotency_key=envelope.idempotency_key,
         wait_seconds=envelope.wait_seconds,
     )
@@ -218,7 +238,8 @@ async def create_extension_invocation(
     """Resolve a structured envelope through its owning extension and submit it durably."""
     action = _resolve_action(envelope)
     _authorize_action(action, user)
-    actor = _actor(envelope, user)
+    task_id = _planned_task_id(envelope, user, attempt_number=1)
+    actor = _actor(envelope, user, task_id=task_id)
     try:
         plan = await prepare_action(action, envelope, actor)
     except Exception as exc:
@@ -234,6 +255,7 @@ async def create_extension_invocation(
         user,
         extension_invocation=metadata,
         fingerprint_override=envelope_fingerprint(envelope),
+        requested_task_id=task_id,
     )
 
 
@@ -413,7 +435,8 @@ async def resume_extension_invocation(
         )
         action = _resolve_action(retry_envelope)
         _authorize_action(action, user)
-        actor = _actor(retry_envelope, user)
+        successor_task_id = _planned_task_id(retry_envelope, user, attempt_number=next_attempt)
+        actor = _actor(retry_envelope, user, task_id=successor_task_id)
         try:
             plan = await prepare_action(action, retry_envelope, actor)
         except Exception as exc:
@@ -438,6 +461,7 @@ async def resume_extension_invocation(
             extension_invocation=successor_metadata,
             retry_of_task_id=task_id,
             fingerprint_override=envelope_fingerprint(retry_envelope),
+            requested_task_id=successor_task_id,
         )
 
         prior_metadata = copy.deepcopy(metadata)

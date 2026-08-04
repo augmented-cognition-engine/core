@@ -241,12 +241,16 @@ async def _import_claude_md(path: str, product_id: str) -> None:
                     continue
                 await db.query(
                     """CREATE observation SET
+                        product = <record>$product,
                         content = $content,
                         observation_type = 'convention',
                         confidence = 0.95,
                         discipline_hint = 'code_conventions',
                         source_memory = 'claude_md_import',
                         synthesized = false,
+                        status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         created_at = time::now()""",
                     {
                         "product": product_id,

@@ -1686,6 +1686,19 @@ async def ace_health(product_id: str = DEFAULT_PRODUCT) -> str:
     if d.get("last_error"):
         lines.append(f"\n  Last error: {d['last_error']}")
 
+    outcomes = d.get("observation_outcomes") or {}
+    if outcomes:
+        lines.extend(
+            [
+                "",
+                f"  Pending observations: {outcomes.get('pending_count', 0)}",
+                f"  Processing:           {outcomes.get('processing_count', 0)}",
+                f"  Retryable failures:   {outcomes.get('retryable_failure_count', 0)}",
+                f"  Dead letters:         {outcomes.get('dead_letter_count', 0)}",
+                f"  Legacy unexplained:   {outcomes.get('legacy_unexplained_count', 0)}",
+            ]
+        )
+
     return "\n".join(lines)
 
 
@@ -2128,11 +2141,11 @@ async def ace_voice_audit_summary(product: str = DEFAULT_PRODUCT) -> dict:
 
 
 @mcp.tool(title="Inspect Relationship Assertion")
-async def ace_assertion(assertion_id: str) -> dict:
+async def ace_assertion(assertion_id: str, product: str = DEFAULT_PRODUCT) -> dict:
     """Explain one assertion: evidence, proposers, reviews, lifecycle, and operational projection."""
     from core.engine.graph.assertions import inspect_assertion
 
-    result = await inspect_assertion(assertion_id)
+    result = await inspect_assertion(assertion_id, product_id=product)
     return result or {"error": "assertion_not_found", "assertion_id": assertion_id}
 
 

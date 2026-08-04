@@ -48,6 +48,21 @@ INSIGHT_LIKE = frozenset(
         "initiative",
     }
 )
+GROUNDED_EPISTEMIC = frozenset(
+    {
+        "grounded_source",
+        "grounded_entity",
+        "grounded_alias",
+        "grounded_claim",
+        "grounded_event",
+        "grounded_event_participant",
+        "grounded_evidence_relation",
+        "grounded_extraction_failure",
+        "grounded_state",
+        "belief_state",
+    }
+)
+REVIEWED_ENDPOINTS = INSIGHT_LIKE | GROUNDED_EPISTEMIC
 
 RELATIONSHIPS: dict[str, RelationshipContract] = {
     "depends_on": RelationshipContract(
@@ -97,8 +112,8 @@ RELATIONSHIPS: dict[str, RelationshipContract] = {
         "causes",
         "Within the declared context, the subject is asserted to produce the object outcome.",
         "causal",
-        INSIGHT_LIKE,
-        INSIGHT_LIKE,
+        REVIEWED_ENDPOINTS,
+        REVIEWED_ENDPOINTS,
         aliases=("leads_to",),
         compatible=frozenset({"informed_by"}),
         human_confirmation=True,
@@ -137,8 +152,8 @@ RELATIONSHIPS: dict[str, RelationshipContract] = {
         "supersedes",
         "The subject replaces the object as the current applicable belief or decision.",
         "change_history",
-        INSIGHT_LIKE,
-        INSIGHT_LIKE,
+        REVIEWED_ENDPOINTS,
+        REVIEWED_ENDPOINTS,
         inverse="superseded_by",
         inverse_aliases=("superseded_by",),
     ),
@@ -156,11 +171,22 @@ RELATIONSHIPS: dict[str, RelationshipContract] = {
         "contradicts",
         "The subject and object cannot both be true in the same scope and validity interval.",
         "epistemic_conflict",
-        INSIGHT_LIKE,
-        INSIGHT_LIKE,
+        REVIEWED_ENDPOINTS,
+        REVIEWED_ENDPOINTS,
         symmetric=True,
         aliases=("conflicts_with",),
         projectable=False,
+    ),
+    "corroborates": RelationshipContract(
+        "corroborates",
+        "Independent source material supports the same proposition in the same validity scope.",
+        "epistemic_support",
+        REVIEWED_ENDPOINTS,
+        REVIEWED_ENDPOINTS,
+        symmetric=True,
+        minimum_evidence=2,
+        projectable=False,
+        counterexamples=("A replay, syndicated copy, restatement, or time-distinct update",),
     ),
 }
 

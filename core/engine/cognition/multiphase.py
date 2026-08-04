@@ -605,6 +605,8 @@ class MultiPhaseExecutor:
                         confidence = 0.75,
                         source = 'composition_phase',
                         status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         created_at = time::now()
                     """,
                     {

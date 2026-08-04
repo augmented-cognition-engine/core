@@ -1,0 +1,79 @@
+{
+  "contract_version": "ace.grounded-state.tp8-compatibility/v1",
+  "core_version": "0.1.4",
+  "schema_head": 168,
+  "matrix": [
+    {
+      "subject": "reference extension current",
+      "version": "0.1.4",
+      "expected": "supported",
+      "observed": "passed"
+    },
+    {
+      "subject": "reference extension N-1 envelope",
+      "version": "0.1.3",
+      "expected": "supported",
+      "observed": "passed conformance"
+    },
+    {
+      "subject": "naked kernel",
+      "version": "extensions disabled",
+      "expected": "supported",
+      "observed": "passed"
+    },
+    {
+      "subject": "thin MCP client",
+      "version": "0.1.4",
+      "expected": "exactly 11 tools",
+      "observed": "11"
+    },
+    {
+      "subject": "fresh database, API, and thin client processes",
+      "version": "schema 168 / Core 0.1.4",
+      "expected": "restart continuity",
+      "observed": "passed exact fresh-process restart acceptance in 31.84s"
+    },
+    {
+      "subject": "fresh worker process",
+      "version": "schema 168 / worker 0.1.4",
+      "expected": "healthy restart continuity",
+      "observed": "two separate worker PIDs reached healthy and shut down cleanly"
+    },
+    {
+      "subject": "package boundary",
+      "version": "0.1.4",
+      "expected": "Core does not import source/domain extensions",
+      "observed": "passed"
+    },
+    {
+      "subject": "schema zero",
+      "version": "0 to 168",
+      "expected": "supported",
+      "observed": "167 files applied; v168 validated; second application applied 0"
+    },
+    {
+      "subject": "supported v0.1.x upgrade",
+      "version": "157 to 168",
+      "expected": "supported",
+      "observed": "11 files applied; sentinel preserved"
+    },
+    {
+      "subject": "interrupted current migration",
+      "version": "167 to 168",
+      "expected": "resumable",
+      "observed": "hard stop after 8 of 53 statements; production installer resumed and validated; second run no-op"
+    },
+    {
+      "subject": "arbitrary historical migration interruption",
+      "version": "mid-v14",
+      "expected": "not supported",
+      "observed": "resume failed closed on an existing table; limitation retained"
+    },
+    {
+      "subject": "same-database versus external content adapter",
+      "version": "v1",
+      "expected": "identical Core identity and replay",
+      "observed": "10/10 stable identities identical; external delivery was exact duplicate; receipts distinct"
+    }
+  ]
+}
