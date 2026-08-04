@@ -29,7 +29,7 @@ TP4_EVALUATION_CONFIG_VERSION = "ace.grounded-state.tp4-belief-evaluation-config
 TP4_EVALUATION_RESULT_VERSION = "ace.grounded-state.tp4-belief-evaluation-result/v1"
 
 ROOT = Path(__file__).parents[3]
-DEFAULT_CORPUS = ROOT / "tests/fixtures/grounded_state/temporal_reference_candidate_v1.json"
+DEFAULT_CORPUS = Path(__file__).parent / "fixtures/temporal_reference_candidate_v1.json"
 DEFAULT_CONFIG = ROOT / "evaluations/fixtures/state_engine_tp4_belief_projection_v1.json"
 
 

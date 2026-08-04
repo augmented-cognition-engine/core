@@ -32,7 +32,7 @@ TP3_CANDIDATE_EVALUATION_CONFIG_VERSION = "ace.grounded-state.tp3-candidate-eval
 TP3_CANDIDATE_EVALUATION_RESULT_VERSION = "ace.grounded-state.tp3-candidate-evaluation-result/v1"
 
 ROOT = Path(__file__).parents[3]
-DEFAULT_CORPUS = ROOT / "tests/fixtures/grounded_state/temporal_reference_candidate_v1.json"
+DEFAULT_CORPUS = Path(__file__).parent / "fixtures/temporal_reference_candidate_v1.json"
 DEFAULT_CONFIG = ROOT / "evaluations/fixtures/state_engine_tp3_candidate_retrieval_v1.json"
 
 _NEGATIVE_RELATIONSHIPS = {

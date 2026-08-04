@@ -2,7 +2,7 @@ include README.md ROADMAP.md CONTRIBUTING.md SECURITY.md CHANGELOG.md LICENSE NO
 include Dockerfile Makefile .env.example uv.lock
 include build_backend.py
 recursive-include ace_mcp_client *.py
-recursive-include core *.py *.surql
+recursive-include core *.py *.surql *.json
 recursive-include extensions *.py *.md
 recursive-include scripts *.py
 recursive-include evaluations *.json *.md

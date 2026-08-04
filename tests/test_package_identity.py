@@ -8,6 +8,7 @@ from packaging.utils import canonicalize_name
 
 import ace
 import ace_mcp_client
+from core.engine.grounded_state import belief_evaluation, candidate_evaluation
 from core.engine.version import VERSION
 from extensions.reference.extension import ProductExtension
 from scripts import release_inventory
@@ -106,3 +107,14 @@ def test_release_archives_exclude_host_specific_k1_k3_raw_trials() -> None:
 
     assert "prune evaluations/results/state_engine_k1_k3_raw" in manifest
     assert "evaluations/results/state_engine_k1_k3_raw" in dockerignore
+
+
+def test_frozen_state_engine_corpus_is_packaged_for_checkout_free_smoke_runs() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    runtime_corpus = ROOT / "core/engine/grounded_state/fixtures/temporal_reference_candidate_v1.json"
+    review_corpus = ROOT / "tests/fixtures/grounded_state/temporal_reference_candidate_v1.json"
+
+    assert runtime_corpus.read_bytes() == review_corpus.read_bytes()
+    assert belief_evaluation.DEFAULT_CORPUS == runtime_corpus
+    assert candidate_evaluation.DEFAULT_CORPUS == runtime_corpus
+    assert "fixtures/*.json" in project["tool"]["setuptools"]["package-data"]["core.engine.grounded_state"]

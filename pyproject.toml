@@ -143,6 +143,7 @@ include = ["ace", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evalua
 "core.schema" = ["*.surql"]
 "core.engine.onboarding" = ["*.json"]
 "core.engine.runtime" = ["*.yml"]
+"core.engine.grounded_state" = ["fixtures/*.json"]
 "core.engine.cognition.recipes" = ["*.yaml"]
 "core.engine.generation" = ["templates/*.j2"]
 "core.engine.reports" = ["templates/*.html", "templates/*.css", "static/*.js"]
