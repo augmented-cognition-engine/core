@@ -130,7 +130,10 @@ class FileChangeHandler(FileSystemEventHandler):
         self.debounce_seconds = debounce_seconds
         # pending: map from abs_path → (event_type_str, timer_handle)
         self._pending: dict[str, tuple[str, asyncio.TimerHandle | None]] = {}
-        self._loop: asyncio.AbstractEventLoop | None = None
+        # FileSystemEventHandler callbacks run on watchdog's observer thread.
+        # Capture the owning async loop while the handler is constructed inside
+        # the worker lifespan so callbacks can marshal work back safely.
+        self._loop: asyncio.AbstractEventLoop | None = self._get_loop()
 
     def _get_loop(self) -> asyncio.AbstractEventLoop | None:
         try:
@@ -140,10 +143,24 @@ class FileChangeHandler(FileSystemEventHandler):
 
     def _schedule(self, path: str, event_kind: str) -> None:
         """Schedule a debounced post for `path`."""
-        loop = self._get_loop()
+        loop = self._loop or self._get_loop()
         if loop is None:
-            # No running loop — use asyncio.run for the flush (fallback for tests)
-            asyncio.ensure_future(self._fire(path, event_kind))
+            logger.warning("fs_watcher: dropping event because no owning event loop is available")
+            return
+        self._loop = loop
+        if loop.is_closed():
+            logger.debug("fs_watcher: dropping event because the owning event loop is closed")
+            return
+
+        try:
+            loop.call_soon_threadsafe(self._schedule_on_loop, path, event_kind)
+        except RuntimeError:
+            logger.debug("fs_watcher: event loop closed while scheduling %s", path)
+
+    def _schedule_on_loop(self, path: str, event_kind: str) -> None:
+        """Create or replace a debounce timer on the owning event-loop thread."""
+        loop = self._loop
+        if loop is None or loop.is_closed():
             return
 
         # Cancel existing timer if any
@@ -153,7 +170,7 @@ class FileChangeHandler(FileSystemEventHandler):
 
         handle = loop.call_later(
             self.debounce_seconds,
-            lambda: asyncio.ensure_future(self._fire(path, event_kind), loop=loop),
+            lambda: loop.create_task(self._fire(path, event_kind)),
         )
         self._pending[path] = (event_kind, handle)
 

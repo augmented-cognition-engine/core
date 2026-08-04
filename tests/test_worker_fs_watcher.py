@@ -45,6 +45,34 @@ async def test_fs_watcher_posts_on_file_create(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_fs_watcher_marshals_watchdog_thread_events_to_owning_loop(tmp_path):
+    """Watchdog callbacks run on a thread and must not require a thread-local loop."""
+    from watchdog.events import FileModifiedEvent
+
+    from core.engine.worker.fs_watcher import FileChangeHandler
+
+    posted = []
+
+    async def fake_post(payload: dict) -> None:
+        posted.append(payload)
+
+    handler = FileChangeHandler(
+        watch_dir=str(tmp_path),
+        product_id="product:platform",
+        post_fn=fake_post,
+        debounce_seconds=0.01,
+    )
+    changed = tmp_path / "worker.py"
+    changed.write_text("# changed")
+
+    await asyncio.to_thread(handler.on_modified, FileModifiedEvent(str(changed)))
+    await asyncio.sleep(0.1)
+    await handler.flush()
+
+    assert [item["event_type"] for item in posted] == ["fs.file.modified"]
+
+
+@pytest.mark.asyncio
 async def test_fs_watcher_excludes_dotgit(tmp_path):
     """Events from .git/ paths must be silently ignored."""
     from core.engine.worker.fs_watcher import FileChangeHandler
