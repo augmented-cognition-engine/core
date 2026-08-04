@@ -1,0 +1,12 @@
+{
+  "operation": "resume_interrupted_current_migration",
+  "status": "completed",
+  "schema_version_before_resume": 167,
+  "target_schema_version": 168,
+  "partially_committed_statements": 8,
+  "migration_files_applied_on_resume": 1,
+  "audited_legacy_compatibility_events": 0,
+  "required_schema_validated": true,
+  "second_application_files": 0,
+  "second_application_validated": true
+}

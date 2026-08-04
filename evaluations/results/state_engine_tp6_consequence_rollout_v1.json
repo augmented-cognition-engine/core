@@ -1,0 +1,151 @@
+{
+  "contract_version": "ace.grounded-state.rollout-evaluation-result/v1",
+  "config_hash": "b35041e7c802c2b593ce24ba99b422d0f0d7afd54867cad7b3f09707effe8e7d",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "scenarios_evaluated": 5,
+  "scenarios_matched": 5,
+  "deterministic_replays": 2,
+  "deterministic_replay_matches": 2,
+  "scenario_results": [
+    {
+      "case_key": "action_only_rollout_rejected",
+      "expected_state": "invalid_input",
+      "actual_state": "invalid_input",
+      "expected_branch_kinds": [
+        "action"
+      ],
+      "actual_branch_kinds": [
+        "action"
+      ],
+      "starting_projection_id": null,
+      "starting_projection_hash": null,
+      "transition_revision_ids": [],
+      "transition_revision_hashes": [],
+      "rollout_revision_id": null,
+      "rollout_revision_hash": null,
+      "replay_matched": true,
+      "failure_reason": null,
+      "matched": true,
+      "material_hash": "18de957c5edfc5bf1e330f062ce3f0e58498943995585eedfe4919e803d0d96a"
+    },
+    {
+      "case_key": "complete_action_no_action_rollout",
+      "expected_state": "eligible",
+      "actual_state": "eligible",
+      "expected_branch_kinds": [
+        "action",
+        "no_action"
+      ],
+      "actual_branch_kinds": [
+        "action",
+        "no_action"
+      ],
+      "starting_projection_id": "grounded_belief_projection:49d1cef2ea6d8e1bf30411e9232a4f0d",
+      "starting_projection_hash": "49d1cef2ea6d8e1bf30411e9232a4f0d5236250c54add1838a149be4d09eaeda",
+      "transition_revision_ids": [
+        "grounded_transition_revision:cbad9603b76246953e8e5d9798f7f4b0"
+      ],
+      "transition_revision_hashes": [
+        "cbad9603b76246953e8e5d9798f7f4b08ff9d19d08b715628942ec9a889353fe"
+      ],
+      "rollout_revision_id": "grounded_rollout_revision:1e22d7fea46ce6c9a4ec4120dd54b358",
+      "rollout_revision_hash": "1e22d7fea46ce6c9a4ec4120dd54b358f6596255c5d9d7212c384fa5e5ba9ea8",
+      "replay_matched": true,
+      "failure_reason": null,
+      "matched": true,
+      "material_hash": "7b08b01c6cc374b9c5bd9b66ab0474c6f0c46ede7dafe8ee6d9a9a5705167a85"
+    },
+    {
+      "case_key": "mechanism_supported_transition",
+      "expected_state": "eligible",
+      "actual_state": "eligible",
+      "expected_branch_kinds": [
+        "action",
+        "alternative",
+        "no_action"
+      ],
+      "actual_branch_kinds": [
+        "action",
+        "alternative",
+        "no_action"
+      ],
+      "starting_projection_id": "grounded_belief_projection:ab21373dd4cafdc42494d899fb04ba20",
+      "starting_projection_hash": "ab21373dd4cafdc42494d899fb04ba20f5675437ed695fd002720c8237cebe36",
+      "transition_revision_ids": [
+        "grounded_transition_revision:e6c9cdd91a969971e80f63da19c5746a"
+      ],
+      "transition_revision_hashes": [
+        "e6c9cdd91a969971e80f63da19c5746aa83ef7ae1a0d3cc5e94b92633b282a9c"
+      ],
+      "rollout_revision_id": "grounded_rollout_revision:b15eb0c150dfb9df6dc43a9cc6447e1c",
+      "rollout_revision_hash": "b15eb0c150dfb9df6dc43a9cc6447e1c80b54f9dbea292ed0695371742c3e1fd",
+      "replay_matched": true,
+      "failure_reason": null,
+      "matched": true,
+      "material_hash": "479cc6477898bf811a6a4941a817c0602d2fc0a05e69fd41ccddc212a9174250"
+    },
+    {
+      "case_key": "rollout_missing_frozen_baseline",
+      "expected_state": "invalid_input",
+      "actual_state": "invalid_input",
+      "expected_branch_kinds": [],
+      "actual_branch_kinds": [],
+      "starting_projection_id": null,
+      "starting_projection_hash": null,
+      "transition_revision_ids": [],
+      "transition_revision_hashes": [],
+      "rollout_revision_id": null,
+      "rollout_revision_hash": null,
+      "replay_matched": true,
+      "failure_reason": null,
+      "matched": true,
+      "material_hash": "c34573568a602c5eb3f0368db0a63d38365464d3cbaac978763c98e4c7c4e9fb"
+    },
+    {
+      "case_key": "rollout_missing_horizon",
+      "expected_state": "invalid_input",
+      "actual_state": "invalid_input",
+      "expected_branch_kinds": [],
+      "actual_branch_kinds": [],
+      "starting_projection_id": null,
+      "starting_projection_hash": null,
+      "transition_revision_ids": [],
+      "transition_revision_hashes": [],
+      "rollout_revision_id": null,
+      "rollout_revision_hash": null,
+      "replay_matched": true,
+      "failure_reason": null,
+      "matched": true,
+      "material_hash": "f5e3b316cd9ad48f735a6e4d3b93f31e4ce1e72506c68ea262975e6c3ae5d56a"
+    }
+  ],
+  "required_checks": {
+    "action_no_action_same_start": true,
+    "causal_fail_closed": true,
+    "deterministic_replay": true,
+    "evidence_query_replay": true,
+    "later_outcome_immutable_reconciliation": true,
+    "matched_control_materiality": true,
+    "model_proposal_non_authority": true,
+    "product_isolation": true,
+    "prompt_injection_no_authority": true,
+    "simulated_observed_isolation": true,
+    "unavailable_inputs_visible": true
+  },
+  "product_isolation_violations": 0,
+  "prompt_authority_violations": 0,
+  "simulated_observation_violations": 0,
+  "provider": null,
+  "model": null,
+  "primary_model_calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "latency_ms": 0,
+  "retries": 0,
+  "estimated_cost_usd": 0.0,
+  "billing_semantics": "no_provider_call",
+  "failures": [],
+  "fallbacks": [],
+  "passed": true,
+  "outcome_hash": "dfeeb1128166b6dc93bfb41a8911b8a9d3fd3a298a6cd85fff7d709783aab915"
+}

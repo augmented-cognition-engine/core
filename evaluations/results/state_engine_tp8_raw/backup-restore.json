@@ -1,0 +1,25 @@
+{
+  "operation": "backup_restore",
+  "status": "completed",
+  "backup_bytes": 520154734,
+  "backup_duration_seconds_less_than": 5,
+  "backup_threshold_seconds": 300,
+  "restore_duration_seconds": 28.97,
+  "restore_threshold_seconds": 300,
+  "restored_semantic_counts": {
+    "source": 2000,
+    "entity": 5000,
+    "alias": 5000,
+    "claim": 220000,
+    "event": 2000,
+    "event_participant": 2000,
+    "relation": 20000,
+    "extraction_failure": 0
+  },
+  "restored_semantic_total": 256000,
+  "restored_item_receipts": 2560,
+  "restored_batch_receipts": 68,
+  "restored_supersession_edges": 2000,
+  "known_manifest_replay_identity_preserved": true,
+  "known_manifest_replay_duration_ms": 27.901
+}

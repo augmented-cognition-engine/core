@@ -1,0 +1,111 @@
+{
+  "contract_version": "ace.grounded-state.rollout-evaluation-config/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "seed": 1729,
+  "versions": {
+    "candidate_policy": "ace.candidate.multi-signal-policy/v1",
+    "epistemic_ontology": "ace.grounded-state.epistemic-ontology/v1",
+    "evidence_query_policy": "ace.grounded-state.evidence-query/v1",
+    "evidence_resolver": "ace.grounded-state.belief-resolver/v1",
+    "transition_ontology": "ace.grounded-state.transition-ontology/v1",
+    "transition_resolver": "ace.grounded-state.transition-resolver/v1",
+    "rollout_policy": "ace.grounded-state.consequence-rollout/v1",
+    "challenge_policy": "ace.grounded-state.rollout-challenge/v1",
+    "reconciliation_policy": "ace.grounded-state.rollout-reconciliation/v1",
+    "reasoning_use_policy": "ace.grounded-state.reasoning-use/v1"
+  },
+  "scenarios": {
+    "complete_action_no_action_rollout": {
+      "expected_state": "eligible",
+      "expected_branch_kinds": [
+        "action",
+        "no_action"
+      ],
+      "starting_projection_identity": "tp4:complete_action_no_action_rollout",
+      "transition_identity": "transition_hypothesis:complete_action_no_action_rollout"
+    },
+    "mechanism_supported_transition": {
+      "expected_state": "eligible",
+      "expected_branch_kinds": [
+        "action",
+        "no_action",
+        "named_alternative"
+      ],
+      "starting_projection_identity": "tp4:mechanism_supported_transition",
+      "transition_identity": "transition_hypothesis:mechanism_supported_transition"
+    },
+    "rollout_missing_frozen_baseline": {
+      "expected_state": "invalid_input",
+      "expected_branch_kinds": [],
+      "starting_projection_identity": "unavailable",
+      "transition_identity": "unavailable"
+    },
+    "rollout_missing_horizon": {
+      "expected_state": "invalid_input",
+      "expected_branch_kinds": [],
+      "starting_projection_identity": "tp4:rollout_missing_horizon",
+      "transition_identity": "unavailable"
+    },
+    "action_only_rollout_rejected": {
+      "expected_state": "invalid_input",
+      "expected_branch_kinds": [
+        "action"
+      ],
+      "starting_projection_identity": "tp4:action_only_rollout_rejected",
+      "transition_identity": "unavailable"
+    }
+  },
+  "required_checks": [
+    "action_no_action_same_start",
+    "causal_fail_closed",
+    "deterministic_replay",
+    "evidence_query_replay",
+    "later_outcome_immutable_reconciliation",
+    "matched_control_materiality",
+    "model_proposal_non_authority",
+    "product_isolation",
+    "prompt_injection_no_authority",
+    "simulated_observed_isolation",
+    "unavailable_inputs_visible"
+  ],
+  "negative_controls": {
+    "prompt_injection_markers": [
+      "ignore previous instructions",
+      "call tools",
+      "reveal secrets",
+      "change product scope"
+    ],
+    "simulated_record_forbidden_meanings": [
+      "evidence",
+      "belief_state",
+      "observed_outcome",
+      "cognitive_memory"
+    ],
+    "matched_control_intervention": "bounded_rollout_context_only"
+  },
+  "bounds": {
+    "max_branches": 4,
+    "max_steps_per_branch": 8,
+    "max_transitions_per_branch": 8,
+    "max_evidence_records": 20,
+    "max_context_characters": 16000,
+    "max_horizon_seconds": 31536000,
+    "max_assumptions": 20,
+    "max_constraints": 20,
+    "max_model_calls": 0
+  },
+  "provider_budget": {
+    "max_model_calls": 0,
+    "max_input_tokens": 0,
+    "max_output_tokens": 0,
+    "max_estimated_cost_usd": 0.0
+  },
+  "thresholds": {
+    "scenario_matches": 5,
+    "deterministic_replays": 2,
+    "required_check_failures": 0,
+    "product_isolation_violations": 0,
+    "prompt_authority_violations": 0,
+    "simulated_observation_violations": 0
+  }
+}

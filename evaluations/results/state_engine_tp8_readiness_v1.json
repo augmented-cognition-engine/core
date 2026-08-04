@@ -1,0 +1,66 @@
+{
+  "contract_version": "ace.grounded-state.tp8-readiness/v1",
+  "evaluated_at": "2026-08-04T18:00:00Z",
+  "benchmark_id": "state-engine-tp8-scale-stability-v1",
+  "gates": {
+    "K1": {
+      "decision": "ready",
+      "evidence": [
+        "exact 200000-claim and 236000-semantic-row reconciliation",
+        "exact replay after database, adapter, and client interruption",
+        "append-only provenance, temporal, disagreement, unknown, and supersession semantics",
+        "deterministic as-of projection and restart continuity",
+        "990.409543 claims/second sustained sample versus a frozen 68000/day target",
+        "14.189 ms candidate p95 and 16.51 ms evidence-query/pack p95",
+        "zero observed cross-product violations"
+      ],
+      "limits": [
+        "reference evidence is synthetic/public and single-node",
+        "distributed ingestion and multi-writer guarantees are not claimed",
+        "arbitrary interruption inside historical pre-v142 migration files is not supported"
+      ],
+      "open_requirements": []
+    },
+    "K2": {
+      "decision": "candidate",
+      "evidence": [
+        "TP5 frozen mechanism, precondition, evidence, causal-limit, challenge, review, revision, and calibration matrix remains passing",
+        "transition resolution persisted in 10.815 ms while the 200000-claim database was active",
+        "domain-neutral Core contracts and extension-owned ontology boundary are documented"
+      ],
+      "limits": [
+        "the scale trial exercised one deterministic transition scenario rather than a broad frozen domain matrix at scale",
+        "no claim of real-world causal accuracy or calibrated forecasting"
+      ],
+      "open_requirements": [
+        "run the frozen TP5 domain matrix through repeated large-corpus transition and later-outcome calibration trials",
+        "publish per-domain error, abstention, challenge, revision, and calibration measurements"
+      ]
+    },
+    "K3": {
+      "decision": "candidate",
+      "evidence": [
+        "the actual task lifecycle resolves and injects bounded evidence and consequences, then persists an I3 reasoning-use receipt",
+        "action and no-action rollout, uncertainty, assumptions, falsifiable outcomes, reconciliation, promotion, correction, restart, and fresh retrieval pass",
+        "rollout service latency was 13.131 ms and simulated-as-observed violations were zero"
+      ],
+      "limits": [
+        "the real task acceptance is one deterministic provider-free journey, not a repeated large-corpus task p95 trial",
+        "beneficial impact and general consequence accuracy are unsupported"
+      ],
+      "open_requirements": [
+        "run repeated fresh API/worker/client task invocations against the large corpus and publish task, promotion, and later-retrieval p95s",
+        "reconcile a frozen set of later outcomes without rewriting original forecasts"
+      ]
+    }
+  },
+  "smallest_pre_r7_remediation_packet": {
+    "required_for_advertised_v0_2_capability": [
+      "K2: repeated large-corpus frozen-domain transition and calibration matrix",
+      "K3: repeated fresh-process large-corpus task, promotion, restart, and later-retrieval latency packet"
+    ],
+    "not_required_to_repeat": [
+      "K1 200000-claim single-node scale, recovery, isolation, backup/restore, and migration-head evidence unless implementation or reference environment changes"
+    ]
+  }
+}

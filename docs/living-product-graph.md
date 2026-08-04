@@ -18,7 +18,7 @@ the complete JSON snapshot. It never accepts a caller-supplied product identifie
 full trail behind one relationship shown in the snapshot, use its stable assertion identifier:
 
 ```bash
-uv run ace assertion relationship_assertion:<id>
+uv run ace assertion relationship_assertion:<id> --product product:<id>
 ```
 
 Both operations are reads. The thin MCP surface remains exactly eleven tools; G1 adds no MCP tool
@@ -53,13 +53,20 @@ Every successful response contains:
 - `projection_state`, including `complete`, `partial`, `degraded`, or `unknown`, assertion-state
   counts, and issue count;
 - the focal `product`, intent, projects, capabilities, relationships, decisions, foresight,
-  intelligence, work, assertion history, source receipts, and issues.
+  intelligence, bounded `state_engine` rollout metadata, work, assertion history, source receipts,
+  and issues.
 
 Projected product records have a stable `id`, `object_type`, `lifecycle_state`, `authority`, and
 `provenance`. Family-specific fields are allowlisted from existing records; database rows are not
 exposed indiscriminately. Structural relationships are labeled `source_record`. Resolved
 assertions are labeled `resolved_assertion_state`. Only accepted, projection-eligible assertions
 with matching endpoints and predicate can appear as `canonical_operational_truth`.
+
+TP6 consequence rollouts appear only under `state_engine.consequence_rollouts` as
+`read_only_simulation_projection` with record meaning `simulated_consequence_not_observation`.
+Reconciliation metadata appears separately under `state_engine.rollout_reconciliations`. The store
+omits TP6 payloads, exposes only allowlisted product-scoped coordinates, and never places simulated
+states or consequences under historical observations, insights, beliefs, or Foresight resolutions.
 
 ## Assertion and uncertainty semantics
 

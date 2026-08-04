@@ -1,0 +1,10 @@
+{
+  "operation": "supported_v0_1_x_upgrade",
+  "status": "completed",
+  "starting_schema_version": 157,
+  "target_schema_version": 168,
+  "migration_files_applied": 11,
+  "sentinel_value_before": "v0.1.x-preserved",
+  "sentinel_value_after": "v0.1.x-preserved",
+  "required_schema_validated": true
+}

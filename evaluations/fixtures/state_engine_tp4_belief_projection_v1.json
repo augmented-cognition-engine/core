@@ -1,0 +1,115 @@
+{
+  "contract_version": "ace.grounded-state.tp4-belief-evaluation-config/v1",
+  "corpus_contract_version": "ace.grounded-state.temporal-reference-corpus/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "evaluation_seed": 1729,
+  "ontology_version": "ace.grounded-state.epistemic-ontology/v1",
+  "resolver_policy_version": "ace.grounded-state.belief-resolver/v1",
+  "projection_policy_version": "ace.grounded-state.belief-projection/v1",
+  "assertion_policy_version": "ace.grounded-state.assertion-policy/v1",
+  "inference_policy_version": "ace.grounded-state.external-insight/v1",
+  "expected_classifications": {
+    "exact_replay_identical": {
+      "states": ["supported"],
+      "relationship": "exact_replay"
+    },
+    "source_version_replaces_prior": {
+      "states": ["superseded", "supported"],
+      "relationship": "source_version_replacement"
+    },
+    "restatement_not_corroboration": {
+      "states": ["provisional"],
+      "relationship": "restatement"
+    },
+    "independent_factory_corroboration": {
+      "states": ["supported"],
+      "relationship": "corroborates"
+    },
+    "world_state_changes_over_time": {
+      "states": ["supported"],
+      "relationship": "state_transition"
+    },
+    "same_interval_operating_conflict": {
+      "states": ["contested"],
+      "relationship": "same_interval_contradiction"
+    },
+    "unknown_event_time_remains_unknown": {
+      "states": ["provisional"],
+      "relationship": "background_evidence"
+    },
+    "contested_delivery_belief": {
+      "states": ["contested"],
+      "relationship": "same_interval_contradiction"
+    },
+    "unknown_property_belief": {
+      "states": ["unknown"],
+      "relationship": "background_evidence"
+    },
+    "price_reaction_not_causal_fact": {
+      "states": ["supported"],
+      "relationship": "reacts_to"
+    },
+    "sequence_without_causal_promotion": {
+      "states": ["supported"],
+      "relationship": "precedes"
+    },
+    "causal_claim_requires_human_gate": {
+      "states": ["supported"],
+      "relationship": "causal_candidate"
+    },
+    "foreign_product_evidence_isolated": {
+      "states": ["supported"],
+      "relationship": "cross_product_isolated"
+    }
+  },
+  "required_checks": [
+    "updates_differ_from_same_validity_contradictions",
+    "restatements_do_not_increase_source_diversity",
+    "independent_sources_may_corroborate",
+    "reciprocal_assertions_remain_contested",
+    "mutually_exclusive_assertions_remain_contested",
+    "source_claims_do_not_auto_accept",
+    "cheap_relations_do_not_auto_cause",
+    "causal_acceptance_requires_counterevidence_search",
+    "causal_acceptance_requires_independent_sources",
+    "causal_acceptance_requires_exact_human_review",
+    "arrival_order_replay",
+    "provider_output_order_replay",
+    "json_key_order_replay",
+    "unknown_time_preserved",
+    "bounded_pack_truncation_visible",
+    "product_isolation",
+    "targeted_reopening_only",
+    "database_restart_replay",
+    "service_restart_replay",
+    "external_insight_replay",
+    "unavailable_inputs_degrade_visibly",
+    "exact_eleven_tool_surface",
+    "naked_kernel_without_extensions"
+  ],
+  "budgets": {
+    "max_evidence_records": 200,
+    "max_candidate_records": 200,
+    "max_projection_entries": 200,
+    "max_evidence_pack_chars": 64000,
+    "max_counterevidence_records": 50,
+    "max_reopened_assertions": 200,
+    "max_model_calls": 0,
+    "max_input_tokens": 0,
+    "max_output_tokens": 0,
+    "max_estimated_cost_usd": 0.0
+  },
+  "thresholds": {
+    "required_case_match_rate": 1.0,
+    "deterministic_replay_rate": 1.0,
+    "product_isolation_violations": 0,
+    "causal_negative_control_violations": 0,
+    "unlinked_operational_entries": 0,
+    "provider_budget_violations": 0
+  },
+  "notes": [
+    "Frozen before the first TP4 implementation evaluation.",
+    "The TP0 corpus and owner-reviewed expected semantics are inputs and must not be edited to make TP4 pass.",
+    "All acceptance behavior is provider-free; unavailable policy or index inputs must fail closed or degrade visibly within the declared bounds."
+  ]
+}

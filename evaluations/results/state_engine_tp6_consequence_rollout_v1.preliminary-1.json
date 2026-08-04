@@ -1,0 +1,16 @@
+{
+  "contract_version": "ace.grounded-state.rollout-evaluation-preliminary-failure/v1",
+  "attempt": 1,
+  "stage": "configuration_validation",
+  "target_file_sha256": "03dede642b95710df7a118126fcaa8b88fe6a94a1ff40633863d0ada144c1d8d",
+  "cases_started": 0,
+  "provider_calls": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "estimated_cost_usd": 0.0,
+  "passed": false,
+  "failure_type": "ValidationError",
+  "failure_code": "named_alternative_enum_compatibility",
+  "failure": "The frozen target uses named_alternative while the reused TP0 RolloutBranchKind v1 stores the same meaning as alternative.",
+  "correction_scope": "Evaluator compatibility parsing only; the frozen target, corpus, expected states, labels, bounds, and provider budget remain unchanged."
+}

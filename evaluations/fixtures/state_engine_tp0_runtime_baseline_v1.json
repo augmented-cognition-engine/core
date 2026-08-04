@@ -1,0 +1,74 @@
+{
+  "adapter_version": "ace.grounded-state.current-thin-mcp-adapter/v1",
+  "adapter_source_sha256": "b42ec0dd7a25810ec2c923e3adf6811dbb84db22b9313f3abc86d6c2c6c9b88d",
+  "baseline_id": "state-engine-tp0-current-ace-thin-mcp-v1",
+  "budgets": {
+    "max_cases": 40,
+    "max_database_writes": 0,
+    "max_estimated_cost_usd": 0,
+    "max_evidence_records_per_case": 20,
+    "max_input_tokens": 0,
+    "max_model_calls": 0,
+    "max_output_tokens": 0,
+    "max_wall_clock_seconds": 30
+  },
+  "contract_version": "ace.grounded-state.runtime-baseline-config/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "public_surface_sha256": "7bf2e0959cf19a9aa65d1b53d64e940346ddcc564eccee2d218ee0c616c9662c",
+  "declared_limitations": [
+    "This evaluates the supported thin MCP contract, not private Core functions or direct database access.",
+    "This is a structured architecture-capability baseline, not an LLM prose-quality comparison.",
+    "The provider-free route cannot measure model variability, token consumption, or provider latency because no model call is permitted.",
+    "The no-write route does not claim persistence, restart continuity, replay continuity, or database-enforced product isolation.",
+    "A future State Engine implementation requires a new adapter and a new result; this baseline must not be rewritten into success."
+  ],
+  "environment": {
+    "ace_version": "0.1.4",
+    "database_route": "none",
+    "execution_mode": "source_checkout",
+    "logical_cpu_count": 11,
+    "machine": "arm64",
+    "model": null,
+    "provider_route": "none",
+    "public_surface": "thin_mcp_11_tool_contract",
+    "python_implementation": "CPython",
+    "python_version": "3.12.13",
+    "release": "25.6.0",
+    "source_revision": "6b6342f65224ca0c3db2f38c3bc141a58de9e8ea",
+    "system": "Darwin"
+  },
+  "rules": {
+    "negative_controls_cannot_pass_vacuously": true,
+    "no_private_runtime_imports": true,
+    "partial_credit_advances_maturity": false,
+    "pass_rule": "exact_structured_semantics",
+    "prose_is_not_structured_state": true,
+    "reference_expectations_hidden_from_adapter": true,
+    "required_ingest_fields": [
+      "content_hash",
+      "external_id",
+      "extracted_at",
+      "extraction",
+      "ingested_at",
+      "kind",
+      "product_id",
+      "published_at",
+      "source_id",
+      "source_version",
+      "supersedes",
+      "temporal"
+    ],
+    "required_output_contracts": [
+      "BeliefStateAssertionV1",
+      "ConsequenceRolloutV1",
+      "GroundedRelationshipV1",
+      "TransitionHypothesisV1"
+    ],
+    "unsupported_counts_as_failure": true
+  },
+  "seeds": {
+    "evaluation_seed": 1729,
+    "model_seed": null,
+    "note": "The seed freezes case traversal and any future deterministic tie-breaking. The v1 unsupported adapter performs no random or model operation."
+  }
+}

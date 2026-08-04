@@ -1,0 +1,214 @@
+{
+  "contract_version": "ace.grounded-state.promotion-evaluation-config/v1",
+  "fixture_id": "state-engine-tp7-promotion-feedback-v1",
+  "fixture_status": "frozen_before_implementation",
+  "frozen_at": "2026-08-04T00:00:00Z",
+  "reference_corpus": {
+    "contract_version": "ace.grounded-state.temporal-reference-corpus/v1",
+    "name": "ACE State Engine temporal reference frozen corpus v1",
+    "maturity": "frozen",
+    "canonical_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+    "raw_sha256": "2c8893ba1d5df6b16921f3e295b56e46894c97fbe9ae7ab09b93cc484bd5befe"
+  },
+  "tp6_acceptance": {
+    "config_contract_version": "ace.grounded-state.rollout-evaluation-config/v1",
+    "config_raw_sha256": "03dede642b95710df7a118126fcaa8b88fe6a94a1ff40633863d0ada144c1d8d",
+    "result_contract_version": "ace.grounded-state.rollout-evaluation-result/v1",
+    "result_raw_sha256": "495477f24342682c32ec2a22663ae4ddf5c45a5a22c3f9bb84724d0ae840c23c",
+    "outcome_hash": "dfeeb1128166b6dc93bfb41a8911b8a9d3fd3a298a6cd85fff7d709783aab915",
+    "passed": true
+  },
+  "versions": {
+    "promotion_proposal_contract": "ace.grounded-state.promotion-proposal/v1",
+    "promotion_review_contract": "ace.grounded-state.promotion-review/v1",
+    "promotion_receipt_contract": "ace.grounded-state.promotion-receipt/v1",
+    "memory_lineage_contract": "ace.grounded-state.promotion-memory-lineage/v1",
+    "promotion_policy": "ace.grounded-state.promotion-policy/v1",
+    "promotion_resolver": "ace.grounded-state.promotion-resolver/v1",
+    "promotion_review_policy": "ace.grounded-state.promotion-review-policy/v1",
+    "promotion_ontology": "ace.grounded-state.promotion-ontology/v1",
+    "memory_ontology": "ace.cognitive-memory.ontology/v1",
+    "decision_receipt": "decision-receipt-v1",
+    "human_disposition": "human-disposition-v1",
+    "correction": "correction-v1",
+    "i3_intelligence_use": "intelligence-use-receipt-v1",
+    "tp6_reasoning_use": "ace.grounded-state.reasoning-context-use/v1",
+    "tp6_rollout": "ace.grounded-state.consequence-rollout/v1",
+    "tp6_evidence_pack": "ace.grounded-state.reasoning-evidence-pack/v1"
+  },
+  "positive_cases": {
+    "accepted_grounded_durable_conclusion": {
+      "target_kind": "durable_conclusion",
+      "authority_kind": "human",
+      "expected_disposition": "accepted",
+      "expected_memory_created": true,
+      "expected_effective_state": "active"
+    },
+    "deterministic_policy_stable_preference": {
+      "target_kind": "stable_preference",
+      "authority_kind": "deterministic_policy",
+      "expected_disposition": "accepted",
+      "expected_memory_created": true,
+      "expected_effective_state": "active"
+    },
+    "human_rejected_reasoning_pattern": {
+      "target_kind": "reusable_reasoning_pattern",
+      "authority_kind": "human",
+      "expected_disposition": "rejected",
+      "expected_memory_created": false,
+      "expected_effective_state": "rejected"
+    },
+    "accepted_correction_supersedes_conclusion": {
+      "target_kind": "correction",
+      "authority_kind": "human",
+      "expected_disposition": "accepted",
+      "expected_memory_created": true,
+      "expected_prior_effective_state": "superseded",
+      "expected_effective_state": "active"
+    }
+  },
+  "adversarial_cases": {
+    "raw_source_claim": {
+      "proposed_record_meaning": "source_claim",
+      "expected_disposition": "failed",
+      "expected_memory_created": false
+    },
+    "ingested_or_retrieved_claim_only": {
+      "proposed_record_meaning": "retrieved_evidence",
+      "expected_disposition": "failed",
+      "expected_memory_created": false
+    },
+    "model_self_authorization": {
+      "authority_kind": "model",
+      "expected_disposition": "failed",
+      "expected_memory_created": false
+    },
+    "simulated_state_as_observed_fact": {
+      "proposed_record_meaning": "simulated_state",
+      "target_memory_meaning": "observed_fact",
+      "expected_disposition": "failed",
+      "expected_memory_created": false
+    },
+    "foreign_product_lineage": {
+      "expected_disposition": "failed",
+      "expected_memory_created": false
+    },
+    "truncated_support": {
+      "coverage_state": "truncated",
+      "expected_disposition": "degraded",
+      "expected_memory_created": false
+    },
+    "stale_support": {
+      "coverage_state": "stale",
+      "expected_disposition": "degraded",
+      "expected_memory_created": false
+    },
+    "contested_support": {
+      "coverage_state": "contested",
+      "expected_disposition": "contested",
+      "expected_memory_created": false
+    },
+    "rejected_support": {
+      "coverage_state": "rejected",
+      "expected_disposition": "failed",
+      "expected_memory_created": false
+    },
+    "source_text_instruction": {
+      "proposed_record_meaning": "source_instruction",
+      "expected_disposition": "failed",
+      "expected_memory_created": false,
+      "expected_instruction_authority": false
+    },
+    "exact_replay": {
+      "expected_same_identities": true,
+      "expected_new_semantic_rows": 0
+    },
+    "conflicting_replay": {
+      "expected_visible_failure": true,
+      "expected_new_semantic_rows": 0
+    },
+    "retrieval_without_use": {
+      "expected_i3_highest_state": "retrieved",
+      "expected_decision_material": false,
+      "expected_beneficial_impact_supported": false
+    },
+    "material_use_without_benefit": {
+      "expected_i3_highest_state": "decision-material",
+      "expected_decision_material": true,
+      "expected_beneficial_impact_supported": false
+    }
+  },
+  "lifecycle_dispositions": [
+    "accepted",
+    "rejected",
+    "expired",
+    "contested",
+    "invalidated",
+    "superseded",
+    "failed",
+    "degraded"
+  ],
+  "required_checks": [
+    "accepted_grounded_conclusion_enters_existing_memory",
+    "atomic_receipt_and_memory_lineage",
+    "authoritative_disposition_required",
+    "correction_preserves_original_lineage",
+    "corrected_state_retrieved_after_restart",
+    "cross_product_inputs_denied",
+    "decision_and_task_receipt_lineage_exact",
+    "degraded_inputs_fail_closed",
+    "deterministic_ordering",
+    "exact_replay_idempotent",
+    "conflicting_replay_visible",
+    "evidence_versions_and_pack_hash_exact",
+    "lifecycle_dispositions_inspectable",
+    "model_proposal_non_authority",
+    "no_evidence_without_promotion_receipt",
+    "no_raw_claim_promotion",
+    "no_rejected_or_retrieved_memory_leak",
+    "no_simulation_relabeling",
+    "product_isolation",
+    "promotion_survives_real_restart",
+    "fresh_invocation_retrieves_promoted_memory",
+    "retrieval_injection_reflection_materiality_distinct",
+    "source_instruction_no_authority",
+    "use_is_not_beneficial_impact",
+    "l1_readiness_unchanged",
+    "public_mcp_tool_count_eleven"
+  ],
+  "sabotage_checks": [
+    "real_promoter_required",
+    "real_persistence_required",
+    "real_later_retrieval_required"
+  ],
+  "bounds": {
+    "max_cases": 32,
+    "max_evidence_versions_per_proposal": 64,
+    "max_transition_revisions_per_proposal": 16,
+    "max_lineage_refs_per_receipt": 32,
+    "max_material_characters": 8000,
+    "max_reason_characters": 2000,
+    "max_retrieval_results": 20,
+    "evaluation_seed": 1729
+  },
+  "provider_budget": {
+    "max_model_calls": 0,
+    "max_input_tokens": 0,
+    "max_output_tokens": 0,
+    "max_latency_ms": 0,
+    "max_retries": 0,
+    "max_estimated_cost_usd": 0.0
+  },
+  "thresholds": {
+    "positive_cases_matched": 4,
+    "adversarial_cases_matched": 14,
+    "required_check_failures": 0,
+    "sabotage_checks_passed": 3,
+    "product_isolation_violations": 0,
+    "unauthorized_memory_writes": 0,
+    "simulated_observation_violations": 0,
+    "beneficial_impact_claims": 0,
+    "provider_budget_violations": 0
+  },
+  "target_corrections": []
+}

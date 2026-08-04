@@ -20,6 +20,7 @@ def test_scaffold_generates_standalone_package(tmp_path):
     # ace_product_pulse would silently shadow the built-in product tool.
     assert (pkg / "tools" / "green_energy_pulse.py").exists()
     assert not (pkg / "tools" / "product_pulse.py").exists()
+    assert not (pkg / "grounded_state_adapter.py").exists()
     assert (root / "pyproject.toml").exists()
     assert (root / "README.md").exists()
     text = (pkg / "extension.py").read_text(encoding="utf-8")
@@ -27,6 +28,7 @@ def test_scaffold_generates_standalone_package(tmp_path):
     assert 'name = "green_energy"' in text
     assert "prepare_green_energy_check" in text
     assert "project_green_energy_check" in text
+    assert "register_grounded_state_adapter" not in text
     # The docstring's entry-point example must show the scaffold's own key,
     # not `product = ...` (it must match the generated pyproject).
     assert 'green_energy = "green_energy_extension.extension:GreenEnergyExtension"' in text

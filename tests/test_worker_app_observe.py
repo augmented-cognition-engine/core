@@ -98,6 +98,35 @@ async def test_live_observe_loop_calls_run_poll_cycle():
 
 
 @pytest.mark.asyncio
+async def test_continuous_drain_runs_again_after_idle_cycle():
+    """The fallback worker keeps draining independently of LIVE connectivity."""
+    import asyncio as _asyncio
+
+    from core.engine.worker.app import PRODUCT_ID, _continuous_drain_loop
+
+    second_cycle = _asyncio.Event()
+    calls: list[str] = []
+
+    async def fake_run_drain_cycle(product_id: str) -> int:
+        calls.append(product_id)
+        if len(calls) == 2:
+            second_cycle.set()
+        return 0
+
+    with (
+        patch("core.engine.worker.processor.run_drain_cycle", fake_run_drain_cycle),
+        patch("core.engine.worker.app._DRAIN_INTERVAL_SECONDS", 0.001),
+    ):
+        task = _asyncio.create_task(_continuous_drain_loop())
+        await _asyncio.wait_for(second_cycle.wait(), timeout=1.0)
+        task.cancel()
+        with pytest.raises(_asyncio.CancelledError):
+            await task
+
+    assert calls[:2] == [PRODUCT_ID, PRODUCT_ID]
+
+
+@pytest.mark.asyncio
 async def test_observe_surfaces_db_error_string():
     """A failed CREATE must NOT be reported as queued.
 

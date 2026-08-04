@@ -1,0 +1,19 @@
+{
+  "batch_receipts": 68,
+  "duration_ms": 1869.164,
+  "item_receipts": 2560,
+  "operation": "count_reconciliation",
+  "semantic_counts": {
+    "alias": 5000,
+    "claim": 220000,
+    "entity": 5000,
+    "event": 2000,
+    "event_participant": 2000,
+    "extraction_failure": 0,
+    "relation": 20000,
+    "source": 2000
+  },
+  "semantic_total": 256000,
+  "status": "completed",
+  "supersession_edges": 2000
+}

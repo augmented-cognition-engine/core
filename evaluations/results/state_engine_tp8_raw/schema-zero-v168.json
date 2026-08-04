@@ -1,0 +1,12 @@
+{
+  "operation": "schema_zero_migration",
+  "status": "completed",
+  "starting_schema_version": 0,
+  "target_schema_version": 168,
+  "migration_files_applied": 167,
+  "audited_legacy_compatibility_events": 110,
+  "duration_seconds": 21.66,
+  "required_schema_validated": true,
+  "second_application_files": 0,
+  "second_application_validated": true
+}

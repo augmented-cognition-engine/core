@@ -1,0 +1,468 @@
+{
+  "claim_position": 200000,
+  "claims_per_second_this_process": 659.037854,
+  "cost_usd": 0.0,
+  "duration_seconds": 60.694541,
+  "failure": null,
+  "finished_at": "2026-08-04T16:55:59.017791+00:00",
+  "input_tokens": 0,
+  "manifests": [
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3341.493,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0040",
+      "manifest_id": "grounded_ingestion_manifest:50850ca3229741f5e606d526e74f4715",
+      "manifest_index": 47,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3266.271,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0041",
+      "manifest_id": "grounded_ingestion_manifest:d180fff1a30eaa2d7db4f6731b72208f",
+      "manifest_index": 48,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3259.881,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0042",
+      "manifest_id": "grounded_ingestion_manifest:535e7b03bab3abe3679fe0296a71bcf5",
+      "manifest_index": 49,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 4079.167,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0043",
+      "manifest_id": "grounded_ingestion_manifest:49f460c9d131e7d929e9921ef3426672",
+      "manifest_index": 50,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3451.4,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0044",
+      "manifest_id": "grounded_ingestion_manifest:d12c5360edefc18c64be9ad2d17d064e",
+      "manifest_index": 51,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3328.119,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0045",
+      "manifest_id": "grounded_ingestion_manifest:0469f5bd707a5eb8af49f65c2910738d",
+      "manifest_index": 52,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3532.684,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0046",
+      "manifest_id": "grounded_ingestion_manifest:4376aee479104318d9e91cd1b514244f",
+      "manifest_index": 53,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3272.051,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0047",
+      "manifest_id": "grounded_ingestion_manifest:e903a382c4f4ba26a3b4022f1186f6b9",
+      "manifest_index": 54,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 4000,
+      "duration_ms": 3376.654,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0048",
+      "manifest_id": "grounded_ingestion_manifest:9c566474d8d9f45111fffdc8b97e6073",
+      "manifest_index": 55,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 2000,
+      "duration_ms": 1494.95,
+      "item_dispositions": {
+        "accepted": 20,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 20,
+        "persisted": 20,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-claims-0049",
+      "manifest_id": "grounded_ingestion_manifest:e2eb20cc23540639ecc79108e7fe3cae",
+      "manifest_index": 56,
+      "record_dispositions": {
+        "accepted": 2000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 2000,
+        "persisted": 2000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 2000,
+      "semantic_persisted": 2000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 2000,
+      "duration_ms": 3813.734,
+      "item_dispositions": {
+        "accepted": 0,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 20,
+        "persisted": 20,
+        "rejected": 0,
+        "superseding": 20
+      },
+      "manifest_external_id": "tp8-corrections-0000",
+      "manifest_id": "grounded_ingestion_manifest:a8fbd76ed5ddf7acab4d49bbfefcc38f",
+      "manifest_index": 57,
+      "record_dispositions": {
+        "accepted": 0,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 2000,
+        "persisted": 2000,
+        "rejected": 0,
+        "superseding": 2000
+      },
+      "semantic_inputs": 2000,
+      "semantic_persisted": 2000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 0,
+      "duration_ms": 3289.581,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-relations-0000",
+      "manifest_id": "grounded_ingestion_manifest:abf1fa828025d08e0bf6ebccc443b909",
+      "manifest_index": 58,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 0,
+      "duration_ms": 3397.708,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-relations-0001",
+      "manifest_id": "grounded_ingestion_manifest:90f42873de09055772887d9cc2294587",
+      "manifest_index": 59,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 0,
+      "duration_ms": 3466.652,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-relations-0002",
+      "manifest_id": "grounded_ingestion_manifest:e496b45a89c35acc6a7e61fde5ef31b1",
+      "manifest_index": 60,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 0,
+      "duration_ms": 3266.96,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-relations-0003",
+      "manifest_id": "grounded_ingestion_manifest:748d9f8cadbddcec267cd301099ed178",
+      "manifest_index": 61,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    },
+    {
+      "batch_receipt_replayed": false,
+      "claims": 0,
+      "duration_ms": 3358.239,
+      "item_dispositions": {
+        "accepted": 40,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 40,
+        "persisted": 40,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "manifest_external_id": "tp8-relations-0004",
+      "manifest_id": "grounded_ingestion_manifest:5d18e3e76b9a8b0e728f301deb903a2b",
+      "manifest_index": 62,
+      "record_dispositions": {
+        "accepted": 4000,
+        "duplicate": 0,
+        "failed": 0,
+        "inputs": 4000,
+        "persisted": 4000,
+        "rejected": 0,
+        "superseding": 0
+      },
+      "semantic_inputs": 4000,
+      "semantic_persisted": 4000
+    }
+  ],
+  "operation": "initial_load",
+  "operational_receipt_id": "grounded_operational_receipt:c7b0df069aaf06a712d5df4753d45224",
+  "output_tokens": 0,
+  "processed_claims_this_process": 40000,
+  "provider_calls": 0,
+  "start_manifest": 47,
+  "started_at": "2026-08-04T16:54:58.322734+00:00",
+  "status": "completed",
+  "stop_manifest": null
+}

@@ -16,6 +16,7 @@ def proposal(
     predicate="depends_on", *, subject="insight:a", object="insight:b", provider="one", scope=None, evidence=None
 ):
     return RelationshipProposal(
+        product_id="product:test",
         subject=subject,
         predicate=predicate,
         object=object,
@@ -119,12 +120,60 @@ def test_causal_claim_routes_human_required_and_stays_provisional():
     assert not result.projection_eligible
 
 
+def test_causal_claim_accepts_only_with_independent_sources_countersearch_and_exact_human_review():
+    p = proposal("causes", evidence=["observation:1", "observation:2"])
+    p = p.model_copy(update={"source_origin_ids": ["source:a", "source:b"]})
+    aid = resolve_proposals([p])[0].id
+    review = AssertionReview(
+        product_id="product:test",
+        target_assertion=aid,
+        verdict="support",
+        authority="human",
+        review_ref="human_review:tp4",
+        reviewed_material_hash=p.review_material_hash(),
+        counterevidence_search_ref="counterevidence_search:tp4",
+        counterevidence_complete=True,
+    )
+    accepted = resolve_proposals([p], reviews=[review], human_confirmed={aid})[0]
+    assert accepted.status == "accepted"
+    assert accepted.projection_eligible is True
+    assert accepted.review_refs == [review.review_id()]
+
+
+def test_causal_group_cannot_borrow_unreviewed_evidence_or_source_diversity():
+    reviewed = proposal("causes", evidence=["observation:1"]).model_copy(update={"source_origin_ids": ["source:a"]})
+    unreviewed = proposal("causes", evidence=["observation:2"], provider="other").model_copy(
+        update={"source_origin_ids": ["source:b"]}
+    )
+    aid = resolve_proposals([reviewed])[0].id
+    review = AssertionReview(
+        product_id="product:test",
+        target_assertion=aid,
+        verdict="support",
+        authority="human",
+        review_ref="human_review:exact-weak-material",
+        reviewed_material_hash=reviewed.review_material_hash(),
+        counterevidence_search_ref="counterevidence_search:reviewed-only",
+        counterevidence_complete=True,
+    )
+    result = resolve_proposals(
+        [reviewed, unreviewed],
+        reviews=[review],
+        human_confirmed={aid},
+    )[0]
+    assert result.status == "provisional"
+    assert result.evidence_refs == ["observation:1"]
+    assert result.proposal_ids == [reviewed.event_id()]
+
+
 def test_critic_cannot_mutate_and_objection_is_deterministic():
     p = proposal()
     aid = resolve_proposals([p])[0].id
     reviews = [
-        AssertionReview(target_assertion=aid, verdict="object", severity="high", provider="z"),
-        AssertionReview(target_assertion=aid, verdict="support", provider="a"),
+        AssertionReview(
+            product_id="product:test", target_assertion=aid, verdict="object", severity="high", provider="z"
+        ),
+        AssertionReview(product_id="product:test", target_assertion=aid, verdict="support", provider="a"),
     ]
     forward = resolve_proposals([p], reviews=reviews)
     reverse = resolve_proposals([p], reviews=list(reversed(reviews)))
@@ -136,7 +185,7 @@ def test_critic_cannot_mutate_and_objection_is_deterministic():
 def test_unavailable_reviewer_is_explicit_degraded_state():
     p = proposal()
     aid = resolve_proposals([p])[0].id
-    r = AssertionReview(target_assertion=aid, verdict="unavailable")
+    r = AssertionReview(product_id="product:test", target_assertion=aid, verdict="unavailable")
     assert resolve_proposals([p], reviews=[r])[0].degraded_reason == "reviewer_unavailable"
 
 
@@ -173,7 +222,7 @@ async def test_projection_prune_binds_stale_edge_id_as_record():
             raise AssertionError(f"unexpected query: {sql}")
 
     db = FakeDB()
-    assert await rebuild_projection(db=db) == 0
+    assert await rebuild_projection(product_id="product:test", db=db) == 0
     assert isinstance(db.deleted_with, RecordID)
 
 
@@ -184,6 +233,7 @@ async def test_projection_prune_removes_stale_edge_in_surrealdb(db_pool):
         await db.query(
             """
             CREATE operational_relationship:projection_prune_regression_51001 SET
+                product = product:test,
                 in = insight:projection_prune_source_51001,
                 out = insight:projection_prune_target_51001,
                 predicate = 'depends_on',
@@ -195,7 +245,7 @@ async def test_projection_prune_removes_stale_edge_in_surrealdb(db_pool):
             """
         )
         try:
-            await rebuild_projection(db=db)
+            await rebuild_projection(product_id="product:test", db=db)
             remaining = await db.query("SELECT id FROM <record>$id", {"id": edge_id})
             assert remaining == []
         finally:

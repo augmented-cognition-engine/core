@@ -13,6 +13,7 @@ describe the moment they were written. For current product support use
 - [R3 provider validation](r3-provider-validation.md)
 - [R5 ace-core 0.1.2 release evidence](r5-release-readiness.md)
 - [R6 ace-core 0.1.3 release readiness](r6-release-readiness.md)
+- [R7 ace-core 0.2.0 release-candidate readiness](r7-release-readiness.md)
 
 ## Product outcomes
 
@@ -22,6 +23,17 @@ describe the moment they were written. For current product support use
 - [I3 intelligence-use evidence](i3-intelligence-use-evidence.md)
 - [F1 foresight closeout evidence](f1-foresight-evidence.md)
 - [L1 foresight-impact evidence gate](l1-foresight-impact-evidence.md)
+- [State Engine TP0 current-runtime baseline](state-engine-tp0-runtime-baseline-v1.md)
+- [State Engine TP1A truthful observation outcomes](state-engine-tp1a-truthful-observation-outcomes-v1.md)
+- [State Engine TP1 reliable memory lifecycle](state-engine-tp1-reliable-memory-lifecycle-v1.md)
+- [State Engine TP2 grounded temporal evidence](state-engine-tp2-grounded-temporal-evidence-v1.md)
+- [State Engine TP3 multi-signal candidate retrieval](state-engine-tp3-multi-signal-candidate-retrieval-v1.md)
+- [State Engine TP4 belief-state projection](state-engine-tp4-belief-state-projection-v1.md)
+- [State Engine TP5 transition dynamics](state-engine-tp5-transition-dynamics-v1.md)
+- [State Engine TP6 bounded consequence rollouts](state-engine-tp6-consequence-rollouts-v1.md)
+- [State Engine TP7 explicit promotion and feedback](state-engine-tp7-promotion-feedback-v1.md)
+- [State Engine TP8 scale, stability, and Core boundary](state-engine-tp8-scale-stability-v1.md)
+- [State Engine K1-K3 bounded readiness audit](state-engine-k1-k3-readiness-v1.md)
 
 ## Extension invocation
 

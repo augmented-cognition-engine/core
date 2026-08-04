@@ -125,6 +125,7 @@ async def test_cognify_creates_assertions_and_returns_count(monkeypatch):
     n = await cognify.cognify(
         [{"id": "insight:new", "content": "x"}],
         find_candidates=_candidates_for,
+        product_id="product:test",
         min_confidence=0.5,
     )
 
@@ -150,7 +151,10 @@ async def test_cognify_non_fatal_when_assertion_batch_write_fails(monkeypatch):
 
     monkeypatch.setattr(cognify, "persist_resolution", flaky_persist)
     n = await cognify.cognify(
-        [{"id": "insight:new", "content": "x"}], find_candidates=_candidates_for, min_confidence=0.5
+        [{"id": "insight:new", "content": "x"}],
+        find_candidates=_candidates_for,
+        product_id="product:test",
+        min_confidence=0.5,
     )
     assert n == 0  # batch failed explicitly; capture still never raises
 
@@ -163,5 +167,9 @@ async def test_cognify_zero_when_no_proposals(monkeypatch):
         raise AssertionError("should not persist assertions")
 
     monkeypatch.setattr(cognify, "persist_resolution", fake_persist)
-    n = await cognify.cognify([{"id": "insight:new", "content": "x"}], find_candidates=_candidates_for)
+    n = await cognify.cognify(
+        [{"id": "insight:new", "content": "x"}],
+        find_candidates=_candidates_for,
+        product_id="product:test",
+    )
     assert n == 0

@@ -4,7 +4,7 @@
 
 **Evidence date:** 2026-07-21
 
-**Supported journey:** `ace landscape` → optional `ace assertion <stable-id>`
+**Supported journey:** `ace landscape` → optional `ace assertion <stable-id> --product <product-id>`
 **Contract:** [`living-product-graph.md`](../living-product-graph.md)
 
 ## As-built audit
@@ -45,7 +45,7 @@ journey uses the existing supported CLI host:
 
 ```bash
 uv run ace landscape
-uv run ace assertion relationship_assertion:<id>  # optional deeper trail
+uv run ace assertion relationship_assertion:<id> --product product:<id>  # optional deeper trail
 ```
 
 The landscape includes the focal product, direct stored relationships, accepted/provisional/

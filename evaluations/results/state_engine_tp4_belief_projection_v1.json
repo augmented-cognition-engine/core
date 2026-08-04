@@ -1,0 +1,260 @@
+{
+  "case_match_rate": 1.0,
+  "case_results": [
+    {
+      "case_key": "causal_claim_requires_human_gate",
+      "expected_relationship": "causal_candidate",
+      "expected_states": [
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "99982396d8a8c7203c6a4546ae2cbbf98e01ab09012d4a009fba070f673c2f9e",
+      "projection_hashes": [
+        "1069a378128be385d1f7b2a0580f3b019b4c3a3d39560c114f0b5283e683b7c4"
+      ],
+      "relationship": "causal_candidate",
+      "states": [
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "contested_delivery_belief",
+      "expected_relationship": "same_interval_contradiction",
+      "expected_states": [
+        "contested"
+      ],
+      "matched": true,
+      "material_hash": "a1a9673605093879a82e96a584f89e69c4430e26a6f47c7361c1b4704e9d5aa4",
+      "projection_hashes": [
+        "793f98ae3e68933cb2eb42a744946e5e7c6de6dadf6b3c1341e9953b11805d23"
+      ],
+      "relationship": "same_interval_contradiction",
+      "states": [
+        "contested"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "exact_replay_identical",
+      "expected_relationship": "exact_replay",
+      "expected_states": [
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "d9b680542b5ee406a39de491285bb6b7f62fe1229abda6c4576bc071af8dd08d",
+      "projection_hashes": [
+        "b119e030f9b2e14abd0e0dadfe0965aeedfe40140a4f9f2908a87ff3daaacd27"
+      ],
+      "relationship": "exact_replay",
+      "states": [
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "foreign_product_evidence_isolated",
+      "expected_relationship": "cross_product_isolated",
+      "expected_states": [
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "ed5e258421b8c4dac7bcc73d849a4f0ec61705c2cc3b8907b3c8d5a90b691800",
+      "projection_hashes": [
+        "8c5971979e06ffc744443db51413d41301f7f955eab9fb6e19c84d50f2e9dd27",
+        "a57953cab63b910da19050d151fac0820cdea663a5c2fede977dffb468115c72"
+      ],
+      "relationship": "cross_product_isolated",
+      "states": [
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "independent_factory_corroboration",
+      "expected_relationship": "corroborates",
+      "expected_states": [
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "b6bbe194857f4c93e2ad13299f402f9b503daf00c2198b9fee1c7a2a30bf023e",
+      "projection_hashes": [
+        "a0ed337d52a87aa4eed7078fa38284a6bf6a673a4783aad90c2fd2140dddc4f0"
+      ],
+      "relationship": "corroborates",
+      "states": [
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "price_reaction_not_causal_fact",
+      "expected_relationship": "reacts_to",
+      "expected_states": [
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "c65f19e753fb3642d735ca5e8e6cef8c91dc19bd5a3ba462a01176c38e7d1c0e",
+      "projection_hashes": [
+        "0c101cc2eca539b1b6ea9c9b598af97cb058db88836f87bf90c257d2c976b0ae"
+      ],
+      "relationship": "reacts_to",
+      "states": [
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "restatement_not_corroboration",
+      "expected_relationship": "restatement",
+      "expected_states": [
+        "provisional"
+      ],
+      "matched": true,
+      "material_hash": "3114b054ebb6700e6b41aecbc499bf50e86f2c7f7e1cc8904b146ddb82a1ee4a",
+      "projection_hashes": [
+        "198ca717a67e4d9e44338e2216ffce435214bec5242f699ade96eeca14c0bf1c"
+      ],
+      "relationship": "restatement",
+      "states": [
+        "provisional"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "same_interval_operating_conflict",
+      "expected_relationship": "same_interval_contradiction",
+      "expected_states": [
+        "contested"
+      ],
+      "matched": true,
+      "material_hash": "0948612019de1b3b1a44a3115ec91652cabf9ead8e4d76e4bb47661ef98fe447",
+      "projection_hashes": [
+        "62cbd9f96b6e44f21ddf0c1b387be04e07c6429fece6c33ae843505803926f19"
+      ],
+      "relationship": "same_interval_contradiction",
+      "states": [
+        "contested"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "sequence_without_causal_promotion",
+      "expected_relationship": "precedes",
+      "expected_states": [
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "f60188f62c4ca335efad9c351c4303e13d01e3d964a527438793c73083af019d",
+      "projection_hashes": [
+        "0ac6895e6cfeffe83ab96bbaa2537d160f3cf0dfc14597066b19955a4b3058aa"
+      ],
+      "relationship": "precedes",
+      "states": [
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "source_version_replaces_prior",
+      "expected_relationship": "source_version_replacement",
+      "expected_states": [
+        "superseded",
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "9564f1920d953efcf6298bb51416061c66620f707a988e38b09b9960b09e56d7",
+      "projection_hashes": [
+        "6c4a6f43563e94d3f994ee8fbf92345a2bfe8f5ca39fc6d80dba0736bb76b400"
+      ],
+      "relationship": "source_version_replacement",
+      "states": [
+        "superseded",
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "unknown_event_time_remains_unknown",
+      "expected_relationship": "background_evidence",
+      "expected_states": [
+        "provisional"
+      ],
+      "matched": true,
+      "material_hash": "01d79958070a6d6343772f509a6ac11ae6b7ada74917f3ab564051fe17f35ff0",
+      "projection_hashes": [
+        "20f0ed34e002f3ee82d4a36a59651613fa8392f2074270c7976532a87292f240"
+      ],
+      "relationship": "background_evidence",
+      "states": [
+        "provisional"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "unknown_property_belief",
+      "expected_relationship": "background_evidence",
+      "expected_states": [
+        "unknown"
+      ],
+      "matched": true,
+      "material_hash": "900fb8330d6f8c5b973254377193e4cd3b7501f92571eb0487eb7f682566fbc2",
+      "projection_hashes": [
+        "54f83a525cab17cbb72cbbd94faf8475b06bfa6fb33db4b403e575770f3cb15a"
+      ],
+      "relationship": "background_evidence",
+      "states": [
+        "unknown"
+      ],
+      "unknown_time_preserved": true
+    },
+    {
+      "case_key": "world_state_changes_over_time",
+      "expected_relationship": "state_transition",
+      "expected_states": [
+        "supported"
+      ],
+      "matched": true,
+      "material_hash": "7c09930372690c15862bf03aece888de1228b7e69d27fc0735aba6e1653dded1",
+      "projection_hashes": [
+        "a90be4d43fb7e2fe81a3a2f9e10b7f50fbd14e823c418bf64059ae0d17d70ece"
+      ],
+      "relationship": "state_transition",
+      "states": [
+        "supported"
+      ],
+      "unknown_time_preserved": true
+    }
+  ],
+  "cases_evaluated": 13,
+  "cases_matched": 13,
+  "causal_negative_control_violations": 0,
+  "config_hash": "008b9c617c7a0cb86fc0cf94c2e444c8991ff2239f8b92fcb87678330fbe86a7",
+  "contract_version": "ace.grounded-state.tp4-belief-evaluation-result/v1",
+  "corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09",
+  "deterministic_replay_matches": 13,
+  "deterministic_replay_rate": 1.0,
+  "deterministic_replays": 13,
+  "estimated_cost_usd": 0.0,
+  "input_tokens": 0,
+  "outcome_hash": "f09127fda74a31246c69eded4e78983f9a6678d770de2134082c21e5bd757bd0",
+  "output_tokens": 0,
+  "passed": true,
+  "primary_model_calls": 0,
+  "product_isolation_violations": 0,
+  "runtime_checks_deferred": [
+    "api_service_restart",
+    "database_restart_replay",
+    "exact_eleven_tool_surface",
+    "migration_replay",
+    "naked_kernel_without_extensions"
+  ],
+  "semantic_checks": {
+    "causal_negative_controls": true,
+    "corroboration_distinct_from_restatement": true,
+    "product_isolation_visible": true,
+    "temporal_update_not_contradiction": true,
+    "unknown_time_preserved": true
+  },
+  "unlinked_operational_entries": 0
+}

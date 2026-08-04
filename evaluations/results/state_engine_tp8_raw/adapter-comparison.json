@@ -1,0 +1,30 @@
+{
+  "cost_usd": 0.0,
+  "duration_ms": 151.827,
+  "external_content_adapter": "filesystem-digest-input-v1",
+  "external_digest_verifications": 10,
+  "external_duplicates": 10,
+  "external_inputs": 10,
+  "inline_persisted": 10,
+  "input_tokens": 0,
+  "operation": "adapter_comparison",
+  "output_tokens": 0,
+  "product_id": "product:tp8-adapter-compare",
+  "provider_calls": 0,
+  "receipt_ids_distinct": true,
+  "same_database_adapter": "surrealkv-inline-v1",
+  "semantic_record_ids": [
+    "grounded_source:088f7a9d7c1a00af1088e7a68b80d3b4",
+    "grounded_source:0c0d4bc2972db9b5edb52e1d916c9b24",
+    "grounded_source:23a56059ef2e681f4e4aae65eadd903a",
+    "grounded_source:2596a984c23bc1f353489afe899f3de3",
+    "grounded_source:2a228cdb50f9f2e75d9945e2e5ac2a8d",
+    "grounded_source:3ff5431d41cb68c8ffc4efc578578bfe",
+    "grounded_source:5f6a504bf53fb2b8d8b1ed0b304dfbe0",
+    "grounded_source:a092d6d317a4ac0d65b49eb441ec83ce",
+    "grounded_source:b7739120e4e87333dd655af8db52b9fa",
+    "grounded_source:ccd845e7d91b736b101427d7fcabceed"
+  ],
+  "stable_record_ids_identical": true,
+  "status": "completed"
+}

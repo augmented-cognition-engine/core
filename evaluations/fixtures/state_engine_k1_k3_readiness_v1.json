@@ -1,0 +1,186 @@
+{
+  "contract_version": "ace.grounded-state.k1-k3-readiness-config/v1",
+  "audit_id": "state-engine-k1-k3-readiness-v1",
+  "fixture_status": "frozen_before_measurement",
+  "frozen_at": "2026-08-04T19:00:00Z",
+  "scope": {
+    "authorized": [
+      "revalidate the measured single-node K1 capability",
+      "repeat the frozen TP5 matrix in the TP8 large-corpus environment",
+      "repeat fresh-process K3 API, worker, and thin-client journeys",
+      "repair only defects exposed by the K1-K3 gates"
+    ],
+    "not_authorized": [
+      "R7 implementation",
+      "v0.2.0 release work",
+      "distributed or multi-writer claims",
+      "paid or hosted providers",
+      "private or customer data"
+    ]
+  },
+  "frozen_sources": {
+    "tp0_corpus": {
+      "path": "tests/fixtures/grounded_state/temporal_reference_candidate_v1.json",
+      "file_sha256": "2c8893ba1d5df6b16921f3e295b56e46894c97fbe9ae7ab09b93cc484bd5befe",
+      "canonical_corpus_hash": "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09"
+    },
+    "tp5_config": {
+      "path": "evaluations/fixtures/state_engine_tp5_transition_dynamics_v1.json",
+      "file_sha256": "3dd1322407f3d6446c89c365e1109a17592af84125b87a1723f3a49287980dbb"
+    },
+    "tp8_manifest": {
+      "path": "evaluations/fixtures/state_engine_tp8_scale_stability_v1.json",
+      "file_sha256": "2a1551aa49abe8aec332a27ac7b62ede64a362d32a666fbbcc0dac005643d47e",
+      "raw_dataset_sha256": "c58e36030f3835b71e82268e13b2f5d753ee6fb530a860b4075eb1ccd9cbcad8",
+      "manifest_set_sha256": "2e7c8b0a37fa6a7e7062c2cf077af7adfda41b6e83822b99a20f29fad498d2eb"
+    },
+    "tp8_result": {
+      "path": "evaluations/results/state_engine_tp8_scale_stability_v1.json",
+      "file_sha256": "253abc29a565d3f4cc8d54eef88718a462262452b36ce937dac8e5875b43be56"
+    },
+    "tp8_readiness": {
+      "path": "evaluations/results/state_engine_tp8_readiness_v1.json",
+      "file_sha256": "922a5e212a25300984ebe1a2b0525ca529c165cfae16fe02779d916b85f53fda"
+    },
+    "tp8_compatibility": {
+      "path": "evaluations/results/state_engine_tp8_compatibility_v1.json",
+      "file_sha256": "8935ce2b7e4b466e9f7e62d3b3b0772ee307565a1b312ae0dfb88dfdb78a874b"
+    },
+    "core_boundary": {
+      "path": "docs/design/state-engine-core-boundary-v1.md",
+      "file_sha256": "6623bb814f2f9fdcecf706b89f6c380f97baffe3273a987ae4b36727a53da11a"
+    }
+  },
+  "k1": {
+    "corpus_claims_expected": 220000,
+    "semantic_records_expected": 256000,
+    "schema_head_expected": 168,
+    "thin_mcp_tools_expected": 11,
+    "candidate_latency_p95_ms_max": 1000,
+    "evidence_query_latency_p95_ms_max": 1500,
+    "cross_product_violations_max": 0,
+    "provider_calls_max": 0,
+    "repeat_expensive_tp8_trials": false
+  },
+  "k2": {
+    "repetitions": 5,
+    "cases_per_repetition": 8,
+    "domains": {
+      "causal_review": "causal_claim_requires_human_gate",
+      "contested_mechanisms": "mechanism_with_contrary_evidence",
+      "market_reaction": "price_reaction_not_causal_fact",
+      "mechanistic_systems": "mechanism_supported_transition",
+      "operations_sequence": "sequence_without_causal_promotion",
+      "product_isolation": "foreign_product_evidence_isolated",
+      "temporal_state": "world_state_changes_over_time",
+      "unknown_time": "unknown_event_time_remains_unknown"
+    },
+    "later_outcomes": {
+      "mechanistic_systems": [
+        "matched",
+        "contradicted",
+        "matched",
+        "contradicted",
+        "matched"
+      ],
+      "all_other_domains": "not_scored_because_revision_is_not_rollout_eligible"
+    },
+    "scoring_rules": {
+      "case_match": "actual review state, causal strength, rollout eligibility, and degraded state exactly match the frozen TP5 target",
+      "deterministic_replay": "reversed evidence and assertion arrival order produces byte-equivalent transition, challenge, and branch material",
+      "abstention": "the frozen policy leaves a revision non-rollout-eligible rather than accepting unsupported, contested, associative, unknown-time, or foreign-product material",
+      "unsupported_assertion_acceptance": "a predictive or associative claim, or a claim without its required human causal gate, becomes rollout eligible",
+      "calibration": "only the frozen rollout-eligible mechanistic case is scored against its predeclared later outcome; all other domains report not_scored"
+    },
+    "thresholds": {
+      "cases_evaluated": 40,
+      "case_matches": 40,
+      "deterministic_replay_matches": 40,
+      "errors_max": 0,
+      "unsupported_assertion_acceptances_max": 0,
+      "product_isolation_violations_max": 0,
+      "provenance_violations_max": 0,
+      "eligible_calibrations": 5,
+      "abstentions_min": 35,
+      "transition_latency_p95_ms_max": 2000,
+      "provider_calls_max": 0,
+      "provider_tokens_max": 0,
+      "provider_retries_max": 0,
+      "provider_cost_usd_max": 0.0
+    }
+  },
+  "k3": {
+    "repetitions": 5,
+    "fresh_processes_per_repetition": [
+      "API before restart",
+      "worker before restart",
+      "API after restart",
+      "worker after restart",
+      "thin client for later material use and correction",
+      "thin client after correction restart"
+    ],
+    "branches": [
+      "action",
+      "no_action"
+    ],
+    "later_outcomes": [
+      "matched",
+      "matched",
+      "matched",
+      "matched",
+      "matched"
+    ],
+    "scoring_rules": {
+      "journey_pass": "every predeclared phase completes through durable production contracts and all identity, lineage, isolation, semantic-separation, restart, later-use, correction, and reconciliation checks pass",
+      "material_later_use": "a fresh thin-client task records retrieved, injected, reflected, and decision-material use against an exact matched control while beneficial impact remains unsupported",
+      "simulation_separation": "rollout revisions and predicted consequences remain absent from observation meanings and tables",
+      "provider_use": "deterministic provider-free acceptance route reports zero calls, tokens, retries, and cost"
+    },
+    "thresholds": {
+      "journeys_evaluated": 5,
+      "journeys_passed": 5,
+      "failures_max": 0,
+      "retries_max": 0,
+      "degraded_states_max": 0,
+      "task_reasoning_latency_p95_ms_max": 5000,
+      "promotion_latency_p95_ms_max": 2000,
+      "fresh_retrieval_latency_p95_ms_max": 1000,
+      "api_worker_client_restart_seconds_max": 45,
+      "product_isolation_violations_max": 0,
+      "simulated_as_observed_violations_max": 0,
+      "durable_task_identity_failures_max": 0,
+      "promotion_lineage_failures_max": 0,
+      "restart_continuity_failures_max": 0,
+      "material_later_use_failures_max": 0,
+      "reconciliations": 5,
+      "corrections_or_supersessions": 5,
+      "provider_calls_max": 0,
+      "provider_tokens_max": 0,
+      "provider_cost_usd_max": 0.0
+    }
+  },
+  "failure_conditions": [
+    "any frozen source hash or dataset identity changes",
+    "any threshold is edited after the first measurement starts",
+    "any final result replaces or deletes a failed or partial trial",
+    "any product scope, evidence provenance, replay identity, or simulation/observation separation check fails",
+    "any paid, hosted, private, customer, or production resource is used",
+    "any twelfth thin MCP tool or widened automatic promotion authority is introduced"
+  ],
+  "provider_budget": {
+    "route": "deterministic_provider_free_acceptance",
+    "max_model_calls": 0,
+    "max_input_tokens": 0,
+    "max_output_tokens": 0,
+    "max_retries": 0,
+    "max_estimated_cost_usd": 0.0
+  },
+  "unsupported_claims": [
+    "beneficial impact or L1 readiness",
+    "general consequence or causal accuracy",
+    "calibrated broad-domain forecasting",
+    "autonomous learning or a general world model",
+    "distributed, multi-writer, hosted, deployment, or release readiness",
+    "T1, B1, E1, or v0.2.0 readiness"
+  ]
+}
