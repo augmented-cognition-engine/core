@@ -6,20 +6,15 @@ Priorities may change as maintainers learn from users and contributors.
 
 ## Current release checkpoint
 
-`ace-core` 0.1.4 is published on PyPI and GitHub from main commit `2fc4fe6`. The public release and
-package files were independently rechecked during R7 after this checkpoint had incorrectly remained
-at 0.1.3. The 0.1.4 release packages the framework, schema, optimizer, assertion, dependency, and
-runtime corrections recorded in the changelog. The backward-compatible 0.1.3 release introduced
-attributable deliberation receipts and the experimental extension-invocation runtime without
-widening the eleven-tool MCP boundary or promoting extension invocation to stable. The onboarding
-gate is proven in clean macOS and Linux proxy trials. The reproducible product-builder golden path
-now also shows a public evidence-backed decision, inspectable reasoning, a retained human
-correction, real runtime restart, and material later use through the supported CLI and eleven-tool
-MCP boundary. I3 now adds a versioned receipt that distinguishes retrieval, injection, reflection,
-and exact structured decision effects without presenting material influence as beneficial impact.
-I2 now has a passed receipt for observable routing, bounded contributor artifacts,
-artifact-grounded disagreement, synthesis lineage, and degraded coverage, backed by reproducible
-local evidence and green authoritative branch CI.
+`ace-core` 0.2.0 is published on PyPI and GitHub from verified main commit `6c0638a`. The release
+adds the product-scoped State Engine contract from bounded ingestion and grounded evidence through
+belief projection, reviewed transitions, action/no-action rollouts, later-outcome reconciliation,
+I3 reasoning-use receipts, and authority-gated promotion/correction lineage. It preserves the
+supported CLI and exactly eleven thin MCP tools, upgrades the public v0.1.4 schema head from v160
+to v168 through restart-safe migrations, and publishes the bounded single-node scale and readiness
+evidence without claiming distributed operation, autonomous learning, causal accuracy, or
+beneficial impact. The reproducible product-builder golden path continues to demonstrate a public
+evidence-backed decision, retained human correction, real runtime restart, and material later use.
 
 Roadmap outcome states are used strictly:
 
@@ -53,7 +48,7 @@ Roadmap outcome states are used strictly:
 | R4 | passed | Publish a reproducible, product-builder golden-path demonstration | [Golden-path evidence](docs/product-builder-golden-path.md): a checksum-frozen public product decision completed through the supported Codex subscription route, persisted a binding human correction across a real service restart, materially changed a fresh later experiment, retained inspectable provenance, and recorded failures and portability limits without widening the eleven-tool boundary |
 | R5 | passed | Ship the backward-compatible ace-core 0.1.2 inspectability and foresight release | [0.1.2 release evidence](docs/evidence/r5-release-readiness.md) records aligned metadata, clean artifacts and isolated install, full regressions, schema v155 restart/Compose health, verified main/tag identity, GitHub Release, trusted PyPI publication, cryptographic provenance, matching archive hashes, and a clean public-index install |
 | R6 | passed | Ship the backward-compatible ace-core 0.1.3 attributable-deliberation and experimental extension-invocation release | [0.1.3 release evidence](docs/evidence/r6-release-readiness.md) records the supported/experimental boundary, full local regressions, verified release commit and tag, green PR/main CI, trusted PyPI publication, matching artifact hashes, provenance, and clean public-index verification |
-| R7 | candidate | Reconcile and publish the ace-core 0.2.0 State Engine release candidate without authorizing release | [R7 candidate evidence](docs/evidence/r7-release-readiness.md) records the integrated architecture audit, version/support boundary, v168 upgrade and operations checks, full regressions, retained scale hashes, clean artifacts/install, branch, draft PR, and CI. R7 cannot pass before merge/tag/GitHub/PyPI/provenance/public-index verification under separate release authorization |
+| R7 | passed | Reconcile and publish the ace-core 0.2.0 State Engine release | [R7 release evidence](docs/evidence/r7-release-readiness.md) records the integrated architecture audit, version/support boundary, v168 upgrade and operations checks, full regressions, retained scale hashes, verified merge/tag identity, green PR and merged-main CI, GitHub Release, trusted PyPI publication, matching workflow/public hashes, cryptographic provenance, and fresh public-index installation |
 
 ## Next — durable product partnership
 
