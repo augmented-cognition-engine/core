@@ -73,6 +73,15 @@ place, whether or not the open kernel consumes them yet.
 | `sentinels.py` | `reg.register_sentinel(name, cron=..., fn=...)` | A 24/7 engine the kernel scheduler runs on a cron, present or not |
 | `invocation.py` | `reg.register_task_action(...)` | An experimental structured action using Core's durable task, retry, history, cancellation, and receipt runtime |
 
+The shipped reference package also registers an OLC-style
+`register_grounded_state_adapter(...)` example. It is deliberately omitted from
+new scaffolds because OLC mapping is source-specific, not generic extension
+boilerplate. If your extension ingests a corpus, implement a bounded
+`build_manifest(...)` mapper and register it on the same facade. Return raw
+aliases and validated extraction proposals only; do not choose product scope,
+derive a competing identity scheme, write database rows, or route claims through
+ACE observations and insights. Core owns those lifecycle responsibilities.
+
 Read `recipe.py`: five phases (Frame → Reality → Voices → Tradeoffs →
 Recommend) that turn a raw thought into a bounded recommendation with kill
 criteria. The `Voices` phase is worth lingering on — it calls
@@ -89,7 +98,10 @@ package is the territory.
 
 ### Add a structured task action
 
-The shipped reference extension registers `product:product-check`. Its preparation
+The shipped reference extension registers `product:product-check` and the TP6
+`product:evidence-query` example. The latter resolves Core-owned TP3/TP4 material under trusted
+actor scope and returns it only as bounded, explicitly untrusted `ResolvedContextRecord` data; it
+does not add an MCP tool or let retrieved text control task instructions. The general preparation
 function receives an `ExtensionInvocationEnvelope` and authenticated
 `ExtensionActorContext`, accounts for every input reference, and returns an
 `ExtensionTaskPlan`. It reports unsupported repository types as `declared`; it never

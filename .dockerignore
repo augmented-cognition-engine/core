@@ -9,6 +9,7 @@
 **/node_modules
 core/ui
 tests
+evaluations/results/state_engine_k1_k3_raw
 data
 data-dev
 dist

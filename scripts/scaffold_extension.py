@@ -72,7 +72,11 @@ def scaffold(name: str, target_root: Path) -> Path:
     if root.exists():
         raise SystemExit(f"target already exists: {root}")
     pkg_dir = root / pkg
-    shutil.copytree(REFERENCE, pkg_dir, ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copytree(
+        REFERENCE,
+        pkg_dir,
+        ignore=shutil.ignore_patterns("__pycache__", "grounded_state_adapter.py"),
+    )
     # Rename the MCP tool module with the extension: the kernel MCP server
     # registers tools by function name, and a duplicate name replaces
     # silently (FastMCP's default duplicate policy warns and REPLACES) — an
@@ -82,6 +86,14 @@ def scaffold(name: str, target_root: Path) -> Path:
     (pkg_dir / "tools" / "product_pulse.py").rename(pkg_dir / "tools" / f"{name}_pulse.py")
     title = " ".join(part.capitalize() for part in name.split("_"))
     replacements = (
+        (
+            "        from extensions.reference.grounded_state_adapter import OLCStyleReferenceAdapter\n",
+            "",
+        ),
+        (
+            '        reg.register_grounded_state_adapter("olc-style-reference", OLCStyleReferenceAdapter())\n',
+            "",
+        ),
         ("extensions.reference", pkg),
         ("extensions/reference", pkg),  # slash-form paths in comments/docstrings
         ("ProductExtension", cls),

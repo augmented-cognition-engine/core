@@ -1,5 +1,12 @@
 FROM python:3.12-slim
 
+ARG ACE_VERSION=0.2.0
+LABEL org.opencontainers.image.title="ace-core" \
+      org.opencontainers.image.version="${ACE_VERSION}" \
+      org.opencontainers.image.source="https://github.com/augmented-cognition-engine/core"
+ENV ACE_RELEASE_VERSION="${ACE_VERSION}" \
+    PATH="/app/.venv/bin:${PATH}"
+
 WORKDIR /app
 
 RUN pip install --no-cache-dir uv
@@ -15,13 +22,13 @@ COPY ace_mcp_client/ ace_mcp_client/
 COPY scripts/ scripts/
 COPY evaluations/ evaluations/
 COPY docs/ docs/
-RUN uv pip install --system --no-cache .
+RUN uv sync --frozen --no-dev --no-editable --no-cache
 
 # Run as non-root for security — prevents container escapes from writing host files
 RUN adduser --disabled-password --gecos "" aceuser && chown -R aceuser /app
 USER aceuser
 
-EXPOSE 3000
+EXPOSE 3000 37778
 
 # Liveness probe: always 200 if the event loop is alive.
 # Use /health/live (not /health/ready) so Docker doesn't restart healthy

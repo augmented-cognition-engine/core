@@ -85,6 +85,7 @@ def build_inventory() -> dict[str, object]:
     packages.sort(key=lambda item: (str(item["name"]).lower(), str(item["version"])))
     return {
         "schema": "ace-release-inventory-v1",
+        "ace_core_version": metadata.version("ace-core"),
         "python": platform.python_version(),
         "platform": platform.platform(),
         "package_count": len(packages),

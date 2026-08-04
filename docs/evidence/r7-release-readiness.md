@@ -197,7 +197,7 @@ The local release-critical verification completed with the following results:
 | License inventory | 192 installed distributions; zero unknown licenses |
 | Linux locked image | 0.2.0 identities, non-root UID 1000, 11 tools, reference extension, v168, and exclusions passed |
 | Compose | schema migration exited 0; SurrealDB, API, and worker healthy; API ready reports 0.2.0 |
-| Staged secret scan | pending intentional staging |
+| Staged secret scan | passed across all three intentional candidate commit groups |
 
 The exact primary commands were:
 

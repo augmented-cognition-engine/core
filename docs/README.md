@@ -19,6 +19,10 @@ Point-in-time release and acceptance records live in the
 - [Product-builder golden path](product-builder-golden-path.md) — reproduce an evidence-backed
   decision, correction, restart, and later reuse.
 - [Clean-user onboarding trial](onboarding-trials.md) — evaluate setup, first value, and recovery.
+- [Reliable observation worker operations](worker-operations.md) — supervised startup, shutdown,
+  restart, lease recovery, and queue health.
+- [State Engine operations and recovery](state-engine-operations.md) — scale limits, bounded
+  ingestion, interruption/replay, migration, backup/restore, lifecycle, and escalation.
 
 ## Product contracts
 
@@ -43,5 +47,14 @@ Point-in-time release and acceptance records live in the
 - [Changelog](../CHANGELOG.md)
 - [Security policy](../SECURITY.md)
 
-Longer-term concepts that are not current roadmap commitments live under
-[design notes](design/capability-evolution.md).
+Detailed longer-term architecture lives under design notes:
+
+- [Capability evolution](design/capability-evolution.md) — teach, govern, and measure reusable
+  cognition.
+- [ACE State Engine](design/state-engine-roadmap.md) — reason over
+  high-volume temporal evidence, inspectable dynamics, and bounded consequences while preserving
+  sparse durable memory.
+- [State Engine v0.2 Core boundary](design/state-engine-core-boundary-v1.md) — stable contracts,
+  adapter portability, experimental capabilities, deployment limits, and deferred work.
+- [State Engine Core-boundary readiness addendum](design/state-engine-core-boundary-readiness-v1.md)
+  — K2/K3 bounded readiness delta while preserving the frozen TP8 boundary input.
