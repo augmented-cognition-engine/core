@@ -336,6 +336,8 @@ async def ace_capture(
                     confidence = $confidence,
                     source = 'mcp',
                     status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()
                 """,
                 {
@@ -351,22 +353,36 @@ async def ace_capture(
         obs_id = str(rows[0].get("id", "")) if rows else ""
 
         # Inline synthesis — don't wait for worker poll cycle
+        outcome_receipt = None
         if rows:
-            obs_record = rows[0]
+            obs_record = dict(rows[0])
+            obs_record.setdefault("product", product_id)
+            obs_record.setdefault("content", content)
+            obs_record.setdefault("observation_type", observation_type)
+            obs_record.setdefault("domain_path", domain_path)
+            obs_record.setdefault("discipline_hint", domain_path)
+            obs_record.setdefault("confidence", confidence)
+            obs_record.setdefault("source", "mcp")
             try:
-                from core.engine.capture.synthesizer import Synthesizer
+                from core.engine.capture.lifecycle import process_observation_attempt
 
-                synth = Synthesizer(product_id=product_id, workspace_id=None, batch_size=1)
-                synth._db_pool = pool  # required for _write_insight to flush to DB
-                await synth.add_observation(obs_record)
-                await synth.flush()
+                outcome_receipt = await process_observation_attempt(
+                    obs_record,
+                    db_pool=pool,
+                    route="mcp_inline",
+                    scope_prevalidated=True,
+                )
+            except Exception as exc:
+                logger.warning("MCP inline observation lifecycle failed before durable finalization: %s", exc)
                 async with pool.connection() as db:
                     await db.query(
-                        "UPDATE <record>$id SET status = 'processed', processed_at = time::now()",
-                        {"id": obs_id},
+                        """
+                        UPDATE <record>$id SET status = 'pending', processing_state = 'pending',
+                            last_error = $error, updated_at = time::now()
+                        WHERE product = <record>$product
+                        """,
+                        {"id": obs_id, "product": product_id, "error": type(exc).__name__[:160]},
                     )
-            except Exception:
-                pass  # Never fail the capture — worker will retry
 
         # Emit event so other listeners can react
         try:
@@ -384,7 +400,10 @@ async def ace_capture(
         except Exception:
             pass
 
-        return {"status": "captured", "id": obs_id}
+        response = {"status": "captured", "id": obs_id}
+        if outcome_receipt is not None:
+            response["synthesis_outcome"] = outcome_receipt.model_dump(mode="json", exclude_none=True)
+        return response
 
 
 async def ace_task(
@@ -3986,6 +4005,7 @@ async def ace_health(product_id: str = DEFAULT_ORG) -> dict:
 
     decisions_today = 0
     observations_today = 0
+    outcome_health = {"status": "unavailable", "policy_breaches": ["visibility_unavailable"]}
     try:
         async with pool.connection() as db:
             d_rows = parse_rows(
@@ -4006,18 +4026,32 @@ async def ace_health(product_id: str = DEFAULT_ORG) -> dict:
     except Exception:
         pass
 
+    try:
+        from core.engine.capture.lifecycle import observation_outcome_health
+
+        outcome_health = await observation_outcome_health(pool, product_id=product_id)
+    except Exception as exc:
+        logger.warning("ace_health observation outcome visibility failed: %s", exc)
+
     if worker is None:
         status = "down"
         summary = f"worker unreachable and restart failed — run: python core/engine/worker/start.py ({worker_error})"
-    elif self_healed:
-        status = "recovered"
-        posts = worker.get("hook_post_count", 0)
-        summary = f"worker was down — restarted successfully ({posts} hook fires since restart)"
     else:
         pipeline = worker.get("pipeline_status", "unknown")
         idle = worker.get("idle_seconds")
 
-        if pipeline == "stale":
+        if outcome_health.get("status") != "healthy":
+            status = "degraded"
+            breaches = ", ".join(
+                outcome_health.get("policy_breaches")
+                or [outcome_health.get("reason") or "observation outcome visibility unavailable"]
+            )
+            summary = f"observation processing degraded — {breaches}"
+        elif self_healed:
+            status = "recovered"
+            posts = worker.get("hook_post_count", 0)
+            summary = f"worker was down — restarted successfully ({posts} hook fires since restart)"
+        elif pipeline == "stale":
             idle_min = round((idle or 0) / 60)
             status = "degraded"
             summary = f"pipeline stale — no hook activity in {idle_min}m; check that ace-post-tool hook is wired"
@@ -4040,6 +4074,7 @@ async def ace_health(product_id: str = DEFAULT_ORG) -> dict:
         "observations_today": observations_today,
         "uptime_seconds": worker.get("uptime_seconds") if worker else None,
         "last_error": worker.get("last_error") if worker else worker_error,
+        "observation_outcomes": outcome_health,
     }
 
 

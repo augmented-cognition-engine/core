@@ -17,6 +17,17 @@ and ship as scoped products.
   their maintainers. The contract is identical to the reference
   extension's; "private" is just repo visibility.
 
+The reference package also contains a bounded OLC-style grounded-state adapter.
+It demonstrates the TP2 ownership split: extensions map source-specific
+extraction and raw aliases into a Core manifest, while Core owns product scope,
+identity, temporal semantics, append-only persistence, replay, isolation, and
+receipts. The scaffold intentionally omits this OLC-specific example; a new
+domain extension adds its own adapter only when it has a source corpus to map.
+It also registers the experimental TP6 `evidence-query` task action, which resolves a bounded Core
+evidence pack through the existing durable task/status journey. Authenticated actor context owns
+product scope, and retrieved source text remains delimited untrusted data with no tool or prompt
+authority. This is an extension action, not an additional thin MCP tool.
+
 ## The contract every extension follows
 
 An extension is the combination of:

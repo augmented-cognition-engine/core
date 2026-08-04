@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Start the ACE Session Intelligence Worker on port 37778."""
+"""Start the ACE Session Intelligence Worker."""
 
 from __future__ import annotations
 
@@ -29,6 +29,14 @@ logging.basicConfig(
 if __name__ == "__main__":
     import uvicorn
 
+    host = os.environ.get("ACE_WORKER_HOST", "0.0.0.0")
+    try:
+        port = int(os.environ.get("ACE_WORKER_PORT", "37778"))
+    except ValueError as exc:
+        raise SystemExit("ACE_WORKER_PORT must be an integer") from exc
+    if not 1 <= port <= 65_535:
+        raise SystemExit("ACE_WORKER_PORT must be between 1 and 65535")
+
     # core.engine.worker.app — NOT engine.worker.app, which is where this pointed before
     # the tree moved under core/ and is why every restart attempt died on import.
-    uvicorn.run("core.engine.worker.app:app", host="0.0.0.0", port=37778, reload=False)
+    uvicorn.run("core.engine.worker.app:app", host=host, port=port, reload=False)

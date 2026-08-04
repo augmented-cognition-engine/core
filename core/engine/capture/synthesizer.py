@@ -11,9 +11,25 @@ from __future__ import annotations
 import asyncio
 import logging
 import math
+from typing import Any
 
+from core.engine.candidates import (
+    MAX_CANDIDATE_RECORDS,
+    CandidateIndexSnapshotV1,
+    CandidateRequestV1,
+    CandidateSignal,
+    DeterministicCandidateFinder,
+    candidate_record_from_mapping,
+    default_candidate_index_versions,
+)
 from core.engine.capture.atomic_write import atomic_capture_write
 from core.engine.capture.cognify import cognify
+from core.engine.capture.outcomes import (
+    ObservationSynthesisOutcomeV1,
+    SuccessfulDisposition,
+    build_conflict_id,
+    build_insight_id,
+)
 from core.engine.core.config import settings
 from core.engine.core.llm import llm
 from core.engine.embedding.base import get_embedder
@@ -107,18 +123,20 @@ class Synthesizer:
         self._pending: list[dict] = []
         self._db_pool = None  # Set via pipeline after construction
         self._cognify_tasks: set[asyncio.Task] = set()
+        self._attempt_id: str | None = None
 
     @property
     def pending_count(self) -> int:
         return len(self._pending)
 
-    async def add_observation(self, observation: dict) -> None:
+    async def add_observation(self, observation: dict) -> dict | None:
         """Add an observation. Triggers synthesis if batch threshold reached."""
         self._pending.append(observation)
         if len(self._pending) >= self.batch_size:
-            await self.synthesize()
+            return await self.synthesize()
+        return None
 
-    async def flush(self) -> None:
+    async def flush(self) -> dict:
         """Synthesize any remaining observations (called on session end).
 
         Then DRAIN any pending fire-and-forget cognify tasks: flush runs at
@@ -126,15 +144,17 @@ class Synthesizer:
         synapse-former task would otherwise drop its edges. Non-fatal — cognify
         is already guarded; return_exceptions keeps a failed task from raising here.
         """
+        result = {"new_insights": 0, "updates": 0, "conflicts": 0, "skipped": 0, "outcomes": []}
         if self._pending:
-            await self.synthesize()
+            result = await self.synthesize()
         if self._cognify_tasks:
             await asyncio.gather(*self._cognify_tasks, return_exceptions=True)
+        return result
 
     async def synthesize(self) -> dict:
         """Process pending observations into insights."""
         if not self._pending:
-            return {"new_insights": 0, "updates": 0, "conflicts": 0, "skipped": 0}
+            return {"new_insights": 0, "updates": 0, "conflicts": 0, "skipped": 0, "outcomes": []}
 
         observations = list(self._pending)
         self._pending = []  # optimistically clear
@@ -151,7 +171,14 @@ class Synthesizer:
             self._pending = observations + self._pending
             raise
 
-        counts = {"new_insights": 0, "updates": 0, "conflicts": 0, "skipped": len(auto_merged), "write_failures": 0}
+        counts: dict[str, Any] = {
+            "new_insights": 0,
+            "updates": 0,
+            "conflicts": 0,
+            "skipped": len(auto_merged),
+            "write_failures": 0,
+            "outcomes": [],
+        }
 
         # Collect discipline hints from source observations as fallback
         obs_disciplines = [
@@ -161,31 +188,131 @@ class Synthesizer:
         ]
         fallback_domain = obs_disciplines[0] if obs_disciplines else ""
 
-        # Collect observation IDs to wire derived_from edges after insight creation
-        batch_obs_ids = [str(obs.get("id", "")) for obs in observations if obs.get("id")]
+        # Keep output accounting tied to persisted observations. Transient legacy
+        # callers without IDs retain count compatibility but cannot mint receipts.
+        batch_obs_ids = [
+            str(obs.get("id", "")) for obs in observations if str(obs.get("id", "")).startswith("observation:")
+        ]
+        non_matched_ids = [
+            str(obs.get("id", "")) for obs in non_matched if str(obs.get("id", "")).startswith("observation:")
+        ]
+        candidates: dict[str, tuple[int, ObservationSynthesisOutcomeV1]] = {}
+
+        def assign(obs_ids: list[str], priority: int, **payload: Any) -> None:
+            for obs_id in obs_ids:
+                if not obs_id.startswith("observation:"):
+                    continue
+                candidate = ObservationSynthesisOutcomeV1(observation_id=obs_id, **payload)
+                current = candidates.get(obs_id)
+                if current is None or priority > current[0]:
+                    candidates[obs_id] = (priority, candidate)
+
+        def source_ids(action: dict[str, Any]) -> list[str]:
+            indices = action.get("source_observations")
+            if isinstance(indices, list) and indices:
+                resolved = [
+                    non_matched_ids[index]
+                    for index in indices
+                    if isinstance(index, int) and 0 <= index < len(non_matched_ids)
+                ]
+                if resolved:
+                    return sorted(set(resolved))
+            return list(non_matched_ids)
+
+        for obs_id, insight_id in auto_merged:
+            if str(obs_id).startswith("observation:"):
+                assign(
+                    [str(obs_id)],
+                    30,
+                    disposition=SuccessfulDisposition.INSIGHT_MERGED,
+                    merged_insight_refs=(str(insight_id),),
+                )
 
         # Provenance: a fully self-generated batch (reasoning conclusion / composition phase) gets its
         # insights tagged at the self-generated trust prior, not laundered into capture-tier.
         provenance_kind = _batch_provenance_kind(observations)
 
-        written, failures, written_records = await self._write_new_insights(
-            result.get("new_insights", []), fallback_domain, batch_obs_ids, provenance_kind=provenance_kind
-        )
-        counts["new_insights"] = written
-        counts["write_failures"] = failures
+        written_records: list[dict] = []
+        for ordinal, insight_data in enumerate(result.get("new_insights", [])):
+            linked_obs_ids = source_ids(insight_data)
+            written, failures, records = await self._write_new_insights(
+                [insight_data],
+                fallback_domain,
+                linked_obs_ids or batch_obs_ids,
+                provenance_kind=provenance_kind,
+                deterministic_ordinal_start=ordinal,
+            )
+            counts["new_insights"] += written
+            counts["write_failures"] += failures
+            written_records.extend(records)
+            insight_refs = tuple(str(record.get("id")) for record in records if record.get("id"))
+            if insight_refs:
+                assign(
+                    linked_obs_ids,
+                    50,
+                    disposition=SuccessfulDisposition.INSIGHT_CREATED,
+                    created_insight_refs=insight_refs,
+                )
 
         # Phase 5 — synapse-former: relate new insights to existing ones (non-blocking).
         self._maybe_cognify(written_records, existing)
 
         for update in result.get("updates", []):
-            await self._apply_update(update)
+            insight_id = await self._apply_update(update)
             counts["updates"] += 1
+            if insight_id:
+                assign(
+                    source_ids(update),
+                    40,
+                    disposition=SuccessfulDisposition.INSIGHT_UPDATED,
+                    updated_insight_refs=(insight_id,),
+                )
 
-        for conflict in result.get("conflicts", []):
-            await self._write_conflict(conflict)
+        for ordinal, conflict in enumerate(result.get("conflicts", [])):
+            insight_id, conflict_id = await self._write_conflict(conflict, ordinal=ordinal)
             counts["conflicts"] += 1
+            if insight_id and conflict_id:
+                assign(
+                    source_ids(conflict),
+                    60,
+                    disposition=SuccessfulDisposition.CONFLICT_PRESERVED,
+                    conflicting_insight_refs=(insight_id,),
+                    conflict_record_refs=(conflict_id,),
+                )
 
+        for skipped in result.get("skipped", []):
+            if isinstance(skipped, int):
+                index = skipped
+                reason = "synthesizer_classified_observation_as_non_durable"
+            elif isinstance(skipped, dict):
+                index = skipped.get("observation_index", skipped.get("index"))
+                reason = str(skipped.get("reason") or "synthesizer_classified_observation_as_non_durable")
+            else:
+                continue
+            if isinstance(index, int) and 0 <= index < len(non_matched_ids):
+                assign(
+                    [non_matched_ids[index]],
+                    10,
+                    disposition=SuccessfulDisposition.SKIPPED,
+                    reason=reason[:1000],
+                )
         counts["skipped"] += len(result.get("skipped", []))
+
+        for obs_id in batch_obs_ids:
+            if obs_id not in candidates:
+                assign(
+                    [obs_id],
+                    1,
+                    disposition=SuccessfulDisposition.SKIPPED,
+                    reason="synthesis_policy_returned_no_material_action",
+                )
+        counts["outcomes"] = [candidates[obs_id][1].model_dump(mode="json") for obs_id in sorted(candidates)]
+
+        if counts["write_failures"]:
+            # Partial successes are deterministic on retry; the attempt itself is
+            # not successful until every claimed write has durable evidence.
+            self._pending = observations + self._pending
+            raise RuntimeError(f"{counts['write_failures']} insight write(s) failed")
 
         # Emit insight.created events
         if counts["new_insights"] > 0:
@@ -318,22 +445,53 @@ class Synthesizer:
         return non_matched, auto_merged
 
     def _cognify_candidate_finder(self, existing: list[dict]):
-        """Build a CandidateFinder over already-loaded existing insights.
+        """Build the shared TP3 candidate finder over existing insights.
 
-        Ranks by cosine similarity to the new insight's embedding (highest first).
-        Mirrors _embedding_dedupe's signal; no new DB query. Cognify slices to k.
+        Cognify retains its existing callback shape, but selection now delegates
+        to the same provider-neutral deterministic engine used by grounded
+        evidence. Relationship judgment remains Cognify's separate model step.
         """
-        existing_with_emb = [e for e in existing if e.get("embedding")]
+        existing_with_emb = [
+            value
+            for value in existing
+            if value.get("embedding")
+            and (value.get("product_id") is None or str(value.get("product_id")) == self.product_id)
+        ]
+        bounded = sorted(existing_with_emb, key=lambda value: str(value.get("id") or ""))[:MAX_CANDIDATE_RECORDS]
+        records = tuple(
+            candidate_record_from_mapping(
+                value,
+                product_id=self.product_id,
+                record_kind="insight",
+            )
+            for value in bounded
+        )
+        snapshot = CandidateIndexSnapshotV1(
+            records=records,
+            available_signals=(CandidateSignal.LEXICAL, CandidateSignal.VECTOR),
+            index_versions=default_candidate_index_versions(),
+        )
+        finder = DeterministicCandidateFinder(snapshot)
+        originals = {str(value.get("id")): value for value in bounded}
 
         async def find_candidates(new_insight: dict) -> list[dict]:
             emb = new_insight.get("embedding")
-            if not emb or not existing_with_emb:
+            if not emb or not records:
                 return []
-            return sorted(
-                existing_with_emb,
-                key=lambda e: _cosine_similarity(emb, e.get("embedding") or []),
-                reverse=True,
+            query = candidate_record_from_mapping(
+                new_insight,
+                product_id=self.product_id,
+                record_kind="insight",
             )
+            request = CandidateRequestV1.from_record(
+                query,
+                enabled_signals=(CandidateSignal.LEXICAL, CandidateSignal.VECTOR),
+                k=min(settings.cognify_candidate_k, len(records), 50) or 1,
+                max_candidates=len(records),
+            )
+            receipt = await finder.find_candidates(request)
+            self._last_cognify_candidate_receipt = receipt
+            return [originals[item.record_id] for item in receipt.candidates]
 
         return find_candidates
 
@@ -352,6 +510,7 @@ class Synthesizer:
             cognify(
                 new_records,
                 finder,
+                product_id=self.product_id,
                 min_confidence=settings.cognify_min_confidence,
                 candidate_k=settings.cognify_candidate_k,
             )
@@ -366,14 +525,48 @@ class Synthesizer:
             return
         try:
             async with self._db_pool.connection() as db:
-                await db.query(
-                    """UPDATE <record>$id SET
-                       confidence = math::min([1.0, confidence + $boost]),
-                       updated_at = time::now()""",
-                    {"id": insight_id, "boost": _EMBEDDING_DEDUPE_BOOST},
-                )
+                params = {
+                    "id": insight_id,
+                    "boost": _EMBEDDING_DEDUPE_BOOST,
+                    "product": self.product_id,
+                    "attempt_id": self._attempt_id,
+                }
+                if self._attempt_id:
+                    result = await db.query(
+                        """UPDATE <record>$id SET
+                           confidence = math::min([1.0, confidence + $boost]),
+                           synthesis_merge_attempts = array::union(
+                               synthesis_merge_attempts ?? [], [$attempt_id]
+                           ),
+                           updated_at = time::now()
+                           WHERE product = <record>$product
+                             AND (synthesis_merge_attempts IS NONE
+                                  OR synthesis_merge_attempts CONTAINSNOT $attempt_id)""",
+                        params,
+                    )
+                    from core.engine.core.db import parse_one, parse_rows
+
+                    if not parse_rows(result):
+                        existing = parse_one(
+                            await db.query(
+                                """SELECT id, synthesis_merge_attempts FROM ONLY <record>$id
+                                   WHERE product = <record>$product""",
+                                params,
+                            )
+                        )
+                        if not existing or self._attempt_id not in (existing.get("synthesis_merge_attempts") or []):
+                            raise RuntimeError("merged insight is absent from the synthesis product scope")
+                else:
+                    await db.query(
+                        """UPDATE <record>$id SET
+                           confidence = math::min([1.0, confidence + $boost]),
+                           updated_at = time::now()
+                           WHERE product = <record>$product""",
+                        params,
+                    )
         except Exception as exc:
             logger.warning("boost confidence failed for %s: %s", insight_id, exc)
+            raise
 
     async def _call_primary_llm(self, observations: list[dict], existing: list[dict]) -> dict:
         """Call primary LLM to synthesize observations into insights."""
@@ -404,6 +597,11 @@ For each observation or group:
 3. Contradicts an existing insight? → Flag as conflict
 4. Genuinely new? → Return as new insight
 
+Account for every numbered observation exactly once. Include source_observations
+indices on every new insight, update, and conflict. Return skipped entries as
+objects with observation_index and a concrete reason; never omit an observation
+merely because no insight was emitted.
+
 For new insights, classify:
 - tier: specialty | subdomain | domain | org
 - discipline: one of security, testing, ux, performance, devops, data, accessibility, documentation, ai_ml, architecture, api_design, data_modeling, business_logic, integration, error_handling, observability, configuration, deployment, versioning, scale, code_conventions, dependency_management
@@ -420,7 +618,7 @@ For new insights, classify:
             logger.warning("Structured synthesis failed, falling back to freeform JSON")
             raw = await llm.complete_json(
                 prompt
-                + '\n\nReturn JSON: {"new_insights": [{"content": "...", "tier": "subdomain", "discipline": "testing", "insight_type": "fact", "confidence": 0.8}], "updates": [{"existing_insight_id": "...", "updated_content": "...", "updated_confidence": 0.8}], "conflicts": [{"existing_insight_id": "...", "conflicting_observation": "...", "explanation": "..."}], "skipped": [indices]}',
+                + '\n\nReturn JSON: {"new_insights": [{"content": "...", "tier": "subdomain", "discipline": "testing", "insight_type": "fact", "confidence": 0.8, "source_observations": [0]}], "updates": [{"existing_insight_id": "...", "updated_content": "...", "updated_confidence": 0.8, "source_observations": [0]}], "conflicts": [{"existing_insight_id": "...", "conflicting_observation": "...", "explanation": "...", "source_observations": [0]}], "skipped": [{"observation_index": 0, "reason": "..."}]}',
                 model=settings.llm_model,
             )
             # Ensure new_insights have required content field
@@ -434,6 +632,7 @@ For new insights, classify:
         fallback_domain: str,
         batch_obs_ids: list[str],
         provenance_kind: str | None = None,
+        deterministic_ordinal_start: int = 0,
     ) -> tuple[int, int, list[dict]]:
         """Write a batch of new insights, isolating per-insight failures.
 
@@ -450,15 +649,25 @@ For new insights, classify:
         written = 0
         failures = 0
         records: list[dict] = []
-        for insight_data in new_insights:
+        for ordinal, insight_data in enumerate(new_insights, start=deterministic_ordinal_start):
             if not insight_data.get("domain_path"):
                 insight_data["domain_path"] = fallback_domain
             try:
-                record = await self._write_insight(
-                    insight_data, observation_ids=batch_obs_ids, provenance_kind=provenance_kind
-                )
+                kwargs: dict[str, Any] = {
+                    "observation_ids": batch_obs_ids,
+                    "provenance_kind": provenance_kind,
+                }
+                attempt_id = getattr(self, "_attempt_id", None)
+                if attempt_id:
+                    kwargs["insight_id"] = build_insight_id(
+                        product_id=self.product_id,
+                        attempt_id=attempt_id,
+                        content=str(insight_data.get("content") or ""),
+                        ordinal=ordinal,
+                    )
+                record = await self._write_insight(insight_data, **kwargs)
                 written += 1
-                if record:
+                if isinstance(record, dict):
                     records.append(record)
             except Exception as exc:
                 failures += 1
@@ -492,6 +701,7 @@ For new insights, classify:
         insight_data: dict,
         observation_ids: list[str] | None = None,
         provenance_kind: str | None = None,
+        insight_id: str | None = None,
     ) -> dict | None:
         """Write a new insight to SurrealDB. `provenance_kind` (e.g. 'reasoning') encodes self-generated
         provenance into source_domain for trust scoring; None preserves direct-capture behavior."""
@@ -589,9 +799,9 @@ For new insights, classify:
         except Exception:
             logger.warning("embedding failed; writing insight in degraded mode", exc_info=True)
 
-        insight_id_str = await atomic_capture_write(
-            self._db_pool,
-            insight_fields={
+        atomic_kwargs: dict[str, Any] = {
+            "db_pool": self._db_pool,
+            "insight_fields": {
                 "product": self.product_id,
                 "content": content,
                 "insight_type": insight_data.get("insight_type", "fact"),
@@ -605,10 +815,13 @@ For new insights, classify:
                 "specialty": specialty_id,
                 "tags": tags,
             },
-            embedding=embedding,
-            specialty_slug=domain_slug or None,
-            observation_ids=[str(o) for o in (observation_ids or []) if o],
-        )
+            "embedding": embedding,
+            "specialty_slug": domain_slug or None,
+            "observation_ids": [str(o) for o in (observation_ids or []) if o],
+        }
+        if insight_id is not None:
+            atomic_kwargs["insight_id"] = insight_id
+        insight_id_str = await atomic_capture_write(**atomic_kwargs)
 
         # Bridge decision insights to the decision table
         insight_type = insight_data.get("insight_type", "fact")
@@ -638,13 +851,13 @@ For new insights, classify:
 
         return {"id": insight_id_str, "content": content, "embedding": embedding}
 
-    async def _apply_update(self, update: dict) -> None:
+    async def _apply_update(self, update: dict) -> str | None:
         """Update an existing insight's content and confidence."""
         if not self._db_pool:
-            return
+            return None
         insight_id = update.get("existing_insight_id")
         if not insight_id:
-            return
+            return None
         new_content = update.get("updated_content", "")
 
         # Recompute the embedding for the rewritten content (outside the DB call)
@@ -660,8 +873,8 @@ For new insights, classify:
                 async with self._db_pool.connection() as db:
                     crows = parse_rows(
                         await db.query(
-                            "SELECT domain_path, insight_type, tags FROM insight WHERE id = <record>$id LIMIT 1",
-                            {"id": insight_id},
+                            "SELECT domain_path, insight_type, tags FROM insight WHERE id = <record>$id AND product = <record>$product LIMIT 1",
+                            {"id": insight_id, "product": self.product_id},
                         )
                     )
                 if crows:
@@ -690,7 +903,7 @@ For new insights, classify:
             logger.warning("embedding failed on update; marking needs_embedding", exc_info=True)
 
         async with self._db_pool.connection() as db:
-            await db.query(
+            result = await db.query(
                 """
                 UPDATE <record>$insight_id SET
                     content = $content,
@@ -699,27 +912,65 @@ For new insights, classify:
                     needs_embedding = $needs_embedding,
                     updated_at = time::now(),
                     last_confirmed = time::now()
+                WHERE product = <record>$product
                 """,
                 {
                     "insight_id": insight_id,
+                    "product": self.product_id,
                     "content": new_content,
                     "confidence": _safe_confidence(update.get("updated_confidence", 0.5)),
                     "embedding": embedding,
                     "needs_embedding": embedding is None,
                 },
             )
+        from core.engine.core.db import parse_rows
 
-    async def _write_conflict(self, conflict: dict) -> None:
+        if not parse_rows(result):
+            raise RuntimeError("insight update target is absent from the synthesis product scope")
+        return str(insight_id)
+
+    async def _write_conflict(self, conflict: dict, *, ordinal: int = 0) -> tuple[str | None, str | None]:
         """Write a conflict record. Note: maps LLM's 'conflicting_observation' to schema's 'conflicting_content'."""
         if not self._db_pool:
-            return
+            return None, None
         insight_a_id = conflict.get("existing_insight_id")
         if not insight_a_id:
-            return
+            return None, None
+        from core.engine.core.db import parse_one
+
+        conflict_id = (
+            build_conflict_id(
+                product_id=self.product_id,
+                attempt_id=self._attempt_id,
+                insight_id=str(insight_a_id),
+                ordinal=ordinal,
+            )
+            if self._attempt_id
+            else None
+        )
         async with self._db_pool.connection() as db:
-            await db.query(
-                """
-                CREATE conflict SET
+            owned = parse_one(
+                await db.query(
+                    "SELECT id FROM ONLY <record>$id WHERE product = <record>$product",
+                    {"id": insight_a_id, "product": self.product_id},
+                )
+            )
+            if not owned:
+                raise RuntimeError("conflicting insight is absent from the synthesis product scope")
+            if conflict_id:
+                existing = parse_one(
+                    await db.query(
+                        "SELECT id FROM ONLY <record>$id WHERE product = <record>$product",
+                        {"id": conflict_id, "product": self.product_id},
+                    )
+                )
+                if existing:
+                    return str(insight_a_id), conflict_id
+            create_target = "ONLY type::record('conflict', $record_key)" if conflict_id else "conflict"
+            result = await db.query(
+                f"""
+                CREATE {create_target} SET
+                    product = <record>$product,
                     insight_a = <record>$insight_a,
                     conflicting_content = $conflicting_content,
                     explanation = $explanation,
@@ -728,8 +979,14 @@ For new insights, classify:
                 """,
                 {
                     "product": self.product_id,
+                    "record_key": conflict_id.partition(":")[2] if conflict_id else None,
                     "insight_a": insight_a_id,
                     "conflicting_content": conflict.get("conflicting_observation", ""),
                     "explanation": conflict.get("explanation", ""),
                 },
             )
+        row = parse_one(result)
+        stored_id = conflict_id or (str(row.get("id")) if row and row.get("id") else None)
+        if not stored_id:
+            raise RuntimeError("conflict preservation returned no durable conflict reference")
+        return str(insight_a_id), stored_id

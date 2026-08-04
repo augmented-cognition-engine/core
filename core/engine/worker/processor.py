@@ -3,8 +3,21 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import os
+import uuid
 
+from core.engine.capture.leases import (
+    DEFAULT_HEARTBEAT_SECONDS,
+    DEFAULT_LEASE_SECONDS,
+    ClaimedObservationV1,
+    ObservationLeaseLost,
+    ObservationLeaseV1,
+    claim_next_observation,
+    renew_observation_lease,
+)
+from core.engine.capture.lifecycle import MAX_PROCESSING_ATTEMPTS, process_observation_attempt
 from core.engine.capture.synthesizer import Synthesizer
 from core.engine.core.db import parse_rows, pool
 from core.engine.embedding.base import get_embedder
@@ -12,16 +25,20 @@ from core.engine.embedding.base import get_embedder
 logger = logging.getLogger(__name__)
 
 _POLL_BATCH = 10
-MAX_RETRIES = 3
+_MAX_DRAIN_BATCHES = 4
+MAX_RETRIES = MAX_PROCESSING_ATTEMPTS
+WORKER_INSTANCE_ID = os.environ.get("ACE_WORKER_INSTANCE_ID") or f"worker:{os.getpid()}:{uuid.uuid4().hex[:16]}"
 
 
 async def fetch_pending(product_id: str = "product:platform") -> list[dict]:
-    """Return up to _POLL_BATCH pending observations."""
+    """Return pending or retry-eligible observations for exactly one product."""
     async with pool.connection() as db:
         result = await db.query(
             """
             SELECT * FROM observation
             WHERE product = <record>$product AND status = 'pending'
+              AND (processing_state IS NONE OR processing_state IN ['pending', 'retryable_failed'])
+              AND (next_retry_at IS NONE OR next_retry_at <= time::now())
             ORDER BY created_at ASC LIMIT $limit
             """,
             {"product": product_id, "limit": _POLL_BATCH},
@@ -29,49 +46,89 @@ async def fetch_pending(product_id: str = "product:platform") -> list[dict]:
         return parse_rows(result)
 
 
-async def process_observation(obs: dict) -> None:
-    """Synthesize a single observation and update its status."""
-    obs_id = str(obs.get("id", ""))
-    product_id = str(obs.get("product", "product:platform"))
+async def process_observation(
+    obs: dict,
+    *,
+    route: str = "worker",
+    lease: ObservationLeaseV1 | None = None,
+):
+    """Process through the shared receipt/finalization lifecycle."""
+    receipt = await process_observation_attempt(
+        obs,
+        db_pool=pool,
+        route=route,
+        synthesizer_factory=Synthesizer,
+        scope_prevalidated=True,
+        lease_id=lease.lease_id if lease else None,
+        lease_owner=lease.owner_id if lease else None,
+        lease_recovered=lease.recovered_attempt if lease else False,
+    )
+    logger.debug(
+        "Observation %s finalized as %s",
+        obs.get("id"),
+        receipt.processing_state.value,
+    )
+    return receipt
 
-    try:
-        synth = Synthesizer(product_id=product_id, workspace_id=None, batch_size=1)
-        synth._db_pool = pool  # required for _write_insight to flush to DB
-        await synth.add_observation(obs)
-        await synth.flush()
 
-        async with pool.connection() as db:
-            await db.query(
-                "UPDATE <record>$id SET status = 'processed', processed_at = time::now()",
-                {"id": obs_id},
-            )
-        logger.debug("Processed observation %s", obs_id)
+async def claim_observation(
+    product_id: str = "product:platform",
+    *,
+    owner_id: str = WORKER_INSTANCE_ID,
+    lease_seconds: float = DEFAULT_LEASE_SECONDS,
+) -> ClaimedObservationV1 | None:
+    """Atomically claim one due product-owned observation."""
+    return await claim_next_observation(
+        pool,
+        product_id=product_id,
+        owner_id=owner_id,
+        lease_seconds=lease_seconds,
+    )
 
-    except Exception as exc:
-        current_retries = int(obs.get("retry_count") or 0)
-        next_retries = current_retries + 1
-        exhausted = next_retries >= MAX_RETRIES
-        logger.warning(
-            "Failed to process observation %s (retry %d/%d): %s",
-            obs_id,
-            next_retries,
-            MAX_RETRIES,
-            exc,
+
+async def process_claimed_observation(
+    claimed: ClaimedObservationV1,
+    *,
+    lease_seconds: float = DEFAULT_LEASE_SECONDS,
+    heartbeat_seconds: float = DEFAULT_HEARTBEAT_SECONDS,
+):
+    """Process under a heartbeat and cancel immediately if the fence is lost."""
+    if not 0 < heartbeat_seconds < lease_seconds:
+        raise ValueError("heartbeat_seconds must be positive and shorter than lease_seconds")
+
+    lease = claimed.lease
+    processing = asyncio.create_task(
+        process_observation(
+            claimed.observation,
+            route="worker_leased",
+            lease=lease,
         )
+    )
+    try:
+        while True:
+            done, _pending = await asyncio.wait({processing}, timeout=heartbeat_seconds)
+            if processing in done:
+                return await processing
+            try:
+                lease = await renew_observation_lease(
+                    pool,
+                    lease,
+                    lease_seconds=lease_seconds,
+                )
+            except Exception:
+                processing.cancel()
+                try:
+                    await processing
+                except asyncio.CancelledError:
+                    pass
+                raise
+    except asyncio.CancelledError:
+        processing.cancel()
         try:
-            async with pool.connection() as db:
-                if exhausted:
-                    await db.query(
-                        "UPDATE <record>$id SET status = 'failed', retry_count = $rc, last_error = $err",
-                        {"id": obs_id, "rc": next_retries, "err": str(exc)[:500]},
-                    )
-                else:
-                    await db.query(
-                        "UPDATE <record>$id SET retry_count = $rc, last_error = $err",
-                        {"id": obs_id, "rc": next_retries, "err": str(exc)[:500]},
-                    )
-        except Exception:
+            await processing
+        except asyncio.CancelledError:
             pass
+        raise
 
 
 async def dedup_insights(product_id: str, discipline: str) -> int:
@@ -112,7 +169,10 @@ async def dedup_insights(product_id: str, discipline: str) -> int:
 
         for dup_id in duplicates:
             async with pool.connection() as db:
-                await db.query("DELETE <record>$id", {"id": dup_id})
+                await db.query(
+                    "DELETE <record>$id WHERE product = <record>$product",
+                    {"id": dup_id, "product": product_id},
+                )
             merged += 1
 
         if duplicates:
@@ -120,8 +180,8 @@ async def dedup_insights(product_id: str, discipline: str) -> int:
                 new_conf = min(1.0, float(keeper.get("confidence", 0.7)) + 0.05)
                 async with pool.connection() as db:
                     await db.query(
-                        "UPDATE <record>$id SET confidence = $conf",
-                        {"id": str(keeper["id"]), "conf": new_conf},
+                        "UPDATE <record>$id SET confidence = $conf WHERE product = <record>$product",
+                        {"id": str(keeper["id"]), "conf": new_conf, "product": product_id},
                     )
 
     except Exception as exc:
@@ -182,8 +242,8 @@ async def embed_new_insights(product_id: str, limit: int = 20) -> int:
         async with pool.connection() as db:
             for row, vec in zip(rows, vectors):
                 await db.query(
-                    "UPDATE <record>$id SET embedding = $vec",
-                    {"id": str(row["id"]), "vec": vec},
+                    "UPDATE <record>$id SET embedding = $vec WHERE product = <record>$product",
+                    {"id": str(row["id"]), "vec": vec, "product": product_id},
                 )
 
         logger.debug("Embedded %d insights", len(rows))
@@ -194,18 +254,48 @@ async def embed_new_insights(product_id: str, limit: int = 20) -> int:
         return 0
 
 
-async def run_poll_cycle(product_id: str = "product:platform") -> int:
-    """Fetch and process one batch. Returns count processed."""
-    pending = await fetch_pending(product_id)
-    if not pending:
-        return 0
+async def run_poll_cycle(
+    product_id: str = "product:platform",
+    *,
+    owner_id: str = WORKER_INSTANCE_ID,
+    lease_seconds: float = DEFAULT_LEASE_SECONDS,
+    heartbeat_seconds: float = DEFAULT_HEARTBEAT_SECONDS,
+) -> int:
+    """Claim and process up to one bounded batch, one lease at a time."""
+    from core.engine.worker.health import get_health_state
 
+    processed = 0
     disciplines_seen: set[str] = set()
-    for obs in pending:
-        await process_observation(obs)
-        disc = obs.get("domain_path") or obs.get("discipline_hint", "")
-        if disc:
-            disciplines_seen.add(disc)
+    for _ in range(_POLL_BATCH):
+        claimed = await claim_observation(
+            product_id,
+            owner_id=owner_id,
+            lease_seconds=lease_seconds,
+        )
+        if claimed is None:
+            break
+        get_health_state().record_lease_claim(recovered=claimed.lease.recovered_attempt)
+        try:
+            await process_claimed_observation(
+                claimed,
+                lease_seconds=lease_seconds,
+                heartbeat_seconds=heartbeat_seconds,
+            )
+            processed += 1
+            get_health_state().record_leased_outcome()
+            obs = claimed.observation
+            disc = obs.get("domain_path") or obs.get("discipline_hint", "")
+            if disc:
+                disciplines_seen.add(disc)
+        except ObservationLeaseLost as exc:
+            get_health_state().record_lease_loss(str(exc))
+            logger.warning("Observation lease lost before finalization: %s", exc)
+        except Exception as exc:
+            get_health_state().record_error(str(exc))
+            logger.warning("Leased observation processing failed: %s", exc)
+
+    if not processed:
+        return 0
 
     for disc in disciplines_seen:
         await dedup_insights(product_id, disc)
@@ -224,5 +314,24 @@ async def run_poll_cycle(product_id: str = "product:platform") -> int:
 
     await emit_signals_to_bus(signals)
 
-    logger.info("poll_cycle: processed=%d signals=%d", len(pending), len(signals))
-    return len(pending)
+    logger.info("poll_cycle: processed=%d signals=%d", processed, len(signals))
+    return processed
+
+
+async def run_drain_cycle(
+    product_id: str = "product:platform",
+    *,
+    owner_id: str = WORKER_INSTANCE_ID,
+    max_batches: int = _MAX_DRAIN_BATCHES,
+) -> int:
+    """Continuously drain a bounded number of batches without pre-claiming work."""
+    if not 1 <= max_batches <= 100:
+        raise ValueError("max_batches must be between 1 and 100")
+    total = 0
+    for _ in range(max_batches):
+        count = await run_poll_cycle(product_id, owner_id=owner_id)
+        total += count
+        if count < _POLL_BATCH:
+            break
+        await asyncio.sleep(0)
+    return total

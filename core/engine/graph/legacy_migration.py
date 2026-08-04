@@ -23,7 +23,7 @@ class MigrationReport:
     processed: int = 0
 
 
-async def migrate_legacy_edges(*, pool=None, dry_run: bool = True) -> MigrationReport:
+async def migrate_legacy_edges(*, product_id: str, pool=None, dry_run: bool = True) -> MigrationReport:
     """Classify legacy rows without deleting them; semantic rows become assertions.
 
     Missing provenance stays explicitly ``legacy/unknown``. Re-running produces
@@ -57,6 +57,7 @@ async def migrate_legacy_edges(*, pool=None, dry_run: bool = True) -> MigrationR
                     report.provisional_legacy_semantic += 1
                 proposals.append(
                     RelationshipProposal(
+                        product_id=product_id,
                         subject=str(row["in"]),
                         predicate=predicate,
                         object=str(row["out"]),

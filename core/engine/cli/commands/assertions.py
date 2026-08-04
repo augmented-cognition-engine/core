@@ -11,11 +11,17 @@ from core.engine.cli.display import console
 
 @click.command("assertion")
 @click.argument("assertion_id")
+@click.option("--product", required=True, envvar="ACE_PRODUCT", help="Product ID")
 @click.pass_context
-def assertion(ctx, assertion_id):
+def assertion(ctx, assertion_id, product):
     """Show evidence, proposals, reviews, history, and operational projection."""
     try:
-        response = httpx.get(f"{ctx.obj['url']}/assertions/{assertion_id}", headers=get_headers(), timeout=30)
+        response = httpx.get(
+            f"{ctx.obj['url']}/assertions/{assertion_id}",
+            params={"product": product},
+            headers=get_headers(),
+            timeout=30,
+        )
         response.raise_for_status()
     except (httpx.HTTPError, httpx.ConnectError, httpx.TimeoutException) as exc:
         console.print(f"[red]Unable to inspect assertion:[/red] {exc}")

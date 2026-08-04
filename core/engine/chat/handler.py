@@ -78,12 +78,16 @@ async def _handle_remember(text: str, session_id: str, product_id: str, workspac
         await db.query(
             """
             CREATE observation SET
+                product = <record>$product,
                 content = $content,
                 observation_type = 'user_declaration',
                 confidence = 0.95,
                 source = 'user_explicit',
                 tags = ['user-declared'],
                 synthesized = false,
+                status = 'pending',
+                processing_state = 'pending',
+                processing_attempt_count = 0,
                 created_at = time::now()
             """,
             {"product": product_id, "workspace": workspace_id, "content": text.strip()},

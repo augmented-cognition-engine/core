@@ -276,6 +276,17 @@ async def probe_bounded_intelligence(description: str, product_id: str) -> Bound
                     {"product": product_id},
                 )
             )
+        has_promotion_candidates = any(row.get("source_kind") == "grounded_promotion" for row in insight_rows)
+        insight_rows = [row for row in insight_rows if row.get("source_kind") != "grounded_promotion"]
+        if has_promotion_candidates:
+            try:
+                from core.engine.grounded_state.promotion import promoted_memory_as_insight, retrieve_promoted_memories
+
+                promoted = await retrieve_promoted_memories(pool=pool, product_id=product_id, limit=20)
+                insight_rows.extend(promoted_memory_as_insight(item) for item in promoted)
+            except Exception:
+                # A broken promotion chain must not re-expose legacy active rows.
+                pass
         insights = _select_relevant_insights(description, insight_rows)
         conflicts = _select_relevant_conflicts(description, conflict_rows)
         return BoundedIntelligenceProbe(

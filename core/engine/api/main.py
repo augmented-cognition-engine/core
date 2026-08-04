@@ -5,7 +5,7 @@ import os
 import pathlib
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -565,7 +565,7 @@ async def health_ready():
 
 
 @app.get("/health")
-async def health():
+async def health(product_id: str = Query(default="product:default")):
     """Legacy health endpoint — kept for backward compat, delegates to /health/ready."""
     import asyncio
     import shutil
@@ -580,6 +580,18 @@ async def health():
     llm_available = bool(settings.llm_api_key) or bool(shutil.which("claude"))
     overall = "ok" if db_status == "ok" and llm_available else "degraded"
 
+    outcome_health = {"status": "unavailable", "reason": "database_query_failed"}
+    if db_status == "ok":
+        try:
+            from core.engine.capture.lifecycle import observation_outcome_health
+
+            outcome_health = await observation_outcome_health(pool, product_id=product_id)
+            if outcome_health.get("status") != "healthy":
+                overall = "degraded"
+        except Exception as exc:
+            outcome_health = {"status": "unavailable", "reason": type(exc).__name__}
+            overall = "degraded"
+
     return {
         "status": overall,
         "version": VERSION,
@@ -588,16 +600,18 @@ async def health():
             "llm": "ok" if llm_available else "unavailable",
             "pool": pool.stats(),
         },
+        "observation_outcomes": outcome_health,
     }
 
 
 @app.get("/health/ops")
-async def health_ops():
+async def health_ops(product_id: str = Query(default="product:platform")):
     """Operational metrics — runtime internals for oncall and dashboards.
 
     Not a liveness/readiness probe. Returns 200 always (even if degraded)
     so monitoring systems can scrape metrics without triggering alerts.
     """
+    from core.engine.capture.lifecycle import observation_outcome_health
     from core.engine.capture.service import capture_service
     from core.engine.core.error_buffer import error_buffer
 
@@ -606,6 +620,10 @@ async def health_ops():
         "db_pool": pool.stats(),
         "recent_errors": error_buffer.recent(10),
     }
+    try:
+        data["observation_outcomes"] = await observation_outcome_health(pool, product_id=product_id)
+    except Exception as exc:
+        data["observation_outcomes"] = {"status": "unavailable", "reason": type(exc).__name__}
 
     # Sentinel scheduler state (best-effort)
     try:

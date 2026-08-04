@@ -173,6 +173,8 @@ async def _capture_conclusion_to_graph(
                     confidence = 0.7,
                     source = 'reasoning_conclusion',
                     status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()
                 """,
                 {"product": request.product_id, "content": text[:1500], "discipline": discipline},
@@ -1865,6 +1867,10 @@ async def run(
                                 "source_graph": ins.get("source_graph"),
                                 "source_record": str(ins.get("id", "")),
                                 "source_observations": ins.get("source_observations") or [],
+                                "promotion_receipt_id": ins.get("promotion_receipt_id"),
+                                "promotion_evidence_pack_id": ins.get("promotion_evidence_pack_id"),
+                                "promotion_evidence_pack_hash": ins.get("promotion_evidence_pack_hash"),
+                                "promotion_lineage_id": ins.get("promotion_lineage_id"),
                                 "captured_at": ins.get("created_at"),
                             },
                         }

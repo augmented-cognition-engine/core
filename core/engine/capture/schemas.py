@@ -58,16 +58,23 @@ class InsightUpdate(BaseModel):
     existing_insight_id: str
     updated_content: str
     updated_confidence: float = Field(ge=0.0, le=1.0)
+    source_observations: list[int] = Field(default_factory=list)
 
 
 class ConflictRecord(BaseModel):
     existing_insight_id: str
     conflicting_observation: str
     explanation: str
+    source_observations: list[int] = Field(default_factory=list)
+
+
+class SkippedObservation(BaseModel):
+    observation_index: int = Field(ge=0)
+    reason: str = Field(min_length=1, max_length=1_000)
 
 
 class SynthesizerOutput(BaseModel):
     new_insights: list[NewInsight] = Field(default_factory=list)
     updates: list[InsightUpdate] = Field(default_factory=list)
     conflicts: list[ConflictRecord] = Field(default_factory=list)
-    skipped: list[int] = Field(default_factory=list)
+    skipped: list[int | SkippedObservation] = Field(default_factory=list)

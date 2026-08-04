@@ -47,6 +47,9 @@ async def capture_review_decisions(
                     domain_hint = 'code_conventions',
                     discipline_hint = 'architecture',
                     synthesized = false,
+                    status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()
                 """,
                 {
@@ -68,6 +71,9 @@ async def capture_review_decisions(
                         domain_hint = 'code_conventions',
                         discipline_hint = 'architecture',
                         synthesized = false,
+                        status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         created_at = time::now()
                     """,
                     {
@@ -99,6 +105,9 @@ async def capture_review_decisions(
                     domain_hint = 'testing',
                     discipline_hint = 'testing',
                     synthesized = false,
+                    status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()
                 """,
                 {
@@ -124,6 +133,9 @@ async def capture_review_decisions(
                         domain_hint = 'devops',
                         discipline_hint = 'devops',
                         synthesized = false,
+                        status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         created_at = time::now()
                     """,
                     {

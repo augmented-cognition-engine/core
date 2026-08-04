@@ -94,6 +94,8 @@ class FailureClassifier:
                         confidence = $confidence,
                         source = 'reasoning_loop',
                         status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         created_at = time::now()
                 """,
                     {
@@ -150,6 +152,8 @@ class FailureClassifier:
                         confidence = $confidence,
                         source = 'reasoning_loop',
                         status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         created_at = time::now()
                 """,
                     {

@@ -219,7 +219,7 @@ async def search_intel(
     async with pool.connection() as db:
         results = await db.query(
             """
-            SELECT id, content, confidence, tier, insight_type, domain_hint, created_at
+            SELECT id, content, confidence, tier, insight_type, domain_hint, created_at, source_kind
             FROM insight
             WHERE product = <record>$product
               AND status = 'active'
@@ -230,6 +230,26 @@ async def search_intel(
             {"product": product, "q": q},
         )
         rows = parse_rows(results)
+
+    # Promotion-managed insight rows have an append-only receipt lifecycle.
+    # Rebuild that slice from authoritative receipts so superseded or contested
+    # rows cannot leak through the legacy ``status = active`` predicate.
+    has_promotion_candidates = any(row.get("source_kind") == "grounded_promotion" for row in rows)
+    rows = [row for row in rows if row.get("source_kind") != "grounded_promotion"]
+    if has_promotion_candidates:
+        try:
+            from core.engine.grounded_state.promotion import promoted_memory_as_insight, retrieve_promoted_memories
+
+            promoted = await retrieve_promoted_memories(pool=pool, product_id=product, limit=20)
+            query = q.casefold()
+            rows.extend(promoted_memory_as_insight(item) for item in promoted if query in item.content.casefold())
+        except Exception:
+            # Legacy intelligence remains available, while promotion state
+            # fails closed instead of exposing a possibly stale memory row.
+            pass
+
+    rows.sort(key=lambda item: float(item.get("confidence") or 0.0), reverse=True)
+    rows = rows[:20]
 
     # Serialize RecordID objects to strings for JSON response
     for row in rows:

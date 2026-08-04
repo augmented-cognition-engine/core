@@ -91,6 +91,9 @@ class SessionMemory:
                             discipline_hint = 'architecture',
                             source_memory = 'session_memory',
                             synthesized = false,
+                            status = 'pending',
+                            processing_state = 'pending',
+                            processing_attempt_count = 0,
                             created_at = time::now()""",
                         {"product": product_id, "content": f"[{title}] {content[:2000]}"},
                     )

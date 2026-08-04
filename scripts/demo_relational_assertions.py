@@ -11,6 +11,7 @@ from core.engine.graph.assertions import RelationshipProposal, resolve_proposals
 def main() -> None:
     proposals = [
         RelationshipProposal(
+            product_id="product:demo-relational-assertions",
             subject="decision:cache",
             predicate="enhances",
             object="capability:latency",
@@ -20,6 +21,7 @@ def main() -> None:
             rationale="The cache reduces measured latency.",
         ),
         RelationshipProposal(
+            product_id="product:demo-relational-assertions",
             subject="decision:cache",
             predicate="improves",
             object="capability:latency",
@@ -32,6 +34,7 @@ def main() -> None:
     before = resolve_proposals(proposals)
     replay = resolve_proposals(list(reversed(proposals)))
     correction = RelationshipProposal(
+        product_id="product:demo-relational-assertions",
         subject="decision:cache",
         predicate="breaks",
         object="capability:latency",

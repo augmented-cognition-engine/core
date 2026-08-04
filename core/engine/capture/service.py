@@ -171,9 +171,19 @@ class CaptureService:
                         obs["product"] = product_id
                         if workspace_id:
                             obs["workspace"] = workspace_id
-                        await synthesizer.add_observation(obs)
                         if self._db_pool:
-                            await self._write_observation(obs, product_id, workspace_id)
+                            persisted = await self._write_observation(obs, product_id, workspace_id)
+                            if persisted:
+                                from core.engine.capture.lifecycle import process_observation_attempt
+
+                                await process_observation_attempt(
+                                    persisted,
+                                    db_pool=self._db_pool,
+                                    route="capture_service",
+                                    scope_prevalidated=True,
+                                )
+                        else:
+                            await synthesizer.add_observation(obs)
                     self._processed += 1
                     try:
                         from core.engine.core.metrics import capture_processed_total
@@ -191,7 +201,7 @@ class CaptureService:
 
             now = time.monotonic()
             last = synthesis_timers.get(product_id, 0)
-            if now - last >= _SYNTHESIS_INTERVAL and synthesizer.pending_count > 0:
+            if not self._db_pool and now - last >= _SYNTHESIS_INTERVAL and synthesizer.pending_count > 0:
                 try:
                     await synthesizer.synthesize()
                     synthesis_timers[product_id] = now
@@ -203,7 +213,7 @@ class CaptureService:
         logger.info("CaptureService shutting down — flushing all synthesizers")
         for product_id, synth in self._synthesizers.items():
             try:
-                if synth.pending_count > 0:
+                if not self._db_pool and synth.pending_count > 0:
                     await synth.flush()
             except Exception as exc:
                 logger.warning("Flush failed for product=%s: %s", product_id, exc)
@@ -215,18 +225,18 @@ class CaptureService:
         now = time.monotonic()
         for product_id, synth in self._synthesizers.items():
             last = synthesis_timers.get(product_id, 0)
-            if now - last >= _SYNTHESIS_INTERVAL and synth.pending_count > 0:
+            if not self._db_pool and now - last >= _SYNTHESIS_INTERVAL and synth.pending_count > 0:
                 try:
                     await synth.synthesize()
                     synthesis_timers[product_id] = now
                 except Exception as exc:
                     logger.warning("Periodic synthesis failed for %s: %s", product_id, exc)
 
-    async def _write_observation(self, obs: dict, product_id: str, workspace_id: str | None) -> None:
-        """Write observation to DB. Best-effort — never raises."""
+    async def _write_observation(self, obs: dict, product_id: str, workspace_id: str | None) -> dict | None:
+        """Write a pending observation and return its persisted lifecycle input."""
         try:
             async with self._db_pool.connection() as db:
-                await db.query(
+                result = await db.query(
                     """
                     CREATE observation SET
                         product = <record>$product,
@@ -237,6 +247,10 @@ class CaptureService:
                         domain_hint = $domain_hint,
                         source_memory = $source_memory,
                         session_id = $session_id,
+                        source = 'capture_service',
+                        status = 'pending',
+                        processing_state = 'pending',
+                        processing_attempt_count = 0,
                         synthesized = false,
                         created_at = time::now()
                     """,
@@ -252,8 +266,19 @@ class CaptureService:
                         "session_id": obs.get("session_id"),
                     },
                 )
+            from core.engine.core.db import parse_one
+
+            row = parse_one(result)
+            if not row:
+                raise RuntimeError("CREATE observation returned no durable row")
+            persisted = dict(obs)
+            persisted.update(row)
+            persisted["product"] = product_id
+            persisted["source"] = "capture_service"
+            return persisted
         except Exception as exc:
-            logger.debug("Observation write failed: %s", exc)
+            logger.warning("Observation write failed: %s", exc)
+            raise
 
     def start(self, db_pool=None) -> None:
         """Start the background processing loop. Called once at app startup."""

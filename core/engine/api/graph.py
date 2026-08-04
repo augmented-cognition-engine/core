@@ -1,7 +1,7 @@
 # engine/api/graph.py
 """Graph API — synapse visualization and proposal management."""
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
 from core.engine.core.auth import get_current_user
@@ -13,9 +13,15 @@ router = APIRouter(tags=["graph"])
 
 
 @router.get("/assertions/{assertion_id:path}")
-async def get_assertion(assertion_id: str, user: dict = Depends(get_current_user)):
+async def get_assertion(
+    assertion_id: str,
+    product: str = Query(..., description="Product ID"),
+    user: dict = Depends(get_current_user),
+):
     """Inspect one assertion, its evidence/proposals/reviews/history, and projection."""
-    result = await inspect_assertion(assertion_id)
+    if str(user.get("product", "")) != product:
+        raise HTTPException(status_code=404, detail="Not found")
+    result = await inspect_assertion(assertion_id, product_id=product)
     return result or {"error": "assertion_not_found", "assertion_id": assertion_id}
 
 

@@ -117,6 +117,9 @@ class FeedbackHandler:
                     observation_type = 'learning',
                     source = 'agent_discovery',
                     confidence = 0.7,
+                    status = 'pending',
+                    processing_state = 'pending',
+                    processing_attempt_count = 0,
                     created_at = time::now()""",
                 {
                     "product": product_id,

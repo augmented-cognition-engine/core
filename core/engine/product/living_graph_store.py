@@ -22,6 +22,29 @@ _SCOPED_QUERIES: dict[str, str] = {
     "observations": "SELECT * FROM observation WHERE product = <record>$product ORDER BY id LIMIT $limit",
     "insights": "SELECT * FROM insight WHERE product = <record>$product ORDER BY id LIMIT $limit",
     "tasks": "SELECT * FROM task WHERE product = <record>$product ORDER BY id LIMIT $limit",
+    "consequence_rollouts": (
+        "SELECT * OMIT payload FROM grounded_consequence_rollout "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "rollout_reconciliations": (
+        "SELECT * OMIT payload FROM grounded_rollout_reconciliation "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "promotion_proposals": (
+        "SELECT * OMIT payload FROM grounded_promotion_proposal "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "promotion_reviews": (
+        "SELECT * OMIT payload FROM grounded_promotion_review WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "promotion_receipts": (
+        "SELECT * OMIT payload FROM grounded_promotion_receipt "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "promotion_memory_lineage": (
+        "SELECT * OMIT payload FROM grounded_promotion_memory_lineage "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
     "initiatives": "SELECT * FROM initiative WHERE product = <record>$product ORDER BY id LIMIT $limit",
     "milestones": "SELECT * FROM milestone WHERE product = <record>$product ORDER BY id LIMIT $limit",
     "work_items": "SELECT * FROM work_item WHERE product = <record>$product ORDER BY id LIMIT $limit",
@@ -89,9 +112,14 @@ class SurrealLivingProductGraphStore:
                 result.records["assertions"] = await self._load_rows(
                     "assertions",
                     lambda: db.query(
-                        "SELECT * FROM relationship_assertion WHERE subject IN $ids AND object IN $ids "
+                        "SELECT * FROM relationship_assertion WHERE product = <record>$product "
+                        "AND subject IN $ids AND object IN $ids "
                         "ORDER BY id LIMIT $limit",
-                        {"ids": sorted(included_ids), "limit": MAX_RECORDS_PER_SOURCE + 1},
+                        {
+                            "product": product_id,
+                            "ids": sorted(included_ids),
+                            "limit": MAX_RECORDS_PER_SOURCE + 1,
+                        },
                     ),
                     result.source_states,
                     required=True,
@@ -102,16 +130,18 @@ class SurrealLivingProductGraphStore:
                 result.records["assertion_events"] = await self._load_rows(
                     "assertion_events",
                     lambda: db.query(
-                        "SELECT * FROM assertion_event WHERE assertion_id IN $ids ORDER BY id LIMIT $limit",
-                        {"ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
+                        "SELECT * FROM assertion_event WHERE product = <record>$product "
+                        "AND assertion_id IN $ids ORDER BY id LIMIT $limit",
+                        {"product": product_id, "ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
                     ),
                     result.source_states,
                 )
                 result.records["operational_relationships"] = await self._load_rows(
                     "operational_relationships",
                     lambda: db.query(
-                        "SELECT * FROM operational_relationship WHERE assertion_id IN $ids ORDER BY id LIMIT $limit",
-                        {"ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
+                        "SELECT * FROM operational_relationship WHERE product = <record>$product "
+                        "AND assertion_id IN $ids ORDER BY id LIMIT $limit",
+                        {"product": product_id, "ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
                     ),
                     result.source_states,
                     required=True,

@@ -523,26 +523,6 @@ class ResearchAgent:
             )
             obs_id = str(result.get("id", ""))
 
-            # Promote observation → insight immediately (don't wait for batch flush)
-            try:
-                from core.engine.capture.synthesizer import Synthesizer
-                from core.engine.core.db import pool as _pool
-
-                synth = Synthesizer(product_id=product_id, workspace_id=None, batch_size=1)
-                synth._db_pool = _pool
-                await synth.add_observation(
-                    {
-                        "id": obs_id,
-                        "content": content,
-                        "observation_type": "learning",
-                        "discipline_hint": discipline,
-                        "confidence": 0.7,
-                        "org": product_id,
-                    }
-                )
-            except Exception as syn_exc:
-                logger.debug("Synthesizer flush failed (non-fatal): %s", syn_exc)
-
             return obs_id
         except Exception as exc:
             logger.debug("Graph write failed: %s", exc)

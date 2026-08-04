@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # Insight-relationship RELATION tables defined in v031_graph.surql.
 EDGE_TYPES = tuple(RELATIONSHIPS)
 
-CandidateFinder = Callable[[dict], Awaitable[list[dict]]]
+CandidateCallback = Callable[[dict], Awaitable[list[dict]]]
 
 __all__ = ["EdgeProposal", "EDGE_TYPES", "extract_relationships", "cognify"]
 
@@ -69,7 +69,7 @@ def _prompt(new_insight: dict, candidates: list[dict]) -> str:
 
 async def extract_relationships(
     new_insights: list[dict],
-    find_candidates: CandidateFinder,
+    find_candidates: CandidateCallback,
     min_confidence: float = 0.6,
     candidate_k: int = 8,
 ) -> list[EdgeProposal]:
@@ -110,7 +110,9 @@ async def extract_relationships(
 
 async def cognify(
     new_insights: list[dict],
-    find_candidates: CandidateFinder,
+    find_candidates: CandidateCallback,
+    *,
+    product_id: str,
     min_confidence: float = 0.6,
     candidate_k: int = 8,
 ) -> int:
@@ -124,6 +126,7 @@ async def cognify(
     )
     assertions = [
         RelationshipProposal(
+            product_id=product_id,
             subject=p.from_id,
             predicate=p.edge_type,
             object=p.to_id,

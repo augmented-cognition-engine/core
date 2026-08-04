@@ -14,6 +14,7 @@ while the consume-side integration lands incrementally.
 
 from __future__ import annotations
 
+import re
 from typing import Any, Callable
 
 from core.engine.extensions.invocation import (
@@ -47,6 +48,13 @@ _verify_checks: list[Callable[[list[dict]], list[dict]]] = []
 MAX_TASK_ACTIONS = 200
 TaskActionIdentity = tuple[str, str]
 _task_actions: dict[TaskActionIdentity, RegisteredTaskAction] = {}
+# Provider-neutral grounded-state ingestion adapters.  Adapters only map
+# source-specific extraction into Core contracts; Core owns product scope,
+# identity, lifecycle, persistence, and receipts.
+GroundedStateAdapterIdentity = tuple[str, str]
+_grounded_state_adapters: dict[GroundedStateAdapterIdentity, Any] = {}
+MAX_GROUNDED_STATE_ADAPTERS = 50
+_ADAPTER_NAME = re.compile(r"^[a-z0-9][a-z0-9._-]{0,119}$")
 
 
 class Registry:
@@ -107,6 +115,26 @@ class Registry:
         """Register a verify-time check (see `_verify_checks`). MAKE arms run every
         registered check in verify() and fail closed on enforced violations."""
         _verify_checks.append(fn)
+
+    def register_grounded_state_adapter(self, name: str, adapter: Any) -> None:
+        """Register source-specific extraction mapping on the existing E1 seam.
+
+        The adapter is intentionally not a persistence callback.  Consumers ask
+        it for a bounded Core manifest and pass that manifest to the Core-owned
+        grounded-state ingestion service.
+        """
+        if not self._extension_id:
+            raise RuntimeError("register_grounded_state_adapter requires an extension-scoped Registry")
+        if not _ADAPTER_NAME.fullmatch(name):
+            raise ValueError("grounded-state adapter name must be a bounded lowercase stable token")
+        if not callable(getattr(adapter, "build_manifest", None)):
+            raise TypeError("grounded-state adapters must expose a build_manifest callable")
+        identity = (self._extension_id, name)
+        if identity in _grounded_state_adapters:
+            raise RuntimeError(f"Grounded-state adapter '{self._extension_id}:{name}' is already registered")
+        if len(_grounded_state_adapters) >= MAX_GROUNDED_STATE_ADAPTERS:
+            raise RuntimeError(f"Grounded-state adapter registry is limited to {MAX_GROUNDED_STATE_ADAPTERS} entries")
+        _grounded_state_adapters[identity] = adapter
 
     def register_sentinel(
         self,
@@ -278,6 +306,16 @@ def registered_verify_checks() -> list[Callable[[list[dict]], list[dict]]]:
 def registered_task_actions() -> dict[TaskActionIdentity, RegisteredTaskAction]:
     _ensure_extensions_loaded()
     return dict(_task_actions)
+
+
+def registered_grounded_state_adapters() -> dict[GroundedStateAdapterIdentity, Any]:
+    _ensure_extensions_loaded()
+    return dict(_grounded_state_adapters)
+
+
+def registered_grounded_state_adapter(extension_id: str, name: str) -> Any | None:
+    _ensure_extensions_loaded()
+    return _grounded_state_adapters.get((extension_id, name))
 
 
 def registered_task_action(extension_id: str, action: str) -> RegisteredTaskAction | None:

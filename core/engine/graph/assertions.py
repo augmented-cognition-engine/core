@@ -14,12 +14,12 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from core.engine.core.db import parse_one, parse_record_id, parse_rows, serialize_record
 from core.engine.graph.ontology import ONTOLOGY_VERSION, RELATIONSHIPS, normalize_predicate, type_allowed
 
-RESOLVER_VERSION = "ace.assertion-resolver.v2"
+RESOLVER_VERSION = "ace.assertion-resolver.v3"
 _PERSIST_LOCK = asyncio.Lock()
 AssertionStatus = Literal[
     "proposed", "provisional", "accepted", "contested", "rejected", "superseded", "stale", "retired"
@@ -41,6 +41,9 @@ async def _query_or_raise(db, query: str, params: dict | None = None):
 
 
 class RelationshipProposal(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    product_id: str
     subject: str
     predicate: str
     object: str
@@ -67,11 +70,37 @@ class RelationshipProposal(BaseModel):
     ontology_version: str = ONTOLOGY_VERSION
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    source_origin_ids: list[str] = Field(default_factory=list)
+
+    @field_validator("product_id")
+    @classmethod
+    def validate_product_id(cls, value: str) -> str:
+        if not value.startswith("product:") or any(char.isspace() for char in value):
+            raise ValueError("product_id must be a trusted product record identity")
+        return value
+
+    @field_validator("evidence_refs", "source_records", "assumptions", "source_origin_ids")
+    @classmethod
+    def normalize_unordered(cls, value: list[str]) -> list[str]:
+        return sorted(set(value))
+
+    def review_material_hash(self) -> str:
+        return hashlib.sha256(
+            json.dumps(
+                self.model_dump(mode="json", exclude={"model", "provider", "proposal_confidence"}),
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode()
+        ).hexdigest()
+
     def event_id(self) -> str:
         return _stable_id("relationship_proposal", self.model_dump(mode="json", exclude_none=True))
 
 
 class AssertionReview(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    product_id: str
     target_assertion: str
     reviewer_role: str = "critic"
     model: str | None = None
@@ -87,13 +116,34 @@ class AssertionReview(BaseModel):
     confidence: float = Field(default=0.5, ge=0, le=1)
     ontology_version: str = ONTOLOGY_VERSION
     reviewer_policy_version: str = "ace.assertion-review.v1"
+    authority: Literal["model", "deterministic_policy", "human"] = "model"
+    review_ref: str | None = None
+    reviewed_material_hash: str | None = None
+    counterevidence_search_ref: str | None = None
+    counterevidence_complete: bool = False
+
+    @field_validator("product_id")
+    @classmethod
+    def validate_product_id(cls, value: str) -> str:
+        if not value.startswith("product:") or any(char.isspace() for char in value):
+            raise ValueError("product_id must be a trusted product record identity")
+        return value
+
+    @model_validator(mode="after")
+    def prohibit_model_acceptance(self):
+        if self.authority == "model" and self.verdict == "support" and self.review_ref:
+            raise ValueError("a model review cannot serve as authoritative acceptance")
+        return self
 
     def review_id(self) -> str:
         return _stable_id("assertion_review", self.model_dump(mode="json", exclude_none=True))
 
 
 class CanonicalAssertion(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     id: str
+    product_id: str
     subject: str
     predicate: str
     object: str
@@ -113,6 +163,7 @@ class CanonicalAssertion(BaseModel):
     contradicting_assertions: list[str] = Field(default_factory=list)
     assumptions: list[str]
     proposal_ids: list[str]
+    review_refs: list[str] = Field(default_factory=list)
     ontology_version: str
     resolver_version: str
     projection_eligible: bool
@@ -121,8 +172,18 @@ class CanonicalAssertion(BaseModel):
     degraded_reason: str | None = None
 
 
-def _semantic_key(subject: str, predicate: str, object_: str, polarity: str, scope: dict, valid_from, valid_to) -> dict:
+def _semantic_key(
+    product_id: str,
+    subject: str,
+    predicate: str,
+    object_: str,
+    polarity: str,
+    scope: dict,
+    valid_from,
+    valid_to,
+) -> dict:
     return {
+        "product_id": product_id,
         "subject": subject,
         "predicate": predicate,
         "object": object_,
@@ -171,11 +232,21 @@ def resolve_proposals(
         if normalized is None:
             aid = _stable_id(
                 "relationship_assertion",
-                _semantic_key(p.subject, p.predicate, p.object, p.polarity, p.scope, p.valid_from, p.valid_to),
+                _semantic_key(
+                    p.product_id,
+                    p.subject,
+                    p.predicate,
+                    p.object,
+                    p.polarity,
+                    p.scope,
+                    p.valid_from,
+                    p.valid_to,
+                ),
             )
             invalid.append(
                 CanonicalAssertion(
                     id=aid,
+                    product_id=p.product_id,
                     subject=p.subject,
                     predicate=p.predicate,
                     object=p.object,
@@ -209,7 +280,16 @@ def resolve_proposals(
         # deriving the stable assertion id so A↔B and B↔A replay as one claim.
         if contract.symmetric and object_ < subject:
             subject, object_ = object_, subject
-        key = _semantic_key(subject, predicate, object_, p.polarity, p.scope, p.valid_from, p.valid_to)
+        key = _semantic_key(
+            p.product_id,
+            subject,
+            predicate,
+            object_,
+            p.polarity,
+            p.scope,
+            p.valid_from,
+            p.valid_to,
+        )
         aid = _stable_id("relationship_assertion", key)
         grouped.setdefault(aid, (key, [], contract))[1].append(p)
 
@@ -217,25 +297,50 @@ def resolve_proposals(
     for aid in sorted(grouped):
         key, ps, contract = grouped[aid]
         ps = sorted(ps, key=lambda p: p.event_id())
-        evidence = sorted({e for p in ps for e in p.evidence_refs})
-        assumptions = sorted({a for p in ps for a in p.assumptions})
+        related_reviews = [r for r in reviews if r.product_id == key["product_id"] and r.target_assertion == aid]
+        exact_human_reviews = [
+            review
+            for review in related_reviews
+            if review.authority == "human"
+            and review.verdict == "support"
+            and review.review_ref
+            and review.counterevidence_complete
+            and review.counterevidence_search_ref
+            and review.reviewed_material_hash in {proposal.review_material_hash() for proposal in ps}
+        ]
+        reviewed_hashes = {review.reviewed_material_hash for review in exact_human_reviews}
+        resolved_ps = (
+            [proposal for proposal in ps if proposal.review_material_hash() in reviewed_hashes]
+            if contract.causal and reviewed_hashes
+            else ps
+        )
+        evidence = sorted({e for p in resolved_ps for e in p.evidence_refs})
+        assumptions = sorted({a for p in resolved_ps for a in p.assumptions})
         typed = type_allowed(contract.subject_types, key["subject"]) and type_allowed(
             contract.object_types, key["object"]
         )
         enough_evidence = len(evidence) >= contract.minimum_evidence
-        related_reviews = [r for r in reviews if r.target_assertion == aid]
         objected = any(r.verdict == "object" and r.severity in {"high", "critical"} for r in related_reviews)
         unavailable = any(r.verdict == "unavailable" for r in related_reviews)
         confirmed = aid in human_confirmed
         depth = max(
             (review_depth_for(p) for p in ps), key=("none", "light", "standard", "deep", "human-required").index
         )
+        causal_reviewed = bool(exact_human_reviews)
+        source_origins = {origin for proposal in resolved_ps for origin in proposal.source_origin_ids}
         if not typed:
             status, explanation = "rejected", "Invalid: subject/object types violate the ontology contract."
         elif objected:
             status, explanation = (
                 "contested",
                 "Contested: a persisted high-severity review objection requires resolution.",
+            )
+        elif contract.causal and (
+            not confirmed or not causal_reviewed or len(source_origins) < 2 or not enough_evidence
+        ):
+            status, explanation = (
+                "provisional",
+                "Provisional: causal acceptance requires relevant evidence, completed counterevidence search, independent sources, and exact human review.",
             )
         elif contract.human_confirmation and not confirmed:
             status, explanation = (
@@ -249,9 +354,22 @@ def resolve_proposals(
                 "accepted",
                 "Accepted by deterministic ontology, typing, evidence, and confirmation policy.",
             )
+        review_refs = sorted(review.review_id() for review in related_reviews)
+        if status == "accepted" and not review_refs:
+            review_refs = [
+                _stable_id(
+                    "assertion_policy_review",
+                    {
+                        "product_id": key["product_id"],
+                        "assertion_id": aid,
+                        "resolver_version": RESOLVER_VERSION,
+                    },
+                )
+            ]
         result.append(
             CanonicalAssertion(
                 id=aid,
+                product_id=key["product_id"],
                 subject=key["subject"],
                 predicate=key["predicate"],
                 object=key["object"],
@@ -261,14 +379,15 @@ def resolve_proposals(
                 valid_from=key["valid_from"],
                 valid_to=key["valid_to"],
                 status=status,
-                proposal_confidence=max(p.proposal_confidence for p in ps),
+                proposal_confidence=max(p.proposal_confidence for p in resolved_ps),
                 evidence_strength=min(1.0, len(evidence) / max(1, contract.minimum_evidence)),
                 resolver_certainty=1.0 if typed else 0.0,
-                provenance_quality=max((p.provenance_quality or 0.5) for p in ps),
-                freshness=min((p.freshness or 1.0) for p in ps),
+                provenance_quality=max((p.provenance_quality or 0.5) for p in resolved_ps),
+                freshness=min((p.freshness or 1.0) for p in resolved_ps),
                 evidence_refs=evidence,
                 assumptions=assumptions,
-                proposal_ids=sorted({p.event_id() for p in ps}),
+                proposal_ids=sorted({p.event_id() for p in resolved_ps}),
+                review_refs=review_refs,
                 ontology_version=ONTOLOGY_VERSION,
                 resolver_version=RESOLVER_VERSION,
                 projection_eligible=status == "accepted" and contract.projectable and key["polarity"] == "positive",
@@ -282,7 +401,15 @@ def resolve_proposals(
     by_pair: dict[tuple, list[CanonicalAssertion]] = {}
     for a in result:
         by_pair.setdefault(
-            (a.subject, a.object, json.dumps(a.scope, sort_keys=True), str(a.valid_from), str(a.valid_to)), []
+            (
+                a.product_id,
+                a.subject,
+                a.object,
+                json.dumps(a.scope, sort_keys=True),
+                str(a.valid_from),
+                str(a.valid_to),
+            ),
+            [],
         ).append(a)
     for assertions in by_pair.values():
         names = {a.predicate for a in assertions if a.status not in {"rejected", "retired", "superseded"}}
@@ -309,6 +436,7 @@ def resolve_proposals(
         by_unordered_pair.setdefault(
             (
                 a.predicate,
+                a.product_id,
                 tuple(sorted((a.subject, a.object))),
                 a.polarity,
                 json.dumps(a.scope, sort_keys=True),
@@ -356,7 +484,16 @@ def transition_status(current: str, target: str, *, actor: str) -> None:
 async def persist_resolution(
     proposals: list[RelationshipProposal], *, pool=None, reviews=None, human_confirmed=None
 ) -> list[CanonicalAssertion]:
-    """Idempotently persist proposal events and resolved assertions; rebuild projection."""
+    """Idempotently persist one product's events and rebuild only its projection."""
+    if not proposals:
+        return []
+    product_ids = {proposal.product_id for proposal in proposals}
+    if len(product_ids) != 1:
+        raise ValueError("one assertion resolution batch cannot cross product scope")
+    product_id = next(iter(product_ids))
+    reviews = reviews or []
+    if any(review.product_id != product_id for review in reviews):
+        raise ValueError("assertion reviews cannot cross the proposal product scope")
     if pool is None:
         from core.engine.core.db import pool as pool
     # One process may receive many Cognify/API completions concurrently. Replay
@@ -367,52 +504,122 @@ async def persist_resolution(
     async with _PERSIST_LOCK:
         async with pool.connection() as db:
             for p in proposals:
+                content = p.model_dump(mode="json")
+                content.pop("product_id")
+                content["product"] = parse_record_id(p.product_id)
                 await _query_or_raise(
                     db,
                     "UPSERT $id CONTENT $content",
-                    {"id": parse_record_id(p.event_id()), "content": p.model_dump(mode="json")},
+                    {"id": parse_record_id(p.event_id()), "content": content},
                 )
             # Replay is the correctness path: authoritative state is recomputed from
             # the persisted event set, never patched according to arrival order.
-            persisted = parse_rows(await db.query("SELECT * FROM relationship_proposal"))
-            replay_proposals = [RelationshipProposal.model_validate(row) for row in persisted]
+            persisted = parse_rows(
+                await db.query(
+                    "SELECT * FROM relationship_proposal WHERE product = <record>$product",
+                    {"product": product_id},
+                )
+            )
+            replay_proposals = []
+            for row in persisted:
+                material = {
+                    field: row[field]
+                    for field in RelationshipProposal.model_fields
+                    if field != "product_id" and field in row
+                }
+                material["product_id"] = str(row.get("product") or product_id)
+                replay_proposals.append(RelationshipProposal.model_validate(material))
             resolved = resolve_proposals(replay_proposals, reviews=reviews, human_confirmed=human_confirmed)
             for a in resolved:
+                previous = parse_one(
+                    await db.query(
+                        "SELECT status FROM ONLY $id WHERE product = <record>$product LIMIT 1",
+                        {"id": parse_record_id(a.id), "product": product_id},
+                    )
+                )
                 content = a.model_dump(mode="json")
                 content.pop("id", None)  # record id is supplied by the UPSERT target
+                content.pop("product_id")
+                content["product"] = parse_record_id(product_id)
                 content["updated_at"] = datetime.now(timezone.utc)
                 await _query_or_raise(
                     db, "UPSERT $id MERGE $content", {"id": parse_record_id(a.id), "content": content}
                 )
-            await rebuild_projection(db=db)
+                prior_status = str(previous.get("status")) if previous else None
+                if prior_status != a.status:
+                    event_id = _stable_id(
+                        "assertion_event",
+                        {
+                            "product_id": product_id,
+                            "assertion_id": a.id,
+                            "from_status": prior_status,
+                            "to_status": a.status,
+                            "resolver_version": RESOLVER_VERSION,
+                        },
+                    )
+                    await _query_or_raise(
+                        db,
+                        "UPSERT $event SET product = <record>$product, assertion_id = $assertion, "
+                        "event_type = 'resolution', actor = 'resolver', from_status = $from_status, "
+                        "to_status = $to_status, rationale = $rationale, created_at = time::now()",
+                        {
+                            "event": parse_record_id(event_id),
+                            "product": product_id,
+                            "assertion": parse_record_id(a.id),
+                            "from_status": prior_status,
+                            "to_status": a.status,
+                            "rationale": a.explanation,
+                        },
+                    )
+            await rebuild_projection(product_id=product_id, db=db)
     return resolved
 
 
-async def rebuild_projection(*, pool=None, db=None) -> int:
-    """Rebuild only ACE-owned materialized edges from eligible assertions."""
+async def rebuild_projection(*, product_id: str, pool=None, db=None) -> int:
+    """Rebuild only one product's ACE-owned materialized assertion edges."""
     if db is None:
         if pool is None:
             from core.engine.core.db import pool as pool
         async with pool.connection() as conn:
-            return await rebuild_projection(db=conn)
+            return await rebuild_projection(product_id=product_id, db=conn)
     assertions = parse_rows(
-        await db.query("SELECT * FROM relationship_assertion WHERE projection_eligible = true AND status = 'accepted'")
+        await db.query(
+            "SELECT * FROM relationship_assertion WHERE product = <record>$product "
+            "AND projection_eligible = true AND status = 'accepted'",
+            {"product": product_id},
+        )
     )
     wanted = {str(a["id"]): a for a in assertions}
-    existing = parse_rows(await db.query("SELECT id, assertion_id, projection_version FROM operational_relationship"))
+    existing = parse_rows(
+        await db.query(
+            "SELECT id, assertion_id, projection_version FROM operational_relationship "
+            "WHERE product = <record>$product",
+            {"product": product_id},
+        )
+    )
     for edge in existing:
         if str(edge.get("assertion_id")) not in wanted or edge.get("projection_version") != RESOLVER_VERSION:
             await _query_or_raise(db, "DELETE $id", {"id": parse_record_id(str(edge["id"]))})
     for aid, a in sorted(wanted.items()):
-        eid = _stable_id("operational_relationship", {"assertion_id": aid, "projection_version": RESOLVER_VERSION})
-        await db.query(
-            "UPSERT $id SET in = $in, out = $out, predicate = $predicate, assertion_id = $assertion, ontology_version = $ontology, resolver_version = $resolver, projection_version = $resolver, projected_at = time::now()",
+        eid = _stable_id(
+            "operational_relationship",
+            {"product_id": product_id, "assertion_id": aid, "projection_version": RESOLVER_VERSION},
+        )
+        await _query_or_raise(
+            db,
+            "UPSERT $id SET product = <record>$product, in = $in, out = $out, predicate = $predicate, "
+            "assertion_id = $assertion, evidence_refs = $evidence, review_refs = $reviews, "
+            "ontology_version = $ontology, resolver_version = $resolver, "
+            "projection_version = $resolver, projected_at = time::now()",
             {
                 "id": parse_record_id(eid),
+                "product": product_id,
                 "in": parse_record_id(str(a["subject"])),
                 "out": parse_record_id(str(a["object"])),
                 "predicate": a["predicate"],
                 "assertion": parse_record_id(aid),
+                "evidence": a.get("evidence_refs", []),
+                "reviews": a.get("review_refs", []),
                 "ontology": ONTOLOGY_VERSION,
                 "resolver": RESOLVER_VERSION,
             },
@@ -426,14 +633,33 @@ async def persist_review(review: AssertionReview, *, pool=None) -> str:
         from core.engine.core.db import pool as pool
     review_id = review.review_id()
     content = review.model_dump(mode="json")
+    content.pop("product_id")
+    content["product"] = parse_record_id(review.product_id)
     content["target_assertion"] = parse_record_id(review.target_assertion)
     async with pool.connection() as db:
-        await db.query("UPSERT $id CONTENT $content", {"id": parse_record_id(review_id), "content": content})
+        target = parse_one(
+            await db.query(
+                "SELECT id FROM ONLY $id WHERE product = <record>$product LIMIT 1",
+                {"id": parse_record_id(review.target_assertion), "product": review.product_id},
+            )
+        )
+        if not target:
+            raise ValueError("review target is unavailable in the requested product scope")
+        await _query_or_raise(
+            db,
+            "UPSERT $id CONTENT $content",
+            {"id": parse_record_id(review_id), "content": content},
+        )
     return review_id
 
 
 async def link_assertion_dependency(
-    source_assertion: str, dependent_assertion: str, *, dependency_type: str = "derives_from", pool=None
+    source_assertion: str,
+    dependent_assertion: str,
+    *,
+    product_id: str,
+    dependency_type: str = "derives_from",
+    pool=None,
 ) -> None:
     """Idempotently record why a downstream assertion must be reconsidered."""
     if pool is None:
@@ -441,8 +667,10 @@ async def link_assertion_dependency(
     async with pool.connection() as db:
         existing = parse_rows(
             await db.query(
-                "SELECT id FROM assertion_dependency WHERE in = $source AND out = $dependent AND dependency_type = $kind LIMIT 1",
+                "SELECT id FROM assertion_dependency WHERE product = <record>$product "
+                "AND in = $source AND out = $dependent AND dependency_type = $kind LIMIT 1",
                 {
+                    "product": product_id,
                     "source": parse_record_id(source_assertion),
                     "dependent": parse_record_id(dependent_assertion),
                     "kind": dependency_type,
@@ -451,8 +679,10 @@ async def link_assertion_dependency(
         )
         if not existing:
             await db.query(
-                "RELATE $source -> assertion_dependency -> $dependent SET dependency_type = $kind, created_at = time::now()",
+                "RELATE $source -> assertion_dependency -> $dependent SET product = <record>$product, "
+                "dependency_type = $kind, created_at = time::now()",
                 {
+                    "product": product_id,
                     "source": parse_record_id(source_assertion),
                     "dependent": parse_record_id(dependent_assertion),
                     "kind": dependency_type,
@@ -460,32 +690,41 @@ async def link_assertion_dependency(
             )
 
 
-async def inspect_assertion(assertion_id: str, *, pool=None) -> dict | None:
+async def inspect_assertion(assertion_id: str, *, product_id: str, pool=None) -> dict | None:
     if pool is None:
         from core.engine.core.db import pool as pool
     async with pool.connection() as db:
-        assertion = parse_one(await db.query("SELECT * FROM $id", {"id": parse_record_id(assertion_id)}))
+        assertion = parse_one(
+            await db.query(
+                "SELECT * FROM ONLY $id WHERE product = <record>$product LIMIT 1",
+                {"id": parse_record_id(assertion_id), "product": product_id},
+            )
+        )
         if not assertion:
             return None
         proposals = parse_rows(
             await db.query(
-                "SELECT * FROM relationship_proposal WHERE id IN $ids", {"ids": assertion.get("proposal_ids", [])}
+                "SELECT * FROM relationship_proposal WHERE product = <record>$product AND id IN $ids",
+                {"product": product_id, "ids": assertion.get("proposal_ids", [])},
             )
         )
         reviews = parse_rows(
             await db.query(
-                "SELECT * FROM assertion_review WHERE target_assertion = $id", {"id": parse_record_id(assertion_id)}
+                "SELECT * FROM assertion_review WHERE product = <record>$product AND target_assertion = $id",
+                {"product": product_id, "id": parse_record_id(assertion_id)},
             )
         )
         history = parse_rows(
             await db.query(
-                "SELECT * FROM assertion_event WHERE assertion_id = $id ORDER BY created_at",
-                {"id": parse_record_id(assertion_id)},
+                "SELECT * FROM assertion_event WHERE product = <record>$product "
+                "AND assertion_id = $id ORDER BY created_at",
+                {"product": product_id, "id": parse_record_id(assertion_id)},
             )
         )
         projection = parse_rows(
             await db.query(
-                "SELECT * FROM operational_relationship WHERE assertion_id = $id", {"id": parse_record_id(assertion_id)}
+                "SELECT * FROM operational_relationship WHERE product = <record>$product AND assertion_id = $id",
+                {"product": product_id, "id": parse_record_id(assertion_id)},
             )
         )
     return serialize_record(
@@ -499,7 +738,7 @@ async def inspect_assertion(assertion_id: str, *, pool=None) -> dict | None:
     )
 
 
-async def mark_dependents_stale(changed_assertion_id: str, *, reason: str, pool=None) -> list[str]:
+async def mark_dependents_stale(changed_assertion_id: str, *, product_id: str, reason: str, pool=None) -> list[str]:
     """Bounded truth-maintenance walk from one changed assumption/assertion."""
     if pool is None:
         from core.engine.core.db import pool as pool
@@ -507,44 +746,58 @@ async def mark_dependents_stale(changed_assertion_id: str, *, reason: str, pool=
     async with pool.connection() as db:
         rows = parse_rows(
             await db.query(
-                "SELECT out AS id FROM assertion_dependency WHERE in = $id",
-                {"id": changed},
+                "SELECT out AS id FROM assertion_dependency WHERE product = <record>$product AND in = $id",
+                {"product": product_id, "id": changed},
             )
         )
         affected = sorted({str(row["id"]) for row in rows})
         for aid in affected:
             rec = parse_record_id(aid)
             await db.query(
-                "UPDATE $id SET status = 'stale', projection_eligible = false, updated_at = time::now()", {"id": rec}
+                "UPDATE $id SET status = 'stale', projection_eligible = false, updated_at = time::now() "
+                "WHERE product = <record>$product",
+                {"id": rec, "product": product_id},
             )
             event_id = _stable_id(
                 "assertion_event",
-                {"assertion_id": aid, "event_type": "dependency_stale", "reason": reason, "resolver": RESOLVER_VERSION},
+                {
+                    "product_id": product_id,
+                    "assertion_id": aid,
+                    "event_type": "dependency_stale",
+                    "reason": reason,
+                    "resolver": RESOLVER_VERSION,
+                },
             )
             await db.query(
-                "UPSERT $event SET assertion_id = $id, event_type = 'dependency_stale', actor = 'truth-maintenance', rationale = $reason, to_status = 'stale', created_at = time::now()",
-                {"event": parse_record_id(event_id), "id": rec, "reason": reason},
+                "UPSERT $event SET product = <record>$product, assertion_id = $id, "
+                "event_type = 'dependency_stale', actor = 'truth-maintenance', rationale = $reason, "
+                "to_status = 'stale', created_at = time::now()",
+                {"event": parse_record_id(event_id), "product": product_id, "id": rec, "reason": reason},
             )
-        await rebuild_projection(db=db)
+        await rebuild_projection(product_id=product_id, db=db)
     return affected
 
 
-async def invalidate_evidence(evidence_id: str, *, reason: str, pool=None) -> list[str]:
+async def invalidate_evidence(evidence_id: str, *, product_id: str, reason: str, pool=None) -> list[str]:
     """Contest beliefs using changed evidence, then stale only their dependents."""
     if pool is None:
         from core.engine.core.db import pool as pool
     async with pool.connection() as db:
         rows = parse_rows(
-            await db.query("SELECT id FROM relationship_assertion WHERE evidence_refs CONTAINS $e", {"e": evidence_id})
+            await db.query(
+                "SELECT id FROM relationship_assertion WHERE product = <record>$product AND evidence_refs CONTAINS $e",
+                {"product": product_id, "e": evidence_id},
+            )
         )
         roots = sorted(str(row["id"]) for row in rows)
         for aid in roots:
             await db.query(
-                "UPDATE $id SET status = 'contested', projection_eligible = false, updated_at = time::now()",
-                {"id": parse_record_id(aid)},
+                "UPDATE $id SET status = 'contested', projection_eligible = false, updated_at = time::now() "
+                "WHERE product = <record>$product",
+                {"id": parse_record_id(aid), "product": product_id},
             )
-        await rebuild_projection(db=db)
+        await rebuild_projection(product_id=product_id, db=db)
     affected: set[str] = set()
     for root in roots:
-        affected.update(await mark_dependents_stale(root, reason=reason, pool=pool))
+        affected.update(await mark_dependents_stale(root, product_id=product_id, reason=reason, pool=pool))
     return roots + sorted(affected)

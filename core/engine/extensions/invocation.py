@@ -113,6 +113,10 @@ class ExtensionActorContext(BaseModel):
     product_id: str
     workspace_id: str
     user_id: str
+    # Core predeclares this identity for production invocations so extension
+    # preparation can bind immutable artifacts to the exact durable task that
+    # will consume them.  Direct conformance/unit calls may omit it.
+    task_id: str | None = Field(default=None, max_length=240)
 
 
 class ContextResolution(BaseModel):
@@ -165,7 +169,21 @@ class ExtensionTaskPlan(BaseModel):
     frameworks_hint: list[str] | None = Field(default=None, max_length=25)
     context_resolution: list[ContextResolution] = Field(default_factory=list, max_length=MAX_REFERENCES)
     context_records: list[ResolvedContextRecord] = Field(default_factory=list, max_length=MAX_REFERENCES)
+    # Bounded, JSON-safe coordinates for Core-owned completion work.  These are
+    # persisted privately with the invocation and never blended into prompt
+    # instructions or exposed through the public task receipt.
+    runtime_coordinates: dict[str, Any] = Field(default_factory=dict)
     outcome_contract: str = Field(default="extension-outcome-v1", min_length=1, max_length=200)
+
+    @model_validator(mode="after")
+    def validate_runtime_coordinates(self):
+        try:
+            serialized = json.dumps(self.runtime_coordinates, sort_keys=True, separators=(",", ":"))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("runtime_coordinates must be JSON serializable") from exc
+        if len(serialized) > MAX_PARAMETERS_CHARS:
+            raise ValueError("runtime_coordinates exceed the bounded serialized size")
+        return self
 
 
 class ExtensionArtifactProvenance(BaseModel):
@@ -509,6 +527,7 @@ def invocation_metadata(
         "request": envelope.model_dump(mode="json"),
         "envelope_hash": envelope_fingerprint(envelope),
         "context_resolution": [item.model_dump(mode="json") for item in plan.context_resolution],
+        "runtime_coordinates": plan.runtime_coordinates,
         "attempt": {
             "number": attempt_number,
             "retry_of_task_id": retry_of_task_id,

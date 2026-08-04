@@ -186,6 +186,7 @@ def _proposal(
     provider: str, predicate: str, subject: str = "insight:c", object_: str = "insight:d"
 ) -> RelationshipProposal:
     return RelationshipProposal(
+        product_id="product:test",
         subject=subject,
         predicate=predicate,
         object=object_,
@@ -267,11 +268,11 @@ async def restart_api(url: str, namespace: str, database: str) -> dict[str, Any]
 
 async def exercise_store(pool: Pool) -> dict[str, Any]:
     await seed_legacy(pool)
-    dry_one = asdict(await migrate_legacy_edges(pool=pool, dry_run=True))
-    dry_two = asdict(await migrate_legacy_edges(pool=pool, dry_run=True))
-    apply_one = asdict(await migrate_legacy_edges(pool=pool, dry_run=False))
+    dry_one = asdict(await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=True))
+    dry_two = asdict(await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=True))
+    apply_one = asdict(await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=False))
     first = await snapshot(pool)
-    apply_two = asdict(await migrate_legacy_edges(pool=pool, dry_run=False))
+    apply_two = asdict(await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=False))
     second = await snapshot(pool)
     if dry_one != dry_two or first != second:
         raise AssertionError("legacy migration is not byte-idempotent")
@@ -341,7 +342,7 @@ async def verify(keep: bool = False, docker_image: str | None = None) -> dict[st
         fresh_pool = Pool(fresh.url, "ace_f0", "fresh")
         persisted = await snapshot(fresh_pool)
         async with fresh_pool.connection() as db:
-            await rebuild_projection(db=db)
+            await rebuild_projection(product_id="product:test", db=db)
         rebuilt = await snapshot(fresh_pool)
         if before != persisted or persisted != rebuilt:
             raise AssertionError("restart or projection rebuild changed canonical bytes")
@@ -373,11 +374,11 @@ async def verify(keep: bool = False, docker_image: str | None = None) -> dict[st
 
 async def exercise_store_without_seed(pool: Pool) -> dict[str, Any]:
     # Upgrade fixture was inserted before v142; exercise the same closeout without duplicating it.
-    dry_one = asdict(await migrate_legacy_edges(pool=pool, dry_run=True))
-    dry_two = asdict(await migrate_legacy_edges(pool=pool, dry_run=True))
-    await migrate_legacy_edges(pool=pool, dry_run=False)
+    dry_one = asdict(await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=True))
+    dry_two = asdict(await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=True))
+    await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=False)
     first = await snapshot(pool)
-    await migrate_legacy_edges(pool=pool, dry_run=False)
+    await migrate_legacy_edges(product_id="product:test", pool=pool, dry_run=False)
     second = await snapshot(pool)
     if dry_one != dry_two or first != second:
         raise AssertionError("upgrade migration is not byte-idempotent")
