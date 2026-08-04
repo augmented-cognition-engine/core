@@ -1,11 +1,11 @@
 # R7 ace-core 0.2.0 release-candidate readiness
 
-Status: **release candidate in preparation; not passed; publication not authorized**
+Status: **local release-candidate gates passed; draft PR and CI reconciliation pending; publication not authorized**
 
 R7 reconciles the complete TP0-TP8 and K1-K3 State Engine work into an inspectable `ace-core`
 0.2.0 candidate. This record is intentionally not a release closeout. It may become a candidate
-authorization packet after local verification, clean artifacts, the pushed branch, a draft pull
-request, and available CI have been recorded. R7 cannot become `passed` until a separately
+authorization packet after the pushed branch, a draft pull request, and available CI have been
+recorded. R7 cannot become `passed` until a separately
 authorized merge, `v0.2.0` tag, GitHub Release, trusted PyPI publication, provenance, matching
 artifact hashes, and fresh public-index installation have all been verified.
 
@@ -197,7 +197,10 @@ The local release-critical verification completed with the following results:
 | License inventory | 192 installed distributions; zero unknown licenses |
 | Linux locked image | 0.2.0 identities, non-root UID 1000, 11 tools, reference extension, v168, and exclusions passed |
 | Compose | schema migration exited 0; SurrealDB, API, and worker healthy; API ready reports 0.2.0 |
-| Staged secret scan | passed across all three intentional candidate commit groups |
+| Staged secret scan | passed across all intentional candidate commit groups |
+| Checkout-free corpus/package regression | 119 passed in 3.03 s after the clean-wheel blocker fix |
+| Worker watcher/startup regression | 34 passed in 1.21 s; real threaded file activity remained healthy |
+| Clean wheel State Engine journey | fresh v168 schema plus belief/transition/action-no-action rollout/I3 receipt completed with zero provider calls and zero simulated-as-observed violations |
 
 The exact primary commands were:
 
@@ -224,18 +227,47 @@ git diff --check
 Canvas verification ran `npx tsc --noEmit`, `npx vitest run --reporter=basic`,
 `npx vite build`, and `npm run build:naked` after `npm ci`. Linux verification used a clean
 `docker build --no-cache --build-arg ACE_VERSION=0.2.0 -t ace-core:0.2.0-rc .`; the resulting
-545,922,366-byte image is `sha256:876a135b4bddc4c82e31914f708199d2860c51c596e77637122b824cb94b09fe`.
+546,075,407-byte final image is
+`sha256:6d92045b5aec0d452c2c287c4303d79e87e27ef71e22a3043ad9553e1018d1df`.
 The isolated Compose project used reserved loopback ports; its one-shot migration exited 0 and its
-database, API, and worker all reached healthy state.
+database, API, and worker all reached healthy state. After verification, the explicitly scoped
+Compose project and its disposable test volume were removed; no candidate image was pushed.
 
 ## Artifact and clean-install ledger
 
-Wheel/sdist names, final sizes, SHA-256 hashes, reproducibility check, and isolated Python 3.12
-macOS installation are pending the intentional candidate-source commit. A package preflight already
-confirmed metadata 0.2.0, 1,316 corrected sdist entries, 1,213 wheel entries, schemas through v168,
-the required contracts/docs/entry points, and zero matches for tests, Git data, `.env`, caches,
-local databases, logs, or the excluded K1-K3 raw directory. No artifact has been uploaded to PyPI or
-attached to a public GitHub Release.
+The candidate artifacts were built twice from exact source commit
+`34486ab7b857a8bf1b3315fe795491c7a133a3ac` with `SOURCE_DATE_EPOCH=1785882129`. Both builds were
+byte-identical:
+
+| Artifact | Bytes | SHA-256 |
+|---|---:|---|
+| `ace_core-0.2.0.tar.gz` | 3,552,533 | `e85b4d78e9bbe462a0122679c8292ac825895e72394abb906068411440476230` |
+| `ace_core-0.2.0-py3-none-any.whl` | 4,090,374 | `37300ed17333de13e670941f4ece8514f4d76976af205edc526883eeece926d2` |
+
+The corrected source archive has 1,318 entries and the wheel 1,214. Both contain schema v168, the
+packaged 40-case frozen State Engine corpus, the TP8 runner, R7 evidence, operations documentation,
+LICENSE, NOTICE, and the declared entry points. Neither contains tests, Git data, `.env`, caches,
+local databases, logs, or the excluded K1-K3 raw directory.
+
+An isolated Python 3.12.13 macOS arm64 environment installed the wheel without a checkout and
+reported 157 compatible distributions and zero unknown licenses. All distribution/module/extension
+identities were 0.2.0, the `product` reference extension was discoverable, the public MCP surface
+was exactly eleven tools, ordinary and extension-disabled CLI startup passed, and the packaged
+frozen corpus loaded 40 cases from site-packages. The packaged schema installer applied all 167
+migration files to a fresh namespace and validated v168. The packaged State Engine smoke then
+persisted belief, reviewed transition, action/no-action rollout, and I3 reasoning-use identities
+over the retained 200,000-claim scale boundary with zero provider calls and no observed/simulated
+meaning violation. Clean-wheel API `/health/ready` and worker `/health` both returned 0.2.0 healthy;
+the worker remained healthy after real watchdog-thread file activity and shut down cleanly.
+
+The CLI doctor also failed honestly in two non-ready situations. With no configuration it reported
+`invalid_configuration`, unreachable API, absent authentication, and 11/11 MCP registration. With
+the local database/API/auth configured, database, schema v168, API, authentication, policy, and MCP
+were green, while the model route remained `configured_unverified`; no fake or billable live
+provider call was made. This is a declared external-provider readiness boundary, not a concealed
+green result.
+
+No artifact has been uploaded to PyPI or attached to a public GitHub Release.
 
 ## Preliminary failures and preserved exclusions
 
@@ -247,15 +279,21 @@ deleted nor staged. The complete canonical machine receipt, readable report, fin
 failure summary are included instead. Ignored `.env`, virtual environments, caches, local database
 stores, credentials, and Git metadata are not release inputs.
 
-R7 preflight found and corrected three release blockers without weakening a gate:
+R7 preflight found and corrected five release blockers without weakening a gate:
 
 - the first source archive included the locally preserved K1-K3 raw directory; `MANIFEST.in` now
   prunes it and the archive regression enforces the exclusion;
 - the same raw directory was eligible for the local Docker context; `.dockerignore` now excludes it
-  and Linux image inspection proves it absent; and
+  and Linux image inspection proves it absent;
 - the first current dependency audit found PYSEC-2026-3545/3546/3547 in `aiohttp` 3.14.1 and
   PYSEC-2026-3552 in `cryptography` 49.0.0. Base safety floors are now 3.14.3 and 50.0.0, the lock
-  and locked container install use those versions, and the repeated audit is clean.
+  and locked container install use those versions, and the repeated audit is clean;
+- the first isolated wheel journey found that the TP8 runner referenced a test-only TP0 corpus
+  intentionally excluded from artifacts; an identical canonical corpus is now packaged under the
+  grounded-state runtime, defaults resolve there, and the package regression prevents drift; and
+- the first isolated worker startup exposed watchdog callbacks scheduling on a thread without an
+  event loop; callbacks now marshal debounce work to the lifespan's owning loop, with both a
+  threaded regression and a real installed-wheel filesystem-activity smoke.
 
 The Dockerfile also now consumes the frozen lock with `uv sync --frozen --no-dev --no-editable`
 instead of resolving a new environment independently during every image build.
@@ -268,14 +306,20 @@ public-safe, and separately subject to final staged review.
 ## Source, branch, PR, CI, and remaining blockers
 
 - release branch: `codex/release-0.2.0`;
-- candidate source commit: **pending intentional commit**;
+- exact artifact/source commit: `34486ab7b857a8bf1b3315fe795491c7a133a3ac`;
+- local commit series: `acbfe756199d6e45db244473a8dc3b93840b9051`,
+  `8cc16c2b71d909e850235d273624e2edccad8aa8`,
+  `539ff2e1749115c78eb63fc959fb5a95475a6afe`,
+  `a11c018eb5177a7727b17a6e717427f412eb3109`, and
+  `34486ab7b857a8bf1b3315fe795491c7a133a3ac`;
 - draft PR: **pending**;
 - CI: **pending pushed candidate**;
-- artifact identities and clean install: **pending**;
+- artifact identities and clean install: **passed locally as recorded above**;
 - publication authorization: **not requested and not granted**.
 
-The release-candidate verdict remains pending until every release-critical local gate, clean artifact
-install, staged-content audit, pushed branch, draft PR, and available CI result is reconciled here.
+The local release-candidate verdict is `candidate`. The overall R7 verdict remains not-passed until
+the pushed branch, draft PR, and available CI result are reconciled here; publication remains under
+the separate authorization boundary below.
 
 ## Publication boundary
 
