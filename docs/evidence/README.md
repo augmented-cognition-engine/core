@@ -13,7 +13,7 @@ describe the moment they were written. For current product support use
 - [R3 provider validation](r3-provider-validation.md)
 - [R5 ace-core 0.1.2 release evidence](r5-release-readiness.md)
 - [R6 ace-core 0.1.3 release readiness](r6-release-readiness.md)
-- [R7 ace-core 0.2.0 release-candidate readiness](r7-release-readiness.md)
+- [R7 ace-core 0.2.0 release evidence](r7-release-readiness.md)
 
 ## Product outcomes
 

@@ -1,13 +1,12 @@
-# R7 ace-core 0.2.0 release-candidate readiness
+# R7 ace-core 0.2.0 release evidence
 
-Status: **candidate; not passed; publication not authorized**
+Status: **passed — verified merge, tag, GitHub Release, trusted PyPI publication, provenance,
+matching workflow/public artifact hashes, and fresh public-index installation**
 
 R7 reconciles the complete TP0-TP8 and K1-K3 State Engine work into an inspectable `ace-core`
-0.2.0 candidate. This record is intentionally not a release closeout. The pushed branch, draft pull
-request, and available CI are recorded below as a candidate authorization packet. R7 cannot become
-`passed` until a separately
-authorized merge, `v0.2.0` tag, GitHub Release, trusted PyPI publication, provenance, matching
-artifact hashes, and fresh public-index installation have all been verified.
+0.2.0 release. The candidate authorization packet was completed on 2026-08-04 after separate
+explicit release authorization: the exact green candidate was merged, tagged, published through
+GitHub and trusted PyPI publishing, cryptographically verified, and installed from the public index.
 
 ## Authoritative starting state
 
@@ -201,7 +200,8 @@ The local release-critical verification completed with the following results:
 | Checkout-free corpus/package regression | 119 passed in 3.03 s after the clean-wheel blocker fix |
 | Worker watcher/startup regression | 34 passed in 1.21 s; real threaded file activity remained healthy |
 | Clean wheel State Engine journey | fresh v168 schema plus belief/transition/action-no-action rollout/I3 receipt completed with zero provider calls and zero simulated-as-observed violations |
-| GitHub CI run 82 | passed: lint, security audit, 6,672-test fast gate, 6,659-test naked kernel, Canvas, and Docker build |
+| GitHub PR CI runs 82 and 83 | both passed: lint, security audit, 6,672-test fast gate, 6,659-test naked kernel, Canvas, and Docker build |
+| GitHub merged-main CI run 84 | passed: lint, security audit, fast gate (6,672 passed), naked kernel (6,659 passed plus 4 kernel tests), Canvas, and Docker build |
 
 The exact primary commands were:
 
@@ -268,7 +268,20 @@ were green, while the model route remained `configured_unverified`; no fake or b
 provider call was made. This is a declared external-provider readiness boundary, not a concealed
 green result.
 
-No artifact has been uploaded to PyPI or attached to a public GitHub Release.
+The trusted-publishing workflow rebuilt the release from tagged merge commit
+`6c0638ae7929777a332277395fc28852b236a6c1`. These public artifacts intentionally differ from the
+earlier byte-reproducible candidate pair because they were built from the final merge commit rather
+than the earlier artifact/source commit. The workflow artifact and PyPI files match exactly:
+
+| Published artifact | Bytes | SHA-256 |
+|---|---:|---|
+| `ace_core-0.2.0-py3-none-any.whl` | 4,092,122 | `c5bdc9a46d36e041627d994c4b3978b033380b3f495bd16462513d1a9f8b21cd` |
+| `ace_core-0.2.0.tar.gz` | 3,553,888 | `647337a8f2d2dab77c6bc3fe31ae6fe72e839077877e5ffc14e1169de829bbc6` |
+
+The retained GitHub Actions artifact ZIP has digest
+`sha256:f50289163409cf7d380427600cdfc2537326804a179b0c2d5ba5c02968db4f5c`.
+`pypi-attestations verify pypi` returned `OK` for both public distributions against
+`https://github.com/augmented-cognition-engine/core`.
 
 ## Preliminary failures and preserved exclusions
 
@@ -309,7 +322,7 @@ The 1.1 MB canonical K1-K3 machine receipt is an intentional release evidence fi
 the independent staged secret scan still inspects the file. Raw TP8 result files are small,
 public-safe, and separately subject to final staged review.
 
-## Source, branch, PR, CI, and remaining blockers
+## Source, branch, PR, CI, and public release closeout
 
 - release branch: `codex/release-0.2.0`;
 - exact artifact/source commit: `34486ab7b857a8bf1b3315fe795491c7a133a3ac`;
@@ -319,22 +332,37 @@ public-safe, and separately subject to final staged review.
   `a11c018eb5177a7727b17a6e717427f412eb3109`,
   `34486ab7b857a8bf1b3315fe795491c7a133a3ac`, followed by evidence and CI-only test commits through
   `5b2e654055588200a938ae1c5f4a168712effe96`;
-- draft PR: [#35 — ACE 0.2.0 State Engine release candidate](https://github.com/augmented-cognition-engine/core/pull/35),
-  open, mergeable, and draft;
-- CI: [run 82](https://github.com/augmented-cognition-engine/core/actions/runs/30957157837) passed all six
-  jobs at code head `5b2e654055588200a938ae1c5f4a168712effe96`: lint, security audit, fast gate
-  (6,672 passed, 231 skipped, 246 deselected), naked kernel (6,659 passed, 232 skipped,
-  258 deselected), Canvas, and Docker build;
-- artifact identities and clean install: **passed locally as recorded above**;
-- publication authorization: **not requested and not granted**.
+- candidate head: `a8ec817410e569f9bef098be972bcf29ad2ee55a`;
+- [PR #35 — ACE 0.2.0 State Engine release candidate](https://github.com/augmented-cognition-engine/core/pull/35)
+  merged on 2026-08-04 without rewriting the green candidate commits;
+- verified main/merge commit:
+  [`6c0638ae7929777a332277395fc28852b236a6c1`](https://github.com/augmented-cognition-engine/core/commit/6c0638ae7929777a332277395fc28852b236a6c1);
+- final [PR CI run 83](https://github.com/augmented-cognition-engine/core/actions/runs/30957694144)
+  passed all six jobs at `a8ec817410e569f9bef098be972bcf29ad2ee55a`;
+- [merged-main CI run 84](https://github.com/augmented-cognition-engine/core/actions/runs/30958831986)
+  passed all six jobs at `6c0638ae7929777a332277395fc28852b236a6c1`: fast gate recorded
+  6,672 passed, 231 skipped, and 246 deselected; naked kernel recorded 6,659 passed, 232 skipped,
+  258 deselected, plus 4 explicit kernel tests; lint, security audit, Canvas, and Docker also passed;
+- annotated tag [`v0.2.0`](https://github.com/augmented-cognition-engine/core/tree/v0.2.0) resolves to
+  that exact merge commit;
+- [GitHub Release — ace-core v0.2.0](https://github.com/augmented-cognition-engine/core/releases/tag/v0.2.0)
+  is published and marked latest;
+- [trusted-publishing run 6](https://github.com/augmented-cognition-engine/core/actions/runs/30959332328)
+  validated tag/package equality, built and checked both distributions, and published
+  [ace-core 0.2.0 on PyPI](https://pypi.org/project/ace-core/0.2.0/);
+- workflow and PyPI artifact hashes match exactly as recorded above, and both PyPI attestations
+  verify cryptographically against the repository; and
+- a cache-free public-index installation in a fresh Python 3.12.7 environment reported no broken
+  requirements, working `ace --help`, all five distribution/import/engine/reference-extension
+  identities at 0.2.0, exactly eleven MCP tools, the `product` extension, schema head v168, the
+  packaged 40-case corpus, and the installed R7 evidence record.
 
-The release-candidate verdict is `candidate`. This evidence-only reconciliation commit does not
-alter the artifact/source commit or runtime and intentionally follows the CI-tested code head. R7
-remains not-passed, and publication remains under the separate authorization boundary below.
+The verified local container remains an unpublished image. The repository defines no container
+registry, hosted deployment target, or separate announcement channel, so R7 makes no invented
+container-push or deployment claim. The public GitHub Release is the supported release announcement.
 
-## Publication boundary
-
-R7 authorizes no public release action. A separate explicit authorization is required before
-marking the PR ready, merging, creating `v0.2.0`, publishing a GitHub Release, triggering trusted
-PyPI publication, deploying, or announcing launch. The exact proposed merged commit, tag, release
-notes, artifact identities, CI state, and remaining risks must accompany that request.
+The R7 verdict is `passed`. The release verification preserves every declared limitation: the
+supported measured topology remains bounded single-node operation, the reference State Engine task
+actions remain experimental, provider connectivity remains environment-dependent, and no
+distributed, causal-accuracy, autonomous-learning, or beneficial-impact claim follows from this
+release.
