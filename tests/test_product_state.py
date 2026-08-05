@@ -95,6 +95,29 @@ async def test_ingestion_uses_installed_adapter_and_authenticated_product(monkey
 
 
 @pytest.mark.asyncio
+async def test_ingestion_requires_canonical_token_scope_and_rejects_adapter_scope_forgery(monkeypatch) -> None:
+    with pytest.raises(HTTPException) as unscoped:
+        await api.ingest_product_state(_envelope(), {})
+    assert unscoped.value.status_code == 422
+    assert unscoped.value.detail["code"] == "malformed_product_identity"
+
+    class _ForeignAdapter(_Adapter):
+        def build_manifest(self, *, product_id: str, **kwargs):
+            return {"product_id": "product:foreign", **kwargs}
+
+    monkeypatch.setattr(api, "registered_grounded_state_adapter", lambda extension_id, name: _ForeignAdapter())
+    monkeypatch.setattr(
+        api,
+        "registered_grounded_state_adapter_manifests",
+        lambda: [{"extension_id": "example", "extension_version": "1.0.0", "adapter_name": "public"}],
+    )
+    with pytest.raises(HTTPException) as forged:
+        await api.ingest_product_state(_envelope(), {"product": "product:alpha"})
+    assert forged.value.status_code == 422
+    assert forged.value.detail["code"] == "product_state_product_scope_mismatch"
+
+
+@pytest.mark.asyncio
 async def test_ingestion_fails_closed_on_missing_or_mismatched_extension(monkeypatch) -> None:
     monkeypatch.setattr(api, "registered_grounded_state_adapter", lambda extension_id, name: None)
     with pytest.raises(HTTPException) as missing:

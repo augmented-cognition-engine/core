@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import re
+from collections.abc import Mapping
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -23,6 +25,7 @@ from core.engine.product_state.contracts import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/product-state", tags=["product-state"])
+_PRODUCT_ID = re.compile(r"product:[A-Za-z0-9][A-Za-z0-9_-]{0,127}\Z")
 
 
 def _failure(code: str, message: str, recovery: str) -> dict[str, str]:
@@ -53,6 +56,17 @@ async def ingest_product_state(
     user: dict = Depends(get_current_user),
 ) -> dict[str, Any]:
     """Map extension-owned source input and persist it under authenticated Core scope."""
+    product_id = str(user.get("product") or "")
+    if not _PRODUCT_ID.fullmatch(product_id):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=_failure(
+                "malformed_product_identity",
+                "The authenticated product identity is not a canonical product:<slug> identifier.",
+                "Authenticate again with a token scoped to an existing product.",
+            ),
+        )
+
     adapter = registered_grounded_state_adapter(envelope.extension_id, envelope.adapter_name)
     if adapter is None:
         raise HTTPException(
@@ -79,7 +93,6 @@ async def ingest_product_state(
             ),
         )
 
-    product_id = str(user.get("product") or "product:default")
     try:
         manifest = adapter.build_manifest(
             product_id=product_id,
@@ -88,6 +101,16 @@ async def ingest_product_state(
             submitted_at=envelope.submitted_at,
             records=envelope.records,
         )
+        manifest_product_id = manifest.get("product_id") if isinstance(manifest, Mapping) else manifest.product_id
+        if str(manifest_product_id) != product_id:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail=_failure(
+                    "product_state_product_scope_mismatch",
+                    "The extension adapter returned a manifest outside the authenticated product scope.",
+                    "Correct or remove the installed adapter; Core will not ingest cross-product output.",
+                ),
+            )
         receipt = await GroundedStateIngestionService(pool).ingest(manifest)
     except HTTPException:
         raise

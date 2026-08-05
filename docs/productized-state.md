@@ -119,7 +119,8 @@ eleven.
 | Adapter absent | `404 product_state_adapter_not_registered`; install/restart and inspect capabilities |
 | Extension version mismatch | `409 product_state_extension_version_mismatch`; never substitute silently |
 | Malformed or oversized input | request validation or `422 product_state_ingestion_rejected`; no partial authority |
-| Caller supplies product scope | rejected; authenticated Core scope is authoritative |
+| Missing/malformed token product scope | `422 malformed_product_identity`; no legacy default-product fallback |
+| Caller or adapter supplies a different product scope | rejected; authenticated Core scope is authoritative |
 | Exact replay | returns the same immutable batch receipt and identities |
 | Foreign-product read | empty or `404`; no cross-product disclosure |
 | Missing evidence | explicit empty/degraded coverage; no invented replacement |
