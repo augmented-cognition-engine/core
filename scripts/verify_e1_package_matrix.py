@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import os
 import shutil
@@ -29,6 +30,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = "ace.e1-package-matrix/v1"
 CURRENT_COGNITION_CONTRACT = "ace.cognition.revision/v1"
 _JWT_SECRET = "e1-package-matrix-local-secret-000000000000"
+BUILD_FRONTEND_VERSION = "1.5.0"
 
 
 def _run(
@@ -92,10 +94,18 @@ def _source_date_epoch(ref: str) -> int:
 
 
 def _build(source: Path, destination: Path, *, source_date_epoch: int) -> tuple[Path, Path]:
+    installed_build = importlib.metadata.version("build")
+    if installed_build != BUILD_FRONTEND_VERSION:
+        raise RuntimeError(f"package matrix requires build=={BUILD_FRONTEND_VERSION}; found {installed_build}")
     destination.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env["SOURCE_DATE_EPOCH"] = str(source_date_epoch)
-    _run(["uv", "build", "--out-dir", str(destination)], cwd=source, env=env, capture=True)
+    _run(
+        [sys.executable, "-m", "build", "--outdir", str(destination)],
+        cwd=source,
+        env=env,
+        capture=True,
+    )
     wheels = sorted(destination.glob("*.whl"))
     sdists = sorted(destination.glob("*.tar.gz"))
     if len(wheels) != 1 or len(sdists) != 1:
@@ -268,7 +278,7 @@ def verify(*, n1_tag: str, output: Path, artifacts_dir: Path | None = None) -> d
             "created_at": datetime.now(UTC).isoformat(),
             "n1_tag": n1_tag,
             "build_provenance": {
-                "builder": "uv build",
+                "builder": f"python -m build=={BUILD_FRONTEND_VERSION}",
                 "current_source_date_epoch": current_epoch,
                 "n1_source_date_epoch": n1_epoch,
             },

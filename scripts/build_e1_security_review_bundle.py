@@ -23,7 +23,9 @@ CONTRACT = "ace.e1-security-review-bundle/v1"
 
 REVIEW_SURFACE = (
     ".github/workflows/publish.yml",
+    "build_backend.py",
     "pyproject.toml",
+    "uv.lock",
     "core/engine/api/auth_routes.py",
     "core/engine/api/cognition.py",
     "core/engine/api/reasoning.py",
