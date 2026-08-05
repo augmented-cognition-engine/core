@@ -63,17 +63,19 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.3.0 is published on PyPI and GitHub from verified release commit `6738708`. It builds
-on the 0.2.0 State Engine foundation and passes E1 for the exact released artifact set: one
-canonical governed-cognition lifecycle with immutable revisions, human approval, bounded
-selection/use attribution, current/N-1 compatibility evidence, deployment inventory, published
-artifacts, independent AI security review, and release-owner countersignature.
+`ace-core` 0.3.1 is published on PyPI and GitHub from verified release commit `8af5a499`. It closes
+the 0.3.x Productized State promise: one supported extension-first journey now runs from
+authenticated product-context ingestion through inspectable state, reasoning, decision capture,
+correction, restart, and materially changed later reasoning. The release preserves schema head
+v171, the supported CLI identities, and exactly eleven thin MCP tools.
 
-The release preserves the supported CLI and exactly eleven thin MCP tools and upgrades the public
-schema head from v168 to v171 through restart-safe migrations. E1 supports explicitly trusted
-installed Python extensions running in process; it does not claim hostile-code sandboxing,
-distributed approval, exactly-once external effects, a human penetration test, or certification.
-The bounded single-node, non-causal State Engine limitations also remain.
+The [0.3.1 release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md) binds PS1
+to the exact tag, GitHub Release, official CI, trusted PyPI publication, matching release-commit and
+registry artifact hashes, and a clean public-index installation. E1 remains passed for the exact
+0.3.0 artifact set and supplies the trusted in-process extension and governed-cognition foundation
+used by 0.3.1. Productized State remains bounded to the documented single-node topology and does
+not claim hostile-code isolation, distributed operation, general real-world causal accuracy,
+autonomous learning, a general world model, or beneficial impact.
 
 ACE provides graph-grounded, calibrated foresight. It projects conditional consequences of
 decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
@@ -100,8 +102,8 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | Target | Public milestone | Lane | Granular outcome map | Public issue |
 |---|---|---|---|---|
 | 0.2.x | State Engine stabilization | **Maintenance** | Inherits the passed R0, R1, R2, R3, R4, R5, R6, R7, G1, IA-R1, I1, I2, I3, F1, L1, K1, K2, and K3 foundation; patch work is limited to compatibility, migration, recovery, observability, reliability, security, and documentation hardening | [#1](https://github.com/augmented-cognition-engine/core/issues/1) |
-| 0.3.x | Productized State | **Now** | Productizes the passed K1–K3 spine with the R1/R4 onboarding pattern, G1 and IA-R1 inspection, I1–I3 receipts, and the passed E1 extension/governance boundary shipped in 0.3.0 | [#2](https://github.com/augmented-cognition-engine/core/issues/2) |
-| 0.4.0 | Governed Cognition | **Later** | Productizes the passed E1 foundation as an obvious teach, inspect, approve, use, measure, revise, and retire experience; supplies governed analytical policies and taxonomies required by SI1–SI4 | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
+| 0.3.x | Productized State | **Maintenance** | PS1 passed in 0.3.1 through the K1–K3 spine, R1/R4 onboarding pattern, G1 and IA-R1 inspection, I1–I3 receipts, and E1 extension/governance boundary; later patches are compatible hardening only | [#2](https://github.com/augmented-cognition-engine/core/issues/2) |
+| 0.4.0 | Governed Cognition | **Now** | Productizes the passed E1 foundation as an obvious teach, inspect, approve, use, measure, revise, and retire experience; supplies governed analytical policies and taxonomies required by SI1–SI4 | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
 | 0.5.0 | Reasoning into Action | **Later** | Advances T1 and B1 from approved decision to bounded attributable action; uses I1 authority receipts and begins the execution-adapter slice of E2 | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
 | 0.6.0 | Measured Intelligence | **Later** | Productizes the bounded L1 evidence loop, connects I3 material use to product-owned outcomes, advances the SI4 orientation/attention evaluation slice, and advances F2 only where evidence or demonstrated user need justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
 | 0.7.0 | Extension Platform | **Later** | Completes the stable third-party platform promise across E1 and E2 and advances SI3: SDK, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
@@ -139,17 +141,11 @@ reasoning after a restart.
 - Publish a clean-environment example, failure behavior, supported limits, and reproducible
   acceptance evidence.
 
-Release gate: one public extension-first journey proves classification, composition, evidence,
-provenance, decision capture, correction, persistence, and later material use through supported
-interfaces. Passing K1–K3 and E1 are inputs to this gate, not by themselves completion of the
-0.3.x product promise.
-
-Candidate status: the frozen `productized-state-public-journey-v1` engineering acceptance passes
-and its implementation is merged into `main`. The ace-core 0.3.1 release candidate adds
-authenticated adapter discovery/ingestion, the builder-facing `ace state` workflow, and integrated
-read-only I1–I3/State Engine receipt inspection; it also passes schema-zero v171 and v168→v171
-upgrade checks. The release-line outcome remains `candidate`, not `passed`, until the versioned
-public artifacts, fresh public-index installation, and issue/Project reconciliation are complete.
+Release gate: **passed in ace-core 0.3.1.** The public extension-first journey proves
+classification, composition, evidence, provenance, decision capture, correction, persistence, and
+later material use through supported interfaces. The tagged artifacts passed the release matrix,
+trusted publication, exact registry-hash comparison, and a clean public-index installation. See the
+[Productized State release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md).
 
 ### 0.4.0 — Governed Cognition
 
@@ -401,8 +397,8 @@ flowchart LR
 | Phase | Product question | Current position | Outcomes | Release target |
 |---|---|---|---|---|
 | 1. Reasoning foundation | Can ACE reliably reason, remember, and explain what happened? | **Passed** | R0–R7, G1, IA-R1, I1–I3, and F1 passed | through 0.2.x |
-| 2. Product state | Can a product maintain grounded state and reason about change and consequences? | **Engineering acceptance passed; publication pending** | K1–K3 and E1 passed; PS1 is a public-artifact candidate | 0.3.x |
-| 3. Governed cognition | Can a builder teach the product how to reason without silent self-modification? | **Foundation passed; product experience next** | E1 passed for ace-core 0.3.0; the obvious supported teaching experience remains | 0.4.0 |
+| 2. Product state | Can a product maintain grounded state and reason about change and consequences? | **Passed** | K1–K3, E1, and PS1 passed; Productized State is published in 0.3.1 | 0.3.x |
+| 3. Governed cognition | Can a builder teach the product how to reason without silent self-modification? | **Now** | E1 passed for ace-core 0.3.0; the obvious supported teaching experience is the active product milestone | 0.4.0 |
 | 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Gated** | T1 and B1 not ready; I1 authority foundation passed | 0.5.0 |
 | 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Bounded evidence gate passed; productization next** | L1 and I3 passed; F2 not ready | 0.6.0 |
 | 6. Extension ecosystem and operation | Can any product adopt, extend, operate, and retain ownership of ACE intelligence? | **Governance boundary passed; ecosystem gated** | E1 passed; E2 and H1 not ready | 0.7.0 and 0.9.0 |
@@ -432,14 +428,14 @@ clean install, exact receipts, restarts, failure semantics, limitations, and unc
 surface. E1 passed separately through the exact ace-core 0.3.0 release evidence; this journey does
 not promote T1, distributed guarantees, or real-world causal accuracy.
 
-### 1. Close the 0.3.x Productized State release-line gate
+### Completed milestone: 0.3.x Productized State
 
 The Fjord Operations K1–K3 receipt proves the bounded capability and independent extension journey.
 E1 separately passed with ace-core 0.3.0. The new Productized State receipt now proves the integrated
 implementation through authenticated ingestion, supported CLI orchestration, read-only receipt
 inspection, v171 schema zero, a v168→v171 upgrade, real restarts, correction, and later material use.
 
-The 0.3.x implementation sequence is:
+The completed 0.3.x implementation sequence was:
 
 1. freeze one obvious extension-first golden path that begins with product value and progressively
    reveals deeper ACE surfaces;
@@ -453,18 +449,18 @@ The 0.3.x implementation sequence is:
 6. reconcile the evidence, milestone issue, Project lane, capability maturity, and this roadmap
    before publication.
 
-Items 1–4 pass on `main` and are recorded in
-[Productized State evidence](docs/evidence/productized-state-journey-v1.md). Item 5 is the ace-core
-0.3.1 repository/artifact release matrix, and item 6 remains open until the candidate is published
-and the public records are reconciled. The acceptance runner finding that real SurrealDB
-product-scope binding returned empty inspection families was corrected with typed record IDs and
-retained as a regression.
+Items 1–6 passed. The integrated journey is recorded in
+[Productized State evidence](docs/evidence/productized-state-journey-v1.md), and the exact release,
+artifact, trusted-publication, registry, and clean-install receipts are recorded in the
+[0.3.1 release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md). The acceptance
+runner finding that real SurrealDB product-scope binding returned empty inspection families was
+corrected with typed record IDs and retained as a regression.
 
-Exit condition: the [0.3.x milestone](https://github.com/augmented-cognition-engine/core/issues/2)
-passes its public acceptance gate and the versioned public release is reproducible from published
-artifacts. Until then, K1–K3 remain passed inputs while Productized State remains **Next**.
+Exit condition: **passed.** The [0.3.x milestone](https://github.com/augmented-cognition-engine/core/issues/2)
+passes its public acceptance gate, and the versioned public release is reproducible from published
+artifacts. K1–K3 and E1 remain bounded passed inputs; PS1 is the passed productized outcome.
 
-### 2. Productize the passed governed-cognition foundation
+### 1. Productize the passed governed-cognition foundation
 
 E1 passed for ace-core 0.3.0 and establishes one canonical cognition model. The 0.4.0 work now makes
 that lifecycle an obvious supported teaching experience:
@@ -487,7 +483,7 @@ Exit condition: an extension can teach ACE a reusable reasoning capability, a hu
 change, and a fresh invocation can materially use the approved revision without widening the thin
 MCP contract.
 
-### 3. Strengthen the runtime before writable action
+### 2. Strengthen the runtime before writable action
 
 T1 must establish cancellation, replay identity, restart recovery, portability, resource
 reporting, and explicit single-process versus distributed guarantees. Only then should B1 progress
@@ -498,7 +494,7 @@ operations, and scale gates before promotion.
 Exit condition: approved reasoning can produce attributable work without giving a model implicit or
 unbounded execution authority.
 
-### 4. Productize bounded learning-impact evidence
+### 3. Productize bounded learning-impact evidence
 
 L1 is `passed` for the bounded executable-workload claim. Its first leakage-bounded retrospective
 probe and the agent-only v5 result remain negative; v6 remains formally invalid because one ACE case
@@ -513,7 +509,7 @@ evidence or user need justifies a broader consequence contract.
 Exit condition: ACE can state, with reproducible evidence, when a capability helped, hurt, or
 remains unproven and can propose—not silently apply—a revision or retirement.
 
-### 5. Grow the extension and product-surface ecosystem
+### 4. Grow the extension and product-surface ecosystem
 
 E1 has established N-1 compatibility, isolation and security review, recovery/effect semantics,
 operability, and conformance evidence for the exact ace-core 0.3.0 trusted in-process boundary. E2
@@ -525,7 +521,7 @@ Atrium evolves alongside these phases as a read-first view of state, reasoning, 
 outcomes, and proposed cognition changes. It gains no new write or execution authority merely by
 rendering them.
 
-### 6. Prepare continuous situational intelligence without displacing the release spine
+### 5. Prepare continuous situational intelligence without displacing the release spine
 
 SI1–SI4 should begin as extension-led contract and evaluation work after the 0.3.x Productized State
 gate rather than widening that release. The preparation sequence is:
@@ -570,7 +566,7 @@ intelligence is a planned cross-cutting outcome, not a supported general-intelli
 | K1 | passed | Maintain grounded temporal state over large product-scoped knowledge bases | [K1-K3 product evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) adds clean extension install, temporal ingestion/replay, exact counts/lineage/isolation, five belief meanings, supported v168 migrations, restarts, and a supported guide to the prior scale/readiness evidence |
 | K2 | passed | Model inspectable world dynamics and state-transition hypotheses | [K1-K3 product evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) proves an extension-owned product hypothesis with mechanism, preconditions, horizon, uncertainty, evidence/counterevidence challenge, review, stale behavior, and explicit causal limits |
 | K3 | passed | Simulate, compare, and reconcile consequences of possible actions | [K1-K3 product evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) proves action/no-action/alternative comparisons, durable decision/I3/promotion receipts, immutable outcome reconciliation, correction supersession, real restart/interruption recovery, later material use, and honest failure bounds |
-| PS1 | candidate | Make the passed State Engine an obvious supported extension-first product journey | [Productized State evidence](docs/evidence/productized-state-journey-v1.md) passes authenticated adapter discovery/ingestion, `ace state` orchestration, integrated G1/IA-R1 and I1–I3 receipt inspection, v171 schema-zero, v168→v171 upgrade, restarts, correction, and later material use; the implementation is merged and public artifact verification remains |
+| PS1 | passed | Make the passed State Engine an obvious supported extension-first product journey | [Productized State evidence](docs/evidence/productized-state-journey-v1.md) passes authenticated adapter discovery/ingestion, `ace state` orchestration, integrated G1/IA-R1 and I1–I3 receipt inspection, v171 schema-zero, v168→v171 upgrade, restarts, correction, and later material use; the [0.3.1 release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md) binds the exact tag, official CI, trusted PyPI publication, matching registry hashes, and clean public-index installation |
 | T1 | not ready | Strengthen task recovery, replay, portability, cancellation, and resource reporting | [TP1 evidence](docs/evidence/state-engine-tp1-reliable-memory-lifecycle-v1.md) closes reliable observation claiming/recovery; cancellation, portability, reporting, and topology guarantees remain |
 | E1 | passed | Stabilize the extension and governed-cognition boundary | [E1 release evidence](docs/evidence/e1-governed-cognition-release-v1.md) binds the canonical E1-A–G lifecycle to ace-core 0.3.0, exact current/N-1 and mixed-package evidence, public artifacts and fresh install, deployment inventory, independent AI security acceptance, and release-owner countersignature; the pass is limited to trusted in-process extensions and is not a human penetration test or certification |
 | L1 | passed | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative retrospective probe and v5/v6 failures, then records the preregistered v7 correction replicate: all 192 cases and 48 clusters were eligible, and ACE passed persistence, naïve/base-rate, and matched model-only under the frozen all-controls interval rule; the claim is limited to the executable benchmark |
