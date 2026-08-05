@@ -1,0 +1,26 @@
+{
+  "contract_version": "ace.foresight.impact-agent-invalidation/v3",
+  "registration_id": "l1-agent-executable-benchmark-v3",
+  "registration_hash": "sha256:faf6b671fa2646798bec4930e04cae25b26b3a1dae233b98b647ed0f29107459",
+  "invalidated_at": "2026-08-05T03:02:27Z",
+  "state": "invalidated_during_collection",
+  "reason_codes": [
+    "fail_closed_validator_crash_on_schema_invalid_provider_output"
+  ],
+  "finding": "A live decision returned a non-list alternatives field. Validation named the schema error but then attempted list slicing on the invalid object and raised KeyError before the case could be durably excluded.",
+  "disposition": "Collection stopped permanently. The v3 source and partial cohort must not be resumed, completed, or analyzed; a fresh successor requires new identities, assignments, and target seeds.",
+  "protocol_file_sha256": "sha256:65e70408aec40a847f53ca3db590dc0e39f0989ecf7478d3a36d7328e3fc1799",
+  "frozen_source_hashes": {
+    "benchmark_code": "sha256:2f71a9bc73ad1c29119635df9499b4d06c7b48493117890dc506dc3977958a25",
+    "collection_runner": "sha256:d7a2f74742dae3d682ca5195cf0944accb795f40eec8d23ec3f5efa3caa4fe89"
+  },
+  "route_qualification_hash": "sha256:a09a8e5768c99e775dbf32f3c98f0ff78b391a9ee8b7df0fc1a356fabdf72009",
+  "partial_raw_manifest_hash": "sha256:ee5a9051df56040cae3fcfeed8355a4af479fe8f8c2f9787276f3deca4dc259d",
+  "partial_raw_file_count": 21,
+  "target_main_decisions_recorded": 9,
+  "i3_shadow_decisions_recorded": 2,
+  "target_outcomes_generated": 9,
+  "target_outcomes_revealed": 0,
+  "analysis_invocations": 0,
+  "invalidation_hash": "sha256:ff92a6a86cb5be4a71ca0331b62956393f07456b71da985de752a6c2da2b833a"
+}

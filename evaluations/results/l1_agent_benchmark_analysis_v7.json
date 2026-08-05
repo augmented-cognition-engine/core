@@ -1,0 +1,1613 @@
+{
+  "analysis_hash": "sha256:d928ea1e0ebfb919d078c4ba5aa8903ac81d62f22c599b1ab0995c9bceed0187",
+  "analysis_id": "l1-agent-analysis:cdd6edb7472322c4ed7b763767eb20bb",
+  "beneficial_impact_supported": true,
+  "cases": [
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:01:case:1",
+      "cluster_id": "l1v7:cluster:01",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:01:case:2",
+      "cluster_id": "l1v7:cluster:01",
+      "eligible": true,
+      "normalized_decision_regret": 0.012279411742715851,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:01:case:3",
+      "cluster_id": "l1v7:cluster:01",
+      "eligible": true,
+      "normalized_decision_regret": 0.13267615554094636,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:01:case:4",
+      "cluster_id": "l1v7:cluster:01",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:02:case:1",
+      "cluster_id": "l1v7:cluster:02",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:02:case:2",
+      "cluster_id": "l1v7:cluster:02",
+      "eligible": true,
+      "normalized_decision_regret": 0.013482405543814746,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:02:case:3",
+      "cluster_id": "l1v7:cluster:02",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:02:case:4",
+      "cluster_id": "l1v7:cluster:02",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:03:case:1",
+      "cluster_id": "l1v7:cluster:03",
+      "eligible": true,
+      "normalized_decision_regret": 0.23384375938833857,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:03:case:2",
+      "cluster_id": "l1v7:cluster:03",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:03:case:3",
+      "cluster_id": "l1v7:cluster:03",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:03:case:4",
+      "cluster_id": "l1v7:cluster:03",
+      "eligible": true,
+      "normalized_decision_regret": 0.10528432055203674,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:04:case:1",
+      "cluster_id": "l1v7:cluster:04",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:04:case:2",
+      "cluster_id": "l1v7:cluster:04",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:04:case:3",
+      "cluster_id": "l1v7:cluster:04",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:04:case:4",
+      "cluster_id": "l1v7:cluster:04",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:05:case:1",
+      "cluster_id": "l1v7:cluster:05",
+      "eligible": true,
+      "normalized_decision_regret": 0.04957237569196149,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:05:case:2",
+      "cluster_id": "l1v7:cluster:05",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:05:case:3",
+      "cluster_id": "l1v7:cluster:05",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:05:case:4",
+      "cluster_id": "l1v7:cluster:05",
+      "eligible": true,
+      "normalized_decision_regret": 0.04957237569196149,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:06:case:1",
+      "cluster_id": "l1v7:cluster:06",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:06:case:2",
+      "cluster_id": "l1v7:cluster:06",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:06:case:3",
+      "cluster_id": "l1v7:cluster:06",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:06:case:4",
+      "cluster_id": "l1v7:cluster:06",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:07:case:1",
+      "cluster_id": "l1v7:cluster:07",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:07:case:2",
+      "cluster_id": "l1v7:cluster:07",
+      "eligible": true,
+      "normalized_decision_regret": 0.02747114635111747,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:07:case:3",
+      "cluster_id": "l1v7:cluster:07",
+      "eligible": true,
+      "normalized_decision_regret": 0.1567173092717724,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:07:case:4",
+      "cluster_id": "l1v7:cluster:07",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:08:case:1",
+      "cluster_id": "l1v7:cluster:08",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:08:case:2",
+      "cluster_id": "l1v7:cluster:08",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:08:case:3",
+      "cluster_id": "l1v7:cluster:08",
+      "eligible": true,
+      "normalized_decision_regret": 0.005500413174992391,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:08:case:4",
+      "cluster_id": "l1v7:cluster:08",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:09:case:1",
+      "cluster_id": "l1v7:cluster:09",
+      "eligible": true,
+      "normalized_decision_regret": 0.09997593611018563,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:09:case:2",
+      "cluster_id": "l1v7:cluster:09",
+      "eligible": true,
+      "normalized_decision_regret": 0.21829715750990075,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:09:case:3",
+      "cluster_id": "l1v7:cluster:09",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:09:case:4",
+      "cluster_id": "l1v7:cluster:09",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:10:case:1",
+      "cluster_id": "l1v7:cluster:10",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:10:case:2",
+      "cluster_id": "l1v7:cluster:10",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:10:case:3",
+      "cluster_id": "l1v7:cluster:10",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:10:case:4",
+      "cluster_id": "l1v7:cluster:10",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:11:case:1",
+      "cluster_id": "l1v7:cluster:11",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:11:case:2",
+      "cluster_id": "l1v7:cluster:11",
+      "eligible": true,
+      "normalized_decision_regret": 0.06195210076392543,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:11:case:3",
+      "cluster_id": "l1v7:cluster:11",
+      "eligible": true,
+      "normalized_decision_regret": 0.06195210076392543,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:11:case:4",
+      "cluster_id": "l1v7:cluster:11",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:12:case:1",
+      "cluster_id": "l1v7:cluster:12",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:12:case:2",
+      "cluster_id": "l1v7:cluster:12",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:12:case:3",
+      "cluster_id": "l1v7:cluster:12",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:12:case:4",
+      "cluster_id": "l1v7:cluster:12",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:13:case:1",
+      "cluster_id": "l1v7:cluster:13",
+      "eligible": true,
+      "normalized_decision_regret": 0.15665108346692957,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:13:case:2",
+      "cluster_id": "l1v7:cluster:13",
+      "eligible": true,
+      "normalized_decision_regret": 0.024621235354258086,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:13:case:3",
+      "cluster_id": "l1v7:cluster:13",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:13:case:4",
+      "cluster_id": "l1v7:cluster:13",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:14:case:1",
+      "cluster_id": "l1v7:cluster:14",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:14:case:2",
+      "cluster_id": "l1v7:cluster:14",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:14:case:3",
+      "cluster_id": "l1v7:cluster:14",
+      "eligible": true,
+      "normalized_decision_regret": 0.029877642523582826,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:14:case:4",
+      "cluster_id": "l1v7:cluster:14",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:15:case:1",
+      "cluster_id": "l1v7:cluster:15",
+      "eligible": true,
+      "normalized_decision_regret": 0.10078170432962119,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:15:case:2",
+      "cluster_id": "l1v7:cluster:15",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:15:case:3",
+      "cluster_id": "l1v7:cluster:15",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:15:case:4",
+      "cluster_id": "l1v7:cluster:15",
+      "eligible": true,
+      "normalized_decision_regret": 0.22333351324656958,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:16:case:1",
+      "cluster_id": "l1v7:cluster:16",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:16:case:2",
+      "cluster_id": "l1v7:cluster:16",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:16:case:3",
+      "cluster_id": "l1v7:cluster:16",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:16:case:4",
+      "cluster_id": "l1v7:cluster:16",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:17:case:1",
+      "cluster_id": "l1v7:cluster:17",
+      "eligible": true,
+      "normalized_decision_regret": 0.05180448012669703,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:17:case:2",
+      "cluster_id": "l1v7:cluster:17",
+      "eligible": true,
+      "normalized_decision_regret": 0.05180448012669703,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:17:case:3",
+      "cluster_id": "l1v7:cluster:17",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:17:case:4",
+      "cluster_id": "l1v7:cluster:17",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:18:case:1",
+      "cluster_id": "l1v7:cluster:18",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:18:case:2",
+      "cluster_id": "l1v7:cluster:18",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:18:case:3",
+      "cluster_id": "l1v7:cluster:18",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:18:case:4",
+      "cluster_id": "l1v7:cluster:18",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:19:case:1",
+      "cluster_id": "l1v7:cluster:19",
+      "eligible": true,
+      "normalized_decision_regret": 0.011513733391989689,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:19:case:2",
+      "cluster_id": "l1v7:cluster:19",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:19:case:3",
+      "cluster_id": "l1v7:cluster:19",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:19:case:4",
+      "cluster_id": "l1v7:cluster:19",
+      "eligible": true,
+      "normalized_decision_regret": 0.13599020228126713,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:20:case:1",
+      "cluster_id": "l1v7:cluster:20",
+      "eligible": true,
+      "normalized_decision_regret": 0.01560355161370719,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:20:case:2",
+      "cluster_id": "l1v7:cluster:20",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:20:case:3",
+      "cluster_id": "l1v7:cluster:20",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:20:case:4",
+      "cluster_id": "l1v7:cluster:20",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:21:case:1",
+      "cluster_id": "l1v7:cluster:21",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:21:case:2",
+      "cluster_id": "l1v7:cluster:21",
+      "eligible": true,
+      "normalized_decision_regret": 0.11347750017267244,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:21:case:3",
+      "cluster_id": "l1v7:cluster:21",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:21:case:4",
+      "cluster_id": "l1v7:cluster:21",
+      "eligible": true,
+      "normalized_decision_regret": 0.24323399988173244,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:22:case:1",
+      "cluster_id": "l1v7:cluster:22",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:22:case:2",
+      "cluster_id": "l1v7:cluster:22",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:22:case:3",
+      "cluster_id": "l1v7:cluster:22",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:22:case:4",
+      "cluster_id": "l1v7:cluster:22",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:23:case:1",
+      "cluster_id": "l1v7:cluster:23",
+      "eligible": true,
+      "normalized_decision_regret": 0.05880178034678474,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:23:case:2",
+      "cluster_id": "l1v7:cluster:23",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:23:case:3",
+      "cluster_id": "l1v7:cluster:23",
+      "eligible": true,
+      "normalized_decision_regret": 0.05880178034678474,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:23:case:4",
+      "cluster_id": "l1v7:cluster:23",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:24:case:1",
+      "cluster_id": "l1v7:cluster:24",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:24:case:2",
+      "cluster_id": "l1v7:cluster:24",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:24:case:3",
+      "cluster_id": "l1v7:cluster:24",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:24:case:4",
+      "cluster_id": "l1v7:cluster:24",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:25:case:1",
+      "cluster_id": "l1v7:cluster:25",
+      "eligible": true,
+      "normalized_decision_regret": 0.1505250442469901,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:25:case:2",
+      "cluster_id": "l1v7:cluster:25",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:25:case:3",
+      "cluster_id": "l1v7:cluster:25",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:25:case:4",
+      "cluster_id": "l1v7:cluster:25",
+      "eligible": true,
+      "normalized_decision_regret": 0.022001105100525553,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:26:case:1",
+      "cluster_id": "l1v7:cluster:26",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:26:case:2",
+      "cluster_id": "l1v7:cluster:26",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:26:case:3",
+      "cluster_id": "l1v7:cluster:26",
+      "eligible": true,
+      "normalized_decision_regret": 0.028235031309037595,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:26:case:4",
+      "cluster_id": "l1v7:cluster:26",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:27:case:1",
+      "cluster_id": "l1v7:cluster:27",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:27:case:2",
+      "cluster_id": "l1v7:cluster:27",
+      "eligible": true,
+      "normalized_decision_regret": 0.1118619502444268,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:27:case:3",
+      "cluster_id": "l1v7:cluster:27",
+      "eligible": true,
+      "normalized_decision_regret": 0.2658576215248113,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:27:case:4",
+      "cluster_id": "l1v7:cluster:27",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:28:case:1",
+      "cluster_id": "l1v7:cluster:28",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:28:case:2",
+      "cluster_id": "l1v7:cluster:28",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:28:case:3",
+      "cluster_id": "l1v7:cluster:28",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:28:case:4",
+      "cluster_id": "l1v7:cluster:28",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:29:case:1",
+      "cluster_id": "l1v7:cluster:29",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:29:case:2",
+      "cluster_id": "l1v7:cluster:29",
+      "eligible": true,
+      "normalized_decision_regret": 0.060239060296389924,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:29:case:3",
+      "cluster_id": "l1v7:cluster:29",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:29:case:4",
+      "cluster_id": "l1v7:cluster:29",
+      "eligible": true,
+      "normalized_decision_regret": 0.060239060296389924,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:30:case:1",
+      "cluster_id": "l1v7:cluster:30",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:30:case:2",
+      "cluster_id": "l1v7:cluster:30",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:30:case:3",
+      "cluster_id": "l1v7:cluster:30",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:30:case:4",
+      "cluster_id": "l1v7:cluster:30",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:31:case:1",
+      "cluster_id": "l1v7:cluster:31",
+      "eligible": true,
+      "normalized_decision_regret": 0.019469605681188384,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:31:case:2",
+      "cluster_id": "l1v7:cluster:31",
+      "eligible": true,
+      "normalized_decision_regret": 0.1463598440322973,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:31:case:3",
+      "cluster_id": "l1v7:cluster:31",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:31:case:4",
+      "cluster_id": "l1v7:cluster:31",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:32:case:1",
+      "cluster_id": "l1v7:cluster:32",
+      "eligible": true,
+      "normalized_decision_regret": 0.022158045677465044,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:32:case:2",
+      "cluster_id": "l1v7:cluster:32",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:32:case:3",
+      "cluster_id": "l1v7:cluster:32",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:32:case:4",
+      "cluster_id": "l1v7:cluster:32",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:33:case:1",
+      "cluster_id": "l1v7:cluster:33",
+      "eligible": true,
+      "normalized_decision_regret": 0.20557519686769932,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:33:case:2",
+      "cluster_id": "l1v7:cluster:33",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:33:case:3",
+      "cluster_id": "l1v7:cluster:33",
+      "eligible": true,
+      "normalized_decision_regret": 0.08390365107707987,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:33:case:4",
+      "cluster_id": "l1v7:cluster:33",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:34:case:1",
+      "cluster_id": "l1v7:cluster:34",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:34:case:2",
+      "cluster_id": "l1v7:cluster:34",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:34:case:3",
+      "cluster_id": "l1v7:cluster:34",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:34:case:4",
+      "cluster_id": "l1v7:cluster:34",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:35:case:1",
+      "cluster_id": "l1v7:cluster:35",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:35:case:2",
+      "cluster_id": "l1v7:cluster:35",
+      "eligible": true,
+      "normalized_decision_regret": 0.056674471382484715,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:35:case:3",
+      "cluster_id": "l1v7:cluster:35",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:35:case:4",
+      "cluster_id": "l1v7:cluster:35",
+      "eligible": true,
+      "normalized_decision_regret": 0.056674471382484715,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:36:case:1",
+      "cluster_id": "l1v7:cluster:36",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:36:case:2",
+      "cluster_id": "l1v7:cluster:36",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:36:case:3",
+      "cluster_id": "l1v7:cluster:36",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:36:case:4",
+      "cluster_id": "l1v7:cluster:36",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:37:case:1",
+      "cluster_id": "l1v7:cluster:37",
+      "eligible": true,
+      "normalized_decision_regret": 0.025981328939782333,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:37:case:2",
+      "cluster_id": "l1v7:cluster:37",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:37:case:3",
+      "cluster_id": "l1v7:cluster:37",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:37:case:4",
+      "cluster_id": "l1v7:cluster:37",
+      "eligible": true,
+      "normalized_decision_regret": 0.16082499753122637,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:38:case:1",
+      "cluster_id": "l1v7:cluster:38",
+      "eligible": true,
+      "normalized_decision_regret": 0.01206304314859541,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:38:case:2",
+      "cluster_id": "l1v7:cluster:38",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:38:case:3",
+      "cluster_id": "l1v7:cluster:38",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:38:case:4",
+      "cluster_id": "l1v7:cluster:38",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:39:case:1",
+      "cluster_id": "l1v7:cluster:39",
+      "eligible": true,
+      "normalized_decision_regret": 0.21747174134889447,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:39:case:2",
+      "cluster_id": "l1v7:cluster:39",
+      "eligible": true,
+      "normalized_decision_regret": 0.08445584653646321,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:39:case:3",
+      "cluster_id": "l1v7:cluster:39",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:39:case:4",
+      "cluster_id": "l1v7:cluster:39",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:40:case:1",
+      "cluster_id": "l1v7:cluster:40",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:40:case:2",
+      "cluster_id": "l1v7:cluster:40",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:40:case:3",
+      "cluster_id": "l1v7:cluster:40",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:40:case:4",
+      "cluster_id": "l1v7:cluster:40",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:41:case:1",
+      "cluster_id": "l1v7:cluster:41",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:41:case:2",
+      "cluster_id": "l1v7:cluster:41",
+      "eligible": true,
+      "normalized_decision_regret": 0.04537543791229948,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:41:case:3",
+      "cluster_id": "l1v7:cluster:41",
+      "eligible": true,
+      "normalized_decision_regret": 0.04537543791229948,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:41:case:4",
+      "cluster_id": "l1v7:cluster:41",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:42:case:1",
+      "cluster_id": "l1v7:cluster:42",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:42:case:2",
+      "cluster_id": "l1v7:cluster:42",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:42:case:3",
+      "cluster_id": "l1v7:cluster:42",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:42:case:4",
+      "cluster_id": "l1v7:cluster:42",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:43:case:1",
+      "cluster_id": "l1v7:cluster:43",
+      "eligible": true,
+      "normalized_decision_regret": 0.013528078255668152,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:43:case:2",
+      "cluster_id": "l1v7:cluster:43",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:43:case:3",
+      "cluster_id": "l1v7:cluster:43",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:43:case:4",
+      "cluster_id": "l1v7:cluster:43",
+      "eligible": true,
+      "normalized_decision_regret": 0.13564874023256202,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:44:case:1",
+      "cluster_id": "l1v7:cluster:44",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:44:case:2",
+      "cluster_id": "l1v7:cluster:44",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:44:case:3",
+      "cluster_id": "l1v7:cluster:44",
+      "eligible": true,
+      "normalized_decision_regret": 0.008610908278829377,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:44:case:4",
+      "cluster_id": "l1v7:cluster:44",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:45:case:1",
+      "cluster_id": "l1v7:cluster:45",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:45:case:2",
+      "cluster_id": "l1v7:cluster:45",
+      "eligible": true,
+      "normalized_decision_regret": 0.22615902432453017,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:45:case:3",
+      "cluster_id": "l1v7:cluster:45",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:45:case:4",
+      "cluster_id": "l1v7:cluster:45",
+      "eligible": true,
+      "normalized_decision_regret": 0.09191481734911344,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:46:case:1",
+      "cluster_id": "l1v7:cluster:46",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:46:case:2",
+      "cluster_id": "l1v7:cluster:46",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:46:case:3",
+      "cluster_id": "l1v7:cluster:46",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:46:case:4",
+      "cluster_id": "l1v7:cluster:46",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:47:case:1",
+      "cluster_id": "l1v7:cluster:47",
+      "eligible": true,
+      "normalized_decision_regret": 0.06871826591977137,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:47:case:2",
+      "cluster_id": "l1v7:cluster:47",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:47:case:3",
+      "cluster_id": "l1v7:cluster:47",
+      "eligible": true,
+      "normalized_decision_regret": 0.06871826591977137,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:47:case:4",
+      "cluster_id": "l1v7:cluster:47",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "ace_foresight",
+      "case_id": "l1v7:cluster:48:case:1",
+      "cluster_id": "l1v7:cluster:48",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "naive_base_rate",
+      "case_id": "l1v7:cluster:48:case:2",
+      "cluster_id": "l1v7:cluster:48",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "model_only",
+      "case_id": "l1v7:cluster:48:case:3",
+      "cluster_id": "l1v7:cluster:48",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    },
+    {
+      "arm": "no_foresight",
+      "case_id": "l1v7:cluster:48:case:4",
+      "cluster_id": "l1v7:cluster:48",
+      "eligible": true,
+      "normalized_decision_regret": 0.0,
+      "reason_codes": []
+    }
+  ],
+  "claim_scope": "Causal decision-quality effect of resolved ACE foresight within this frozen executable workload benchmark.",
+  "collection_hash": "sha256:15ba8ef2ec59ff5779609471b602072730061fa20f5b933e7788f0cfbbdd3291",
+  "collection_id": "l1-agent-collection:ceedd71de7669decdb314219968e1bf4",
+  "comparisons": [
+    {
+      "benefit_supported": true,
+      "cluster_adjusted_95_percent_interval": {
+        "count": 48,
+        "lower_95": 0.04615788866251884,
+        "mean": 0.07213132006534963,
+        "standard_error": 0.012851772094423945,
+        "upper_95": 0.09810475146818042
+      },
+      "cluster_count": 48,
+      "control": "no_foresight",
+      "direction": "positive_control_minus_ace_regret_favors_ace",
+      "state": "benefit_supported"
+    },
+    {
+      "benefit_supported": true,
+      "cluster_adjusted_95_percent_interval": {
+        "count": 48,
+        "lower_95": 0.018126693842251886,
+        "mean": 0.02920123632560748,
+        "standard_error": 0.005479734034317465,
+        "upper_95": 0.040275778808963075
+      },
+      "cluster_count": 48,
+      "control": "naive_base_rate",
+      "direction": "positive_control_minus_ace_regret_favors_ace",
+      "state": "benefit_supported"
+    },
+    {
+      "benefit_supported": true,
+      "cluster_adjusted_95_percent_interval": {
+        "count": 48,
+        "lower_95": 0.0007074450705977886,
+        "mean": 0.0028235633597921785,
+        "standard_error": 0.001047064962491039,
+        "upper_95": 0.004939681648986569
+      },
+      "cluster_count": 48,
+      "control": "model_only",
+      "direction": "positive_control_minus_ace_regret_favors_ace",
+      "state": "benefit_supported"
+    }
+  ],
+  "contract_version": "ace.foresight.impact-agent-analysis/v7",
+  "limitations": [
+    "The causal claim is limited to randomized context exposure in this executable benchmark.",
+    "Post-decision stochastic workloads are reproducible benchmark outcomes, not external product telemetry.",
+    "A favorable result would not establish human, customer, provider, or general real-world benefit.",
+    "Every required control must pass; null or harmful evidence is preserved."
+  ],
+  "reason_codes": [],
+  "registration_hash": "sha256:ceedd71de7669decdb314219968e1bf415a2bd9af9c90dbc25b7c796802138a1",
+  "registration_id": "l1-agent-executable-benchmark-v7",
+  "sample": {
+    "complete_cases_per_arm": {
+      "ace_foresight": 48,
+      "model_only": 48,
+      "naive_base_rate": 48,
+      "no_foresight": 48
+    },
+    "complete_cluster_count": 48,
+    "minimum_complete_cases_per_arm": 44,
+    "minimum_complete_clusters": 44,
+    "submitted_case_count": 192
+  },
+  "state": "benefit_supported"
+}

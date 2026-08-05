@@ -103,5 +103,6 @@ F1 is not kept open for unbounded breadth. Deferred work is routed by purpose:
   no-foresight, naive/base-rate, and model-only controls belong to L1; and
 - attributable retrieval and exact later decision effects belong to I3.
 
-The next existential milestone is L1: prove that resolved foresight beneficially improves later
-reasoning rather than merely changing it.
+At F1 closeout, the next existential milestone was L1. The later agent-only v7 study now passes that
+gate within its frozen executable-workload scope; external-product and general real-world benefit
+remain separate claims.

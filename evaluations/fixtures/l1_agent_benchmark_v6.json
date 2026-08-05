@@ -1,0 +1,3827 @@
+{
+  "analysis": {
+    "analysis_window": "after_exact_fixed_cohort_closes",
+    "attribution_verification_contract": "frozen-balanced-assignment-and-exposure-replay/v6",
+    "case_structure": "one_assigned_arm_per_non_overlapping_allocation_unit",
+    "contract": "ace.foresight.impact-agent-analysis/v6",
+    "estimator": "cluster_level_control_minus_treatment_mean_regret/v6",
+    "interim_analysis": "forbidden",
+    "interval": "two-sided_cluster_level_student_t_95/v6",
+    "minimum_complete_cases_per_arm": 44,
+    "minimum_independent_clusters": 44,
+    "planned_cases_per_arm": 48,
+    "planned_clusters": 48,
+    "power_design": {
+      "alpha_two_sided": 0.05,
+      "approximate_minimum_detectable_standardized_cluster_effect": 0.43,
+      "minimum_complete_clusters": 44,
+      "power": 0.8
+    },
+    "promotion_rule": "lower_95_bound_above_zero_for_every_required_control",
+    "required_comparisons": [
+      "no_foresight",
+      "naive_base_rate",
+      "model_only"
+    ],
+    "stopping_rule": "collect_all_192_preassigned_cases_once_no_replacement_then_analyze_once"
+  },
+  "arms": [
+    {
+      "exposure": "cluster-local F1 resolution with an explicit active-or-contested applicability disposition plus the common structured decision contract",
+      "id": "ace_foresight",
+      "policy_contract": "ace-selective-resolved-foresight/v6"
+    },
+    {
+      "exposure": "common task plus the cluster-local last observed operating policy; no forecast or resolution content",
+      "id": "no_foresight",
+      "policy_contract": "last-observation-persistence/v6"
+    },
+    {
+      "exposure": "common task plus the single globally best calibration policy",
+      "id": "naive_base_rate",
+      "policy_contract": "frozen-calibration-base-rate/v6"
+    },
+    {
+      "exposure": "common task and output schema without ACE foresight or ACE checklist",
+      "id": "model_only",
+      "policy_contract": "matched-model-only/v6"
+    }
+  ],
+  "assignment": {
+    "allocation_unit": "unique product-scoped decision identity",
+    "assignment_receipt_schema": "ace.foresight.impact-agent-assignment/v6",
+    "assignments": [
+      {
+        "allocation_unit_hash": "sha256:590d58f5a8b9d8f0c959feada8f57cd8950965a1ea2121aec92b9d6dfbfded0c",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:01:case:1",
+        "cluster_id": "l1v6:cluster:01",
+        "decision_id": "decision:l1v6:cluster:01:case:1",
+        "prediction_id": "prediction:l1v6:cluster:01:case:1",
+        "product_id": "product:l1v6:01",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:01:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:f09a9b719dd3fbfa2b11eadcf8e2c80e386a04ad27872ca1422f745ca823366e",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:01:case:2",
+        "cluster_id": "l1v6:cluster:01",
+        "decision_id": "decision:l1v6:cluster:01:case:2",
+        "prediction_id": "prediction:l1v6:cluster:01:case:2",
+        "product_id": "product:l1v6:01",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:01:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:a51a3fc2bfbfef09e4462068825092019c403e5e4cf641d3eb9e05cc2687e2dc",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:01:case:3",
+        "cluster_id": "l1v6:cluster:01",
+        "decision_id": "decision:l1v6:cluster:01:case:3",
+        "prediction_id": "prediction:l1v6:cluster:01:case:3",
+        "product_id": "product:l1v6:01",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:01:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:d40439d7e898aa67d7395a25de23a0c742b323263b9133184a1b032b8e32fa88",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:01:case:4",
+        "cluster_id": "l1v6:cluster:01",
+        "decision_id": "decision:l1v6:cluster:01:case:4",
+        "prediction_id": "prediction:l1v6:cluster:01:case:4",
+        "product_id": "product:l1v6:01",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:01:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:645bfc6a122f7cc42f0d1b3877c2cc20a9dcf6233269c3b3d642e5305097ffb6",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:02:case:1",
+        "cluster_id": "l1v6:cluster:02",
+        "decision_id": "decision:l1v6:cluster:02:case:1",
+        "prediction_id": "prediction:l1v6:cluster:02:case:1",
+        "product_id": "product:l1v6:02",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:02:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:00f389a12e59dbe30b08b54e25ef5a7055b89d373d85d899b84419898c272659",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:02:case:2",
+        "cluster_id": "l1v6:cluster:02",
+        "decision_id": "decision:l1v6:cluster:02:case:2",
+        "prediction_id": "prediction:l1v6:cluster:02:case:2",
+        "product_id": "product:l1v6:02",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:02:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:200964f3d6f43e188432eb526292933fe699239628b42ed61f22513c3cb94c62",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:02:case:3",
+        "cluster_id": "l1v6:cluster:02",
+        "decision_id": "decision:l1v6:cluster:02:case:3",
+        "prediction_id": "prediction:l1v6:cluster:02:case:3",
+        "product_id": "product:l1v6:02",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:02:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:bd06aaa856a3d3a2580fed2a853ca44bdb47ab06a574ef15b76d96b2e9690410",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:02:case:4",
+        "cluster_id": "l1v6:cluster:02",
+        "decision_id": "decision:l1v6:cluster:02:case:4",
+        "prediction_id": "prediction:l1v6:cluster:02:case:4",
+        "product_id": "product:l1v6:02",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:02:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:f8fe69173af294f4b77e0aaf709e7c1facd42a005388c5963825b71e1031a39d",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:03:case:1",
+        "cluster_id": "l1v6:cluster:03",
+        "decision_id": "decision:l1v6:cluster:03:case:1",
+        "prediction_id": "prediction:l1v6:cluster:03:case:1",
+        "product_id": "product:l1v6:03",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:03:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:ee5c02088803072bdb9a098b2365081450509cba88a73d665619162d11bd82af",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:03:case:2",
+        "cluster_id": "l1v6:cluster:03",
+        "decision_id": "decision:l1v6:cluster:03:case:2",
+        "prediction_id": "prediction:l1v6:cluster:03:case:2",
+        "product_id": "product:l1v6:03",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:03:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:87d419b5fbd5636d0796163586ff9ae78b7170d899b2cd738bf03bd9803a7381",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:03:case:3",
+        "cluster_id": "l1v6:cluster:03",
+        "decision_id": "decision:l1v6:cluster:03:case:3",
+        "prediction_id": "prediction:l1v6:cluster:03:case:3",
+        "product_id": "product:l1v6:03",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:03:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:3c9926ec3a61d5f3cd251802cf9f547b4f2eb2971928b8424c28d6bc8cf35348",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:03:case:4",
+        "cluster_id": "l1v6:cluster:03",
+        "decision_id": "decision:l1v6:cluster:03:case:4",
+        "prediction_id": "prediction:l1v6:cluster:03:case:4",
+        "product_id": "product:l1v6:03",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:03:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:dd7dfdc11d8008c7eec961c97e5738f187a2aadf5cbcbce3fa3bd7bd291b949c",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:04:case:1",
+        "cluster_id": "l1v6:cluster:04",
+        "decision_id": "decision:l1v6:cluster:04:case:1",
+        "prediction_id": "prediction:l1v6:cluster:04:case:1",
+        "product_id": "product:l1v6:04",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:04:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:775fd31fe786b83185600afa5b7c59998ead68fe7055936da7821f30088f6ece",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:04:case:2",
+        "cluster_id": "l1v6:cluster:04",
+        "decision_id": "decision:l1v6:cluster:04:case:2",
+        "prediction_id": "prediction:l1v6:cluster:04:case:2",
+        "product_id": "product:l1v6:04",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:04:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:57d16b33799afcb0d9fb17a7942e11cf09c21ff13f13393b0c1197d47efaf7b0",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:04:case:3",
+        "cluster_id": "l1v6:cluster:04",
+        "decision_id": "decision:l1v6:cluster:04:case:3",
+        "prediction_id": "prediction:l1v6:cluster:04:case:3",
+        "product_id": "product:l1v6:04",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:04:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:79904b60ca3bf15e1d6524e9eba6d2230b1866bfdc4af60e574ffbd3549a4be2",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:04:case:4",
+        "cluster_id": "l1v6:cluster:04",
+        "decision_id": "decision:l1v6:cluster:04:case:4",
+        "prediction_id": "prediction:l1v6:cluster:04:case:4",
+        "product_id": "product:l1v6:04",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:04:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:728ed8cdfe801a3bfda8370b0ee89c161ee2c50983f767b03aedccddfafa9609",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:05:case:1",
+        "cluster_id": "l1v6:cluster:05",
+        "decision_id": "decision:l1v6:cluster:05:case:1",
+        "prediction_id": "prediction:l1v6:cluster:05:case:1",
+        "product_id": "product:l1v6:05",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:05:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:1720f7719b7eccd35f13e5cc63e55473f7e728193f08a7d6d268f73116b0dc44",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:05:case:2",
+        "cluster_id": "l1v6:cluster:05",
+        "decision_id": "decision:l1v6:cluster:05:case:2",
+        "prediction_id": "prediction:l1v6:cluster:05:case:2",
+        "product_id": "product:l1v6:05",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:05:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:78276451185fe0b1347c9da5429890704112d204c45bc264f3cb517adf8ebc41",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:05:case:3",
+        "cluster_id": "l1v6:cluster:05",
+        "decision_id": "decision:l1v6:cluster:05:case:3",
+        "prediction_id": "prediction:l1v6:cluster:05:case:3",
+        "product_id": "product:l1v6:05",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:05:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:93b9e1fcdb7de7672d34d5e3c51a3f97c012382f4cd2c823e5d620400f938c11",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:05:case:4",
+        "cluster_id": "l1v6:cluster:05",
+        "decision_id": "decision:l1v6:cluster:05:case:4",
+        "prediction_id": "prediction:l1v6:cluster:05:case:4",
+        "product_id": "product:l1v6:05",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:05:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:b4adce99c3d4c63aa04b0046ff6bf532e9f000b2f2be26bf7ad7171763680bbe",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:06:case:1",
+        "cluster_id": "l1v6:cluster:06",
+        "decision_id": "decision:l1v6:cluster:06:case:1",
+        "prediction_id": "prediction:l1v6:cluster:06:case:1",
+        "product_id": "product:l1v6:06",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:06:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:af1275a2050ee00fa68fd6bb8ddd753a06a0dd6f9a366c6a28ae5af4091cefdd",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:06:case:2",
+        "cluster_id": "l1v6:cluster:06",
+        "decision_id": "decision:l1v6:cluster:06:case:2",
+        "prediction_id": "prediction:l1v6:cluster:06:case:2",
+        "product_id": "product:l1v6:06",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:06:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:e785e3706d6121f324fe4f6c8a53376c4be5981bf192605f3e29b73f8f57e2e5",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:06:case:3",
+        "cluster_id": "l1v6:cluster:06",
+        "decision_id": "decision:l1v6:cluster:06:case:3",
+        "prediction_id": "prediction:l1v6:cluster:06:case:3",
+        "product_id": "product:l1v6:06",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:06:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:363a4033d989bc254e233c196d5df8e93912b3e575fe3e516736eddcb1c6ef2a",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:06:case:4",
+        "cluster_id": "l1v6:cluster:06",
+        "decision_id": "decision:l1v6:cluster:06:case:4",
+        "prediction_id": "prediction:l1v6:cluster:06:case:4",
+        "product_id": "product:l1v6:06",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:06:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:6a11f98716d24f70263783c1b4e132680cb69a4b7b708ce8862cc947f81a9c94",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:07:case:1",
+        "cluster_id": "l1v6:cluster:07",
+        "decision_id": "decision:l1v6:cluster:07:case:1",
+        "prediction_id": "prediction:l1v6:cluster:07:case:1",
+        "product_id": "product:l1v6:07",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:07:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:df37a90cfaa105879d2c40a027988584c74f0638408a81e7f8aa2b135f6c2091",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:07:case:2",
+        "cluster_id": "l1v6:cluster:07",
+        "decision_id": "decision:l1v6:cluster:07:case:2",
+        "prediction_id": "prediction:l1v6:cluster:07:case:2",
+        "product_id": "product:l1v6:07",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:07:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:52b9a1ab86d3e3509da7f65838b092e5176d1b68f908aac84eea2cd6b0af2a4a",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:07:case:3",
+        "cluster_id": "l1v6:cluster:07",
+        "decision_id": "decision:l1v6:cluster:07:case:3",
+        "prediction_id": "prediction:l1v6:cluster:07:case:3",
+        "product_id": "product:l1v6:07",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:07:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:f4a2871f7eb246a907ae2916b257b005ffa2f6be981be5fb007f38a6847195fb",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:07:case:4",
+        "cluster_id": "l1v6:cluster:07",
+        "decision_id": "decision:l1v6:cluster:07:case:4",
+        "prediction_id": "prediction:l1v6:cluster:07:case:4",
+        "product_id": "product:l1v6:07",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:07:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:033e2a69ed60ab1db968af17b442ca7796a8036b6fe380f9bc9a62f6d5fcaa38",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:08:case:1",
+        "cluster_id": "l1v6:cluster:08",
+        "decision_id": "decision:l1v6:cluster:08:case:1",
+        "prediction_id": "prediction:l1v6:cluster:08:case:1",
+        "product_id": "product:l1v6:08",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:08:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:b5cc2421d451bc22ae0f8234e1b41ac128f45081baf37be2e96e7c6f54e4df7a",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:08:case:2",
+        "cluster_id": "l1v6:cluster:08",
+        "decision_id": "decision:l1v6:cluster:08:case:2",
+        "prediction_id": "prediction:l1v6:cluster:08:case:2",
+        "product_id": "product:l1v6:08",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:08:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:275eac06cc9cf6e3b941eda1db102840ce0e14bfcc82766bedc80d05ad9270d9",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:08:case:3",
+        "cluster_id": "l1v6:cluster:08",
+        "decision_id": "decision:l1v6:cluster:08:case:3",
+        "prediction_id": "prediction:l1v6:cluster:08:case:3",
+        "product_id": "product:l1v6:08",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:08:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:2fd15b84dcdd1def3090adfe2a3bc9f9f7454971d7d56bade92443aa7db6d54d",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:08:case:4",
+        "cluster_id": "l1v6:cluster:08",
+        "decision_id": "decision:l1v6:cluster:08:case:4",
+        "prediction_id": "prediction:l1v6:cluster:08:case:4",
+        "product_id": "product:l1v6:08",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:08:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:d6e14245cd2c1ec35e3db78a1bf6d439416fabe0b16d2a3a7548e01295c075a8",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:09:case:1",
+        "cluster_id": "l1v6:cluster:09",
+        "decision_id": "decision:l1v6:cluster:09:case:1",
+        "prediction_id": "prediction:l1v6:cluster:09:case:1",
+        "product_id": "product:l1v6:09",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:09:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:315eb38ad2580627a3343f60529d1e93af1d19dfb3b404f382a7c71873b8d64d",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:09:case:2",
+        "cluster_id": "l1v6:cluster:09",
+        "decision_id": "decision:l1v6:cluster:09:case:2",
+        "prediction_id": "prediction:l1v6:cluster:09:case:2",
+        "product_id": "product:l1v6:09",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:09:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:2f093e994ec7f65c31b12f70d920d370134cdbee77e5863f930572998dbd2b36",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:09:case:3",
+        "cluster_id": "l1v6:cluster:09",
+        "decision_id": "decision:l1v6:cluster:09:case:3",
+        "prediction_id": "prediction:l1v6:cluster:09:case:3",
+        "product_id": "product:l1v6:09",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:09:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:d4f544c3018869c534e840c88b50001fc524a1266a1759c504344614c0b0a8a0",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:09:case:4",
+        "cluster_id": "l1v6:cluster:09",
+        "decision_id": "decision:l1v6:cluster:09:case:4",
+        "prediction_id": "prediction:l1v6:cluster:09:case:4",
+        "product_id": "product:l1v6:09",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:09:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:7d0540b1e8d788db557c335ff627f1ca648600d0d879934f5b7bb382cb0109c3",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:10:case:1",
+        "cluster_id": "l1v6:cluster:10",
+        "decision_id": "decision:l1v6:cluster:10:case:1",
+        "prediction_id": "prediction:l1v6:cluster:10:case:1",
+        "product_id": "product:l1v6:10",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:10:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:9dd56414a2eb7c73802e414fd1a7c4690d8aaaf9189bc29f06f8c61627e82761",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:10:case:2",
+        "cluster_id": "l1v6:cluster:10",
+        "decision_id": "decision:l1v6:cluster:10:case:2",
+        "prediction_id": "prediction:l1v6:cluster:10:case:2",
+        "product_id": "product:l1v6:10",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:10:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:e312ed33096cf3ae0ef9d548e07fda3005be96430a9a26f72c60db3d0f10ac0f",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:10:case:3",
+        "cluster_id": "l1v6:cluster:10",
+        "decision_id": "decision:l1v6:cluster:10:case:3",
+        "prediction_id": "prediction:l1v6:cluster:10:case:3",
+        "product_id": "product:l1v6:10",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:10:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:cd2983ce8c363c6576392bc71db257eb35d3fd68de35380ad6c4de43aaa65cb5",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:10:case:4",
+        "cluster_id": "l1v6:cluster:10",
+        "decision_id": "decision:l1v6:cluster:10:case:4",
+        "prediction_id": "prediction:l1v6:cluster:10:case:4",
+        "product_id": "product:l1v6:10",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:10:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:cdcff1d1d8fce699f501d177500a34de9e0386f30ce2d98c903490c8c952515c",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:11:case:1",
+        "cluster_id": "l1v6:cluster:11",
+        "decision_id": "decision:l1v6:cluster:11:case:1",
+        "prediction_id": "prediction:l1v6:cluster:11:case:1",
+        "product_id": "product:l1v6:11",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:11:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:b299b438eca9e80f47caa6c88b223face668d5cd76faed56b584ed1b47e3df29",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:11:case:2",
+        "cluster_id": "l1v6:cluster:11",
+        "decision_id": "decision:l1v6:cluster:11:case:2",
+        "prediction_id": "prediction:l1v6:cluster:11:case:2",
+        "product_id": "product:l1v6:11",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:11:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:e8bbf177b22f7e17556f241e387781f0301903b64d57e66a4305cbf49d1cff3e",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:11:case:3",
+        "cluster_id": "l1v6:cluster:11",
+        "decision_id": "decision:l1v6:cluster:11:case:3",
+        "prediction_id": "prediction:l1v6:cluster:11:case:3",
+        "product_id": "product:l1v6:11",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:11:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:f6e8164d137b976fc4bb92a8d4fb3743a95bc3b765c8de5646f36b0650eec276",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:11:case:4",
+        "cluster_id": "l1v6:cluster:11",
+        "decision_id": "decision:l1v6:cluster:11:case:4",
+        "prediction_id": "prediction:l1v6:cluster:11:case:4",
+        "product_id": "product:l1v6:11",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:11:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:c992651cfb40cc610e276f6c2366f2b11d667f6f62d054d2313481a546d7a0d6",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:12:case:1",
+        "cluster_id": "l1v6:cluster:12",
+        "decision_id": "decision:l1v6:cluster:12:case:1",
+        "prediction_id": "prediction:l1v6:cluster:12:case:1",
+        "product_id": "product:l1v6:12",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:12:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:63c290bd7c85b0fe60041d4db66ee779da0cbd556ed7d1d1edce7b2e9b865796",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:12:case:2",
+        "cluster_id": "l1v6:cluster:12",
+        "decision_id": "decision:l1v6:cluster:12:case:2",
+        "prediction_id": "prediction:l1v6:cluster:12:case:2",
+        "product_id": "product:l1v6:12",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:12:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:20e6a83b1176cdae1588ed7aa2e289db218ca832a1e6bed143b316f11a9f53c8",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:12:case:3",
+        "cluster_id": "l1v6:cluster:12",
+        "decision_id": "decision:l1v6:cluster:12:case:3",
+        "prediction_id": "prediction:l1v6:cluster:12:case:3",
+        "product_id": "product:l1v6:12",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:12:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:081988f9a89c65d694f6b67615547949daf91496f39ed92129d1e697616b7705",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:12:case:4",
+        "cluster_id": "l1v6:cluster:12",
+        "decision_id": "decision:l1v6:cluster:12:case:4",
+        "prediction_id": "prediction:l1v6:cluster:12:case:4",
+        "product_id": "product:l1v6:12",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:12:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:4f93a61a767f678db8d962a881261b9067739dfc01f367c242f24f2fe53b8b87",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:13:case:1",
+        "cluster_id": "l1v6:cluster:13",
+        "decision_id": "decision:l1v6:cluster:13:case:1",
+        "prediction_id": "prediction:l1v6:cluster:13:case:1",
+        "product_id": "product:l1v6:13",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:13:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:844fe6d56949b95d63a3412343f82ed4a6dbda59958397944ddd49a3e80a049b",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:13:case:2",
+        "cluster_id": "l1v6:cluster:13",
+        "decision_id": "decision:l1v6:cluster:13:case:2",
+        "prediction_id": "prediction:l1v6:cluster:13:case:2",
+        "product_id": "product:l1v6:13",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:13:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:e69ef06aa4a0f4e8194ede277dde2d1664009861c8f5e0b0fa4735ae1de55918",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:13:case:3",
+        "cluster_id": "l1v6:cluster:13",
+        "decision_id": "decision:l1v6:cluster:13:case:3",
+        "prediction_id": "prediction:l1v6:cluster:13:case:3",
+        "product_id": "product:l1v6:13",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:13:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:b17a73fa0586335399f66121e44da2c6bb4705d1c4db564aa322d263aa9832ce",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:13:case:4",
+        "cluster_id": "l1v6:cluster:13",
+        "decision_id": "decision:l1v6:cluster:13:case:4",
+        "prediction_id": "prediction:l1v6:cluster:13:case:4",
+        "product_id": "product:l1v6:13",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:13:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:f78708af9d778141e247857177160538e47c64829080a530f68c651780bd1c6e",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:14:case:1",
+        "cluster_id": "l1v6:cluster:14",
+        "decision_id": "decision:l1v6:cluster:14:case:1",
+        "prediction_id": "prediction:l1v6:cluster:14:case:1",
+        "product_id": "product:l1v6:14",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:14:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:8cc96ee69b0d2e181b248ffacb7bc0b5175114edbea02aa5089025f4f36c7f44",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:14:case:2",
+        "cluster_id": "l1v6:cluster:14",
+        "decision_id": "decision:l1v6:cluster:14:case:2",
+        "prediction_id": "prediction:l1v6:cluster:14:case:2",
+        "product_id": "product:l1v6:14",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:14:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:0f37601fa84a104eca62fb611c7813ee28d536e69cee6a39a5c34bd333c178e7",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:14:case:3",
+        "cluster_id": "l1v6:cluster:14",
+        "decision_id": "decision:l1v6:cluster:14:case:3",
+        "prediction_id": "prediction:l1v6:cluster:14:case:3",
+        "product_id": "product:l1v6:14",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:14:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:b0c187fdaa58a46b289e0d23be09bd27fd8b2157670d1158685ca0fd01db39d9",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:14:case:4",
+        "cluster_id": "l1v6:cluster:14",
+        "decision_id": "decision:l1v6:cluster:14:case:4",
+        "prediction_id": "prediction:l1v6:cluster:14:case:4",
+        "product_id": "product:l1v6:14",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:14:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:2baaaefb638bbfd2e1874b694c51c4b1e8ff913baf9ed46347349d5c3ebecbd5",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:15:case:1",
+        "cluster_id": "l1v6:cluster:15",
+        "decision_id": "decision:l1v6:cluster:15:case:1",
+        "prediction_id": "prediction:l1v6:cluster:15:case:1",
+        "product_id": "product:l1v6:15",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:15:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:986da68e55a44c68a4484f4b636bdd403c9e75930d2c32a4688d4c6dd6f5e7f9",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:15:case:2",
+        "cluster_id": "l1v6:cluster:15",
+        "decision_id": "decision:l1v6:cluster:15:case:2",
+        "prediction_id": "prediction:l1v6:cluster:15:case:2",
+        "product_id": "product:l1v6:15",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:15:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:264ca24a530fb277abb9ec206bf7cc853905925cc3c516fd36b38d8148f052d7",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:15:case:3",
+        "cluster_id": "l1v6:cluster:15",
+        "decision_id": "decision:l1v6:cluster:15:case:3",
+        "prediction_id": "prediction:l1v6:cluster:15:case:3",
+        "product_id": "product:l1v6:15",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:15:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:d65b41b3fccc23669abdd206e43a74839b99728aeb944484123e75eb849b0606",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:15:case:4",
+        "cluster_id": "l1v6:cluster:15",
+        "decision_id": "decision:l1v6:cluster:15:case:4",
+        "prediction_id": "prediction:l1v6:cluster:15:case:4",
+        "product_id": "product:l1v6:15",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:15:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:1329a72441bced78bf7cb95239659f4dfb14bd4b5b56b7987babf0a979115fb6",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:16:case:1",
+        "cluster_id": "l1v6:cluster:16",
+        "decision_id": "decision:l1v6:cluster:16:case:1",
+        "prediction_id": "prediction:l1v6:cluster:16:case:1",
+        "product_id": "product:l1v6:16",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:16:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:5a0327bbd651ded0d8398e47de1fb1af1d76ef3688c7174a1cd84e02d180514a",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:16:case:2",
+        "cluster_id": "l1v6:cluster:16",
+        "decision_id": "decision:l1v6:cluster:16:case:2",
+        "prediction_id": "prediction:l1v6:cluster:16:case:2",
+        "product_id": "product:l1v6:16",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:16:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:e4486f276163baed2cc062b216c01920f231424af31cc371e7ccffe31176eda4",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:16:case:3",
+        "cluster_id": "l1v6:cluster:16",
+        "decision_id": "decision:l1v6:cluster:16:case:3",
+        "prediction_id": "prediction:l1v6:cluster:16:case:3",
+        "product_id": "product:l1v6:16",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:16:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:d8f3f475b75fecf0f4e2a5a1c14ac44f3a7cd1643cd8932d7aa56f10b01ac546",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:16:case:4",
+        "cluster_id": "l1v6:cluster:16",
+        "decision_id": "decision:l1v6:cluster:16:case:4",
+        "prediction_id": "prediction:l1v6:cluster:16:case:4",
+        "product_id": "product:l1v6:16",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:16:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:86aeaf4f01c8b06c3147023e8371254aa3d986d1e333962d504c26cf97c4fdf5",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:17:case:1",
+        "cluster_id": "l1v6:cluster:17",
+        "decision_id": "decision:l1v6:cluster:17:case:1",
+        "prediction_id": "prediction:l1v6:cluster:17:case:1",
+        "product_id": "product:l1v6:17",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:17:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:aa5014a6fac2cdb9dd72aabb5d05d1e8318afe2d47ee6fb48a1544a660c58f70",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:17:case:2",
+        "cluster_id": "l1v6:cluster:17",
+        "decision_id": "decision:l1v6:cluster:17:case:2",
+        "prediction_id": "prediction:l1v6:cluster:17:case:2",
+        "product_id": "product:l1v6:17",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:17:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:176f62f5f5b501f9386214d3f71a79a459c34bffca21ce2a926f4e208b89c9cb",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:17:case:3",
+        "cluster_id": "l1v6:cluster:17",
+        "decision_id": "decision:l1v6:cluster:17:case:3",
+        "prediction_id": "prediction:l1v6:cluster:17:case:3",
+        "product_id": "product:l1v6:17",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:17:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:532cca2d4886b20d2c314ee9b78afebab29db9a2ae79a3e3ca58069c66e7a505",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:17:case:4",
+        "cluster_id": "l1v6:cluster:17",
+        "decision_id": "decision:l1v6:cluster:17:case:4",
+        "prediction_id": "prediction:l1v6:cluster:17:case:4",
+        "product_id": "product:l1v6:17",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:17:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:3c71640ed4ec6d9e3638aba172b067ddb545913f3fa1c6659a99aada078c354b",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:18:case:1",
+        "cluster_id": "l1v6:cluster:18",
+        "decision_id": "decision:l1v6:cluster:18:case:1",
+        "prediction_id": "prediction:l1v6:cluster:18:case:1",
+        "product_id": "product:l1v6:18",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:18:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:76a0a50da0424ab8ffb9f793b793ce712964648d364760994603977777dd12e9",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:18:case:2",
+        "cluster_id": "l1v6:cluster:18",
+        "decision_id": "decision:l1v6:cluster:18:case:2",
+        "prediction_id": "prediction:l1v6:cluster:18:case:2",
+        "product_id": "product:l1v6:18",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:18:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:3924ed9594b6b0b71a8a07925bc685fb34aead7e900b086ba412891fc063af44",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:18:case:3",
+        "cluster_id": "l1v6:cluster:18",
+        "decision_id": "decision:l1v6:cluster:18:case:3",
+        "prediction_id": "prediction:l1v6:cluster:18:case:3",
+        "product_id": "product:l1v6:18",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:18:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:1b21b0450a073f77f142a8ccbb290d8ffadbeff6dcb09ec3a958947ab4400f67",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:18:case:4",
+        "cluster_id": "l1v6:cluster:18",
+        "decision_id": "decision:l1v6:cluster:18:case:4",
+        "prediction_id": "prediction:l1v6:cluster:18:case:4",
+        "product_id": "product:l1v6:18",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:18:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:05822b43cbb1c86fd7150349cf82b1e94387e532a540e5fe9e185b335765df14",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:19:case:1",
+        "cluster_id": "l1v6:cluster:19",
+        "decision_id": "decision:l1v6:cluster:19:case:1",
+        "prediction_id": "prediction:l1v6:cluster:19:case:1",
+        "product_id": "product:l1v6:19",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:19:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:7bcc99458cafb5bc3d048a0cbbaf7ad0e391741472bc4db6e99a7e1516afebfe",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:19:case:2",
+        "cluster_id": "l1v6:cluster:19",
+        "decision_id": "decision:l1v6:cluster:19:case:2",
+        "prediction_id": "prediction:l1v6:cluster:19:case:2",
+        "product_id": "product:l1v6:19",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:19:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:2efeeade8bba19df850582941e0fe47ddf6c76d8a7ef8a926b633e425b03888e",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:19:case:3",
+        "cluster_id": "l1v6:cluster:19",
+        "decision_id": "decision:l1v6:cluster:19:case:3",
+        "prediction_id": "prediction:l1v6:cluster:19:case:3",
+        "product_id": "product:l1v6:19",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:19:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:859fed51ab4fd4078313b2262996b0805b7afd400380efbc4524bb090eb9e823",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:19:case:4",
+        "cluster_id": "l1v6:cluster:19",
+        "decision_id": "decision:l1v6:cluster:19:case:4",
+        "prediction_id": "prediction:l1v6:cluster:19:case:4",
+        "product_id": "product:l1v6:19",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:19:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:7d0f9f03aa02d3c8c344d4cf1cf4f1adac0ea32f8aa9f46159ef765763599e39",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:20:case:1",
+        "cluster_id": "l1v6:cluster:20",
+        "decision_id": "decision:l1v6:cluster:20:case:1",
+        "prediction_id": "prediction:l1v6:cluster:20:case:1",
+        "product_id": "product:l1v6:20",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:20:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:1cb6411179334092b1dafcc1bb42a4a9014f6d541b4b3a08d6675ad0cd0fa963",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:20:case:2",
+        "cluster_id": "l1v6:cluster:20",
+        "decision_id": "decision:l1v6:cluster:20:case:2",
+        "prediction_id": "prediction:l1v6:cluster:20:case:2",
+        "product_id": "product:l1v6:20",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:20:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:502e9d2369f49e8d0aaab2f88230fe2dae0383cbd4ba44ff8d1f6888d8b5c5f6",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:20:case:3",
+        "cluster_id": "l1v6:cluster:20",
+        "decision_id": "decision:l1v6:cluster:20:case:3",
+        "prediction_id": "prediction:l1v6:cluster:20:case:3",
+        "product_id": "product:l1v6:20",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:20:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:04643c4c2e42faf9ee722f2e89671a54ca99ba2d6cf225effb121c165a2f0d6c",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:20:case:4",
+        "cluster_id": "l1v6:cluster:20",
+        "decision_id": "decision:l1v6:cluster:20:case:4",
+        "prediction_id": "prediction:l1v6:cluster:20:case:4",
+        "product_id": "product:l1v6:20",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:20:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:67070701c5a155437b3a44139870a319ccb19a8349ee050d56078b16ed3cc78c",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:21:case:1",
+        "cluster_id": "l1v6:cluster:21",
+        "decision_id": "decision:l1v6:cluster:21:case:1",
+        "prediction_id": "prediction:l1v6:cluster:21:case:1",
+        "product_id": "product:l1v6:21",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:21:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:c3b3f3518dee3847d461d0eac663a5bbe73c75a9e4d1cd0d13c673d787368545",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:21:case:2",
+        "cluster_id": "l1v6:cluster:21",
+        "decision_id": "decision:l1v6:cluster:21:case:2",
+        "prediction_id": "prediction:l1v6:cluster:21:case:2",
+        "product_id": "product:l1v6:21",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:21:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:b629ac335d309820b389c5949b9667f58152a8b9b5a854c5a828e5481cf2ae11",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:21:case:3",
+        "cluster_id": "l1v6:cluster:21",
+        "decision_id": "decision:l1v6:cluster:21:case:3",
+        "prediction_id": "prediction:l1v6:cluster:21:case:3",
+        "product_id": "product:l1v6:21",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:21:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:f8ddcb6aeefbbafe9cf8d20eb653fd585fc5215097098aeac54f46238efbbe27",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:21:case:4",
+        "cluster_id": "l1v6:cluster:21",
+        "decision_id": "decision:l1v6:cluster:21:case:4",
+        "prediction_id": "prediction:l1v6:cluster:21:case:4",
+        "product_id": "product:l1v6:21",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:21:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:ddc702682de07e4ec09ab9c782437e6b6dc6e9992db52838a976a8b21fa13e7c",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:22:case:1",
+        "cluster_id": "l1v6:cluster:22",
+        "decision_id": "decision:l1v6:cluster:22:case:1",
+        "prediction_id": "prediction:l1v6:cluster:22:case:1",
+        "product_id": "product:l1v6:22",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:22:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:fa2074b07820dd7a21d01f7ec97333893eeb1e84f11c8d5d5938c9fabef304dd",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:22:case:2",
+        "cluster_id": "l1v6:cluster:22",
+        "decision_id": "decision:l1v6:cluster:22:case:2",
+        "prediction_id": "prediction:l1v6:cluster:22:case:2",
+        "product_id": "product:l1v6:22",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:22:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:f50b70712fd42123024338593fcef8059e4c951b0472860ad0fde25595162b5b",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:22:case:3",
+        "cluster_id": "l1v6:cluster:22",
+        "decision_id": "decision:l1v6:cluster:22:case:3",
+        "prediction_id": "prediction:l1v6:cluster:22:case:3",
+        "product_id": "product:l1v6:22",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:22:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:05932ae5f3d2597d29d0cb31c50c8ca209488d5149467a2317f63c00ce52a50c",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:22:case:4",
+        "cluster_id": "l1v6:cluster:22",
+        "decision_id": "decision:l1v6:cluster:22:case:4",
+        "prediction_id": "prediction:l1v6:cluster:22:case:4",
+        "product_id": "product:l1v6:22",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:22:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:02cbead3c6f412616eb5be65f0d15b2e0d8db82aab14d6597ff71bc730107a6f",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:23:case:1",
+        "cluster_id": "l1v6:cluster:23",
+        "decision_id": "decision:l1v6:cluster:23:case:1",
+        "prediction_id": "prediction:l1v6:cluster:23:case:1",
+        "product_id": "product:l1v6:23",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:23:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:c4042235780a7e2456527a9bc50c0b9a531baac676e087a006cbc6fddd4326b3",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:23:case:2",
+        "cluster_id": "l1v6:cluster:23",
+        "decision_id": "decision:l1v6:cluster:23:case:2",
+        "prediction_id": "prediction:l1v6:cluster:23:case:2",
+        "product_id": "product:l1v6:23",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:23:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:10172903ab075e60ae9ebebe12b23124185c02ed9a55b438871791d64a16ac3c",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:23:case:3",
+        "cluster_id": "l1v6:cluster:23",
+        "decision_id": "decision:l1v6:cluster:23:case:3",
+        "prediction_id": "prediction:l1v6:cluster:23:case:3",
+        "product_id": "product:l1v6:23",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:23:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:00e70fabfaeed96eeb38dc8e77da5ca8fd639d625c8301b853e60ecbbec5fe22",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:23:case:4",
+        "cluster_id": "l1v6:cluster:23",
+        "decision_id": "decision:l1v6:cluster:23:case:4",
+        "prediction_id": "prediction:l1v6:cluster:23:case:4",
+        "product_id": "product:l1v6:23",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:23:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:f6527ffee2179b865fe8d7277f6bd044d628e47b9196f8543bd28743f1fa65a0",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:24:case:1",
+        "cluster_id": "l1v6:cluster:24",
+        "decision_id": "decision:l1v6:cluster:24:case:1",
+        "prediction_id": "prediction:l1v6:cluster:24:case:1",
+        "product_id": "product:l1v6:24",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:24:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:6b5be9f03bd449359b180ec5e9374038f5a520740ee8ad327557a0be762530f3",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:24:case:2",
+        "cluster_id": "l1v6:cluster:24",
+        "decision_id": "decision:l1v6:cluster:24:case:2",
+        "prediction_id": "prediction:l1v6:cluster:24:case:2",
+        "product_id": "product:l1v6:24",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:24:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:76852184ebc8c5f0a6b44ec7b517fa221a284bc9829958c4fb12db240c8979b2",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:24:case:3",
+        "cluster_id": "l1v6:cluster:24",
+        "decision_id": "decision:l1v6:cluster:24:case:3",
+        "prediction_id": "prediction:l1v6:cluster:24:case:3",
+        "product_id": "product:l1v6:24",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:24:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:12dd9700c5a52833b3eafbd01646974f4c0d600b427d4a85aa65889c3bd9e982",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:24:case:4",
+        "cluster_id": "l1v6:cluster:24",
+        "decision_id": "decision:l1v6:cluster:24:case:4",
+        "prediction_id": "prediction:l1v6:cluster:24:case:4",
+        "product_id": "product:l1v6:24",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:24:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:8cb745303fc60878f559185c99b856b70de56db42fbd65bfc5f2d47bae31fd92",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:25:case:1",
+        "cluster_id": "l1v6:cluster:25",
+        "decision_id": "decision:l1v6:cluster:25:case:1",
+        "prediction_id": "prediction:l1v6:cluster:25:case:1",
+        "product_id": "product:l1v6:25",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:25:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:732288c84d8ffc63cb74d49c49e85170847607b52fdbf262e4915d3bfd24ed62",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:25:case:2",
+        "cluster_id": "l1v6:cluster:25",
+        "decision_id": "decision:l1v6:cluster:25:case:2",
+        "prediction_id": "prediction:l1v6:cluster:25:case:2",
+        "product_id": "product:l1v6:25",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:25:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:c7a27b5d89c6adeb0ce6f0e96758558ed8f133ed59df2e36e939fd7fa0f2cbd5",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:25:case:3",
+        "cluster_id": "l1v6:cluster:25",
+        "decision_id": "decision:l1v6:cluster:25:case:3",
+        "prediction_id": "prediction:l1v6:cluster:25:case:3",
+        "product_id": "product:l1v6:25",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:25:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:79241744d777eb98f0fd7e66bd005ce7ca8c755e20f5a0523e615bc9591c3644",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:25:case:4",
+        "cluster_id": "l1v6:cluster:25",
+        "decision_id": "decision:l1v6:cluster:25:case:4",
+        "prediction_id": "prediction:l1v6:cluster:25:case:4",
+        "product_id": "product:l1v6:25",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:25:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:e645f103596c1f0ec5d641cb9ce4f5991830c15318c18a589f29134f871bab75",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:26:case:1",
+        "cluster_id": "l1v6:cluster:26",
+        "decision_id": "decision:l1v6:cluster:26:case:1",
+        "prediction_id": "prediction:l1v6:cluster:26:case:1",
+        "product_id": "product:l1v6:26",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:26:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:52a6cff30ad00a6e0b52df7fe8bb75ae9c399995efb074cda799967f99314637",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:26:case:2",
+        "cluster_id": "l1v6:cluster:26",
+        "decision_id": "decision:l1v6:cluster:26:case:2",
+        "prediction_id": "prediction:l1v6:cluster:26:case:2",
+        "product_id": "product:l1v6:26",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:26:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:8b09ad64bde9501ae48c81aa20cfee56388730f09eb2f88575f97abfa795a919",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:26:case:3",
+        "cluster_id": "l1v6:cluster:26",
+        "decision_id": "decision:l1v6:cluster:26:case:3",
+        "prediction_id": "prediction:l1v6:cluster:26:case:3",
+        "product_id": "product:l1v6:26",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:26:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:8fff2dfbecadf64781fc679d2fe97b4b901e8dd02fa3288fefc783ed7c1e5d84",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:26:case:4",
+        "cluster_id": "l1v6:cluster:26",
+        "decision_id": "decision:l1v6:cluster:26:case:4",
+        "prediction_id": "prediction:l1v6:cluster:26:case:4",
+        "product_id": "product:l1v6:26",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:26:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:6fe7ba5d8d53c707dda0aeadafdb54e0c0667e5394f4b6fe3dd84ddfc1db71ba",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:27:case:1",
+        "cluster_id": "l1v6:cluster:27",
+        "decision_id": "decision:l1v6:cluster:27:case:1",
+        "prediction_id": "prediction:l1v6:cluster:27:case:1",
+        "product_id": "product:l1v6:27",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:27:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:082613aebd8c8d3710d9f30d59f776ad8b0b69c7442f836afda64199a78cabe0",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:27:case:2",
+        "cluster_id": "l1v6:cluster:27",
+        "decision_id": "decision:l1v6:cluster:27:case:2",
+        "prediction_id": "prediction:l1v6:cluster:27:case:2",
+        "product_id": "product:l1v6:27",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:27:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:f8c7a5a3bebdbbc4ccdf303598936d3cc798d54de5676c3fcec54829420200e6",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:27:case:3",
+        "cluster_id": "l1v6:cluster:27",
+        "decision_id": "decision:l1v6:cluster:27:case:3",
+        "prediction_id": "prediction:l1v6:cluster:27:case:3",
+        "product_id": "product:l1v6:27",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:27:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:7460ab006892ad883bf522e6b494c1cf42a773149319456bf1155cc3184aa822",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:27:case:4",
+        "cluster_id": "l1v6:cluster:27",
+        "decision_id": "decision:l1v6:cluster:27:case:4",
+        "prediction_id": "prediction:l1v6:cluster:27:case:4",
+        "product_id": "product:l1v6:27",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:27:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:7115577182418b83a7b7d8c8196e61b33376b6721c6adaa6d91d680f9f40bfd2",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:28:case:1",
+        "cluster_id": "l1v6:cluster:28",
+        "decision_id": "decision:l1v6:cluster:28:case:1",
+        "prediction_id": "prediction:l1v6:cluster:28:case:1",
+        "product_id": "product:l1v6:28",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:28:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:b4c87fbf74af0f6413e635588871347f39a142c7d912ebe2068f7fa22e4537f7",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:28:case:2",
+        "cluster_id": "l1v6:cluster:28",
+        "decision_id": "decision:l1v6:cluster:28:case:2",
+        "prediction_id": "prediction:l1v6:cluster:28:case:2",
+        "product_id": "product:l1v6:28",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:28:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:85bf983f9d5305e09dac85667a58a9988905d0e5700c4e908efcdfda1150c262",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:28:case:3",
+        "cluster_id": "l1v6:cluster:28",
+        "decision_id": "decision:l1v6:cluster:28:case:3",
+        "prediction_id": "prediction:l1v6:cluster:28:case:3",
+        "product_id": "product:l1v6:28",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:28:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:a1ba9ecee1a9eb2839132401aa06aec18ebf50c9318e46089c4cb43172f6869e",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:28:case:4",
+        "cluster_id": "l1v6:cluster:28",
+        "decision_id": "decision:l1v6:cluster:28:case:4",
+        "prediction_id": "prediction:l1v6:cluster:28:case:4",
+        "product_id": "product:l1v6:28",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:28:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:3a06eecdd6ee0fcd9a5b669f0e2b79edb704b6714a2955c07c02216ae42a5d9a",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:29:case:1",
+        "cluster_id": "l1v6:cluster:29",
+        "decision_id": "decision:l1v6:cluster:29:case:1",
+        "prediction_id": "prediction:l1v6:cluster:29:case:1",
+        "product_id": "product:l1v6:29",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:29:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:af4eca66884c1a33ab3d3f7c5ad2a5d52cd61cf821b2a527bd8fdb02ba502ab5",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:29:case:2",
+        "cluster_id": "l1v6:cluster:29",
+        "decision_id": "decision:l1v6:cluster:29:case:2",
+        "prediction_id": "prediction:l1v6:cluster:29:case:2",
+        "product_id": "product:l1v6:29",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:29:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:a34c49dcb57ed3fa563229c654c00b95aec06cad08acc99a66ea8440af0f8467",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:29:case:3",
+        "cluster_id": "l1v6:cluster:29",
+        "decision_id": "decision:l1v6:cluster:29:case:3",
+        "prediction_id": "prediction:l1v6:cluster:29:case:3",
+        "product_id": "product:l1v6:29",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:29:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:4b1298ca13252698bf78bcb8ac132623ea2edf9faf711598f4eb31ffbdc09193",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:29:case:4",
+        "cluster_id": "l1v6:cluster:29",
+        "decision_id": "decision:l1v6:cluster:29:case:4",
+        "prediction_id": "prediction:l1v6:cluster:29:case:4",
+        "product_id": "product:l1v6:29",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:29:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:71e47492213134193fa341d6e33e2c32c1a0b296212c0d31dceb015b91e25b69",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:30:case:1",
+        "cluster_id": "l1v6:cluster:30",
+        "decision_id": "decision:l1v6:cluster:30:case:1",
+        "prediction_id": "prediction:l1v6:cluster:30:case:1",
+        "product_id": "product:l1v6:30",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:30:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:7c12232d94d2e62b0f53f55c13a717d9a8ecafedaa8b660990386327ccbcf81c",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:30:case:2",
+        "cluster_id": "l1v6:cluster:30",
+        "decision_id": "decision:l1v6:cluster:30:case:2",
+        "prediction_id": "prediction:l1v6:cluster:30:case:2",
+        "product_id": "product:l1v6:30",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:30:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:3852a1b6dd9aa1e6d4e27292efbdd80178ba6ecbf461b48fae1f53e10ef08ae9",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:30:case:3",
+        "cluster_id": "l1v6:cluster:30",
+        "decision_id": "decision:l1v6:cluster:30:case:3",
+        "prediction_id": "prediction:l1v6:cluster:30:case:3",
+        "product_id": "product:l1v6:30",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:30:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:4a36dd047b15b4366941e79ccaeaed6fe9a1d9d9f4978ced5573299aa2334361",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:30:case:4",
+        "cluster_id": "l1v6:cluster:30",
+        "decision_id": "decision:l1v6:cluster:30:case:4",
+        "prediction_id": "prediction:l1v6:cluster:30:case:4",
+        "product_id": "product:l1v6:30",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:30:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:6bb6c985de652e825ce54ed600848fec0e806383a112879c389bf404c5e57a4d",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:31:case:1",
+        "cluster_id": "l1v6:cluster:31",
+        "decision_id": "decision:l1v6:cluster:31:case:1",
+        "prediction_id": "prediction:l1v6:cluster:31:case:1",
+        "product_id": "product:l1v6:31",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:31:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:e4861ca00aced93f0808fb78a262672ee6189f1e11b4c8c520034f9882d42621",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:31:case:2",
+        "cluster_id": "l1v6:cluster:31",
+        "decision_id": "decision:l1v6:cluster:31:case:2",
+        "prediction_id": "prediction:l1v6:cluster:31:case:2",
+        "product_id": "product:l1v6:31",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:31:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:0c54dae2b67aa59d10b4e8740fbc31da379581125798d70d0eb25c9f2c5b1fc5",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:31:case:3",
+        "cluster_id": "l1v6:cluster:31",
+        "decision_id": "decision:l1v6:cluster:31:case:3",
+        "prediction_id": "prediction:l1v6:cluster:31:case:3",
+        "product_id": "product:l1v6:31",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:31:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:e47b5c41e41078432cf2e0a3ebf23311fba7579c5b6be70192c10215c608777e",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:31:case:4",
+        "cluster_id": "l1v6:cluster:31",
+        "decision_id": "decision:l1v6:cluster:31:case:4",
+        "prediction_id": "prediction:l1v6:cluster:31:case:4",
+        "product_id": "product:l1v6:31",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:31:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:ceebf5f6c4ca8e7ef639d134cf2ef456c53e593a66d7d6b0074abfae34920c18",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:32:case:1",
+        "cluster_id": "l1v6:cluster:32",
+        "decision_id": "decision:l1v6:cluster:32:case:1",
+        "prediction_id": "prediction:l1v6:cluster:32:case:1",
+        "product_id": "product:l1v6:32",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:32:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:30f7ab13d38f6def22da8d271630d39f6fd3ca3dd1344ef22ee546b63b48bc03",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:32:case:2",
+        "cluster_id": "l1v6:cluster:32",
+        "decision_id": "decision:l1v6:cluster:32:case:2",
+        "prediction_id": "prediction:l1v6:cluster:32:case:2",
+        "product_id": "product:l1v6:32",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:32:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:fe071699abe1e5f93c3fbd3d9ccbca5d709b4442ba063521351d32da1230202c",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:32:case:3",
+        "cluster_id": "l1v6:cluster:32",
+        "decision_id": "decision:l1v6:cluster:32:case:3",
+        "prediction_id": "prediction:l1v6:cluster:32:case:3",
+        "product_id": "product:l1v6:32",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:32:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:4a7136dff44e75006f0bd371221aef4dc6f5906eb6508ac7defc4e8d9f58f6d1",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:32:case:4",
+        "cluster_id": "l1v6:cluster:32",
+        "decision_id": "decision:l1v6:cluster:32:case:4",
+        "prediction_id": "prediction:l1v6:cluster:32:case:4",
+        "product_id": "product:l1v6:32",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:32:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:9cc60bf8a2c3fe1170772150901d82ff777bc16fc802d37daff100cc7ccbbc80",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:33:case:1",
+        "cluster_id": "l1v6:cluster:33",
+        "decision_id": "decision:l1v6:cluster:33:case:1",
+        "prediction_id": "prediction:l1v6:cluster:33:case:1",
+        "product_id": "product:l1v6:33",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:33:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:a18fc06c47d90d0d22bf68d75591b662a44032e4b28b12de344764ac593e2048",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:33:case:2",
+        "cluster_id": "l1v6:cluster:33",
+        "decision_id": "decision:l1v6:cluster:33:case:2",
+        "prediction_id": "prediction:l1v6:cluster:33:case:2",
+        "product_id": "product:l1v6:33",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:33:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:6a3cb630b4db141371a2d756de8bd9dde78039ab5f384ffee0202325dbf8076c",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:33:case:3",
+        "cluster_id": "l1v6:cluster:33",
+        "decision_id": "decision:l1v6:cluster:33:case:3",
+        "prediction_id": "prediction:l1v6:cluster:33:case:3",
+        "product_id": "product:l1v6:33",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:33:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:77f3d36d89c57c57224008f0ef33dd7bfa88e0810560350a4732520ed12b871a",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:33:case:4",
+        "cluster_id": "l1v6:cluster:33",
+        "decision_id": "decision:l1v6:cluster:33:case:4",
+        "prediction_id": "prediction:l1v6:cluster:33:case:4",
+        "product_id": "product:l1v6:33",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:33:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:60a2b4bba5bdc0b6a442abfb73abb11d9a70391427deb3f0fc03529f173bdc06",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:34:case:1",
+        "cluster_id": "l1v6:cluster:34",
+        "decision_id": "decision:l1v6:cluster:34:case:1",
+        "prediction_id": "prediction:l1v6:cluster:34:case:1",
+        "product_id": "product:l1v6:34",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:34:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:4cebbfeffba22d96778edfaad30ec02a672444ed9614e77af454ed592595aeb8",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:34:case:2",
+        "cluster_id": "l1v6:cluster:34",
+        "decision_id": "decision:l1v6:cluster:34:case:2",
+        "prediction_id": "prediction:l1v6:cluster:34:case:2",
+        "product_id": "product:l1v6:34",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:34:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:7b02e4db7c4440f55becbe96d17a4658954091d4211782de650719e8f91705d3",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:34:case:3",
+        "cluster_id": "l1v6:cluster:34",
+        "decision_id": "decision:l1v6:cluster:34:case:3",
+        "prediction_id": "prediction:l1v6:cluster:34:case:3",
+        "product_id": "product:l1v6:34",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:34:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:6003d7bc5de6822711712f573cab427fc560f6b924d23d7c49ab4902bb59e944",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:34:case:4",
+        "cluster_id": "l1v6:cluster:34",
+        "decision_id": "decision:l1v6:cluster:34:case:4",
+        "prediction_id": "prediction:l1v6:cluster:34:case:4",
+        "product_id": "product:l1v6:34",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:34:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:8cc1142a61c7b625e8afd0973bb52d83a93596a24603b436119f18b9572fa6b0",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:35:case:1",
+        "cluster_id": "l1v6:cluster:35",
+        "decision_id": "decision:l1v6:cluster:35:case:1",
+        "prediction_id": "prediction:l1v6:cluster:35:case:1",
+        "product_id": "product:l1v6:35",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:35:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:a3c202c44b608f4b046632761bb8c0a54499ebad8e1cfcb9e58d20c044142383",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:35:case:2",
+        "cluster_id": "l1v6:cluster:35",
+        "decision_id": "decision:l1v6:cluster:35:case:2",
+        "prediction_id": "prediction:l1v6:cluster:35:case:2",
+        "product_id": "product:l1v6:35",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:35:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:cc5c9a313cc0c557b47e2b1864e9348548e2453a523a147fac322a080b135d5f",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:35:case:3",
+        "cluster_id": "l1v6:cluster:35",
+        "decision_id": "decision:l1v6:cluster:35:case:3",
+        "prediction_id": "prediction:l1v6:cluster:35:case:3",
+        "product_id": "product:l1v6:35",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:35:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:3fe51c1b49daa2eae7beead2de81f922f786c19d4f40b7af5c273a88543e956c",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:35:case:4",
+        "cluster_id": "l1v6:cluster:35",
+        "decision_id": "decision:l1v6:cluster:35:case:4",
+        "prediction_id": "prediction:l1v6:cluster:35:case:4",
+        "product_id": "product:l1v6:35",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:35:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:b724c35d57d8eae5a698a54d5ac43d38db07ecf4bb7aacb181d2d300dd39e11d",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:36:case:1",
+        "cluster_id": "l1v6:cluster:36",
+        "decision_id": "decision:l1v6:cluster:36:case:1",
+        "prediction_id": "prediction:l1v6:cluster:36:case:1",
+        "product_id": "product:l1v6:36",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:36:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:b27a3754a803fc4568bf2163c0b8a7c199fa228bc4a8b9cd3176d7de36533a74",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:36:case:2",
+        "cluster_id": "l1v6:cluster:36",
+        "decision_id": "decision:l1v6:cluster:36:case:2",
+        "prediction_id": "prediction:l1v6:cluster:36:case:2",
+        "product_id": "product:l1v6:36",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:36:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:fd4065813114561de8fac6171fb611da6b3aea9f0d6c081ec5ce9b6522cecf59",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:36:case:3",
+        "cluster_id": "l1v6:cluster:36",
+        "decision_id": "decision:l1v6:cluster:36:case:3",
+        "prediction_id": "prediction:l1v6:cluster:36:case:3",
+        "product_id": "product:l1v6:36",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:36:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:f9aeb7953b54e55cd810cf99fcb6fb359c9f8c22f3abe609cd4891427f0ac153",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:36:case:4",
+        "cluster_id": "l1v6:cluster:36",
+        "decision_id": "decision:l1v6:cluster:36:case:4",
+        "prediction_id": "prediction:l1v6:cluster:36:case:4",
+        "product_id": "product:l1v6:36",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:36:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:9b2c2600772c1d0930088e194b303b80184def4288e83236d426cd4373c5e839",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:37:case:1",
+        "cluster_id": "l1v6:cluster:37",
+        "decision_id": "decision:l1v6:cluster:37:case:1",
+        "prediction_id": "prediction:l1v6:cluster:37:case:1",
+        "product_id": "product:l1v6:37",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:37:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:dd1e0bf95ed904bd66ba76fb6846efe445d81416743f016e742e7169bb8f404f",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:37:case:2",
+        "cluster_id": "l1v6:cluster:37",
+        "decision_id": "decision:l1v6:cluster:37:case:2",
+        "prediction_id": "prediction:l1v6:cluster:37:case:2",
+        "product_id": "product:l1v6:37",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:37:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:c17b5d672b15d6a5d9afd99d05e0c209a3605b83e1ba43071d71ad362114e2ee",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:37:case:3",
+        "cluster_id": "l1v6:cluster:37",
+        "decision_id": "decision:l1v6:cluster:37:case:3",
+        "prediction_id": "prediction:l1v6:cluster:37:case:3",
+        "product_id": "product:l1v6:37",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:37:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:bf96d851ccac2af79eb52338004b2f94e674cf8066f6ac22c8bed84c00e119f7",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:37:case:4",
+        "cluster_id": "l1v6:cluster:37",
+        "decision_id": "decision:l1v6:cluster:37:case:4",
+        "prediction_id": "prediction:l1v6:cluster:37:case:4",
+        "product_id": "product:l1v6:37",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:37:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:2ab81c2c94d713942b63f435c3bb31e220001069c1137bfd13f0094c3f4f58da",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:38:case:1",
+        "cluster_id": "l1v6:cluster:38",
+        "decision_id": "decision:l1v6:cluster:38:case:1",
+        "prediction_id": "prediction:l1v6:cluster:38:case:1",
+        "product_id": "product:l1v6:38",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:38:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:b8b73fcd925cf96865621ab2000b39cb6e99d4ccc00afc36954c21242b585120",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:38:case:2",
+        "cluster_id": "l1v6:cluster:38",
+        "decision_id": "decision:l1v6:cluster:38:case:2",
+        "prediction_id": "prediction:l1v6:cluster:38:case:2",
+        "product_id": "product:l1v6:38",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:38:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:947e55501cf7a98501f98371fbc3a049944e888f557fc10a63708a91233b108f",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:38:case:3",
+        "cluster_id": "l1v6:cluster:38",
+        "decision_id": "decision:l1v6:cluster:38:case:3",
+        "prediction_id": "prediction:l1v6:cluster:38:case:3",
+        "product_id": "product:l1v6:38",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:38:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:966e22fccebb045bc306a6bd52928c4714752e1759512f07490e537a8c883bc1",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:38:case:4",
+        "cluster_id": "l1v6:cluster:38",
+        "decision_id": "decision:l1v6:cluster:38:case:4",
+        "prediction_id": "prediction:l1v6:cluster:38:case:4",
+        "product_id": "product:l1v6:38",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:38:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:4415c0ee1955f8be7cdc1eb60d1b834a1e7b89d2cd8b9287c9b0a9402d639a2e",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:39:case:1",
+        "cluster_id": "l1v6:cluster:39",
+        "decision_id": "decision:l1v6:cluster:39:case:1",
+        "prediction_id": "prediction:l1v6:cluster:39:case:1",
+        "product_id": "product:l1v6:39",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:39:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:108032bc7ee96a71be3dad09331f107628df021970f2eb0187441a473ac71333",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:39:case:2",
+        "cluster_id": "l1v6:cluster:39",
+        "decision_id": "decision:l1v6:cluster:39:case:2",
+        "prediction_id": "prediction:l1v6:cluster:39:case:2",
+        "product_id": "product:l1v6:39",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:39:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:1e4d3beb833e93bca9ce4ffed23ccb820575a9276840b6120e38968452645672",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:39:case:3",
+        "cluster_id": "l1v6:cluster:39",
+        "decision_id": "decision:l1v6:cluster:39:case:3",
+        "prediction_id": "prediction:l1v6:cluster:39:case:3",
+        "product_id": "product:l1v6:39",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:39:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:a479724d70aac37fcf6c67ad78cf79832863c1115cc04523bbfdbc62c7e702c5",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:39:case:4",
+        "cluster_id": "l1v6:cluster:39",
+        "decision_id": "decision:l1v6:cluster:39:case:4",
+        "prediction_id": "prediction:l1v6:cluster:39:case:4",
+        "product_id": "product:l1v6:39",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:39:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:87358f4a4097cf0da54959778999dfc7b8a18b7a0da17d948776685c6f7f4338",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:40:case:1",
+        "cluster_id": "l1v6:cluster:40",
+        "decision_id": "decision:l1v6:cluster:40:case:1",
+        "prediction_id": "prediction:l1v6:cluster:40:case:1",
+        "product_id": "product:l1v6:40",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:40:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:45ce81376f2d83535dca39c81576321f62e3a497a517e8f8852cfe843fda0701",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:40:case:2",
+        "cluster_id": "l1v6:cluster:40",
+        "decision_id": "decision:l1v6:cluster:40:case:2",
+        "prediction_id": "prediction:l1v6:cluster:40:case:2",
+        "product_id": "product:l1v6:40",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:40:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:75afd97c978b6ae558b86f3f612976bcae75eadec8920a8d30ac535f9dcd8c45",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:40:case:3",
+        "cluster_id": "l1v6:cluster:40",
+        "decision_id": "decision:l1v6:cluster:40:case:3",
+        "prediction_id": "prediction:l1v6:cluster:40:case:3",
+        "product_id": "product:l1v6:40",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:40:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:22c7edc9bf56f50ac9099741641bb60794b6c318ce65dbd9e5cc87a0d9a2eec5",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:40:case:4",
+        "cluster_id": "l1v6:cluster:40",
+        "decision_id": "decision:l1v6:cluster:40:case:4",
+        "prediction_id": "prediction:l1v6:cluster:40:case:4",
+        "product_id": "product:l1v6:40",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:40:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:06178cd5f1adc8b0013ab42f72a32e5ec57e5543b29cfa90fec2bbb5fa71e9cf",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:41:case:1",
+        "cluster_id": "l1v6:cluster:41",
+        "decision_id": "decision:l1v6:cluster:41:case:1",
+        "prediction_id": "prediction:l1v6:cluster:41:case:1",
+        "product_id": "product:l1v6:41",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:41:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:d1caab60b0eeb712beb3cfea0260d0ec1bae7a6903356f7710a0866f988ff75f",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:41:case:2",
+        "cluster_id": "l1v6:cluster:41",
+        "decision_id": "decision:l1v6:cluster:41:case:2",
+        "prediction_id": "prediction:l1v6:cluster:41:case:2",
+        "product_id": "product:l1v6:41",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:41:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:9bab52b86929a08a47b236cb83ebc9999686e764b1cf37e2bcfbcbc627598421",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:41:case:3",
+        "cluster_id": "l1v6:cluster:41",
+        "decision_id": "decision:l1v6:cluster:41:case:3",
+        "prediction_id": "prediction:l1v6:cluster:41:case:3",
+        "product_id": "product:l1v6:41",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:41:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:fe69286569b5663e39d2e9640512111537221056d2190f20eb30747cfd13b1dc",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:41:case:4",
+        "cluster_id": "l1v6:cluster:41",
+        "decision_id": "decision:l1v6:cluster:41:case:4",
+        "prediction_id": "prediction:l1v6:cluster:41:case:4",
+        "product_id": "product:l1v6:41",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:41:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:3c9943b1f3def917ae0d434dd35b250822863882d80a9f73990789f18b21f91e",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:42:case:1",
+        "cluster_id": "l1v6:cluster:42",
+        "decision_id": "decision:l1v6:cluster:42:case:1",
+        "prediction_id": "prediction:l1v6:cluster:42:case:1",
+        "product_id": "product:l1v6:42",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:42:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:83371e1fe67a5cca2da63a83fcfab16b6759ed8fc3b68dcdd1c7983fff972a72",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:42:case:2",
+        "cluster_id": "l1v6:cluster:42",
+        "decision_id": "decision:l1v6:cluster:42:case:2",
+        "prediction_id": "prediction:l1v6:cluster:42:case:2",
+        "product_id": "product:l1v6:42",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:42:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:27d912d782c623891099687eb8ca40fe17b9dd82e18d54354984b0ba3ab3d3e8",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:42:case:3",
+        "cluster_id": "l1v6:cluster:42",
+        "decision_id": "decision:l1v6:cluster:42:case:3",
+        "prediction_id": "prediction:l1v6:cluster:42:case:3",
+        "product_id": "product:l1v6:42",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:42:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:20578e89ada7034a5b6586ad04adc6a86cfd39dbf0d204871a44be673cf45a19",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:42:case:4",
+        "cluster_id": "l1v6:cluster:42",
+        "decision_id": "decision:l1v6:cluster:42:case:4",
+        "prediction_id": "prediction:l1v6:cluster:42:case:4",
+        "product_id": "product:l1v6:42",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:42:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:59486528c7289339366f4ec170693750aa3588ae7b7da17dcd89b9eb6e47986d",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:43:case:1",
+        "cluster_id": "l1v6:cluster:43",
+        "decision_id": "decision:l1v6:cluster:43:case:1",
+        "prediction_id": "prediction:l1v6:cluster:43:case:1",
+        "product_id": "product:l1v6:43",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:43:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:84b5c8daeb43ca8ab5882f6323ea21e5af3a581977e453c8d86ba36ccb7dacb4",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:43:case:2",
+        "cluster_id": "l1v6:cluster:43",
+        "decision_id": "decision:l1v6:cluster:43:case:2",
+        "prediction_id": "prediction:l1v6:cluster:43:case:2",
+        "product_id": "product:l1v6:43",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:43:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:0c810aa6b86227eacc5fd30d8204e40b8c1146561613fb3af876c98fc706940c",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:43:case:3",
+        "cluster_id": "l1v6:cluster:43",
+        "decision_id": "decision:l1v6:cluster:43:case:3",
+        "prediction_id": "prediction:l1v6:cluster:43:case:3",
+        "product_id": "product:l1v6:43",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:43:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:32f24c0ec78f5ca3ebf4d06a11355c39c847e66ae86045f43d0911ff802a224f",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:43:case:4",
+        "cluster_id": "l1v6:cluster:43",
+        "decision_id": "decision:l1v6:cluster:43:case:4",
+        "prediction_id": "prediction:l1v6:cluster:43:case:4",
+        "product_id": "product:l1v6:43",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:43:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:ff345731b31a56392ffa85d9d3c615cd2d2142e0f7f9b3a23df24ab53e6ae7e3",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:44:case:1",
+        "cluster_id": "l1v6:cluster:44",
+        "decision_id": "decision:l1v6:cluster:44:case:1",
+        "prediction_id": "prediction:l1v6:cluster:44:case:1",
+        "product_id": "product:l1v6:44",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:44:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:aa22ce0b5002374d21686a53494ade66545b410c22c5c8a0b3dabb0b636cef0a",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:44:case:2",
+        "cluster_id": "l1v6:cluster:44",
+        "decision_id": "decision:l1v6:cluster:44:case:2",
+        "prediction_id": "prediction:l1v6:cluster:44:case:2",
+        "product_id": "product:l1v6:44",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:44:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:982fd027c1157aed6935039f5900dbd6bac23a0fa50ad0cb004cbc23f3ac8a33",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:44:case:3",
+        "cluster_id": "l1v6:cluster:44",
+        "decision_id": "decision:l1v6:cluster:44:case:3",
+        "prediction_id": "prediction:l1v6:cluster:44:case:3",
+        "product_id": "product:l1v6:44",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:44:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:9753fcc9714e4728a8363dba6b9d23bfa27577c870e31f40dacdf2c1f607b211",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:44:case:4",
+        "cluster_id": "l1v6:cluster:44",
+        "decision_id": "decision:l1v6:cluster:44:case:4",
+        "prediction_id": "prediction:l1v6:cluster:44:case:4",
+        "product_id": "product:l1v6:44",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:44:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:86382f71b8749aee2fe2b633e11f751b4d609b2b33f28f7ea146f7f9cf3146be",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:45:case:1",
+        "cluster_id": "l1v6:cluster:45",
+        "decision_id": "decision:l1v6:cluster:45:case:1",
+        "prediction_id": "prediction:l1v6:cluster:45:case:1",
+        "product_id": "product:l1v6:45",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:45:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:c5e3defafcab6ea201d8ba741558bab4c3bbca37bf7481ddeb460ef7763b50e9",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:45:case:2",
+        "cluster_id": "l1v6:cluster:45",
+        "decision_id": "decision:l1v6:cluster:45:case:2",
+        "prediction_id": "prediction:l1v6:cluster:45:case:2",
+        "product_id": "product:l1v6:45",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:45:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:9db17b2d72c30b52bc65456920c048a2abd1a7eab722ce5c503db108f2baab4b",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:45:case:3",
+        "cluster_id": "l1v6:cluster:45",
+        "decision_id": "decision:l1v6:cluster:45:case:3",
+        "prediction_id": "prediction:l1v6:cluster:45:case:3",
+        "product_id": "product:l1v6:45",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:45:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:48860e95b8f3d38f3dd4a288724f1b1befc860eeec39d78d343416053e18103d",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:45:case:4",
+        "cluster_id": "l1v6:cluster:45",
+        "decision_id": "decision:l1v6:cluster:45:case:4",
+        "prediction_id": "prediction:l1v6:cluster:45:case:4",
+        "product_id": "product:l1v6:45",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:45:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:832eac771b31e5eab558beec0ca266b2b8e57e30a11b3a3f50b15afb58eefee8",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:46:case:1",
+        "cluster_id": "l1v6:cluster:46",
+        "decision_id": "decision:l1v6:cluster:46:case:1",
+        "prediction_id": "prediction:l1v6:cluster:46:case:1",
+        "product_id": "product:l1v6:46",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:46:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:494ab10e37c701b1f9b2eb983c0c8394ef07495e1af982c864b5de7c33cb3890",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:46:case:2",
+        "cluster_id": "l1v6:cluster:46",
+        "decision_id": "decision:l1v6:cluster:46:case:2",
+        "prediction_id": "prediction:l1v6:cluster:46:case:2",
+        "product_id": "product:l1v6:46",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:46:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:34a7ed1ecb4c8cb3dfd84e985f536ae9c10182131a5b826dd5bd69724a0a74d2",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:46:case:3",
+        "cluster_id": "l1v6:cluster:46",
+        "decision_id": "decision:l1v6:cluster:46:case:3",
+        "prediction_id": "prediction:l1v6:cluster:46:case:3",
+        "product_id": "product:l1v6:46",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:46:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:579e365b9bfbd4e12698f530c2570361023aa5fffc87d47dc5d841768a47ce9a",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:46:case:4",
+        "cluster_id": "l1v6:cluster:46",
+        "decision_id": "decision:l1v6:cluster:46:case:4",
+        "prediction_id": "prediction:l1v6:cluster:46:case:4",
+        "product_id": "product:l1v6:46",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:46:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:229e1d42387f93aaaefc7a902e51ed8772418eee281ba33b1ceacd8a10d7879a",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:47:case:1",
+        "cluster_id": "l1v6:cluster:47",
+        "decision_id": "decision:l1v6:cluster:47:case:1",
+        "prediction_id": "prediction:l1v6:cluster:47:case:1",
+        "product_id": "product:l1v6:47",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:47:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:ea597cba1876970534f75d25692bdbebc6b672caa7776328de9e88c1bea2c42d",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:47:case:2",
+        "cluster_id": "l1v6:cluster:47",
+        "decision_id": "decision:l1v6:cluster:47:case:2",
+        "prediction_id": "prediction:l1v6:cluster:47:case:2",
+        "product_id": "product:l1v6:47",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:47:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:6de923d432c3b054d6dff30234314dd3e2a3ac0dfb38f7ab5b3ec97e206c1428",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:47:case:3",
+        "cluster_id": "l1v6:cluster:47",
+        "decision_id": "decision:l1v6:cluster:47:case:3",
+        "prediction_id": "prediction:l1v6:cluster:47:case:3",
+        "product_id": "product:l1v6:47",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:47:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:6f82dcd3be67ac9b6d9436cf28845df3f9715e6d3b7ec6c079f1f44a80ba7f2c",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:47:case:4",
+        "cluster_id": "l1v6:cluster:47",
+        "decision_id": "decision:l1v6:cluster:47:case:4",
+        "prediction_id": "prediction:l1v6:cluster:47:case:4",
+        "product_id": "product:l1v6:47",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:47:case:4"
+      },
+      {
+        "allocation_unit_hash": "sha256:568dda8170a222d01957357752fa4531ff5f355ddb5625c8450dcada3cf9a21f",
+        "arm": "model_only",
+        "case_id": "l1v6:cluster:48:case:1",
+        "cluster_id": "l1v6:cluster:48",
+        "decision_id": "decision:l1v6:cluster:48:case:1",
+        "prediction_id": "prediction:l1v6:cluster:48:case:1",
+        "product_id": "product:l1v6:48",
+        "slot": 1,
+        "task_id": "task:l1v6:cluster:48:case:1"
+      },
+      {
+        "allocation_unit_hash": "sha256:05c0b4957c24f4fec6a5db79d3ec1870cb111bd26f8bfdca1ca2d5ff08f1e8c0",
+        "arm": "no_foresight",
+        "case_id": "l1v6:cluster:48:case:2",
+        "cluster_id": "l1v6:cluster:48",
+        "decision_id": "decision:l1v6:cluster:48:case:2",
+        "prediction_id": "prediction:l1v6:cluster:48:case:2",
+        "product_id": "product:l1v6:48",
+        "slot": 2,
+        "task_id": "task:l1v6:cluster:48:case:2"
+      },
+      {
+        "allocation_unit_hash": "sha256:14297be9bdc715fffc460899a22e2d597425239700dc144b3058d97725843875",
+        "arm": "ace_foresight",
+        "case_id": "l1v6:cluster:48:case:3",
+        "cluster_id": "l1v6:cluster:48",
+        "decision_id": "decision:l1v6:cluster:48:case:3",
+        "prediction_id": "prediction:l1v6:cluster:48:case:3",
+        "product_id": "product:l1v6:48",
+        "slot": 3,
+        "task_id": "task:l1v6:cluster:48:case:3"
+      },
+      {
+        "allocation_unit_hash": "sha256:6748bd7d8491246b3ac3968b8bb5287506e0045c13ef5dbeba9347dd3b7f7d6d",
+        "arm": "naive_base_rate",
+        "case_id": "l1v6:cluster:48:case:4",
+        "cluster_id": "l1v6:cluster:48",
+        "decision_id": "decision:l1v6:cluster:48:case:4",
+        "prediction_id": "prediction:l1v6:cluster:48:case:4",
+        "product_id": "product:l1v6:48",
+        "slot": 4,
+        "task_id": "task:l1v6:cluster:48:case:4"
+      }
+    ],
+    "balance": "exactly one case per arm within every cluster",
+    "design": "blocked_randomized",
+    "exposure_receipt_schema": "ace.foresight.impact-agent-exposure/v6",
+    "schedule_hash": "sha256:a68a0d4192e7d20f46a8a0546316b48cfbe4ddf1902b2a047df0a913afe4fd88",
+    "schedule_id": "l1-agent-balanced-schedule-v6",
+    "seed": "l1-v6-assignments-40ecad2d6c86b73071f203acb458845d55ab5ce2c253be61a4370d648f46a1c0",
+    "seed_commitment": "sha256:dbf977f40377404ce319344928b4b7e049f99ad33c1c56d392fdc3ba0236b350"
+  },
+  "claim_scope": "Causal decision-quality effect of resolved ACE foresight within this frozen executable workload benchmark.",
+  "claims_not_supported": [
+    "general real-world product benefit",
+    "provider superiority",
+    "human decision improvement",
+    "benefit outside the frozen workload generator"
+  ],
+  "cohort": {
+    "case_count": 192,
+    "cases_per_arm": 48,
+    "cluster_count": 48,
+    "clusters": [
+      {
+        "calibration_params": {
+          "base_latency_ms": 178.56536108,
+          "burst_sigma": 0.51014345,
+          "cost_weight": 0.15679904,
+          "failure_rate": 0.04754102,
+          "latency_weight": 0.27872506,
+          "load": 1.14678523,
+          "reliability_weight": 0.31725227
+        },
+        "cluster_hash": "sha256:552dd539d84dd1dbec5fc04b353b8340356f989ba0f73676c356b0250dc70e44",
+        "cluster_id": "l1v6:cluster:01",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 178.56536108,
+          "burst_sigma": 0.15684525,
+          "cost_weight": 0.09482015,
+          "failure_rate": 0.32496112,
+          "latency_weight": 0.16547444,
+          "load": 0.73981739,
+          "reliability_weight": 0.65167437
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 172.08669037,
+          "burst_sigma": 0.19224434,
+          "cost_weight": 0.12181961,
+          "failure_rate": 0.16890651,
+          "latency_weight": 0.18151002,
+          "load": 0.87952424,
+          "reliability_weight": 0.50503147
+        },
+        "cluster_hash": "sha256:1cdf1b4729bb200b253e3446c407cc1a913705729f753fc90b846b4303921408",
+        "cluster_id": "l1v6:cluster:02",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 172.08669037,
+          "burst_sigma": 0.19224434,
+          "cost_weight": 0.12181961,
+          "failure_rate": 0.16890651,
+          "latency_weight": 0.18151002,
+          "load": 0.87952424,
+          "reliability_weight": 0.50503147
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 118.4609979,
+          "burst_sigma": 0.12210886,
+          "cost_weight": 0.42520642,
+          "failure_rate": 0.0183791,
+          "latency_weight": 0.14764205,
+          "load": 0.66410078,
+          "reliability_weight": 0.27975286
+        },
+        "cluster_hash": "sha256:4d80d59b6360d62aa13ed03b1e00cbccb35003fec01d8e0d34692c6abcac9efe",
+        "cluster_id": "l1v6:cluster:03",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 118.4609979,
+          "burst_sigma": 0.55932601,
+          "cost_weight": 0.11455445,
+          "failure_rate": 0.06090904,
+          "latency_weight": 0.47584393,
+          "load": 1.38515802,
+          "reliability_weight": 0.29396636
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 76.17277296,
+          "burst_sigma": 0.27884258,
+          "cost_weight": 0.16733309,
+          "failure_rate": 0.07208946,
+          "latency_weight": 0.30412356,
+          "load": 0.95916574,
+          "reliability_weight": 0.36877434
+        },
+        "cluster_hash": "sha256:9100a23d0c0e2e299c304f398d2e1713bbd32ef0fbf52062ed58646b3a1a6de7",
+        "cluster_id": "l1v6:cluster:04",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 76.17277296,
+          "burst_sigma": 0.27884258,
+          "cost_weight": 0.16733309,
+          "failure_rate": 0.07208946,
+          "latency_weight": 0.30412356,
+          "load": 0.95916574,
+          "reliability_weight": 0.36877434
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 81.33209996,
+          "burst_sigma": 0.27070168,
+          "cost_weight": 0.15204007,
+          "failure_rate": 0.12017835,
+          "latency_weight": 0.19430763,
+          "load": 1.03392596,
+          "reliability_weight": 0.48269825
+        },
+        "cluster_hash": "sha256:bee9b07ddf19d8a708af39753fba5da6be523d69f0be1003ec93959494e97ed0",
+        "cluster_id": "l1v6:cluster:05",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 81.33209996,
+          "burst_sigma": 0.17115762,
+          "cost_weight": 0.608279,
+          "failure_rate": 0.01219123,
+          "latency_weight": 0.13598072,
+          "load": 0.5067232,
+          "reliability_weight": 0.24012401
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 107.96968495,
+          "burst_sigma": 0.22070481,
+          "cost_weight": 0.12515446,
+          "failure_rate": 0.0603585,
+          "latency_weight": 0.42459675,
+          "load": 0.70369794,
+          "reliability_weight": 0.28055459
+        },
+        "cluster_hash": "sha256:36ba0e2c95d303b9d86582ad7cbd5ecb7fac806e9754374bd841023a66df44a1",
+        "cluster_id": "l1v6:cluster:06",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 107.96968495,
+          "burst_sigma": 0.22070481,
+          "cost_weight": 0.12515446,
+          "failure_rate": 0.0603585,
+          "latency_weight": 0.42459675,
+          "load": 0.70369794,
+          "reliability_weight": 0.28055459
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "low",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 111.76353485,
+          "burst_sigma": 0.49042996,
+          "cost_weight": 0.13726447,
+          "failure_rate": 0.0296755,
+          "latency_weight": 0.30479849,
+          "load": 1.13485382,
+          "reliability_weight": 0.32347955
+        },
+        "cluster_hash": "sha256:f53624d421c4a5cad203db2c62296d4dfbd1cc4dba01bc266e0a59f57f4031f0",
+        "cluster_id": "l1v6:cluster:07",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 111.76353485,
+          "burst_sigma": 0.11263509,
+          "cost_weight": 0.11926138,
+          "failure_rate": 0.25623996,
+          "latency_weight": 0.17708293,
+          "load": 0.75618447,
+          "reliability_weight": 0.587398
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 96.4149225,
+          "burst_sigma": 0.15983923,
+          "cost_weight": 0.07918694,
+          "failure_rate": 0.16999252,
+          "latency_weight": 0.20306733,
+          "load": 0.88215708,
+          "reliability_weight": 0.51687282
+        },
+        "cluster_hash": "sha256:6c7ee1eb988058a43f30c5688f9a5b138b44f26f69fa5824c82e275d9b0ea56c",
+        "cluster_id": "l1v6:cluster:08",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 96.4149225,
+          "burst_sigma": 0.15983923,
+          "cost_weight": 0.07918694,
+          "failure_rate": 0.16999252,
+          "latency_weight": 0.20306733,
+          "load": 0.88215708,
+          "reliability_weight": 0.51687282
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 76.88374232,
+          "burst_sigma": 0.1362053,
+          "cost_weight": 0.40337652,
+          "failure_rate": 0.02426559,
+          "latency_weight": 0.17015423,
+          "load": 0.62953084,
+          "reliability_weight": 0.28790284
+        },
+        "cluster_hash": "sha256:9f6e222514dcc6fbe5cae09719f43ba0ef04a579114e59af3d3665e2eb159658",
+        "cluster_id": "l1v6:cluster:09",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 76.88374232,
+          "burst_sigma": 0.53616312,
+          "cost_weight": 0.07525988,
+          "failure_rate": 0.06459405,
+          "latency_weight": 0.43820459,
+          "load": 1.40140964,
+          "reliability_weight": 0.34494716
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 112.44792221,
+          "burst_sigma": 0.27776555,
+          "cost_weight": 0.14523452,
+          "failure_rate": 0.07091416,
+          "latency_weight": 0.31030071,
+          "load": 0.92681476,
+          "reliability_weight": 0.34006187
+        },
+        "cluster_hash": "sha256:446d910628ff4b2c83df06d022f8f602d0f1dddc277d3da1666e5fbffc64f621",
+        "cluster_id": "l1v6:cluster:10",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 112.44792221,
+          "burst_sigma": 0.27776555,
+          "cost_weight": 0.14523452,
+          "failure_rate": 0.07091416,
+          "latency_weight": 0.31030071,
+          "load": 0.92681476,
+          "reliability_weight": 0.34006187
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 165.91506778,
+          "burst_sigma": 0.29914267,
+          "cost_weight": 0.1369608,
+          "failure_rate": 0.12237844,
+          "latency_weight": 0.17615014,
+          "load": 0.98986679,
+          "reliability_weight": 0.44729136
+        },
+        "cluster_hash": "sha256:a0055c8637311cdbf8c6c3125603c6c45906a0da3e48e38dbb9b060dc7e7d8f6",
+        "cluster_id": "l1v6:cluster:11",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 165.91506778,
+          "burst_sigma": 0.14514876,
+          "cost_weight": 0.54773455,
+          "failure_rate": 0.04063728,
+          "latency_weight": 0.14173575,
+          "load": 0.55941592,
+          "reliability_weight": 0.16141491
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 163.27266456,
+          "burst_sigma": 0.21367508,
+          "cost_weight": 0.14628033,
+          "failure_rate": 0.07309012,
+          "latency_weight": 0.39774283,
+          "load": 0.71175695,
+          "reliability_weight": 0.28730659
+        },
+        "cluster_hash": "sha256:ac1932e96e591c553a03655ee325b9b172d07fde85ee76db17a9d531883000a4",
+        "cluster_id": "l1v6:cluster:12",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 163.27266456,
+          "burst_sigma": 0.21367508,
+          "cost_weight": 0.14628033,
+          "failure_rate": 0.07309012,
+          "latency_weight": 0.39774283,
+          "load": 0.71175695,
+          "reliability_weight": 0.28730659
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "low",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 122.39311096,
+          "burst_sigma": 0.45781323,
+          "cost_weight": 0.13146016,
+          "failure_rate": 0.04352866,
+          "latency_weight": 0.29226979,
+          "load": 1.23263133,
+          "reliability_weight": 0.33045371
+        },
+        "cluster_hash": "sha256:98db4fa6c3463cabb72378c685a7134117dd22f735818559cbe508cdcb0d4720",
+        "cluster_id": "l1v6:cluster:13",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 122.39311096,
+          "burst_sigma": 0.15596937,
+          "cost_weight": 0.09081259,
+          "failure_rate": 0.26065415,
+          "latency_weight": 0.11194169,
+          "load": 0.6640937,
+          "reliability_weight": 0.62487245
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 100.48950672,
+          "burst_sigma": 0.12609419,
+          "cost_weight": 0.08452726,
+          "failure_rate": 0.18399532,
+          "latency_weight": 0.1860781,
+          "load": 0.81602582,
+          "reliability_weight": 0.54492771
+        },
+        "cluster_hash": "sha256:dffe10fa5d46e6c77f1fb462d6e466df4494ef0d85c7f9b283116adafa5ad0c9",
+        "cluster_id": "l1v6:cluster:14",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 100.48950672,
+          "burst_sigma": 0.12609419,
+          "cost_weight": 0.08452726,
+          "failure_rate": 0.18399532,
+          "latency_weight": 0.1860781,
+          "load": 0.81602582,
+          "reliability_weight": 0.54492771
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 92.44610172,
+          "burst_sigma": 0.12928555,
+          "cost_weight": 0.42180262,
+          "failure_rate": 0.0386012,
+          "latency_weight": 0.17110826,
+          "load": 0.60773185,
+          "reliability_weight": 0.26510686
+        },
+        "cluster_hash": "sha256:762a413537f36a45158b99c5b7b7995662f0a5f21c2fa2c492efeef8afa8ecc5",
+        "cluster_id": "l1v6:cluster:15",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 92.44610172,
+          "burst_sigma": 0.5535807,
+          "cost_weight": 0.09710631,
+          "failure_rate": 0.0483243,
+          "latency_weight": 0.36755012,
+          "load": 1.39828131,
+          "reliability_weight": 0.25015777
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 135.45649423,
+          "burst_sigma": 0.21746588,
+          "cost_weight": 0.14058485,
+          "failure_rate": 0.07046432,
+          "latency_weight": 0.33278493,
+          "load": 0.87532791,
+          "reliability_weight": 0.34966352
+        },
+        "cluster_hash": "sha256:12cd114fa864db00c4ed6cc2079807833e2ee744805e7a15d1c03313d7e29f4a",
+        "cluster_id": "l1v6:cluster:16",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 135.45649423,
+          "burst_sigma": 0.21746588,
+          "cost_weight": 0.14058485,
+          "failure_rate": 0.07046432,
+          "latency_weight": 0.33278493,
+          "load": 0.87532791,
+          "reliability_weight": 0.34966352
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 96.72711141,
+          "burst_sigma": 0.33108971,
+          "cost_weight": 0.11901069,
+          "failure_rate": 0.11610591,
+          "latency_weight": 0.19229799,
+          "load": 1.10386801,
+          "reliability_weight": 0.47187051
+        },
+        "cluster_hash": "sha256:a8c25235578160f73c76023d5890d3fda3dd52dd057992712894dbbbe57db0a5",
+        "cluster_id": "l1v6:cluster:17",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 96.72711141,
+          "burst_sigma": 0.13128775,
+          "cost_weight": 0.64570007,
+          "failure_rate": 0.0425475,
+          "latency_weight": 0.11983359,
+          "load": 0.61110571,
+          "reliability_weight": 0.2157106
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 95.60688214,
+          "burst_sigma": 0.18147852,
+          "cost_weight": 0.14755007,
+          "failure_rate": 0.07641893,
+          "latency_weight": 0.38117753,
+          "load": 0.6995559,
+          "reliability_weight": 0.30188521
+        },
+        "cluster_hash": "sha256:95065b5dec8c4d19a0875cff0180f3ec9f16a5d7163ff56a92cdf363606a3889",
+        "cluster_id": "l1v6:cluster:18",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 95.60688214,
+          "burst_sigma": 0.18147852,
+          "cost_weight": 0.14755007,
+          "failure_rate": 0.07641893,
+          "latency_weight": 0.38117753,
+          "load": 0.6995559,
+          "reliability_weight": 0.30188521
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "medium",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "low",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 86.908477,
+          "burst_sigma": 0.44593159,
+          "cost_weight": 0.148583,
+          "failure_rate": 0.05053175,
+          "latency_weight": 0.26973237,
+          "load": 1.16217729,
+          "reliability_weight": 0.3451191
+        },
+        "cluster_hash": "sha256:a8060b1a3df3b28e1d8ce07631cd9fab532b50e785c7b1ef84991f5268df39b0",
+        "cluster_id": "l1v6:cluster:19",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 86.908477,
+          "burst_sigma": 0.14935314,
+          "cost_weight": 0.10262599,
+          "failure_rate": 0.30472066,
+          "latency_weight": 0.14298937,
+          "load": 0.74007159,
+          "reliability_weight": 0.63197541
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 103.69590146,
+          "burst_sigma": 0.18834875,
+          "cost_weight": 0.08362062,
+          "failure_rate": 0.19338331,
+          "latency_weight": 0.20425112,
+          "load": 0.82254719,
+          "reliability_weight": 0.52738309
+        },
+        "cluster_hash": "sha256:baee19030bd18209e4c6526003106661b280ed307e3dff8173522397d71bd9a2",
+        "cluster_id": "l1v6:cluster:20",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 103.69590146,
+          "burst_sigma": 0.18834875,
+          "cost_weight": 0.08362062,
+          "failure_rate": 0.19338331,
+          "latency_weight": 0.20425112,
+          "load": 0.82254719,
+          "reliability_weight": 0.52738309
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 121.21499912,
+          "burst_sigma": 0.10251073,
+          "cost_weight": 0.40969845,
+          "failure_rate": 0.04053643,
+          "latency_weight": 0.16635952,
+          "load": 0.57290605,
+          "reliability_weight": 0.26503805
+        },
+        "cluster_hash": "sha256:7fe3f41fc2bab394bba35aec387b61a4b77da7c4fc884ef659c6fd4ed0c4f29f",
+        "cluster_id": "l1v6:cluster:21",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 121.21499912,
+          "burst_sigma": 0.58896738,
+          "cost_weight": 0.08956201,
+          "failure_rate": 0.02335345,
+          "latency_weight": 0.44217207,
+          "load": 1.28649965,
+          "reliability_weight": 0.3543933
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 141.26555092,
+          "burst_sigma": 0.2222057,
+          "cost_weight": 0.15022008,
+          "failure_rate": 0.06397918,
+          "latency_weight": 0.31029052,
+          "load": 0.99176341,
+          "reliability_weight": 0.34673332
+        },
+        "cluster_hash": "sha256:8f754777bed976c336afa1bc989565e7f94b1f75010c869fb243312e253e7eea",
+        "cluster_id": "l1v6:cluster:22",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 141.26555092,
+          "burst_sigma": 0.2222057,
+          "cost_weight": 0.15022008,
+          "failure_rate": 0.06397918,
+          "latency_weight": 0.31029052,
+          "load": 0.99176341,
+          "reliability_weight": 0.34673332
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 71.14044404,
+          "burst_sigma": 0.31733442,
+          "cost_weight": 0.1589681,
+          "failure_rate": 0.12342102,
+          "latency_weight": 0.18963917,
+          "load": 1.04814906,
+          "reliability_weight": 0.47050134
+        },
+        "cluster_hash": "sha256:0ecd7f1cb5324a7aecb9bbb17ab38bba226cd3a9a2f5c460ed72434845b2ec27",
+        "cluster_id": "l1v6:cluster:23",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 71.14044404,
+          "burst_sigma": 0.14593232,
+          "cost_weight": 0.57460482,
+          "failure_rate": 0.01868856,
+          "latency_weight": 0.09413624,
+          "load": 0.47529817,
+          "reliability_weight": 0.24260565
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 92.77381732,
+          "burst_sigma": 0.1956219,
+          "cost_weight": 0.16088564,
+          "failure_rate": 0.04560029,
+          "latency_weight": 0.3951223,
+          "load": 0.74653491,
+          "reliability_weight": 0.31763506
+        },
+        "cluster_hash": "sha256:734598903ce34f62f038151cf8eb0b520a06400f424de41310d2f08f56289413",
+        "cluster_id": "l1v6:cluster:24",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 92.77381732,
+          "burst_sigma": 0.1956219,
+          "cost_weight": 0.16088564,
+          "failure_rate": 0.04560029,
+          "latency_weight": 0.3951223,
+          "load": 0.74653491,
+          "reliability_weight": 0.31763506
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 157.26693368,
+          "burst_sigma": 0.4484871,
+          "cost_weight": 0.13696029,
+          "failure_rate": 0.05106292,
+          "latency_weight": 0.26796235,
+          "load": 1.18348287,
+          "reliability_weight": 0.32503674
+        },
+        "cluster_hash": "sha256:6d49d263a2a232b5f02db3d1916bbbf0e483009652574dbed9918cfa6f088f15",
+        "cluster_id": "l1v6:cluster:25",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 157.26693368,
+          "burst_sigma": 0.12395985,
+          "cost_weight": 0.11465682,
+          "failure_rate": 0.26409885,
+          "latency_weight": 0.16313311,
+          "load": 0.62553536,
+          "reliability_weight": 0.66232504
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 165.19661268,
+          "burst_sigma": 0.16670792,
+          "cost_weight": 0.10623458,
+          "failure_rate": 0.16894636,
+          "latency_weight": 0.17027118,
+          "load": 0.84993455,
+          "reliability_weight": 0.52991792
+        },
+        "cluster_hash": "sha256:cbd0c09c7b5945f5afb73e2a429aa69b0199a29a9940438aef8e047dfa0519fa",
+        "cluster_id": "l1v6:cluster:26",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 165.19661268,
+          "burst_sigma": 0.16670792,
+          "cost_weight": 0.10623458,
+          "failure_rate": 0.16894636,
+          "latency_weight": 0.17027118,
+          "load": 0.84993455,
+          "reliability_weight": 0.52991792
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 159.894663,
+          "burst_sigma": 0.12523953,
+          "cost_weight": 0.43986381,
+          "failure_rate": 0.01927262,
+          "latency_weight": 0.15773423,
+          "load": 0.59560018,
+          "reliability_weight": 0.27321819
+        },
+        "cluster_hash": "sha256:b4d258ac0d360718f6dcb522150485c8e7db95b869e2128f38be7da0e26ec88a",
+        "cluster_id": "l1v6:cluster:27",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 159.894663,
+          "burst_sigma": 0.51828536,
+          "cost_weight": 0.11863431,
+          "failure_rate": 0.06495062,
+          "latency_weight": 0.46213474,
+          "load": 1.38894737,
+          "reliability_weight": 0.25977939
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 140.77238006,
+          "burst_sigma": 0.22475308,
+          "cost_weight": 0.13554445,
+          "failure_rate": 0.0550792,
+          "latency_weight": 0.32809772,
+          "load": 0.9384863,
+          "reliability_weight": 0.37055818
+        },
+        "cluster_hash": "sha256:b1ee66edc447a7c082266409f7fc546046695926fc18baa03e37825b1a5b1204",
+        "cluster_id": "l1v6:cluster:28",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 140.77238006,
+          "burst_sigma": 0.22475308,
+          "cost_weight": 0.13554445,
+          "failure_rate": 0.0550792,
+          "latency_weight": 0.32809772,
+          "load": 0.9384863,
+          "reliability_weight": 0.37055818
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 89.78896741,
+          "burst_sigma": 0.28779382,
+          "cost_weight": 0.14729136,
+          "failure_rate": 0.11168294,
+          "latency_weight": 0.1848077,
+          "load": 1.09536304,
+          "reliability_weight": 0.45750771
+        },
+        "cluster_hash": "sha256:03416c620332ae29d7d30a03902198a9188f553c328a2fd0dae853d7ffeef47a",
+        "cluster_id": "l1v6:cluster:29",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 89.78896741,
+          "burst_sigma": 0.09307507,
+          "cost_weight": 0.5807448,
+          "failure_rate": 0.05292635,
+          "latency_weight": 0.12021997,
+          "load": 0.6793646,
+          "reliability_weight": 0.16822024
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 149.17220166,
+          "burst_sigma": 0.22061499,
+          "cost_weight": 0.16087949,
+          "failure_rate": 0.07782282,
+          "latency_weight": 0.4087696,
+          "load": 0.70010246,
+          "reliability_weight": 0.27960404
+        },
+        "cluster_hash": "sha256:6a0fd913e30f96766af6083ed064c51c203cfdd4d86ab682745cd73fa852ce87",
+        "cluster_id": "l1v6:cluster:30",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 149.17220166,
+          "burst_sigma": 0.22061499,
+          "cost_weight": 0.16087949,
+          "failure_rate": 0.07782282,
+          "latency_weight": 0.4087696,
+          "load": 0.70010246,
+          "reliability_weight": 0.27960404
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "low",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 130.56033977,
+          "burst_sigma": 0.5136981,
+          "cost_weight": 0.12286389,
+          "failure_rate": 0.05209993,
+          "latency_weight": 0.27968335,
+          "load": 1.12504464,
+          "reliability_weight": 0.35640902
+        },
+        "cluster_hash": "sha256:9538e1faca2330ac00ca080e621bc9ceaf811cb40f6c63d925f881031fa1bde8",
+        "cluster_id": "l1v6:cluster:31",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 130.56033977,
+          "burst_sigma": 0.10463867,
+          "cost_weight": 0.10514997,
+          "failure_rate": 0.30717652,
+          "latency_weight": 0.15991609,
+          "load": 0.67897021,
+          "reliability_weight": 0.6244169
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 173.36163677,
+          "burst_sigma": 0.16375994,
+          "cost_weight": 0.104737,
+          "failure_rate": 0.16951645,
+          "latency_weight": 0.18348088,
+          "load": 0.84970542,
+          "reliability_weight": 0.54053096
+        },
+        "cluster_hash": "sha256:1940a3641386ca8b7a79f7230161d77c3daa4c18b0e58a2c1294daa19da37568",
+        "cluster_id": "l1v6:cluster:32",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 173.36163677,
+          "burst_sigma": 0.16375994,
+          "cost_weight": 0.104737,
+          "failure_rate": 0.16951645,
+          "latency_weight": 0.18348088,
+          "load": 0.84970542,
+          "reliability_weight": 0.54053096
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 114.82808482,
+          "burst_sigma": 0.12186315,
+          "cost_weight": 0.41600494,
+          "failure_rate": 0.01241455,
+          "latency_weight": 0.1652945,
+          "load": 0.60528752,
+          "reliability_weight": 0.30472346
+        },
+        "cluster_hash": "sha256:933007797f9f28c3f20059a97e9a28c0860f91eeb607cbe1ff180b455a32f447",
+        "cluster_id": "l1v6:cluster:33",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 114.82808482,
+          "burst_sigma": 0.51545628,
+          "cost_weight": 0.09845258,
+          "failure_rate": 0.07339268,
+          "latency_weight": 0.3822545,
+          "load": 1.38701041,
+          "reliability_weight": 0.29696834
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 86.0743035,
+          "burst_sigma": 0.2278708,
+          "cost_weight": 0.18113032,
+          "failure_rate": 0.06924529,
+          "latency_weight": 0.33172903,
+          "load": 0.92774671,
+          "reliability_weight": 0.3736534
+        },
+        "cluster_hash": "sha256:26fc51aa09ff86abbb44db5b281e5f69b5f710b26a011dd2789346c74a085e36",
+        "cluster_id": "l1v6:cluster:34",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 86.0743035,
+          "burst_sigma": 0.2278708,
+          "cost_weight": 0.18113032,
+          "failure_rate": 0.06924529,
+          "latency_weight": 0.33172903,
+          "load": 0.92774671,
+          "reliability_weight": 0.3736534
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 133.34774212,
+          "burst_sigma": 0.32494184,
+          "cost_weight": 0.11877761,
+          "failure_rate": 0.10582245,
+          "latency_weight": 0.20862727,
+          "load": 1.08477954,
+          "reliability_weight": 0.46495237
+        },
+        "cluster_hash": "sha256:d7ba26a5fd32b16d4213877ca78c5c40760907f4082662509cdfab93d8a3ed3c",
+        "cluster_id": "l1v6:cluster:35",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 133.34774212,
+          "burst_sigma": 0.15649763,
+          "cost_weight": 0.6627327,
+          "failure_rate": 0.04010413,
+          "latency_weight": 0.14403259,
+          "load": 0.66286229,
+          "reliability_weight": 0.24492301
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 136.46243097,
+          "burst_sigma": 0.19248787,
+          "cost_weight": 0.12882619,
+          "failure_rate": 0.05588144,
+          "latency_weight": 0.39721884,
+          "load": 0.74236866,
+          "reliability_weight": 0.28187772
+        },
+        "cluster_hash": "sha256:2c494a7ed03de08a05c461033b5a9d3fba3503c7067d744707c03e88c4d6eef3",
+        "cluster_id": "l1v6:cluster:36",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 136.46243097,
+          "burst_sigma": 0.19248787,
+          "cost_weight": 0.12882619,
+          "failure_rate": 0.05588144,
+          "latency_weight": 0.39721884,
+          "load": 0.74236866,
+          "reliability_weight": 0.28187772
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "low",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 136.12592843,
+          "burst_sigma": 0.51078902,
+          "cost_weight": 0.12127498,
+          "failure_rate": 0.05424384,
+          "latency_weight": 0.27132267,
+          "load": 1.19950709,
+          "reliability_weight": 0.36235354
+        },
+        "cluster_hash": "sha256:d1e809d0c9729e88785f1de7667520d0b567b7cca233a017a7a583596a731bd8",
+        "cluster_id": "l1v6:cluster:37",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 136.12592843,
+          "burst_sigma": 0.11122906,
+          "cost_weight": 0.10811189,
+          "failure_rate": 0.26702381,
+          "latency_weight": 0.12164088,
+          "load": 0.63406395,
+          "reliability_weight": 0.66081917
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 177.78144334,
+          "burst_sigma": 0.170613,
+          "cost_weight": 0.08915863,
+          "failure_rate": 0.18858053,
+          "latency_weight": 0.16322813,
+          "load": 0.81550385,
+          "reliability_weight": 0.52643761
+        },
+        "cluster_hash": "sha256:113fac70399ce1ca4d9830ef6be0c5347337a10755dd31f7d4246930142df354",
+        "cluster_id": "l1v6:cluster:38",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 177.78144334,
+          "burst_sigma": 0.170613,
+          "cost_weight": 0.08915863,
+          "failure_rate": 0.18858053,
+          "latency_weight": 0.16322813,
+          "load": 0.81550385,
+          "reliability_weight": 0.52643761
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 152.69511523,
+          "burst_sigma": 0.10332598,
+          "cost_weight": 0.4133134,
+          "failure_rate": 0.02089281,
+          "latency_weight": 0.14367141,
+          "load": 0.57613264,
+          "reliability_weight": 0.2569962
+        },
+        "cluster_hash": "sha256:34cc807872107d9d8eca748f4f405c5a54b692cc2230caf6e1f55de0a7d0b3f1",
+        "cluster_id": "l1v6:cluster:39",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 152.69511523,
+          "burst_sigma": 0.47227753,
+          "cost_weight": 0.07078515,
+          "failure_rate": 0.06023326,
+          "latency_weight": 0.47764979,
+          "load": 1.44557011,
+          "reliability_weight": 0.32965704
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 153.21060103,
+          "burst_sigma": 0.26862072,
+          "cost_weight": 0.13639654,
+          "failure_rate": 0.08288655,
+          "latency_weight": 0.32709291,
+          "load": 0.90688086,
+          "reliability_weight": 0.38202025
+        },
+        "cluster_hash": "sha256:87439ec07871fb887b3036d5298ca7224f09f45fd7d5178b70d96eaec2301752",
+        "cluster_id": "l1v6:cluster:40",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 153.21060103,
+          "burst_sigma": 0.26862072,
+          "cost_weight": 0.13639654,
+          "failure_rate": 0.08288655,
+          "latency_weight": 0.32709291,
+          "load": 0.90688086,
+          "reliability_weight": 0.38202025
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 176.31063471,
+          "burst_sigma": 0.28842494,
+          "cost_weight": 0.13459591,
+          "failure_rate": 0.10206911,
+          "latency_weight": 0.21668533,
+          "load": 1.03416502,
+          "reliability_weight": 0.47242403
+        },
+        "cluster_hash": "sha256:dcf5f495c27b97e381841f6bc788b39e8b8025301ca3d59ae48ca08585ae6daa",
+        "cluster_id": "l1v6:cluster:41",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 176.31063471,
+          "burst_sigma": 0.15329326,
+          "cost_weight": 0.66823114,
+          "failure_rate": 0.04975871,
+          "latency_weight": 0.15299016,
+          "load": 0.56518694,
+          "reliability_weight": 0.16081086
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 91.79451362,
+          "burst_sigma": 0.20116673,
+          "cost_weight": 0.12713483,
+          "failure_rate": 0.06319806,
+          "latency_weight": 0.38151008,
+          "load": 0.79154364,
+          "reliability_weight": 0.27520538
+        },
+        "cluster_hash": "sha256:2f1af342ce34a4405e481e0447c78ab28cc7c1188e83878a5756b32e34df3850",
+        "cluster_id": "l1v6:cluster:42",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 91.79451362,
+          "burst_sigma": 0.20116673,
+          "cost_weight": 0.12713483,
+          "failure_rate": 0.06319806,
+          "latency_weight": 0.38151008,
+          "load": 0.79154364,
+          "reliability_weight": 0.27520538
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 115.72260166,
+          "burst_sigma": 0.49485709,
+          "cost_weight": 0.16058667,
+          "failure_rate": 0.03249878,
+          "latency_weight": 0.30481629,
+          "load": 1.24827729,
+          "reliability_weight": 0.32482909
+        },
+        "cluster_hash": "sha256:fe9342157851301b4a47e801b5d70e0c1b1945774c45ca6c73accd96c9bb2cef",
+        "cluster_id": "l1v6:cluster:43",
+        "drift_class": "upstream_reliability_shift",
+        "target_params": {
+          "base_latency_ms": 115.72260166,
+          "burst_sigma": 0.10329241,
+          "cost_weight": 0.08637447,
+          "failure_rate": 0.28446073,
+          "latency_weight": 0.16781449,
+          "load": 0.64393311,
+          "reliability_weight": 0.67984309
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "upstream_reliability_shift",
+          "traffic": "low",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 134.87964766,
+          "burst_sigma": 0.17064566,
+          "cost_weight": 0.09248745,
+          "failure_rate": 0.18666495,
+          "latency_weight": 0.18701388,
+          "load": 0.78260075,
+          "reliability_weight": 0.52303571
+        },
+        "cluster_hash": "sha256:3e93ef785e0469e0db0900bdcda811bec8aa12da43a05abeaec1830efc617b78",
+        "cluster_id": "l1v6:cluster:44",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 134.87964766,
+          "burst_sigma": 0.17064566,
+          "cost_weight": 0.09248745,
+          "failure_rate": 0.18666495,
+          "latency_weight": 0.18701388,
+          "load": 0.78260075,
+          "reliability_weight": 0.52303571
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "low",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "high"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 109.52929104,
+          "burst_sigma": 0.12913027,
+          "cost_weight": 0.3978284,
+          "failure_rate": 0.01451861,
+          "latency_weight": 0.1703246,
+          "load": 0.65551655,
+          "reliability_weight": 0.25799899
+        },
+        "cluster_hash": "sha256:2e16046e9b9c9fca382614596ad5eb2002962c88a4eb393d16a0e62beff22e4a",
+        "cluster_id": "l1v6:cluster:45",
+        "drift_class": "traffic_burst_shift",
+        "target_params": {
+          "base_latency_ms": 109.52929104,
+          "burst_sigma": 0.45256413,
+          "cost_weight": 0.09778069,
+          "failure_rate": 0.03457299,
+          "latency_weight": 0.36182924,
+          "load": 1.33557737,
+          "reliability_weight": 0.27788671
+        },
+        "visible_signals": {
+          "burstiness": "high",
+          "cost_priority": "low",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "traffic_burst_shift",
+          "traffic": "high",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 75.05627593,
+          "burst_sigma": 0.25890727,
+          "cost_weight": 0.18121158,
+          "failure_rate": 0.06998046,
+          "latency_weight": 0.30585261,
+          "load": 0.9629501,
+          "reliability_weight": 0.35163929
+        },
+        "cluster_hash": "sha256:44084c279329a3a23c1f655ca30b9607545d82984516a9bfefdc3e3ee248848a",
+        "cluster_id": "l1v6:cluster:46",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 75.05627593,
+          "burst_sigma": 0.25890727,
+          "cost_weight": 0.18121158,
+          "failure_rate": 0.06998046,
+          "latency_weight": 0.30585261,
+          "load": 0.9629501,
+          "reliability_weight": 0.35163929
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "medium",
+          "observed_change_since_calibration": "stable",
+          "traffic": "medium",
+          "upstream_failures": "medium"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 151.33232279,
+          "burst_sigma": 0.32493064,
+          "cost_weight": 0.12044186,
+          "failure_rate": 0.10259039,
+          "latency_weight": 0.22347965,
+          "load": 0.99024043,
+          "reliability_weight": 0.44938909
+        },
+        "cluster_hash": "sha256:e3b1cebdaa0d83375a5ff2f94ff898d7e2bc1d1bfb9ed047b4be183c1683a92c",
+        "cluster_id": "l1v6:cluster:47",
+        "drift_class": "cost_priority_shift",
+        "target_params": {
+          "base_latency_ms": 151.33232279,
+          "burst_sigma": 0.16401056,
+          "cost_weight": 0.57701389,
+          "failure_rate": 0.04581138,
+          "latency_weight": 0.14668051,
+          "load": 0.58989874,
+          "reliability_weight": 0.24026817
+        },
+        "visible_signals": {
+          "burstiness": "low",
+          "cost_priority": "high",
+          "latency_priority": "low",
+          "observed_change_since_calibration": "cost_priority_shift",
+          "traffic": "low",
+          "upstream_failures": "low"
+        }
+      },
+      {
+        "calibration_params": {
+          "base_latency_ms": 126.25465341,
+          "burst_sigma": 0.2319159,
+          "cost_weight": 0.14978668,
+          "failure_rate": 0.06450457,
+          "latency_weight": 0.38474257,
+          "load": 0.76489491,
+          "reliability_weight": 0.29262296
+        },
+        "cluster_hash": "sha256:410d018ba074dd5737430fa4315d1f08816942419015fad6098b3033f1ba9f2e",
+        "cluster_id": "l1v6:cluster:48",
+        "drift_class": "stable",
+        "target_params": {
+          "base_latency_ms": 126.25465341,
+          "burst_sigma": 0.2319159,
+          "cost_weight": 0.14978668,
+          "failure_rate": 0.06450457,
+          "latency_weight": 0.38474257,
+          "load": 0.76489491,
+          "reliability_weight": 0.29262296
+        },
+        "visible_signals": {
+          "burstiness": "medium",
+          "cost_priority": "medium",
+          "latency_priority": "high",
+          "observed_change_since_calibration": "stable",
+          "traffic": "low",
+          "upstream_failures": "medium"
+        }
+      }
+    ],
+    "cohort_id": "l1-agent-workload-cohort-v6",
+    "eligibility_rules": [
+      "case identity and assignment exactly match the frozen schedule",
+      "all four cluster decisions are durably recorded before their shared target workload seed exists",
+      "one live exact-route logical invocation produces the assigned decision",
+      "ACE treatment has complete F1 resolution and I3 material-use lineage",
+      "controls have verified foresight non-exposure",
+      "outcome is produced only by the frozen post-decision workload oracle"
+    ],
+    "exclusion_rules": [
+      "provider failure after the frozen JSON-repair allowance",
+      "invalid or out-of-contract decision output",
+      "missing assignment, exposure, lineage, route, resource, or outcome provenance",
+      "decision at or before target seed creation or outcome observation",
+      "duplicate product, task, decision, prediction, allocation-unit, or target-seed identity"
+    ],
+    "leakage_boundaries": [
+      "fresh stateless provider invocation for every main and ACE-shadow decision",
+      "no cluster target seed exists before all four assigned main decisions are durable",
+      "one fresh target seed is shared by all four arms within a cluster and by no other cluster",
+      "target outcome values are not printed during collection",
+      "arm prompts expose only the preregistered policy payload",
+      "controls receive no F1 resolution content or identifiers",
+      "unique product/task/decision/prediction identities across allocation units",
+      "one fixed cohort with no replacements or favorable-subset enrollment"
+    ],
+    "prespecified_strata": {
+      "drift_clusters": 24,
+      "drift_types": [
+        "upstream_reliability_shift",
+        "traffic_burst_shift",
+        "cost_priority_shift"
+      ],
+      "stable_clusters": 24
+    }
+  },
+  "collection": {
+    "analysis_invocations": 0,
+    "state": "not_started",
+    "target_outcomes_observed": 0
+  },
+  "contract_version": "ace.foresight.impact-agent-benchmark-preregistration/v6",
+  "development_boundary": {
+    "confirmatory_separation": [
+      "no v5 case, assignment, target parameter record, or target seed is eligible",
+      "v6 cluster parameters are regenerated with fresh seed-controlled drift jitter",
+      "v6 target workload seeds do not exist until every assigned decision is durable",
+      "v5 replay is development evidence only and cannot enter the v6 estimator"
+    ],
+    "observed_failure": "resolved-forecast anchoring under upstream reliability regime shifts",
+    "permitted_adaptation": "explicit active-or-contested resolution applicability with stale recommendations withheld",
+    "source_analysis_hash": "sha256:2814385ec462103bad11089dc6b6bfc98009d73f17b6948bb9da65574a077336",
+    "source_study": "l1-agent-executable-benchmark-v5"
+  },
+  "failure_case_evidence_schema": {
+    "contract": "ace.foresight.impact-agent-failure-matrix/v6",
+    "required": [
+      "null",
+      "harmful",
+      "missing_lineage",
+      "unmatched_route",
+      "invalid_assignment",
+      "contaminated_control",
+      "insufficient_clusters",
+      "missing_outcome_provenance",
+      "unsupported_attribution"
+    ]
+  },
+  "first_decision_not_before": "2026-08-05T05:19:00Z",
+  "generator": {
+    "cluster_seed": "l1-v6-clusters-c769cef6207cc450a300128be058d5e9be35a27c75b407ce91313dd48e8af20e",
+    "cluster_seed_hash": "sha256:826df6a0aa5df0a1541dab753d0177ad08967d0cc46f24ba0d7bf3083c389d7b",
+    "contract": "deterministic-cluster-registry/v6"
+  },
+  "lineage": {
+    "control_non_exposure_receipt": "ace.foresight.impact-agent-control-non-exposure/v6",
+    "control_required": [
+      "withheld_f1_resolution_id",
+      "control_non_exposure_receipt_id",
+      "material_use=false"
+    ],
+    "treatment_required": [
+      "forecast_id",
+      "calibration_observation_id",
+      "f1_resolution_id",
+      "i3_intelligence_use_receipt_id",
+      "material_use=true"
+    ]
+  },
+  "matching": {
+    "exact_route": {
+      "configuration_hash": "sha256:2a70e6e838e81b3a96d79a0ab213c9ab3fddd59844d970535b526ab504075cbf",
+      "decision_schema_hash": "sha256:da19bb21b5fc406db8a1abd5e2aa80f89629b5d1feca67348e7c3a9b81ecbea0",
+      "model": "gpt-5.6-terra",
+      "prompt_contract_hash": "sha256:d658bd08859931309c3adee936fe865088a19bf6506bd0a863cccd56af352ed8",
+      "provider": "CodexCLIProvider",
+      "task_contract_hash": "sha256:eee2608045cf39a7b24e3112e114655812a37f75281207ccb38837f1c1b902d2",
+      "toolset_hash": "sha256:8cc59a08aa692c4fa18b7726d39867270fa43deb74bd00fc29a0ce1352bdfa11"
+    },
+    "required_dimensions": [
+      "provider",
+      "model",
+      "configuration_hash",
+      "task_contract_hash",
+      "prompt_contract_hash",
+      "decision_schema_hash",
+      "toolset_hash"
+    ]
+  },
+  "observation_schema": {
+    "contract": "ace.foresight.impact-agent-collection/v6",
+    "required_identity_fields": [
+      "product_id",
+      "task_id",
+      "decision_id",
+      "prediction_id",
+      "outcome_id",
+      "cluster_id",
+      "case_id"
+    ],
+    "required_resource_fields": [
+      "calls",
+      "input_tokens",
+      "output_tokens",
+      "latency_ms",
+      "cost_usd",
+      "retries",
+      "failures",
+      "degraded_states"
+    ]
+  },
+  "outcome": {
+    "bounds": [
+      0.0,
+      1.0
+    ],
+    "direction": "lower_is_better",
+    "draw_count": 512,
+    "metric": "normalized_decision_regret",
+    "oracle_contract": "post-decision-stochastic-workload/v6",
+    "provenance_schema": "ace.foresight.impact-agent-outcome/v6",
+    "score_contract": "continuous_decision_regret/v6",
+    "seed_rule": "one fresh OS-random seed per cluster generated only after all four durable main decisions; the same workload realization is shared across its arms"
+  },
+  "registered_at": "2026-08-05T05:15:00Z",
+  "registration_hash": "sha256:be034031920d9c8bd4f755f507c4aef5a8a49248a2c621975efc0e3e510545bf",
+  "registration_id": "l1-agent-executable-benchmark-v6",
+  "source_hashes": {
+    "benchmark_code": "sha256:47594de43b6e84a88ca2f81f76801c9acb2e0dd8e6b82bfbc7e084d12d7cb0fc",
+    "collection_runner": "sha256:635f5e8b12e82238ef7f32d98f505451c397acfe24e2666b09241f9832ffddf1"
+  }
+}

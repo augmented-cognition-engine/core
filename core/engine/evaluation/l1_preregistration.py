@@ -172,7 +172,12 @@ def _case_reasons(case: dict[str, Any], first_decision: datetime) -> list[str]:
     for field in ("f1_resolution_id", "i3_intelligence_use_receipt_id"):
         if not lineage.get(field):
             reasons.append(f"missing_{field}")
-    if lineage.get("material_use") is not True:
+    assigned_arm = assignment.get("arm")
+    if assigned_arm == "ace_foresight" and lineage.get("material_use") is not True:
+        reasons.append("material_use_not_established")
+    if assigned_arm in REQUIRED_ARMS[1:] and lineage.get("material_use") is not False:
+        reasons.append("contaminated_control_material_use")
+    if assigned_arm not in REQUIRED_ARMS and lineage.get("material_use") is not True:
         reasons.append("material_use_not_established")
 
     route = case.get("matched_route") if isinstance(case.get("matched_route"), dict) else {}

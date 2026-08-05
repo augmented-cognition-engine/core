@@ -98,5 +98,6 @@ The raw K1/K2/K3 hashes are respectively
 
 No real-world causal accuracy, calibrated forecasting, beneficial impact, general learned world
 model, autonomous learning, distributed-system, hosted-service, deployment, release, or v0.2.0
-readiness claim follows from this audit. L1 remains candidate, and T1, B1, E1, and release readiness
-remain unchanged. R7 may now be planned separately; this audit did not start it.
+readiness claim follows from this audit. At the time of this audit L1 remained candidate; its later
+v7 evidence is separate. T1, B1, E1, and release readiness remain unchanged. R7 may now be planned
+separately; this audit did not start it.

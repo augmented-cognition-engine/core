@@ -31,18 +31,18 @@ def test_public_product_copy_does_not_claim_a_world_model() -> None:
         assert re.search(r"\bworld[- ]model\b", _normalized(path), flags=re.IGNORECASE) is None, path
 
 
-def test_f1_roadmap_state_and_target_contract_are_explicit() -> None:
+def test_f1_and_bounded_l1_roadmap_states_and_target_contract_are_explicit() -> None:
     roadmap = _normalized("ROADMAP.md")
     contract = _normalized("docs/foresight.md")
     evidence = _normalized("docs/evidence/f1-foresight-evidence.md")
 
     assert "| F1 | passed |" in roadmap
-    assert "| L1 | candidate | Use resolved conditional forecasts" in roadmap
-    assert "beneficial impact is not established" in roadmap
-    assert "first leakage-bounded retrospective probe preserves the negative result" in roadmap
+    assert "| L1 | passed | Use resolved conditional forecasts" in roadmap
+    assert "v5 result remain negative" in roadmap
+    assert "general real-world benefit" in roadmap
     assert "F1 v1 proper scoring is deliberately scoped to continuous numeric deltas" in evidence
     assert "The fourth sample creates one plan-linked Comparator Observation v1" in evidence
-    assert "The next existential milestone is L1" in evidence
+    assert "At F1 closeout, the next existential milestone was L1" in evidence
 
     for required in (
         "no-action baseline",

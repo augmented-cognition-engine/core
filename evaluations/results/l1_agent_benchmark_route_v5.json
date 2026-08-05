@@ -1,0 +1,39 @@
+{
+  "contract_version": "ace.foresight.impact-agent-route-qualification/v5",
+  "decision_hash": "sha256:afc05035b98dfabc5f315cc3d10cbef61743884a5e58c4419ebb987509662a13",
+  "limitations": [
+    "This proves one live route response and schema only; it is not target evidence.",
+    "No target outcome or comparative result was generated."
+  ],
+  "metrics": {
+    "billing_semantics": "chatgpt_subscription_no_platform_api_charge",
+    "cached_input_tokens": 7936,
+    "calls": 1,
+    "cost_usd": 0.0,
+    "degraded_states": [],
+    "failures": [],
+    "input_tokens": 8595,
+    "latency_ms": 4369,
+    "output_tokens": 46,
+    "reasoning_output_tokens": 0,
+    "recovered_failures": [],
+    "retries": 0
+  },
+  "qualification_hash": "sha256:155d4196fc771d6de07ec4ed98cb449a431c0b4ad12cd719d3d78eec11cc70ab",
+  "qualified_at": "2026-08-05T03:33:49.895800Z",
+  "reason_codes": [],
+  "registration_hash": "sha256:8526f06f47d65a06633ba12a7b9525c472fe0fc786ef37178fcc61e7ea0cc919",
+  "registration_id": "l1-agent-executable-benchmark-v5",
+  "route": {
+    "configuration_hash": "sha256:2a70e6e838e81b3a96d79a0ab213c9ab3fddd59844d970535b526ab504075cbf",
+    "decision_schema_hash": "sha256:da19bb21b5fc406db8a1abd5e2aa80f89629b5d1feca67348e7c3a9b81ecbea0",
+    "model": "gpt-5.6-terra",
+    "prompt_contract_hash": "sha256:25d19626817ee37950d4242779ff754de5332607c61b1b41492c148f1c7dbc6e",
+    "provider": "CodexCLIProvider",
+    "task_contract_hash": "sha256:4d4e754ef7f89895f88065367378c274b8d9e500354386dacc40832aab6b1851",
+    "toolset_hash": "sha256:80b28466720a59b6e7de20cc004b142afaa7a70477ea7df3e101435242d65c62"
+  },
+  "state": "passed",
+  "target_case_ids_accessed": [],
+  "target_outcomes_generated": 0
+}

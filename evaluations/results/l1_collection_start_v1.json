@@ -1,0 +1,126 @@
+{
+  "attempt_hash": "sha256:eaaeebe739d057de2ac9f9887c8ea45d6114f9dfd3910986216d393acc2dd8cd",
+  "attempt_id": "l1-prospective-collection-start-audit-v1",
+  "attempted_at": "2026-08-05T00:00:00Z",
+  "beneficial_impact_evaluated": false,
+  "beneficial_impact_supported": false,
+  "blockers": [
+    "analysis_window_not_frozen",
+    "assignment_schedule_identity_not_frozen",
+    "attribution_verification_not_frozen",
+    "cohort_eligibility_rules_not_frozen",
+    "cohort_exclusion_rules_not_frozen",
+    "cohort_identity_not_frozen",
+    "cohort_leakage_boundaries_not_frozen",
+    "cohort_to_analysis_mapping_not_frozen",
+    "control_lineage_semantics_not_frozen",
+    "control_policy_identities_not_frozen",
+    "exact_route_values_not_frozen",
+    "exposure_receipt_schema_not_frozen",
+    "failure_case_evidence_schema_not_frozen",
+    "independent_cluster_definition_not_frozen",
+    "no_independently_timed_cohort_submitted",
+    "observation_resource_schema_not_frozen",
+    "outcome_provenance_schema_not_frozen",
+    "paired_evaluator_conflicts_with_non_overlapping_assignment",
+    "primary_outcome_metric_not_frozen",
+    "sample_threshold_per_arm_not_frozen"
+  ],
+  "collection_started": false,
+  "contract_version": "ace.foresight.impact-collection-start-receipt/v1",
+  "disposition": "invalidated",
+  "external_dependencies": [
+    "An independently operated, post-registration decision cohort.",
+    "Verified assignment and exposure receipts from the intervention operator.",
+    "Live exact-route execution; simulated provider output is ineligible.",
+    "Product-owned outcome observations with immutable provenance.",
+    "Independent support for randomized or quasi-experimental attribution."
+  ],
+  "frozen_and_missing_identities": {
+    "allocation_unit": "non-overlapping decision identity",
+    "analysis_window": null,
+    "assignment_design": "blocked_randomized",
+    "cluster_definition": null,
+    "cohort_id": null,
+    "controls": {
+      "ace_foresight": "materially use eligible pre-decision F1 resolutions through an I3-traced decision",
+      "model_only": "same task, provider, model, configuration, schema, and toolset without ACE foresight",
+      "naive_base_rate": "same decision task with only the frozen cohort-local base-rate policy",
+      "no_foresight": "same decision task without forecast retrieval or injection"
+    },
+    "exact_route": null,
+    "required_assignment_evidence": [
+      "immutable assignment receipt",
+      "arm exposure receipt",
+      "allocation-unit hash",
+      "block identity"
+    ],
+    "required_lineage": [
+      "f1_resolution_id",
+      "i3_intelligence_use_receipt_id",
+      "decision_id",
+      "outcome_id"
+    ],
+    "required_matching_dimensions": [
+      "task_hash",
+      "prompt_contract_hash",
+      "provider",
+      "model",
+      "configuration_hash",
+      "decision_schema_hash",
+      "toolset_hash"
+    ],
+    "score_contract": "continuous_absolute_error/v1",
+    "stopping_rule": "analyze_once_after_fixed_cohort_closes"
+  },
+  "limitations": [
+    "The earlier readiness receipt proves only that the bounded v1 manifest passes its structural checker.",
+    "No prospective target outcome was submitted, inspected, scored, compared, or revealed.",
+    "The negative retrospective result remains authoritative and unchanged.",
+    "A successor protocol must be preregistered before its outcomes exist; this frozen registration cannot be repaired in place."
+  ],
+  "pre_outcome_guard": {
+    "comparative_result_calculated": false,
+    "comparative_result_revealed": false,
+    "dry_run_passed": true,
+    "impact_evaluator_invoked": false,
+    "mode": "pre_outcome_dry_run",
+    "target_outcomes_submitted": false
+  },
+  "protocol": {
+    "collection_executable": false,
+    "computed_registration_hash": "sha256:bf558acda007ed04c24eb247749aad23ed89124c5ae38264add92061050135e7",
+    "prior_readiness_state": "collection_not_started",
+    "registration_hash": "sha256:bf558acda007ed04c24eb247749aad23ed89124c5ae38264add92061050135e7",
+    "registration_id": "l1-prospective-independent-outcomes-v1",
+    "structural_protocol_valid": true
+  },
+  "receipt_hash": "sha256:f026c96f4846841627323c95031683e3494c967b1682edb2a2ce43c1e3f1086c",
+  "receipt_id": "l1-collection-start:eaaeebe739d057de2ac9f9887c8ea45d",
+  "resource_inventory": {
+    "collection_observations": 0,
+    "cost": {
+      "amount": 0,
+      "currency": "USD",
+      "semantics": "no_collection_calls_made"
+    },
+    "degraded_states": [
+      "collection_not_executable"
+    ],
+    "failures": [],
+    "input_tokens": 0,
+    "latency_ms": 0,
+    "output_tokens": 0,
+    "provider_calls": 0,
+    "retries": 0
+  },
+  "source_hashes": {
+    "analysis_code": "sha256:c3f2a32f38dab26799e6f937c65ff2b2e3d0442191126d5a76217c8e1b1565f1",
+    "attempt": "sha256:dcf3348cccd7e9f9002cd5d344a237bda74f8bed4f9794ee77b41c0784873fdd",
+    "collection_audit_code": "sha256:cd0651cdab32b739e4d9be3fc47a9adb5ea351f5c074201424e9e974e3727e23",
+    "collection_audit_script": "sha256:d746894c5f4c9e6b75c2dab0d97d5938efb6c3f597037ea248f66af8a7f96732",
+    "intake_code": "sha256:72ad9dd1156cf09a66ee0ed5cc5f5427d0f4221ca843e1d9f81e044cc8350d2b",
+    "preregistration": "sha256:4e62b3fee8577defbeebe633adf52c63cac883a405a175247c68aab671fbc571",
+    "prior_readiness_receipt": "sha256:4c81f4ffa0c21d193f252405d6704413b8c50aebd05c0e2f550b5584e55e83a5"
+  }
+}

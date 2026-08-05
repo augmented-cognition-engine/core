@@ -1,0 +1,64 @@
+{
+  "contract_version": "ace.foresight.impact-agent-development-canary/v6",
+  "created_at": "2026-08-05T04:54:10Z",
+  "state": "passed",
+  "development_only": true,
+  "eligible_for_confirmatory_analysis": false,
+  "route": {
+    "provider": "CodexCLIProvider",
+    "model": "gpt-5.6-terra"
+  },
+  "source_hashes": {
+    "benchmark_code": "sha256:a71adfc32c0dc41ff1a08eb6878283fbf3f0677fb5d30721e750fd33317d7f70",
+    "collection_runner": "sha256:0bfcab1da082cfc059d496eb9721c9966e3c78cb4045b12ff810dc4bcc718ffb"
+  },
+  "provider_calls": 4,
+  "target_case_ids_accessed": [],
+  "target_outcomes_generated": 0,
+  "target_outcomes_revealed": 0,
+  "analysis_invocations": 0,
+  "cases": [
+    {
+      "drift_class": "stable",
+      "applicability": "active",
+      "selected_option": "steady",
+      "applicability_marker_present": true,
+      "resolution_cited": true,
+      "calls": 1,
+      "failures": []
+    },
+    {
+      "drift_class": "upstream_reliability_shift",
+      "applicability": "contested",
+      "selected_option": "retry_shield",
+      "applicability_marker_present": true,
+      "resolution_cited": true,
+      "calls": 1,
+      "failures": []
+    },
+    {
+      "drift_class": "traffic_burst_shift",
+      "applicability": "contested",
+      "selected_option": "burst_guard",
+      "applicability_marker_present": true,
+      "resolution_cited": true,
+      "calls": 1,
+      "failures": []
+    },
+    {
+      "drift_class": "cost_priority_shift",
+      "applicability": "contested",
+      "selected_option": "cost_saver",
+      "applicability_marker_present": true,
+      "resolution_cited": true,
+      "calls": 1,
+      "failures": []
+    }
+  ],
+  "limitations": [
+    "This canary validates live selective-foresight behavior only.",
+    "It generated no workload outcomes and cannot support beneficial-impact promotion.",
+    "Confirmatory v6 uses fresh cohort identities, assignments, parameters, and post-decision seeds."
+  ],
+  "development_hash": "sha256:5ac42b88b0c499ea16bc818e50aad19ad77e614414e660507b31529035db82e1"
+}

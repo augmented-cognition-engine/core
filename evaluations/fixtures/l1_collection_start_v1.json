@@ -1,0 +1,12 @@
+{
+  "attempt_hash": "sha256:eaaeebe739d057de2ac9f9887c8ea45d6114f9dfd3910986216d393acc2dd8cd",
+  "attempt_id": "l1-prospective-collection-start-audit-v1",
+  "attempted_at": "2026-08-05T00:00:00Z",
+  "cohort_submitted": false,
+  "contract_version": "ace.foresight.impact-collection-start/v1",
+  "mode": "pre_outcome_dry_run",
+  "outcomes_submitted": false,
+  "registration_hash": "sha256:bf558acda007ed04c24eb247749aad23ed89124c5ae38264add92061050135e7",
+  "registration_id": "l1-prospective-independent-outcomes-v1",
+  "requested_disposition": "collection_started"
+}

@@ -1,0 +1,24 @@
+{
+  "contract_version": "ace.foresight.impact-agent-invalidation/v2",
+  "registration_id": "l1-agent-executable-benchmark-v2",
+  "registration_hash": "sha256:b8f18d86035a94a1055d6e27f96a9afe8ac4230a2ce2b0ceb9bff8deb5ad9705",
+  "invalidated_at": "2026-08-05T02:49:00Z",
+  "state": "invalidated_before_collection",
+  "reason_codes": [
+    "required_last_observation_persistence_control_not_implemented"
+  ],
+  "finding": "The frozen no_foresight arm used a structured no-foresight checklist rather than the required cluster-local last-observation-persistence policy.",
+  "disposition": "Target collection is forbidden under v2; a prospectively frozen successor must implement the exact required control.",
+  "protocol_file_sha256": "sha256:bfe49afa86ebfb5b0c728e8fc6dfbb70f9b9e916a92ffec5364ebf1e95831eec",
+  "frozen_source_hashes": {
+    "benchmark_code": "sha256:5c3726d501893f07368f7902dd5a7f897fc9f535a7a4e26b8136eeb57ca9db20",
+    "collection_runner": "sha256:035a034b63bc8c48dc2834341e38d39ec99906d2d7717f5fec6ebc253db26bec"
+  },
+  "route_qualification_hash": "sha256:d8bfdc007dfa498e03ce5f12b5e98713fda47b54a1fc63508f0b547c5ffc47bc",
+  "target_case_ids_accessed": [],
+  "target_decisions_recorded": 0,
+  "target_outcomes_generated": 0,
+  "target_outcomes_revealed": 0,
+  "analysis_invocations": 0,
+  "invalidation_hash": "sha256:7f67a8652159adb0eeb11a4e5bbe99548233e0ec68a22e17433c7af21bca5060"
+}

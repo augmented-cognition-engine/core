@@ -1,0 +1,29 @@
+{
+  "canary": {
+    "decision_hash": "sha256:89992829dcf3ec0294a0fdbdf368f47fa50e271ca5d2e3473c28d3c10c565eca",
+    "decision_schema_valid": true,
+    "identity": "l1-v5-non-target-canary",
+    "outcome_contract_valid": true,
+    "provider_output": "not_invoked"
+  },
+  "contract_version": "ace.foresight.impact-agent-dry-run/v5",
+  "dry_run_hash": "sha256:c9ceb7fff77e9c42007b54f84fccb545b86c1a4c9dbb78ca65bf52fd4c679785",
+  "impact_analysis_invocations": 0,
+  "limitations": [
+    "The canary is pipeline evidence only and is never eligible for the target cohort.",
+    "No simulated output is represented as a live provider result.",
+    "No target workload seed or outcome was created."
+  ],
+  "provider_calls": 0,
+  "reason_codes": [],
+  "registration_hash": "sha256:8526f06f47d65a06633ba12a7b9525c472fe0fc786ef37178fcc61e7ea0cc919",
+  "registration_id": "l1-agent-executable-benchmark-v5",
+  "source_hashes": {
+    "benchmark_code": "sha256:58845b3227dd8a5246a73dbee9a0d2431c15c0315928d7d3b6247a405c69dec1",
+    "collection_runner": "sha256:dbe32ef8d09a53019c4bf4543566ecf55cc784565b6f0e524a780807328335dd"
+  },
+  "state": "passed",
+  "target_case_ids_accessed": [],
+  "target_outcomes_generated": 0,
+  "target_outcomes_revealed": 0
+}
