@@ -1,6 +1,6 @@
-# ACE 0.3.0 capability maturity
+# ACE 0.3.1 capability maturity
 
-ACE 0.3.0 is a developer preview. This page distinguishes the public contract from implemented
+ACE 0.3.1 is a developer preview. This page distinguishes the public contract from implemented
 surfaces that remain experimental.
 
 ## Preview contract
@@ -12,13 +12,13 @@ install ace-core → configure a provider and SurrealDB → start ACE → authen
 → ace doctor → reason and capture → load retained intelligence → stop cleanly
 ```
 
-The 0.3.0 public identities are:
+The 0.3.1 public identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.3.0`
+- version: `0.3.1`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -133,13 +133,12 @@ archival/reactivation, and stop conditions. Distributed ordering, multi-writer c
 multi-region recovery, real-world causal accuracy or calibration, autonomous learning, general
 world-model intelligence, and general real-world L1 beneficial impact are not supported claims.
 
-## 0.3.x Productized State candidate — not yet released
+## Supported 0.3.1 Productized State journey
 
-The candidate branch adds a builder-facing `ace state` workflow and authenticated Product State
-HTTP boundary. These changes are not present in the published ace-core 0.3.0 wheel. Until a later
-artifact is reviewed and published, this section describes candidate behavior only.
+ACE 0.3.1 adds a builder-facing `ace state` workflow and authenticated Product State HTTP boundary.
+The supported claim is bounded to the contract, topology, and failure behavior below.
 
-The candidate supports:
+The release supports:
 
 - `GET /product-state/capabilities` for deterministic adapter/action/version discovery;
 - `POST /product-state/ingestions` for extension mapping under authenticated Core product scope;
@@ -149,14 +148,14 @@ The candidate supports:
   correction receipts; and
 - schema-zero v171 and v168→v171 compatibility in the frozen extension-first acceptance.
 
-The ingestion and inspection contracts are supported candidate surfaces. The underlying grounded-
+The ingestion and inspection contracts are supported surfaces. The underlying grounded-
 state adapter and extension task-action registration remain experimental extension hooks: installed
 extensions are explicitly trusted in-process, action authority stays bounded by their manifest, and
 failures remain visible. The CLI adds no MCP tool and does not make capture equivalent to promotion.
 
 The [Productized State guide](productized-state.md) and
-[candidate evidence](evidence/productized-state-journey-v1.md) record the exact journey, failure
-behavior, receipt identities, and publication hold.
+[release evidence](evidence/productized-state-v0.3.1-release-readiness.md) record the exact journey,
+failure behavior, receipt identities, and artifact boundary.
 
 ## Implemented architecture beyond the compatibility contract
 

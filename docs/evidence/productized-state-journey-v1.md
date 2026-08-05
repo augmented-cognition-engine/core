@@ -1,10 +1,10 @@
 # Productized State public-journey evidence v1
 
-Status: **engineering acceptance passed on 2026-08-05; public artifact release pending**
+Status: **engineering acceptance passed on 2026-08-05; bound to the ace-core 0.3.1 release candidate**
 
 This record closes the implementation and reproducible-journey portion of the 0.3.x Productized
-State milestone. It does not claim that the branch has been merged or that a new ace-core artifact
-has been published. The authoritative machine receipt is
+State milestone. The implementation is merged and included in the ace-core 0.3.1 release candidate;
+public registry provenance remains a separate release receipt. The authoritative machine receipt is
 [`evaluations/results/productized_state_journey_v1.json`](../../evaluations/results/productized_state_journey_v1.json),
 with a human rendering in the paired Markdown file.
 
@@ -65,10 +65,10 @@ returned the complete receipt families above; unit tests also assert the typed a
 
 ## Release boundary
 
-The implementation and frozen public journey pass, but publication remains incomplete until the
-candidate is reviewed, merged, included in a versioned artifact, installed from the public index in
-a clean environment, and reconciled with issue #2 and the public Project. Until then the published
-ace-core 0.3.0 capability page remains authoritative for released users.
+The implementation and frozen public journey pass and are included in the 0.3.1 release candidate.
+Milestone publication remains incomplete until the candidate passes the complete release matrix,
+is published through the trusted workflow, is installed from the public index in a clean
+environment, and is reconciled with issue #2 and the public Project.
 
 The claim is limited to a bounded single-node topology, synchronous adapters, trusted installed
 Python extensions running in process, and fictional public-safe data. It does not establish hostile-
