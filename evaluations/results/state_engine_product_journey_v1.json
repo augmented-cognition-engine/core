@@ -1,0 +1,687 @@
+{
+  "acceptance_hash": "d81257a0e379c20248cb546b61b57d18c5ed440950d003733140310f83713e85",
+  "acceptance_id": "state-engine-k1-k3-product-journey-v1",
+  "belief_state": {
+    "as_of": "2030-01-01T00:00:00+00:00",
+    "entries": [
+      {
+        "assertion_revision_id": null,
+        "contradicting_evidence_refs": [],
+        "entry_id": "grounded_projection_entry:088308bed410e44643c97c942520f21d",
+        "missing_evidence": [
+          "no_accepted_assertion_as_of"
+        ],
+        "operational": false,
+        "predicate": "inspection_state",
+        "status": "unknown",
+        "superseding_assertion_refs": [],
+        "supporting_evidence_refs": []
+      },
+      {
+        "assertion_revision_id": "grounded_assertion_revision:40426643b8ce9bc4a489547b5bcde214",
+        "contradicting_evidence_refs": [],
+        "entry_id": "grounded_projection_entry:58c7d098cdb15ffc862b0dc1ef7d702c",
+        "missing_evidence": [],
+        "operational": true,
+        "predicate": "monitoring_policy_revision",
+        "status": "supported",
+        "superseding_assertion_refs": [],
+        "supporting_evidence_refs": [
+          "grounded_event_participant:a167078693a0f64655cb89ee5b806c64"
+        ]
+      },
+      {
+        "assertion_revision_id": "grounded_assertion_revision:74fbbd7132daba21e3555cd406bb4cf4",
+        "contradicting_evidence_refs": [],
+        "entry_id": "grounded_projection_entry:66499de42d5c1f57502c3a0f5a2106d5",
+        "missing_evidence": [],
+        "operational": true,
+        "predicate": "cooling_state",
+        "status": "supported",
+        "superseding_assertion_refs": [],
+        "supporting_evidence_refs": [
+          "grounded_claim:0ff3d041ac46a2ead068fc64b113a18a",
+          "grounded_claim:a20f7966bf16e02bf29eb9abc0f16fec"
+        ]
+      },
+      {
+        "assertion_revision_id": "grounded_assertion_revision:ce643e7e878ed4941713b175861a72e5",
+        "contradicting_evidence_refs": [],
+        "entry_id": "grounded_projection_entry:9a767c72708b802a73543a4178d1e040",
+        "missing_evidence": [],
+        "operational": false,
+        "predicate": "standby_test_status",
+        "status": "provisional",
+        "superseding_assertion_refs": [],
+        "supporting_evidence_refs": [
+          "grounded_claim:ec9b9b9a4776c4083f22f74ba1245934"
+        ]
+      },
+      {
+        "assertion_revision_id": "grounded_assertion_revision:b924ceea99d8d3dc775ca7f61c151c5c",
+        "contradicting_evidence_refs": [
+          "grounded_event:5e16ba9a284e10620ee2176146a5ccaf"
+        ],
+        "entry_id": "grounded_projection_entry:c67faef58e6afbff999eaa812da4cd30",
+        "missing_evidence": [],
+        "operational": false,
+        "predicate": "temperature_risk",
+        "status": "contested",
+        "superseding_assertion_refs": [],
+        "supporting_evidence_refs": [
+          "grounded_claim:f5f75223a0c4ce5f906d802baa9a3d36"
+        ]
+      },
+      {
+        "assertion_revision_id": "grounded_assertion_revision:bf781f7eeb3f263576208ef20996e1c6",
+        "contradicting_evidence_refs": [],
+        "entry_id": "grounded_projection_entry:cdffcfe46e49754a8d2d30dc73f078bd",
+        "missing_evidence": [],
+        "operational": false,
+        "predicate": "monitoring_policy_revision",
+        "status": "superseded",
+        "superseding_assertion_refs": [
+          "grounded_epistemic_assertion:79c77219122927821a76e3fe0abbc0b8"
+        ],
+        "supporting_evidence_refs": [
+          "grounded_event:5e16ba9a284e10620ee2176146a5ccaf"
+        ]
+      }
+    ],
+    "evidence_pack_hash": "aec43a7cfb60bb1e39e5c51c40b1712c8848651cdf9a680db790063773e1a498",
+    "evidence_pack_id": "grounded_evidence_pack:aec43a7cfb60bb1e39e5c51c40b1712c",
+    "projection_hash": "a9cd08c8f2e927058566ab74c49f239b7c0cc1790e122f737d6ddb206776f599",
+    "projection_id": "grounded_belief_projection:a9cd08c8f2e927058566ab74c49f239b",
+    "provider_usage": {
+      "estimated_cost_usd": 0.0,
+      "failures": [],
+      "input_tokens": 0,
+      "latency_ms": 0,
+      "model_calls": 0,
+      "output_tokens": 0
+    },
+    "statuses": [
+      "contested",
+      "provisional",
+      "superseded",
+      "supported",
+      "unknown"
+    ]
+  },
+  "checks": {
+    "belief_state_complete": true,
+    "clean_extension_install_and_discovery": true,
+    "correction_supersession_and_later_use": true,
+    "failure_matrix": true,
+    "five_time_meanings_separate": true,
+    "immutable_outcome_reconciliation": true,
+    "ingestion_replay_lineage_counts_isolation": true,
+    "no_benefit_claim": true,
+    "provider_budget": true,
+    "restart_budget": true,
+    "restart_fresh_client_material_use": true,
+    "schema_zero_and_upgrade": true,
+    "simulation_never_observation": true,
+    "source_data_has_no_instruction_authority": true,
+    "thin_mcp_exact": true,
+    "three_way_rollout_and_decision": true,
+    "transition_inspectable_and_causally_bounded": true
+  },
+  "completed_at": "2026-08-05T03:04:23.667363+00:00",
+  "contract_version": "ace.grounded-state.product-journey-result/v1",
+  "correction": {
+    "authoritative_contents": [
+      "Monitor both active and standby Fjord cooling circuits."
+    ],
+    "authoritative_memory_ids": [
+      "insight:promotion_020d2108b7b436379bc92c7c"
+    ],
+    "memory_id": "insight:promotion_020d2108b7b436379bc92c7c",
+    "observation_id": "observation:kcoyy90t7f0up1hwza8i",
+    "proposal_id": "grounded_promotion_proposal:5b80e950e537db64d6de8ae6f0e809aa",
+    "receipt_hash": "c139a12f4061703a199d2b927ae01bdc6a7f687a7c0e1d7cdea25d404335f2a1",
+    "receipt_id": "grounded_promotion_receipt:c139a12f4061703a199d2b927ae01bdc",
+    "supersedes_initial": true,
+    "task_id": "task:extension_57e5fc240bcc7efbebc604c829fce765"
+  },
+  "decisions": {
+    "K1": "passed",
+    "K2": "passed",
+    "K3": "passed"
+  },
+  "environment": {
+    "platform": "darwin",
+    "python": "3.12.13",
+    "source_revision": "00322e79f4b573f0cadb4b18c93bc1a722f57dbf",
+    "surreal_binary": "/opt/homebrew/bin/surreal",
+    "surreal_version": "3.2.1 for macos on aarch64",
+    "topology": "one database, one API, one worker, bounded synchronous clients"
+  },
+  "extension": {
+    "adapter": [
+      "fjord-operations",
+      "public-fixture"
+    ],
+    "capabilities": [
+      {
+        "action": null,
+        "extension_id": "fjord-operations",
+        "extension_version": "0.1.0",
+        "input_contract": null,
+        "output_contract": null
+      },
+      {
+        "action": null,
+        "extension_id": "fjord-operations",
+        "extension_version": "0.1.0",
+        "input_contract": null,
+        "output_contract": null
+      }
+    ],
+    "clean_install": true,
+    "distribution": "ace-ext-fjord-operations",
+    "distribution_version": "0.1.0",
+    "entry_point": "fjord-operations",
+    "entry_point_discovered": true,
+    "extension_id": "fjord-operations",
+    "extension_version": "0.1.0",
+    "loaded_extensions": [
+      "fjord-operations",
+      "product"
+    ]
+  },
+  "failure_cases": [
+    {
+      "case": "unavailable_evidence",
+      "outcome": "foreign-scope query returned an explicit empty bounded evidence pack",
+      "passed": true
+    },
+    {
+      "case": "unsupported_causality",
+      "outcome": "causal transition acceptance requires human authority",
+      "passed": true
+    },
+    {
+      "case": "product_isolation",
+      "outcome": "foreign task read returned 404 and foreign evidence/memory reads returned no rows",
+      "passed": true
+    },
+    {
+      "case": "stale_state",
+      "outcome": "stale transition revision remained non-applicable with transition_stale degradation",
+      "passed": true
+    },
+    {
+      "case": "restart_interruption",
+      "outcome": "interrupted attempt degraded after restart and resumed as an immutable successor",
+      "passed": true
+    },
+    {
+      "case": "incomplete_reconciliation",
+      "outcome": "missing observed assignment remained unresolved and unscored",
+      "passed": true
+    }
+  ],
+  "fixture": {
+    "config_path": "evaluations/fixtures/state_engine_product_journey_v1.json",
+    "config_sha256": "7ac1470fd05727b31b794783c40e7afe9aafaa1b628614b8f4f21d72df151a4c",
+    "corpus_path": "examples/ace_ext_fjord_operations/fjord_operations_extension/fixtures/public_corpus_v1.json",
+    "corpus_sha256": "85907acc8ad5b9a73d2d7551ced98d1bb26d4b9ea51a189d262675cb5ff9ea28",
+    "fixture_status": "frozen_before_execution"
+  },
+  "ingestion": {
+    "adapter_id": "fjord-operations-public-fixture",
+    "adapter_version": "v1",
+    "counts_reconciled": true,
+    "distinct_non_event_times": 4,
+    "evidence_candidates": 7,
+    "evidence_pack_hash": "aec43a7cfb60bb1e39e5c51c40b1712c8848651cdf9a680db790063773e1a498",
+    "evidence_pack_id": "grounded_evidence_pack:aec43a7cfb60bb1e39e5c51c40b1712c",
+    "evidence_selected": 7,
+    "exact_replay": true,
+    "extension_loader_names": [
+      "fjord_operations_extension.extension:FjordOperationsExtension",
+      "product"
+    ],
+    "item_counts": {
+      "accepted": 4,
+      "duplicate": 0,
+      "failed": 0,
+      "inputs": 5,
+      "persisted": 5,
+      "rejected": 0,
+      "superseding": 1
+    },
+    "lineage_ids": [
+      "grounded_supersession:00da3ee57147be6ab9c0245a44e2a024"
+    ],
+    "manifest_hash": "8e456e7907e4eaf6d04b126fc5ca5d90d7ed57bcacb23091d47717d37bb4c3f5",
+    "manifest_id": "grounded_ingestion_manifest:8e456e7907e4eaf6d04b126fc5ca5d90",
+    "persisted_by_kind": {
+      "aliases": 5,
+      "claims": 4,
+      "entities": 1,
+      "event_participants": 1,
+      "events": 1,
+      "extraction_failures": 0,
+      "relations": 5,
+      "sources": 5
+    },
+    "persisted_semantic_records": 22,
+    "primary_model_calls": 0,
+    "product_isolation": true,
+    "query_degraded_reasons": [
+      "entity_identity_unavailable",
+      "graph_neighborhood_unavailable",
+      "source_identity_unavailable",
+      "unknown_time_not_scored"
+    ],
+    "query_evidence_pack_id": "grounded_evidence_pack:f19fd206d302db91b96d0b4c78b4727d",
+    "receipt_id": "grounded_batch_ingestion_receipt:71efb0ed74788c64c9cb4fcbb6385872",
+    "record_counts": {
+      "accepted": 21,
+      "duplicate": 4,
+      "failed": 0,
+      "inputs": 26,
+      "persisted": 22,
+      "rejected": 0,
+      "superseding": 1
+    },
+    "source_items": 5,
+    "stable_record_ids": [
+      "grounded_alias:025e885316d058f27ab1474ae45f67a8",
+      "grounded_alias:0a84af7aaa97cb46202e16d4c170ff19",
+      "grounded_alias:38abe4d5c6dc4ad3489621626f16bd4c",
+      "grounded_alias:58e488f7ef9e368406e3c10c35cf627a",
+      "grounded_alias:e1f27e190a5c28e9325092c01341c9ae",
+      "grounded_claim:0ff3d041ac46a2ead068fc64b113a18a",
+      "grounded_claim:a20f7966bf16e02bf29eb9abc0f16fec",
+      "grounded_claim:ec9b9b9a4776c4083f22f74ba1245934",
+      "grounded_claim:f5f75223a0c4ce5f906d802baa9a3d36",
+      "grounded_entity:97e1729c7c8898186cfa5d4884f640ab",
+      "grounded_entity:97e1729c7c8898186cfa5d4884f640ab",
+      "grounded_entity:97e1729c7c8898186cfa5d4884f640ab",
+      "grounded_entity:97e1729c7c8898186cfa5d4884f640ab",
+      "grounded_entity:97e1729c7c8898186cfa5d4884f640ab",
+      "grounded_event:5e16ba9a284e10620ee2176146a5ccaf",
+      "grounded_event_participant:a167078693a0f64655cb89ee5b806c64",
+      "grounded_evidence_relation:39e6e66d58099f1a94e4279443e1b445",
+      "grounded_evidence_relation:3a1119b65f74bebc3058bf8394a368b4",
+      "grounded_evidence_relation:a39c71174c86fb9513b875c9803303c7",
+      "grounded_evidence_relation:b6e05c47a7b2f9c01d58962852729d03",
+      "grounded_evidence_relation:cbc83213b4f69693df82168e88473081",
+      "grounded_source:874e32495ce8eb0b161f8de9384f81fe",
+      "grounded_source:887ca548c0d5482611e760de902f2139",
+      "grounded_source:aa4288fe68c0308cdf4595ba6bd89faf",
+      "grounded_source:cb6fc5363802bba92dca10314880565a",
+      "grounded_source:d74f25f009b07fe8f0aa317a8c5f9519"
+    ],
+    "time_meanings": {
+      "ace_created_at": "2026-08-05T03:04:09.650293+00:00",
+      "event_or_valid_time": {
+        "inferred_from": [],
+        "occurred_at": "2026-06-01T09:00:00Z",
+        "precision": "exact",
+        "valid_from": null,
+        "valid_to": null
+      },
+      "extracted_at": "2026-06-01T11:05:00+00:00",
+      "ingested_at": "2026-06-01T11:00:00+00:00",
+      "published_at": "2026-06-01T10:00:00+00:00"
+    },
+    "unavailable_evidence_selected": 0,
+    "version_lineage": true
+  },
+  "journey_steps": [
+    {
+      "name": "install and discover ACE plus product extension",
+      "ordinal": 1,
+      "status": "passed"
+    },
+    {
+      "name": "ingest bounded public-safe temporal corpus",
+      "ordinal": 2,
+      "status": "passed"
+    },
+    {
+      "name": "replay ingestion and reconcile identity, lineage, counts, and scope",
+      "ordinal": 3,
+      "status": "passed"
+    },
+    {
+      "name": "freeze five-meaning as-of belief projection",
+      "ordinal": 4,
+      "status": "passed"
+    },
+    {
+      "name": "challenge and review inspectable transition hypothesis",
+      "ordinal": 5,
+      "status": "passed"
+    },
+    {
+      "name": "compare action, no-action, and named alternative rollouts",
+      "ordinal": 6,
+      "status": "passed"
+    },
+    {
+      "name": "persist structured decision and I3 use receipt",
+      "ordinal": 7,
+      "status": "passed"
+    },
+    {
+      "name": "capture and reconcile incomplete then matched later outcomes",
+      "ordinal": 8,
+      "status": "passed"
+    },
+    {
+      "name": "accept correction and append-only supersession lineage",
+      "ordinal": 9,
+      "status": "passed"
+    },
+    {
+      "name": "restart database, API, and worker; invoke fresh thin client",
+      "ordinal": 10,
+      "status": "passed"
+    },
+    {
+      "name": "exercise honest failure and degraded cases",
+      "ordinal": 11,
+      "status": "passed"
+    },
+    {
+      "name": "reverify unchanged eleven-tool public MCP boundary",
+      "ordinal": 12,
+      "status": "passed"
+    }
+  ],
+  "later_use": {
+    "after_correction_material_ids": [
+      "insight:promotion_020d2108b7b436379bc92c7c"
+    ],
+    "after_correction_task_id": "task:w50u5qw8sz12s1zl8gnw",
+    "before_correction_material_ids": [
+      "insight:promotion_9c742f17da89c90342f7dd50"
+    ],
+    "before_correction_task_id": "task:110e4dgrh212euj2xrbn",
+    "beneficial_impact_supported": false,
+    "fresh_client_pids": [
+      11753,
+      11763
+    ]
+  },
+  "limitations": [
+    "bounded single-node database, API, worker, and synchronous adapter clients only",
+    "fictional public-safe product data; no real-world causal-accuracy claim",
+    "provider-free execution; no hosted-model latency or quality claim",
+    "material I3 influence is demonstrated but beneficial impact is not",
+    "no distributed ordering, multi-writer, multi-region, autonomous-learning, or general-world-model claim"
+  ],
+  "promotion": {
+    "authority": "human",
+    "disposition": "accepted",
+    "initial_memory_id": "insight:promotion_9c742f17da89c90342f7dd50",
+    "initial_proposal_id": "grounded_promotion_proposal:ec6eedf7c924eb176e27d31d44aa2b7f",
+    "initial_receipt_hash": "f1fc69d93efc81bcb104db79bb2438660ccf4fa5ce49e35970558992b7e50920",
+    "initial_receipt_id": "grounded_promotion_receipt:f1fc69d93efc81bcb104db79bb243866"
+  },
+  "provider_usage": {
+    "billing_semantics": "deterministic_no_model_call",
+    "calls": 0,
+    "cost_usd": 0.0,
+    "exact_model": "provider-free-v1",
+    "failures": [],
+    "input_tokens": 0,
+    "latency_ms": 0,
+    "output_tokens": 0,
+    "retries": 0,
+    "route": "deterministic-provider-free-acceptance"
+  },
+  "reconciliation": {
+    "incomplete_degraded_reasons": [
+      "observed_assignment_unavailable"
+    ],
+    "incomplete_disposition": "unresolved",
+    "incomplete_observation_id": "grounded_rollout_outcome:e0361809451b9470c828c693e9e30c46",
+    "incomplete_receipt_id": "grounded_rollout_reconciliation:1faf1e76262511eea228fda2fa4f19fa",
+    "matched_disposition": "matched",
+    "matched_receipt_hash": "0c3dd8965ec3d76ac29c670f3eb9e0f1c504bff69feb614c431f42d2e4bf1fe4",
+    "matched_receipt_id": "grounded_rollout_reconciliation:0c3dd8965ec3d76ac29c670f3eb9e0f1",
+    "matched_score": 1.0,
+    "observation_hash": "9d41786e104be0b074ef9cf4663be57d137646de8db36f8951eb977f8dc940de",
+    "observation_id": "grounded_rollout_outcome:9d41786e104be0b074ef9cf4663be57d",
+    "observed_evidence_pack_hash": "bf08f89e3c2b388a64abdd28e5e96db5de37dbd14aa9ae98b8dd413c54de8ba2",
+    "observed_evidence_pack_id": "grounded_evidence_pack:bf08f89e3c2b388a64abdd28e5e96db5",
+    "original_rollout_preserved": true,
+    "record_meanings": [
+      "simulated_consequence"
+    ]
+  },
+  "resource_use": {
+    "duration_seconds": 84.137906,
+    "evidence_selected": 7,
+    "restart_seconds_max": 2.823601,
+    "stable_record_count": 22,
+    "store_bytes": 2888756,
+    "task_latency_ms": {
+      "count": 7,
+      "max": 95.303,
+      "p50": 81.794,
+      "p95": 95.303
+    },
+    "unexpected_failures": []
+  },
+  "restart": {
+    "first_restart_processes": {
+      "api_health": {
+        "loaded_extensions": [
+          "fjord-operations",
+          "product"
+        ],
+        "status": "ok",
+        "surface": "production_task_extension_intelligence_capture_routers"
+      },
+      "api_pid": 11736,
+      "api_start_seconds": 1.331414,
+      "worker_health": {
+        "status": "ok",
+        "version": "0.2.0"
+      },
+      "worker_pid": 11752,
+      "worker_start_seconds": 1.22883
+    },
+    "first_restart_seconds": 2.823601,
+    "initial_processes": {
+      "api_health": {
+        "loaded_extensions": [
+          "fjord-operations",
+          "product"
+        ],
+        "status": "ok",
+        "surface": "production_task_extension_intelligence_capture_routers"
+      },
+      "api_pid": 11718,
+      "api_start_seconds": 1.382431,
+      "worker_health": {
+        "status": "ok",
+        "version": "0.2.0"
+      },
+      "worker_pid": 11723,
+      "worker_start_seconds": 1.634275
+    },
+    "interruption": {
+      "attempt_number": null,
+      "passed": true,
+      "predecessor_status_after_restart": "degraded",
+      "predecessor_task_id": "task:extension_ac3d52ac813c6f42aa2bd52a01b6417a",
+      "processes": {
+        "api_health": {
+          "loaded_extensions": [
+            "fjord-operations",
+            "product"
+          ],
+          "status": "ok",
+          "surface": "production_task_extension_intelligence_capture_routers"
+        },
+        "api_pid": 11765,
+        "api_start_seconds": 0.921645,
+        "worker_health": {
+          "status": "ok",
+          "version": "0.2.0"
+        },
+        "worker_pid": 11768,
+        "worker_start_seconds": 0.819034
+      },
+      "restart_seconds": 2.003612,
+      "successor_status": "completed",
+      "successor_task_id": "task:extension_d27c269e3bce7fc9a14e31898623651b"
+    },
+    "interruption_restart_seconds": 2.003612,
+    "same_task_identity": true,
+    "second_restart_processes": {
+      "api_health": {
+        "loaded_extensions": [
+          "fjord-operations",
+          "product"
+        ],
+        "status": "ok",
+        "surface": "production_task_extension_intelligence_capture_routers"
+      },
+      "api_pid": 11757,
+      "api_start_seconds": 1.027413,
+      "worker_health": {
+        "status": "ok",
+        "version": "0.2.0"
+      },
+      "worker_pid": 11758,
+      "worker_start_seconds": 0.819809
+    },
+    "second_restart_seconds": 2.113796
+  },
+  "rollout": {
+    "branch_kinds": [
+      "action",
+      "alternative",
+      "no_action"
+    ],
+    "control_task_id": "task:extension_167e1380928463184f8d7199ef277913",
+    "decision_material_count": 1,
+    "decision_receipt_id": "decision:se4rqgl8ekq2qx3qg5t7",
+    "reasoning_use_receipt_id": "grounded_reasoning_use:6eaadbf8d1e6ca5108ae8ebcd835eeb1",
+    "record_meanings": [
+      "simulated_consequence"
+    ],
+    "rollout_revision_hash": "0d820541a87dacd09fb003b3997caa908367cd64a49679f8f241982787d09496",
+    "rollout_revision_id": "grounded_rollout_revision:0d820541a87dacd09fb003b3997caa90",
+    "source_instruction_authority": false,
+    "task_id": "task:extension_a4324511344348e1f5ccbddb6be0715a",
+    "task_status": "completed"
+  },
+  "schema": {
+    "schema_zero": {
+      "latency_seconds": 33.902385,
+      "summary": "Done \u2014 applied 167 file(s); frozen schema v168 validated (110 audited legacy compatibility events).",
+      "version": 168
+    },
+    "upgrade": {
+      "compatibility_events": 110,
+      "from_version": 160,
+      "latency_seconds": 6.277202,
+      "migration_files": 159,
+      "sentinel_preserved": true,
+      "sentinel_product_id": "product:fjord_upgrade_sentinel",
+      "summary": "Done \u2014 applied 8 file(s); frozen schema v168 validated (0 audited legacy compatibility events).",
+      "to_version": 168
+    }
+  },
+  "started_at": "2026-08-05T03:02:59.529457+00:00",
+  "status": "passed",
+  "surfaces": {
+    "adapter_registry": "Registry.register_grounded_state_adapter",
+    "broad_engine_mcp_used": false,
+    "extension_invocation_http": [
+      "GET /extension-invocations/capabilities",
+      "POST /extension-invocations",
+      "POST /extension-invocations/{task_id}/resume",
+      "GET /tasks/{task_id}"
+    ],
+    "thin_mcp_tool_count": 11,
+    "thin_mcp_tools": [
+      "ace_start",
+      "ace_load",
+      "ace_capture",
+      "ace_task",
+      "ace_status",
+      "ace_capture_idea",
+      "ace_search",
+      "ace_briefing",
+      "ace_impact",
+      "ace_history",
+      "ace_related"
+    ]
+  },
+  "transition": {
+    "branch_input_applicable": true,
+    "branch_input_id": "grounded_transition_input:2028112ed5b1939cf43d7d6e1c2ee230",
+    "causal_limit": "mechanistic_hypothesis_not_causal_fact",
+    "causal_strength": "mechanistic",
+    "challenge_completed": true,
+    "challenge_receipt_id": "grounded_transition_challenge:c0cd51dc1303a9d648a81e2efea9a61e",
+    "contrary_evidence_refs": [],
+    "hypothesis_id": "grounded_transition:ceeffce42e47d5445a9b29eee06a9257",
+    "mechanism": "Disconnecting active cooling permits chamber temperature to rise after thermal lag.",
+    "preconditions": [
+      {
+        "operator": "eq",
+        "value": "active",
+        "variable": {
+          "allowed_values": [
+            "disconnected",
+            "active"
+          ],
+          "maximum": null,
+          "minimum": null,
+          "predicate": "cooling_state",
+          "subject": {
+            "content_hash": "0843f6ef1d638a216b80d71156e3c1a778c94e6bba44128a36b858a672b22577",
+            "contract_version": "ace.grounded-state.typed-evidence-endpoint/v1",
+            "kind": "claim",
+            "product_id": "product:fjord-operations",
+            "record_id": "grounded_claim:0ff3d041ac46a2ead068fc64b113a18a",
+            "record_version": "v1"
+          },
+          "unit": null,
+          "value_type": "categorical"
+        }
+      }
+    ],
+    "proposal_id": "grounded_transition_proposal:6d1405ad5c6f81977983a4101f16245e",
+    "provider_usage": {
+      "estimated_cost_usd": 0.0,
+      "failures": [],
+      "input_tokens": 0,
+      "latency_ms": 0,
+      "model_calls": 0,
+      "output_tokens": 0
+    },
+    "review_authority": "deterministic_policy",
+    "review_id": "grounded_transition_review:364f9fc8c8d90b15a4333fcd5235ab1a",
+    "review_state": "provisional",
+    "revision_hash": "2c232a03cf15fb4bbfe989f29b7327078470cb3a11c1f85a31bbb91ab9eebbe1",
+    "revision_id": "grounded_transition_revision:2c232a03cf15fb4bbfe989f29b732707",
+    "rollout_eligible": true,
+    "supporting_evidence_refs": [
+      "grounded_claim:0ff3d041ac46a2ead068fc64b113a18a",
+      "grounded_claim:a20f7966bf16e02bf29eb9abc0f16fec"
+    ],
+    "time_horizon_seconds": [
+      3600,
+      86400
+    ],
+    "uncertainty": {
+      "expected": 0.75,
+      "lower": 0.55,
+      "upper": 0.9
+    },
+    "unsupported_causality_error": "causal transition acceptance requires human authority"
+  }
+}
