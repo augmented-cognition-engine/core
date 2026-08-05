@@ -9,6 +9,10 @@ from typing import Any
 
 ROOT = Path(__file__).parents[1]
 DEFAULT_CONFIG = ROOT / "evaluations/fixtures/state_engine_product_journey_v1.json"
+PRODUCTIZED_CONFIG_CONTRACT = "ace.product-state.productized-journey-config/v1"
+PRODUCTIZED_RESULT_CONTRACT = "ace.product-state.productized-journey-result/v1"
+STATE_ENGINE_CONFIG_CONTRACT = "ace.grounded-state.product-journey-config/v1"
+STATE_ENGINE_RESULT_CONTRACT = "ace.grounded-state.product-journey-result/v1"
 
 
 def file_sha256(path: str | Path) -> str:
@@ -23,7 +27,7 @@ def canonical_hash(value: Any) -> str:
 def load_product_journey_config(path: str | Path = DEFAULT_CONFIG) -> dict[str, Any]:
     config_path = Path(path)
     payload = json.loads(config_path.read_text(encoding="utf-8"))
-    if payload.get("contract_version") != "ace.grounded-state.product-journey-config/v1":
+    if payload.get("contract_version") not in {STATE_ENGINE_CONFIG_CONTRACT, PRODUCTIZED_CONFIG_CONTRACT}:
         raise ValueError("unsupported State Engine product-journey config")
     if payload.get("fixture_status") != "frozen_before_execution":
         raise ValueError("the product-journey scenario must be frozen before execution")
@@ -32,6 +36,12 @@ def load_product_journey_config(path: str | Path = DEFAULT_CONFIG) -> dict[str, 
         raise ValueError("the frozen Fjord Operations corpus hash has drifted")
     if len(payload["acceptance"]["thin_mcp_tools"]) != 11:
         raise ValueError("the frozen public MCP boundary must contain exactly eleven tools")
+    if payload.get("contract_version") == PRODUCTIZED_CONFIG_CONTRACT:
+        acceptance = payload["acceptance"]
+        if not acceptance.get("required_product_state_http") or not acceptance.get("required_product_state_cli"):
+            raise ValueError("the Productized State fixture must freeze its public HTTP and CLI surfaces")
+        if not acceptance.get("required_inspection_receipts"):
+            raise ValueError("the Productized State fixture must freeze its inspection receipt families")
     return payload
 
 
@@ -50,16 +60,21 @@ def validate_product_journey_result(
     config: dict[str, Any] | None = None,
 ) -> None:
     config = config or load_product_journey_config()
+    productized = config["contract_version"] == PRODUCTIZED_CONFIG_CONTRACT
     failures: list[str] = []
 
     def require(condition: bool, message: str) -> None:
         if not condition:
             failures.append(message)
 
-    require(result.get("contract_version") == "ace.grounded-state.product-journey-result/v1", "result contract")
+    expected_result_contract = PRODUCTIZED_RESULT_CONTRACT if productized else STATE_ENGINE_RESULT_CONTRACT
+    require(result.get("contract_version") == expected_result_contract, "result contract")
     require(result.get("acceptance_id") == config["acceptance_id"], "acceptance identity")
     require(result.get("status") == "passed", "overall status")
-    require(result.get("decisions") == {"K1": "passed", "K2": "passed", "K3": "passed"}, "K1-K3 decisions")
+    expected_decisions = {"K1": "passed", "K2": "passed", "K3": "passed"}
+    if productized:
+        expected_decisions["Productized State"] = "passed"
+    require(result.get("decisions") == expected_decisions, "journey decisions")
     require(result.get("fixture", {}).get("corpus_sha256") == config["extension"]["corpus_sha256"], "corpus hash")
     require(bool(result.get("extension", {}).get("clean_install")), "clean extension installation")
     require(bool(result.get("extension", {}).get("entry_point_discovered")), "extension entry-point discovery")
@@ -128,17 +143,58 @@ def validate_product_journey_result(
     require(result.get("surfaces", {}).get("thin_mcp_tools") == config["acceptance"]["thin_mcp_tools"], "MCP names")
     require(result.get("surfaces", {}).get("thin_mcp_tool_count") == 11, "MCP count")
     require(not bool(result.get("surfaces", {}).get("broad_engine_mcp_used")), "broad engine MCP excluded")
+    if productized:
+        surfaces = result.get("surfaces", {})
+        inspection = result.get("product_state_inspection", {})
+        require(
+            surfaces.get("product_state_http") == config["acceptance"]["required_product_state_http"],
+            "Product State HTTP surface",
+        )
+        require(
+            surfaces.get("product_state_cli") == config["acceptance"]["required_product_state_cli"],
+            "Product State CLI surface",
+        )
+        require(
+            result.get("ingestion", {}).get("contract_version") == "ace.product-state.ingestion/v1",
+            "Product State ingestion contract",
+        )
+        require(
+            result.get("ingestion", {}).get("extension_version") == config["extension"]["extension_version"],
+            "Product State extension version",
+        )
+        inspection_counts = {
+            "ingestions": inspection.get("ingestion_receipts", 0),
+            "belief_projections": inspection.get("belief_projections", 0),
+            "transition_revisions": inspection.get("transition_revisions", 0),
+            "reasoning_evidence_packs": inspection.get("reasoning_evidence_packs", 0),
+            "reasoning_use_receipts": inspection.get("reasoning_use_receipts", 0),
+            "consequence_rollouts": inspection.get("consequence_rollouts", 0),
+            "promotion_receipts": inspection.get("promotion_receipts", 0),
+            "decision_receipts": inspection.get("tasks_with_decision_receipt", 0),
+            "deliberation_receipts": inspection.get("tasks_with_deliberation_receipt", 0),
+            "intelligence_use_receipts": inspection.get("tasks_with_intelligence_use_receipt", 0),
+        }
+        require(
+            all(inspection_counts.get(name, 0) > 0 for name in config["acceptance"]["required_inspection_receipts"]),
+            "integrated inspection receipt families",
+        )
     require(all(step.get("status") == "passed" for step in result.get("journey_steps", [])), "journey steps")
-    require(all(bool(value) for value in result.get("checks", {}).values()), "acceptance checks")
+    failed_checks = sorted(key for key, value in result.get("checks", {}).items() if not bool(value))
+    require(not failed_checks, f"acceptance checks ({', '.join(failed_checks)})")
     require(result.get("limitations") == config["limitations"], "declared limitations")
     require(result.get("acceptance_hash") == acceptance_hash(result), "acceptance hash")
     if failures:
         raise ValueError("State Engine product-journey result failed: " + ", ".join(failures))
 
 
-def render_product_journey_markdown(result: dict[str, Any]) -> str:
-    validate_product_journey_result(result)
-    config = load_product_journey_config()
+def render_product_journey_markdown(
+    result: dict[str, Any],
+    *,
+    config: dict[str, Any] | None = None,
+) -> str:
+    config = config or load_product_journey_config()
+    validate_product_journey_result(result, config=config)
+    productized = config["contract_version"] == PRODUCTIZED_CONFIG_CONTRACT
     decisions = result["decisions"]
     provider = result["provider_usage"]
     failures = result["failure_cases"]
@@ -148,9 +204,41 @@ def render_product_journey_markdown(result: dict[str, Any]) -> str:
         f"| `{item['case']}` | {'passed' if item['passed'] else 'failed'} | {item['outcome']} |" for item in failures
     )
     step_rows = "\n".join(f"| {item['ordinal']} | {item['name']} | {item['status']} |" for item in steps)
-    return f"""# State Engine K1-K3 product journey receipt v1
+    title = (
+        "Productized State public journey receipt v1"
+        if productized
+        else "State Engine K1-K3 product journey receipt v1"
+    )
+    status = (
+        f"Productized State {decisions['Productized State']}; "
+        f"K1 {decisions['K1']}, K2 {decisions['K2']}, K3 {decisions['K3']}"
+        if productized
+        else f"K1 {decisions['K1']}, K2 {decisions['K2']}, K3 {decisions['K3']}"
+    )
+    productized_section = ""
+    if productized:
+        inspection = result["product_state_inspection"]
+        productized_section = f"""
+## Productized State surface
 
-Status: **{result["status"]} — K1 {decisions["K1"]}, K2 {decisions["K2"]}, K3 {decisions["K3"]}**
+- ingestion: `{result["ingestion"]["transport"]}` / `{result["ingestion"]["contract_version"]}`
+- installed extension: `{result["ingestion"]["adapter_manifest"]["extension_id"]}` /
+  `{result["ingestion"]["extension_version"]}`
+- integrated snapshot: `{inspection["snapshot_id"]}`
+- inspection counts: {inspection["ingestion_receipts"]} ingestion, {inspection["belief_projections"]} belief,
+  {inspection["transition_revisions"]} transition, {inspection["reasoning_evidence_packs"]} reasoning-evidence,
+  {inspection["reasoning_use_receipts"]} material-use, {inspection["consequence_rollouts"]} rollout, and
+  {inspection["promotion_receipts"]} promotion receipts
+- task attribution: {inspection["tasks_with_decision_receipt"]} decision,
+  {inspection["tasks_with_deliberation_receipt"]} deliberation, and
+  {inspection["tasks_with_intelligence_use_receipt"]} intelligence-use receipts
+
+The snapshot is read-only. It does not turn a hypothesis into causal fact, a simulation into an
+observation, material influence into beneficial impact, or a model proposal into authority.
+"""
+    return f"""# {title}
+
+Status: **{result["status"]} — {status}**
 
 Acceptance hash: `{result["acceptance_hash"]}`
 Frozen config SHA-256: `{result["fixture"]["config_sha256"]}`
@@ -181,6 +269,7 @@ mapping and action registration.
 
 Belief states: {", ".join(f"`{item}`" for item in result["belief_state"]["statuses"])}.
 Rollout branches: {", ".join(f"`{item}`" for item in result["rollout"]["branch_kinds"])}.
+{productized_section}
 
 ## Failure and degraded cases
 

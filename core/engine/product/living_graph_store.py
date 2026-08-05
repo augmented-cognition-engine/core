@@ -22,6 +22,26 @@ _SCOPED_QUERIES: dict[str, str] = {
     "observations": "SELECT * FROM observation WHERE product = <record>$product ORDER BY id LIMIT $limit",
     "insights": "SELECT * FROM insight WHERE product = <record>$product ORDER BY id LIMIT $limit",
     "tasks": "SELECT * FROM task WHERE product = <record>$product ORDER BY id LIMIT $limit",
+    "state_ingestions": (
+        "SELECT * OMIT payload FROM grounded_batch_ingestion_receipt "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "belief_projections": (
+        "SELECT * OMIT payload FROM grounded_belief_projection "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "transition_revisions": (
+        "SELECT * OMIT payload FROM grounded_transition_revision "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "reasoning_evidence_packs": (
+        "SELECT * OMIT payload FROM grounded_reasoning_evidence_pack "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
+    "rollout_reasoning_use": (
+        "SELECT * OMIT payload FROM grounded_rollout_reasoning_use "
+        "WHERE product = <record>$product ORDER BY id LIMIT $limit"
+    ),
     "consequence_rollouts": (
         "SELECT * OMIT payload FROM grounded_consequence_rollout "
         "WHERE product = <record>$product ORDER BY id LIMIT $limit"
@@ -75,6 +95,7 @@ class SurrealLivingProductGraphStore:
 
     async def load_product_graph(self, product_id: str) -> LivingProductGraphRecords:
         result = LivingProductGraphRecords()
+        product_record_id = parse_record_id(product_id)
         source_names = [
             "product",
             *_SCOPED_QUERIES,
@@ -91,7 +112,7 @@ class SurrealLivingProductGraphStore:
                         family,
                         lambda query=query: db.query(
                             query,
-                            {"product": product_id, "limit": MAX_RECORDS_PER_SOURCE + 1},
+                            {"product": product_record_id, "limit": MAX_RECORDS_PER_SOURCE + 1},
                         ),
                         result.source_states,
                         required=family in {"capabilities", "decisions"},
@@ -116,7 +137,7 @@ class SurrealLivingProductGraphStore:
                         "AND subject IN $ids AND object IN $ids "
                         "ORDER BY id LIMIT $limit",
                         {
-                            "product": product_id,
+                            "product": product_record_id,
                             "ids": sorted(included_ids),
                             "limit": MAX_RECORDS_PER_SOURCE + 1,
                         },
@@ -132,7 +153,7 @@ class SurrealLivingProductGraphStore:
                     lambda: db.query(
                         "SELECT * FROM assertion_event WHERE product = <record>$product "
                         "AND assertion_id IN $ids ORDER BY id LIMIT $limit",
-                        {"product": product_id, "ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
+                        {"product": product_record_id, "ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
                     ),
                     result.source_states,
                 )
@@ -141,7 +162,7 @@ class SurrealLivingProductGraphStore:
                     lambda: db.query(
                         "SELECT * FROM operational_relationship WHERE product = <record>$product "
                         "AND assertion_id IN $ids ORDER BY id LIMIT $limit",
-                        {"product": product_id, "ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
+                        {"product": product_record_id, "ids": assertion_ids, "limit": MAX_RECORDS_PER_SOURCE + 1},
                     ),
                     result.source_states,
                     required=True,
@@ -166,7 +187,7 @@ class SurrealLivingProductGraphStore:
         try:
             raw = await db.query(
                 "SELECT * FROM ONLY <record>$product LIMIT 1",
-                {"product": product_id},
+                {"product": parse_record_id(product_id)},
             )
             if isinstance(raw, str):
                 raise RuntimeError("database returned a statement error")

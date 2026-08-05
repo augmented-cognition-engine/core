@@ -21,6 +21,8 @@ Point-in-time release and acceptance records live in the
 - [State Engine product-builder journey](state-engine-product-builder.md) — install an independent
   product extension and reproduce the bounded K1-K3 evidence, rollout, restart, and correction path.
 - [Clean-user onboarding trial](onboarding-trials.md) — evaluate setup, first value, and recovery.
+- [Productized State](productized-state.md) — install an extension, ingest product context, reason,
+  correct, restart, and inspect the complete receipt chain.
 - [Reliable observation worker operations](worker-operations.md) — supervised startup, shutdown,
   restart, lease recovery, and queue health.
 - [State Engine operations and recovery](state-engine-operations.md) — scale limits, bounded

@@ -66,6 +66,7 @@ _task_actions: dict[TaskActionIdentity, RegisteredTaskAction] = {}
 # identity, lifecycle, persistence, and receipts.
 GroundedStateAdapterIdentity = tuple[str, str]
 _grounded_state_adapters: dict[GroundedStateAdapterIdentity, Any] = {}
+_grounded_state_adapter_sources: dict[GroundedStateAdapterIdentity, "RegisteredGroundedStateAdapterSource"] = {}
 MAX_GROUNDED_STATE_ADAPTERS = 50
 _ADAPTER_NAME = re.compile(r"^[a-z0-9][a-z0-9._-]{0,119}$")
 _COGNITION_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
@@ -158,6 +159,21 @@ class UnsupportedRegistration:
     capability: str
     stable_key: str
     disposition: str = "unsupported_registration"
+
+
+@dataclass(frozen=True)
+class RegisteredGroundedStateAdapterSource:
+    """Public identity retained for one extension-owned source adapter."""
+
+    extension_id: str
+    extension_version: str
+    adapter_name: str
+    adapter_id: str
+    adapter_version: str
+    primary_model_calls: int
+
+    def public_manifest(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -398,6 +414,14 @@ class Registry:
         if len(_grounded_state_adapters) >= MAX_GROUNDED_STATE_ADAPTERS:
             raise RuntimeError(f"Grounded-state adapter registry is limited to {MAX_GROUNDED_STATE_ADAPTERS} entries")
         _grounded_state_adapters[identity] = adapter
+        _grounded_state_adapter_sources[identity] = RegisteredGroundedStateAdapterSource(
+            extension_id=self._extension_id,
+            extension_version=self._extension_version or "0.0.0",
+            adapter_name=name,
+            adapter_id=str(getattr(adapter, "adapter_id", name)),
+            adapter_version=str(getattr(adapter, "adapter_version", "unknown")),
+            primary_model_calls=int(getattr(adapter, "primary_model_calls", 0)),
+        )
 
     def register_sentinel(
         self,
@@ -620,6 +644,25 @@ def registered_task_actions() -> dict[TaskActionIdentity, RegisteredTaskAction]:
 def registered_grounded_state_adapters() -> dict[GroundedStateAdapterIdentity, Any]:
     _ensure_extensions_loaded()
     return dict(_grounded_state_adapters)
+
+
+def registered_grounded_state_adapter_manifests() -> list[dict[str, Any]]:
+    """Return deterministic public adapter identities without exposing callables."""
+    _ensure_extensions_loaded()
+    manifests: list[dict[str, Any]] = []
+    for identity, adapter in sorted(_grounded_state_adapters.items()):
+        source = _grounded_state_adapter_sources.get(identity)
+        if source is None:
+            source = RegisteredGroundedStateAdapterSource(
+                extension_id=identity[0],
+                extension_version="unknown",
+                adapter_name=identity[1],
+                adapter_id=str(getattr(adapter, "adapter_id", identity[1])),
+                adapter_version=str(getattr(adapter, "adapter_version", "unknown")),
+                primary_model_calls=int(getattr(adapter, "primary_model_calls", 0)),
+            )
+        manifests.append(source.public_manifest())
+    return manifests
 
 
 def registered_grounded_state_adapter(extension_id: str, name: str) -> Any | None:

@@ -667,6 +667,7 @@ from core.engine.api.extension_invocations import router as extension_invocation
 from core.engine.api.foresight import router as foresight_router
 from core.engine.api.intel import router as intel_router
 from core.engine.api.landscape import router as landscape_router
+from core.engine.api.product_state import router as product_state_router
 from core.engine.api.sentinels import router as sentinels_router
 from core.engine.api.tasks import router as tasks_router
 
@@ -675,6 +676,7 @@ app.include_router(extension_invocations_router)
 app.include_router(capture_router)
 app.include_router(intel_router)
 app.include_router(landscape_router)
+app.include_router(product_state_router)
 app.include_router(foresight_router)
 app.include_router(sentinels_router)
 

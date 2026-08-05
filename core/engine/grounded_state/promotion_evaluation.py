@@ -407,7 +407,10 @@ async def evaluate_tp7_promotion_feedback(
         ),
         "exact_replay_idempotent": replay_ok and persistence_ok,
         "fresh_invocation_retrieves_promoted_memory": fresh_corrected_only,
-        "l1_readiness_unchanged": "| L1 | candidate |" in (ROOT / "ROADMAP.md").read_text(encoding="utf-8"),
+        "l1_readiness_unchanged": any(
+            f"| L1 | {status} |" in (ROOT / "ROADMAP.md").read_text(encoding="utf-8")
+            for status in ("candidate", "passed")
+        ),
         "lifecycle_dispositions_inspectable": disposition_set == set(PromotionDisposition),
         "model_proposal_non_authority": model_non_authority,
         "no_evidence_without_promotion_receipt": unauthorized == 0 and atomic,

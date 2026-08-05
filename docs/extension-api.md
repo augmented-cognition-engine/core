@@ -44,6 +44,10 @@ names the commitment; the source names the types.
   handle: Core injects product scope, derives identity and hashes, validates
   temporal/lifecycle semantics, writes the append-only substrate, and owns
   per-item and batch receipts. The adapter must expose `build_manifest(...)`.
+  The 0.3.x Productized State candidate makes this mapping reachable through authenticated
+  `GET /product-state/capabilities` and `POST /product-state/ingestions`; neither endpoint accepts a
+  caller product identifier. The registration hook remains experimental until the candidate is
+  published and its compatibility policy is finalized.
 - Canvas extension wiring (`core/ui/canvas/src/app/ext/`).
 - `ACE_EXTENSIONS` dev-list loading (unpackaged local extensions).
 

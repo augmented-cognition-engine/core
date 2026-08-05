@@ -1,0 +1,108 @@
+{
+  "contract_version": "ace.product-state.productized-journey-config/v1",
+  "acceptance_id": "productized-state-public-journey-v1",
+  "fixture_status": "frozen_before_execution",
+  "scenario": {
+    "name": "Fjord Operations Productized State journey",
+    "product_id": "product:fjord-operations",
+    "foreign_product_id": "product:fjord-operations-foreign-control",
+    "workspace_id": "workspace:fjord-operations",
+    "user_id": "user:fjord-product-builder",
+    "as_of": "2030-01-01T00:00:00Z",
+    "horizon": "2030-01-08T00:00:00Z",
+    "manifest_external_id": "fjord-operations-public-corpus-v1",
+    "extraction_run_id": "fjord-operations-extraction-v1",
+    "submitted_at": "2026-06-05T00:00:00Z"
+  },
+  "extension": {
+    "distribution": "ace-ext-fjord-operations",
+    "extension_id": "fjord-operations",
+    "extension_version": "0.1.0",
+    "entry_point": "fjord-operations",
+    "module_spec": "fjord_operations_extension.extension:FjordOperationsExtension",
+    "adapter_name": "public-fixture",
+    "adapter_id": "fjord-operations-public-fixture",
+    "corpus_path": "examples/ace_ext_fjord_operations/fjord_operations_extension/fixtures/public_corpus_v1.json",
+    "corpus_sha256": "85907acc8ad5b9a73d2d7551ced98d1bb26d4b9ea51a189d262675cb5ff9ea28"
+  },
+  "acceptance": {
+    "required_belief_states": [
+      "contested",
+      "provisional",
+      "superseded",
+      "supported",
+      "unknown"
+    ],
+    "required_rollout_branches": [
+      "action",
+      "alternative",
+      "no_action"
+    ],
+    "required_failure_cases": [
+      "incomplete_reconciliation",
+      "product_isolation",
+      "restart_interruption",
+      "stale_state",
+      "unavailable_evidence",
+      "unsupported_causality"
+    ],
+    "required_product_state_http": [
+      "GET /product-state/capabilities",
+      "POST /product-state/ingestions",
+      "GET /product/landscape"
+    ],
+    "required_product_state_cli": [
+      "ace state capabilities",
+      "ace state ingest",
+      "ace state invoke",
+      "ace state correct",
+      "ace state inspect"
+    ],
+    "required_inspection_receipts": [
+      "ingestions",
+      "belief_projections",
+      "transition_revisions",
+      "reasoning_evidence_packs",
+      "reasoning_use_receipts",
+      "consequence_rollouts",
+      "promotion_receipts",
+      "decision_receipts",
+      "deliberation_receipts",
+      "intelligence_use_receipts"
+    ],
+    "schema_head": 171,
+    "supported_upgrade_from": 168,
+    "thin_mcp_tools": [
+      "ace_start",
+      "ace_load",
+      "ace_capture",
+      "ace_task",
+      "ace_status",
+      "ace_capture_idea",
+      "ace_search",
+      "ace_briefing",
+      "ace_impact",
+      "ace_history",
+      "ace_related"
+    ],
+    "maximum_restart_seconds": 30.0,
+    "maximum_task_seconds": 10.0
+  },
+  "provider_budget": {
+    "route": "deterministic-provider-free-acceptance",
+    "exact_model": "provider-free-v1",
+    "max_calls": 0,
+    "max_input_tokens": 0,
+    "max_output_tokens": 0,
+    "max_cost_usd": 0.0,
+    "max_retries": 0
+  },
+  "limitations": [
+    "bounded single-node database, API, worker, and synchronous adapter clients only",
+    "fictional public-safe product data; no real-world causal-accuracy claim",
+    "provider-free execution; no hosted-model latency or quality claim",
+    "material I3 influence is demonstrated but beneficial impact is not",
+    "trusted installed Python extensions execute in-process; hostile-code sandboxing is not claimed",
+    "no distributed ordering, multi-writer, multi-region, autonomous-learning, or general-world-model claim"
+  ]
+}

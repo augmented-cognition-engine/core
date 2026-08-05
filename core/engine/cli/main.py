@@ -30,6 +30,7 @@ from core.engine.cli.commands.intel import intel, search
 from core.engine.cli.commands.landscape import landscape
 from core.engine.cli.commands.login import login
 from core.engine.cli.commands.model_policy import model_policy
+from core.engine.cli.commands.product_state import state
 from core.engine.cli.commands.proposals import proposals
 from core.engine.cli.commands.reasoning import frameworks
 from core.engine.cli.commands.run import quick, run
@@ -49,6 +50,7 @@ cli.add_command(status)
 cli.add_command(doctor)
 cli.add_command(model_policy)
 cli.add_command(landscape)
+cli.add_command(state)
 cli.add_command(graph)
 cli.add_command(proposals)
 cli.add_command(flow)

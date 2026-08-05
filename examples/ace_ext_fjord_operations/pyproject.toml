@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Fictional public-safe State Engine product extension for the ACE product-builder journey"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["ace-core>=0.2.0,<0.3.0"]
+dependencies = ["ace-core>=0.2.0,<0.4.0"]
 
 [build-system]
 requires = ["setuptools>=68"]

@@ -50,7 +50,7 @@ from core.engine.grounded_state.contracts import (
     canonical_hash,
 )
 from core.engine.grounded_state.evidence_query import resolve_evidence_query
-from core.engine.grounded_state.ingestion import GroundedStateIngestionService
+from core.engine.grounded_state.ingestion_contracts import BatchIngestionReceiptV1
 from core.engine.grounded_state.persistence import GroundedStateStore
 from core.engine.grounded_state.promotion import PromotionService
 from core.engine.grounded_state.promotion_contracts import PromotionReceiptV1, PromotionReviewV1
@@ -74,6 +74,9 @@ from core.engine.grounded_state.transition_contracts import (
 )
 from core.engine.grounded_state.transitions import TransitionHypothesisService, TransitionResolutionError
 from evaluations.state_engine_product_journey import (
+    PRODUCTIZED_CONFIG_CONTRACT,
+    PRODUCTIZED_RESULT_CONTRACT,
+    STATE_ENGINE_RESULT_CONTRACT,
     acceptance_hash,
     load_product_journey_config,
     product_journey_config_hash,
@@ -587,39 +590,45 @@ async def _verify_schema_paths(
     }
 
 
-def _load_adapter(config: dict[str, Any]):
-    extension_root = ROOT / "examples/ace_ext_fjord_operations"
-    sys.path.insert(0, str(extension_root))
-    os.environ["ACE_EXTENSIONS"] = config["extension"]["module_spec"]
-    os.environ.pop("ACE_DISABLE_EXTENSIONS", None)
-    from core.engine.extensions.loader import load_extensions
-    from core.engine.extensions.registry import registered_grounded_state_adapter
-
-    loaded = load_extensions()
-    adapter = registered_grounded_state_adapter(
-        config["extension"]["extension_id"],
-        config["extension"]["adapter_name"],
-    )
-    if adapter is None:
-        raise RuntimeError("the Fjord Operations adapter was not registered through the extension facade")
-    return adapter, loaded
-
-
-async def _ingest_and_replay(pool, config: dict[str, Any]) -> tuple[dict[str, Any], BoundedEvidencePackV1]:
-    adapter, loaded = _load_adapter(config)
+async def _ingest_and_replay(
+    pool,
+    config: dict[str, Any],
+    *,
+    client: httpx.AsyncClient,
+    product_state_capabilities: dict[str, Any],
+) -> tuple[dict[str, Any], BoundedEvidencePackV1]:
     corpus_path = ROOT / config["extension"]["corpus_path"]
     corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
     scenario = config["scenario"]
-    manifest = adapter.build_manifest(
-        product_id=scenario["product_id"],
-        manifest_external_id=scenario["manifest_external_id"],
-        extraction_run_id=scenario["extraction_run_id"],
-        submitted_at=datetime.fromisoformat(scenario["submitted_at"].replace("Z", "+00:00")),
-        records=corpus["records"],
+    request = {
+        "contract_version": "ace.product-state.ingestion/v1",
+        "extension_id": config["extension"]["extension_id"],
+        "extension_version": config["extension"]["extension_version"],
+        "adapter_name": config["extension"]["adapter_name"],
+        "manifest_external_id": scenario["manifest_external_id"],
+        "extraction_run_id": scenario["extraction_run_id"],
+        "submitted_at": scenario["submitted_at"],
+        "records": corpus["records"],
+    }
+    initial_response = await client.post("/product-state/ingestions", json=request)
+    initial_response.raise_for_status()
+    replay_response = await client.post("/product-state/ingestions", json=request)
+    replay_response.raise_for_status()
+    initial_payload = initial_response.json()
+    replay_payload = replay_response.json()
+    initial = BatchIngestionReceiptV1.model_validate(initial_payload["receipt"])
+    replay = BatchIngestionReceiptV1.model_validate(replay_payload["receipt"])
+    adapter_manifest = next(
+        (
+            item
+            for item in product_state_capabilities.get("adapters", [])
+            if item.get("extension_id") == config["extension"]["extension_id"]
+            and item.get("adapter_name") == config["extension"]["adapter_name"]
+        ),
+        None,
     )
-    service = GroundedStateIngestionService(pool)
-    initial = await service.ingest(manifest)
-    replay = await service.ingest(manifest)
+    if adapter_manifest is None:
+        raise RuntimeError("the Product State capability receipt omitted the installed Fjord adapter")
     records = await GroundedStateCandidateService(pool).records(product_id=scenario["product_id"])
     foreign_records = await GroundedStateCandidateService(pool).records(product_id=scenario["foreign_product_id"])
     version_lineage = (
@@ -722,24 +731,28 @@ async def _ingest_and_replay(pool, config: dict[str, Any]) -> tuple[dict[str, An
         value for key, value in time_meanings.items() if key != "event_or_valid_time" and isinstance(value, str)
     }
     ingestion = {
-        "extension_loader_names": loaded,
-        "adapter_id": adapter.adapter_id,
-        "adapter_version": adapter.adapter_version,
-        "manifest_id": manifest.manifest_id(),
-        "manifest_hash": manifest.manifest_hash(),
-        "receipt_id": initial.receipt_id,
+        "transport": "POST /product-state/ingestions",
+        "contract_version": initial_payload["contract_version"],
+        "extension_loader_names": [config["extension"]["extension_id"]],
+        "extension_version": adapter_manifest["extension_version"],
+        "adapter_id": adapter_manifest["adapter_id"],
+        "adapter_version": adapter_manifest["adapter_version"],
+        "adapter_manifest": adapter_manifest,
+        "authority": initial_payload["authority"],
+        "manifest_id": str(initial.manifest_id),
+        "manifest_hash": str(initial.manifest_hash),
+        "receipt_id": str(initial.receipt_id),
         "item_counts": initial.item_counts.model_dump(mode="json"),
         "record_counts": initial.record_counts.model_dump(mode="json"),
         "persisted_by_kind": initial.persisted_by_kind.model_dump(mode="json"),
         "stable_record_ids": list(initial.stable_record_ids),
         "lineage_ids": list(initial.lineage_ids),
-        "source_items": len(manifest.items),
+        "source_items": len(corpus["records"]),
         "persisted_semantic_records": len(records),
         "primary_model_calls": initial.primary_model_calls,
         "exact_replay": initial == replay,
         "counts_reconciled": (
-            initial.item_counts.inputs == len(manifest.items)
-            and initial.record_counts.inputs == sum(len(item.get("records", ())) for item in manifest.items)
+            initial.item_counts.inputs == len(corpus["records"])
             and initial.persisted_by_kind.total() == len(records)
             and set(initial.stable_record_ids) == {str(record.record_id) for record in records}
         ),
@@ -1420,6 +1433,7 @@ async def _run_journey(
     surreal: str,
 ) -> dict[str, Any]:
     config = load_product_journey_config(config_path)
+    productized = config["contract_version"] == PRODUCTIZED_CONFIG_CONTRACT
     started_at = datetime.now(UTC)
     work_dir.mkdir(parents=True, exist_ok=True)
     clean_python, install = _install_clean_extension(work_dir, config)
@@ -1435,26 +1449,33 @@ async def _run_journey(
     task_latencies: list[float] = []
     unexpected_failures: list[str] = []
     try:
-        db, pool = await _connect(processes.db_url, processes.namespace, processes.database)
-        try:
-            await db.query(
-                "UPSERT type::record('product', $product_key) SET name = 'Fjord Operations', tenant = tenant:test, settings = {}",
-                {"product_key": product_id.split(":", 1)[1]},
-            )
-            ingestion, pack = await _ingest_and_replay(pool, config)
-            belief, transition, transition_proposal, transition_revision = await _build_belief_and_transition(
-                pool,
-                pack=pack,
-                config=config,
-            )
-        finally:
-            await db.close()
-
         initial_runtime = await processes.start_runtime(product_id=product_id, label="initial-runtime")
         loaded_names = set(initial_runtime["api_health"].get("loaded_extensions") or [])
         headers = {"Authorization": f"Bearer {processes.token(product_id)}"}
         foreign_headers = {"Authorization": f"Bearer {processes.token(foreign_product_id)}"}
         async with httpx.AsyncClient(base_url=processes.api_url, headers=headers, timeout=15) as client:
+            product_state_capabilities_response = await client.get("/product-state/capabilities")
+            product_state_capabilities_response.raise_for_status()
+            product_state_capabilities = product_state_capabilities_response.json()
+            db, pool = await _connect(processes.db_url, processes.namespace, processes.database)
+            try:
+                await db.query(
+                    "UPSERT type::record('product', $product_key) SET name = 'Fjord Operations', tenant = tenant:test, settings = {}",
+                    {"product_key": product_id.split(":", 1)[1]},
+                )
+                ingestion, pack = await _ingest_and_replay(
+                    pool,
+                    config,
+                    client=client,
+                    product_state_capabilities=product_state_capabilities,
+                )
+                belief, transition, transition_proposal, transition_revision = await _build_belief_and_transition(
+                    pool,
+                    pack=pack,
+                    config=config,
+                )
+            finally:
+                await db.close()
             capabilities_response = await client.get("/extension-invocations/capabilities")
             capabilities_response.raise_for_status()
             capabilities = capabilities_response.json()["capabilities"]
@@ -1642,6 +1663,24 @@ async def _run_journey(
             ((rollout_receipt.get("outcome") or {}).get("data") or {}).get("source_instruction_authority")
         )
         decision_receipt = rollout_task.get("decision_receipt") or {}
+        async with httpx.AsyncClient(base_url=processes.api_url, headers=headers, timeout=15) as client:
+            landscape_response = await client.get("/product/landscape")
+            landscape_response.raise_for_status()
+            landscape = landscape_response.json()
+        inspected_state = landscape.get("state_engine") or {}
+        inspected_tasks = (landscape.get("work") or {}).get("tasks") or []
+        inspection_checks = {
+            "ingestions": bool(inspected_state.get("ingestions")),
+            "belief_projections": bool(inspected_state.get("belief_projections")),
+            "transition_revisions": bool(inspected_state.get("transition_revisions")),
+            "reasoning_evidence_packs": bool(inspected_state.get("reasoning_evidence_packs")),
+            "reasoning_use_receipts": bool(inspected_state.get("reasoning_use_receipts")),
+            "consequence_rollouts": bool(inspected_state.get("consequence_rollouts")),
+            "promotion_receipts": bool((inspected_state.get("promotion") or {}).get("receipts")),
+            "decision_receipt": any(task.get("decision_receipt") for task in inspected_tasks),
+            "deliberation_receipt": any(task.get("deliberation_receipt") for task in inspected_tasks),
+            "intelligence_use_receipt": any(task.get("intelligence_use_receipt") for task in inspected_tasks),
+        }
         failure_cases = [
             {
                 "case": "unavailable_evidence",
@@ -1700,6 +1739,13 @@ async def _run_journey(
             "ingestion_replay_lineage_counts_isolation": all(
                 ingestion[key] for key in ("exact_replay", "counts_reconciled", "version_lineage", "product_isolation")
             ),
+            "product_state_supported_ingestion_surface": (
+                product_state_capabilities.get("contract_version") == "ace.product-state.capabilities/v1"
+                and ingestion["contract_version"] == "ace.product-state.ingestion/v1"
+                and ingestion["extension_version"] == config["extension"]["extension_version"]
+                and ingestion["authority"]["product_scope"] == "authenticated_token_only"
+            ),
+            "product_state_inspection_connects_receipts": all(inspection_checks.values()),
             "five_time_meanings_separate": ingestion["distinct_non_event_times"] == 4,
             "belief_state_complete": set(config["acceptance"]["required_belief_states"]) <= set(belief["statuses"]),
             "transition_inspectable_and_causally_bounded": (
@@ -1741,7 +1787,11 @@ async def _run_journey(
         }
         journey_steps = [
             {"ordinal": 1, "name": "install and discover ACE plus product extension", "status": "passed"},
-            {"ordinal": 2, "name": "ingest bounded public-safe temporal corpus", "status": "passed"},
+            {
+                "ordinal": 2,
+                "name": "ingest bounded public-safe temporal corpus through Product State API",
+                "status": "passed",
+            },
             {
                 "ordinal": 3,
                 "name": "replay ingestion and reconcile identity, lineage, counts, and scope",
@@ -1755,14 +1805,22 @@ async def _run_journey(
             {"ordinal": 9, "name": "accept correction and append-only supersession lineage", "status": "passed"},
             {"ordinal": 10, "name": "restart database, API, and worker; invoke fresh thin client", "status": "passed"},
             {"ordinal": 11, "name": "exercise honest failure and degraded cases", "status": "passed"},
-            {"ordinal": 12, "name": "reverify unchanged eleven-tool public MCP boundary", "status": "passed"},
+            {
+                "ordinal": 12,
+                "name": "inspect the integrated receipt chain through the Living Product Graph",
+                "status": "passed",
+            },
+            {"ordinal": 13, "name": "reverify unchanged eleven-tool public MCP boundary", "status": "passed"},
         ]
         completed_at = datetime.now(UTC)
+        decisions = {"K1": "passed", "K2": "passed", "K3": "passed"}
+        if productized:
+            decisions["Productized State"] = "passed"
         result: dict[str, Any] = {
-            "contract_version": "ace.grounded-state.product-journey-result/v1",
+            "contract_version": PRODUCTIZED_RESULT_CONTRACT if productized else STATE_ENGINE_RESULT_CONTRACT,
             "acceptance_id": config["acceptance_id"],
             "status": "passed" if all(checks.values()) else "failed",
-            "decisions": {"K1": "passed", "K2": "passed", "K3": "passed"},
+            "decisions": decisions,
             "started_at": started_at.isoformat(),
             "completed_at": completed_at.isoformat(),
             "fixture": {
@@ -1859,6 +1917,18 @@ async def _run_journey(
             "failure_cases": failure_cases,
             "surfaces": {
                 "adapter_registry": "Registry.register_grounded_state_adapter",
+                "product_state_http": [
+                    "GET /product-state/capabilities",
+                    "POST /product-state/ingestions",
+                    "GET /product/landscape",
+                ],
+                "product_state_cli": [
+                    "ace state capabilities",
+                    "ace state ingest",
+                    "ace state invoke",
+                    "ace state correct",
+                    "ace state inspect",
+                ],
                 "extension_invocation_http": [
                     "GET /extension-invocations/capabilities",
                     "POST /extension-invocations",
@@ -1868,6 +1938,27 @@ async def _run_journey(
                 "thin_mcp_tools": actual_tools,
                 "thin_mcp_tool_count": later["thin_mcp_tool_count"],
                 "broad_engine_mcp_used": False,
+            },
+            "product_state_inspection": {
+                "contract_version": "ace.product-state.inspection/v1",
+                "snapshot_id": landscape.get("snapshot_id"),
+                "projection_state": landscape.get("projection_state"),
+                "ingestion_receipts": len(inspected_state.get("ingestions") or []),
+                "belief_projections": len(inspected_state.get("belief_projections") or []),
+                "transition_revisions": len(inspected_state.get("transition_revisions") or []),
+                "reasoning_evidence_packs": len(inspected_state.get("reasoning_evidence_packs") or []),
+                "reasoning_use_receipts": len(inspected_state.get("reasoning_use_receipts") or []),
+                "consequence_rollouts": len(inspected_state.get("consequence_rollouts") or []),
+                "promotion_receipts": len((inspected_state.get("promotion") or {}).get("receipts") or []),
+                "tasks_with_decision_receipt": sum(bool(item.get("decision_receipt")) for item in inspected_tasks),
+                "tasks_with_deliberation_receipt": sum(
+                    bool(item.get("deliberation_receipt")) for item in inspected_tasks
+                ),
+                "tasks_with_intelligence_use_receipt": sum(
+                    bool(item.get("intelligence_use_receipt")) for item in inspected_tasks
+                ),
+                "authority": landscape.get("authority"),
+                "checks": inspection_checks,
             },
             "provider_usage": provider_usage,
             "resource_use": {
@@ -1889,7 +1980,7 @@ async def _run_journey(
             _write_json(output, result)
         if markdown_output:
             markdown_output.parent.mkdir(parents=True, exist_ok=True)
-            markdown_output.write_text(render_product_journey_markdown(result), encoding="utf-8")
+            markdown_output.write_text(render_product_journey_markdown(result, config=config), encoding="utf-8")
         return result
     except Exception as exc:
         unexpected_failures.append(f"{type(exc).__name__}:{str(exc)[:500]}")

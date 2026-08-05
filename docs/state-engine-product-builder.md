@@ -2,6 +2,11 @@
 
 Status: **supported bounded ACE 0.2.x product-builder journey**
 
+For the 0.3.x candidate that routes ingestion through authenticated Product State APIs and exposes
+the complete receipt chain through `ace state inspect`, continue with
+[Build Productized State through an extension](productized-state.md). The published 0.3.0 artifact
+does not yet contain that candidate surface.
+
 This guide builds the fictional Fjord Operations product without forking ACE Core. The separately
 installable extension owns the product vocabulary, public-safe corpus mapping, evidence-query and
 promotion-review actions, and the one deterministic acceptance hook. Core owns authenticated product
@@ -14,8 +19,8 @@ it does not claim hosted-model quality, real-world causal accuracy, or beneficia
 ## 1. Inspect and install the example extension
 
 The extension lives at `examples/ace_ext_fjord_operations`. Its package advertises the
-`fjord-operations` entry point in the public `ace.extensions` group and depends on the compatible
-ACE Core 0.2.x line.
+`fjord-operations` entry point in the public `ace.extensions` group and declares compatibility with
+the ACE Core 0.2.x and 0.3.x lines.
 
 ```bash
 python -m pip install --no-deps examples/ace_ext_fjord_operations
