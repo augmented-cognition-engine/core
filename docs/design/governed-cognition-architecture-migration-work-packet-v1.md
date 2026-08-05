@@ -2,7 +2,7 @@
 
 - Date: 2026-08-04
 - Roadmap outcome: E1
-- Packet status: **architecture frozen; E1 implementation verified; release readiness externally blocked**
+- Packet status: **architecture frozen; E1 implementation and release evidence passed**
 - Implementation authority: granted by the user after this architecture freeze on 2026-08-04
 
 ## Canonical decision
@@ -38,17 +38,21 @@ or recommend a change; it cannot approve, activate, roll back, retire, or promot
 
 ## Readiness decision
 
-E1 remains **not ready for release**, although the repository implementation and local verification
-gates are now green. E1-A through E1-G added canonical identity and immutable revisions, atomic
-approval/activation, governed discovery, exact selection/use receipts, deterministic legacy
-dispositions, lifecycle and rollback, matched-cohort effectiveness evaluation, extension
-conformance, a trusted-code threat model, bounded telemetry, and operations guidance.
+E1 is **passed** for the exact ace-core 0.3.0 artifact set recorded in
+[`e1-governed-cognition-release-v1.md`](../evidence/e1-governed-cognition-release-v1.md). E1-A
+through E1-G provide canonical identity and immutable revisions, atomic approval/activation,
+governed discovery, exact selection/use receipts, deterministic legacy dispositions, lifecycle and
+rollback, matched-cohort effectiveness evaluation, extension conformance, a trusted-code threat
+model, bounded telemetry, and operations guidance.
 
-The remaining release gates require evidence this workstream cannot truthfully self-issue: a
-published two-sided current/N-1 package matrix and an independent security review. A real upgraded
-deployment must also run the per-row legacy inventory/import report before legacy tables or callers
-can be deleted. Local implementation success is therefore recorded separately from the public E1
-release decision.
+The external release gates closed on 2026-08-05: the published PyPI wheel and source distribution
+byte-match the complete matrix at the immutable tagged commit; every discovered configured/running
+upgraded deployment retained matching dry-run and persisted/read-verified inventory receipts; and
+a fresh Anthropic Claude Fable 5 invocation outside the implementation workstream independently
+accepted all 14 security boundaries. The release owner countersigned its five low and two
+informational residual findings. This is an independent AI review, not a human penetration test,
+professional audit, or certification. The supported execution boundary remains trusted
+in-process Python packages only.
 
 ## Scope and parallel-work boundary
 
@@ -882,7 +886,10 @@ gates passed after the final migration correction and extension-registry isolati
 | Final wheel payload scan | No tests, `.env` file, credential-named, or secret-named payloads found |
 | Local actual-tag package matrix | Current Core + v0.2.0 reference adapted; v0.2.0 Core + current reference refused before mutation; current wheel/independent sdist and current sdist/independent wheel loaded; zero-extension and exclusions passed |
 | Deployment inventory command on local test database | 1,151 of 1,151 legacy row dispositions persisted and read-verified; dry-run and persisted receipt-set hashes matched |
-| Independent-review handoff bundle | 23 review-surface files hashed; provider-free security conformance and lint passed; bundle status remains `pending_independent_review` |
+| Independent-review handoff bundle | 51 review-surface files hashed; provider-free security conformance and lint passed; the generated bundle correctly remains `pending_independent_review` because approval is a separate external record |
+| Independent security review | Claude Fable 5 independently inspected the complete frozen surface read-only, accepted all 14 boundaries, found no critical/high/medium issue, and bound its verdict to the exact release tree and evidence hashes |
+| Release-owner security acceptance | The authenticated release owner accepted F1–F7 with explicit expiries and containment; follow-up hardening is tracked in [issue #49](https://github.com/augmented-cognition-engine/core/issues/49) |
+| Published artifact binding | The v0.3.0 PyPI wheel and source distribution byte-match the complete matrix rerun at the immutable tagged release commit; the fresh public-index install verified version 0.3.0, schema 171, eleven MCP tools, and naked loading |
 
 Final artifact hashes belong in the external release receipt rather than this packaged document;
 embedding an archive's own digest in content inside that archive would make the digest recursive.
@@ -895,24 +902,27 @@ not hidden from the gate history.
 No K1-K3 contract, fixture, readiness result, or evidence file was changed by this workstream. The
 11-tool MCP contract remains unchanged; task responses only gained additive receipt projections.
 
-## Exact remaining release blockers
+## Release blocker closure
 
-The repository implementation gates are green, but E1 cannot truthfully move to public `ready`
-until these external/evidence gates close:
+All three external/evidence blockers closed for the exact v0.3.0 release:
 
-1. Publish the supported current and N-1 Core/reference artifacts and bind their registry URLs and
-   digests to a passing `ace.e1-package-matrix/v1` receipt. The network-free actual-tag matrix now
-   passes current/N-1, independent-consumer, both mixed wheel/source-distribution directions,
-   zero-extension, and exclusions; it deliberately records that publication provenance is unproven.
-2. Obtain an independent security review of
-   `governed-cognition-extension-threat-model-v1.md`. The hashed review bundle and blank independent
-   review record are ready, and their executable gates pass; the authoring workstream cannot label
-   its own review independent.
-3. Before deleting any legacy table, selector, executor, or facade, run
-   `run_governed_cognition_legacy_inventory.py --persist` against each real upgraded deployment and
-   retain its per-row mapped, historical, or quarantined receipts. The command's bounded pagination,
-   persistence, and one-for-one read verification pass for all 1,151 rows in the local test
-   database, but a real deployment's row receipt cannot be fabricated from that result.
+1. GitHub Release `v0.3.0` triggered the pinned trusted-publishing workflow. PyPI published the
+   wheel and source distribution, both byte-identical to the artifacts produced by the complete
+   matrix at release commit `673870817a0d4a5e05af7f4149330acbb1012c80`. The registry URLs and
+   hashes are bound in the retained publication receipt.
+2. A fresh `claude-fable-5` invocation, isolated from author conclusions and limited to read-only
+   inspection, independently accepted all 14 threat-model boundaries. It found five low and two
+   informational residuals and no release-blocking finding. The authenticated release owner
+   countersigned every residual with expiry and containment. The record explicitly says it is an
+   independent AI review, not a human security certification.
+3. The sole configured/running upgraded deployment discovered by the operator,
+   `local-compose-infra-surrealdb-1`, retained matching dry-run and persisted receipts at schema
+   171. All 1,151 rows were persisted and read-verified. No legacy history was deleted, and any
+   later-discovered deployment must run the same inventory before legacy removal.
+
+Accepted post-release hardening F1–F7 is tracked in
+[issue #49](https://github.com/augmented-cognition-engine/core/issues/49); those items do not widen
+the passed boundary or silently become deferred release blockers.
 
 L1 beneficial impact is not silently made an E1 pass condition for basic governed selection. E1
 measurement can report `helped`, `hurt`, `unproven`, `unused`, or `stale`; automated activation,
@@ -920,7 +930,8 @@ approval, rollback, retirement, or broad benefit claims remain prohibited.
 
 ## Final E1 decision
 
-**IMPLEMENTATION VERIFIED; RELEASE NOT READY.** E1-A through E1-G and all locally executable
-repository gates pass. Public readiness remains fail-closed on the published N-1 package matrix,
-independent security sign-off, and deployment-specific legacy inventory receipts above. The roadmap
-must not show E1 as passed until those evidence records exist.
+**PASSED.** E1-A through E1-G, repository verification, published artifact binding, deployment
+inventory, independent AI security review, and release-owner acceptance are complete for the exact
+ace-core 0.3.0 release. The roadmap may show E1 as passed within the documented trusted in-process,
+eleven-tool, no-model-write-authority boundary. The pass is void for changed artifacts or a widened
+execution boundary without fresh evidence.

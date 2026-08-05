@@ -49,6 +49,12 @@ without adding an MCP tool or any write, execution, extension, or model-inferenc
 
 ## Supported governed-cognition boundary
 
+Roadmap outcome E1 is **passed** for the exact ace-core 0.3.0 release. The
+[E1 release evidence](evidence/e1-governed-cognition-release-v1.md) binds the implementation to the
+published package matrix, deployment inventory, independent Claude Fable 5 AI security review, and
+release-owner countersignature. The security record is intentionally described as an independent
+AI review, not a human penetration test, professional audit, or certification.
+
 ACE 0.3.0 supports one canonical governed-cognition contract for reusable recipes, instruments,
 frameworks, tools, perspectives, and procedural knowledge. Stable cognition identity, immutable
 revision identity, scoped active heads, proposals, human review receipts, bounded selection/use
