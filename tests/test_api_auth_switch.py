@@ -5,9 +5,13 @@ from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 
 from core.engine.api.main import app
-from core.engine.core.auth import get_current_user
+from core.engine.core.auth import get_current_user, verify_token
 
-MOCK_USER = {"sub": "user:test", "product": "product:test"}
+MOCK_USER = {
+    "sub": "user:test",
+    "product": "product:test",
+    "authorities": ["cognition-review"],
+}
 _AUTH = {"Authorization": "Bearer test"}  # bypasses APIKeyMiddleware; auth resolved via dependency_overrides
 
 
@@ -62,3 +66,6 @@ def test_switch_product_returns_new_token():
     assert resp.status_code == 200
     data = resp.json()
     assert "token" in data
+    claims = verify_token(data["token"])
+    assert claims["product"] == "product:trading_system"
+    assert claims["authorities"] == ["cognition-review"]

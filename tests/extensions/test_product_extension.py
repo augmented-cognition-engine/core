@@ -257,6 +257,9 @@ def test_product_extension_register_wires_recipe_instruments_tool():
     }
 
     class _FakeRegistry:
+        def negotiate_cognition_contract(self, **contract):
+            captured["cognition_contract"] = contract
+
         def register_grounded_state_adapter(self, name, adapter):
             captured["grounded_state_adapters"].append((name, adapter))
 
@@ -266,7 +269,7 @@ def test_product_extension_register_wires_recipe_instruments_tool():
         def register_instrument(self, slug, module_path):
             captured["instruments"].append((slug, module_path))
 
-        def register_recipe(self, name, recipe, *, disciplines=None, task_types=None):
+        def register_recipe(self, name, recipe, *, disciplines=None, task_types=None, **_metadata):
             captured["recipes"].append((name, recipe, disciplines or []))
 
         def register_tool(self, fn, *, title=None):
@@ -276,6 +279,11 @@ def test_product_extension_register_wires_recipe_instruments_tool():
             captured["sentinels"].append((name, cron))
 
     ProductExtension().register(_FakeRegistry())
+
+    assert captured["cognition_contract"] == {
+        "extension_contract_version": "ace.cognition.revision/v1",
+        "accepted_core_contract_versions": ["ace.cognition.revision/v1"],
+    }
 
     # Durable domain actions — bounded product check, TP6 evidence, and TP7 review.
     assert len(captured["task_actions"]) == 3

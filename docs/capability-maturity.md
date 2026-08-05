@@ -1,6 +1,6 @@
-# ACE 0.2.0 capability maturity
+# ACE 0.3.0 capability maturity
 
-ACE 0.2.0 is a developer preview. This page distinguishes the public contract from implemented
+ACE 0.3.0 is a developer preview. This page distinguishes the public contract from implemented
 surfaces that remain experimental.
 
 ## Preview contract
@@ -12,13 +12,13 @@ install ace-core → configure a provider and SurrealDB → start ACE → authen
 → ace doctor → reason and capture → load retained intelligence → stop cleanly
 ```
 
-The 0.2.0 public identities are:
+The 0.3.0 public identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.2.0`
+- version: `0.3.0`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -37,7 +37,7 @@ The thin MCP surface contains exactly eleven tools:
 | `ace_related` | Find related code and knowledge |
 
 The CLI, thin MCP adapter, persistence migrations, reference extension mechanism, and documented
-provider routes are the compatibility focus for 0.2.x. Changes to these surfaces receive
+provider routes are the compatibility focus for 0.3.x. Changes to these surfaces receive
 migration notes when needed.
 
 The supported CLI also includes `ace landscape`, a versioned, authenticated, strictly read-only
@@ -45,7 +45,34 @@ Living Product Graph snapshot. It exposes stable object identity, canonical and 
 assertion states, evidence, provenance, uncertainty, history, decisions, corrections, and outcomes
 without adding an MCP tool or any write, execution, extension, or model-inference authority. Its
 [read contract](living-product-graph.md) freezes ordering, bounds, absence, failure, redaction, and
-0.2.x compatibility behavior.
+0.3.x compatibility behavior.
+
+## Supported governed-cognition boundary
+
+ACE 0.3.0 supports one canonical governed-cognition contract for reusable recipes, instruments,
+frameworks, tools, perspectives, and procedural knowledge. Stable cognition identity, immutable
+revision identity, scoped active heads, proposals, human review receipts, bounded selection/use
+receipts, and effectiveness observations remain distinct. The supported lifecycle is
+`teach → propose → inspect → approve → use → measure → revise or retire`; proposal or use alone
+cannot approve, activate, or promote cognition.
+
+Core recipes and current trusted in-process extensions enter the same typed catalog. Current Core
+adapts the v0.2.0 reference registration contract, while v0.2.0 Core refuses the current reference
+extension before any partial registration. Unknown, future, malformed, conflicting, unapproved,
+expired, superseded, unavailable, or scope-incompatible cognition fails closed. The naked kernel,
+zero-extension configuration, mixed wheel/source-distribution packages, and independently packaged
+consumer remain supported conformance cases.
+
+The authenticated cognition HTTP boundary owns proposal, semantic diff, review, activation,
+rollback, expiry, disablement, retirement, discovery, and use inspection. Deprecated skill,
+framework, and self-optimizer facades project into this boundary without manufacturing approval
+provenance. The existing thin MCP surface remains exactly eleven tools and gains only additive
+cognition receipt projections. E1 adds no writable model authority and supports no untrusted
+in-process extension execution, distributed approval, or exactly-once external side-effect claim.
+
+See the [governed-cognition operations runbook](governed-cognition-operations.md),
+[threat model](design/governed-cognition-extension-threat-model-v1.md), and
+[architecture/migration packet](design/governed-cognition-architecture-migration-work-packet-v1.md).
 
 ## Supported v0.2 State Engine boundary and journey
 
@@ -101,7 +128,7 @@ world-model intelligence, and L1 beneficial impact are not supported claims.
 
 The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,
 foresight, calibration, proactive intelligence, continuous-learning paths, and advanced extension
-hooks are implemented parts of ACE. They are not stable 0.2.x contracts: their APIs, supported
+hooks are implemented parts of ACE. They are not stable 0.3.x contracts: their APIs, supported
 end-to-end journeys, and compatibility guarantees can change. This maturity label limits the public
 promise; it does not reduce those systems to roadmap concepts or peripheral demos.
 
@@ -109,7 +136,7 @@ The authenticated `extension-invocation-v1` HTTP envelope and
 `extension-invocation-receipt-v1` projection are experimental. They add an extension-owned
 preparation/outcome bridge over Core's durable task lifecycle, including linked attempt-level
 resume after restart. This is real HTTP execution authority, not a supported CLI/MCP surface, and
-does not promote E1. See the
+does not broaden the supported governed-cognition boundary. See the
 [experimental extension-invocation contract](extension-invocation-contract.md).
 
 Long-running public tasks use persisted receipts and expose pending, running, completed, failed,

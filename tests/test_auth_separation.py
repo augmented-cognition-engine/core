@@ -6,6 +6,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from core.engine.api.main import app
+from core.engine.core.auth import verify_token
 
 
 def test_login_rejects_jwt_secret():
@@ -34,7 +35,8 @@ def test_login_accepts_api_key():
         client = TestClient(app)
         resp = client.post("/auth/token", json={"api_key": "my-login-key"})
         assert resp.status_code == 200
-        assert "token" in resp.json()
+        claims = verify_token(resp.json()["token"])
+        assert claims["authorities"] == ["cognition-review"]
 
 
 def test_login_accepts_demo_pass():
@@ -49,3 +51,34 @@ def test_login_accepts_demo_pass():
         client = TestClient(app)
         resp = client.post("/auth/token", json={"api_key": "demo123"})
         assert resp.status_code == 200
+        claims = verify_token(resp.json()["token"])
+        assert claims["authorities"] == []
+
+
+def test_login_refuses_ambiguous_owner_and_demo_credentials():
+    with patch("core.engine.api.auth_routes.settings") as mock_settings:
+        mock_settings.api_key = "shared-key"
+        mock_settings.demo_pass = "shared-key"
+
+        client = TestClient(app)
+        resp = client.post("/auth/token", json={"api_key": "shared-key"})
+        assert resp.status_code == 503
+
+
+def test_refresh_preserves_signed_authorities():
+    client = TestClient(app)
+    app.dependency_overrides.clear()
+    from core.engine.core.auth import get_current_user
+
+    app.dependency_overrides[get_current_user] = lambda: {
+        "sub": "user:reviewer",
+        "product": "product:platform",
+        "authorities": ["cognition-review"],
+    }
+    try:
+        resp = client.post("/auth/token/refresh", headers={"Authorization": "Bearer test"})
+    finally:
+        app.dependency_overrides.clear()
+    assert resp.status_code == 200
+    claims = verify_token(resp.json()["token"])
+    assert claims["authorities"] == ["cognition-review"]

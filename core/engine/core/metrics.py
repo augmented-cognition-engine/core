@@ -113,6 +113,40 @@ orchestration_failures_total = Counter(
 )
 
 # ------------------------------------------------------------------ #
+# Governed cognition                                                  #
+# ------------------------------------------------------------------ #
+
+cognition_selection_total = Counter(
+    "ace_cognition_selection_total",
+    "Governed cognition selections by terminal selection state",
+    ["state"],
+)
+
+cognition_candidate_dispositions_total = Counter(
+    "ace_cognition_candidate_dispositions_total",
+    "Governed cognition candidate outcomes by bounded disposition and reason",
+    ["disposition", "reason"],
+)
+
+cognition_selected_revisions = Histogram(
+    "ace_cognition_selected_revisions",
+    "Number of exact cognition revisions selected per request",
+    buckets=[0, 1, 2, 3, 4, 5, 7, 8],
+)
+
+cognition_level1_tokens = Histogram(
+    "ace_cognition_level1_tokens",
+    "Declared Level-1 cognition tokens loaded per request",
+    buckets=[0, 64, 128, 256, 512, 1024, 1536],
+)
+
+cognition_lifecycle_total = Counter(
+    "ace_cognition_lifecycle_total",
+    "Human-governed cognition lifecycle transitions",
+    ["action", "status"],
+)
+
+# ------------------------------------------------------------------ #
 # MCP tools                                                            #
 # ------------------------------------------------------------------ #
 

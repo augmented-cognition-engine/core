@@ -459,6 +459,17 @@ async def ace_task(
                 }
                 for i, phase in enumerate(composition.active_phases)
             ],
+            "revision_ids": dict(composition.cognition_revision_ids),
+            "selection_receipt_id": (
+                str(composition.cognition_selection_receipt.selection_receipt_id)
+                if composition.cognition_selection_receipt is not None
+                else None
+            ),
+            "use_receipt_id": (
+                str(composition.cognition_use_receipt.use_receipt_id)
+                if composition.cognition_use_receipt is not None
+                else None
+            ),
         }
 
     # Engagement routing (multi-perspective, adversarial)
@@ -507,6 +518,16 @@ async def ace_task(
         "status": result.status,
         "duration_ms": result.duration_ms,
         "trace": trace,
+        "cognition_selection_receipt": (
+            composition.cognition_selection_receipt.model_dump(mode="json")
+            if composition and composition.cognition_selection_receipt is not None
+            else {}
+        ),
+        "cognition_use_receipt": (
+            composition.cognition_use_receipt.model_dump(mode="json")
+            if composition and composition.cognition_use_receipt is not None
+            else {}
+        ),
     }
 
 

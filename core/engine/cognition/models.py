@@ -228,3 +228,8 @@ class CognitiveComposition:
     loop_context: dict = field(default_factory=dict)
     # phase_idx (str) → list of resolved tool slugs (advisory; mirrors resolved_instruments)
     resolved_tools: dict[str, list[str]] = field(default_factory=dict)
+    # Immutable E1-D decision/use receipts. Kept as typed values internally;
+    # task/API/MCP projections serialize them additively.
+    cognition_selection_receipt: object | None = None
+    cognition_use_receipt: object | None = None
+    cognition_revision_ids: dict[str, str] = field(default_factory=dict)
