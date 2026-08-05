@@ -80,6 +80,11 @@ _SCOPED_FAMILIES = frozenset(
         "observations",
         "insights",
         "tasks",
+        "state_ingestions",
+        "belief_projections",
+        "transition_revisions",
+        "reasoning_evidence_packs",
+        "rollout_reasoning_use",
         "consequence_rollouts",
         "rollout_reconciliations",
         "promotion_proposals",
@@ -119,6 +124,11 @@ _OBJECT_TYPES = {
     "observations": "observation",
     "insights": "insight",
     "tasks": "task",
+    "state_ingestions": "state_ingestion_receipt",
+    "belief_projections": "belief_state_projection",
+    "transition_revisions": "transition_hypothesis_revision",
+    "reasoning_evidence_packs": "reasoning_evidence_pack",
+    "rollout_reasoning_use": "rollout_reasoning_use_receipt",
     "consequence_rollouts": "consequence_rollout",
     "rollout_reconciliations": "rollout_reconciliation",
     "promotion_proposals": "promotion_proposal",
@@ -360,6 +370,63 @@ _RECORD_FIELDS: dict[str, tuple[str, ...]] = {
         "session_id",
         "created_at",
         "completed_at",
+    ),
+    "state_ingestions": (
+        "id",
+        "receipt_id",
+        "manifest_id",
+        "manifest_hash",
+        "adapter_id",
+        "extraction_run_id",
+        "contract_version",
+        "created_at",
+    ),
+    "belief_projections": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "as_of",
+        "revision",
+        "evidence_pack_id",
+        "assertion_refs",
+        "created_at",
+    ),
+    "transition_revisions": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "hypothesis_id",
+        "revision",
+        "review_state",
+        "rollout_eligible",
+        "prior_revision_id",
+        "dependency_refs",
+        "created_at",
+    ),
+    "reasoning_evidence_packs": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "task_id",
+        "invocation_id",
+        "query_id",
+        "evidence_pack_id",
+        "evidence_refs",
+        "created_at",
+    ),
+    "rollout_reasoning_use": (
+        "id",
+        "stable_id",
+        "material_hash",
+        "contract_version",
+        "task_id",
+        "invocation_id",
+        "rollout_revision_id",
+        "comparison_state",
+        "created_at",
     ),
     "consequence_rollouts": (
         "id",
@@ -657,7 +724,22 @@ def _project_record(family: str, record: dict[str, Any]) -> dict[str, Any]:
     rid = _record_id(record)
     result["object_type"] = _OBJECT_TYPES[family]
     result["lifecycle_state"] = _lifecycle_state(record)
-    if family == "consequence_rollouts":
+    if family == "state_ingestions":
+        result["authority"] = "read_only_ingestion_receipt"
+        result["record_meaning"] = "extension_mapped_source_persisted_under_core_product_scope"
+    elif family == "belief_projections":
+        result["authority"] = "read_only_belief_projection"
+        result["record_meaning"] = "versioned_as_of_belief_state_not_source_observation"
+    elif family == "transition_revisions":
+        result["authority"] = "read_only_transition_hypothesis"
+        result["record_meaning"] = "reviewed_mechanistic_hypothesis_not_causal_fact"
+    elif family == "reasoning_evidence_packs":
+        result["authority"] = "read_only_reasoning_evidence_receipt"
+        result["record_meaning"] = "bounded_attributed_evidence_used_by_task"
+    elif family == "rollout_reasoning_use":
+        result["authority"] = "read_only_material_use_receipt"
+        result["record_meaning"] = "matched_reasoning_influence_not_beneficial_impact"
+    elif family == "consequence_rollouts":
         result["authority"] = "read_only_simulation_projection"
         result["record_meaning"] = "simulated_consequence_not_observation"
     elif family == "rollout_reconciliations":
@@ -976,6 +1058,11 @@ def project_product_snapshot(product_id: str, source: LivingProductGraphRecords)
             "insights": projected["insights"],
         },
         "state_engine": {
+            "ingestions": projected["state_ingestions"],
+            "belief_projections": projected["belief_projections"],
+            "transition_revisions": projected["transition_revisions"],
+            "reasoning_evidence_packs": projected["reasoning_evidence_packs"],
+            "reasoning_use_receipts": projected["rollout_reasoning_use"],
             "consequence_rollouts": projected["consequence_rollouts"],
             "rollout_reconciliations": projected["rollout_reconciliations"],
             "promotion": {

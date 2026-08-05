@@ -36,6 +36,7 @@ describe the moment they were written. For current product support use
 - [State Engine TP8 scale, stability, and Core boundary](state-engine-tp8-scale-stability-v1.md)
 - [State Engine K1-K3 bounded readiness audit](state-engine-k1-k3-readiness-v1.md)
 - [State Engine K1-K3 extension-first product closeout](state-engine-k1-k3-product-journey-v1.md)
+- [Productized State integrated public journey](productized-state-journey-v1.md)
 
 ## Extension invocation
 

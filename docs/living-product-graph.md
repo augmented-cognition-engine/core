@@ -53,7 +53,7 @@ Every successful response contains:
 - `projection_state`, including `complete`, `partial`, `degraded`, or `unknown`, assertion-state
   counts, and issue count;
 - the focal `product`, intent, projects, capabilities, relationships, decisions, foresight,
-  intelligence, bounded `state_engine` rollout metadata, work, assertion history, source receipts,
+  intelligence, bounded `state_engine` receipt metadata, work, assertion history, source receipts,
   and issues.
 
 Projected product records have a stable `id`, `object_type`, `lifecycle_state`, `authority`, and
@@ -67,6 +67,14 @@ TP6 consequence rollouts appear only under `state_engine.consequence_rollouts` a
 Reconciliation metadata appears separately under `state_engine.rollout_reconciliations`. The store
 omits TP6 payloads, exposes only allowlisted product-scoped coordinates, and never places simulated
 states or consequences under historical observations, insights, beliefs, or Foresight resolutions.
+
+The 0.3.x Productized State candidate adds allowlisted read-only metadata for
+`state_engine.ingestions`, `belief_projections`, `transition_revisions`,
+`reasoning_evidence_packs`, and `reasoning_use_receipts`. These additive families connect the
+existing decision, deliberation, correction, rollout, reconciliation, and promotion trail without
+exposing raw payloads or changing authority. Ingestion metadata is not source truth; belief state is
+not an observation; a transition remains a hypothesis rather than causal fact; and material-use
+receipts do not claim beneficial impact.
 
 ## Assertion and uncertainty semantics
 

@@ -165,6 +165,86 @@ def test_tp6_rollouts_are_read_only_simulations_not_observations_or_beliefs():
     assert "payload" not in rollout
 
 
+def test_productized_state_receipts_are_additive_inspectable_and_never_source_truth():
+    source = _records()
+    source.records["state_ingestions"] = [
+        {
+            "id": "grounded_batch_ingestion_receipt:one",
+            "product": "product:alpha",
+            "receipt_id": "batch_ingestion_receipt:one",
+            "manifest_id": "batch_manifest:one",
+            "manifest_hash": "a" * 64,
+            "adapter_id": "example-adapter",
+            "extraction_run_id": "run:one",
+            "contract_version": "ace.grounded-state.batch-ingestion-receipt/v1",
+            "payload": {"private": "not projected"},
+        }
+    ]
+    source.records["belief_projections"] = [
+        {
+            "id": "grounded_belief_projection:one",
+            "product": "product:alpha",
+            "stable_id": "belief_projection:one",
+            "material_hash": "b" * 64,
+            "contract_version": "ace.grounded-state.belief-projection/v1",
+            "as_of": "2030-01-01T00:00:00Z",
+            "revision": 1,
+            "evidence_pack_id": "grounded_evidence_pack:one",
+            "assertion_refs": ["grounded_epistemic_assertion_revision:one"],
+        }
+    ]
+    source.records["transition_revisions"] = [
+        {
+            "id": "grounded_transition_revision:one",
+            "product": "product:alpha",
+            "stable_id": "transition_revision:one",
+            "material_hash": "c" * 64,
+            "contract_version": "ace.grounded-state.transition-revision/v1",
+            "hypothesis_id": "transition_hypothesis:one",
+            "revision": 1,
+            "review_state": "provisional",
+            "rollout_eligible": True,
+        }
+    ]
+    source.records["reasoning_evidence_packs"] = [
+        {
+            "id": "grounded_reasoning_evidence_pack:one",
+            "product": "product:alpha",
+            "stable_id": "reasoning_pack:one",
+            "material_hash": "d" * 64,
+            "contract_version": "ace.grounded-state.reasoning-evidence-pack/v1",
+            "task_id": "task:one",
+            "invocation_id": "invocation:one",
+            "query_id": "evidence_query:one",
+            "evidence_pack_id": "grounded_evidence_pack:one",
+            "evidence_refs": ["grounded_source_claim:one"],
+        }
+    ]
+    source.records["rollout_reasoning_use"] = [
+        {
+            "id": "grounded_rollout_reasoning_use:one",
+            "product": "product:alpha",
+            "stable_id": "reasoning_use:one",
+            "material_hash": "e" * 64,
+            "contract_version": "ace.grounded-state.rollout-reasoning-use/v1",
+            "task_id": "task:one",
+            "invocation_id": "invocation:one",
+            "rollout_revision_id": "grounded_consequence_rollout:one",
+            "comparison_state": "material",
+        }
+    ]
+
+    snapshot = project_product_snapshot("product:alpha", source)
+    state_engine = snapshot["state_engine"]
+
+    assert state_engine["ingestions"][0]["authority"] == "read_only_ingestion_receipt"
+    assert state_engine["belief_projections"][0]["record_meaning"].endswith("not_source_observation")
+    assert state_engine["transition_revisions"][0]["record_meaning"].endswith("not_causal_fact")
+    assert state_engine["reasoning_evidence_packs"][0]["task_id"] == "task:one"
+    assert state_engine["reasoning_use_receipts"][0]["record_meaning"].endswith("not_beneficial_impact")
+    assert "private" not in serialize_product_snapshot(snapshot).decode()
+
+
 def test_tp7_promotion_lifecycle_is_read_only_metadata_not_source_evidence():
     source = _records()
     source.records["promotion_proposals"] = [
@@ -488,6 +568,11 @@ class _FixtureDatabase:
         "observation": "observations",
         "insight": "insights",
         "task": "tasks",
+        "grounded_batch_ingestion_receipt": "state_ingestions",
+        "grounded_belief_projection": "belief_projections",
+        "grounded_transition_revision": "transition_revisions",
+        "grounded_reasoning_evidence_pack": "reasoning_evidence_packs",
+        "grounded_rollout_reasoning_use": "rollout_reasoning_use",
         "grounded_consequence_rollout": "consequence_rollouts",
         "grounded_rollout_reconciliation": "rollout_reconciliations",
         "grounded_promotion_proposal": "promotion_proposals",
@@ -546,7 +631,7 @@ async def test_surreal_store_adapter_loads_the_complete_scoped_fixture():
     assert len(snapshot["relationships"]["operational"]) == 1
     scoped_calls = [params for query, params in database.calls if "WHERE product" in query]
     assert scoped_calls
-    assert all(params["product"] == "product:alpha" for params in scoped_calls)
+    assert all(str(params["product"]) == "product:alpha" for params in scoped_calls)
     assert all(query.lstrip().upper().startswith("SELECT") for query, _params in database.calls)
     bounded_calls = [(query, params) for query, params in database.calls if "LIMIT $limit" in query]
     assert bounded_calls

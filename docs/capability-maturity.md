@@ -133,6 +133,31 @@ archival/reactivation, and stop conditions. Distributed ordering, multi-writer c
 multi-region recovery, real-world causal accuracy or calibration, autonomous learning, general
 world-model intelligence, and general real-world L1 beneficial impact are not supported claims.
 
+## 0.3.x Productized State candidate — not yet released
+
+The candidate branch adds a builder-facing `ace state` workflow and authenticated Product State
+HTTP boundary. These changes are not present in the published ace-core 0.3.0 wheel. Until a later
+artifact is reviewed and published, this section describes candidate behavior only.
+
+The candidate supports:
+
+- `GET /product-state/capabilities` for deterministic adapter/action/version discovery;
+- `POST /product-state/ingestions` for extension mapping under authenticated Core product scope;
+- `ace state capabilities`, `ingest`, `invoke`, `correct`, and `inspect` as one outcome-led journey;
+- additive, allowlisted Living Product Graph metadata for ingestion, belief, transition,
+  task-evidence, material-use, rollout, reconciliation, promotion, decision, deliberation, and
+  correction receipts; and
+- schema-zero v171 and v168→v171 compatibility in the frozen extension-first acceptance.
+
+The ingestion and inspection contracts are supported candidate surfaces. The underlying grounded-
+state adapter and extension task-action registration remain experimental extension hooks: installed
+extensions are explicitly trusted in-process, action authority stays bounded by their manifest, and
+failures remain visible. The CLI adds no MCP tool and does not make capture equivalent to promotion.
+
+The [Productized State guide](productized-state.md) and
+[candidate evidence](evidence/productized-state-journey-v1.md) record the exact journey, failure
+behavior, receipt identities, and publication hold.
+
 ## Implemented architecture beyond the compatibility contract
 
 The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,

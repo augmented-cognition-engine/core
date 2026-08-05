@@ -379,6 +379,40 @@ MCP boundary. See the
 and
 [passing K1-K3 evidence](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/state-engine-k1-k3-product-journey-v1.md).
 
+### Reproduce the 0.3.x Productized State candidate
+
+The current candidate turns the internal K1–K3 proof into a builder-facing extension journey. It
+adds authenticated adapter discovery and ingestion plus one focused `ace state` CLI without adding
+an MCP tool. This surface is not part of the already published ace-core 0.3.0 artifact.
+
+```bash
+uv run ace state capabilities
+uv run ace state ingest /path/to/product-state-ingestion.json
+uv run ace state invoke /path/to/extension-invocation.json
+uv run ace state correct --domain operations "Correct the retained product rule."
+uv run ace state inspect
+```
+
+The frozen provider-free acceptance builds and clean-installs the Fjord Operations extension,
+migrates schema zero to v171, upgrades v168 to v171, ingests through the authenticated Product
+State API, completes the decision/restart/correction/material-use journey, and verifies that the
+Living Product Graph exposes the complete I1–I3 and State Engine receipt chain:
+
+```bash
+uv run python scripts/run_state_engine_product_journey.py \
+  --config evaluations/fixtures/productized_state_journey_v1.json \
+  freeze-check
+uv run python scripts/run_state_engine_product_journey.py \
+  --config evaluations/fixtures/productized_state_journey_v1.json \
+  run --work-dir /tmp/ace-productized-state
+```
+
+See the [Productized State guide](https://github.com/augmented-cognition-engine/core/blob/main/docs/productized-state.md)
+and [acceptance evidence](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/productized-state-journey-v1.md).
+The accepted claim remains
+single-node, trusted-extension, provider-free, and fictional-data bounded; it is not a hostile-code,
+distributed, causal-accuracy, autonomous-learning, or beneficial-impact claim.
+
 For a new corpus, implement the bounded adapter proposal interface demonstrated by the independent
 [`examples/ace_ext_fjord_operations`](https://github.com/augmented-cognition-engine/core/tree/main/examples/ace_ext_fjord_operations)
 package.

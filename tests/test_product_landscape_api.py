@@ -77,7 +77,7 @@ async def test_authenticated_scope_cannot_be_overridden_by_crafted_query_paramet
     assert response.status_code == 200
     assert response.json()["product"]["id"] == "product:alpha"
     assert all(query.lstrip().upper().startswith("SELECT") for query, _params in database.calls)
-    assert all(params.get("product", "product:alpha") == "product:alpha" for _query, params in database.calls)
+    assert all(str(params.get("product", "product:alpha")) == "product:alpha" for _query, params in database.calls)
 
 
 @pytest.mark.asyncio

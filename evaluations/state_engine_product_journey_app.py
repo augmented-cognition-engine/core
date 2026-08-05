@@ -12,6 +12,8 @@ from fastapi import FastAPI
 from core.engine.api.capture import router as capture_router
 from core.engine.api.extension_invocations import router as extension_invocations_router
 from core.engine.api.intel import router as intel_router
+from core.engine.api.landscape import router as landscape_router
+from core.engine.api.product_state import router as product_state_router
 from core.engine.api.tasks import initialize_task_runtime, shutdown_task_runtime
 from core.engine.api.tasks import router as tasks_router
 from core.engine.core.db import pool
@@ -42,6 +44,8 @@ app.include_router(tasks_router)
 app.include_router(extension_invocations_router)
 app.include_router(intel_router)
 app.include_router(capture_router)
+app.include_router(product_state_router)
+app.include_router(landscape_router)
 
 
 @app.get("/health/live")
