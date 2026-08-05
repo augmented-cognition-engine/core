@@ -633,6 +633,6 @@ def test_tp5_schema_and_current_readiness_closeout_remain_explicit():
     assert migration.count("FOR update NONE, FOR delete NONE") == 7
     assert "TP5 is complete on the current worktree" in roadmap
     assert "233c24afb28a273c057c5adaf988dc77824caef267e3442ae380405b69989a15" in roadmap
-    assert "| K2 | ready |" in public_roadmap
-    assert "State Engine K1-K3 readiness" in public_roadmap
-    assert "TP8 closes the single-node scale" in public_roadmap
+    assert "| K2 | passed |" in public_roadmap
+    assert "state-engine-k1-k3-product-journey-v1.md" in public_roadmap
+    assert "mechanism, preconditions, horizon, uncertainty" in public_roadmap

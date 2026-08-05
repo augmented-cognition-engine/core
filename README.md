@@ -353,29 +353,35 @@ and documented in the [Living Product Graph read contract](https://github.com/au
 ### Reproduce the v0.2 State Engine journey
 
 ACE 0.2.0 adds a supported, product-scoped single-node State Engine contract inside Core and its
-existing task/status projections. The reference journey is deliberately provider-free: it proves
-the runtime and receipt chain without presenting a model answer as evidence. From a source checkout
-with the SurrealDB 3.2.3 executable available, run:
+existing task/status projections. The Fjord Operations product-builder journey installs a separate
+example extension and is deliberately provider-free: it proves the runtime and receipt chain without
+presenting a model answer as evidence. From a source checkout with the SurrealDB executable
+available, run:
 
 ```bash
 uv run ace doctor
-uv run pytest \
-  tests/test_grounded_state_ingestion.py::test_tp6_rollout_reasoning_use_and_reconciliation_survive_restart \
-  -q --tb=short
-uv run python scripts/run_state_engine_readiness.py freeze-check
+uv run python scripts/run_state_engine_product_journey.py freeze-check
+uv run python scripts/run_state_engine_product_journey.py run \
+  --work-dir /tmp/ace-fjord-product-journey \
+  --output evaluations/results/state_engine_product_journey_v1.json \
+  --markdown-output evaluations/results/state_engine_product_journey_v1.md
 ```
 
-The first command checks the configured service. The end-to-end acceptance then uses the shipped
-reference adapter and real production services to ingest a bounded corpus; verifies terminal item
-and batch receipts; retrieves a frozen evidence pack; builds a reviewed as-of belief projection;
-resolves a transition hypothesis; compares action and no-action rollouts; persists actual task-time
-I3 use; creates an eligible promotion proposal; applies an explicit human-authority disposition;
-restarts the database; retrieves the promoted memory in a fresh service; applies a correction; and
-proves the prior receipt is superseded without rewriting its lineage. The final command verifies
-that the retained K1-K3 target and evidence identities have not drifted.
+The first command checks the configured service, and the second verifies that the product scenario
+was frozen before execution. The end-to-end acceptance builds and clean-installs the extension,
+applies schema-zero and supported-upgrade paths, ingests and exactly replays a bounded corpus,
+projects all five required epistemic meanings, reviews an inspectable transition, compares action,
+no-action, and named-alternative branches, persists decision/I3/promotion receipts, reconciles later
+outcomes, restarts the real database/API/worker topology, applies an append-only correction, proves
+fresh-client material use, exercises failure/degraded cases, and reverifies the unchanged eleven-tool
+MCP boundary. See the
+[product-builder guide](https://github.com/augmented-cognition-engine/core/blob/main/docs/state-engine-product-builder.md)
+and
+[passing K1-K3 evidence](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/state-engine-k1-k3-product-journey-v1.md).
 
-For a new corpus, implement the bounded adapter proposal interface demonstrated by
-[`extensions/reference/grounded_state_adapter.py`](https://github.com/augmented-cognition-engine/core/blob/main/extensions/reference/grounded_state_adapter.py).
+For a new corpus, implement the bounded adapter proposal interface demonstrated by the independent
+[`examples/ace_ext_fjord_operations`](https://github.com/augmented-cognition-engine/core/tree/main/examples/ace_ext_fjord_operations)
+package.
 Core—not the adapter or source content—supplies authenticated product scope, stable IDs,
 transactions, replay, and receipts. Inspect counts, terminal/degraded states, provenance,
 uncertainty, simulation labels, and promotion/correction history through the returned contracts and
@@ -391,7 +397,7 @@ before migration or material ingestion; it covers v168 upgrades, backup/restore,
 replay, archival, health, and exact stop conditions. This evidence does not claim distributed or
 multi-writer guarantees, arbitrary pre-v142 mid-file migration recovery, real-world causal
 accuracy or calibration, autonomous learning, a general-purpose environment simulator, or L1
-beneficial impact.
+beneficial impact outside the frozen executable-benchmark scope.
 
 The default install uses the CPU-friendly ONNX embedding path. The optional
 1.3B-parameter CodeSage backend is intentionally not part of the release image;

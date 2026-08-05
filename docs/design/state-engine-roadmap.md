@@ -1,14 +1,18 @@
-# ACE State Engine roadmap
+# ACE State Engine design and implementation record
 
-This roadmap describes how ACE can reason over large, continuously changing knowledge bases without
-turning every source claim into durable cognitive memory. It is the companion design note for the
-public K1/K2/K3 outcomes, not an implementation work packet.
+This design and implementation record describes how ACE reasons over large, continuously changing
+knowledge bases without turning every source claim into durable cognitive memory. It preserves the
+TP0–TP8 dependency sequence and historical packet decisions behind the public K1/K2/K3 outcomes; it
+is not the current roadmap or an implementation work packet.
 
 **Definition:** The ACE State Engine is shared, evidence-grounded state for reasoning about change
 and consequences.
 
-> The [public roadmap](../../ROADMAP.md) remains authoritative for outcome state and dispatch. This
-> document does not by itself advance K1, K2, or K3 beyond `not ready`.
+> The [public roadmap](../../ROADMAP.md) remains authoritative for outcome state and dispatch.
+> TP0–TP8, the bounded follow-on audit, and the extension-first product journey are complete;
+> K1–K3 are `passed`, and R7/ace-core 0.2.0 is
+> `passed` and published. Earlier status statements below are retained as historical packet
+> decisions and do not override the current public ledger.
 
 ## Decision
 
@@ -946,6 +950,16 @@ real-world calibration, benefit, distributed guarantees, or release readiness.
 The [Core-boundary readiness addendum](state-engine-core-boundary-readiness-v1.md) records the
 classification delta without mutating the frozen TP8 boundary input.
 
+**Extension-first product closeout (2026-08-04):** The independent Fjord Operations package
+clean-installs through the ordinary extension entry point and completes the frozen product journey
+against real database, API, worker, and fresh thin-client processes. Its exact replay, five-state
+projection, reviewed mechanism, action/no-action/alternative comparisons, decision/I3/promotion
+receipts, immutable reconciliation, restart/interruption continuity, correction supersession,
+failure matrix, provider-free accounting, and unchanged eleven-tool boundary pass. The
+[product-journey evidence](../evidence/state-engine-k1-k3-product-journey-v1.md) advances K1, K2,
+and K3 from `ready` to `passed` for the same bounded single-node capability. It does not promote E1,
+T1, L1, distributed operation, or real-world causal accuracy.
+
 ## Dependency map
 
 ```mermaid
@@ -1026,20 +1040,21 @@ The public roadmap should express the user capabilities rather than every intern
 > futures, expose assumptions and uncertainty, use them in later reasoning, and reconcile predictions
 > against observed outcomes without presenting simulations as facts.
 
-K1, K2, and K3 are now `ready` for the bounded single-node contracts and measurements recorded by
-TP8 and the subsequent readiness audit. That decision does not generalize to real-world causal
-accuracy, forecast calibration, benefit, distributed operation, or release readiness. TP1 also
+K1, K2, and K3 are now `passed` for the bounded single-node contracts, measurements, and supported
+extension-first product journey recorded by TP8, the readiness audit, and the product closeout.
+That decision does not generalize to real-world causal accuracy, forecast calibration, benefit,
+distributed operation, or broader extension stability. TP1 also
 contributes to T1; connectors depend on the E1 extension boundary; durable promotion reuses I1 and
 I3; beneficial impact remains an L1 question.
 
 ## Recommended dispatch
 
-TP0–TP8 and the bounded K1-K3 readiness audit now have passing implementation and acceptance
-packets. The explicit pre-R7 remediation is complete, so R7 may be planned as a separate authorized
-packet; it was not started by this audit. Keep source connectors, extraction policy, and domain
-ontologies behind the extension boundary; do not backfill the OLC corpus into cognitive memory or
-infer L1 benefit, T1, distributed guarantees, real-world calibration, or release readiness from the
-single-node evidence.
+TP0–TP8, the readiness audit, R7, and the extension-first product closeout are complete. The next
+public dependency spine is governed cognition (E1), while T1 hardens runtime authority and L1
+continues separately governed evidence collection. Keep source connectors, extraction policy, and
+domain ontologies behind the extension boundary; do not infer E1 stability, L1 benefit, T1,
+distributed guarantees, real-world calibration, or broader product support from the single-node
+State Engine evidence.
 
 The signature capability is a temporal, inspectable State Engine—not bulk storage by itself and not
 a general learned world-model claim. ACE must turn a changing external world into bounded

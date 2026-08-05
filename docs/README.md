@@ -7,7 +7,7 @@ Point-in-time release and acceptance records live in the
 ## Start here
 
 - [Project quickstart](../README.md) — install ACE and reach a first useful result.
-- [Capability maturity](capability-maturity.md) — what 0.1.x supports and what remains
+- [Capability maturity](capability-maturity.md) — what the current release supports and what remains
   experimental.
 - [Architecture](architecture.md) — the as-built system map and responsibility boundaries.
 - [Frequently asked questions](faq.md) — failure behavior, provenance, confidence, and operating
@@ -18,6 +18,8 @@ Point-in-time release and acceptance records live in the
 - [Model providers](providers.md) — configure model access and understand routing behavior.
 - [Product-builder golden path](product-builder-golden-path.md) — reproduce an evidence-backed
   decision, correction, restart, and later reuse.
+- [State Engine product-builder journey](state-engine-product-builder.md) — install an independent
+  product extension and reproduce the bounded K1-K3 evidence, rollout, restart, and correction path.
 - [Clean-user onboarding trial](onboarding-trials.md) — evaluate setup, first value, and recovery.
 - [Reliable observation worker operations](worker-operations.md) — supervised startup, shutdown,
   restart, lease recovery, and queue health.
@@ -47,11 +49,12 @@ Point-in-time release and acceptance records live in the
 - [Changelog](../CHANGELOG.md)
 - [Security policy](../SECURITY.md)
 
-Detailed longer-term architecture lives under design notes:
+Detailed architecture and historical implementation sequences live under design notes. They
+support the public roadmap but do not compete with it for outcome state or dispatch:
 
-- [Capability evolution](design/capability-evolution.md) — teach, govern, and measure reusable
+- [Governed cognition](design/capability-evolution.md) — teach, govern, and measure reusable
   cognition.
-- [ACE State Engine](design/state-engine-roadmap.md) — reason over
+- [ACE State Engine design and implementation record](design/state-engine-roadmap.md) — reason over
   high-volume temporal evidence, inspectable dynamics, and bounded consequences while preserving
   sparse durable memory.
 - [State Engine v0.2 Core boundary](design/state-engine-core-boundary-v1.md) — stable contracts,

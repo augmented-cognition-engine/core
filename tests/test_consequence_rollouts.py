@@ -25,6 +25,7 @@ from core.engine.grounded_state.rollout_contracts import (
     EvidenceCoverageV1,
     EvidenceQueryV1,
     ModelBranchProposalReceiptV1,
+    PredictedStateStepV1,
     ProviderExecutionV1,
     ReasoningEvidencePackV1,
     RolloutDisposition,
@@ -176,6 +177,29 @@ def _completed_rollout():
     )
     rollout = finalize_rollout(proposal, executions=executions, challenge=challenge)
     return pack, projection, revision, query, context_pack, proposal, executions, challenge, rollout
+
+
+def test_predicted_state_identity_survives_nested_none_omission() -> None:
+    """SurrealDB omits nested NONE fields; canonical ordering must restore defaults first."""
+
+    *_, rollout = _completed_rollout()
+    step = rollout.execution_receipts[0].steps[0]
+    material = step.model_dump(mode="json", exclude={"simulated_state_id"})
+    unknown = dict(material["state_snapshot"][0])
+    unknown.update(
+        {
+            "entry_id": "grounded_projection_entry:nested-none-regression",
+            "predicate": "unknown_regression_state",
+            "status": "unknown",
+            "value": None,
+        }
+    )
+    material["state_snapshot"].append(unknown)
+    original = PredictedStateStepV1.model_validate(material)
+    payload = original.model_dump(mode="json")
+    next(item for item in payload["state_snapshot"] if item["status"] == "unknown").pop("value")
+
+    assert PredictedStateStepV1.model_validate(payload) == original
 
 
 def test_tp6_contracts_are_immutable_extra_forbid_and_identity_sensitive():

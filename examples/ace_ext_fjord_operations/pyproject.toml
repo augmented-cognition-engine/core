@@ -1,0 +1,20 @@
+[project]
+name = "ace-ext-fjord-operations"
+version = "0.1.0"
+description = "Fictional public-safe State Engine product extension for the ACE product-builder journey"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = ["ace-core>=0.2.0,<0.3.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["fjord_operations_extension*"]
+
+[tool.setuptools.package-data]
+fjord_operations_extension = ["fixtures/*.json"]
+
+[project.entry-points."ace.extensions"]
+fjord-operations = "fjord_operations_extension.extension:FjordOperationsExtension"

@@ -3,7 +3,8 @@
 This runbook covers the supported ACE 0.2.0 / schema v168 single-node topology: local or
 operator-managed SurrealDB with SurrealKV, one ACE API/worker deployment, bounded ingestion clients,
 and optional external read-only source bodies. Use only disposable or backed-up environments when
-rehearsing failures. K1-K3 are `ready` only for this bounded topology and the published evidence.
+rehearsing failures. K1-K3 are `passed` only for this bounded topology and the published
+product-journey evidence; the v168 release boundary remains the operational contract.
 
 ## Release and health identity
 

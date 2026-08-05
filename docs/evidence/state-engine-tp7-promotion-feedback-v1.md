@@ -162,5 +162,6 @@ path was exercised. No commit, push, pull request, publication, or release is pa
 The bounded cases prove contract enforcement, atomic lineage, replay, restart, correction, runtime
 selection, and I3 accounting—not reviewer reliability, correctness of promoted conclusions,
 general autonomous learning, causal correctness, broad domain validity, throughput, scale,
-stability, decision quality, or benefit. L1 remains `candidate` with collection not started; TP8,
+stability, decision quality, or benefit. At the time of this TP7 packet, L1 remained `candidate`
+with collection not started; the later L1 v7 evidence is evaluated separately. TP8,
 T1, B1, E1, public K1–K3, and ACE v0.2.0 readiness are unchanged.

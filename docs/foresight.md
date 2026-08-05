@@ -429,8 +429,8 @@ must test whether stated probabilities match observed frequencies.
    and tail-risk contributions before any aggregation claim.
 6. **Future breadth/evidence outcome:** add binary/categorical scoring only when product evidence
    justifies those consequence types.
-7. **I3:** make resolved-forecast retrieval and its exact effect on later reasoning inspectable.
-8. **L1:** add product-aware hierarchical calibration and compare against no-foresight,
+7. **I3 (passed):** make resolved-forecast retrieval and its exact effect on later reasoning inspectable.
+8. **L1 (passed for the executable-benchmark scope):** add product-aware calibration and compare against no-foresight,
    naive/base-rate, and model-only baselines; test whether foresight improves decisions rather than
    merely changing them.
 
@@ -466,4 +466,5 @@ F1 advanced to `passed` when:
 
 F1 establishes an honest and testable contract. It does not prove forecast accuracy, causal
 identification, automatic improvement, or beneficial material use. Those claims remain gated by
-L1 evaluation evidence.
+their own evidence. The later L1 v7 result supports bounded executable-workload benefit, not general
+real-world accuracy or benefit.

@@ -294,6 +294,49 @@ python3 -m scripts.verify_l1_preregistration \
   --result evaluations/results/l1_preregistration_readiness_v1.json
 ```
 
-Its recorded state is `collection_not_started`. A valid preregistration is not beneficial-impact
-evidence; it prevents a later cohort, if collected, from silently changing arms, matching rules,
-sample thresholds, stopping rules, failure coverage, or the all-controls promotion rule.
+Its historical recorded state is `collection_not_started`. The stricter pre-outcome executable-
+protocol audit is reproducible with:
+
+```bash
+python3 -m scripts.verify_l1_collection_start \
+  --registration evaluations/fixtures/l1_preregistration_v1.json \
+  --readiness evaluations/results/l1_preregistration_readiness_v1.json \
+  --attempt evaluations/fixtures/l1_collection_start_v1.json \
+  --audit-code core/engine/evaluation/l1_collection_start.py \
+  --audit-script scripts/verify_l1_collection_start.py \
+  --intake-code core/engine/evaluation/l1_preregistration.py \
+  --analysis-code core/engine/evaluation/foresight_impact.py \
+  --result evaluations/results/l1_collection_start_v1.json
+```
+
+That receipt is `invalidated`: collection did not start, no target outcome was inspected, and the
+impact evaluator was not invoked. The v1 registration cannot accept a later cohort because the
+cohort, exact route, primary outcome, observation schema, analysis window, cluster definition,
+attribution verification, leakage boundaries, and randomized-arm estimator were not operationally
+frozen. A successor requires a new preregistration identity and hash before collection.
+
+The passing agent-only executable successor is frozen as
+`ace.foresight.impact-agent-benchmark-preregistration/v7`. It uses 48 independent workload
+clusters, exact blocked assignment across selectively applicable resolved ACE foresight,
+last-observation persistence, frozen base rate, and matched model-only. All 192 main decisions are
+durable before one fresh workload seed per cluster is created and shared across its four arms. The
+protocol permits no replacement, no interim analysis, and one terminal cluster-level analysis.
+Reproduce its no-outcome validation with:
+
+```bash
+uv run python -m scripts.run_l1_agent_benchmark dry-run \
+  --protocol evaluations/fixtures/l1_agent_benchmark_v7.json \
+  --benchmark-code core/engine/evaluation/l1_agent_benchmark.py \
+  --collection-runner scripts/run_l1_agent_benchmark.py \
+  --out /tmp/l1_agent_benchmark_dry_run_v7.json
+```
+
+The recorded live route, closed collection, and single analysis are
+`evaluations/results/l1_agent_benchmark_route_v7.json`,
+`evaluations/results/l1_agent_benchmark_collection_v7.json`, and
+`evaluations/results/l1_agent_benchmark_analysis_v7.json`. All 192 cases and 48 clusters were
+eligible. The terminal result is `benefit_supported`: the cluster-adjusted 95% lower bound is above
+zero against last-observation persistence, naïve/base-rate, and matched model-only. Do not rerun the
+analysis or start another v7 cohort. V2/v3 invalidations, v4's integrity failure, v5's negative
+all-controls result, and v6's single-case I3 lineage failure remain preserved rather than rewritten;
+exact v6 and v7 benchmark/runner sources are archived in `evaluations/source/`.

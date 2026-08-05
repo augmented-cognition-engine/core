@@ -20,6 +20,7 @@ def _registration() -> dict:
 
 
 def _case(index: int) -> dict:
+    arm = ("ace_foresight", "no_foresight", "naive_base_rate", "model_only")[index % 4]
     return {
         "case_id": f"case:{index}",
         "allocation_unit_hash": f"sha256:unit-{index}",
@@ -32,7 +33,7 @@ def _case(index: int) -> dict:
             "evidence_refs": [f"evidence:{index}"],
         },
         "assignment": {
-            "arm": ("ace_foresight", "no_foresight", "naive_base_rate", "model_only")[index % 4],
+            "arm": arm,
             "assignment_receipt_id": f"assignment:{index}",
             "evidence_refs": [f"assignment-evidence:{index}"],
             "exposure_receipt_id": f"exposure:{index}",
@@ -41,7 +42,7 @@ def _case(index: int) -> dict:
         "lineage": {
             "f1_resolution_id": f"resolution:{index}",
             "i3_intelligence_use_receipt_id": f"intelligence-use:{index}",
-            "material_use": True,
+            "material_use": arm == "ace_foresight",
         },
         "matched_route": {
             "state": "matched",
@@ -152,6 +153,34 @@ def test_missing_assignment_exposure_lineage_and_route_are_named() -> None:
         "matched_model_route_not_established",
         "partial_matched_route",
     }
+
+
+def test_material_foresight_contaminates_every_control_arm() -> None:
+    registration = _registration()
+    cohort = _cohort(registration)
+    for case in cohort["cases"]:
+        if case["assignment"]["arm"] != "ace_foresight":
+            case["lineage"]["material_use"] = True
+
+    result = evaluate_l1_readiness(registration, cohort)
+
+    contaminated = [case for case in result["cases"] if "contaminated_control_material_use" in case["reason_codes"]]
+    assert len(contaminated) == 30
+    assert result["state"] == "cohort_ineligible"
+
+
+def test_missing_outcome_provenance_and_insufficient_clusters_fail_closed() -> None:
+    registration = _registration()
+    cohort = _cohort(registration)
+    cohort["cases"][0]["outcome"]["evidence_refs"] = []
+    for case in cohort["cases"]:
+        case["cluster_id"] = "cluster:only-one"
+
+    result = evaluate_l1_readiness(registration, cohort)
+
+    assert "missing_outcome_provenance" in result["cases"][0]["reason_codes"]
+    assert "insufficient_independent_clusters" in result["reason_codes"]
+    assert result["state"] == "cohort_ineligible"
 
 
 def test_missing_failure_coverage_blocks_analysis() -> None:

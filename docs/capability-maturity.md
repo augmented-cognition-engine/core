@@ -89,20 +89,21 @@ operational receipts; deterministic candidate/evidence packs; reviewed as-of bel
 reviewed transition revisions; labeled action/no-action simulations and reconciliation; I3
 reasoning-use receipts; and human-authority promotion, correction, and supersession lineage.
 
-The shipped reference journey is executable from a source checkout as documented in the
+The supported extension-first journey is executable from a source checkout as documented in the
+[product-builder guide](state-engine-product-builder.md) and
 [README](../README.md#reproduce-the-v02-state-engine-journey). It performs, in order:
 
-1. install/configuration diagnostics;
-2. bounded adapter ingestion;
-3. count and terminal-receipt inspection;
-4. grounded evidence query and frozen pack retrieval;
-5. reviewed temporal belief projection;
-6. transition hypothesis challenge/review;
-7. action/no-action consequence reasoning;
-8. provenance, uncertainty, degraded-coverage, simulation, and I3 receipt inspection;
-9. explicit eligible promotion with authenticated human authority;
-10. real restart and fresh authoritative retrieval; and
-11. correction plus append-only supersession inspection.
+1. build, clean-install, and discover the independent product extension;
+2. schema-zero and supported-predecessor upgrade verification;
+3. bounded adapter ingestion, exact replay, counts, lineage, and scope checks;
+4. grounded evidence query and frozen as-of projection with five explicit epistemic meanings;
+5. transition hypothesis challenge/review with mechanism, uncertainty, evidence, and causal limits;
+6. action/no-action and named-alternative/no-action consequence comparisons;
+7. structured decision, task-time I3 use, and explicit eligible promotion receipts;
+8. incomplete and matched later-outcome reconciliation without rollout mutation;
+9. real database/API/worker restart and fresh-client material use;
+10. correction plus append-only supersession and post-correction restart; and
+11. interruption recovery, degraded/failure cases, and exact eleven-tool revalidation.
 
 The adapter supplies bounded, untrusted proposals and content digests. Authenticated Core context
 owns product scope, stable identity, validation, transactions, replay, and receipts. Source or model
@@ -119,8 +120,10 @@ The frozen reference envelope is 200 records per item, 200 items per manifest, 2
 records, 50 returned candidates, 20 evidence-pack records, 8 runtime evidence records, 8 rollout
 branches/steps/transitions, and 20 promotion retrieval results. The measured initial corpus was
 200,000 claims and 236,000 semantic records under a 2 GiB store budget on an 11-core, 18 GB M3 Pro;
-the retained post-sustained store held 220,000 claims and 256,000 semantic records. K1-K3 `ready`
-means only the published bounded single-node contracts and repeated journeys.
+the retained post-sustained store held 220,000 claims and 256,000 semantic records. K1-K3 `passed`
+means only the published bounded single-node contracts, scale packet, and the frozen extension-first
+journey recorded in the
+[K1-K3 product evidence](evidence/state-engine-k1-k3-product-journey-v1.md).
 
 Schema zero and the public 0.1.4 predecessor upgrade to v168 are supported. Current-head partial
 application resumes through the ordinary installer; arbitrary interruption inside historical
@@ -128,7 +131,7 @@ pre-v142 migrations requires restoring a pre-migration backup. The
 [operations runbook](state-engine-operations.md) covers health, backup/restore, interrupted replay,
 archival/reactivation, and stop conditions. Distributed ordering, multi-writer consistency,
 multi-region recovery, real-world causal accuracy or calibration, autonomous learning, general
-world-model intelligence, and L1 beneficial impact are not supported claims.
+world-model intelligence, and general real-world L1 beneficial impact are not supported claims.
 
 ## Implemented architecture beyond the compatibility contract
 
@@ -170,11 +173,18 @@ degrades missing, mismatched, failed, or partial controls without reconstruction
 material influence is not beneficial impact and does not imply L1 success. See
 [I3 closeout evidence](evidence/i3-intelligence-use-evidence.md).
 
-The experimental L1 `ace.foresight.impact-evaluation/v1` evaluator now computes bounded,
+The L1 `ace.foresight.impact-evaluation/v1` evaluator computes bounded,
 cluster-aware later-outcome comparisons without accepting caller-supplied quality labels. Its first
 checksum-frozen public-data probe did not establish benefit. A tamper-evident prospective protocol
-is now frozen, but its executed readiness receipt is `collection_not_started`. L1 therefore remains
-candidate and no beneficial-impact capability is part of the supported preview contract. See the
+was frozen, but a pre-outcome collection-start audit invalidated v1 because it cannot be executed
+without adding unfrozen cohort, route, outcome, estimator, attribution, and leakage choices.
+The fully frozen agent-only v5 successor later completed 144 decisions over 36 eligible clusters
+but failed naïve/base-rate and matched model-only. V6 preserved a favorable statistical result but
+failed closed on one I3 field-level lineage record. Its independently seeded v7 correction
+replicate froze that already-required validation before collection, completed 192 decisions over
+48 eligible clusters, and passed persistence, naïve/base-rate, and matched model-only under the
+all-controls interval rule. L1 is therefore passed for the frozen executable-workload claim only;
+human, customer, external-product, provider, and general real-world benefit remain unsupported. See the
 [L1 evidence gate](evidence/l1-foresight-impact-evidence.md).
 
 Atrium is repository beta source and is not included in the Python wheel or sdist. It is a

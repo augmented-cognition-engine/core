@@ -1,4 +1,4 @@
-# ACE capability evolution roadmap
+# ACE governed cognition design
 
 This roadmap describes how ACE can become easier to teach, extend, and trust without changing its
 identity into a general-purpose autonomous agent. It is capability-led: the useful outcomes are
@@ -7,9 +7,10 @@ execution—not parity with another product or growth in tool count for its own 
 
 > This is a design note, not the current roadmap or an implementation work packet.
 
-This document is a companion to the [public roadmap](../../ROADMAP.md). The public roadmap remains the
-authority for outcome state and dispatch. Nothing here advances an outcome to `ready`, `active`, or
-`passed`, and the current onboarding spine remains ahead of this work.
+This document is a companion to the [public roadmap](../../ROADMAP.md). The public roadmap remains
+the authority for outcome state and dispatch. Nothing here advances an outcome to `ready`, `active`,
+or `passed`. The 0.2.0 Reasoning OS foundation is released; this note supplies the detailed design
+for the governed-cognition phase that follows the productized State Engine closeout.
 
 ## Product thesis
 
@@ -204,18 +205,24 @@ invalidated, contested, harmful, isolation, mismatch, failure, and partial-linea
 [`i3-intelligence-use-evidence.md`](../evidence/i3-intelligence-use-evidence.md). Beneficial impact remains an
 L1 claim and the thin MCP surface remains exactly eleven tools.
 
-**L1 evidence gate (2026-07-22): candidate.** The bounded
+**L1 evidence gate (2026-08-05): passed for the executable-benchmark scope.** The bounded
 `ace.foresight.impact-evaluation/v1` evaluator requires complete pre-outcome resolution lineage,
 material later use, outcome provenance, adequate independent clusters, supported intervention or
 quasi-experimental attribution, and favorable cluster-adjusted comparisons against no-foresight,
 naïve/base-rate, and matched model-only controls. The first checksum-frozen public-data probe did
 not beat persistence and its apparent base-rate gain included zero; a model-only run could not
-rescue the all-controls rule and was not invoked. A prospective, tamper-evident protocol now freezes
-assignment/exposure evidence, non-overlap, exact route matching, F1/I3/outcome lineage, one fixed
-analysis, and required failure coverage. Its executed state is `collection_not_started`, which is
-readiness evidence rather than benefit evidence. See
-[`l1-foresight-impact-evidence.md`](../evidence/l1-foresight-impact-evidence.md). L1 is not passed and F2 remains
-gated.
+rescue the all-controls rule and was not invoked. The prospective v1 registration named
+assignment/exposure evidence, non-overlap, route-matching dimensions, F1/I3/outcome lineage, one
+analysis, and required failure coverage, but a pre-outcome audit found that the exact cohort,
+route, outcome, estimator, attribution, and leakage contracts were not frozen. V1 is invalidated
+for collection. The fully preregistered agent-only v5 successor remained negative, and v6 failed
+closed on one I3 field-level lineage record. The independently seeded v7 correction replicate froze
+that already-required validation before collection, completed all 192 cases and 48 clusters, and
+passed persistence, naïve/base-rate, and matched model-only with every cluster-adjusted 95% lower
+bound above zero. See
+[`l1-foresight-impact-evidence.md`](../evidence/l1-foresight-impact-evidence.md). The pass is limited
+to the frozen executable workload; it does not establish general real-world benefit. F2 remains
+gated pending demonstrated product need and its own evidence.
 
 ### Product/evaluation boundary
 
@@ -483,16 +490,16 @@ revision that approved them.
 
 ## Recommended dispatch
 
-1. Preserve the passed **R1–R4**, **G1**, **I1**, **I3**, and **F1** evidence spine.
+1. Preserve the passed **R0–R7**, **G1**, **IA-R1**, **I1–I3**, and **F1** evidence spine.
 2. During **E1** planning, converge the legacy skill path into cognition recipes and freeze the
    migration contract.
 3. Deliver one narrow vertical slice: teach from an existing ACE task, classify the learning as a
    recipe change, inspect provenance, approve an immutable recipe revision, compose it in a fresh
    invocation, and record its use.
 4. Add document/path learning only after source fingerprinting and degraded-state behavior pass.
-5. Replace the candidate **L1** retrospective probe with preregistered, independently timed,
-   attribution-bearing outcome cohorts before enabling automated revision proposals broadly; I3
-   does not begin or satisfy that benefit evaluation.
+5. Productize the passed bounded **L1** evidence loop with independently timed, attribution-bearing
+   external-product outcome cohorts before enabling automated revision proposals broadly; I3 does
+   not begin or satisfy that benefit evaluation by itself.
 6. Add the first writable execution adapter only under **B1**, after approval and recovery contracts
    are stable.
 

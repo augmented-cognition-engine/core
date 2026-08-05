@@ -6,6 +6,9 @@ The TP8 [`state-engine-core-boundary-v1.md`](state-engine-core-boundary-v1.md) i
 the frozen K1-K3 audit and therefore remains byte-for-byte unchanged. This addendum records only the
 classification delta established by the subsequent
 [`state-engine-k1-k3-readiness-v1.md`](../evidence/state-engine-k1-k3-readiness-v1.md) evidence.
+The later [extension-first product closeout](../evidence/state-engine-k1-k3-product-journey-v1.md)
+advances the public outcomes from `ready` to `passed` without changing this point-in-time readiness
+classification or the frozen TP8 boundary.
 
 ## Classification delta
 
@@ -33,5 +36,5 @@ for a full runtime.
 K2/K3 readiness does not establish real-world calibration, beneficial impact, general learned world
 model behavior, autonomous improvement, or distributed guarantees. Provider-backed latency and cost
 remain governed by ordinary ACE task budgets because the readiness audit was explicitly
-provider-free. R7 is unblocked but was not started; L1, T1, B1, E1, deployment, and release readiness
-remain unchanged.
+provider-free. R7 and ace-core 0.2.0 were completed later under separate authorization; that release
+does not advance L1, T1, B1, E1, deployment, or any of the limits retained above.

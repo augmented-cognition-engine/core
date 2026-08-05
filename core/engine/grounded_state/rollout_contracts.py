@@ -370,7 +370,13 @@ class PredictedStateStepV1(FrozenContract):
     def normalize_snapshot(cls, value: Any) -> tuple[Any, ...]:
         if not isinstance(value, (list, tuple)):
             raise ValueError("predicted state snapshot must be a bounded collection")
-        return tuple(sorted(value, key=canonical_hash))
+        # SurrealDB omits nested ``NONE`` values on round-trip.  Validate first
+        # so defaulted fields (notably ``value=None`` for unknown belief state)
+        # are restored before canonical ordering and identity verification.
+        normalized = tuple(
+            item if isinstance(item, StateSnapshotV1) else StateSnapshotV1.model_validate(item) for item in value
+        )
+        return tuple(sorted(normalized, key=canonical_hash))
 
     @field_validator("evidence_refs", "belief_entry_refs", "assumption_refs", "uncertainty_reasons", mode="before")
     @classmethod
