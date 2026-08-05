@@ -6,6 +6,42 @@ Notable user- and contributor-visible changes are recorded here.
 
 No unreleased changes.
 
+## 0.3.1
+
+### Productized State
+
+- Add one supported extension-first journey from authenticated product-context ingestion through
+  inspectable state, reasoning, decision capture, correction, restart, and materially changed later
+  reasoning.
+- Add deterministic Product State capability discovery and ingestion under Core-owned token scope.
+  Extensions own source mapping and domain ontology; Core owns identity, validation, persistence,
+  replay, isolation, and receipts.
+- Add the focused `ace state capabilities`, `ingest`, `invoke`, `correct`, and `inspect` workflow
+  without widening the eleven-tool MCP contract.
+- Extend the read-only Living Product Graph projection with allowlisted ingestion, belief,
+  transition, task-evidence, material-use, rollout, reconciliation, promotion, decision,
+  deliberation, and correction receipt families.
+
+### Compatibility, security, and evidence
+
+- Require canonical authenticated product scope for ingestion and reject missing, malformed, or
+  cross-product adapter output before persistence; the legacy default-product fallback is not
+  available on this boundary.
+- Correct real SurrealDB product filtering to bind typed record IDs, retaining regression coverage
+  for complete scoped inspection and empty foreign-product reads.
+- Preserve schema head v171, support schema-zero and v168→v171 journeys, keep trusted extensions
+  optional, and retain exact replay, restart, interruption, and degraded-state behavior.
+- Publish the frozen provider-free Fjord Operations journey and bounded acceptance receipts using
+  fictional public-safe data.
+
+### Known limitations
+
+- Productized State is supported only for the documented single-node topology with synchronous,
+  explicitly trusted installed Python extensions executing in process.
+- It does not establish hostile-code isolation, distributed ordering, multi-writer or multi-region
+  guarantees, general real-world causal accuracy, autonomous learning, a general world model, or
+  beneficial impact.
+
 ## 0.3.0
 
 ### Governed cognition

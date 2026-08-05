@@ -59,10 +59,13 @@ worktree and the supported N-1 tag:
 
 ```bash
 uv run python scripts/verify_e1_package_matrix.py \
-  --n1-tag v0.2.0 \
+  --n1-tag v0.3.0 \
   --output /absolute/release-evidence/e1-package-matrix-v1.json \
   --artifacts-dir /absolute/release-evidence/e1-package-artifacts-v1
 ```
+
+A same-minor patch predecessor must accept the current reference extension. Across a minor-version
+boundary, an incompatible predecessor must still refuse the current extension before registration.
 
 The verifier builds reproducible current and N-1 wheels/source distributions using each exact Git
 commit timestamp as `SOURCE_DATE_EPOCH`, generates an independent consumer,

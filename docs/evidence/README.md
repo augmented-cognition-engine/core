@@ -14,6 +14,7 @@ describe the moment they were written. For current product support use
 - [R5 ace-core 0.1.2 release evidence](r5-release-readiness.md)
 - [R6 ace-core 0.1.3 release readiness](r6-release-readiness.md)
 - [R7 ace-core 0.2.0 release evidence](r7-release-readiness.md)
+- [ace-core 0.3.1 Productized State release evidence](productized-state-v0.3.1-release-readiness.md)
 
 ## Product outcomes
 

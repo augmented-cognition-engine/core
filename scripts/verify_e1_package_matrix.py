@@ -78,6 +78,22 @@ def _project_version(source: Path) -> str:
     return version
 
 
+def _same_minor_release_line(current_version: str, n1_version: str) -> bool:
+    """Return whether N-1 is a patch predecessor in the current release line."""
+
+    def release(value: str) -> tuple[int, int, int]:
+        parts = value.split(".")
+        if len(parts) != 3 or not all(part.isdigit() for part in parts):
+            raise ValueError(f"package matrix requires X.Y.Z versions; found {value!r}")
+        return int(parts[0]), int(parts[1]), int(parts[2])
+
+    current = release(current_version)
+    n1 = release(n1_version)
+    if n1 >= current:
+        raise ValueError(f"package matrix N-1 must be older than current: {n1_version!r} >= {current_version!r}")
+    return current[:2] == n1[:2]
+
+
 def _source_date_epoch(ref: str) -> int:
     result = _run(
         ["git", "log", "-1", "--format=%ct", ref],
@@ -216,23 +232,40 @@ def verify(*, n1_tag: str, output: Path, artifacts_dir: Path | None = None) -> d
         n1_python, n1_env = _create_env(temp, "n1-wheel-env")
         _pip(n1_python, n1_wheel, cwd=temp, env=n1_env)
         n1_env["ACE_DISABLE_EXTENSIONS"] = "1"
-        n1_current = _probe(
-            n1_python,
-            (
-                "import json,sys; from core.engine.extensions import registry; "
-                f"sys.path.insert(0, {str(ROOT)!r}); "
-                "from extensions.reference.extension import ProductExtension; ext=ProductExtension(); state={}; "
-                'exec("try:\\n ext.register(registry.Registry(extension_id=ext.name, '
-                "extension_version=ext.version))\\nexcept Exception as exc:\\n "
-                "state['error']=f'{type(exc).__name__}:{exc}'\"); "
-                "assert state['error'].endswith('current_reference_extension_requires_pre_registration_negotiation'); "
-                "assert not registry._recipes and not registry._task_actions and not registry._tools; "
-                f"print(json.dumps({{'status':'passed','core':{n1_version!r},'reference':ext.version,"
-                "'disposition':'pre_registration_refusal','error':state['error']},sort_keys=True))"
-            ),
-            cwd=temp,
-            env=n1_env,
-        )
+        if _same_minor_release_line(current_version, n1_version):
+            n1_current = _probe(
+                n1_python,
+                (
+                    "import json,sys; from core.engine.extensions import registry; "
+                    f"sys.path.insert(0, {str(ROOT)!r}); "
+                    "from extensions.reference.extension import ProductExtension; ext=ProductExtension(); "
+                    "ext.register(registry.Registry(extension_id=ext.name, extension_version=ext.version)); "
+                    "source=registry._recipe_metadata['product_decision_intelligence']; "
+                    f"print(json.dumps({{'status':'passed','core':{n1_version!r},'reference':ext.version,"
+                    "'disposition':'same_minor_compatible','compatibility':source.compatibility,"
+                    "'contract':source.cognition_contract_version},sort_keys=True))"
+                ),
+                cwd=temp,
+                env=n1_env,
+            )
+        else:
+            n1_current = _probe(
+                n1_python,
+                (
+                    "import json,sys; from core.engine.extensions import registry; "
+                    f"sys.path.insert(0, {str(ROOT)!r}); "
+                    "from extensions.reference.extension import ProductExtension; ext=ProductExtension(); state={}; "
+                    'exec("try:\\n ext.register(registry.Registry(extension_id=ext.name, '
+                    "extension_version=ext.version))\\nexcept Exception as exc:\\n "
+                    "state['error']=f'{type(exc).__name__}:{exc}'\"); "
+                    "assert state['error'].endswith('current_reference_extension_requires_pre_registration_negotiation'); "
+                    "assert not registry._recipes and not registry._task_actions and not registry._tools; "
+                    f"print(json.dumps({{'status':'passed','core':{n1_version!r},'reference':ext.version,"
+                    "'disposition':'pre_registration_refusal','error':state['error']},sort_keys=True))"
+                ),
+                cwd=temp,
+                env=n1_env,
+            )
 
         mixed_rows: list[dict[str, Any]] = []
         for name, core_artifact, core_is_sdist, extension_artifact, extension_is_sdist in (
@@ -320,7 +353,7 @@ def verify(*, n1_tag: str, output: Path, artifacts_dir: Path | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--n1-tag", default="v0.2.0")
+    parser.add_argument("--n1-tag", default="v0.3.0")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--artifacts-dir", type=Path)
     args = parser.parse_args(argv)

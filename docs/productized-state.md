@@ -1,6 +1,6 @@
 # Build Productized State through an extension
 
-Status: **0.3.x candidate public contract; not part of the published ace-core 0.3.0 artifact**
+Status: **supported ace-core 0.3.1 public contract**
 
 Productized State gives a builder one supported path from extension-owned context to inspectable,
 durable reasoning without adding domain logic to Core or adding a twelfth MCP tool:
@@ -19,7 +19,7 @@ accuracy, hosted-model quality, or beneficial product impact.
 Install ACE and a compatible extension, configure the ordinary local runtime, and authenticate:
 
 ```bash
-python -m pip install ace-core
+python -m pip install ace-core==0.3.1
 python -m pip install --no-deps ./examples/ace_ext_fjord_operations
 ace setup
 ace doctor
