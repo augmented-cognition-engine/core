@@ -78,7 +78,7 @@ def _project_version(source: Path) -> str:
 
 def _source_date_epoch(ref: str) -> int:
     result = _run(
-        ["git", "show", "-s", "--format=%ct", ref],
+        ["git", "log", "-1", "--format=%ct", ref],
         cwd=ROOT,
         capture=True,
     )
