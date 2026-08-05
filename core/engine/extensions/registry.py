@@ -298,9 +298,7 @@ class Registry:
         if (
             not isinstance(raw_accepted, list)
             or len(raw_accepted) > MAX_COGNITION_CONTRACT_VERSIONS
-            or any(
-                not isinstance(item, str) or not _COGNITION_DECLARATION.fullmatch(item) for item in raw_accepted
-            )
+            or any(not isinstance(item, str) or not _COGNITION_DECLARATION.fullmatch(item) for item in raw_accepted)
         ):
             raise ValueError("invalid_accepted_core_cognition_contracts")
         accepted = tuple(sorted(set(raw_accepted)))
