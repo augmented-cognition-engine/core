@@ -12,11 +12,19 @@ Given a classification dict, returns a CognitiveComposition:
 
 from __future__ import annotations
 
-import importlib
 import logging
 from typing import Any
 
+from core.engine.cognition.catalog import CognitionCatalog, build_default_catalog
 from core.engine.cognition.classifier import FrameworkClassifier
+from core.engine.cognition.contracts import CognitionDependencyV1, CognitionType, canonical_hash, stable_id
+from core.engine.cognition.discovery import (
+    CognitionDiscoveryBudgetV1,
+    CognitionPhaseUseV1,
+    CognitionUseReceiptV1,
+    DurableCognitionDiscovery,
+)
+from core.engine.cognition.legacy_adapters import CORE_RECIPE_MODULES
 from core.engine.cognition.models import (
     CognitiveComposition,
     MetaSkill,
@@ -229,33 +237,9 @@ _AGENTIC_META_BY_MODE: dict[str, list[str]] = {
     ],
 }
 
-# Slug → module path
-_RECIPE_MODULES: dict[str, str] = {
-    "creative_intelligence": "core.engine.cognition.recipes.creative",
-    "research_intelligence": "core.engine.cognition.recipes.research",
-    "coding_intelligence": "core.engine.cognition.recipes.coding",
-    "evaluation_intelligence": "core.engine.cognition.recipes.evaluation",
-    "strategic_intelligence": "core.engine.cognition.recipes.strategic",
-    "communication_intelligence": "core.engine.cognition.recipes.communication",
-    "systems_intelligence": "core.engine.cognition.recipes.systems",
-    "data_intelligence": "core.engine.cognition.recipes.data",
-    "retrieval_intelligence": "core.engine.cognition.recipes.retrieval",
-    "planning_intelligence": "core.engine.cognition.recipes.planning",
-    "delegation_intelligence": "core.engine.cognition.recipes.delegation",
-    "risk_intelligence": "core.engine.cognition.recipes.risk",
-    "gap_intelligence": "core.engine.cognition.recipes.gap",
-    "feedback_intelligence": "core.engine.cognition.recipes.feedback",
-    "verification_intelligence": "core.engine.cognition.recipes.verification",
-    "memory_intelligence": "core.engine.cognition.recipes.memory",
-    "coordination_intelligence": "core.engine.cognition.recipes.coordination",
-    "tool_intelligence": "core.engine.cognition.recipes.tool",
-    "communication_agentic_intelligence": "core.engine.cognition.recipes.communication_agentic",
-    "operational_intelligence": "core.engine.cognition.recipes.operational",
-    "domain_specific_intelligence": "core.engine.cognition.recipes.domain_specific",
-    # Extension recipes (e.g. marketing_audit_intelligence) are NOT listed here —
-    # they are contributed by extensions via register_recipe() and resolved through
-    # the extension registry in _load_recipe().
-}
+# Compatibility export for the YAML loader and existing diagnostics. The
+# composer never resolves this map directly; the legacy adapter owns imports.
+_RECIPE_MODULES: dict[str, str] = CORE_RECIPE_MODULES
 
 # Slug → already-parsed MetaSkill, populated by
 # core.engine.cognition.recipes.loader.discover_core_yaml_recipes() at
@@ -404,47 +388,57 @@ def _blend_best_fit(
 class CognitiveComposer:
     """Produces a CognitiveComposition from a task classification."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        catalog: CognitionCatalog | None = None,
+        discovery: DurableCognitionDiscovery | None = None,
+    ) -> None:
         self._classifier = FrameworkClassifier()
         from core.engine.cognition.tool_classifier import ToolClassifier
 
         self._tool_classifier = ToolClassifier()
+        self._catalog = catalog or build_default_catalog(core_yaml=_RECIPE_YAML)
+        self._discovery = discovery
         self._recipe_cache: dict[str, MetaSkill] = {}
 
-    def _load_recipe(self, slug: str) -> MetaSkill | None:
+    def _load_recipe(
+        self,
+        slug: str,
+        request_views: dict[str, MetaSkill] | None = None,
+    ) -> MetaSkill | None:
         """Load a meta-skill recipe by slug. Cached after first load.
 
-        Resolution order:
-          1. _recipe_cache (already resolved)
-          2. _RECIPE_YAML (core YAML recipes, parsed at import)
-          3. _RECIPE_MODULES (core Python recipes, imported lazily)
-          4. _flavor_recipe_module (extension recipes — module path string
-             OR MetaSkill object, depending on how the extension registered)
+        Resolution order is deliberately singular: cache, then the canonical
+        catalog. Python/YAML/extension inputs were already normalized by the
+        catalog's legacy adapter before this method can observe them.
         """
+        if request_views is not None and slug in request_views:
+            return request_views[slug]
         if slug in self._recipe_cache:
             return self._recipe_cache[slug]
-        if slug in _RECIPE_YAML:
-            skill = _RECIPE_YAML[slug]
+        skill = self._catalog.recipe(slug)
+        if skill is not None:
             self._recipe_cache[slug] = skill
             return skill
-        module_path = _RECIPE_MODULES.get(slug)
-        if module_path is None:
-            flavor_value = _flavor_recipe_module(slug)
-            if isinstance(flavor_value, MetaSkill):
-                self._recipe_cache[slug] = flavor_value
-                return flavor_value
-            if isinstance(flavor_value, str):
-                module_path = flavor_value
-        if not module_path:
-            return None
-        try:
-            mod = importlib.import_module(module_path)
-            skill = mod.get_meta_skill()
-            self._recipe_cache[slug] = skill
-            return skill
-        except Exception as exc:
-            logger.warning("Failed to load recipe for %s: %s", slug, exc)
-            return None
+        return None
+
+    @staticmethod
+    def _dependency_available(dependency: CognitionDependencyV1) -> bool:
+        """Conservative local availability check with no provider call."""
+        if dependency.owner_namespace.startswith("core:"):
+            return True
+        if dependency.cognition_type is CognitionType.INSTRUMENT:
+            from core.engine.cognition.instrument_registry import registered_instrument_metadata
+
+            registration = registered_instrument_metadata().get(dependency.stable_key)
+            if registration is None:
+                return False
+            expected = f"extension:{registration.extension_id}" if registration.extension_id else "core:ace"
+            return expected == dependency.owner_namespace
+        # Extension framework/perspective/tool registrations do not yet have
+        # a governed runtime consumer and therefore cannot be reported usable.
+        return False
 
     def _select_meta_skills(self, classification: dict[str, Any]) -> list[str]:
         """Select active meta-skill slugs from classification.
@@ -471,7 +465,7 @@ class CognitiveComposer:
         domain_meta = (
             _TASK_TYPE_META.get(task_type)
             or _DISCIPLINE_META.get(discipline)
-            or _flavor_recipe_for_classification(task_type, discipline)
+            or self._catalog.route_recipe(task_type=task_type, discipline=discipline)
         )
         if domain_meta:
             slugs.append(domain_meta)
@@ -525,14 +519,9 @@ class CognitiveComposer:
             depth = derive_depth(mode, complexity)
             max_skills = {1: 4, 2: 5, 3: 7, 4: 8}.get(depth, 6)
 
-        # Enumerate every meta-skill the system knows about: core Python + core YAML + extensions
-        all_slugs: set[str] = set(_RECIPE_MODULES.keys()) | set(_RECIPE_YAML.keys())
-        try:
-            from core.engine.extensions.registry import registered_recipes
-
-            all_slugs |= set(registered_recipes().keys())
-        except Exception as exc:
-            logger.debug("Extension registry unavailable during dynamic selection: %s", exc)
+        # Enumerate only catalog-approved active recipe revisions. Authoring
+        # stores and extension registries are not selection inputs.
+        all_slugs = set(self._catalog.recipe_slugs())
 
         # Score every candidate
         candidates: list[tuple[MetaSkill, float]] = []
@@ -659,18 +648,79 @@ class CognitiveComposer:
         depth = derive_depth(mode, complexity)
         fusion_mode = depth <= 2
 
-        meta_skill_slugs, meta_skill_scores = self._selected_with_scores(classification)
+        request_views: dict[str, MetaSkill] = {}
+        revision_ids: dict[str, str] = {}
+        selection_receipt = None
+        request_id = str(
+            classification.get("cognition_request_id")
+            or classification.get("task_id")
+            or stable_id(
+                "cognition_request",
+                {
+                    "product_id": product_id,
+                    "description_hash": canonical_hash(
+                        classification.get("description")
+                        or classification.get("task")
+                        or classification.get("task_description")
+                        or classification
+                    ),
+                },
+            )
+        )
+        if self._discovery is not None:
+            requested_limits = classification.get("cognition_discovery_budget")
+            budget = CognitionDiscoveryBudgetV1.for_depth(
+                depth,
+                **(requested_limits if isinstance(requested_limits, dict) else {}),
+            )
+            task_text = (
+                classification.get("description", "")
+                or classification.get("task", "")
+                or classification.get("task_description", "")
+                or ""
+            )
+            discovery_result = await self._discovery.discover(
+                catalog=self._catalog,
+                product_id=product_id,
+                request_id=request_id,
+                budget=budget,
+                score=lambda recipe: _score_meta_skill_relevance(recipe, classification, task_text),
+                dependency_available=self._dependency_available,
+                requested_slug=classification.get("requested_cognition_slug"),
+            )
+            selection_receipt = discovery_result.receipt
+            meta_skill_slugs = [item.view.slug for item in discovery_result.selected]
+            request_views = {item.view.slug: item.view.runtime_view for item in discovery_result.selected}
+            revision_ids = {item.view.slug: str(item.view.revision.revision_id) for item in discovery_result.selected}
+            selected_scores = {
+                item.stable_key: item.score
+                for item in selection_receipt.candidates
+                if item.disposition.value == "selected"
+            }
+            meta_skill_scores = {slug: selected_scores.get(slug, 0.0) for slug in meta_skill_slugs}
+        else:
+            meta_skill_slugs, meta_skill_scores = self._selected_with_scores(classification)
+            revision_ids = {
+                slug: str(revision.revision_id)
+                for slug in meta_skill_slugs
+                if (revision := self._catalog.recipe_revision(slug)) is not None
+            }
+
+        def load_for_request(slug: str) -> MetaSkill | None:
+            # Preserve the historical one-argument seam used by integrations
+            # and tests when there is no request-local product overlay.
+            return self._load_recipe(slug, request_views) if request_views else self._load_recipe(slug)
 
         # Recipe depth override (unchanged): raise depth to any skill's min_execution_depth
         for slug in meta_skill_slugs:
-            skill = self._load_recipe(slug)
+            skill = load_for_request(slug)
             if skill and skill.min_execution_depth > depth:
                 depth = skill.min_execution_depth
                 fusion_mode = depth <= 2
 
         # Best-fit-per-slot: each cognitive_function goes to the highest slot_score phase.
         skills_with_scores = [
-            (slug, self._load_recipe(slug), meta_skill_scores.get(slug, 0.0)) for slug in meta_skill_slugs
+            (slug, load_for_request(slug), meta_skill_scores.get(slug, 0.0)) for slug in meta_skill_slugs
         ]
         all_phases_with_skill = _blend_best_fit(
             [(slug, skill, score) for slug, skill, score in skills_with_scores if skill],
@@ -760,6 +810,31 @@ class CognitiveComposer:
                     }
                 )
 
+        phase_uses = tuple(
+            CognitionPhaseUseV1(
+                revision_id=revision_ids[meta_skill_slug],
+                stable_key=meta_skill_slug,
+                phase_index=index,
+                cognitive_function=phase.cognitive_function,
+                instruments=tuple(resolved.get(str(index), [])),
+                tools=tuple(resolved_tools.get(str(index), [])),
+            )
+            for index, (meta_skill_slug, phase) in enumerate(all_phases_with_skill)
+            if meta_skill_slug in revision_ids
+        )
+        use_receipt = None
+        if selection_receipt is not None:
+            use_receipt = CognitionUseReceiptV1(
+                request_id=request_id,
+                product_id=product_id,
+                selection_receipt_id=str(selection_receipt.selection_receipt_id),
+                selected_revision_ids=selection_receipt.selected_revision_ids,
+                phase_uses=phase_uses,
+                state="used" if phase_uses else "selected_not_used",
+                degraded_reasons=selection_receipt.degraded_reasons,
+            )
+            await self._discovery.persist_use(use_receipt)
+
         composition = CognitiveComposition(
             meta_skills=meta_skill_slugs,
             depth=depth,
@@ -771,6 +846,9 @@ class CognitiveComposer:
             max_tokens_per_phase=classification.get("token_budget"),
             loop_context=loop_ctx,
             resolved_tools=resolved_tools,
+            cognition_selection_receipt=selection_receipt,
+            cognition_use_receipt=use_receipt,
+            cognition_revision_ids=revision_ids,
         )
 
         # Composition visibility: emit a canvas event so the orchestra becomes
@@ -804,6 +882,10 @@ class CognitiveComposer:
                 "complexity": classification.get("complexity", ""),
             },
             "phases": [p.cognitive_function for p in all_phases],
+            "selection_receipt_id": (
+                str(selection_receipt.selection_receipt_id) if selection_receipt is not None else None
+            ),
+            "use_receipt_id": str(use_receipt.use_receipt_id) if use_receipt is not None else None,
         }
 
         return composition

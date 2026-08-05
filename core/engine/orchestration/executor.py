@@ -48,8 +48,12 @@ logger = logging.getLogger(__name__)
 # per task defeats it. One instance per process is correct.
 try:
     from core.engine.cognition.composer import CognitiveComposer as _CognitiveComposer
+    from core.engine.cognition.discovery import DurableCognitionDiscovery as _DurableCognitionDiscovery
+    from core.engine.core.db import pool as _cognition_pool
 
-    _cognitive_composer: _CognitiveComposer | None = _CognitiveComposer()
+    _cognitive_composer: _CognitiveComposer | None = _CognitiveComposer(
+        discovery=_DurableCognitionDiscovery(_cognition_pool)
+    )
 except Exception:  # pragma: no cover
     _cognitive_composer = None
 
@@ -61,10 +65,15 @@ def _composition_classification(request: OrchestrationRequest, classification: d
     Give the composer a depth-3 floor without rewriting the classifier's mode
     and complexity fields that downstream receipts expose.
     """
+    additions = {
+        "cognition_request_id": request.task_id,
+        "requested_cognition_slug": request.force_skill,
+    }
     if not request.force_frameworks:
-        return classification
+        return {**classification, **additions}
     return {
         **classification,
+        **additions,
         "mode": "deliberative",
         "complexity": "complex",
     }

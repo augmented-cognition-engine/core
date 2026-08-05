@@ -51,7 +51,31 @@ def test_scaffolded_extension_loads_via_dev_env(tmp_path, monkeypatch):
     spec = "green_energy_extension.extension:GreenEnergyExtension"
     monkeypatch.setenv("ACE_EXTENSIONS", spec)
     monkeypatch.delenv("ACE_DISABLE_EXTENSIONS", raising=False)
-    from core.engine.extensions import loader
+    from core.engine.cognition import instrument_registry
+    from core.engine.extensions import loader, registry
+
+    # Extension registries are process-global by design. Run this synthetic
+    # dev-environment load against copies so the generated extension does not
+    # become an installed extension for unrelated tests later in the process.
+    monkeypatch.setattr(loader, "_loaded", set(loader._loaded))
+    monkeypatch.setattr(loader, "_ensured", loader._ensured)
+    monkeypatch.setattr(registry, "_recipes", dict(registry._recipes))
+    monkeypatch.setattr(registry, "_recipe_metadata", dict(registry._recipe_metadata))
+    monkeypatch.setattr(registry, "_recipe_disciplines", dict(registry._recipe_disciplines))
+    monkeypatch.setattr(registry, "_recipe_task_types", dict(registry._recipe_task_types))
+    monkeypatch.setattr(registry, "_tools", list(registry._tools))
+    monkeypatch.setattr(registry, "_task_actions", dict(registry._task_actions))
+    monkeypatch.setattr(
+        registry,
+        "_grounded_state_adapters",
+        dict(registry._grounded_state_adapters),
+    )
+    monkeypatch.setattr(instrument_registry, "_REGISTRY", dict(instrument_registry._REGISTRY))
+    monkeypatch.setattr(
+        instrument_registry,
+        "_REGISTRATION_METADATA",
+        dict(instrument_registry._REGISTRATION_METADATA),
+    )
 
     loaded = loader.load_extensions()
     assert spec in loaded
@@ -133,7 +157,28 @@ def test_dual_load_isolation_with_builtin_product_extension(tmp_path, monkeypatc
     monkeypatch.syspath_prepend(str(root))
     monkeypatch.setenv("ACE_EXTENSIONS", "green_energy_extension.extension:GreenEnergyExtension")
     monkeypatch.delenv("ACE_DISABLE_EXTENSIONS", raising=False)
+    from core.engine.cognition import instrument_registry
     from core.engine.extensions import loader, registry
+
+    monkeypatch.setattr(loader, "_loaded", set(loader._loaded))
+    monkeypatch.setattr(loader, "_ensured", loader._ensured)
+    monkeypatch.setattr(registry, "_recipes", dict(registry._recipes))
+    monkeypatch.setattr(registry, "_recipe_metadata", dict(registry._recipe_metadata))
+    monkeypatch.setattr(registry, "_recipe_disciplines", dict(registry._recipe_disciplines))
+    monkeypatch.setattr(registry, "_recipe_task_types", dict(registry._recipe_task_types))
+    monkeypatch.setattr(registry, "_tools", list(registry._tools))
+    monkeypatch.setattr(registry, "_task_actions", dict(registry._task_actions))
+    monkeypatch.setattr(
+        registry,
+        "_grounded_state_adapters",
+        dict(registry._grounded_state_adapters),
+    )
+    monkeypatch.setattr(instrument_registry, "_REGISTRY", dict(instrument_registry._REGISTRY))
+    monkeypatch.setattr(
+        instrument_registry,
+        "_REGISTRATION_METADATA",
+        dict(instrument_registry._REGISTRATION_METADATA),
+    )
 
     loaded = loader.load_extensions()
     assert "product" in loaded  # the built-in reference extension really loaded

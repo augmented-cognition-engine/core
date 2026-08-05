@@ -2,6 +2,7 @@
 """Tests for the self-optimizer proposals API."""
 
 from contextlib import asynccontextmanager
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -14,7 +15,11 @@ from httpx import ASGITransport, AsyncClient
 
 @pytest.fixture
 def mock_user():
-    return {"sub": "user:1", "product": "product:default"}
+    return {
+        "sub": "user:1",
+        "product": "product:default",
+        "authorities": ["cognition-review"],
+    }
 
 
 @pytest.fixture
@@ -61,6 +66,21 @@ def _make_pool(side_effects):
 def _make_pool_single(return_value):
     """Pool that always returns the same value."""
     return _make_pool([return_value] * 10)
+
+
+class _CanonicalService:
+    def __init__(self, _store):
+        pass
+
+    async def propose(self, proposal):
+        return proposal
+
+    async def review(self, **_kwargs):
+        return SimpleNamespace(
+            receipt_id="cognition_review:test",
+            result_revision_id="cognition_revision:test",
+            result_head_id="cognition_head:test",
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -197,17 +217,16 @@ async def test_approve_skill_proposal(authed_client):
             "activation_signals": [],
         },
     }
-    created_skill = {"id": "skill:abc", "slug": "research-synthesis", "name": "Research Synthesis"}
+    mock_pool, _ = _make_pool([proposal])
 
-    mock_pool, _ = _make_pool(
-        [
-            proposal,  # fetch proposal (ONLY query -> single dict)
-            [created_skill],  # CREATE skill
-            [proposal | {"status": "approved"}],  # UPDATE approved
-        ]
-    )
-
-    with patch("core.engine.api.self_optimizer.pool", mock_pool):
+    with (
+        patch("core.engine.api.self_optimizer.pool", mock_pool),
+        patch("core.engine.api.self_optimizer.DurableCognitionGovernanceService", _CanonicalService),
+        patch(
+            "core.engine.api.self_optimizer._project_legacy_state",
+            AsyncMock(return_value="updated"),
+        ),
+    ):
         resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:1/approve")
 
     assert resp.status_code == 200
@@ -235,17 +254,16 @@ async def test_approve_framework_proposal(authed_client):
             "composability": {"complements": ["inversion"], "conflicts": []},
         },
     }
-    created_fw = {"id": "framework:xyz", "slug": "clarity-lens", "name": "Clarity Lens"}
+    mock_pool, _ = _make_pool([proposal])
 
-    mock_pool, _ = _make_pool(
-        [
-            proposal,
-            [created_fw],
-            [proposal | {"status": "approved"}],
-        ]
-    )
-
-    with patch("core.engine.api.self_optimizer.pool", mock_pool):
+    with (
+        patch("core.engine.api.self_optimizer.pool", mock_pool),
+        patch("core.engine.api.self_optimizer.DurableCognitionGovernanceService", _CanonicalService),
+        patch(
+            "core.engine.api.self_optimizer._project_legacy_state",
+            AsyncMock(return_value="updated"),
+        ),
+    ):
         resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:2/approve")
 
     assert resp.status_code == 200
@@ -253,14 +271,8 @@ async def test_approve_framework_proposal(authed_client):
     assert data["status"] == "approved"
     assert data["type"] == "framework"
     assert data["created"] is not None
-    create_query = mock_pool.connection.return_value.__aenter__.return_value.query.await_args_list[1]
-    sql, params = create_query.args
-    assert "product = <record>$product" in sql
-    assert "domain_path" not in sql
-    assert "source" not in sql
-    assert params["archetype_affinity"] == {"analyst": 0.9}
-    assert params["mode_affinity"] == {"deliberative": 0.8}
-    assert params["composability"] == {"complements": ["inversion"], "conflicts": []}
+    assert data["created"]["revision_id"] == "cognition_revision:test"
+    assert data["canonical_review_id"] == "cognition_review:test"
 
 
 @pytest.mark.asyncio
@@ -331,14 +343,23 @@ async def test_failed_framework_materialisation_does_not_mark_proposal_approved(
         "description": "Must remain retryable",
         "draft": {"system_prompt": "Reason carefully."},
     }
-    mock_pool, mock_conn = _make_pool([proposal, "schema rejected nested object"])
+    mock_pool, mock_conn = _make_pool([proposal])
 
-    with patch("core.engine.api.self_optimizer.pool", mock_pool):
+    class FailedService(_CanonicalService):
+        async def propose(self, proposal):
+            from core.engine.cognition.governance_persistence import CognitionPersistenceError
+
+            raise CognitionPersistenceError("canonical_persistence_failed")
+
+    with (
+        patch("core.engine.api.self_optimizer.pool", mock_pool),
+        patch("core.engine.api.self_optimizer.DurableCognitionGovernanceService", FailedService),
+    ):
         resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:8/approve")
 
-    assert resp.status_code == 500
-    assert resp.json()["detail"] == "Framework proposal could not be materialised"
-    assert mock_conn.query.await_count == 2
+    assert resp.status_code == 409
+    assert resp.json()["detail"] == {"code": "canonical_persistence_failed"}
+    assert mock_conn.query.await_count == 1
 
 
 # ---------------------------------------------------------------------------
@@ -354,16 +375,20 @@ async def test_dismiss_proposal(authed_client):
         "type": "skill",
         "status": "pending",
         "name": "Unwanted Skill",
-        "draft": {},
+        "draft": {
+            "jobs": [{"name": "inspect", "archetype": "analyst", "mode": "procedural"}],
+        },
     }
-    mock_pool, _ = _make_pool(
-        [
-            proposal,  # fetch
-            [{}],  # UPDATE dismiss
-        ]
-    )
+    mock_pool, _ = _make_pool([proposal])
 
-    with patch("core.engine.api.self_optimizer.pool", mock_pool):
+    with (
+        patch("core.engine.api.self_optimizer.pool", mock_pool),
+        patch("core.engine.api.self_optimizer.DurableCognitionGovernanceService", _CanonicalService),
+        patch(
+            "core.engine.api.self_optimizer._project_legacy_state",
+            AsyncMock(return_value="updated"),
+        ),
+    ):
         resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:4/dismiss")
 
     assert resp.status_code == 200

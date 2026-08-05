@@ -17,6 +17,7 @@ describe the moment they were written. For current product support use
 
 ## Product outcomes
 
+- [E1 governed-cognition release evidence](e1-governed-cognition-release-v1.md)
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md)
 - [IA-R1 product-map evidence](ia-r1-product-map.md)
 - [I2 attributable-deliberation evidence](i2-attributable-deliberation-evidence.md)

@@ -810,9 +810,11 @@ from core.engine.api.onboarding import router as onboarding_router
 app.include_router(onboarding_router)
 
 # Self-optimizer router
+from core.engine.api.cognition import router as cognition_router
 from core.engine.api.self_optimizer import router as self_optimizer_router
 
 app.include_router(self_optimizer_router)
+app.include_router(cognition_router)
 
 # Webhook router
 from core.engine.api.webhooks import router as webhooks_router
