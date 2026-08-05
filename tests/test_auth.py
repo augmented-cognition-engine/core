@@ -31,3 +31,13 @@ def test_verify_expired_token_raises():
     with pytest.raises(HTTPException) as exc:
         verify_token(token)
     assert exc.value.status_code == 401
+
+
+def test_verify_rejects_unbounded_or_malformed_authority_claims():
+    from core.engine.core.auth import create_access_token, verify_token
+
+    for authorities in (["cognition-review"] * 51, ["x" * 121], [42]):
+        token = create_access_token({"sub": "user:test", "authorities": authorities})
+        with pytest.raises(HTTPException) as exc:
+            verify_token(token)
+        assert exc.value.status_code == 401

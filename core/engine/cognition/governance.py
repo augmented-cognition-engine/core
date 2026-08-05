@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 from datetime import datetime, timezone
 from enum import StrEnum
-from typing import Any, Self
+from typing import Annotated, Any, Self
 
 from pydantic import Field, field_validator, model_validator
 
@@ -32,6 +32,10 @@ COGNITION_REVIEW_POLICY = "ace.cognition.review-policy/v1"
 
 MAX_PROPOSAL_SOURCES = 200
 MAX_DIFF_CHANGES = 500
+AuthorityToken = Annotated[
+    str,
+    Field(min_length=1, max_length=120, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$"),
+]
 
 
 def _aware(value: datetime, name: str) -> datetime:
@@ -63,7 +67,7 @@ class ReviewDisposition(StrEnum):
 class ReviewActorV1(FrozenContract):
     actor_id: str = Field(min_length=1, max_length=240)
     actor_class: ActorClass
-    authorities: tuple[str, ...] = Field(default_factory=tuple, max_length=50)
+    authorities: tuple[AuthorityToken, ...] = Field(default_factory=tuple, max_length=50)
 
 
 class ProposalSourceV1(FrozenContract):
@@ -147,15 +151,15 @@ class CognitionReviewReceiptV1(FrozenContract):
     contract_version: str = COGNITION_REVIEW_VERSION
     receipt_id: str | None = None
     review_request_id: str = Field(min_length=1, max_length=240)
-    proposal_id: str
-    proposal_hash: str
+    proposal_id: str = Field(min_length=1, max_length=240)
+    proposal_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     actor: ReviewActorV1
     disposition: ReviewDisposition
     rationale: str = Field(min_length=1, max_length=4_000)
     policy_version: str = COGNITION_REVIEW_POLICY
     expected_head_generation: int = Field(ge=0)
-    result_revision_id: str | None = None
-    result_head_id: str | None = None
+    result_revision_id: str | None = Field(default=None, max_length=240)
+    result_head_id: str | None = Field(default=None, max_length=240)
     reviewed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     @field_validator("reviewed_at")

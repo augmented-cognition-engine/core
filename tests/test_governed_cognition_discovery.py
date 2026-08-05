@@ -284,3 +284,14 @@ def test_use_receipt_binds_exact_revision_and_material_phase_delta() -> None:
     assert changed.material_use_hash != receipt.material_use_hash
     assert normalize_selection_receipt(selection.model_dump(mode="json"), product_id="product:other") == {}
     assert normalize_use_receipt(receipt.model_dump(mode="json"), product_id="product:other") == {}
+
+
+def test_receipt_tuple_items_are_individually_bounded() -> None:
+    with pytest.raises(ValueError, match="string_too_long"):
+        CognitionPhaseUseV1(
+            revision_id="cognition_revision:test",
+            stable_key="bounded",
+            phase_index=0,
+            cognitive_function="frame",
+            instruments=("x" * 241,),
+        )

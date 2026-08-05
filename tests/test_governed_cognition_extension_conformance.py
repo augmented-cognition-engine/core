@@ -52,6 +52,10 @@ def test_current_contract_negotiation_is_scoped_typed_and_fail_closed() -> None:
     )
     assert receipt.extension_id == "independent"
     assert receipt.compatibility == "current"
+    assert reg.negotiate_cognition_contract(
+        extension_contract_version=registry.CURRENT_COGNITION_CONTRACT,
+        accepted_core_contract_versions=(registry.CURRENT_COGNITION_CONTRACT,),
+    ).accepted_core_contract_versions == (registry.CURRENT_COGNITION_CONTRACT,)
     with pytest.raises(RuntimeError, match="unsupported_cognition_contract_version"):
         reg.negotiate_cognition_contract(
             extension_contract_version="ace.cognition.revision/v99",
@@ -66,6 +70,10 @@ def test_current_contract_negotiation_is_scoped_typed_and_fail_closed() -> None:
 
 def test_current_registration_exposes_callable_free_digest_manifest() -> None:
     reg = registry.Registry(extension_id="independent", extension_version="2.0.0")
+    reg.negotiate_cognition_contract(
+        extension_contract_version=registry.CURRENT_COGNITION_CONTRACT,
+        accepted_core_contract_versions=[registry.CURRENT_COGNITION_CONTRACT],
+    )
     reg.register_recipe(
         "independent_recipe",
         _recipe(),
@@ -82,6 +90,18 @@ def test_current_registration_exposes_callable_free_digest_manifest() -> None:
     assert manifest["resource_manifest"] == [{"resource": "instructions/guide.md", "sha256": "a" * 64}]
     assert "recipe" not in manifest
     assert all(not callable(value) for value in manifest.values())
+
+
+def test_current_registration_requires_matching_pre_registration_negotiation() -> None:
+    reg = registry.Registry(extension_id="independent", extension_version="2.0.0")
+    with pytest.raises(RuntimeError, match="requires_pre_registration_negotiation"):
+        reg.register_recipe(
+            "independent_recipe",
+            _recipe(),
+            cognition_contract_version=registry.CURRENT_COGNITION_CONTRACT,
+            accepted_core_contract_versions=[registry.CURRENT_COGNITION_CONTRACT],
+        )
+    assert registry.registered_recipe_sources() == {}
 
 
 def test_n_minus_one_signature_is_adapted_with_explicit_compatibility() -> None:
@@ -118,6 +138,9 @@ def test_future_incompatible_and_untrusted_code_fail_before_registration() -> No
     [
         {"../secret": "a" * 64},
         {"/absolute": "a" * 64},
+        {r"C:\\absolute\\secret": "a" * 64},
+        {"C:/absolute/secret": "a" * 64},
+        {"instructions//guide.md": "a" * 64},
         {"guide.md": "not-a-digest"},
     ],
 )
@@ -128,6 +151,29 @@ def test_invalid_or_traversing_resource_manifest_is_rejected(manifest) -> None:
             _recipe(),
             resource_manifest=manifest,
         )
+
+
+def test_resource_and_declaration_counts_are_bounded() -> None:
+    reg = registry.Registry(extension_id="bounded", extension_version="1.0.0")
+    with pytest.raises(ValueError, match="invalid_cognition_resource_manifest"):
+        reg.register_recipe(
+            "too_many_resources",
+            _recipe(),
+            resource_manifest={f"resources/{index}.md": "a" * 64 for index in range(65)},
+        )
+    with pytest.raises(ValueError, match="invalid_cognition_required_authorities"):
+        reg.register_recipe(
+            "too_many_authorities",
+            _recipe(),
+            required_authorities=[f"authority-{index}" for index in range(65)],
+        )
+    with pytest.raises(ValueError, match="invalid_cognition_side_effects"):
+        reg.register_recipe(
+            "duplicate_amplification",
+            _recipe(),
+            side_effects=["network"] * 65,
+        )
+    assert registry.registered_recipe_sources() == {}
 
 
 def test_unconsumed_surfaces_report_unsupported_instead_of_success() -> None:

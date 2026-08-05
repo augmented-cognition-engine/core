@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from enum import StrEnum
-from typing import Any, Self
+from typing import Annotated, Any, Self
 
 from pydantic import Field, model_validator
 
@@ -31,6 +31,7 @@ from core.engine.skills.models import Skill
 LEGACY_IMPORT_VERSION = "ace.cognition.legacy-import/v1"
 LEGACY_SKILL_DRAFT_VERSION = "ace.cognition.legacy-skill-draft/v1"
 LEGACY_FRAMEWORK_DRAFT_VERSION = "ace.cognition.legacy-framework-draft/v1"
+LegacyDiagnostic = Annotated[str, Field(min_length=1, max_length=240)]
 
 LEGACY_INVENTORY_QUERIES: dict[str, str] = {
     "skill": "SELECT * FROM skill WHERE product IS NONE OR product = <record>$product",
@@ -119,7 +120,7 @@ class LegacyImportReceiptV1(FrozenContract):
     target_scope: CognitionScopeV1 | None = None
     body_schema_version: str | None = Field(default=None, max_length=120)
     normalized_body: dict[str, Any] | None = None
-    diagnostics: tuple[str, ...] = Field(default_factory=tuple, max_length=50)
+    diagnostics: tuple[LegacyDiagnostic, ...] = Field(default_factory=tuple, max_length=50)
 
     @model_validator(mode="after")
     def derive_receipt(self) -> Self:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import StrEnum
-from typing import Any, Callable
+from typing import Annotated, Any, Callable
 
 from pydantic import Field, model_validator
 
@@ -36,6 +36,12 @@ _DEPTH_DEFAULTS = {
     3: (64, 7, 24_576, 1_024, 2_048, 8),
     4: (64, 8, 24_576, 1_536, 4_096, 12),
 }
+
+ReceiptToken = Annotated[
+    str,
+    Field(min_length=1, max_length=240, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,239}$"),
+]
+ReceiptReason = Annotated[str, Field(min_length=1, max_length=240)]
 
 
 class CandidateDisposition(StrEnum):
@@ -86,12 +92,12 @@ class CognitionDiscoveryBudgetV1(FrozenContract):
 
 
 class CognitionCandidateReceiptV1(FrozenContract):
-    cognition_id: str
-    revision_id: str
-    stable_key: str
-    owner_namespace: str
-    scope_kind: str
-    lifecycle: str
+    cognition_id: ReceiptToken
+    revision_id: ReceiptToken
+    stable_key: ReceiptToken
+    owner_namespace: ReceiptToken
+    scope_kind: ReceiptToken
+    lifecycle: ReceiptToken
     description: str = Field(max_length=500)
     score: float = Field(ge=0.0, le=1.0)
     disposition: CandidateDisposition
@@ -99,7 +105,7 @@ class CognitionCandidateReceiptV1(FrozenContract):
     loaded_level: int = Field(ge=0, le=2)
     level0_bytes: int = Field(ge=0)
     level1_tokens: int = Field(ge=0)
-    unavailable_dependencies: tuple[str, ...] = Field(default_factory=tuple, max_length=512)
+    unavailable_dependencies: tuple[ReceiptToken, ...] = Field(default_factory=tuple, max_length=512)
 
 
 class CognitionSelectionReceiptV1(FrozenContract):
@@ -112,7 +118,7 @@ class CognitionSelectionReceiptV1(FrozenContract):
     effective_budget: CognitionDiscoveryBudgetV1
     candidate_total: int = Field(ge=0)
     candidates: tuple[CognitionCandidateReceiptV1, ...] = Field(max_length=64)
-    selected_revision_ids: tuple[str, ...] = Field(max_length=8)
+    selected_revision_ids: tuple[ReceiptToken, ...] = Field(max_length=8)
     level0_bytes_used: int = Field(ge=0)
     level1_tokens_used: int = Field(ge=0)
     level2_tokens_used: int = Field(ge=0)
@@ -120,7 +126,7 @@ class CognitionSelectionReceiptV1(FrozenContract):
     selection_provider_calls: int = Field(default=0, ge=0, le=0)
     selection_provider_cost_usd: float = Field(default=0.0, ge=0.0, le=0.0)
     state: SelectionState
-    degraded_reasons: tuple[str, ...] = Field(default_factory=tuple, max_length=64)
+    degraded_reasons: tuple[ReceiptReason, ...] = Field(default_factory=tuple, max_length=64)
 
     @model_validator(mode="after")
     def derive_identity(self) -> CognitionSelectionReceiptV1:
@@ -133,12 +139,12 @@ class CognitionSelectionReceiptV1(FrozenContract):
 
 
 class CognitionPhaseUseV1(FrozenContract):
-    revision_id: str
-    stable_key: str
+    revision_id: ReceiptToken
+    stable_key: ReceiptToken
     phase_index: int = Field(ge=0)
     cognitive_function: str = Field(min_length=1, max_length=120)
-    instruments: tuple[str, ...] = Field(default_factory=tuple, max_length=128)
-    tools: tuple[str, ...] = Field(default_factory=tuple, max_length=128)
+    instruments: tuple[ReceiptToken, ...] = Field(default_factory=tuple, max_length=128)
+    tools: tuple[ReceiptToken, ...] = Field(default_factory=tuple, max_length=128)
 
 
 class CognitionUseReceiptV1(FrozenContract):
@@ -146,12 +152,12 @@ class CognitionUseReceiptV1(FrozenContract):
     use_receipt_id: str | None = None
     request_id: str = Field(min_length=1, max_length=240)
     product_id: str = Field(min_length=1, max_length=240)
-    selection_receipt_id: str
-    selected_revision_ids: tuple[str, ...] = Field(max_length=8)
+    selection_receipt_id: ReceiptToken
+    selected_revision_ids: tuple[ReceiptToken, ...] = Field(max_length=8)
     phase_uses: tuple[CognitionPhaseUseV1, ...] = Field(max_length=128)
     material_use_hash: str | None = None
     state: str = Field(pattern=r"^(used|selected_not_used|degraded)$")
-    degraded_reasons: tuple[str, ...] = Field(default_factory=tuple, max_length=64)
+    degraded_reasons: tuple[ReceiptReason, ...] = Field(default_factory=tuple, max_length=64)
 
     @model_validator(mode="after")
     def derive_identity(self) -> CognitionUseReceiptV1:

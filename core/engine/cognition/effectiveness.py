@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from datetime import datetime, timedelta, timezone
 from enum import StrEnum
-from typing import Self
+from typing import Annotated, Self
 
 from pydantic import Field, field_validator, model_validator
 
@@ -14,6 +14,9 @@ from core.engine.cognition.contracts import FrozenContract, canonical_hash, stab
 COGNITION_EFFECTIVENESS_VERSION = "ace.cognition.effectiveness/v1"
 COGNITION_EFFECT_PROPOSAL_VERSION = "ace.cognition.effect-proposal/v1"
 COGNITION_EFFECTIVENESS_POLICY = "ace.cognition.effectiveness-policy/v1"
+MAX_EFFECT_OBSERVATIONS = 10_000
+EffectToken = Annotated[str, Field(min_length=1, max_length=240)]
+EffectReason = Annotated[str, Field(min_length=1, max_length=240)]
 
 
 class ExperimentVariant(StrEnum):
@@ -64,15 +67,15 @@ class CognitionOutcomeObservationV1(FrozenContract):
 class CognitionEffectivenessReceiptV1(FrozenContract):
     contract_version: str = COGNITION_EFFECTIVENESS_VERSION
     receipt_id: str | None = None
-    product_id: str
-    revision_id: str
+    product_id: EffectToken
+    revision_id: EffectToken
     policy_version: str = COGNITION_EFFECTIVENESS_POLICY
     conclusion: EffectConclusion
     treatment_count: int = Field(ge=0)
     control_count: int = Field(ge=0)
     materially_used_count: int = Field(ge=0)
-    matched_cohorts: tuple[str, ...]
-    excluded_observation_ids: tuple[str, ...]
+    matched_cohorts: tuple[EffectToken, ...] = Field(max_length=MAX_EFFECT_OBSERVATIONS)
+    excluded_observation_ids: tuple[EffectToken, ...] = Field(max_length=MAX_EFFECT_OBSERVATIONS)
     treatment_positive_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     control_positive_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     effect_delta: float | None = Field(default=None, ge=-1.0, le=1.0)
@@ -83,7 +86,7 @@ class CognitionEffectivenessReceiptV1(FrozenContract):
     treatment_failure_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     control_failure_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     evaluated_observation_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
-    reasons: tuple[str, ...]
+    reasons: tuple[EffectReason, ...] = Field(max_length=16)
 
     @model_validator(mode="after")
     def derive_identity(self) -> Self:
@@ -140,7 +143,17 @@ def evaluate_revision_effectiveness(
     stale_after: timedelta = timedelta(days=90),
     now: datetime | None = None,
 ) -> CognitionEffectivenessReceiptV1:
+    if len(observations) > MAX_EFFECT_OBSERVATIONS:
+        raise ValueError(f"effectiveness evaluation is limited to {MAX_EFFECT_OBSERVATIONS} observations")
+    if min_per_variant < 1 or min_per_variant > MAX_EFFECT_OBSERVATIONS // 2:
+        raise ValueError("min_per_variant is outside the supported bound")
+    if minimum_material_effect < 0.0 or minimum_material_effect > 1.0:
+        raise ValueError("minimum_material_effect must be between zero and one")
+    if stale_after <= timedelta(0):
+        raise ValueError("stale_after must be positive")
     now = now or datetime.now(timezone.utc)
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError("effectiveness evaluation time must include a timezone")
     scoped = [item for item in observations if item.product_id == product_id and item.revision_id == revision_id]
     used = [item for item in scoped if item.variant is ExperimentVariant.REVISION and item.materially_used]
     if not used:

@@ -193,6 +193,22 @@ async def test_governed_cognition_chain_survives_fresh_database_connection(tmp_p
             expected_head_generation=0,
         )
 
+        retry_service = DurableCognitionGovernanceService(CognitionGovernanceStore(_Pool(url)))
+        replay = await retry_service.review(
+            proposal_id=str(proposal.proposal_id),
+            product_id="product:alpha",
+            review_request_id="review-request:restart",
+            actor=ReviewActorV1(
+                actor_id="user:reviewer",
+                actor_class=ActorClass.HUMAN,
+                authorities=("cognition-review",),
+            ),
+            disposition=ReviewDisposition.APPROVE,
+            rationale="Exact material and provenance reviewed.",
+            expected_head_generation=0,
+        )
+        assert replay == receipt
+
         second_store = CognitionGovernanceStore(_Pool(url))
         restored_proposal = await second_store.load_proposal(str(proposal.proposal_id), product_id="product:alpha")
         restored_review = await second_store.load_review(str(receipt.receipt_id), product_id="product:alpha")

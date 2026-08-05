@@ -1,4 +1,5 @@
 # engine/core/auth.py
+import re
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -10,6 +11,31 @@ from jwt.exceptions import InvalidTokenError
 from core.engine.core.config import settings
 
 _bearer = HTTPBearer(auto_error=False)
+_AUTHORITY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$")
+MAX_TOKEN_AUTHORITIES = 50
+
+
+def _invalid_token() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def _validate_claims(payload: dict) -> dict:
+    for claim in ("sub", "product"):
+        value = payload.get(claim)
+        if value is not None and (not isinstance(value, str) or not value or len(value) > 240):
+            raise _invalid_token()
+    authorities = payload.get("authorities")
+    if authorities is not None and (
+        not isinstance(authorities, list)
+        or len(authorities) > MAX_TOKEN_AUTHORITIES
+        or any(not isinstance(item, str) or not _AUTHORITY.fullmatch(item) for item in authorities)
+    ):
+        raise _invalid_token()
+    return payload
 
 
 def create_access_token(
@@ -24,17 +50,15 @@ def create_access_token(
 
 def verify_token(token: str) -> dict:
     try:
-        return jwt.decode(
-            token,
-            settings.jwt_secret,
-            algorithms=[settings.jwt_algorithm],
+        return _validate_claims(
+            jwt.decode(
+                token,
+                settings.jwt_secret,
+                algorithms=[settings.jwt_algorithm],
+            )
         )
     except InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise _invalid_token()
 
 
 def verify_ownership(record: dict, user: dict) -> None:

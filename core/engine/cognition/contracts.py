@@ -247,9 +247,9 @@ class CognitionRevisionV1(FrozenContract):
 class CognitionHeadV1(FrozenContract):
     contract_version: str = COGNITION_HEAD_VERSION
     head_id: str | None = None
-    cognition_id: str
+    cognition_id: str = Field(min_length=1, max_length=240)
     scope: CognitionScopeV1
-    active_revision_id: str
+    active_revision_id: str = Field(min_length=1, max_length=240)
     generation: int = Field(default=1, ge=1)
     lifecycle: str = Field(default="active", pattern=r"^(active|disabled|expired|retired)$")
     authority_receipt_id: str = Field(min_length=1, max_length=240)

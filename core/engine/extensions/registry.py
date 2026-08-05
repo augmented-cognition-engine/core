@@ -18,7 +18,7 @@ import re
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from importlib.util import find_spec
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Callable
 
 from core.engine.extensions.invocation import (
@@ -54,6 +54,9 @@ _verify_checks: list[Callable[[list[dict]], list[dict]]] = []
 MAX_TASK_ACTIONS = 200
 MAX_COGNITION_RECIPES = 64
 MAX_COGNITION_ROUTES = 256
+MAX_COGNITION_RESOURCES = 64
+MAX_COGNITION_DECLARATIONS = 64
+MAX_COGNITION_CONTRACT_VERSIONS = 8
 CURRENT_COGNITION_CONTRACT = "ace.cognition.revision/v1"
 LEGACY_COGNITION_REGISTRATION = "legacy-recipe-registration/v1"
 TaskActionIdentity = tuple[str, str]
@@ -66,7 +69,47 @@ _grounded_state_adapters: dict[GroundedStateAdapterIdentity, Any] = {}
 MAX_GROUNDED_STATE_ADAPTERS = 50
 _ADAPTER_NAME = re.compile(r"^[a-z0-9][a-z0-9._-]{0,119}$")
 _COGNITION_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
+_COGNITION_DECLARATION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,239}$")
+_RESOURCE_PATH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,499}$")
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
+
+
+def _bounded_declarations(values: list[str] | None, *, field: str) -> tuple[str, ...]:
+    raw = [] if values is None else values
+    if (
+        not isinstance(raw, list)
+        or len(raw) > MAX_COGNITION_DECLARATIONS
+        or any(not isinstance(item, str) or not _COGNITION_DECLARATION.fullmatch(item) for item in raw)
+    ):
+        raise ValueError(f"invalid_cognition_{field}")
+    return tuple(sorted(set(raw)))
+
+
+def _validated_resource_manifest(resource_manifest: dict[str, str] | None) -> tuple[tuple[str, str], ...]:
+    resources = {} if resource_manifest is None else resource_manifest
+    if not isinstance(resources, dict) or len(resources) > MAX_COGNITION_RESOURCES:
+        raise ValueError("invalid_cognition_resource_manifest")
+    validated: list[tuple[str, str]] = []
+    for resource, raw_digest in resources.items():
+        if not isinstance(resource, str) or not isinstance(raw_digest, str):
+            raise ValueError("invalid_cognition_resource_manifest")
+        digest = raw_digest.lower()
+        posix_path = PurePosixPath(resource)
+        windows_path = PureWindowsPath(resource)
+        raw_parts = resource.replace("\\", "/").split("/")
+        if (
+            not _RESOURCE_PATH.fullmatch(resource)
+            or "\\" in resource
+            or posix_path.is_absolute()
+            or windows_path.is_absolute()
+            or bool(windows_path.drive)
+            or posix_path.as_posix() != resource
+            or any(part in {"", ".", ".."} for part in raw_parts)
+            or not _SHA256.fullmatch(digest)
+        ):
+            raise ValueError("invalid_cognition_resource_manifest")
+        validated.append((resource, digest))
+    return tuple(sorted(validated))
 
 
 @dataclass(frozen=True)
@@ -153,6 +196,7 @@ class Registry:
     def __init__(self, *, extension_id: str | None = None, extension_version: str | None = None) -> None:
         self._extension_id = extension_id
         self._extension_version = extension_version
+        self._cognition_negotiation: CognitionContractNegotiation | None = None
 
     def negotiate_cognition_contract(
         self,
@@ -170,20 +214,30 @@ class Registry:
         """
         if not self._extension_id or not self._extension_version:
             raise RuntimeError("cognition_contract_negotiation_requires_scoped_registry")
-        accepted = tuple(sorted(set(accepted_core_contract_versions)))
-        if not accepted or len(accepted) > 8 or any(not isinstance(item, str) or not item for item in accepted):
+        if (
+            not isinstance(accepted_core_contract_versions, (list, tuple))
+            or not accepted_core_contract_versions
+            or len(accepted_core_contract_versions) > MAX_COGNITION_CONTRACT_VERSIONS
+            or any(
+                not isinstance(item, str) or not _COGNITION_DECLARATION.fullmatch(item)
+                for item in accepted_core_contract_versions
+            )
+        ):
             raise ValueError("invalid_accepted_core_cognition_contracts")
+        accepted = tuple(sorted(set(accepted_core_contract_versions)))
         if extension_contract_version != CURRENT_COGNITION_CONTRACT:
             raise RuntimeError("unsupported_cognition_contract_version")
         if CURRENT_COGNITION_CONTRACT not in accepted:
             raise RuntimeError("incompatible_core_cognition_contract")
-        return CognitionContractNegotiation(
+        receipt = CognitionContractNegotiation(
             extension_id=self._extension_id,
             extension_version=self._extension_version,
             extension_contract_version=extension_contract_version,
             core_contract_version=CURRENT_COGNITION_CONTRACT,
             accepted_core_contract_versions=accepted,
         )
+        self._cognition_negotiation = receipt
+        return receipt
 
     def register_instrument(self, slug: str, module_path: str) -> None:
         """Register an LLM pipeline instrument (module exposing ``run(**kwargs)``)."""
@@ -232,14 +286,7 @@ class Registry:
             raise ValueError("extension cognition name must be a bounded stable token")
         if not trusted_in_process:
             raise RuntimeError("untrusted_in_process_extension_code_is_unsupported")
-        for resource, digest in (resource_manifest or {}).items():
-            if (
-                not resource
-                or resource.startswith(("/", "\\"))
-                or ".." in Path(resource).parts
-                or not _SHA256.fullmatch(str(digest).lower())
-            ):
-                raise ValueError("invalid_cognition_resource_manifest")
+        resources = _validated_resource_manifest(resource_manifest)
         if len(_recipes) >= MAX_COGNITION_RECIPES:
             raise RuntimeError(f"Extension recipe registry is limited to {MAX_COGNITION_RECIPES} entries")
         if cognition_contract_version not in {
@@ -247,11 +294,28 @@ class Registry:
             LEGACY_COGNITION_REGISTRATION,
         }:
             raise RuntimeError("unsupported_cognition_contract_version")
-        accepted = tuple(sorted(set(accepted_core_contract_versions or [CURRENT_COGNITION_CONTRACT])))
+        raw_accepted = accepted_core_contract_versions or [CURRENT_COGNITION_CONTRACT]
+        if (
+            not isinstance(raw_accepted, list)
+            or len(raw_accepted) > MAX_COGNITION_CONTRACT_VERSIONS
+            or any(
+                not isinstance(item, str) or not _COGNITION_DECLARATION.fullmatch(item) for item in raw_accepted
+            )
+        ):
+            raise ValueError("invalid_accepted_core_cognition_contracts")
+        accepted = tuple(sorted(set(raw_accepted)))
         if CURRENT_COGNITION_CONTRACT not in accepted:
             raise RuntimeError("incompatible_core_cognition_contract")
+        if cognition_contract_version == CURRENT_COGNITION_CONTRACT:
+            negotiation = self._cognition_negotiation
+            if negotiation is None or negotiation.accepted_core_contract_versions != accepted:
+                raise RuntimeError("current_cognition_contract_requires_pre_registration_negotiation")
+        discipline_values = _bounded_declarations(disciplines, field="disciplines")
+        task_type_values = _bounded_declarations(task_types, field="task_types")
+        authority_values = _bounded_declarations(required_authorities, field="required_authorities")
+        side_effect_values = _bounded_declarations(side_effects, field="side_effects")
         if (
-            len(_recipe_disciplines) + len(_recipe_task_types) + len(disciplines or []) + len(task_types or [])
+            len(_recipe_disciplines) + len(_recipe_task_types) + len(discipline_values) + len(task_type_values)
             > MAX_COGNITION_ROUTES
         ):
             raise RuntimeError(f"Extension recipe routes are limited to {MAX_COGNITION_ROUTES} entries")
@@ -264,14 +328,14 @@ class Registry:
             recipe=recipe,
             extension_id=extension_id,
             extension_version=extension_version,
-            disciplines=tuple(sorted(set(disciplines or []))),
-            task_types=tuple(sorted(set(task_types or []))),
+            disciplines=discipline_values,
+            task_types=task_type_values,
             cognition_contract_version=cognition_contract_version,
             accepted_core_contract_versions=accepted,
             package_digest=_recipe_digest(recipe),
-            resource_manifest=tuple(sorted((resource_manifest or {}).items())),
-            required_authorities=tuple(sorted(set(required_authorities or []))),
-            side_effects=tuple(sorted(set(side_effects or []))),
+            resource_manifest=resources,
+            required_authorities=authority_values,
+            side_effects=side_effect_values,
             trusted_in_process=trusted_in_process,
             compatibility=(
                 "n_minus_1_legacy_adapter" if cognition_contract_version == LEGACY_COGNITION_REGISTRATION else "current"

@@ -51,6 +51,17 @@ def _scope_product(scope: CognitionScopeV1) -> str:
     return scope.product_id
 
 
+def _same_review_replay(
+    stored: CognitionReviewReceiptV1,
+    incoming: CognitionReviewReceiptV1,
+) -> bool:
+    """Ignore only the nondeterministic timestamp on an otherwise exact retry."""
+    return stored.model_dump(mode="json", exclude={"reviewed_at"}) == incoming.model_dump(
+        mode="json",
+        exclude={"reviewed_at"},
+    )
+
+
 async def _query_or_raise(db: Any, query: str, params: dict[str, Any]) -> Any:
     if ";" in query and hasattr(db, "query_raw"):
         response = await db.query_raw(query, params)
@@ -222,7 +233,7 @@ class CognitionGovernanceStore:
             )
             if existing_review:
                 stored = CognitionReviewReceiptV1.model_validate(existing_review.get("payload"))
-                if stored == receipt:
+                if _same_review_replay(stored, receipt):
                     return stored
                 raise CognitionReplayConflict(f"stable review {receipt.receipt_id} contains different material")
 

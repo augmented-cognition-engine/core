@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import copy
+from datetime import timedelta
 
 import pytest
 
@@ -14,11 +15,13 @@ from core.engine.cognition.governance import (
     ActorClass,
     CognitionGovernanceService,
     CognitionProposalV1,
+    CognitionReviewReceiptV1,
     ProposalSourceV1,
     ProposalState,
     ReviewActorV1,
     ReviewDisposition,
 )
+from core.engine.cognition.governance_persistence import _same_review_replay
 from core.engine.cognition.store import CognitionHeadConflict
 
 
@@ -55,6 +58,22 @@ def _proposal(catalog, *, suffix: str = "improve framing") -> CognitionProposalV
             authorities=(),
         ),
     )
+
+
+def test_durable_review_retry_ignores_only_review_timestamp() -> None:
+    receipt = CognitionReviewReceiptV1(
+        review_request_id="review-request:retry",
+        proposal_id="cognition_proposal:test",
+        proposal_hash="a" * 64,
+        actor=_human(),
+        disposition=ReviewDisposition.APPROVE,
+        rationale="Exact material reviewed.",
+        expected_head_generation=0,
+    )
+    timestamp_retry = receipt.model_copy(update={"reviewed_at": receipt.reviewed_at + timedelta(seconds=1)})
+    changed_result = timestamp_retry.model_copy(update={"result_revision_id": "cognition_revision:different"})
+    assert _same_review_replay(receipt, timestamp_retry)
+    assert not _same_review_replay(receipt, changed_result)
 
 
 async def test_proposal_is_idempotent_and_never_selectable_before_review() -> None:

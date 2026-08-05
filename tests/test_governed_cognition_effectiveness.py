@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
+import pytest
+
 from core.engine.cognition.effectiveness import (
     CognitionOutcomeObservationV1,
     EffectConclusion,
@@ -214,3 +216,14 @@ def test_evaluation_is_deterministic_under_observation_reordering() -> None:
         now=NOW,
     )
     assert first == second
+
+
+def test_evaluation_inputs_and_receipt_cardinality_are_bounded() -> None:
+    observation = _observation(1, variant=ExperimentVariant.REVISION, positive=True)
+    with pytest.raises(ValueError, match="limited to 10000 observations"):
+        evaluate_revision_effectiveness(
+            (observation,) * 10_001,
+            product_id="product:test",
+            revision_id="cognition_revision:test",
+            now=NOW,
+        )

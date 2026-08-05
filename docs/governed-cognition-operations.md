@@ -1,5 +1,13 @@
 # Governed Cognition Operations
 
+## Review authority credential
+
+The deployment's primary `API_KEY` is an owner credential. A successful `/auth/token` exchange
+using that key issues the signed `cognition-review` authority required by governed review and
+lifecycle routes. Treat it as a production secret and expose it only to authorized human operators.
+`DEMO_PASS` tokens never receive review authority. Refresh and same-tenant product switching preserve
+the bounded signed authority set; neither operation grants new authority.
+
 ## Signals
 
 Monitor:

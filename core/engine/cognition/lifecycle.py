@@ -42,14 +42,14 @@ class CognitionLifecycleReceiptV1(FrozenContract):
     receipt_id: str | None = None
     review_request_id: str = Field(min_length=1, max_length=240)
     product_id: str = Field(min_length=1, max_length=240)
-    head_id: str
-    cognition_id: str
+    head_id: str = Field(min_length=1, max_length=240)
+    cognition_id: str = Field(min_length=1, max_length=240)
     actor: ReviewActorV1
     action: LifecycleAction
     rationale: str = Field(min_length=1, max_length=4_000)
     expected_generation: int = Field(ge=1)
-    prior_revision_id: str
-    target_revision_id: str
+    prior_revision_id: str = Field(min_length=1, max_length=240)
+    target_revision_id: str = Field(min_length=1, max_length=240)
     result_generation: int = Field(ge=2)
     result_lifecycle: str = Field(pattern=r"^(active|disabled|expired|retired)$")
     expires_at: datetime | None = None
