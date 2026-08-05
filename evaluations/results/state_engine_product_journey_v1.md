@@ -2,8 +2,8 @@
 
 Status: **passed — K1 passed, K2 passed, K3 passed**
 
-Acceptance hash: `d81257a0e379c20248cb546b61b57d18c5ed440950d003733140310f83713e85`  
-Frozen config SHA-256: `7ac1470fd05727b31b794783c40e7afe9aafaa1b628614b8f4f21d72df151a4c`  
+Acceptance hash: `d81257a0e379c20248cb546b61b57d18c5ed440950d003733140310f83713e85`
+Frozen config SHA-256: `7ac1470fd05727b31b794783c40e7afe9aafaa1b628614b8f4f21d72df151a4c`
 Frozen corpus SHA-256: `85907acc8ad5b9a73d2d7551ced98d1bb26d4b9ea51a189d262675cb5ff9ea28`
 
 ## Exact supported journey
@@ -40,7 +40,7 @@ mapping and action registration.
 - initial promotion: `grounded_promotion_receipt:f1fc69d93efc81bcb104db79bb243866`
 - correction promotion: `grounded_promotion_receipt:c139a12f4061703a199d2b927ae01bdc`
 
-Belief states: `contested`, `provisional`, `superseded`, `supported`, `unknown`.  
+Belief states: `contested`, `provisional`, `superseded`, `supported`, `unknown`.
 Rollout branches: `action`, `alternative`, `no_action`.
 
 ## Failure and degraded cases

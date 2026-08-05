@@ -152,8 +152,8 @@ def render_product_journey_markdown(result: dict[str, Any]) -> str:
 
 Status: **{result["status"]} — K1 {decisions["K1"]}, K2 {decisions["K2"]}, K3 {decisions["K3"]}**
 
-Acceptance hash: `{result["acceptance_hash"]}`  
-Frozen config SHA-256: `{result["fixture"]["config_sha256"]}`  
+Acceptance hash: `{result["acceptance_hash"]}`
+Frozen config SHA-256: `{result["fixture"]["config_sha256"]}`
 Frozen corpus SHA-256: `{result["fixture"]["corpus_sha256"]}`
 
 ## Exact supported journey
@@ -179,7 +179,7 @@ mapping and action registration.
 - initial promotion: `{result["promotion"]["initial_receipt_id"]}`
 - correction promotion: `{result["correction"]["receipt_id"]}`
 
-Belief states: {", ".join(f"`{item}`" for item in result["belief_state"]["statuses"])}.  
+Belief states: {", ".join(f"`{item}`" for item in result["belief_state"]["statuses"])}.
 Rollout branches: {", ".join(f"`{item}`" for item in result["rollout"]["branch_kinds"])}.
 
 ## Failure and degraded cases
