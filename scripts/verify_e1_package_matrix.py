@@ -76,9 +76,26 @@ def _project_version(source: Path) -> str:
     return version
 
 
-def _build(source: Path, destination: Path) -> tuple[Path, Path]:
+def _source_date_epoch(ref: str) -> int:
+    result = _run(
+        ["git", "show", "-s", "--format=%ct", ref],
+        cwd=ROOT,
+        capture=True,
+    )
+    try:
+        epoch = int(result.stdout.strip())
+    except ValueError as exc:
+        raise RuntimeError(f"invalid commit timestamp for {ref}") from exc
+    if epoch < 0:
+        raise RuntimeError(f"negative commit timestamp for {ref}")
+    return epoch
+
+
+def _build(source: Path, destination: Path, *, source_date_epoch: int) -> tuple[Path, Path]:
     destination.mkdir(parents=True, exist_ok=True)
-    _run(["uv", "build", "--out-dir", str(destination)], cwd=source, capture=True)
+    env = os.environ.copy()
+    env["SOURCE_DATE_EPOCH"] = str(source_date_epoch)
+    _run(["uv", "build", "--out-dir", str(destination)], cwd=source, env=env, capture=True)
     wheels = sorted(destination.glob("*.whl"))
     sdists = sorted(destination.glob("*.tar.gz"))
     if len(wheels) != 1 or len(sdists) != 1:
@@ -146,11 +163,25 @@ def verify(*, n1_tag: str, output: Path, artifacts_dir: Path | None = None) -> d
         _extract_tag(n1_tag, n1_source)
         current_version = _project_version(ROOT)
         n1_version = _project_version(n1_source)
+        current_epoch = _source_date_epoch("HEAD")
+        n1_epoch = _source_date_epoch(n1_tag)
 
-        current_wheel, current_sdist = _build(ROOT, temp / "current-dist")
-        n1_wheel, n1_sdist = _build(n1_source, temp / "n1-dist")
+        current_wheel, current_sdist = _build(
+            ROOT,
+            temp / "current-dist",
+            source_date_epoch=current_epoch,
+        )
+        n1_wheel, n1_sdist = _build(
+            n1_source,
+            temp / "n1-dist",
+            source_date_epoch=n1_epoch,
+        )
         independent_source = scaffold("independent_consumer", temp)
-        independent_wheel, independent_sdist = _build(independent_source, temp / "independent-dist")
+        independent_wheel, independent_sdist = _build(
+            independent_source,
+            temp / "independent-dist",
+            source_date_epoch=current_epoch,
+        )
 
         current_python, current_env = _create_env(temp, "current-wheel-env")
         _pip(current_python, current_wheel, cwd=temp, env=current_env)
@@ -236,6 +267,11 @@ def verify(*, n1_tag: str, output: Path, artifacts_dir: Path | None = None) -> d
             "contract_version": CONTRACT,
             "created_at": datetime.now(UTC).isoformat(),
             "n1_tag": n1_tag,
+            "build_provenance": {
+                "builder": "uv build",
+                "current_source_date_epoch": current_epoch,
+                "n1_source_date_epoch": n1_epoch,
+            },
             "artifacts": {
                 "current_wheel": {"name": current_wheel.name, "sha256": _sha256(current_wheel)},
                 "current_sdist": {"name": current_sdist.name, "sha256": _sha256(current_sdist)},

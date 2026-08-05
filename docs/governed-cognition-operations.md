@@ -64,7 +64,8 @@ uv run python scripts/verify_e1_package_matrix.py \
   --artifacts-dir /absolute/release-evidence/e1-package-artifacts-v1
 ```
 
-The verifier builds current and N-1 wheels/source distributions, generates an independent consumer,
+The verifier builds reproducible current and N-1 wheels/source distributions using each exact Git
+commit timestamp as `SOURCE_DATE_EPOCH`, generates an independent consumer,
 tests both mixed-artifact directions, proves the current-Core/N-1-reference adapter, proves the
 N-1-Core/current-reference pre-registration refusal, checks zero-extension boot, and scans wheel
 exclusions. Its receipt deliberately records `publication_provenance: not_proven_by_local_verifier`.
