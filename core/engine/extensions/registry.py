@@ -15,6 +15,10 @@ while the consume-side integration lands incrementally.
 from __future__ import annotations
 
 import re
+from dataclasses import asdict, dataclass
+from hashlib import sha256
+from importlib.util import find_spec
+from pathlib import Path
 from typing import Any, Callable
 
 from core.engine.extensions.invocation import (
@@ -27,6 +31,7 @@ from core.engine.extensions.invocation import (
 # Extension-contributed stores the kernel reads from (instruments are the exception —
 # they go straight to the existing instrument registry).
 _recipes: dict[str, Any] = {}
+_recipe_metadata: dict[str, "RegisteredRecipeSource"] = {}
 # Routing: which extension recipe a classification selects. The generic composer
 # merges these so its discipline/task_type maps stay free of extension names.
 _recipe_disciplines: dict[str, str] = {}  # discipline -> recipe name
@@ -36,6 +41,7 @@ _personas: list[Any] = []
 _frameworks: list[Any] = []
 _tools: list[dict[str, Any]] = []  # {"fn": callable, "title": str}
 _schema_paths: list[str] = []
+_unsupported_registrations: list["UnsupportedRegistration"] = []
 # Briefing-section providers: async (db) -> {available, markdown, metrics}. The
 # sentinel briefing loops these so extensions can contribute sections to the report.
 _briefing_sections: list[dict[str, Any]] = []  # {"builder": async fn, "metrics_key": str, "timeout": float}
@@ -46,6 +52,10 @@ _verify_checks: list[Callable[[list[dict]], list[dict]]] = []
 # Extension-owned task preparation and outcome projection. Core owns the
 # invocation lifecycle; these callables are the domain resolution boundary.
 MAX_TASK_ACTIONS = 200
+MAX_COGNITION_RECIPES = 64
+MAX_COGNITION_ROUTES = 256
+CURRENT_COGNITION_CONTRACT = "ace.cognition.revision/v1"
+LEGACY_COGNITION_REGISTRATION = "legacy-recipe-registration/v1"
 TaskActionIdentity = tuple[str, str]
 _task_actions: dict[TaskActionIdentity, RegisteredTaskAction] = {}
 # Provider-neutral grounded-state ingestion adapters.  Adapters only map
@@ -55,6 +65,86 @@ GroundedStateAdapterIdentity = tuple[str, str]
 _grounded_state_adapters: dict[GroundedStateAdapterIdentity, Any] = {}
 MAX_GROUNDED_STATE_ADAPTERS = 50
 _ADAPTER_NAME = re.compile(r"^[a-z0-9][a-z0-9._-]{0,119}$")
+_COGNITION_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
+_SHA256 = re.compile(r"^[a-f0-9]{64}$")
+
+
+@dataclass(frozen=True)
+class RegisteredRecipeSource:
+    """Extension provenance retained alongside the legacy recipe facade."""
+
+    name: str
+    recipe: Any
+    extension_id: str
+    extension_version: str
+    disciplines: tuple[str, ...]
+    task_types: tuple[str, ...]
+    cognition_contract_version: str
+    accepted_core_contract_versions: tuple[str, ...]
+    package_digest: str
+    resource_manifest: tuple[tuple[str, str], ...]
+    required_authorities: tuple[str, ...]
+    side_effects: tuple[str, ...]
+    trusted_in_process: bool
+    compatibility: str
+
+    def public_manifest(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "extension_id": self.extension_id,
+            "extension_version": self.extension_version,
+            "cognition_contract_version": self.cognition_contract_version,
+            "accepted_core_contract_versions": list(self.accepted_core_contract_versions),
+            "package_digest": self.package_digest,
+            "resource_manifest": [
+                {"resource": resource, "sha256": digest} for resource, digest in self.resource_manifest
+            ],
+            "required_authorities": list(self.required_authorities),
+            "side_effects": list(self.side_effects),
+            "trusted_in_process": self.trusted_in_process,
+            "compatibility": self.compatibility,
+            "disciplines": list(self.disciplines),
+            "task_types": list(self.task_types),
+        }
+
+
+@dataclass(frozen=True)
+class UnsupportedRegistration:
+    extension_id: str
+    extension_version: str
+    capability: str
+    stable_key: str
+    disposition: str = "unsupported_registration"
+
+
+@dataclass(frozen=True)
+class CognitionContractNegotiation:
+    """Pre-registration proof that an extension and Core share a contract."""
+
+    extension_id: str
+    extension_version: str
+    extension_contract_version: str
+    core_contract_version: str
+    accepted_core_contract_versions: tuple[str, ...]
+    compatibility: str = "current"
+
+
+def _recipe_digest(recipe: Any) -> str:
+    if isinstance(recipe, str):
+        try:
+            spec = find_spec(recipe)
+        except (ImportError, ModuleNotFoundError, ValueError):
+            spec = None
+        origin = spec.origin if spec is not None else None
+        if origin and Path(origin).is_file():
+            return sha256(Path(origin).read_bytes()).hexdigest()
+        return sha256(recipe.encode("utf-8")).hexdigest()
+    try:
+        from core.engine.cognition.contracts import canonical_hash
+
+        return canonical_hash(asdict(recipe))
+    except Exception as exc:
+        raise TypeError("extension recipe must be a module path or dataclass recipe") from exc
 
 
 class Registry:
@@ -64,13 +154,54 @@ class Registry:
         self._extension_id = extension_id
         self._extension_version = extension_version
 
+    def negotiate_cognition_contract(
+        self,
+        *,
+        extension_contract_version: str,
+        accepted_core_contract_versions: list[str] | tuple[str, ...],
+    ) -> CognitionContractNegotiation:
+        """Fail before registration when package cognition contracts cannot mix.
+
+        Current extensions call this as their first ``register`` operation. An
+        N-1 Core has no negotiation method, so a current extension can refuse
+        deterministically before mutating any old registry. N-1 extensions do
+        not call it; their legacy ``register_recipe`` signature remains an
+        explicitly labelled adapter input on current Core.
+        """
+        if not self._extension_id or not self._extension_version:
+            raise RuntimeError("cognition_contract_negotiation_requires_scoped_registry")
+        accepted = tuple(sorted(set(accepted_core_contract_versions)))
+        if not accepted or len(accepted) > 8 or any(not isinstance(item, str) or not item for item in accepted):
+            raise ValueError("invalid_accepted_core_cognition_contracts")
+        if extension_contract_version != CURRENT_COGNITION_CONTRACT:
+            raise RuntimeError("unsupported_cognition_contract_version")
+        if CURRENT_COGNITION_CONTRACT not in accepted:
+            raise RuntimeError("incompatible_core_cognition_contract")
+        return CognitionContractNegotiation(
+            extension_id=self._extension_id,
+            extension_version=self._extension_version,
+            extension_contract_version=extension_contract_version,
+            core_contract_version=CURRENT_COGNITION_CONTRACT,
+            accepted_core_contract_versions=accepted,
+        )
+
     def register_instrument(self, slug: str, module_path: str) -> None:
         """Register an LLM pipeline instrument (module exposing ``run(**kwargs)``)."""
         # Lazy import: avoid pulling the heavy cognition chain at extension-module
         # import time, and avoid an import cycle.
         from core.engine.cognition.instrument_registry import register_instrument
 
-        register_instrument(slug, module_path)
+        register_instrument(
+            slug,
+            module_path,
+            extension_id=self._extension_id,
+            extension_version=self._extension_version,
+            contract_version=(
+                "ace.cognition.instrument/v1"
+                if self._extension_id and self._extension_version
+                else "legacy-python-instrument/v1"
+            ),
+        )
 
     def register_recipe(
         self,
@@ -79,6 +210,12 @@ class Registry:
         *,
         disciplines: list[str] | None = None,
         task_types: list[str] | None = None,
+        cognition_contract_version: str = LEGACY_COGNITION_REGISTRATION,
+        accepted_core_contract_versions: list[str] | None = None,
+        resource_manifest: dict[str, str] | None = None,
+        required_authorities: list[str] | None = None,
+        side_effects: list[str] | None = None,
+        trusted_in_process: bool = True,
     ) -> None:
         """Register a recipe and, optionally, the classifications that should
         select it.
@@ -91,22 +228,86 @@ class Registry:
         Raises RuntimeError if ``name`` is already registered — silent overwrite
         masks real bugs (two extensions fighting over a slug).
         """
+        if not _COGNITION_KEY.fullmatch(name):
+            raise ValueError("extension cognition name must be a bounded stable token")
+        if not trusted_in_process:
+            raise RuntimeError("untrusted_in_process_extension_code_is_unsupported")
+        for resource, digest in (resource_manifest or {}).items():
+            if (
+                not resource
+                or resource.startswith(("/", "\\"))
+                or ".." in Path(resource).parts
+                or not _SHA256.fullmatch(str(digest).lower())
+            ):
+                raise ValueError("invalid_cognition_resource_manifest")
+        if len(_recipes) >= MAX_COGNITION_RECIPES:
+            raise RuntimeError(f"Extension recipe registry is limited to {MAX_COGNITION_RECIPES} entries")
+        if cognition_contract_version not in {
+            CURRENT_COGNITION_CONTRACT,
+            LEGACY_COGNITION_REGISTRATION,
+        }:
+            raise RuntimeError("unsupported_cognition_contract_version")
+        accepted = tuple(sorted(set(accepted_core_contract_versions or [CURRENT_COGNITION_CONTRACT])))
+        if CURRENT_COGNITION_CONTRACT not in accepted:
+            raise RuntimeError("incompatible_core_cognition_contract")
+        if (
+            len(_recipe_disciplines) + len(_recipe_task_types) + len(disciplines or []) + len(task_types or [])
+            > MAX_COGNITION_ROUTES
+        ):
+            raise RuntimeError(f"Extension recipe routes are limited to {MAX_COGNITION_ROUTES} entries")
         if name in _recipes:
             raise RuntimeError(f"Recipe '{name}' already registered (existing: {_recipes[name]!r})")
+        extension_id = self._extension_id or "legacy-extension"
+        extension_version = self._extension_version or "0.0.0"
+        definition = RegisteredRecipeSource(
+            name=name,
+            recipe=recipe,
+            extension_id=extension_id,
+            extension_version=extension_version,
+            disciplines=tuple(sorted(set(disciplines or []))),
+            task_types=tuple(sorted(set(task_types or []))),
+            cognition_contract_version=cognition_contract_version,
+            accepted_core_contract_versions=accepted,
+            package_digest=_recipe_digest(recipe),
+            resource_manifest=tuple(sorted((resource_manifest or {}).items())),
+            required_authorities=tuple(sorted(set(required_authorities or []))),
+            side_effects=tuple(sorted(set(side_effects or []))),
+            trusted_in_process=trusted_in_process,
+            compatibility=(
+                "n_minus_1_legacy_adapter" if cognition_contract_version == LEGACY_COGNITION_REGISTRATION else "current"
+            ),
+        )
+        discipline_conflicts = {
+            value: _recipe_disciplines[value]
+            for value in definition.disciplines
+            if value in _recipe_disciplines and _recipe_disciplines[value] != name
+        }
+        if discipline_conflicts:
+            raise RuntimeError(f"Recipe discipline routes conflict: {discipline_conflicts}")
+        task_type_conflicts = {
+            value: _recipe_task_types[value]
+            for value in definition.task_types
+            if value in _recipe_task_types and _recipe_task_types[value] != name
+        }
+        if task_type_conflicts:
+            raise RuntimeError(f"Recipe task-type routes conflict: {task_type_conflicts}")
         _recipes[name] = recipe
-        for d in disciplines or []:
+        _recipe_metadata[name] = definition
+        for d in definition.disciplines:
             _recipe_disciplines[d] = name
-        for t in task_types or []:
+        for t in definition.task_types:
             _recipe_task_types[t] = name
 
     def register_committee(self, name: str, builder: Callable[..., Any]) -> None:
-        _committees[name] = builder
+        self._record_unsupported("committee", name)
 
     def register_personas(self, personas: list[Any]) -> None:
-        _personas.extend(personas)
+        for index, persona in enumerate(personas):
+            self._record_unsupported("persona", str(getattr(persona, "slug", None) or index))
 
     def register_frameworks(self, frameworks: list[Any]) -> None:
-        _frameworks.extend(frameworks)
+        for index, framework in enumerate(frameworks):
+            self._record_unsupported("framework", str(getattr(framework, "slug", None) or index))
 
     def register_tool(self, fn: Callable[..., Any], *, title: str | None = None) -> None:
         _tools.append({"fn": fn, "title": title or getattr(fn, "__name__", "tool")})
@@ -162,7 +363,17 @@ class Registry:
         register_engine(name, cron, description, trigger=trigger)(fn)
 
     def register_schema(self, surql_path: str) -> None:
-        _schema_paths.append(surql_path)
+        self._record_unsupported("schema", surql_path)
+
+    def _record_unsupported(self, capability: str, stable_key: str) -> None:
+        _unsupported_registrations.append(
+            UnsupportedRegistration(
+                extension_id=self._extension_id or "legacy-extension",
+                extension_version=self._extension_version or "0.0.0",
+                capability=capability,
+                stable_key=stable_key,
+            )
+        )
 
     def register_briefing_section(
         self,
@@ -258,6 +469,33 @@ def registered_recipes() -> dict[str, Any]:
     return dict(_recipes)
 
 
+def registered_recipe_sources() -> dict[str, RegisteredRecipeSource]:
+    """Return recipe definitions with their extension identity and version."""
+    _ensure_extensions_loaded()
+    return {
+        name: _recipe_metadata.get(
+            name,
+            RegisteredRecipeSource(
+                name=name,
+                recipe=recipe,
+                extension_id="legacy-extension",
+                extension_version="0.0.0",
+                disciplines=tuple(d for d, slug in _recipe_disciplines.items() if slug == name),
+                task_types=tuple(t for t, slug in _recipe_task_types.items() if slug == name),
+                cognition_contract_version=LEGACY_COGNITION_REGISTRATION,
+                accepted_core_contract_versions=(CURRENT_COGNITION_CONTRACT,),
+                package_digest=_recipe_digest(recipe),
+                resource_manifest=(),
+                required_authorities=(),
+                side_effects=(),
+                trusted_in_process=True,
+                compatibility="n_minus_1_legacy_adapter",
+            ),
+        )
+        for name, recipe in _recipes.items()
+    }
+
+
 def registered_recipe_disciplines() -> dict[str, str]:
     _ensure_extensions_loaded()
     return dict(_recipe_disciplines)
@@ -266,6 +504,10 @@ def registered_recipe_disciplines() -> dict[str, str]:
 def registered_recipe_task_types() -> dict[str, str]:
     _ensure_extensions_loaded()
     return dict(_recipe_task_types)
+
+
+def registered_recipe_manifests() -> dict[str, dict[str, Any]]:
+    return {name: source.public_manifest() for name, source in registered_recipe_sources().items()}
 
 
 def registered_committees() -> dict[str, Callable[..., Any]]:
@@ -291,6 +533,11 @@ def registered_tools() -> list[dict[str, Any]]:
 def registered_schema_paths() -> list[str]:
     _ensure_extensions_loaded()
     return list(_schema_paths)
+
+
+def registered_unsupported_cognition() -> list[UnsupportedRegistration]:
+    _ensure_extensions_loaded()
+    return list(_unsupported_registrations)
 
 
 def registered_briefing_sections() -> list[dict[str, Any]]:

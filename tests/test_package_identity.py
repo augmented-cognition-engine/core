@@ -20,7 +20,7 @@ def test_distribution_import_cli_and_version_identities() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
     assert project["name"] == "ace-core"
-    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.2.0"
+    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.3.0"
     assert ProductExtension.version == project["version"]
     assert project["scripts"]["ace"] == "core.engine.cli.main:cli"
     assert "aiohttp>=3.14.3" in project["dependencies"]
@@ -43,7 +43,7 @@ def test_package_copy_and_public_links_are_release_ready() -> None:
 def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
 
-    assert "default: v0.2.0" in workflow
+    assert "default: v0.3.0" in workflow
     assert "Validate release tag matches package version" in workflow
     assert 'if [ "$RELEASE_TAG" != "v$package_version" ]' in workflow
 
@@ -51,13 +51,13 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
 def test_docker_image_includes_public_cli_package() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     assert "COPY ace/ ace/" in dockerfile
-    assert "ARG ACE_VERSION=0.2.0" in dockerfile
+    assert "ARG ACE_VERSION=0.3.0" in dockerfile
     assert 'org.opencontainers.image.version="${ACE_VERSION}"' in dockerfile
     assert "uv sync --frozen --no-dev --no-editable --no-cache" in dockerfile
 
     compose = (ROOT / "infra" / "docker-compose.yml").read_text(encoding="utf-8")
-    assert compose.count('ACE_VERSION: "0.2.0"') == 3
-    assert compose.count('org.opencontainers.image.version: "0.2.0"') == 2
+    assert compose.count('ACE_VERSION: "0.3.0"') == 3
+    assert compose.count('org.opencontainers.image.version: "0.3.0"') == 2
 
 
 def test_lock_tracks_the_distribution_identity() -> None:
@@ -83,9 +83,9 @@ def test_release_inventory_reads_ace_core_requirements(monkeypatch) -> None:
 def test_release_inventory_records_installed_ace_core_version(monkeypatch) -> None:
     monkeypatch.setattr(release_inventory.metadata, "distributions", lambda: [])
     monkeypatch.setattr(release_inventory.metadata, "requires", lambda _name: [])
-    monkeypatch.setattr(release_inventory.metadata, "version", lambda name: "0.2.0" if name == "ace-core" else "")
+    monkeypatch.setattr(release_inventory.metadata, "version", lambda name: "0.3.0" if name == "ace-core" else "")
 
-    assert release_inventory.build_inventory()["ace_core_version"] == "0.2.0"
+    assert release_inventory.build_inventory()["ace_core_version"] == "0.3.0"
 
 
 def test_installed_documentation_paths_do_not_collide() -> None:

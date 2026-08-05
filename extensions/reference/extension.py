@@ -37,14 +37,33 @@ _INSTRUMENTS: dict[str, str] = {
     "multi-voice-engage": "extensions.reference.instruments.multi_voice_engage",
 }
 
+_COGNITION_CONTRACT = "ace.cognition.revision/v1"
+
+
+def _negotiate_cognition_contract(reg: "Registry") -> None:
+    negotiate = getattr(reg, "negotiate_cognition_contract", None)
+    if not callable(negotiate):
+        raise RuntimeError(
+            "unsupported_core_cognition_contract:current_reference_extension_requires_pre_registration_negotiation"
+        )
+    negotiate(
+        extension_contract_version=_COGNITION_CONTRACT,
+        accepted_core_contract_versions=[_COGNITION_CONTRACT],
+    )
+
 
 class ProductExtension:
     """The open `product` extension — copy this file to start your own."""
 
     name = "product"
-    version = "0.2.0"
+    version = "0.3.0"
 
     def register(self, reg: "Registry") -> None:
+        # This must remain the first operation. A current reference extension
+        # mixed with an older Core refuses before partially registering tools,
+        # recipes, instruments, adapters, actions, or sentinels.
+        _negotiate_cognition_contract(reg)
+
         from extensions.reference.evidence_query import (
             OUTCOME_CONTRACT as EVIDENCE_QUERY_OUTCOME_CONTRACT,
         )
@@ -120,6 +139,10 @@ class ProductExtension:
             "product_decision_intelligence",
             "extensions.reference.recipe",
             disciplines=["product"],
+            cognition_contract_version=_COGNITION_CONTRACT,
+            accepted_core_contract_versions=[_COGNITION_CONTRACT],
+            side_effects=["provider_calls_during_execution"],
+            trusted_in_process=True,
         )
 
         # --- 3. MCP tool — registered onto the kernel MCP server at startup. ---

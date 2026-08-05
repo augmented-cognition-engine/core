@@ -21,6 +21,7 @@ from typing import Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from core.engine.cognition.discovery import normalize_selection_receipt, normalize_use_receipt
 from core.engine.core.auth import get_current_user, verify_ownership
 from core.engine.core.db import parse_one, parse_record_id, parse_rows, pool
 from core.engine.core.tasks import logged_task
@@ -74,6 +75,8 @@ class TaskResponse(BaseModel):
     deliberation_receipt: dict = Field(default_factory=dict)
     intelligence_use_receipt: dict = Field(default_factory=dict)
     extension_receipt: dict = Field(default_factory=dict)
+    cognition_selection_receipt: dict = Field(default_factory=dict)
+    cognition_use_receipt: dict = Field(default_factory=dict)
 
 
 def _execution_coverage(result: object) -> dict:
@@ -508,6 +511,11 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
         result.get("intelligence_use_receipt"), task=result
     )
     result["extension_receipt"] = normalize_extension_receipt(result.get("extension_receipt"), task=result)
+    product_id = str(result.get("product") or "") or None
+    result["cognition_selection_receipt"] = normalize_selection_receipt(
+        result.get("cognition_selection_receipt"), product_id=product_id
+    )
+    result["cognition_use_receipt"] = normalize_use_receipt(result.get("cognition_use_receipt"), product_id=product_id)
     # Persisted execution coordinates and private prompt text are not public
     # receipt fields.  The output remains available, but the original prompt
     # and retained-intelligence payload do not ride along with ace_status.
@@ -1003,6 +1011,16 @@ async def _execute_receipt(
                 duration_ms=result.duration_ms,
                 status=status,
             )
+        composition = result.classification.get("cognitive_composition")
+        cognition_selection_receipt = {}
+        cognition_use_receipt = {}
+        if composition is not None:
+            selected = getattr(composition, "cognition_selection_receipt", None)
+            used = getattr(composition, "cognition_use_receipt", None)
+            if selected is not None:
+                cognition_selection_receipt = selected.model_dump(mode="python")
+            if used is not None:
+                cognition_use_receipt = used.model_dump(mode="python")
         await _update_receipt(
             task_id,
             {
@@ -1025,6 +1043,8 @@ async def _execute_receipt(
                 "deliberation_receipt": deliberation_receipt,
                 "intelligence_use_receipt": intelligence_use_receipt,
                 "extension_receipt": extension_receipt,
+                "cognition_selection_receipt": cognition_selection_receipt,
+                "cognition_use_receipt": cognition_use_receipt,
                 "error": error,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),

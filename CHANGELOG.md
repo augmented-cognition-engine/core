@@ -6,6 +6,42 @@ Notable user- and contributor-visible changes are recorded here.
 
 No unreleased changes.
 
+## 0.3.0
+
+### Governed cognition
+
+- Add one typed, versioned cognition model for stable identity, immutable revision, scoped active
+  heads, proposals, human review receipts, bounded selection/use receipts, and effectiveness
+  observations across recipes, instruments, frameworks, tools, perspectives, and procedural
+  knowledge.
+- Exercise the lifecycle `teach → propose → inspect → approve → use → measure → revise or retire`
+  through an authenticated cognition API, durable SurrealDB persistence, real restart coverage, and
+  additive receipt projections on the existing eleven-tool MCP boundary.
+- Route the composer and legacy skill, framework, and self-optimizer facades through the canonical
+  catalog and governance service. Legacy writes become reviewable proposals and cannot fabricate
+  approval or activation provenance.
+
+### Compatibility, security, and operations
+
+- Add pre-registration cognition-contract negotiation. Current Core adapts the v0.2.0 reference
+  extension, while v0.2.0 Core refuses the current reference before partial registration; unknown
+  future or incompatible contracts fail closed.
+- Add bounded extension manifests, owner/scope and route collision checks, resource traversal and
+  digest validation, explicit unsupported registrations, independent-consumer wheel/sdist tests,
+  zero-extension verification, and retained package-matrix receipts.
+- Add additive schema migrations v169-v171, complete bounded legacy inventory/import receipts,
+  one-for-one persisted read verification, an operator runbook, threat model, and independent-review
+  evidence contract.
+
+### Known limitations
+
+- Only trusted in-process extension code is supported. Untrusted extension execution, distributed
+  approval or activation, and exactly-once external side effects remain unsupported.
+- Cognition use and effectiveness receipts distinguish `helped`, `hurt`, `unproven`, `unused`, and
+  `stale`; they do not establish autonomous learning or broad beneficial impact.
+- Every real upgraded deployment must retain its own complete legacy inventory receipt before
+  deleting a legacy table, selector, executor, or facade.
+
 ## 0.2.0
 
 ### Supported
