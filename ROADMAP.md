@@ -294,7 +294,8 @@ observe → detect material change → update bounded state → compare claims, 
 This is a cross-cutting product outcome, not a new domain in Core and not an additional promise
 silently added to an earlier minor release. It uses the passed K1–K3 and I1–I3 foundations and is
 delivered incrementally through governed cognition, measured intelligence, the extension platform,
-the reasoning workspace, and the collaborative runtime.
+the reasoning workspace, and the collaborative runtime. The public SI1–SI4 outcome and acceptance
+work are tracked in [issue #47](https://github.com/augmented-cognition-engine/core/issues/47).
 
 ### SI1. Reproducible situational orientation
 
