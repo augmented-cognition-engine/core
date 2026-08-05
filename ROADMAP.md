@@ -32,6 +32,13 @@ The north-star acceptance test is:
 > Can a builder use ACE to make a product more context-aware, evidence-driven, inspectable, and
 > adaptive without forking the reasoning core or surrendering human authority?
 
+One cross-cutting expression of that north star is **continuous situational intelligence**: ACE
+maintains living orientation over any bounded, changing subject a user is authorized to examine.
+The subject may be personal, organizational, market, geopolitical, scientific, technical, or
+another extension-defined domain. Core owns neutral identity, time, evidence, investigation,
+orientation, attention, authority, and outcome semantics; extensions own what entities, actions,
+reactions, measurements, material changes, and source policies mean in a particular domain.
+
 ## Roadmap and design-document hierarchy
 
 - **This file** owns current public outcome state, sequencing, and dispatch.
@@ -69,8 +76,9 @@ real-world causal accuracy, or beneficial impact.
 
 ACE provides graph-grounded, calibrated foresight. It projects conditional consequences of
 decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
-and uses resolved forecasts to improve later reasoning. F1 freezes the bounded contract; L1 must
-still establish beneficial impact against every required control.
+and uses resolved forecasts to improve later reasoning. F1 freezes the bounded contract; the
+agent-only L1 v7 study establishes beneficial impact against every required control within its
+frozen executable-workload scope, without claiming general real-world benefit.
 
 ## Public release plan
 
@@ -90,15 +98,15 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 
 | Target | Public milestone | Lane | Granular outcome map | Public issue |
 |---|---|---|---|---|
-| 0.2.x | State Engine stabilization | **Now** | Inherits the passed R0, R1, R2, R3, R4, R5, R6, R7, G1, IA-R1, I1, I2, I3, F1, K1, K2, and K3 foundation; patch work is limited to compatibility, migration, recovery, observability, reliability, security, and documentation hardening | [#1](https://github.com/augmented-cognition-engine/core/issues/1) |
+| 0.2.x | State Engine stabilization | **Now** | Inherits the passed R0, R1, R2, R3, R4, R5, R6, R7, G1, IA-R1, I1, I2, I3, F1, L1, K1, K2, and K3 foundation; patch work is limited to compatibility, migration, recovery, observability, reliability, security, and documentation hardening | [#1](https://github.com/augmented-cognition-engine/core/issues/1) |
 | 0.3.0 | Productized State | **Next** | Productizes the passed K1–K3 spine with the R1/R4 onboarding pattern, G1 and IA-R1 inspection, I1–I3 receipts, and the packaging and compatibility slice of E1 | [#2](https://github.com/augmented-cognition-engine/core/issues/2) |
-| 0.4.0 | Governed Cognition | **Later** | Advances E1 through the governed cognition lifecycle, using I1 approval and correction receipts plus I2/I3 attribution | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
+| 0.4.0 | Governed Cognition | **Later** | Advances E1 through the governed cognition lifecycle, using I1 approval and correction receipts plus I2/I3 attribution; supplies governed analytical policies and taxonomies required by SI1–SI4 | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
 | 0.5.0 | Reasoning into Action | **Later** | Advances T1 and B1 from approved decision to bounded attributable action; uses I1 authority receipts and begins the execution-adapter slice of E2 | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
-| 0.6.0 | Measured Intelligence | **Later** | Resolves L1 honestly, connects I3 material use to observed outcomes, and advances F2 only where evidence justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
-| 0.7.0 | Extension Platform | **Later** | Completes the stable third-party platform promise across E1 and E2: SDK, conformance, compatibility, permissions, isolation, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
-| 0.8.0 | Reasoning Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, and L1 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
-| 0.9.0 | Collaborative Runtime | **Later** | Advances H1 and the remaining T1/E2 operational guarantees across tenancy, shared authority, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
-| 1.0.0 | Reasoning OS | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, extensions, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
+| 0.6.0 | Measured Intelligence | **Later** | Productizes the bounded L1 evidence loop, connects I3 material use to product-owned outcomes, advances the SI4 orientation/attention evaluation slice, and advances F2 only where evidence or demonstrated user need justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
+| 0.7.0 | Extension Platform | **Later** | Completes the stable third-party platform promise across E1 and E2 and advances SI3: SDK, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
+| 0.8.0 | Reasoning Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
+| 0.9.0 | Collaborative Runtime | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
+| 1.0.0 | Reasoning OS | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, extensions, product surfaces, governance, action, outcomes, situational intelligence, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
 
 ### 0.2.x — State Engine stabilization
 
@@ -146,6 +154,9 @@ propose, inspect, approve, version, use, measure, revise, roll back, or retire.
   discovery and loading.
 - Support rejection, rollback, supersession, conflict, expiry, and retirement without erasing
   history or enabling silent self-modification.
+- Let extensions govern versioned analytical ontologies, claim/action assessment rules, source
+  policies, change-detection methods, and attention criteria without making them universal Core
+  truth.
 
 Release gate: an extension can teach ACE a reusable capability, a human can inspect and govern the
 change, and a fresh invocation can materially use the approved revision with complete attribution.
@@ -177,9 +188,13 @@ measured outcomes rather than intuition alone.
   observed results.
 - Compare unchanged and revised behavior under matched conditions and report quality, latency,
   cost, failures, degraded states, and important limitations.
-- Resolve L1 without optional stopping or substituting material influence for beneficial impact.
+- Carry the passed bounded L1 method into product-owned outcome journeys without broadening its claim
+  or substituting material influence for beneficial impact.
 - Advance F2 only when demonstrated evidence or user need justifies broadening the F1 consequence
   contract.
+- Add matched, leakage-bounded evaluation for situational orientations and attention signals,
+  including citation correctness, contradiction recall, source and time coverage, calibration,
+  detection delay, false-alert rate, revision stability, and useful, harmful, or unproven impact.
 
 Release gate: a public evaluation journey traces a governed change from proposal through measured
 result and explicit promotion, rejection, rollback, or retirement. ACE does not self-certify
@@ -198,6 +213,9 @@ portable across compatible hosts.
   security review, recovery and effect semantics, telemetry, and failure diagnosis.
 - Grow E2 across product-owned sources, scheduled work, IDEs, messaging, webhooks, and bounded
   execution adapters.
+- Demonstrate extension-owned qualitative, quantitative, time-series, geospatial, track, event,
+  and market-contract evidence with explicit units, vintages, precision, coverage, revisions, gaps,
+  and source-specific semantics rather than flattening every observation into prose.
 
 Release gate: independent extensions pass the same public compatibility and conformance checks;
 their requested authority is visible before activation; and their failures remain isolated and
@@ -210,6 +228,9 @@ coherent, permission-aware workspace.
 
 - Evolve the G1 and IA-R1 read foundation into navigable views of context, evidence, provenance,
   decisions, corrections, cognition revisions, actions, outcomes, uncertainty, and conflict.
+- Add permission-aware case files for standing investigations, as-of orientations, claim versus
+  action assessments, reaction timelines, competing hypotheses, unknowns, watch conditions,
+  revision diffs, and entitled source deep links.
 - Expose approvals and other governed controls only when their underlying public authority and
   runtime contracts are supported.
 - Drive workspace behavior through the same public interfaces available to products and extensions.
@@ -227,6 +248,8 @@ portability, and recovery guarantees.
 
 - Establish isolation between products, teams, and tenants plus attributable roles, approvals,
   concurrent changes, and shared audit history.
+- Enforce consent, access, redaction, retention, deletion, export, and source-entitlement policy for
+  personal, organizational, licensed, or otherwise sensitive situational evidence.
 - Complete backup, export, import, migration, restore, interruption recovery, and disaster-recovery
   journeys.
 - Publish supported deployment modes, operational guarantees, resource expectations, and degraded
@@ -244,7 +267,8 @@ Public promise: ACE is a stable, open, provider-neutral reasoning technology sta
 can extend to become more context-aware, evidence-driven, inspectable, governable, and adaptive.
 
 - Stabilize the public contracts for context, state, evidence, deliberation, decisions, correction,
-  cognition, authority, action, outcomes, extensions, and operation.
+  cognition, authority, action, outcomes, standing investigations, versioned orientations,
+  attention policy, extensions, and operation.
 - Preserve a domain-neutral Core, product-owned extensions, optional product surfaces, portable
   durable intelligence, and explicit human authority.
 - Publish compatibility, migration, recovery, security, governance, deprecation, and breaking-change
@@ -256,6 +280,92 @@ Release gate: every milestone-critical contract is supported and reproducible fr
 and evidence, with no hidden mutation, implicit execution authority, provider lock-in, deployment
 lock-in, or organizational ownership requirement.
 
+## Continuous situational intelligence sequence
+
+**Product promise:** ACE can maintain living, source-grounded orientation over any bounded subject
+a user is authorized to examine. The same neutral loop can support personal, organizational,
+market, geopolitical, scientific, technical-system, or other extension-defined intelligence:
+
+```text
+observe → detect material change → update bounded state → compare claims, commitments, and behavior
+→ identify reactions and consequences → orient → watch what could change the conclusion
+```
+
+This is a cross-cutting product outcome, not a new domain in Core and not an additional promise
+silently added to an earlier minor release. It uses the passed K1–K3 and I1–I3 foundations and is
+delivered incrementally through governed cognition, measured intelligence, the extension platform,
+the reasoning workspace, and the collaborative runtime. The public SI1–SI4 outcome and acceptance
+work are tracked in [issue #47](https://github.com/augmented-cognition-engine/core/issues/47).
+
+### SI1. Reproducible situational orientation
+
+- Accept a bounded subject, as-of question, optional entities and time window, and explicit
+  evidence, context, latency, and cost budgets.
+- Produce an immutable, versioned orientation with a concise bottom line; supporting,
+  contradicting, superseding, missing, and unavailable evidence; alternative explanations;
+  uncertainty and causal limits; falsifiers and watch conditions; source-level citations and deep
+  links; and an exact diff from the prior orientation.
+- Preserve the answer that was justified at each historical cutoff. Later evidence creates a new
+  revision and never leaks backward into an as-of answer or rewrites the prior receipt.
+- Keep statement, observation, belief, hypothesis, simulation, action, reaction, and outcome
+  identities distinct and prove which items materially affected the orientation.
+
+### SI2. Standing investigations and accountable change
+
+- Make a question a durable case rather than a one-off prompt: subject, owner, scope, current
+  orientation, open unknowns, competing hypotheses, falsifiers, watch conditions, cadence,
+  authority, and revision history remain inspectable across restarts.
+- Represent statements and commitments with actor and role, modality, target, magnitude, timeframe,
+  preconditions, exceptions, and a declared observable test. Represent legal, administrative,
+  financial, enforcement, operational, and other extension-defined actions separately.
+- Assess commitment against observed behavior as `aligned`, `partially_aligned`, `contradicted`,
+  `too_early`, `unverifiable`, or `insufficient_evidence`, with the exact interpretation and
+  evidence frozen in the assessment receipt.
+- Build reaction dossiers that distinguish attributed verbal response, policy or legal response,
+  market repricing, physical or operational behavior, and mere temporal co-movement. A reaction or
+  sequence edge alone never establishes causation.
+
+### SI3. Heterogeneous evidence and source governance
+
+- Let extensions map source-specific records into Core-owned temporal identity and provenance while
+  preserving structured measurements, time series, locations, tracks, events, market-contract
+  states, data vintages, revisions, units, precision, coverage, gaps, and degraded conditions.
+- Track epistemic role, proximity, domain expertise, primary versus commentary status, ownership,
+  syndication or common origin, and historical performance without collapsing source trust into one
+  universal scalar. Repeated reporting from one origin must not masquerade as independent
+  corroboration or dominate bounded retrieval.
+- Preserve source spans and access-controlled deep links while enforcing consent, entitlement,
+  quotation, redaction, retention, deletion, export, and audit policy. Licensed or sensitive content
+  may ground an answer without being reproduced to an unauthorized reader.
+- Keep source connectors, entity resolution, domain ontologies, change-point algorithms, materiality
+  rules, and specialized trust policies in extensions; Core owns scope, identity, time, provenance,
+  bounded selection, receipts, authority, and failure semantics.
+
+### SI4. Attention and measured orientation quality
+
+- Maintain explicit, correctable attention policy over subjects, entities, geography, horizons,
+  novelty, magnitude, confidence, source diversity, time sensitivity, acceptable interruption, and
+  delivery channels. Personalization must remain attributable and must not silently broaden access.
+- Trigger work from material state change or a standing watch condition rather than raw ingestion
+  volume. Rank signals using user relevance and expected consequence while penalizing duplication,
+  weak coverage, stale evidence, and unresolved conflict; silence must remain a valid result.
+- Record why an orientation or alert was generated, suppressed, grouped, delayed, delivered,
+  dismissed, corrected, or used, including the evidence and policy revisions involved.
+- Evaluate historical questions only with frozen as-of cutoffs and test citation correctness,
+  primary-source and contradiction coverage, calibration, detection delay, false-alert rate,
+  revision stability, analyst action, and beneficial, harmful, or unproven effect against declared
+  controls.
+
+Acceptance gate: independent extensions from at least three materially different scopes reproduce
+the same Core lifecycle without embedding their domain ontology in Core. Given a bounded as-of
+question, each journey ingests mixed evidence, produces a source-linked orientation, distinguishes
+claims from observed behavior and reactions, exposes contradictions and unknowns, establishes a
+standing watch, emits or suppresses a material-change signal under explicit policy, survives a
+runtime restart, and updates by append-only revision when later evidence arrives. Evaluation must
+include future-information leakage controls, duplicated-origin and entitlement negative controls,
+causal overclaim checks, alert-quality measures, and declared limits; it does not claim omniscience,
+general real-world causal accuracy, or universal benefit.
+
 ## Reasoning OS architecture sequence
 
 ```mermaid
@@ -264,7 +374,11 @@ flowchart LR
     SURF["Product surfaces<br/>application · API · CLI · MCP · Atrium"] --> CORE
     HUMAN["Human authority<br/>approve · reject · correct · promote"] --> CORE
     CORE["Reasoning kernel<br/>classify · compose · deliberate · synthesize"] <--> STATE
-    STATE["Durable intelligence<br/>Living Product Graph · State Engine"] --> DECIDE
+    STATE["Durable intelligence<br/>Living Product Graph · State Engine"] --> ORIENT
+    ORIENT["Situational orientation<br/>investigate · compare · explain"] --> DECIDE
+    HUMAN --> ORIENT
+    ORIENT --> WATCH["Standing investigations<br/>watch · suppress · alert"]
+    WATCH --> CORE
     DECIDE["Inspectable decision"] --> MAKE
     HUMAN --> MAKE
     MAKE["MAKE<br/>bounded implementation"] --> SHIP
@@ -281,9 +395,10 @@ flowchart LR
 | 2. Product state | Can a product maintain grounded state and reason about change and consequences? | **Bounded contract passed; productization next** | K1–K3 passed; the supported packaging, compatibility, and onboarding slice of E1 remains | 0.3.0 |
 | 3. Governed cognition | Can a builder teach the product how to reason without silent self-modification? | **Sequenced after Productized State** | E1 governed-lifecycle work not ready | 0.4.0 |
 | 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Gated** | T1 and B1 not ready; I1 authority foundation passed | 0.5.0 |
-| 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Evidence resolution required** | L1 candidate; I3 passed; F2 not ready | 0.6.0 |
+| 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Bounded evidence gate passed; productization next** | L1 and I3 passed; F2 not ready | 0.6.0 |
 | 6. Extension ecosystem and operation | Can any product adopt, extend, operate, and retain ownership of ACE intelligence? | **Gated** | E1, E2, and H1 not ready | 0.7.0 and 0.9.0 |
 | 7. Human experience | Can people inspect and govern the full loop without learning ACE internals? | **Read-only foundation passed** | IA-R1 and G1 passed; the writable workspace remains bounded by E1, B1, L1, and H1 | 0.8.0 |
+| 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core? | **State and attribution foundations passed; product outcome not ready** | SI1–SI4 require K1–K3, I1–I3, E1/E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.0–0.9.0; complete by 1.0.0 |
 
 ## Immediate dispatch
 
@@ -305,7 +420,7 @@ Exit condition: **passed.** A builder can give a product a bounded State Engine 
 boundary, and the
 [K1-K3 product-journey evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) records the
 clean install, exact receipts, restarts, failure semantics, limitations, and unchanged eleven-tool
-surface. This does not promote E1, T1, L1, distributed guarantees, or real-world causal accuracy.
+surface. This does not promote E1, T1, distributed guarantees, or real-world causal accuracy.
 
 ### 1. Close the 0.3.0 Productized State release gate
 
@@ -365,16 +480,17 @@ operations, and scale gates before promotion.
 Exit condition: approved reasoning can produce attributable work without giving a model implicit or
 unbounded execution authority.
 
-### 4. Collect learning-impact evidence in parallel
+### 4. Productize bounded learning-impact evidence
 
-L1 remains `candidate`. Its first leakage-bounded retrospective probe preserves the negative result,
-and the v1 prospective registration remains invalidated. The fully preregistered agent-only v5
-successor completed 144 decisions across 36 eligible independent workload clusters on one matched
-live route. ACE beat last-observation persistence, but its interval crossed zero against the
-naïve/base-rate control and its point estimate was worse than matched model-only. The all-controls
-rule therefore returned `benefit_not_established`; another cohort after observing these intervals
-would be optional stopping. I3 material influence does not by itself establish benefit. F2 remains
-gated until L1 passes or demonstrated user need justifies a broader consequence contract.
+L1 is `passed` for the bounded executable-workload claim. Its first leakage-bounded retrospective
+probe and the agent-only v5 result remain negative; v6 remains formally invalid because one ACE case
+failed the frozen I3 field-level lineage check. The independently seeded v7 correction replicate
+froze that already-required check before collection, completed 192 decisions across 48 eligible
+clusters on one matched live route, and passed last-observation persistence, naïve/base-rate, and
+matched model-only with all three cluster-adjusted 95% lower bounds above zero. The claim does not
+extend to humans, customers, providers, external products, or general real-world benefit. I3
+material influence alone still does not establish benefit. F2 remains gated until demonstrated
+evidence or user need justifies a broader consequence contract.
 
 Exit condition: ACE can state, with reproducible evidence, when a capability helped, hurt, or
 remains unproven and can propose—not silently apply—a revision or retirement.
@@ -390,6 +506,30 @@ user's durable intelligence.
 Atrium evolves alongside these phases as a read-first view of state, reasoning, approvals, actions,
 outcomes, and proposed cognition changes. It gains no new write or execution authority merely by
 rendering them.
+
+### 6. Prepare continuous situational intelligence without displacing the release spine
+
+SI1–SI4 should begin as extension-led contract and evaluation work after the 0.3.0 Productized State
+gate rather than widening that release. The preparation sequence is:
+
+1. freeze neutral contracts for a standing investigation, statement/commitment/action assessment,
+   immutable orientation revision, reaction dossier, attention policy, and attention receipt;
+2. freeze extension boundaries for structured measurements, time series, geospatial tracks,
+   market-contract state, source-origin clustering, entitlement, privacy, and source-specific
+   materiality;
+3. implement one narrow reference vertical with historical as-of fixtures, mixed narrative and
+   structured evidence, primary-source deep links, duplicated-origin controls, and known reactions;
+4. add at least two materially different independent extensions so the acceptance journey proves a
+   domain-neutral Core rather than a disguised world-intelligence ontology;
+5. connect governed analytical policies to evaluation and only then expose standing watches,
+   alerts, case files, timelines, maps, and revision controls through supported surfaces; and
+6. reconcile SI1–SI4 evidence into the 0.4–0.9 milestone gates without silently changing any
+   release's one-major-promise rule.
+
+Exit condition: the SI1–SI4 acceptance gate is reproducible from public artifacts across the required
+independent scopes, with privacy, entitlement, future-leakage, duplicated-origin, causal-overclaim,
+restart, degraded-state, and attention-quality evidence. Until then, continuous situational
+intelligence is a planned cross-cutting outcome, not a supported general-intelligence claim.
 
 ## Outcome ledger
 
@@ -414,11 +554,15 @@ rendering them.
 | K3 | passed | Simulate, compare, and reconcile consequences of possible actions | [K1-K3 product evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) proves action/no-action/alternative comparisons, durable decision/I3/promotion receipts, immutable outcome reconciliation, correction supersession, real restart/interruption recovery, later material use, and honest failure bounds |
 | T1 | not ready | Strengthen task recovery, replay, portability, cancellation, and resource reporting | [TP1 evidence](docs/evidence/state-engine-tp1-reliable-memory-lifecycle-v1.md) closes reliable observation claiming/recovery; cancellation, portability, reporting, and topology guarantees remain |
 | E1 | not ready | Stabilize the extension and governed-cognition boundary | The [extension contract](docs/extension-invocation-contract.md), [Phase 7 review](docs/evidence/phase-7-extension-invocation-stabilization-review.md), and governed-cognition design identify N-1 compatibility, isolation/security, recovery/effect semantics, operability, and cognition convergence as remaining gates |
-| L1 | candidate | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative retrospective probe and failed successor attempts, then records the complete 36-cluster agent-only v5 result: persistence passed, naïve/base-rate and matched model-only did not, so beneficial impact is not established |
+| L1 | passed | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative retrospective probe and v5/v6 failures, then records the preregistered v7 correction replicate: all 192 cases and 48 clusters were eligible, and ACE passed persistence, naïve/base-rate, and matched model-only under the frozen all-controls interval rule; the claim is limited to the executable benchmark |
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts, stronger T1 guarantees, and explicit execution authority |
-| F2 | not ready | Broaden consequence types where product evidence justifies the complexity | Requires L1 evidence or demonstrated user need without reopening F1 |
+| F2 | not ready | Broaden consequence types where product evidence justifies the complexity | Bounded L1 evidence now exists; F2 still requires demonstrated product need and its own consequence-contract evidence without reopening F1 |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
 | E2 | not ready | Grow the provider-neutral extension, telemetry, and execution-adapter ecosystem | Requires E1 conformance and a stable compatibility policy |
+| SI1 | not ready | Produce reproducible, source-linked situational orientation over any bounded authorized subject | Requires the K1–K3 state spine, I1–I3 attribution, a versioned orientation contract, historical as-of isolation, explicit uncertainty and causal limits, deep-link and omission receipts, restart evidence, and independent extension journeys |
+| SI2 | not ready | Maintain standing investigations and inspectable claim, commitment, action, reaction, and revision history | Requires SI1, governed extension-owned assessment policy through E1, durable investigation/watch identity, exact assessment tests and dispositions, reaction-type separation, correction and supersession, and no causal promotion from sequence alone |
+| SI3 | not ready | Govern heterogeneous evidence, source independence, privacy, entitlement, and structured deep links | Requires E1/E2 source and telemetry contracts plus typed measurement/time-series/geospatial/track/market evidence, origin and syndication lineage, access and retention policy, bounded retrieval controls, and H1 guarantees for shared or sensitive operation |
+| SI4 | not ready | Deliver material-change attention and measure orientation and alert quality | Requires SI1–SI3, explicit correctable interest/watch policy, attributable generation and suppression receipts, delivery controls, leakage-bounded historical evaluation, alert-quality measures, and product-owned outcome evidence under L1/F2 limits |
 
 ## Product and architecture guardrails
 
@@ -427,12 +571,20 @@ rendering them.
 - Models may propose; deterministic code and explicit human authority own identity, activation,
   consequential execution, and promotion.
 - Evidence, belief, hypothesis, simulation, decision, action, and observation remain distinct.
+- Statement, commitment, observed action, attributed reaction, and outcome remain distinct; a
+  narrative source establishes what it reported, not that its account is true.
+- As-of reasoning may use only evidence available under the frozen historical cutoff; later data or
+  revisions cannot leak backward into an earlier orientation.
+- Source volume is not source independence. Syndicated, commonly owned, or derivative reports do
+  not become corroboration merely because they appear in multiple artifacts.
 - Retrieval is not use, material influence is not benefit, and correlation is not causation.
 - Hidden chain-of-thought, private prompts, credentials, and unrestricted transcripts remain outside
   public receipts.
 - The supported thin MCP boundary remains exactly eleven tools until a separate compatibility
   decision explicitly changes it.
 - Durable intelligence remains product-scoped, portable, inspectable, and owned by its user.
+- Attention policy cannot widen evidence access, and sensitive or licensed evidence cannot be
+  reproduced outside its consent, entitlement, retention, and redaction policy.
 - New capability claims require reproducible evidence, declared limits, and roadmap reconciliation.
 
 ## Follow and contribute
