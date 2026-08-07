@@ -2,7 +2,9 @@
 
 # ACE — Augmented Cognition Engine
 
-**Governed cognition for products that have to keep being right.**
+***Bring the problem. ACE assembles the thinking.***
+
+**Governed cognition for products that have to keep being right — a partner team for thinking.**
 
 ACE is a self-hosted, provider-neutral reasoning runtime. It turns changing evidence into
 inspectable decisions — and keeps the receipts. Every observation, derivation, brief, decision, and
@@ -82,6 +84,19 @@ Interpretation functions are mode-typed and refuse to cross: `detect_numeric_shi
 PREPARED snapshots, `detect_live_numeric_shift` only LIVE ones. **No pure Intelligence function
 grants LIVE authority** — the application bridge must independently prove a committed activation
 and authorize persistence through Core.
+
+### The architecture is the feature
+
+ACE wraps a **lean coordinating** Core around specialized reasoning and Intelligence capabilities;
+the octopus is useful inspiration for that shape, **not a literal ratio** of code or intelligence.
+The existing cognitive runtime remains visible inside this architecture: **Human ↔ ACE ↔ LLM**,
+**A nine-layer cognitive pipeline**, and **Dynamic composition** describe how ACE assembles and
+governs reasoning. Core + Intelligence + Domain Packs describe how the same machinery becomes a
+reusable intelligence engine without putting domain nouns or executable behavior in the kernel.
+
+ACE provides graph-grounded, calibrated foresight. It projects conditional consequences of
+decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens, and
+uses resolved forecasts to improve later reasoning.
 
 ---
 
@@ -656,7 +671,8 @@ What ACE does not claim:
 - No supported graphical UI. Atrium is experimental repository-beta source, not part of the Python
   artifact, the supported runtime, or the golden path.
 - No automatic or arbitrary web access.
-- No real-world causal accuracy, calibrated forecasting, autonomous learning, general world model,
+- No real-world causal accuracy, calibrated forecasting, autonomous learning, general model of
+  reality,
   or demonstrated beneficial impact outside the frozen, bounded evaluation scopes recorded in
   [`docs/evidence/`](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/README.md).
 - Security review to date is an independent **AI** review, not a human penetration test,
