@@ -23,8 +23,14 @@ def test_readme_opens_with_governed_intelligence_framing():
     # The launch hero leads with the platform category and concrete intelligence
     # flow; the octopus section remains inspiration rather than a literal ratio.
     assert "The open-source foundation for governed intelligence." in head
-    assert "entities, signals, shifts, briefs, and decisions" in head
+    assert "entities, shifts, signals, briefs, and decisions" in head
     assert "provenance, authority, and feedback built in" in head
+    assert "## What ACE does" in readme
+    assert "### Two connected loops" in readme
+    assert "Decision reasoning" in readme
+    assert "Continuous intelligence" in readme
+    assert "### What you can build" in readme
+    assert "ACE is infrastructure, not a finished vertical application" in readme
     assert "lean coordinating" in readme
     assert "not a literal ratio" in readme
     assert "The architecture is the feature" in readme

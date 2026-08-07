@@ -1,7 +1,7 @@
 [project]
 name = "ace-core"
 version = "0.4.0"
-description = "Self-hosted reasoning that turns product decisions into durable recommendations"
+description = "Self-hosted runtime for governed reasoning and intelligence applications"
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
