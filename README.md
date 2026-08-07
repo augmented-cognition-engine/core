@@ -2,13 +2,12 @@
 
 # ACE — Augmented Cognition Engine
 
-***Bring the problem. ACE assembles the thinking.***
+**The open-source foundation for governed intelligence.**
 
-**Governed cognition for products that have to keep being right — a partner team for thinking.**
-
-ACE is a self-hosted, provider-neutral reasoning runtime. It turns changing evidence into
-inspectable decisions — and keeps the receipts. Every observation, derivation, brief, decision, and
-outcome is an immutable, product-scoped record committed under explicit authority.
+ACE turns changing evidence into entities, shifts, signals, briefs, and decisions—with provenance,
+authority, and feedback built in. Self-hosted and provider-neutral, it commits every observation,
+derivation, brief, decision, and outcome as an immutable, product-scoped record under explicit
+authority.
 
 ![version 0.4.0](https://img.shields.io/badge/version-0.4.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
@@ -16,6 +15,7 @@ outcome is an immutable, product-scoped record committed under explicit authorit
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
 
 [Quickstart](#quickstart) ·
+[What ACE does](#what-ace-does) ·
 [Architecture](#architecture-one-install-two-bounded-contexts) ·
 [Domain Packs](#domain-packs-add-a-vertical-without-touching-the-kernel) ·
 [Python surface](#the-public-python-surface) ·
@@ -26,52 +26,100 @@ outcome is an immutable, product-scoped record committed under explicit authorit
 
 ---
 
-## What ACE is
+## What ACE does
 
-Most AI systems treat state as a side effect: a chat log, a vector index, a cache. ACE treats it as
-the product. The reasoning is the part you can replay.
+ACE is the **Augmented Cognition Engine**: a self-hosted runtime for building systems that must
+reason over changing evidence without losing provenance, authority, or institutional memory. The
+configured model supplies inference inside the loop; ACE owns the loop around it.
 
-- **One install, one repository.** `ace-core` ships **Core** and **Intelligence** together. There is
-  no second service to run to get the reasoning model.
-- **Core owns governance.** Authority, temporal and immutable state, reasoning receipts, decisions,
-  and outcomes. Nothing durable is written except through Core.
-- **Intelligence owns the invariant machinery.** The entity → observation → shift → signal → brief →
-  decision-feedback pipeline is domain-neutral and does not change when your domain does.
-- **Domain Packs supply the domain.** Ontology, source mappings, shift definitions, personas,
-  synthesis templates, and policy ship as independently versioned, **inert declarative data** —
-  compiled and content-addressed, never imported or executed.
+- **Understand.** Admit evidence with source identity and time, resolve it into a temporal entity
+  graph, and preserve the difference between observations, claims, inference, and unknowns.
+- **Reason.** Classify a problem, dynamically compose useful perspectives and methods, orchestrate
+  deliberation, and synthesize an inspectable recommendation grounded in the admitted context.
+- **Decide.** Record the recommendation, human disposition, decision, rationale, and evidence as
+  durable, attributable state rather than leaving them in a chat transcript.
+- **Observe and improve.** Reconcile decisions and forecasts with later outcomes, preserve
+  corrections, and make governed feedback available to later reasoning. ACE does not silently
+  rewrite history or grant itself new authority.
 
-Adding a vertical should mean writing config and connectors. In ACE it does: a new domain is a new
-pack plus a registered source connector. The kernel does not change.
+### Two connected loops
 
----
-
-## The canonical flow
+ACE supports deliberate reasoning over a problem and continuous intelligence over changing
+sources. They converge on the same governed decision and outcome model.
 
 ```mermaid
 flowchart LR
-    SRC[("authorized<br/>source")] -->|acquisition receipt| OBS[Observation]
-    OBS --> ENT["Entity Snapshot<br/>(entity graph)"]
-    ENT -->|detector rule| SHIFT[Shift]
-    SHIFT -->|routing rule| SIG[Signal]
-    SIG -->|persona + template| BRIEF[Brief]
-    BRIEF --> DEC[Decision]
-    DEC --> OUT[Outcome]
-    OUT -.->|decision feedback| ENT
-
-    subgraph CORE["Core governs the whole line"]
-        direction LR
-        AUTH["authority · immutable records<br/>governed-state heads · receipts"]
+    subgraph REASON["Decision reasoning"]
+        PROBLEM["problem or decision"] --> CLASSIFY["classify + compose"]
+        CLASSIFY --> DELIB["multi-perspective deliberation"]
+        DELIB --> REC["grounded recommendation"]
     end
-    CORE -.->|"every write is committed here"| OBS
-    CORE -.-> SHIFT
-    CORE -.-> BRIEF
-    CORE -.-> DEC
+
+    subgraph INTEL["Continuous intelligence"]
+        SRC["authorized sources"] --> OBS["observations + entity graph"]
+        OBS --> CHANGE["shifts + signals"]
+        CHANGE --> BRIEF["grounded brief"]
+    end
+
+    REC --> DEC["governed decision"]
+    BRIEF --> DEC
+    DEC --> OUT["observed outcome"]
+    OUT -.->|"correction + material use"| CLASSIFY
+    OUT -.->|"governed feedback"| CHANGE
+
+    CORE["Core<br/>authority · state · provenance · receipts"] -.->|governs| REC
+    CORE -.->|governs| BRIEF
+    CORE -.->|commits| DEC
+    CORE -.->|commits| OUT
 ```
 
-Each arrow is a typed contract, not a convention. Each hop carries lineage back to the exact
-resource it was derived from, with a content digest and an availability timestamp — so a Brief can
-always be walked back to the bytes of the source snapshot that produced it.
+The **decision-reasoning loop** begins when a person or product brings a problem. ACE selects and
+coordinates a problem-fit reasoning approach, records how the result was produced, and keeps the
+decision available for inspection and correction.
+
+The **continuous-intelligence loop** begins with an authorized source. ACE admits an Observation,
+updates entity state, detects a Shift against a baseline, routes a meaningful Signal, and assembles
+a cited Brief for a subscriber or decision context.
+
+The same application can use both: an intelligence Brief can trigger deeper deliberation, and the
+resulting decision and outcome can change what the intelligence system watches next.
+
+### What you can build
+
+- **Domain intelligence applications** such as World Intelligence for public-issue sensemaking or
+  Market Intelligence for competitors, products, narratives, customers, and go-to-market change.
+- **Decision systems** for product, strategy, research, operations, and other work where the
+  reasoning and its evidence must survive beyond one model response.
+- **Governed AI backends** that need provider-neutral inference, scoped authority, append-only
+  state, replay, human disposition, and attributable outcome feedback.
+
+ACE is infrastructure, not a finished vertical application. Domain-specific products ship
+separately and consume the same public Core + Intelligence contracts.
+
+---
+
+## How ACE is structured
+
+Most AI systems treat state as a side effect: a chat log, a vector index, or a cache. ACE treats
+governed state as part of the product and makes the reasoning replayable.
+
+- **One install, one repository.** `ace-core` ships **Core** and **Intelligence** together. There is
+  no second service to run to get the reasoning and intelligence contracts.
+- **Core owns cognition and control.** Authority, temporal and immutable state, reasoning,
+  receipts, decisions, and outcomes. Nothing durable is written except through Core.
+- **Intelligence owns sensing and orientation.** The Observation → Entity Snapshot → Shift → Signal
+  → Brief pipeline, monitors, routing, and pack conformance are domain-neutral.
+- **Domain Packs supply vocabulary and policy.** Ontology, source mappings, shift definitions,
+  personas, synthesis templates, and policy ship as independently versioned, **inert declarative
+  data** — compiled and content-addressed, never imported or executed.
+
+Adding a vertical means supplying a pack and registered connectors, not modifying the kernel.
+
+### How continuous intelligence runs
+
+Each hop from Observation through Brief is a typed contract, not a convention. Every resource
+carries lineage to its exact inputs, including content digests and availability time, so a Brief
+can be walked back to the admitted source material that produced it.
 
 The pipeline runs in two clearly separated modes:
 
