@@ -15,18 +15,16 @@ def _read(rel_path: str) -> str:
 
 
 @pytest.mark.unit
-def test_readme_opens_with_partner_team_framing():
-    """README's opening must establish the thesis rung of the builder's
-    ladder (OSS Task 10): partner-team framing, the thesis line, and the
-    octopus anatomy. Supersedes the earlier worked-example opening pinned
-    before the ladder restructure."""
+def test_readme_opens_with_governed_intelligence_framing():
+    """README's opening must define ACE as governed-intelligence infrastructure
+    and retain the load-bearing architecture language below the hero."""
     readme = _read("README.md")
-    head = readme[:800]
-    # The launch hero leads with accurate partner-team framing and the octopus
-    # section explicitly treats the biology as inspiration rather than a literal
-    # code or intelligence ratio.
-    assert "partner team for thinking" in head
-    assert "Bring the problem. ACE assembles the thinking." in head
+    head = " ".join(readme[:800].split())
+    # The launch hero leads with the platform category and concrete intelligence
+    # flow; the octopus section remains inspiration rather than a literal ratio.
+    assert "The open-source foundation for governed intelligence." in head
+    assert "entities, signals, shifts, briefs, and decisions" in head
+    assert "provenance, authority, and feedback built in" in head
     assert "lean coordinating" in readme
     assert "not a literal ratio" in readme
     assert "The architecture is the feature" in readme

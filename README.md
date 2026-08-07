@@ -2,13 +2,12 @@
 
 # ACE — Augmented Cognition Engine
 
-***Bring the problem. ACE assembles the thinking.***
+**The open-source foundation for governed intelligence.**
 
-**Governed cognition for products that have to keep being right — a partner team for thinking.**
-
-ACE is a self-hosted, provider-neutral reasoning runtime. It turns changing evidence into
-inspectable decisions — and keeps the receipts. Every observation, derivation, brief, decision, and
-outcome is an immutable, product-scoped record committed under explicit authority.
+ACE turns changing evidence into entities, signals, shifts, briefs, and decisions—with provenance,
+authority, and feedback built in. Self-hosted and provider-neutral, it commits every observation,
+derivation, brief, decision, and outcome as an immutable, product-scoped record under explicit
+authority.
 
 ![version 0.4.0](https://img.shields.io/badge/version-0.4.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
