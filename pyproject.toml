@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "0.3.1"
+version = "0.4.0"
 description = "Self-hosted reasoning that turns product decisions into durable recommendations"
 readme = "README.md"
 license = "Apache-2.0"
@@ -137,9 +137,10 @@ build-backend = "build_backend"
 backend-path = ["."]
 
 [tool.setuptools.packages.find]
-include = ["ace", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evaluations*"]
+include = ["ace", "ace.*", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evaluations*"]
 
 [tool.setuptools.package-data]
+"ace" = ["py.typed"]
 "core.schema" = ["*.surql"]
 "core.engine.onboarding" = ["*.json"]
 "core.engine.runtime" = ["*.yml"]

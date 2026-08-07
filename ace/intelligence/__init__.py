@@ -1,0 +1,115 @@
+"""Public, domain-neutral ACE Intelligence contracts and pure derivation logic.
+
+Importing this package performs no discovery, I/O, compilation, activation,
+or host composition. Runtime engines and application services are separate
+bounded contexts layered on these contracts. The pure interpretation modules
+exported here (routing, synthesis, epistemic, detection, source mapping) are
+deterministic functions over contract values only.
+"""
+
+from ace.intelligence.contracts import *  # noqa: F403
+from ace.intelligence.contracts import __all__ as _CONTRACTS_ALL
+from ace.intelligence.derivation import (
+    COLLAPSING_RELATIONS,
+    DERIVATION_FAMILY_POLICY,
+    DerivationFamilyClosure,
+    DerivationFamilyError,
+    derive_observation_families,
+    independent_family_roots,
+)
+from ace.intelligence.detection import (
+    CategoricalTransitionDetectionError,
+    NumericDeltaDetectionError,
+    detect_categorical_shift,
+    detect_live_categorical_shift,
+    detect_live_numeric_shift,
+    detect_numeric_shift,
+    route_categorical_shift_as_signal,
+    route_live_categorical_shift_as_signal,
+    route_live_shift_as_signal,
+    route_shift_as_signal,
+)
+from ace.intelligence.epistemic import (
+    EpistemicStatusValidationError,
+    derive_claim_epistemic_statuses,
+    derive_claim_epistemic_statuses_with_families,
+)
+from ace.intelligence.routing import (
+    EligibleSignalRoute,
+    SignalRoutingError,
+    eligible_live_signal_routes,
+    eligible_signal_routes,
+)
+from ace.intelligence.source_mapping import (
+    LiveSourceMappingError,
+    LiveSourceMappingResult,
+    PreparedSourceMappingError,
+    PreparedSourceMappingResult,
+    interpret_live_source_mapping,
+    interpret_prepared_source_mapping,
+)
+from ace.intelligence.supersession import (
+    IMPACT_RELATIONS,
+    SUPERSEDING_RELATION,
+    SUPERSESSION_IMPACT_POLICY,
+    ImpactedResource,
+    SupersessionImpact,
+    SupersessionImpactError,
+    project_claim_impact,
+    project_supersession_impact,
+)
+from ace.intelligence.synthesis import (
+    BriefDraftValidationError,
+    CanonicalBriefAssembly,
+    assemble_canonical_brief,
+    canonical_executive_summary,
+    render_canonical_brief_body,
+    validate_brief_synthesis_draft,
+)
+
+__all__ = [
+    *_CONTRACTS_ALL,
+    "BriefDraftValidationError",
+    "COLLAPSING_RELATIONS",
+    "DERIVATION_FAMILY_POLICY",
+    "DerivationFamilyClosure",
+    "DerivationFamilyError",
+    "IMPACT_RELATIONS",
+    "ImpactedResource",
+    "SUPERSEDING_RELATION",
+    "SUPERSESSION_IMPACT_POLICY",
+    "SupersessionImpact",
+    "SupersessionImpactError",
+    "derive_observation_families",
+    "independent_family_roots",
+    "project_claim_impact",
+    "project_supersession_impact",
+    "CanonicalBriefAssembly",
+    "CategoricalTransitionDetectionError",
+    "EligibleSignalRoute",
+    "EpistemicStatusValidationError",
+    "LiveSourceMappingError",
+    "LiveSourceMappingResult",
+    "NumericDeltaDetectionError",
+    "PreparedSourceMappingError",
+    "PreparedSourceMappingResult",
+    "SignalRoutingError",
+    "assemble_canonical_brief",
+    "canonical_executive_summary",
+    "derive_claim_epistemic_statuses",
+    "derive_claim_epistemic_statuses_with_families",
+    "detect_categorical_shift",
+    "detect_live_categorical_shift",
+    "detect_live_numeric_shift",
+    "detect_numeric_shift",
+    "eligible_live_signal_routes",
+    "eligible_signal_routes",
+    "interpret_live_source_mapping",
+    "interpret_prepared_source_mapping",
+    "render_canonical_brief_body",
+    "route_categorical_shift_as_signal",
+    "route_live_categorical_shift_as_signal",
+    "route_live_shift_as_signal",
+    "route_shift_as_signal",
+    "validate_brief_synthesis_draft",
+]

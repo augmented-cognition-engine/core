@@ -9,7 +9,7 @@ ACE composes a problem-fit set of perspectives, routes them through the model
 provider you configure, and synthesizes a recommendation. Accepted decisions
 and corrections can persist, giving later work the context of what came before.
 
-> **Developer preview — 0.3.1.** The supported self-hosted interaction path is
+> **Developer preview — 0.4.0.** The supported self-hosted interaction path is
 > the `ace` CLI and exactly 11 thin MCP tools.
 
 [Get started](#start-here-get-a-product-recommendation) · [What works today](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md) · [FAQ](https://github.com/augmented-cognition-engine/core/blob/main/docs/faq.md) · [Documentation](https://github.com/augmented-cognition-engine/core/blob/main/docs/README.md) · [Architecture](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
@@ -255,11 +255,11 @@ This is the authoritative developer-preview path. It passed isolated clean-user 
 both macOS and Linux; the exact evidence and limitations remain public.
 
 The Python distribution is `ace-core`; it preserves the `ace` import package,
-the `ace` CLI command, and version `0.3.1`. A package-only installation provides the Python
+the `ace` CLI command, and version `0.4.0`. A package-only installation provides the Python
 package and commands for inspection or an existing ACE service:
 
 ```bash
-python -m pip install ace-core==0.3.1
+python -m pip install ace-core==0.4.0
 python -c "import ace; print(ace.__version__)"
 ace --help
 ace setup --help
