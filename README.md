@@ -2,719 +2,721 @@
 
 # ACE — Augmented Cognition Engine
 
-***Bring the problem. ACE assembles the thinking.***
+**Governed cognition for products that have to keep being right.**
 
-**An open-source, self-hosted reasoning core — a partner team for thinking.**
-ACE composes a problem-fit set of perspectives, routes them through the model
-provider you configure, and synthesizes a recommendation. Accepted decisions
-and corrections can persist, giving later work the context of what came before.
+ACE is a self-hosted, provider-neutral reasoning runtime. It turns changing evidence into
+inspectable decisions — and keeps the receipts. Every observation, derivation, brief, decision, and
+outcome is an immutable, product-scoped record committed under explicit authority.
 
-> **Developer preview — 0.4.0.** The supported self-hosted interaction path is
-> the `ace` CLI and exactly 11 thin MCP tools.
+![version 0.4.0](https://img.shields.io/badge/version-0.4.0-blue)
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
+![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
+![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
 
-[Get started](#start-here-get-a-product-recommendation) · [What works today](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md) · [FAQ](https://github.com/augmented-cognition-engine/core/blob/main/docs/faq.md) · [Documentation](https://github.com/augmented-cognition-engine/core/blob/main/docs/README.md) · [Architecture](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) · [Public roadmap](https://github.com/orgs/augmented-cognition-engine/projects/1) · [License](#license)
-
-**Human ↔ ACE ↔ LLM** · **Nine-layer cognitive loop** · **Dynamic composition** · **Living Product Graph** · **MAKE + SHIP**
-
-**For teams** — durable reasoning context for important decisions &nbsp;·&nbsp; **For builders** — an extensible, provider-neutral core, BYOK
-
-*Created and initially stewarded by Edwin Amirian. QueryLabs is the founding sponsor and operator
-of the official hosted and commercial offerings.*
+[Quickstart](#quickstart) ·
+[Architecture](#architecture-one-install-two-bounded-contexts) ·
+[Domain Packs](#domain-packs-add-a-vertical-without-touching-the-kernel) ·
+[Python surface](#the-public-python-surface) ·
+[Limitations](#maturity-and-limitations) ·
+[Roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md)
 
 </div>
 
 ---
 
-## Start here: get a product recommendation
+## What ACE is
 
-Bring one real product decision. Guided setup asks how ACE should access a model, starts the
-self-hosted runtime, and returns a reasoned recommendation—not merely a health check.
+Most AI systems treat state as a side effect: a chat log, a vector index, a cache. ACE treats it as
+the product. The reasoning is the part you can replay.
 
-You need macOS or Linux, Git, Python 3.12, [`uv`](https://docs.astral.sh/uv/), Docker Engine with
-Compose v2, and access to one [supported model provider](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
+- **One install, one repository.** `ace-core` ships **Core** and **Intelligence** together. There is
+  no second service to run to get the reasoning model.
+- **Core owns governance.** Authority, temporal and immutable state, reasoning receipts, decisions,
+  and outcomes. Nothing durable is written except through Core.
+- **Intelligence owns the invariant machinery.** The entity → observation → shift → signal → brief →
+  decision-feedback pipeline is domain-neutral and does not change when your domain does.
+- **Domain Packs supply the domain.** Ontology, source mappings, shift definitions, personas,
+  synthesis templates, and policy ship as independently versioned, **inert declarative data** —
+  compiled and content-addressed, never imported or executed.
 
-```bash
-git clone https://github.com/augmented-cognition-engine/core ace
-cd ace
-uv sync
-uv run ace setup
-```
-
-Setup explains each provider choice, creates private local configuration, starts SurrealDB and
-ACE, signs in the CLI, and offers to reason through your first decision. If anything is not ready,
-run `uv run ace doctor` and follow its exact recovery command. The flow is safe to rerun.
-
-That is the product-builder path. Continue below only when you want the product model,
-architecture, provider details, MCP connection, extension SDK, or manual service controls.
+Adding a vertical should mean writing config and connectors. In ACE it does: a new domain is a new
+pack plus a registered source connector. The kernel does not change.
 
 ---
 
-## The shift
-
-Most AI makes *you* the operator: you write the prompt, you steer it, you catch
-what it forgot. ACE inverts that — it owns the loop, convenes the right
-perspectives, and covers the parts a happy path always misses.
-
-| Operating a chatbot | Partnering with ACE |
-|---|---|
-| You continually restate and steer the task | You bring the problem; ACE composes the reasoning shape |
-| One response path | Multiple perspectives can be composed and synthesized |
-| Context resets unless you provide it again | Accepted decisions and corrections can persist in a graph |
-| Risk-checking depends on the prompt | Skeptic and security perspectives can be composed when the task calls for them |
-
----
-
-## The architecture is the feature
-
-ACE is not a prompt wrapper with a memory plugin. It owns a layered cognitive
-loop around the model: it decides what kind of reasoning is needed, assembles
-the team and method, keeps the provenance of what informed the result, and can
-connect later evidence back to the decision.
+## The canonical flow
 
 ```mermaid
 flowchart LR
-    H([Human]) <--> ROUTE
-    subgraph ACE["ACE owns the loop"]
+    SRC[("authorized<br/>source")] -->|acquisition receipt| OBS[Observation]
+    OBS --> ENT["Entity Snapshot<br/>(entity graph)"]
+    ENT -->|detector rule| SHIFT[Shift]
+    SHIFT -->|routing rule| SIG[Signal]
+    SIG -->|persona + template| BRIEF[Brief]
+    BRIEF --> DEC[Decision]
+    DEC --> OUT[Outcome]
+    OUT -.->|decision feedback| ENT
+
+    subgraph CORE["Core governs the whole line"]
         direction LR
-        META[(Meta-Intelligence)] <--> ROUTE[classify]
-        ROUTE --> COMPOSE[compose]
-        COMPOSE --> ENGAGE[engage]
-        ENGAGE --> SYNTH[synthesize]
-        SYNTH --> WRITE[decision + graph write]
-        WRITE -. evidence · outcomes · calibration .-> META
+        AUTH["authority · immutable records<br/>governed-state heads · receipts"]
     end
-    ENGAGE -->|grounded request| LLM([your model])
-    LLM -->|inference| ENGAGE
+    CORE -.->|"every write is committed here"| OBS
+    CORE -.-> SHIFT
+    CORE -.-> BRIEF
+    CORE -.-> DEC
 ```
 
-| Major feature | What makes it different |
-|---|---|
-| **The nested loop — `Human ↔ ACE ↔ LLM`** | ACE owns routing, memory, composition, sequencing, and graph writes. The configured model supplies inference inside the loop; it does not become the system of record or the orchestrator. |
-| **A nine-layer cognitive pipeline** | Meta-Intelligence → classification → orchestration and agent composition → engagement → disciplines × frameworks → synthesis → decision and graph write → sentinel → foresight, with evidence returning to the standing substrate. |
-| **Dynamic composition** | ACE does not send every problem to one fixed agent. It selects *who* should reason, *how* they should reason, the frameworks and depth to use, and an independent, team, pipeline, adversarial, or fan-out orchestration shape. |
-| **Deep, inspectable deliberation** | Multiple perspectives can contribute, disagree, critique, and converge. Receipts, traces, provenance, and retained decisions make the result inspectable beyond the final prose. |
-| **Meta-Intelligence + the Living Product Graph** | Observations, insights, decisions, capabilities, work, predictions, and outcomes live as durable nodes connected by typed semantic edges—not as one flattened chat history. Grounding edges can identify which beliefs depend on a changed object. |
-| **Continuous learning with epistemic guardrails** | Corrections and accepted decisions can persist; outcomes can be detected; forecasts can be reconciled; calibration can return to later orchestration. Provenance and trust priors deliberately discount ACE's own generated material, and no automatic improvement is assumed. |
-| **MAKE and SHIP arms** | MAKE turns approved reasoning into code, design, data, and scaffolds. SHIP challenges security, testing, observability, DevOps, and scale before work leaves. They are implemented first-class arms; their public end-to-end paths are still experimental in 0.3.x. |
-| **Extensions without a fork** | Builders can add personas, committees, frameworks, recipes, instruments, tools, and schema through a public extension boundary while keeping the core provider-neutral and BYOK. |
+Each arrow is a typed contract, not a convention. Each hop carries lineage back to the exact
+resource it was derived from, with a content digest and an availability timestamp — so a Brief can
+always be walked back to the bytes of the source snapshot that produced it.
 
-The [architecture deep dive](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) maps the as-built boundaries,
-all nine layers, graph semantics, MAKE/SHIP loop, learning system, and extension seams.
+The pipeline runs in two clearly separated modes:
+
+| Mode | What it means | What it can touch |
+|---|---|---|
+| **PREPARED** | Analysis over supplied material. Pure functions over contract values. | No network, no clock authority, no side effects. |
+| **LIVE** | Governed effects against an authorized real source. | One exact resolved source definition, through an activation-bound, authority-checked adapter. |
+
+Interpretation functions are mode-typed and refuse to cross: `detect_numeric_shift` accepts only
+PREPARED snapshots, `detect_live_numeric_shift` only LIVE ones. **No pure Intelligence function
+grants LIVE authority** — the application bridge must independently prove a committed activation
+and authorize persistence through Core.
 
 ---
 
-## Inspired by the octopus
-
-ACE takes architectural inspiration from the octopus: a lean coordinating
-brain working with specialized arms and a living network of memory. The core
-classifies the problem, composes the reasoning team, and coordinates its work;
-the graph carries nodes, semantic edges, provenance, predictions, outcomes,
-and the context that can inform what happens next.
-
-The analogy describes the design, not a literal ratio of code or intelligence.
-It also describes more than the 0.3.x compatibility surface: MAKE, SHIP,
-sentinel, foresight, calibration, and learning are first-class parts of the
-implemented architecture even where their public APIs and end-to-end paths are
-still experimental.
+## Architecture: one install, two bounded contexts
 
 ```mermaid
 flowchart TB
-    H([You]) <--> B
-    subgraph B["🧠 brain — coordinate the thinking"]
-        direction LR
-        classify --> compose --> engage --> synthesize
+    subgraph PKG["ace-core — one install"]
+        direction TB
+        subgraph APP["ace.application — governed services"]
+            A1["LIVE source ingress"]
+            A2["LIVE Intelligence bridge"]
+            A3["Brief / case-brief synthesis"]
+            A4["decision feedback · supersession impact"]
+        end
+        subgraph INT["ace.intelligence — invariant machinery"]
+            I1["pack compiler + conformance"]
+            I2["detection · routing · synthesis"]
+            I3["epistemic status · derivation families"]
+            I4["monitors · personas · subscriptions"]
+        end
+        subgraph CORE["ace.core — governed cognition"]
+            C1["authority + activation"]
+            C2["immutable records · append-only transactions"]
+            C3["governed-state heads · preconditions"]
+            C4["reasoning receipts · decisions · outcomes"]
+        end
     end
-    M[("Meta-Intelligence\ngraph · provenance · calibration")] <--> B
-    B --> MAKE["🦑 MAKE\ncode · design · data"]
-    MAKE --> SHIP["🦑 SHIP\nsecurity · testing · observability · devops · scale"]
-    B --> D["decision + graph write"]
-    SHIP --> O["evidence + outcomes"]
-    D --> M
-    O --> L["sentinel · foresight · reconciliation"] --> M
-    subgraph X["specialized contributions"]
-        P["perspectives · committees · extensions"]
-    end
-    X --> B
-    B --> S([🎨 Atrium — experimental visual-product research])
-    S <--> H
+
+    PACK[["Domain Pack<br/>independently versioned<br/>inert JSON"]] -.->|compiled + digested| INT
+    CONN[["source connector<br/>registered by the host"]] -.->|bounded registry| APP
+    APP --> INT
+    APP --> CORE
+    INT --> CORE
+    HOST["host adapter<br/>(private: core.engine)"] --> APP
 ```
 
-- **The brain** (`core/engine/`) decides *who should think about this* and convenes them — `classify → compose → engage`. Selection combines explicit policy, configuration, and learned signals.
-- **Meta-Intelligence** is the standing substrate: retained observations, insights, decisions,
-  capabilities, reasoning traces, predictions, outcomes, provenance, and semantic relationships.
-- **Specialized contributions** supply perspectives, committees, and extensions around the shared
-  reasoning core.
-- **MAKE and SHIP are first-class architectural arms.** MAKE turns approved reasoning into code,
-  design, data, and scaffold artifacts. SHIP challenges production readiness across security,
-  testing, observability, DevOps, and scale; its current gate assesses and proposes rather than
-  mutating. Their implementations ship in the repository, while their APIs and end-to-end
-  execution paths are not yet compatibility-stable 0.3.x contracts.
-- **Continuous learning closes the loop.** Captured evidence and outcomes can update graph context,
-  effectiveness signals, predictions, and calibration so later composition and reasoning can start
-  better informed. The architecture is explicit about provenance and discounts self-generated
-  material; it does not promise that every run learns or improves automatically.
-- **The experimental visual-product/research track** — Atrium prototypes Canvas interactions.
-  Think Tank is its deep-deliberation research mode. Atrium remains in 0.3.1 as a public
-  repository beta, not as a supported Python artifact.
-- **Extensions grow new arms** — teach ACE your domain without forking the core. The shipped [reference extension](#extensions-are-real-not-hypothetical) exercises that public mechanism.
+The dependency direction is enforced, not just described: `ace.application` depends on `ace.core`
+and `ace.intelligence`; `ace.intelligence` depends on `ace.core`; **nothing under `ace/` imports the
+host.** Architecture gates in the test suite assert this.
 
-Full deep-dive with every layer: [`docs/architecture.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md).
+### What each layer owns
+
+| Layer | Owns | Explicitly does not own |
+|---|---|---|
+| **`ace.core`** | Authority resolution and authority-use receipts; capability-use receipts; immutable records and atomic append-only transactions; governed-state heads with rechecked preconditions; canonical source snapshots and URI/IP validation; governed reasoning requests, bindings, and terminal receipts; decisions and outcomes. | Domain vocabulary. Core never learns what a "competitor" or a "port call" is. |
+| **`ace.intelligence`** | The Domain Pack compiler and its fail-closed diagnostics; the Observation → Entity Snapshot → Shift → Signal → Brief resource contracts; numeric-delta and categorical-transition detection; signal routing; brief synthesis and canonical rendering; epistemic status and derivation families; supersession impact; monitors, persona bindings, subscriptions. | Persistence, authority, network access, or a clock. Importing `ace.intelligence` performs no discovery, I/O, compilation, activation, or host composition. |
+| **`ace.application`** | Services that compose the two: LIVE source ingress, the LIVE Intelligence bridge, Brief and case-brief synthesis, prepared intelligence ledger, decision feedback, supersession-impact admission, domain-activation admission. | Connector implementations, transport, or scheduling — those are the host's. |
+| **Domain Pack** (separate artifact) | Ontology, source mappings, detection rules, personas and routing rules, synthesis templates, epistemic-status vocabularies, feedback policy, capability requirements, authority requests, overlay slots. | Code. A pack is data all the way down. |
 
 ---
 
-## Two preview interaction surfaces
+## Domain Packs: add a vertical without touching the kernel
 
-Interact with the same reasoning core through MCP or the terminal. Atrium is a separate
-experimental visual-product/research track released as a repository beta, not a supported 0.3.1
-interaction surface.
+A Domain Pack is a manifest plus JSON module resources. The compiler
+(`ace.intelligence.packs.compiler.compile_pack_document`) is a **pure, deterministic function**: it
+performs no discovery, import, I/O, clock read, model call, secret lookup, registry mutation, or
+persistence operation.
 
-### `MCP` — in the AI you already use
-ACE's tools inside Claude and any MCP client: retrieve what you've decided,
-capture what you learn, ground the model in your own history.
+What that buys you:
 
+- **Content addressing.** Every resource is digest-checked; every module is canonicalized and
+  hashed; the pack gets a `pack_digest`. Semantically identical packs with different key order or
+  indentation compile to byte-identical IR. One changed attribute changes the digest.
+- **No executable surface.** The compiler rejects any key named `regex`, `template`, `expression`,
+  `predicate`, `handler`, `script`, `eval`, `exec`, `jsonpath`, and friends — and rejects mappings
+  that try to select or override host-owned envelope fields such as `source_digest`,
+  `activation_id`, or `product_id`. A pack cannot smuggle in behavior.
+- **Fail-closed diagnostics.** Errors arrive as stable `(severity, code, path, message)` records:
+  `unknown_target_entity_type`, `missing_required_outputs`, `module_cycle`, `digest_mismatch`.
+- **Independent versioning.** Packs carry their own `pack_id` and semantic `version`, and declare
+  the compiler and runtime contracts they target. They ship on their own schedule.
+- **Independent verification.** A pack that declares no epistemic-status module for a template
+  simply does not get status-aware synthesis — it does not silently get a permissive default.
+
+### A generic pack, end to end
+
+Domain Packs are **JSON** (`media_type` is fixed to `application/json`); the compiler parses with a
+strict reader that rejects duplicate object keys, non-finite numbers, and lone surrogates. Nothing
+below is vertical-specific — swap `watched_subject` for `vessel`, `competitor`, `service`, or
+`counterparty` and the kernel is unchanged.
+
+`modules/ontology.json` — what exists in your world:
+
+```json
+{
+  "contract": "ace.intelligence.ontology/v1alpha1",
+  "module_id": "domain_ontology",
+  "entity_types": [
+    {
+      "entity_type_id": "watched_subject",
+      "display_name": "Watched Subject",
+      "attributes": [
+        { "attribute_id": "name", "value_type": "string", "required": true },
+        { "attribute_id": "tracked_value", "value_type": "number" },
+        { "attribute_id": "status", "value_type": "string" }
+      ]
+    }
+  ],
+  "relation_types": []
+}
 ```
-ace_load("pricing strategy")        # pull the reasoning you've already done
-ace_capture(…)                      # record an observation through the public contract
+
+`modules/detection.json` — what counts as a material change:
+
+```json
+{
+  "contract": "ace.intelligence.detection/v1alpha2",
+  "module_id": "domain_detection",
+  "numeric_delta_rules": [
+    {
+      "detector_id": "tracked_value_moved",
+      "entity_type_id": "watched_subject",
+      "attribute_id": "tracked_value",
+      "metric": "percent_change",
+      "threshold": 10.0,
+      "direction": "any",
+      "shift_type": "tracked_value_shift",
+      "signal_type": "tracked_value_signal"
+    }
+  ],
+  "categorical_transition_rules": [
+    {
+      "detector_id": "status_changed",
+      "entity_type_id": "watched_subject",
+      "attribute_id": "status",
+      "transitions": [{ "from_value": "nominal", "to_value": "degraded" }],
+      "shift_type": "status_shift",
+      "signal_type": "status_signal"
+    }
+  ]
+}
 ```
 
-### `CLI` — one line, a whole committee
-Drop a question from the terminal; a problem-fit team convenes, deliberates,
-and hands back a reasoned recommendation — with the kill criteria it would revisit.
+`pack.json` — the manifest that binds them, with declared capabilities, authority requests, and
+operator-tunable overlay slots:
 
-```bash
-ace login                                            # one-time: authenticate the CLI
-ace run "should we ship the freemium tier this quarter?"
-ace run --show-deliberation "should we ship the freemium tier this quarter?"
-# → committee convenes: PM · Skeptic · Growth — deliberates — recommends
+```json
+{
+  "contract": "ace.intelligence.domain-pack-manifest/v1alpha1",
+  "metadata": {
+    "pack_id": "example_domain",
+    "version": "0.1.0",
+    "display_name": "Example Domain",
+    "description": "A domain-neutral illustration of the pack contract."
+  },
+  "resources": [
+    { "resource_id": "ontology",  "path": "modules/ontology.json",  "digest": "sha256:<64 hex>" },
+    { "resource_id": "detection", "path": "modules/detection.json", "digest": "sha256:<64 hex>" }
+  ],
+  "modules": [
+    {
+      "module_id": "domain_ontology",
+      "contract": "ace.intelligence.ontology/v1alpha1",
+      "resource_id": "ontology"
+    },
+    {
+      "module_id": "domain_detection",
+      "contract": "ace.intelligence.detection/v1alpha2",
+      "resource_id": "detection",
+      "depends_on": ["domain_ontology"]
+    }
+  ],
+  "capability_requirements": [
+    {
+      "requirement_id": "public_snapshot",
+      "capability": "source_snapshot",
+      "contract": "ace.source.snapshot/v1alpha1"
+    }
+  ],
+  "authority_requests": [
+    { "request_id": "read_public_source", "authority": "source_read" }
+  ],
+  "overlay_slots": [
+    { "slot_id": "watched_subjects", "value_kind": "string_list", "required": true }
+  ]
+}
 ```
 
-`--show-deliberation` prints the bounded `deliberation-receipt-v1`: observable routing reasons,
-execution-identity-backed positions and evidence, artifact-grounded conflicts, synthesis
-dispositions, and honest partial/degraded coverage. It does not expose prompts, transcripts,
-scratchpads, or chain-of-thought.
-
-### `Atrium` — experimental visual-product research
-Atrium is the experimental visual-product/research track where Canvas interactions are prototyped
-and studied. Current work explores how committee formation, contributions, stages, disagreement,
-and convergence might become visible. Its read-only **Product map** at `/landscape` organizes the
-G1 snapshot around six operator questions without adding write or execution authority; the
-[IA-R1 evidence](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/ia-r1-product-map.md) records its boundary and limits. Its source and separate
-Node app are included in the public repository as a beta, but not in the Python wheel/sdist, golden
-path, supported-runtime claims, or launch promise.
+Additional module contracts a pack may declare, all compiled by the same function:
+`ace.intelligence.source-mapping/v1alpha1` (source field → ontology attribute, with bounded
+transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-routing rules),
+`ace.intelligence.synthesis/v1alpha1` and `/v1alpha2` (brief templates),
+`ace.intelligence.epistemic-status/v1alpha1` and `/v1alpha2`, and
+`ace.intelligence.decision-outcomes/v1alpha1` (feedback policy).
 
 ---
 
-## Watch it think
+## What 0.4.0 adds
 
-Bring a real, half-formed thought to ACE through MCP or CLI. ACE classifies what
-kind of thinking it needs, convenes a problem-fit composition, and synthesizes
-a position grounded in what it already knows. Atrium research prototypes study how that process
-might take visual form; a supported partnership interface is outside 0.3.1.
+0.4.0 is the **Governed Cognition** release. It closes the gap between "ACE can analyze material you
+hand it" and "ACE can go get material under authority and stay governed the whole way."
 
-That loop is the whole product:
+- **Governed LIVE source ingress** as a packaged public application service. One exact resolved
+  source definition is captured through an activation-bound, authority-checked adapter and admitted
+  atomically as five durable records — acquisition receipt, canonical source snapshot, Observation,
+  Entity Snapshot, admission receipt — under four rechecked governed-state heads.
+- **The governed LIVE Intelligence bridge and LIVE Brief synthesis.** Admitted snapshots derive
+  Shift → Signal → attention dispositions, and route-triggered Briefs run through Core governed
+  reasoning, with exact idempotent replay and restart reopening of every admission.
+- **Bounded connector composition.** LIVE cognition is composed into the host exclusively through a
+  private adapter. Connectors register in a constructor-supplied registry keyed by exact artifact
+  identity: **no dynamic entry-point loading, no embedded code in domain packs, and no persistence
+  path outside Core's immutable-record port.**
+- **Fail-closed acquisition.** Source acquisition fails closed on scope, URI, redirect, DNS/IP
+  rebinding, payload size, digest, replay, timing, and authority violations. Authority-use receipts
+  are single-use and non-reusable across admissions.
+- **Packaged conformance seams** (`ace.testing`) so an external package can exercise the public
+  service contracts — including restart and replay — without importing the host.
+- **Unchanged public surface.** Exactly eleven MCP tools. Extension-disabled (naked-kernel) startup
+  still works and composes no LIVE service. Schema head stays at **v175**, with additive,
+  append-only governed-state and immutable-record migrations.
 
-```
-Human ──partners with── ACE ──partners with── LLM (model-agnostic)
-                          │
-              ┌───────────┴───────────────────────────┐
-              │  ACE owns the loop:                    │
-              │    routing       (classifier)          │
-              │    orchestration (the committee)       │
-              │    memory        (knowledge graph)     │
-              │    capture       (decisions)           │
-              │    foresight     (consequence model)   │
-              │    sentinel      (continuous watch)    │
-              │    calibration   (prediction record)   │
-              └────────────────────────────────────────┘
-```
+The 0.4.0 milestone also carries a teaching-experience track (propose → inspect → approve → use →
+measure → revise or retire). The governed-LIVE slice above is what shipped; see the
+[roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) for the rest.
 
-The LLM never owns that loop — it's called as the inference resource *inside*
-it, at the steps ACE decides need one. That's why the model is swappable and
-the reasoning is grounded rather than improvised.
-
-**ACE provides graph-grounded, calibrated foresight.** It projects conditional consequences of
-decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
-and uses resolved forecasts to improve later reasoning. This is a bounded, inspectable
-prediction-and-reconciliation loop over a product or domain—not a foundation-scale learned model
-of the physical world. Settled analogue outcomes now provide an explicit, sample-size-gated outside
-view without being presented as causal evidence or a no-action counterfactual. See the
-[passed F1 foresight contract and maturity boundary](https://github.com/augmented-cognition-engine/core/blob/main/docs/foresight.md).
-Resolved continuous forecasts retain declared-coverage interval scores and explicit abstentions;
-the legacy calibration number remains separately labeled for compatibility.
+Full detail: [CHANGELOG](https://github.com/augmented-cognition-engine/core/blob/main/CHANGELOG.md).
 
 ---
 
-## Get your first recommendation
+## Quickstart
 
-Bring one real product decision. The guided setup gets ACE running, asks what
-you are working through, and returns a first reasoned recommendation. Service,
-database, authentication, and MCP details stay behind the guided path unless
-you need to inspect or operate them.
+### Fastest verified path — no database, no provider, no keys
 
-This is the authoritative developer-preview path. It passed isolated clean-user proxy trials on
-both macOS and Linux; the exact evidence and limitations remain public.
-
-The Python distribution is `ace-core`; it preserves the `ace` import package,
-the `ace` CLI command, and version `0.4.0`. A package-only installation provides the Python
-package and commands for inspection or an existing ACE service:
-
-```bash
-python -m pip install ace-core==0.4.0
-python -c "import ace; print(ace.__version__)"
-ace --help
-ace setup --help
-```
-
-The self-hosted first-recommendation journey uses the source checkout below because it includes
-the pinned Compose stack and release-maintained local service scripts.
-
-Prerequisites:
-
-- macOS or Linux;
-- Git;
-- Python 3.12;
-- [`uv`](https://docs.astral.sh/uv/);
-- Docker Engine with Compose v2 (Docker Desktop is sufficient on macOS);
-- credentials for one provider from [`docs/providers.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
+The Core and Intelligence contracts are pure. You can compile a pack and exercise the full
+derivation machinery on a laptop in seconds:
 
 ```bash
 git clone https://github.com/augmented-cognition-engine/core ace
 cd ace
 uv sync
+uv run pytest tests/intelligence -q
+```
+
+That runs the Domain Pack compiler, detection, routing, synthesis, epistemic status, source
+mapping, ledger, activation, and governed-reasoning suites against no external service.
+
+### Full self-hosted runtime
+
+Running the reasoning service adds a database and a model provider.
+
+**Prerequisites:** macOS or Linux · Git · Python 3.12 ·
+[`uv`](https://docs.astral.sh/uv/) · Docker Engine with Compose v2 · credentials for one
+[supported provider](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
+
+```bash
 uv run ace setup
 ```
 
-`ace setup` is the recommended first-run path. It asks which model route to
-use (Anthropic, OpenAI, Codex, a Claude setup token or CLI, or Ollama), handles
-the local mechanics, and then offers to work through your first product
-decision. The generated recommendation—not a health check—is the activation
-outcome.
-
-Behind the guided flow, setup:
-
-- generates the local JWT and API credentials;
-- verifies Codex sign-in or the selected Ollama model before starting services;
-- writes `.env` with mode `0600` without replacing existing secrets;
-- starts SurrealDB through Docker Compose and applies every migration;
-- starts the ACE API as a local background process;
-- logs the CLI and thin MCP client in automatically.
-
-The command is safe to rerun. Use `uv run ace setup --no-start` to prepare the
-configuration only, `--skip-first-task` to stop after readiness, or provide the
-first decision non-interactively:
+`ace setup` asks which model route to use, generates local credentials, writes `.env` with mode
+`0600` without replacing existing secrets, starts SurrealDB through Docker Compose, applies every
+migration, starts the ACE API as a local background process, and logs in the CLI and thin MCP
+client. It is safe to rerun; if it is interrupted, run the same command again.
 
 ```bash
-OLLAMA_HOST=http://localhost:11434 uv run ace setup \
-  --provider ollama \
-  --first-task "Which customer segment should we validate first?" \
-  --non-interactive
-```
-
-Setup records privacy-local onboarding evidence in `~/.ace/onboarding.jsonl`:
-time to readiness, time to first result, guided interventions, failure stage,
-and first-result success. It never records credentials or task text and sends
-nothing remotely. Clean-user trials can add `--onboarding-trial` to capture
-self-reported maintainer-help and architecture-knowledge requirements.
-Summarize the local evidence without opening the JSONL directly:
-
-```bash
-uv run ace onboarding report
-uv run ace onboarding report --json-output
-```
-
-If setup is interrupted, rerun the same command. Existing credentials and
-completed work are reused. Failure messages distinguish Docker startup,
-schema migration, API startup, authentication, and first-result failures and
-point to the corresponding retry or diagnostic command.
-
-Verify the complete preview path:
-
-```bash
-uv run ace doctor
-uv run ace doctor --live-provider  # one explicitly requested minimal model call
-uv run ace model-policy
-```
-
-`ace doctor` verifies operational readiness only: configuration, database reachability, schema,
-authentication, provider routing, API, and MCP registration. It does not certify the correctness
-of data already stored in the graph; its text and JSON output state that boundary explicitly.
-
-Inspect the current product landscape without triggering reasoning or writes:
-
-```bash
-uv run ace landscape
-```
-
-The versioned snapshot shows product intent, capabilities, decisions, corrections, evidence,
-accepted/provisional/contested/rejected relationships, history, work, and outcomes. It is scoped to
-the authenticated product, deterministically ordered, explicitly degraded when data is incomplete,
-and documented in the [Living Product Graph read contract](https://github.com/augmented-cognition-engine/core/blob/main/docs/living-product-graph.md).
-
-### Reproduce the v0.2 State Engine journey
-
-ACE 0.2.0 adds a supported, product-scoped single-node State Engine contract inside Core and its
-existing task/status projections. The Fjord Operations product-builder journey installs a separate
-example extension and is deliberately provider-free: it proves the runtime and receipt chain without
-presenting a model answer as evidence. From a source checkout with the SurrealDB executable
-available, run:
-
-```bash
-uv run ace doctor
-uv run python scripts/run_state_engine_product_journey.py freeze-check
-uv run python scripts/run_state_engine_product_journey.py run \
-  --work-dir /tmp/ace-fjord-product-journey \
-  --output evaluations/results/state_engine_product_journey_v1.json \
-  --markdown-output evaluations/results/state_engine_product_journey_v1.md
-```
-
-The first command checks the configured service, and the second verifies that the product scenario
-was frozen before execution. The end-to-end acceptance builds and clean-installs the extension,
-applies schema-zero and supported-upgrade paths, ingests and exactly replays a bounded corpus,
-projects all five required epistemic meanings, reviews an inspectable transition, compares action,
-no-action, and named-alternative branches, persists decision/I3/promotion receipts, reconciles later
-outcomes, restarts the real database/API/worker topology, applies an append-only correction, proves
-fresh-client material use, exercises failure/degraded cases, and reverifies the unchanged eleven-tool
-MCP boundary. See the
-[product-builder guide](https://github.com/augmented-cognition-engine/core/blob/main/docs/state-engine-product-builder.md)
-and
-[passing K1-K3 evidence](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/state-engine-k1-k3-product-journey-v1.md).
-
-### Reproduce the 0.3.1 Productized State journey
-
-The supported journey turns the internal K1–K3 proof into a builder-facing extension journey. It
-adds authenticated adapter discovery and ingestion plus one focused `ace state` CLI without adding
-an MCP tool.
-
-```bash
-uv run ace state capabilities
-uv run ace state ingest /path/to/product-state-ingestion.json
-uv run ace state invoke /path/to/extension-invocation.json
-uv run ace state correct --domain operations "Correct the retained product rule."
-uv run ace state inspect
-```
-
-The frozen provider-free acceptance builds and clean-installs the Fjord Operations extension,
-migrates schema zero to v171, upgrades v168 to v171, ingests through the authenticated Product
-State API, completes the decision/restart/correction/material-use journey, and verifies that the
-Living Product Graph exposes the complete I1–I3 and State Engine receipt chain:
-
-```bash
-uv run python scripts/run_state_engine_product_journey.py \
-  --config evaluations/fixtures/productized_state_journey_v1.json \
-  freeze-check
-uv run python scripts/run_state_engine_product_journey.py \
-  --config evaluations/fixtures/productized_state_journey_v1.json \
-  run --work-dir /tmp/ace-productized-state
-```
-
-See the [Productized State guide](https://github.com/augmented-cognition-engine/core/blob/main/docs/productized-state.md)
-and [acceptance evidence](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/productized-state-journey-v1.md).
-The accepted claim remains
-single-node, trusted-extension, provider-free, and fictional-data bounded; it is not a hostile-code,
-distributed, causal-accuracy, autonomous-learning, or beneficial-impact claim.
-
-For a new corpus, implement the bounded adapter proposal interface demonstrated by the independent
-[`examples/ace_ext_fjord_operations`](https://github.com/augmented-cognition-engine/core/tree/main/examples/ace_ext_fjord_operations)
-package.
-Core—not the adapter or source content—supplies authenticated product scope, stable IDs,
-transactions, replay, and receipts. Inspect counts, terminal/degraded states, provenance,
-uncertainty, simulation labels, and promotion/correction history through the returned contracts and
-the read-only Living Product Graph. The reference `evidence-query` and `promotion-review` task
-actions use the explicitly experimental extension-invocation HTTP surface; they add no MCP tool and
-give model output no review or promotion authority.
-
-The measured envelope is one API/worker deployment plus one SurrealDB/SurrealKV database, with
-200 records per item, 200 items per manifest, and a 200,000-claim/236,000-semantic-record initial
-reference corpus under a 2 GiB store budget on an 11-core, 18 GB M3 Pro. Read the
-[operations and recovery runbook](https://github.com/augmented-cognition-engine/core/blob/main/docs/state-engine-operations.md)
-before migration or material ingestion; it covers v168 upgrades, backup/restore, interruption
-replay, archival, health, and exact stop conditions. This evidence does not claim distributed or
-multi-writer guarantees, arbitrary pre-v142 mid-file migration recovery, real-world causal
-accuracy or calibration, autonomous learning, a general-purpose environment simulator, or L1
-beneficial impact outside the frozen executable-benchmark scope.
-
-The default install uses the CPU-friendly ONNX embedding path. The optional
-1.3B-parameter CodeSage backend is intentionally not part of the release image;
-install it with `uv sync --extra codesage` only when you explicitly select
-`EMBEDDING_PROVIDER=codesage` and accept its substantially larger model/runtime.
-
-After a restart, manage the local background runtime with:
-
-```bash
-uv run ace service start
+uv run ace doctor          # configuration, database, schema, auth, provider routing, API, MCP
 uv run ace service status
 uv run ace service logs --lines 80
-uv run ace service stop   # preserves the SurrealDB volume
+uv run ace service stop    # preserves the SurrealDB volume
 ```
 
-The independent validation procedure is documented in the
-[clean-user onboarding trial](https://github.com/augmented-cognition-engine/core/blob/main/docs/onboarding-trials.md). Passing automated
-tests or a maintainer rehearsal does not pass the onboarding roadmap gate.
+`ace doctor` verifies operational readiness only. It does not certify the correctness of data
+already in the graph, and by default it spends no model tokens — add `--live-provider` for one
+explicitly requested minimal call.
 
-For development, CI, or manual control, the equivalent expanded setup remains:
+Manual control, for CI or development:
 
 ```bash
-cp .env.example .env                       # configure secrets and one provider
+cp .env.example .env
 docker compose -f infra/docker-compose.yml up -d surrealdb
 uv run python scripts/schema_apply.py
 uv run uvicorn core.engine.api.main:app --host 127.0.0.1 --port 3000
 uv run ace login --api-key '<the API_KEY from .env>'
 ```
 
-Reproduce the public product-builder golden path. A retail product team chooses between targeted
-exit recovery and a universal navigation improvement using checksum-backed, CC BY 4.0 evidence.
-ACE records the decision, accepts a privacy correction, survives a runtime restart, and must change
-the later experiment because of that correction—not merely retrieve or quote it:
+### Package-only install
+
+The distribution is `ace-core`; it provides the `ace` import package, the `ace` CLI, and the
+`ace-mcp-client` command.
 
 ```bash
-uv run python scripts/verify_product_builder_golden_path.py initial
-uv run ace service stop
-uv run ace service start
-uv run python scripts/verify_product_builder_golden_path.py later --runtime-restarted
+python -m pip install ace-core
+python -c "import ace; print(ace.__version__)"
+ace --help
 ```
 
-The [outcome-first walkthrough](https://github.com/augmented-cognition-engine/core/blob/main/docs/product-builder-golden-path.md)
-contains the frozen public input, source/license manifest, clean-replay protocol, structural
-assertions, provider metadata, failure recovery, timing expectations, and limitations. It does not
-require one exact model answer and adds no new public surface.
+The self-hosted runtime path above uses the source checkout because it carries the pinned Compose
+stack and the release-maintained local service scripts.
 
-For a shorter local capture-and-load smoke without the R4 restart and material-decision assertions:
-
-```bash
-uv run python scripts/verify_golden_path.py
-```
-
-The stricter M2 reasoning demonstration is intentionally two-phase so an API
-restart occurs between human preference capture and later use:
-
-```bash
-uv run python scripts/verify_signature_scenario.py initial \
-  --preference "Prefer the inspectable thin MCP/CLI proof; defer surface breadth."
-# Stop and restart the API, then from a fresh terminal/process:
-uv run python scripts/verify_signature_scenario.py later
-```
-
-It writes inspectable evidence under `evaluations/results/` and fails unless the
-later decision materially applies the captured constraint identifier. The verified
-Claude CLI subscription run returned the later three-stage decision in 352.6 seconds;
-route latency remains observable evidence, not a promise for every task or provider.
-
-To connect an MCP client, register the command `uv run ace-mcp-client` with its
-working directory set to the clone. The thin server exposes exactly `ace_start`,
-`ace_load`, `ace_capture`, `ace_task`, `ace_status`, `ace_capture_idea`,
-`ace_search`, `ace_briefing`, `ace_impact`, `ace_history`, and `ace_related`.
-It reuses the token written by `ace login`. Call `ace_start`, then
-`ace_load("strategy")` before domain work.
-
-`ace_task` uses a durable asynchronous receipt contract. It returns within a bounded submission
-window with either a completed result or a `pending`/`running` task ID; long reasoning continues
-after the MCP call or HTTP connection ends. Retrieve it with `ace_status(filter="task:…")` (or
-`ace_status(task_id="task:…")`). `completed`, `failed`, and `degraded` are distinct terminal states;
-a polling timeout is not a task failure. Automatic identical retries reuse active work and
-same-hour submissions; pass the same optional `request_id` for an explicit retry, or a new one for
-an intentional rerun. An API restart does not claim cancellation or transparent recovery:
-unfinished in-process receipts become durably `degraded` and completed output remains retrievable.
-The CLI and verification scripts poll the same receipt rather than holding a multi-minute HTTP
-request open. The public `model="budget"` semantic used by `ace quick` resolves to the configured
-`LLM_BUDGET_MODEL` before provider execution; the terminal receipt records the selected provider
-and resolved model even when a nested provider does not populate aggregate route counters.
-
-When finished, stop the managed local runtime and return to the directory that
-contains the clone:
-
-```bash
-uv run ace service stop
-cd ..
-```
-
-Atrium is an experimental visual-product/research track released as a repository beta and is
-separately gated. Its setup is not part of the 0.3.1 golden path or supported runtime.
-
----
-
-## Build with it
-
-Out of the box ACE reasons about anything, using its default committee. To make
-it think in your domain's terms, you write an **extension** — a package that
-teaches the kernel new personas, frameworks, recipes, instruments, tools, and
-schema, without forking it and without editing a central registry.
-
-```bash
-python -m scripts.scaffold_extension <your_domain>
-```
-
-This copies the extension ACE already ships and runs (`extensions/reference/`)
-and renames every identifier for you — your starting point is never a stub,
-it's a fully wired, fully working extension for your domain, with your domain's
-committee already assembling correctly. **The committee is baked in. You bring
-the domain, not the plumbing.**
-
-This surface — the `Extension` protocol, the `Registry` facade, the scaffold,
-the entry-point contract — is **the ACE SDK**.
-
-Full walkthrough, file by file: [build your first
-extension](https://github.com/augmented-cognition-engine/core/blob/main/docs/build-your-first-extension.md). Exact contract for every
-`Registry` call: [extension API stability](https://github.com/augmented-cognition-engine/core/blob/main/docs/extension-api.md). What
-"extension" means and who's built one: [`extensions/README.md`](https://github.com/augmented-cognition-engine/core/blob/main/extensions/README.md).
-
-The boundary is enforced, not just described: the kernel runs naked with
-`ACE_DISABLE_EXTENSIONS=1`, and `tests/test_kernel_boundary.py` guards against
-core ever importing an extension. Extensions import `core`; `core` never
-imports extensions.
-
----
-
-## Extensions are real, not hypothetical
-
-ACE ships with a complete, working extension — [`extensions/reference/`](https://github.com/augmented-cognition-engine/core/tree/main/extensions/reference)
-(the `product` extension). It isn't a toy stub: it registers recipes, a
-committee, and instruments through the same `ace.extensions` entry point your
-extension will use. Copy it, rename it, and you have a working domain extension.
-The worked example *is* the proof the pattern holds.
-
-An extension is not a theme on top of a chatbot. It's a marketing department, a
-trading desk, a code reviewer — anything a problem-fit committee can reason
-about, wearing your domain's terms instead of ACE's defaults. Domain-specific
-extensions live in their own repos, outside this tree, owned by whoever builds
-them.
-
-The `0.3.x` preview treats designated **Stable** extension seams as compatibility
-aims. Changes require proposal and migration evidence, while experimental and
-internal seams may still change on preview minor releases. See the [stability
-contract](https://github.com/augmented-cognition-engine/core/blob/main/docs/extension-api.md).
-
----
-
-## Bring your model
-
-ACE is provider-agnostic by contract, not by claim. `get_llm()` resolves an
-eleven-slot chain and returns the first match; engine code never imports a concrete
-provider. Every provider — including ones you write — passes the same
-behavioral conformance suite ([`tests/llm/conformance.py`](https://github.com/augmented-cognition-engine/core/blob/main/tests/llm/conformance.py)).
-
-ACE's access goal is broader than API keys: use a sanctioned subscription-backed
-shell or agent when you already pay for one, use an API key for speed and
-automation, or run locally for sovereignty. Consumer subscriptions are not
-generic API credentials—ChatGPT-plan access belongs behind a Codex adapter,
-while general OpenAI API usage is billed separately.
-
-**A ChatGPT subscription through Codex** (no OpenAI Platform API key):
-
-```bash
-codex login
-codex login status
-export SUBSCRIPTION_PROVIDER=codex
-export CODEX_CLI_MODEL=gpt-5.6-terra
-export CODEX_CLI_EFFORT=default
-export REQUIRE_SUBSCRIPTION=1
-```
-
-Set `SUBSCRIPTION_PROVIDER=auto` (the default) or `claude` to use ACE's existing
-Claude-first subscription route instead. ACE invokes `codex exec` as a stateless,
-read-only completion transport and leaves credential storage and refresh to Codex.
-ACE maps its four semantic levels onto each provider's actual catalog:
-Haiku→Luna, Sonnet→Terra, and both Opus/Fable→Sol for GPT; Claude retains
-the distinct Haiku→Sonnet→Opus→Fable progression. Effort is a separate,
-adaptive dimension on both routes: Fast and Capable leave effort at the provider
-default; Reasoning uses high and Frontier uses xhigh. Max remains an explicit
-override. Claude Haiku receives no effort flag because that model does not support it.
-
-**Any OpenAI-compatible backend** (Groq, Together, OpenRouter, vLLM, LM Studio,
-Azure, OpenAI itself — zero extra dependencies):
-
-```bash
-export OPENAI_COMPAT_BASE_URL=https://api.groq.com/openai/v1
-export OPENAI_COMPAT_API_KEY=gsk_...                # optional for keyless local servers
-export OPENAI_COMPAT_MODEL=llama-3.3-70b-versatile  # default: gpt-5.6-terra
-```
-
-**A local model via Ollama** (free, no key):
-
-```bash
-export OLLAMA_HOST=http://localhost:11434
-export OLLAMA_MODEL=llama3.2
-```
-
-**A Claude subscription or metered Anthropic key**:
-
-```bash
-export LLM_API_KEY=<your-anthropic-api-key>   # metered, pay-per-token
-# — or a subscription token, no per-call dollars —
-export CLAUDE_CODE_OAUTH_TOKEN=<token from `claude setup-token`>
-export LLM_API_KEY=sk-test-placeholder   # optional placeholder; falls through to the subscription
-```
-
-Full matrix, billing semantics, and the safeguards that stop a stray exported
-key from silently billing a metered API: [`docs/providers.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
-By default `ace doctor` does not spend model tokens: it reports a configured route
-as unverified (or a locally confirmed CLI session as authenticated). Add
-`--live-provider` only when you want one minimal request to verify model
-reachability. The durable R3 evidence and current live-route limitation are in
-[`docs/evidence/r3-provider-validation.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/r3-provider-validation.md).
-
----
-
-## Running with Docker
-
-The repo ships a `Dockerfile` and an `infra/docker-compose.yml` that brings up
-SurrealDB and the API together:
-
-```bash
-docker compose -f infra/docker-compose.yml up --build
-```
-
-The API is exposed on `:3000`, SurrealDB on `:8001`. Set your `LLM_API_KEY` (and
-any provider env from above) in `.env` before bringing the stack up.
-
----
-
-## The test gates
+### Test gates
 
 ```bash
 make test-fast          # the fast suite (pytest -m "not e2e")
-make test-naked-kernel  # the kernel runs with NO extensions loaded + boundary guard
+make test-naked-kernel  # the kernel with NO extensions loaded, plus the boundary guard
 make lint               # ruff check + format --check
 ```
 
-`make test-naked-kernel` is the boundary in CI form: it runs the suite with
-`ACE_DISABLE_EXTENSIONS=1` and asserts core never reaches into an extension.
+---
+
+## The public Python surface
+
+Everything below uses only public `ace.*` APIs and runs with no database, no network, and no model
+provider.
+
+### Compile a Domain Pack
+
+```python
+import hashlib
+import json
+
+from ace.intelligence.packs.compiler import compile_pack_document
+
+
+def resource(payload: dict) -> bytes:
+    return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+
+def digest(payload: bytes) -> str:
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+ontology = resource(
+    {
+        "contract": "ace.intelligence.ontology/v1alpha1",
+        "module_id": "domain_ontology",
+        "entity_types": [
+            {
+                "entity_type_id": "watched_subject",
+                "attributes": [
+                    {"attribute_id": "name", "value_type": "string", "required": True},
+                    {"attribute_id": "tracked_value", "value_type": "number"},
+                ],
+            }
+        ],
+    }
+)
+
+manifest = resource(
+    {
+        "contract": "ace.intelligence.domain-pack-manifest/v1alpha1",
+        "metadata": {
+            "pack_id": "example_domain",
+            "version": "0.1.0",
+            "display_name": "Example Domain",
+        },
+        "resources": [
+            {
+                "resource_id": "ontology",
+                "path": "modules/ontology.json",
+                "digest": digest(ontology),
+            }
+        ],
+        "modules": [
+            {
+                "module_id": "domain_ontology",
+                "contract": "ace.intelligence.ontology/v1alpha1",
+                "resource_id": "ontology",
+            }
+        ],
+    }
+)
+
+pack = compile_pack_document(manifest, {"modules/ontology.json": ontology})
+
+print(pack.metadata.pack_id)          # example_domain
+print(pack.pack_digest)               # sha256:...  stable across key order and whitespace
+print([m.module_id for m in pack.modules])
+```
+
+Compilation is fail-closed. Tamper with a byte and you get a `PackCompilationError` carrying a
+`digest_mismatch` diagnostic with the exact path — not a silently different pack.
+
+### Append immutable records and replay them
+
+```python
+import asyncio
+from datetime import UTC, datetime
+
+from ace.core import AppendOnlyTransactionRequestV1, ImmutableRecordV1
+from ace.testing import InMemoryImmutableRecordStore
+
+observed_at = datetime(2026, 8, 7, 12, 0, tzinfo=UTC)
+
+record = ImmutableRecordV1(
+    product_id="product:demo",
+    record_space="live",
+    record_kind="observation",
+    record_key="watched_subject:acme@2026-08-07",
+    payload_contract="ace.intelligence.observation/v1alpha1",
+    payload={"tracked_value": 42.0},
+    as_of=observed_at,
+    available_at=observed_at,
+    processing_order=0,
+)
+
+request = AppendOnlyTransactionRequestV1(
+    product_id="product:demo",
+    record_space="live",
+    transaction_key="admit:watched_subject:acme@2026-08-07",
+    records=(record,),
+    submitted_at=observed_at,
+)
+
+
+async def main() -> None:
+    store = InMemoryImmutableRecordStore()
+    receipt = await store.append(request)
+    replayed = await store.append(request)      # exact replay, not a second write
+    assert receipt == replayed
+
+    print(record.storage_id)                    # immutable_record:<stable digest>
+    print(record.material_hash)                 # sha256:<canonical material>
+
+
+asyncio.run(main())
+```
+
+Storage identity and material hash are **derived, never supplied**. Passing a `storage_id` that does
+not match the record's scope and key is a validation error, so a caller cannot forge identity or
+retroactively edit material behind a stable ID. `InMemoryImmutableRecordStore` is a reference port
+for conformance and fault tests — production hosts supply Core's database-backed adapter.
+
+### Other public entry points
+
+| Import | What it gives you |
+|---|---|
+| `ace.core` | `GovernedStateStore`, `ImmutableRecordStore`, `CoreAuthorityResolver`, `GovernedReasoningService`, `DecisionV1Alpha1`, `OutcomeV1Alpha1`, `canonical_json`, `canonical_hash`, `stable_id` |
+| `ace.intelligence` | `detect_numeric_shift` / `detect_live_numeric_shift`, `detect_categorical_shift`, `route_shift_as_signal`, `eligible_signal_routes`, `assemble_canonical_brief`, `derive_claim_epistemic_statuses`, `project_supersession_impact`, `interpret_prepared_source_mapping` |
+| `ace.intelligence.packs.runtime` | `bind_prepared_activation`, `resolve_detector_rule`, `resolve_brief_synthesis_policy`, `resolve_epistemic_status_policy`, `resolve_feedback_policy` |
+| `ace.application` | `LiveSourceIngressService`, `LiveIntelligenceBridgeService`, `LiveBriefSynthesisService`, `BriefSynthesisService`, `PreparedDecisionFeedbackService`, `DomainActivationAdmissionService` |
+| `ace.testing` | `InMemoryImmutableRecordStore`, `exercise_live_source_ingress_restart`, `exercise_prepared_ledger_restart`, `exercise_prepared_source_mapping` |
+
+Public contracts are `v1alpha1` / `v1alpha2`. They are versioned in the name so a change is visible,
+but they are alpha and may change on a preview minor release.
 
 ---
 
-## Repo layout
+## MCP: still exactly eleven tools
+
+The thin, pure-HTTP MCP client exposes the same eleven tools it did in 0.2 and 0.3. **0.4.0 adds
+none.**
+
+| Tool | Purpose |
+|---|---|
+| `ace_start` | Establish product and session context |
+| `ace_load` | Load relevant accumulated intelligence |
+| `ace_capture` | Persist an observation or correction |
+| `ace_task` | Submit orchestration with a durable receipt |
+| `ace_status` | Retrieve task or system status |
+| `ace_capture_idea` | Preserve an emerging idea |
+| `ace_search` | Search accumulated intelligence |
+| `ace_briefing` | Retrieve a return briefing |
+| `ace_impact` | Inspect likely code impact |
+| `ace_history` | Inspect file or symbol history |
+| `ace_related` | Find related code and knowledge |
+
+To connect a client, register the command `uv run ace-mcp-client` with its working directory set to
+the clone. It reuses the token written by `ace login`. Call `ace_start` first, then `ace_load(...)`
+before domain work.
+
+`ace_task` uses a durable asynchronous receipt contract: it returns within a bounded submission
+window with either a completed result or a `pending`/`running` task ID, and long reasoning continues
+after the MCP call ends. Retrieve it with `ace_status(filter="task:…")`. `completed`, `failed`, and
+`degraded` are distinct terminal states — a polling timeout is not a task failure.
+
+Setup and provider details:
+[`docs/providers.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md)
+·
+[`docs/capability-maturity.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md)
+·
+[`docs/governed-cognition-operations.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/governed-cognition-operations.md)
+
+---
+
+## Security and governance invariants
+
+These are enforced by contract validation and architecture tests, not by convention.
+
+**Authority**
+- Every LIVE effect requires a resolved authority grant and a committed domain activation. Prepared
+  analysis grants no authority under any circumstance.
+- Authority-use receipts are single-use and cannot be reused across admissions.
+- Capability use is bound to exact artifact identity, so a capability granted for one artifact does
+  not carry to another.
+- Models may propose. Models cannot approve, activate, roll back, expire, supersede, retire, or
+  grant execution authority.
+
+**State**
+- All durable writes go through Core's immutable-record port as atomic append-only transactions.
+  There is no persistence path around it.
+- Governed-state heads carry preconditions that are **rechecked inside the commit**; a stale head
+  fails the transaction rather than racing it.
+- Identity and material hashes are derived from canonical JSON. Supplying a mismatched
+  `storage_id`, `material_hash`, or `request_hash` is a validation error.
+- Replay is exact: the same transaction key with the same material returns the same receipt; the
+  same key with different material raises a replay conflict.
+
+**Acquisition**
+- Source acquisition fails closed on scope, URI, redirect, DNS/IP-rebinding, payload-size, digest,
+  replay, timing, and authority violations. HTTPS URIs are validated exactly and IP literals are
+  checked against non-public ranges.
+- **ACE does not browse.** There is no automatic or arbitrary web access. A connector may fetch only
+  one exact resolved source definition, and only through the bounded registry the host constructed.
+
+**Packs and connectors**
+- Domain Packs are inert data. The compiler rejects executable-shaped fields and refuses mappings
+  that touch host-owned envelope fields.
+- Connectors register in a constructor-supplied registry keyed by exact artifact identity. There is
+  no dynamic entry-point loading for LIVE source connectors.
+- The naked kernel (`ACE_DISABLE_EXTENSIONS=1`) boots and composes no LIVE service. `make
+  test-naked-kernel` is that boundary in CI form.
+
+Report vulnerabilities per
+[SECURITY.md](https://github.com/augmented-cognition-engine/core/blob/main/SECURITY.md).
+
+---
+
+## Repository map
 
 ```
-ace/
+.
+├── ace/                      ← the public package (this is the product surface)
+│   ├── core/                 ← authority, immutable records, governed state, reasoning, decisions
+│   ├── intelligence/
+│   │   ├── contracts/        ← pack, resources, detection, synthesis, epistemic, ledger, monitors…
+│   │   ├── packs/            ← compiler, runtime binding, activation, diagnostics
+│   │   └── detection/        ← numeric delta, categorical transition
+│   ├── application/          ← LIVE ingress, LIVE bridge, brief synthesis, decision feedback
+│   └── testing/              ← packaged conformance seams for external packages
 ├── core/
-│   ├── engine/      ← Python reasoning OS (orchestration, memory, foresight…)
-│   ├── schema/      ← SurrealDB knowledge-graph schemas
-│   └── ui/
-│       └── canvas/  ← Atrium, the experimental React research Canvas
-├── ace_mcp_client/  ← thin pure-HTTP MCP client
-├── extensions/
-│   ├── reference/   ← canonical worked example — copy this to start your own
-│   └── README.md    ← the contract every extension follows
-├── docs/            ← architecture, providers, maturity, and extension guides
-├── infra/           ← docker-compose for SurrealDB + API
-├── scripts/         ← schema apply, health check, scaffold_extension
-└── tests/           ← backend + provider-conformance test suite
+│   ├── engine/               ← the host runtime (private): API, CLI, orchestration, adapters
+│   ├── schema/               ← SurrealDB migrations (head: v175)
+│   └── ui/canvas/            ← Atrium, an experimental React research canvas (repository beta)
+├── ace_mcp_client/           ← thin pure-HTTP MCP client (the eleven tools)
+├── extensions/reference/     ← the worked extension example the kernel actually loads
+├── examples/                 ← independent example packages
+├── docs/                     ← architecture, providers, maturity, operations, evidence
+├── evaluations/              ← frozen fixtures and acceptance results
+├── infra/                    ← docker-compose for SurrealDB + API
+├── scripts/                  ← schema apply, journeys, verification, scaffolding
+└── tests/                    ← including tests/intelligence, the no-service contract suite
 ```
+
+`ace/` is the public boundary. `core/engine/` is the host and is private — public `ace` contracts
+stay host-free, and host adapters are the only `core.engine` edge into the public package.
+
+---
+
+## Maturity and limitations
+
+**0.4.0 is a developer preview and a single-node governed-cognition release.** Read this section
+before you build on it.
+
+What is bounded:
+
+- **Single node.** One ACE API/worker deployment and one SurrealDB/SurrealKV database. Distributed
+  ordering, multi-writer consistency, multi-region failover, and exactly-once delivery across
+  independent databases are **not** claimed.
+- **Trusted extensions only.** In-process Python extensions must be explicitly trusted. There is no
+  hostile-code isolation.
+- **Alpha contracts.** The `v1alpha1` / `v1alpha2` public contracts may change on a preview minor
+  release. Changes are visible in the contract string.
+- **Domain Packs and connectors are independently versioned** and are **not** part of this release's
+  compatibility promise. There is no domain-pack marketplace, registry, or distribution channel —
+  packs are artifacts you build and supply.
+- **Python 3.12 only.**
+
+What ACE does not claim:
+
+- No hosted SaaS. ACE is self-hosted; you run the database and bring your own model credentials.
+- No supported graphical UI. Atrium is experimental repository-beta source, not part of the Python
+  artifact, the supported runtime, or the golden path.
+- No automatic or arbitrary web access.
+- No real-world causal accuracy, calibrated forecasting, autonomous learning, general world model,
+  or demonstrated beneficial impact outside the frozen, bounded evaluation scopes recorded in
+  [`docs/evidence/`](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/README.md).
+- Security review to date is an independent **AI** review, not a human penetration test,
+  professional audit, or certification. That limitation travels with the evidence.
+
+Current supported/experimental/internal boundaries:
+[`docs/capability-maturity.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md).
+Point-in-time acceptance receipts:
+[`docs/evidence/`](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/README.md).
+
+---
+
+## Roadmap and contributing
+
+The north-star loop is:
+
+```text
+understand → reason → decide → act with authority → observe outcomes → improve future reasoning
+```
+
+0.4.0 delivers the governed-cognition span of that loop. 0.5.0 (*Reasoning into Action*) carries an
+approved decision into bounded, attributable action; 0.6.0 (*Measured Intelligence*) promotes or
+retires reasoning revisions because of measured outcomes.
+
+- [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
+  state, sequencing, and declared boundaries
+- [Roadmap project board](https://github.com/orgs/augmented-cognition-engine/projects/1) — live Now /
+  Next / Later
+- [Architecture](https://github.com/augmented-cognition-engine/core/blob/main/docs/architecture.md) —
+  as-built boundaries
+- [Contributing](https://github.com/augmented-cognition-engine/core/blob/main/CONTRIBUTING.md) ·
+  [Code of conduct](https://github.com/augmented-cognition-engine/core/blob/main/CODE_OF_CONDUCT.md) ·
+  [Security policy](https://github.com/augmented-cognition-engine/core/blob/main/SECURITY.md)
+- [Issues](https://github.com/augmented-cognition-engine/core/issues) — the best first contribution is
+  a Domain Pack for a vertical we have not tried, plus the diagnostic it made you wish existed
+
+Good contributions to start with: a new detector family, a synthesis template contract, a source
+connector against a public API, or a conformance seam that makes an external package easier to test.
 
 ---
 
 ## License
 
-Apache-2.0 — see [`LICENSE`](https://github.com/augmented-cognition-engine/core/blob/main/LICENSE) for the full text and [`NOTICE`](https://github.com/augmented-cognition-engine/core/blob/main/NOTICE). Existing ACE code is
-copyright Edwin Amirian; contributors retain copyright in their contributions and license them
-under Apache-2.0. QueryLabs LLC is the founding sponsor. Atrium source in this repository is
-Apache-2.0 repository beta source, not part of the supported Python 0.3.1 artifact. Separately
-distributed extensions state their own license. The default stack runs SurrealDB 3.2.3 separately;
+Apache-2.0 — see
+[`LICENSE`](https://github.com/augmented-cognition-engine/core/blob/main/LICENSE) and
+[`NOTICE`](https://github.com/augmented-cognition-engine/core/blob/main/NOTICE).
+
+Existing ACE code is copyright Edwin Amirian; contributors retain copyright in their contributions
+and license them under Apache-2.0. QueryLabs LLC is the founding sponsor. Separately distributed
+extensions and Domain Packs state their own licenses. The default stack runs SurrealDB separately;
 the SurrealDB server is source-available under BSL 1.1 rather than OSI open source.
 
 <div align="center">
 
 ---
 
-**Bring a thought. Meet the team.** &nbsp;·&nbsp; [Quickstart](#start-here-get-a-product-recommendation) · [Build an extension](https://github.com/augmented-cognition-engine/core/blob/main/docs/build-your-first-extension.md)
+**Bring the domain. ACE keeps the receipts.**
+
+[Quickstart](#quickstart) ·
+[Domain Packs](#domain-packs-add-a-vertical-without-touching-the-kernel) ·
+[Limitations](#maturity-and-limitations)
 
 </div>
