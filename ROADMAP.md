@@ -1,10 +1,10 @@
 # ACE public roadmap
 
-ACE is the open, provider-neutral Reasoning OS for building products that maintain context, reason
-over evidence, make inspectable decisions, act under explicit authority, and learn from outcomes.
-Models provide inference inside the loop. ACE owns the state, composition, lifecycle, authority,
-provenance, and outcome loop around them. Extensions make that reasoning system belong to a
-specific product without requiring a fork of Core.
+ACE is the open-source foundation for governed intelligence: a provider-neutral runtime for
+building products that maintain context, reason over evidence, detect meaningful change, make
+inspectable decisions, act under explicit authority, and learn from outcomes. Models provide
+inference inside the loop. ACE owns the state, composition, lifecycle, authority, provenance, and
+outcome loop around them.
 
 This roadmap is the authoritative public view of ACE outcome state and dispatch. It describes
 product capabilities rather than internal release operations, commercial plans, customer work, or
@@ -18,26 +18,34 @@ The complete product loop is:
 understand → reason → decide → act with authority → observe outcomes → improve future reasoning
 ```
 
-ACE is organized around three durable responsibilities:
+ACE is organized around four durable responsibilities:
 
-- **Core** supplies provider-neutral reasoning orchestration, product-scoped identity, lifecycle,
-  provenance, authority, execution contracts, and outcome semantics.
-- **Extensions** supply product and domain cognition, schemas, evidence sources, tools, policies,
-  actions, telemetry, and adapters through a stable boundary.
-- **Product surfaces** expose the appropriate experience through an application, API, CLI, MCP,
-  IDE, workflow, or Atrium without becoming the owner of durable intelligence.
+- **Core** owns cognition and control: provider-neutral reasoning orchestration, product-scoped
+  identity, immutable and temporal state, provenance, authority, decisions, execution contracts,
+  and outcomes.
+- **Intelligence** owns domain-neutral sensing and orientation: Observation, Entity Snapshot,
+  Shift, Signal, Brief, Case, monitor, routing, synthesis, feedback, pack compilation, and
+  conformance contracts.
+- **Domain Packs and connectors** supply vocabulary and source access: ontology, source mappings,
+  detector definitions, personas, synthesis policy, source adapters, and domain policy without
+  making those nouns or rules part of Core.
+- **Domain applications and product surfaces** expose the appropriate experience through an
+  application, API, CLI, MCP, IDE, workflow, or Atrium without becoming the owner of durable
+  intelligence.
 
 The north-star acceptance test is:
 
 > Can a builder use ACE to make a product more context-aware, evidence-driven, inspectable, and
-> adaptive without forking the reasoning core or surrendering human authority?
+> adaptive without forking Core or Intelligence, embedding domain nouns in the platform, or
+> surrendering human authority?
 
 One cross-cutting expression of that north star is **continuous situational intelligence**: ACE
 maintains living orientation over any bounded, changing subject a user is authorized to examine.
 The subject may be personal, organizational, market, geopolitical, scientific, technical, or
-another extension-defined domain. Core owns neutral identity, time, evidence, investigation,
-orientation, attention, authority, and outcome semantics; extensions own what entities, actions,
-reactions, measurements, material changes, and source policies mean in a particular domain.
+another pack-defined domain. Core owns authority, durable state, governed reasoning, decisions,
+and outcomes. Intelligence owns the neutral resource and derivation contracts. Domain Packs own
+what entities, relations, measurements, material changes, personas, and synthesis policies mean;
+connectors own the reviewed translation from an authorized source into that boundary.
 
 ## Roadmap and design-document hierarchy
 
@@ -63,19 +71,22 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.3.1 is published on PyPI and GitHub from verified release commit `8af5a499`. It closes
-the 0.3.x Productized State promise: one supported extension-first journey now runs from
-authenticated product-context ingestion through inspectable state, reasoning, decision capture,
-correction, restart, and materially changed later reasoning. The release preserves schema head
-v171, the supported CLI identities, and exactly eleven thin MCP tools.
+`ace-core` 0.4.0 is published on PyPI and GitHub from verified release commit `4d28fe85`. It puts
+Core + Intelligence in one install and ships governed LIVE source ingress, the LIVE Intelligence
+bridge, LIVE Brief synthesis, the inert JSON Domain Pack compiler, exact replay, and packaged
+external-consumer conformance seams. The release preserves schema head v175, the supported CLI
+identities, and exactly eleven thin MCP tools.
 
-The [0.3.1 release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md) binds PS1
-to the exact tag, GitHub Release, official CI, trusted PyPI publication, matching release-commit and
-registry artifact hashes, and a clean public-index installation. E1 remains passed for the exact
-0.3.0 artifact set and supplies the trusted in-process extension and governed-cognition foundation
-used by 0.3.1. Productized State remains bounded to the documented single-node topology and does
-not claim hostile-code isolation, distributed operation, general real-world causal accuracy,
-autonomous learning, a general world model, or beneficial impact.
+The [0.4.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.0)
+triggered the trusted PyPI publication workflow, and a clean Python 3.12 environment installed and
+reported `ace-core==0.4.0` from the public index. This passes the governed Intelligence foundation
+outcome, **GI1**. It does not by itself close the broader governed-cognition builder-experience gate
+in issue #3; that remaining **GC1** journey stays active in 0.4.x.
+
+The release remains bounded to the documented single-node topology and trusted in-process Python
+extensions. It does not establish hostile-code isolation, distributed operation, general
+real-world causal accuracy, autonomous learning, a general model of reality, or general beneficial
+impact.
 
 ACE provides graph-grounded, calibrated foresight. It projects conditional consequences of
 decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens,
@@ -103,14 +114,30 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 |---|---|---|---|---|
 | 0.2.x | State Engine stabilization | **Maintenance** | Inherits the passed R0, R1, R2, R3, R4, R5, R6, R7, G1, IA-R1, I1, I2, I3, F1, L1, K1, K2, and K3 foundation; patch work is limited to compatibility, migration, recovery, observability, reliability, security, and documentation hardening | [#1](https://github.com/augmented-cognition-engine/core/issues/1) |
 | 0.3.x | Productized State | **Maintenance** | PS1 passed in 0.3.1 through the K1–K3 spine, R1/R4 onboarding pattern, G1 and IA-R1 inspection, I1–I3 receipts, and E1 extension/governance boundary; later patches are compatible hardening only | [#2](https://github.com/augmented-cognition-engine/core/issues/2) |
-| 0.4.0 | Governed Cognition | **Delivered** | Governed LIVE source ingress, LIVE Intelligence bridge, and LIVE Brief synthesis ship as public application services composed through bounded private host adapters, with fail-closed acquisition, exact replay, and an unchanged eleven-tool MCP surface | — |
-| 0.4.0 | Governed Cognition | **Now** | Productizes the passed E1 foundation as an obvious teach, inspect, approve, use, measure, revise, and retire experience; supplies governed analytical policies and taxonomies required by SI1–SI4 | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
-| 0.5.0 | Reasoning into Action | **Later** | Advances T1 and B1 from approved decision to bounded attributable action; uses I1 authority receipts and begins the execution-adapter slice of E2 | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
+| 0.4.x | Governed Cognition | **Active** | GI1 passed in 0.4.0 with governed LIVE ingress, the Intelligence bridge, Brief synthesis, Domain Pack compiler, exact replay, and external conformance seams; GC1 remains the supported teach, inspect, approve, use, measure, revise, and retire journey | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
+| 0.5.0 | Reasoning into Action | **Next** | Advances T1 and B1 from approved decision to bounded attributable action after GC1 passes; uses I1 authority receipts and begins the execution-adapter slice of E2 | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
 | 0.6.0 | Measured Intelligence | **Later** | Productizes the bounded L1 evidence loop, connects I3 material use to product-owned outcomes, advances the SI4 orientation/attention evaluation slice, and advances F2 only where evidence or demonstrated user need justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
-| 0.7.0 | Extension Platform | **Later** | Completes the stable third-party platform promise across E1 and E2 and advances SI3: SDK, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
+| 0.7.0 | Domain and Extension Platform | **Later** | Completes the stable third-party platform promise across GI1, E1, and E2 and advances SI3: pack schemas, SDKs, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Reasoning Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
 | 0.9.0 | Collaborative Runtime | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
-| 1.0.0 | Reasoning OS | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, extensions, product surfaces, governance, action, outcomes, situational intelligence, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
+| 1.0.0 | Reasoning OS | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, Intelligence, Domain Packs, connectors, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
+
+### Parallel domain validation
+
+The release spine above belongs to `ace-core`. Domain applications version independently in sibling
+repositories and consume the same public Core + Intelligence contracts. Their product releases do
+not change the ACE Core version, and their domain nouns, connectors, and policies do not move into
+this repository.
+
+World Intelligence and Market Intelligence are the current validation targets. Together they must
+exercise materially different entities, sources, detectors, personas, epistemic policies, and
+decision cadences. A failure found by either domain returns to Core only as a domain-neutral
+contract, compiler, conformance, governance, or runtime requirement. A domain-specific workaround
+does not become platform code.
+
+This work proceeds in parallel with GC1 and preparation for 0.5.0. A domain demonstration does not
+promote an ACE capability by itself; promotion still requires reproducible public evidence,
+declared limitations, and reconciliation in this roadmap.
 
 ### 0.2.x — State Engine stabilization
 
@@ -148,24 +175,34 @@ later material use through supported interfaces. The tagged artifacts passed the
 trusted publication, exact registry-hash comparison, and a clean public-index installation. See the
 [Productized State release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md).
 
-### 0.4.0 — Governed Cognition
+### 0.4.x — Governed Cognition
 
-Public promise: builders can teach and revise a reasoning system through a governed lifecycle:
-propose, inspect, approve, version, use, measure, revise, roll back, or retire.
+Public promise: builders can run governed Intelligence and teach and revise a reasoning system
+through a supported lifecycle: propose, inspect, approve, version, use, measure, revise, roll back,
+or retire.
 
-- Build the supported teaching experience on the canonical E1 model and published migration
-  behavior for superseded paths.
+**Delivered in 0.4.0 — GI1:**
+
+- Put Core + Intelligence in one install behind enforced public dependency boundaries.
+- Compile independently versioned, inert JSON Domain Packs with fail-closed diagnostics and
+  packaged conformance seams.
+- Admit an exact authorized LIVE source through bounded connector composition, then derive Shift,
+  Signal, attention disposition, and governed Brief resources with provenance and exact replay.
+- Preserve the eleven-tool MCP surface, naked-kernel startup, schema v175, and single-node limits.
+
+**Active in 0.4.x — GC1:**
+
+- Make the canonical E1 teaching lifecycle obvious through supported public interfaces.
 - Create inspectable proposals from authorized tasks, corrections, conversations, and documents.
-- Use immutable revisions, durable approval receipts, provenance, explicit authority, and bounded
-  discovery and loading.
-- Support rejection, rollback, supersession, conflict, expiry, and retirement without erasing
-  history or enabling silent self-modification.
-- Let extensions govern versioned analytical ontologies, claim/action assessment rules, source
-  policies, change-detection methods, and attention criteria without making them universal Core
-  truth.
+- Use immutable revisions, durable approval receipts, provenance, explicit authority, bounded
+  discovery, and exact use attribution.
+- Support rejection, rollback, supersession, conflict, expiry, disablement, and retirement without
+  erasing history or enabling silent self-modification.
 
-Release gate: an extension can teach ACE a reusable capability, a human can inspect and govern the
-change, and a fresh invocation can materially use the approved revision with complete attribution.
+Release gate: GI1 is passed. GC1 passes when an external consumer can teach ACE a reusable
+capability through public interfaces, a human can inspect and govern the change, and a fresh
+invocation materially uses the exact approved revision with complete attribution. Until then, the
+0.4.x milestone remains active and 0.5.0 remains next.
 
 ### 0.5.0 — Reasoning into Action
 
@@ -176,8 +213,8 @@ bounded, attributable action.
   recovery, portability, resource reporting, and explicit topology boundaries.
 - Advance B1 through declared capabilities, permissions, preconditions, approvals, results,
   failures, recovery, review, repair, and promotion.
-- Keep product tools and domain actions in extensions while Core enforces neutral authority and
-  execution contracts.
+- Keep product tools and domain actions in domain applications, connectors, or explicitly trusted
+  extensions while Core enforces neutral authority and execution contracts.
 - Require MAKE artifacts to pass independent SHIP security, testing, observability, operations,
   and scale gates before promotion.
 
@@ -206,26 +243,28 @@ Release gate: a public evaluation journey traces a governed change from proposal
 result and explicit promotion, rejection, rollback, or retirement. ACE does not self-certify
 improvement or optimize outside product-defined outcomes and authority.
 
-### 0.7.0 — Extension Platform
+### 0.7.0 — Domain and Extension Platform
 
-Public promise: third parties can build, test, distribute, and operate ACE extensions that remain
-portable across compatible hosts.
+Public promise: third parties can build, test, distribute, and operate ACE Domain Packs,
+connectors, and trusted extensions that remain portable across compatible hosts.
 
-- Publish a versioned SDK, manifest and capability model, permission declarations, and conformance
-  suite.
-- Demonstrate independent extensions from multiple domains without forking or embedding product
-  logic in Core.
-- Establish supported Core/extension version skew, upgrade and deprecation policy, isolation,
-  security review, recovery and effect semantics, telemetry, and failure diagnosis.
+- Publish versioned pack schemas, connector and extension SDKs, manifests and capability models,
+  permission declarations, golden-fixture conformance suites, and deprecation policy.
+- Demonstrate independent Domain Packs from multiple domains without forking or embedding product
+  logic in Core or Intelligence.
+- Establish supported Core/Intelligence/pack/connector/extension version skew, upgrade and
+  deprecation policy, isolation, security review, recovery and effect semantics, telemetry, and
+  failure diagnosis.
 - Grow E2 across product-owned sources, scheduled work, IDEs, messaging, webhooks, and bounded
   execution adapters.
-- Demonstrate extension-owned qualitative, quantitative, time-series, geospatial, track, event,
-  and market-contract evidence with explicit units, vintages, precision, coverage, revisions, gaps,
-  and source-specific semantics rather than flattening every observation into prose.
+- Demonstrate pack- and connector-owned qualitative, quantitative, time-series, geospatial, track,
+  event, and market-contract evidence with explicit units, vintages, precision, coverage,
+  revisions, gaps, and source-specific semantics rather than flattening every observation into
+  prose.
 
-Release gate: independent extensions pass the same public compatibility and conformance checks;
-their requested authority is visible before activation; and their failures remain isolated and
-diagnosable.
+Release gate: independent packs, connectors, and trusted extensions pass their applicable public
+compatibility and conformance checks; requested authority is visible before activation; and
+failures remain isolated and diagnosable.
 
 ### 0.8.0 — Reasoning Workspace
 
@@ -274,9 +313,9 @@ can extend to become more context-aware, evidence-driven, inspectable, governabl
 
 - Stabilize the public contracts for context, state, evidence, deliberation, decisions, correction,
   cognition, authority, action, outcomes, standing investigations, versioned orientations,
-  attention policy, extensions, and operation.
-- Preserve a domain-neutral Core, product-owned extensions, optional product surfaces, portable
-  durable intelligence, and explicit human authority.
+  attention policy, Intelligence resources, Domain Packs, connectors, extensions, and operation.
+- Preserve domain-neutral Core and Intelligence layers, product-owned packs and connectors,
+  optional product surfaces, portable durable intelligence, and explicit human authority.
 - Publish compatibility, migration, recovery, security, governance, deprecation, and breaking-change
   policies.
 - Demonstrate the complete loop through multiple independent product and extension journeys across
@@ -290,18 +329,19 @@ lock-in, or organizational ownership requirement.
 
 **Product promise:** ACE can maintain living, source-grounded orientation over any bounded subject
 a user is authorized to examine. The same neutral loop can support personal, organizational,
-market, geopolitical, scientific, technical-system, or other extension-defined intelligence:
+market, geopolitical, scientific, technical-system, or other pack-defined intelligence:
 
 ```text
 observe → detect material change → update bounded state → compare claims, commitments, and behavior
 → identify reactions and consequences → orient → watch what could change the conclusion
 ```
 
-This is a cross-cutting product outcome, not a new domain in Core and not an additional promise
-silently added to an earlier minor release. It uses the passed K1–K3 and I1–I3 foundations and is
-delivered incrementally through governed cognition, measured intelligence, the extension platform,
-the reasoning workspace, and the collaborative runtime. The public SI1–SI4 outcome and acceptance
-work are tracked in [issue #47](https://github.com/augmented-cognition-engine/core/issues/47).
+This is a cross-cutting product outcome, not a new domain in Core or Intelligence and not an
+additional promise silently added to an earlier minor release. It uses the passed GI1, K1–K3, and
+I1–I3 foundations and is delivered incrementally through governed cognition, measured
+intelligence, the domain and extension platform, the reasoning workspace, and the collaborative
+runtime. The public SI1–SI4 outcome and acceptance work are tracked in
+[issue #47](https://github.com/augmented-cognition-engine/core/issues/47).
 
 ### SI1. Reproducible situational orientation
 
@@ -323,7 +363,7 @@ work are tracked in [issue #47](https://github.com/augmented-cognition-engine/co
   authority, and revision history remain inspectable across restarts.
 - Represent statements and commitments with actor and role, modality, target, magnitude, timeframe,
   preconditions, exceptions, and a declared observable test. Represent legal, administrative,
-  financial, enforcement, operational, and other extension-defined actions separately.
+  financial, enforcement, operational, and other domain-defined actions separately.
 - Assess commitment against observed behavior as `aligned`, `partially_aligned`, `contradicted`,
   `too_early`, `unverifiable`, or `insufficient_evidence`, with the exact interpretation and
   evidence frozen in the assessment receipt.
@@ -333,9 +373,11 @@ work are tracked in [issue #47](https://github.com/augmented-cognition-engine/co
 
 ### SI3. Heterogeneous evidence and source governance
 
-- Let extensions map source-specific records into Core-owned temporal identity and provenance while
-  preserving structured measurements, time series, locations, tracks, events, market-contract
-  states, data vintages, revisions, units, precision, coverage, gaps, and degraded conditions.
+- Let connectors map source-specific records into Intelligence's Observation contract while Core
+  preserves temporal identity, durable state, provenance, authority, and receipts. Domain Packs
+  declare how structured measurements, time series, locations, tracks, events, market-contract
+  states, data vintages, revisions, units, precision, coverage, gaps, and degraded conditions are
+  interpreted.
 - Track epistemic role, proximity, domain expertise, primary versus commentary status, ownership,
   syndication or common origin, and historical performance without collapsing source trust into one
   universal scalar. Repeated reporting from one origin must not masquerade as independent
@@ -343,9 +385,11 @@ work are tracked in [issue #47](https://github.com/augmented-cognition-engine/co
 - Preserve source spans and access-controlled deep links while enforcing consent, entitlement,
   quotation, redaction, retention, deletion, export, and audit policy. Licensed or sensitive content
   may ground an answer without being reproduced to an unauthorized reader.
-- Keep source connectors, entity resolution, domain ontologies, change-point algorithms, materiality
-  rules, and specialized trust policies in extensions; Core owns scope, identity, time, provenance,
-  bounded selection, receipts, authority, and failure semantics.
+- Keep source translation in bounded connectors and domain ontologies, aliases, detector
+  configuration, materiality rules, and specialized trust policy in Domain Packs. Intelligence
+  owns domain-neutral resolution, delta, scoring, routing, synthesis, and feedback mechanisms; Core
+  owns scope, identity, time, durable state, provenance, reasoning, receipts, authority, and failure
+  semantics.
 
 ### SI4. Attention and measured orientation quality
 
@@ -362,23 +406,27 @@ work are tracked in [issue #47](https://github.com/augmented-cognition-engine/co
   revision stability, analyst action, and beneficial, harmful, or unproven effect against declared
   controls.
 
-Acceptance gate: independent extensions from at least three materially different scopes reproduce
-the same Core lifecycle without embedding their domain ontology in Core. Given a bounded as-of
-question, each journey ingests mixed evidence, produces a source-linked orientation, distinguishes
-claims from observed behavior and reactions, exposes contradictions and unknowns, establishes a
-standing watch, emits or suppresses a material-change signal under explicit policy, survives a
-runtime restart, and updates by append-only revision when later evidence arrives. Evaluation must
-include future-information leakage controls, duplicated-origin and entitlement negative controls,
-causal overclaim checks, alert-quality measures, and declared limits; it does not claim omniscience,
-general real-world causal accuracy, or universal benefit.
+Acceptance gate: external Domain Packs from at least two materially different scopes reproduce the
+same Core + Intelligence lifecycle without embedding their domain ontology in either layer. Given
+a bounded as-of question, each journey ingests mixed evidence, produces a source-linked
+orientation, distinguishes claims from observed behavior and reactions, exposes contradictions and
+unknowns, establishes a standing watch, emits or suppresses a material-change signal under explicit
+policy, survives a runtime restart, and updates by append-only revision when later evidence arrives.
+Evaluation must include future-information leakage controls, duplicated-origin and entitlement
+negative controls, causal-overclaim checks, alert-quality measures, and declared limits; it does
+not claim omniscience, general real-world causal accuracy, or universal benefit.
 
 ## Reasoning OS architecture sequence
 
 ```mermaid
 flowchart LR
-    EXT["Product extensions<br/>cognition · schema · evidence · tools · adapters"] --> CORE
-    SURF["Product surfaces<br/>application · API · CLI · MCP · Atrium"] --> CORE
+    PACK["Domain Packs<br/>ontology · detectors · personas · policy"] --> INTEL
+    CONN["Connectors<br/>authorized sources · bounded translation"] --> APP
+    SURF["Domain applications<br/>API · CLI · MCP · Atrium"] --> APP
     HUMAN["Human authority<br/>approve · reject · correct · promote"] --> CORE
+    APP["Application services<br/>LIVE ingress · bridge · Brief · feedback"] --> INTEL
+    APP --> CORE
+    INTEL["Intelligence<br/>observe · detect · route · synthesize"] --> CORE
     CORE["Reasoning kernel<br/>classify · compose · deliberate · synthesize"] <--> STATE
     STATE["Durable intelligence<br/>Living Product Graph · State Engine"] --> ORIENT
     ORIENT["Situational orientation<br/>investigate · compare · explain"] --> DECIDE
@@ -399,12 +447,12 @@ flowchart LR
 |---|---|---|---|---|
 | 1. Reasoning foundation | Can ACE reliably reason, remember, and explain what happened? | **Passed** | R0–R7, G1, IA-R1, I1–I3, and F1 passed | through 0.2.x |
 | 2. Product state | Can a product maintain grounded state and reason about change and consequences? | **Passed** | K1–K3, E1, and PS1 passed; Productized State is published in 0.3.1 | 0.3.x |
-| 3. Governed cognition | Can a builder teach the product how to reason without silent self-modification? | **Now** | E1 passed for ace-core 0.3.0; the obvious supported teaching experience is the active product milestone | 0.4.0 |
-| 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Gated** | T1 and B1 not ready; I1 authority foundation passed | 0.5.0 |
+| 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Active** | GI1 passed in 0.4.0; GC1 remains the supported teaching journey | 0.4.x |
+| 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Next; gated by GC1** | T1 and B1 not ready; I1 authority foundation passed | 0.5.0 |
 | 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Bounded evidence gate passed; productization next** | L1 and I3 passed; F2 not ready | 0.6.0 |
-| 6. Extension ecosystem and operation | Can any product adopt, extend, operate, and retain ownership of ACE intelligence? | **Governance boundary passed; ecosystem gated** | E1 passed; E2 and H1 not ready | 0.7.0 and 0.9.0 |
+| 6. Domain and extension ecosystem | Can any product adopt, specialize, operate, and retain ownership of ACE intelligence? | **Pack foundation passed; ecosystem gated** | GI1 and E1 passed; E2 and H1 not ready | 0.7.0 and 0.9.0 |
 | 7. Human experience | Can people inspect and govern the full loop without learning ACE internals? | **Read-only and governance foundations passed** | IA-R1, G1, E1, and L1 passed; the writable workspace remains bounded by B1 and H1 | 0.8.0 |
-| 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core? | **State and attribution foundations passed; product outcome not ready** | SI1–SI4 require K1–K3, I1–I3, E1/E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.0–0.9.0; complete by 1.0.0 |
+| 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
 
 ## Immediate dispatch
 
@@ -461,10 +509,22 @@ Exit condition: **passed.** The [0.3.x milestone](https://github.com/augmented-c
 passes its public acceptance gate, and the versioned public release is reproducible from published
 artifacts. K1–K3 and E1 remain bounded passed inputs; PS1 is the passed productized outcome.
 
-### 1. Productize the passed governed-cognition foundation
+### Completed release: 0.4.0 governed Intelligence foundation
 
-E1 passed for ace-core 0.3.0 and establishes one canonical cognition model. The 0.4.0 work now makes
-that lifecycle an obvious supported teaching experience:
+GI1 is `passed`. ACE 0.4.0 packages Core + Intelligence together, enforces their dependency
+boundary, compiles inert Domain Packs, admits bounded LIVE sources, derives exact replayable
+Intelligence resources, synthesizes governed Briefs, preserves the naked kernel, and publishes the
+same eleven MCP tools. The release, trusted PyPI workflow, and clean public-index installation are
+linked from the current release checkpoint above.
+
+This does not close GC1, SI1–SI4, or any domain product. It establishes the shared substrate those
+outcomes consume.
+
+### 1. Complete the governed-cognition builder journey
+
+E1 passed for ace-core 0.3.0 and establishes one canonical cognition model. GI1 passed in 0.4.0 and
+establishes the governed Intelligence substrate. GC1 now makes the cognition lifecycle an obvious
+supported public experience:
 
 ```text
 teach → propose → inspect → approve → use → measure → revise or retire
@@ -510,41 +570,45 @@ evidence or user need justifies a broader consequence contract.
 Exit condition: ACE can state, with reproducible evidence, when a capability helped, hurt, or
 remains unproven and can propose—not silently apply—a revision or retirement.
 
-### 4. Grow the extension and product-surface ecosystem
+### 4. Grow the domain, connector, extension, and product-surface ecosystem
 
-E1 has established N-1 compatibility, isolation and security review, recovery/effect semantics,
-operability, and conformance evidence for the exact ace-core 0.3.0 trusted in-process boundary. E2
-can now add product-owned telemetry, scheduled work, IDEs, messaging, webhooks, and remote execution
-adapters. H1 later adds tenancy, shared authority, portability, recovery, and managed operation
-without transferring ownership of a user's durable intelligence.
+GI1 establishes the inert Domain Pack compiler, external conformance seams, and bounded connector
+composition. E1 establishes N-1 compatibility, isolation and security review, recovery/effect
+semantics, operability, and conformance evidence for the exact ace-core 0.3.0 trusted in-process
+Python-extension boundary. E2 can now add pack distribution, connector lifecycle, product-owned
+telemetry, scheduled work, IDEs, messaging, webhooks, and remote execution adapters. H1 later adds
+tenancy, shared authority, portability, recovery, and managed operation without transferring
+ownership of a user's durable intelligence.
 
 Atrium evolves alongside these phases as a read-first view of state, reasoning, approvals, actions,
 outcomes, and proposed cognition changes. It gains no new write or execution authority merely by
 rendering them.
 
-### 5. Prepare continuous situational intelligence without displacing the release spine
+### 5. Validate continuous situational intelligence through external domains
 
-SI1–SI4 should begin as extension-led contract and evaluation work after the 0.3.x Productized State
-gate rather than widening that release. The preparation sequence is:
+SI1–SI4 now begin from the passed GI1 substrate rather than asking each vertical to rebuild its own
+entity, Shift, Signal, Brief, Case, provenance, and feedback machinery. The validation sequence is:
 
-1. freeze neutral contracts for a standing investigation, statement/commitment/action assessment,
-   immutable orientation revision, reaction dossier, attention policy, and attention receipt;
-2. freeze extension boundaries for structured measurements, time series, geospatial tracks,
-   market-contract state, source-origin clustering, entitlement, privacy, and source-specific
-   materiality;
-3. implement one narrow reference vertical with historical as-of fixtures, mixed narrative and
-   structured evidence, primary-source deep links, duplicated-origin controls, and known reactions;
-4. add at least two materially different independent extensions so the acceptance journey proves a
-   domain-neutral Core rather than a disguised world-intelligence ontology;
-5. connect governed analytical policies to evaluation and only then expose standing watches,
-   alerts, case files, timelines, maps, and revision controls through supported surfaces; and
-6. reconcile SI1–SI4 evidence into the 0.4–0.9 milestone gates without silently changing any
-   release's one-major-promise rule.
+1. freeze domain-neutral contracts for standing investigations, orientation revisions, reaction
+   dossiers, attention policies, subscriptions, and attention receipts;
+2. keep structured measurements, time series, geospatial tracks, market state, source-origin
+   clustering, entitlement, privacy, and source-specific materiality in Domain Packs or connectors;
+3. run World Intelligence through the public compiler and application seams using public-issue,
+   event, claim, correction, and source-independence semantics;
+4. run Market Intelligence through the same seams using competitor, product, customer, narrative,
+   campaign, and go-to-market semantics;
+5. accept platform changes only when both can express the need as a domain-neutral contract,
+   compiler, conformance, governance, or runtime requirement;
+6. connect governed domain policy to evaluation before exposing standing watches, alerts, case
+   files, timelines, maps, or revision controls through supported surfaces; and
+7. reconcile SI1–SI4 evidence into the 0.4.x–0.9 milestone gates without changing a domain release
+   into an ACE Core capability claim.
 
-Exit condition: the SI1–SI4 acceptance gate is reproducible from public artifacts across the required
-independent scopes, with privacy, entitlement, future-leakage, duplicated-origin, causal-overclaim,
-restart, degraded-state, and attention-quality evidence. Until then, continuous situational
-intelligence is a planned cross-cutting outcome, not a supported general-intelligence claim.
+Exit condition: the SI1–SI4 acceptance gate is reproducible from public artifacts across at least
+two materially different external domain packages, with privacy, entitlement, future-leakage,
+duplicated-origin, causal-overclaim, restart, degraded-state, and attention-quality evidence. Until
+then, continuous situational intelligence is a planned cross-cutting outcome, not a supported
+general-intelligence claim.
 
 ## Outcome ledger
 
@@ -568,22 +632,26 @@ intelligence is a planned cross-cutting outcome, not a supported general-intelli
 | K2 | passed | Model inspectable world dynamics and state-transition hypotheses | [K1-K3 product evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) proves an extension-owned product hypothesis with mechanism, preconditions, horizon, uncertainty, evidence/counterevidence challenge, review, stale behavior, and explicit causal limits |
 | K3 | passed | Simulate, compare, and reconcile consequences of possible actions | [K1-K3 product evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) proves action/no-action/alternative comparisons, durable decision/I3/promotion receipts, immutable outcome reconciliation, correction supersession, real restart/interruption recovery, later material use, and honest failure bounds |
 | PS1 | passed | Make the passed State Engine an obvious supported extension-first product journey | [Productized State evidence](docs/evidence/productized-state-journey-v1.md) passes authenticated adapter discovery/ingestion, `ace state` orchestration, integrated G1/IA-R1 and I1–I3 receipt inspection, v171 schema-zero, v168→v171 upgrade, restarts, correction, and later material use; the [0.3.1 release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md) binds the exact tag, official CI, trusted PyPI publication, matching registry hashes, and clean public-index installation |
+| GI1 | passed | Ship the governed, domain-neutral Intelligence foundation without embedding a vertical in Core | [ace-core 0.4.0](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.0) packages Core + Intelligence, the inert Domain Pack compiler, LIVE source ingress, the LIVE bridge, Brief synthesis, exact replay, external conformance seams, schema v175, unchanged eleven-tool MCP, trusted PyPI publication, and clean public-index installation |
+| GC1 | active | Make governed cognition an obvious supported teach, inspect, approve, use, measure, revise, and retire journey | E1 and GI1 are passed; issue [#3](https://github.com/augmented-cognition-engine/core/issues/3) remains open until one public external-consumer journey passes proposal, human disposition, exact revision use, failure controls, restart, and attribution through supported interfaces |
 | T1 | not ready | Strengthen task recovery, replay, portability, cancellation, and resource reporting | [TP1 evidence](docs/evidence/state-engine-tp1-reliable-memory-lifecycle-v1.md) closes reliable observation claiming/recovery; cancellation, portability, reporting, and topology guarantees remain |
 | E1 | passed | Stabilize the extension and governed-cognition boundary | [E1 release evidence](docs/evidence/e1-governed-cognition-release-v1.md) binds the canonical E1-A–G lifecycle to ace-core 0.3.0, exact current/N-1 and mixed-package evidence, public artifacts and fresh install, deployment inventory, independent AI security acceptance, and release-owner countersignature; the pass is limited to trusted in-process extensions and is not a human penetration test or certification |
 | L1 | passed | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative retrospective probe and v5/v6 failures, then records the preregistered v7 correction replicate: all 192 cases and 48 clusters were eligible, and ACE passed persistence, naïve/base-rate, and matched model-only under the frozen all-controls interval rule; the claim is limited to the executable benchmark |
 | B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts, stronger T1 guarantees, and explicit execution authority |
 | F2 | not ready | Broaden consequence types where product evidence justifies the complexity | Bounded L1 evidence now exists; F2 still requires demonstrated product need and its own consequence-contract evidence without reopening F1 |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
-| E2 | not ready | Grow the provider-neutral extension, telemetry, and execution-adapter ecosystem | Requires E1 conformance and a stable compatibility policy |
-| SI1 | not ready | Produce reproducible, source-linked situational orientation over any bounded authorized subject | Requires the K1–K3 state spine, I1–I3 attribution, a versioned orientation contract, historical as-of isolation, explicit uncertainty and causal limits, deep-link and omission receipts, restart evidence, and independent extension journeys |
-| SI2 | not ready | Maintain standing investigations and inspectable claim, commitment, action, reaction, and revision history | Requires SI1, governed extension-owned assessment policy through E1, durable investigation/watch identity, exact assessment tests and dispositions, reaction-type separation, correction and supersession, and no causal promotion from sequence alone |
-| SI3 | not ready | Govern heterogeneous evidence, source independence, privacy, entitlement, and structured deep links | Requires E1/E2 source and telemetry contracts plus typed measurement/time-series/geospatial/track/market evidence, origin and syndication lineage, access and retention policy, bounded retrieval controls, and H1 guarantees for shared or sensitive operation |
+| E2 | not ready | Grow the provider-neutral Domain Pack, connector, extension, telemetry, and execution-adapter ecosystem | Requires GI1 and E1 conformance plus stable distribution, compatibility, permission, and lifecycle policy |
+| SI1 | not ready | Produce reproducible, source-linked situational orientation over any bounded authorized subject | GI1 is passed; remaining work requires a versioned orientation contract, historical as-of isolation, explicit uncertainty and causal limits, deep-link and omission receipts, restart evidence, and materially different external Domain Pack journeys |
+| SI2 | not ready | Maintain standing investigations and inspectable claim, commitment, action, reaction, and revision history | Requires SI1, governed pack-owned assessment policy, durable investigation/watch identity, exact assessment tests and dispositions, reaction-type separation, correction and supersession, and no causal promotion from sequence alone |
+| SI3 | not ready | Govern heterogeneous evidence, source independence, privacy, entitlement, and structured deep links | Requires GI1/E2 source and telemetry contracts plus pack- or connector-owned measurement/time-series/geospatial/market semantics, origin and syndication lineage, access and retention policy, bounded retrieval controls, and H1 guarantees for shared or sensitive operation |
 | SI4 | not ready | Deliver material-change attention and measure orientation and alert quality | Requires SI1–SI3, explicit correctable interest/watch policy, attributable generation and suppression receipts, delivery controls, leakage-bounded historical evaluation, alert-quality measures, and product-owned outcome evidence under L1/F2 limits |
 
 ## Product and architecture guardrails
 
 - ACE remains provider-neutral; an LLM is an inference resource, not the owner of the loop.
-- Core remains domain-neutral; product-specific cognition and integrations attach through extensions.
+- Core and Intelligence remain domain-neutral; product-specific vocabulary and policy live in
+  Domain Packs, while source translation and actions live in bounded connectors or explicitly
+  trusted extensions.
 - Models may propose; deterministic code and explicit human authority own identity, activation,
   consequential execution, and promotion.
 - Evidence, belief, hypothesis, simulation, decision, action, and observation remain distinct.
