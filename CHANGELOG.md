@@ -6,6 +6,35 @@ Notable user- and contributor-visible changes are recorded here.
 
 No unreleased changes.
 
+## 0.4.0
+
+### Governed Cognition
+
+- Add governed LIVE source ingress as a packaged public application service: one exact resolved
+  source definition is captured through an activation-bound, authority-checked adapter and admitted
+  atomically as five durable records (acquisition receipt, canonical source snapshot, Observation,
+  Entity Snapshot, admission receipt) under four rechecked governed-state heads.
+- Add the governed LIVE Intelligence bridge and LIVE Brief synthesis services: admitted snapshots
+  derive Shift -> Signal -> attention dispositions and route-triggered Briefs through Core governed
+  reasoning, with exact idempotent replay and restart reopening of every admission.
+- Compose LIVE cognition into the host exclusively through the private
+  `core.engine.core.live_cognition` adapter: source connectors register in a bounded
+  constructor-supplied registry keyed by exact artifact identity, with no dynamic entry-point
+  loading, no embedded code in domain packs, and no persistence path outside Core's
+  immutable-record port.
+- Source acquisition fails closed on scope, URI, redirect, DNS/IP-rebinding, payload-size, digest,
+  replay, timing, and authority violations; authority-use receipts remain single-use and
+  non-reusable across admissions.
+
+### Compatibility, security, and evidence
+
+- Keep the public MCP surface at exactly eleven tools and preserve extension-disabled
+  (naked-kernel) startup without composing any LIVE service.
+- Add architecture gates proving public `ace` contracts stay host-free, LIVE services depend only
+  on public ports, and host adapters remain the only `core.engine` edge into the public package.
+- Preserve schema head v175 with additive, append-only governed-state and immutable-record
+  migrations; restart and replay behavior is exact across service restarts.
+
 ## 0.3.1
 
 ### Productized State

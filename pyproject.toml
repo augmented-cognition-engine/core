@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "0.3.1"
+version = "0.4.0"
 description = "Self-hosted reasoning that turns product decisions into durable recommendations"
 readme = "README.md"
 license = "Apache-2.0"
@@ -26,7 +26,8 @@ dependencies = [
     "rich>=13.0",
     "apscheduler>=3.11.2",
     "croniter>=6.2.2",
-    "gitpython>=3.1.55",  # GHSA-fjr4-x663-mwxc, GHSA-6p8h-3wgx-97gf, GHSA-r9mr-m37c-5fr3, GHSA-94p4-4cq8-9g67
+    "gitpython>=3.1.58",  # Security floor: GHSA-9rj7-rf2p-w77r and related path/config injection advisories.
+    "h2>=4.4.1",  # Security floor: CVE-2026-71554 (transitive httpx HTTP/2 dependency).
     "sse-starlette>=2.0",
     "fastmcp>=2.0",
     "mcp>=1.28.1",  # CVE-2026-59950 fixed in 1.28.1
@@ -137,9 +138,10 @@ build-backend = "build_backend"
 backend-path = ["."]
 
 [tool.setuptools.packages.find]
-include = ["ace", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evaluations*"]
+include = ["ace", "ace.*", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evaluations*"]
 
 [tool.setuptools.package-data]
+"ace" = ["py.typed"]
 "core.schema" = ["*.surql"]
 "core.engine.onboarding" = ["*.json"]
 "core.engine.runtime" = ["*.yml"]
