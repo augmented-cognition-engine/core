@@ -15,9 +15,26 @@ def test_current_release_and_active_milestone_are_not_conflated() -> None:
 
 
 def test_governed_intelligence_pass_does_not_overstate_governed_cognition() -> None:
-    assert "| GI1 | passed | Ship the governed, domain-neutral Intelligence foundation" in ROADMAP
+    assert "| GI1 | passed | Ship the governed Intelligence foundation as one installable" in ROADMAP
     assert "| GC1 | active | Make governed cognition an obvious supported" in ROADMAP
     assert "This does not close GC1, SI1–SI4, or any domain product" in ROADMAP
+
+
+def test_gi1_claims_packaging_not_domain_neutrality() -> None:
+    """GI1 is a packaging outcome. Neutrality is a falsification result and belongs to GI2.
+
+    A published release proves the distribution installs and its contracts hold. It cannot
+    prove the Intelligence layer is domain-neutral, because a single-domain abstraction
+    always looks neutral from inside that domain. Only an independent second domain running
+    the same lifecycle establishes that, so GI1 must not reclaim the words.
+    """
+    gi1 = next(line for line in ROADMAP.splitlines() if line.startswith("| GI1 |"))
+    assert "domain-neutral Intelligence foundation" not in gi1
+    assert "without embedding a vertical in Core" not in gi1
+    assert "packaging, contract, and publication outcome" in gi1
+
+    assert "| GI2 | not ready | Prove the Intelligence foundation is domain-neutral" in ROADMAP
+    assert "Packaging evidence cannot establish neutrality" in ROADMAP
 
 
 def test_core_intelligence_and_domain_boundaries_are_explicit() -> None:
