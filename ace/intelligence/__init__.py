@@ -30,7 +30,13 @@ from ace.intelligence.detection import (
     route_shift_as_signal,
 )
 from ace.intelligence.epistemic import (
+    BriefClaimEpistemicStatusBindingV1Alpha1,
+    BriefClaimEpistemicStatusBindingV1Alpha2,
+    BriefSynthesisDraftV1Alpha2,
+    EpistemicStatusDeclarationV1,
+    EpistemicStatusDeclarationV1Alpha2,
     EpistemicStatusValidationError,
+    ResolvedEpistemicStatusPolicy,
     derive_claim_epistemic_statuses,
     derive_claim_epistemic_statuses_with_families,
 )
@@ -61,6 +67,7 @@ from ace.intelligence.supersession import (
 from ace.intelligence.synthesis import (
     BriefDraftValidationError,
     CanonicalBriefAssembly,
+    ResolvedBriefSynthesisPolicy,
     assemble_canonical_brief,
     canonical_executive_summary,
     render_canonical_brief_body,
@@ -68,6 +75,13 @@ from ace.intelligence.synthesis import (
 )
 
 __all__ = [
+    "BriefClaimEpistemicStatusBindingV1Alpha1",
+    "BriefClaimEpistemicStatusBindingV1Alpha2",
+    "BriefSynthesisDraftV1Alpha2",
+    "EpistemicStatusDeclarationV1",
+    "EpistemicStatusDeclarationV1Alpha2",
+    "ResolvedEpistemicStatusPolicy",
+    "ResolvedBriefSynthesisPolicy",
     *_CONTRACTS_ALL,
     "BriefDraftValidationError",
     "COLLAPSING_RELATIONS",
