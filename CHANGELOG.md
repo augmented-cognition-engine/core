@@ -4,7 +4,17 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
-No unreleased changes.
+### Intelligence public surface
+
+- Export the per-statement epistemic-status and Case-bound Brief synthesis contracts from
+  `ace.intelligence`. `ace/intelligence/contracts/epistemic.py` existed but was not re-exported at
+  all, and twelve Case-bound synthesis contracts were missing from
+  `ace.intelligence.contracts`. An external Domain Pack consuming the published surface could not
+  reach them without importing a private module path.
+- Additive only: 23 names are re-exported, no contract, behaviour, or record identity changes. The
+  pure-contract boundary is preserved — the pack compiler and activation machinery stay in
+  `ace.intelligence.packs` and are deliberately not promoted to the top-level surface, as
+  `tests/intelligence/test_contract_boundaries.py` requires.
 
 ## 0.4.0
 
