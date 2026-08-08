@@ -4,6 +4,10 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+No unreleased changes.
+
+## 0.4.1
+
 ### Intelligence public surface
 
 - Export the per-statement epistemic-status and Case-bound Brief synthesis contracts from
