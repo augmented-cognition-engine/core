@@ -9,7 +9,7 @@ authority, and feedback built in. Self-hosted and provider-neutral, it commits e
 derivation, brief, decision, and outcome as an immutable, product-scoped record under explicit
 authority.
 
-![version 0.4.0](https://img.shields.io/badge/version-0.4.0-blue)
+![version 0.4.1](https://img.shields.io/badge/version-0.4.1-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
