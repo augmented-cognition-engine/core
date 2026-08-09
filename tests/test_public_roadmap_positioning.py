@@ -87,7 +87,10 @@ def test_041_public_p2a_domain_pack_conformance_is_recorded() -> None:
     assert "co-installation alongside the Market" in ROADMAP
     assert "no separate Core evidence record was ported into this archive for it" in ROADMAP_ONE_LINE
 
-    assert "Its public `v0.8.0` tag and package now make that consumer proof independently reproducible" in ROADMAP_ONE_LINE
+    assert (
+        "Its public `v0.8.0` tag and package now make that consumer proof independently reproducible"
+        in ROADMAP_ONE_LINE
+    )
 
 
 def test_041_publication_gate_is_complete_and_bounded() -> None:

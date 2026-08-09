@@ -73,11 +73,7 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
 def test_evidence_readme_labels_candidate_and_historical_records_honestly() -> None:
     text = EVIDENCE_README.read_text(encoding="utf-8")
 
-    gi2_line = next(
-        line
-        for line in text.splitlines()
-        if line.startswith("- [GI2 public cross-domain falsification](")
-    )
+    gi2_line = next(line for line in text.splitlines() if line.startswith("- [GI2 public cross-domain falsification]("))
     assert "public, passed" in gi2_line
 
     for line in text.splitlines():
