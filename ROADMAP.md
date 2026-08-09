@@ -529,6 +529,80 @@ linked from the current release checkpoint above.
 This does not close GC1, SI1–SI4, or any domain product. It establishes the shared substrate those
 outcomes consume.
 
+### Governed Intelligence platform substrate — P1 and P2 evidence (0.4.1 candidate)
+
+GI1 passed with the packaged, published `ace-core` 0.4.0 distribution described above. Work on
+`main` since that release has produced a further `ace-core` 0.4.1 implementation and evidence
+candidate that extends the same substrate. That candidate work **may be complete as local
+implementation and evidence**, but it is **not** a public release: as of this writing only
+`ace-core` 0.4.0 has a git tag, a GitHub Release, and a published PyPI package. `ace-core` 0.4.1 has
+none of the three yet, so it remains a candidate, not a shipped version, and nothing in this section
+reopens or changes the `GI1` or `GI2` states above.
+
+The Domain-World-Intelligence repository (`augmented-cognition-engine/domain-world-intelligence`)
+that exercises this substrate as a second, independent domain is public source, but it is also
+unreleased: it carries no version tag, no GitHub Release, and no PyPI package. Until both
+repositories publish tagged, reproducible artifacts, an outside reader cannot independently re-run
+the packet evidence below, so it remains local, candidate evidence in support of `GI2`, not a public
+falsification result.
+
+The candidate substrate was delivered in two ordered packet sequences:
+
+**P1 — the first governed LIVE spine**, from one authorized live source through a routed Brief and
+a closed feedback loop:
+
+- [P1C1 declarative source-mapping](docs/evidence/platform-p1c1-declarative-source-mapping-v1.md) —
+  the closed source-mapping declaration module and PREPARED interpreter that turns one compiled
+  Pack IR, mapping ID, and host snapshot into one content-addressed Observation and Entity Snapshot.
+- [P1C2 governed LIVE source ingress](docs/evidence/platform-p1c2-governed-live-source-ingress-v1.md)
+  — atomic admission of one authenticated LIVE capture into a source-acquisition receipt, snapshot,
+  Observation, and Entity Snapshot.
+- [P1D1 shift-triggered PREPARED Brief](docs/evidence/platform-p1d1-governed-routed-brief-v1.md) —
+  one routed Signal turned into one canonical PREPARED Brief over its Shift and Entity Snapshots.
+- [P1E governed PREPARED feedback](docs/evidence/platform-p1e-governed-feedback-v1.md) — a Decision
+  and later Outcome closing the loop back into an append-only Intelligence policy-state commit.
+- [P1F governed LIVE intelligence bridge](docs/evidence/platform-p1f-governed-live-intelligence-bridge-v1.md)
+  — the first bounded operational spine end-to-end: LIVE Observation → Entity Snapshot → Shift →
+  Signal → route → governed LIVE Brief.
+
+**P2A — the separate JSON-only World Domain Pack**, compiling through unchanged `ace-core`:
+seven conformance tests, five fail-closed mutations, and co-installation alongside the Market
+Domain Pack. P2A is consumer-repository conformance evidence recorded in the
+Domain-World-Intelligence repository, not in `ace-core`, so no separate Core evidence record was
+ported into this archive for it. Like the rest of this section, it remains non-publicly
+reproducible until the World repository is tagged, released on GitHub, and packaged.
+
+**P2 — Case-bound governance and domain-neutral falsification packets**, run against the second,
+independent World Intelligence domain:
+
+- [P2B categorical detection](docs/evidence/platform-p2b-categorical-detection-v1.md),
+  [P2B immutable Case closure](docs/evidence/platform-p2b-immutable-case-closure-v1.md), and
+  [P2B independent resource admission](docs/evidence/platform-p2b-independent-resource-admission-v1.md)
+  — domain-neutral categorical transition detection, immutable Case closure, and independently
+  admitted PREPARED resources.
+- [P2C Case-bound governed Brief](docs/evidence/platform-p2c-case-bound-governed-brief-v1.md) —
+  Brief synthesis bound to an open Case, closing packet `WI-CR-005`.
+- [P2D per-statement epistemic status](docs/evidence/platform-p2d-per-statement-epistemic-status-v1.md)
+  — packet `WI-CR-002`, domain-neutral per-statement epistemic status.
+- [P2E derivation-family independence](docs/evidence/platform-p2e-derivation-family-independence-v1.md)
+  — packet `WI-CR-003`, domain-neutral derivation-family independence.
+- [P2F supersession-impact projection](docs/evidence/platform-p2f-supersession-impact-projection-v1.md)
+  — packet `WI-CR-004`, domain-neutral supersession-impact projection.
+
+Two earlier local checkpoints record intermediate 0.3.x/0.4.x-era work and are preserved for history
+rather than as current status: the
+[context manifest and code-context checkpoint](docs/evidence/context-manifest-code-context-v1.md)
+and the
+[Productized State golden-journey checkpoint](docs/evidence/productized-state-golden-journey-v1.md).
+Both predate the P1/P2 sequence above and are superseded by it.
+
+None of this candidate evidence moves `GI1`, `GI2`, `GC1`, or any other outcome state. It records
+what the 0.4.1 candidate substrate delivered. The exact gate before this evidence can support a
+public claim is: merge the pending Core evidence; tag, GitHub-Release, and publish to PyPI
+`ace-core` 0.4.1; tag, GitHub-Release, and publish to PyPI the Domain-World-Intelligence `World`
+package; then re-run the clean-install two-domain journey end to end. `GI2` stays `not ready` until
+that final reproduction passes.
+
 ### 1. Complete the governed-cognition builder journey
 
 E1 passed for ace-core 0.3.0 and establishes one canonical cognition model. GI1 passed in 0.4.0 and

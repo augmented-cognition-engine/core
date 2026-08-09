@@ -5,6 +5,10 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
+# The 0.4.1 candidate/publication assertions below are a coordinated pre-release gate. The final
+# post-publication reconciliation must update them together with ROADMAP.md and the candidate labels
+# enforced by tests/test_evidence_index_integrity.py.
+
 
 def test_current_release_and_active_milestone_are_not_conflated() -> None:
     assert "`ace-core` 0.4.0 is published on PyPI and GitHub" in ROADMAP
@@ -48,3 +52,73 @@ def test_external_domains_validate_the_shared_platform_in_parallel() -> None:
     assert "### Parallel domain validation" in ROADMAP
     assert "World Intelligence and Market Intelligence are the current validation targets" in ROADMAP
     assert "at least two materially different external domain packages" in ROADMAP_ONE_LINE
+
+
+def test_041_candidate_is_not_conflated_with_a_public_release() -> None:
+    """The 0.4.1 platform substrate narrative must not silently claim a public release.
+
+    Only ace-core 0.4.0 has a published git tag, GitHub Release, and PyPI package. The 0.4.1
+    work on main is implementation/evidence candidate only, and the World Intelligence source
+    repository is public but untagged and unpublished. This must stay explicit so a reader
+    cannot mistake "candidate evidence" for "shipped".
+    """
+    assert "ace-core` 0.4.1 implementation and evidence candidate" in ROADMAP_ONE_LINE
+    assert (
+        "only `ace-core` 0.4.0 has a git tag, a GitHub Release, and a published PyPI package"
+        in ROADMAP_ONE_LINE
+    )
+    assert "`ace-core` 0.4.1 has none of the three yet" in ROADMAP_ONE_LINE
+    assert "it carries no version tag, no GitHub Release, and no PyPI package" in ROADMAP_ONE_LINE
+
+    forbidden = [
+        "ace-core` 0.4.1 is published",
+        "ace-core 0.4.1 is published",
+        "World Intelligence is published",
+        "domain-world-intelligence is published",
+    ]
+    for phrase in forbidden:
+        assert phrase not in ROADMAP
+        assert phrase not in ROADMAP_ONE_LINE
+
+
+def test_platform_substrate_section_does_not_change_outcome_states() -> None:
+    assert "### Governed Intelligence platform substrate" in ROADMAP
+    assert "None of this candidate evidence moves `GI1`, `GI2`, `GC1`, or any other outcome state." in ROADMAP
+
+
+def test_041_candidate_p2a_domain_pack_conformance_is_recorded() -> None:
+    """P2A is consumer-repository conformance evidence, not a ported Core evidence record.
+
+    This is a durable distinction, not pre-release prose: even after publication, P2A stays
+    documented as World-repository conformance work (compiles through unchanged ace-core, seven
+    conformance tests, five fail-closed mutations, co-installed with Market) rather than as a
+    Core-side evidence file. Only the reproducibility caveat below is specific to this
+    pre-release branch and should be replaced once the World repository ships.
+    """
+    assert "P2A" in ROADMAP
+    assert "JSON-only World Domain Pack" in ROADMAP
+    assert "seven conformance tests" in ROADMAP
+    assert "five fail-closed mutations" in ROADMAP
+    assert "co-installation alongside the Market" in ROADMAP
+    assert "no separate Core evidence record was ported into this archive for it" in ROADMAP_ONE_LINE
+
+    # Pre-release-only: replace in the final post-publication reconciliation commit.
+    assert (
+        "it remains non-publicly reproducible until the World repository is tagged, released on GitHub, and packaged"
+        in ROADMAP_ONE_LINE
+    )
+
+
+def test_041_candidate_publication_gate_is_exact_and_gi2_stays_open_until_it_passes() -> None:
+    """The publication gate must be an exact, checkable sequence, not vague "remaining step" prose."""
+    assert "The exact gate before this evidence can support a" in ROADMAP
+    assert "merge the pending Core evidence" in ROADMAP
+    assert "tag, GitHub-Release, and publish to PyPI `ace-core` 0.4.1" in ROADMAP_ONE_LINE
+    assert (
+        "tag, GitHub-Release, and publish to PyPI the Domain-World-Intelligence `World` package"
+        in ROADMAP_ONE_LINE
+    )
+    assert "re-run the clean-install two-domain journey end to end" in ROADMAP
+    assert "`GI2` stays `not ready` until that final reproduction passes" in ROADMAP_ONE_LINE
+
+    assert "is the only remaining step before this evidence can support a public claim" not in ROADMAP_ONE_LINE
