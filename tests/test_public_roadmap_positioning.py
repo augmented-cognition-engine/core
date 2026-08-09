@@ -63,10 +63,7 @@ def test_041_candidate_is_not_conflated_with_a_public_release() -> None:
     cannot mistake "candidate evidence" for "shipped".
     """
     assert "ace-core` 0.4.1 implementation and evidence candidate" in ROADMAP_ONE_LINE
-    assert (
-        "only `ace-core` 0.4.0 has a git tag, a GitHub Release, and a published PyPI package"
-        in ROADMAP_ONE_LINE
-    )
+    assert "only `ace-core` 0.4.0 has a git tag, a GitHub Release, and a published PyPI package" in ROADMAP_ONE_LINE
     assert "`ace-core` 0.4.1 has none of the three yet" in ROADMAP_ONE_LINE
     assert "it carries no version tag, no GitHub Release, and no PyPI package" in ROADMAP_ONE_LINE
 
@@ -114,10 +111,7 @@ def test_041_candidate_publication_gate_is_exact_and_gi2_stays_open_until_it_pas
     assert "The exact gate before this evidence can support a" in ROADMAP
     assert "merge the pending Core evidence" in ROADMAP
     assert "tag, GitHub-Release, and publish to PyPI `ace-core` 0.4.1" in ROADMAP_ONE_LINE
-    assert (
-        "tag, GitHub-Release, and publish to PyPI the Domain-World-Intelligence `World` package"
-        in ROADMAP_ONE_LINE
-    )
+    assert "tag, GitHub-Release, and publish to PyPI the Domain-World-Intelligence `World` package" in ROADMAP_ONE_LINE
     assert "re-run the clean-install two-domain journey end to end" in ROADMAP
     assert "`GI2` stays `not ready` until that final reproduction passes" in ROADMAP_ONE_LINE
 
