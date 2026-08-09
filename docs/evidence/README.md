@@ -48,13 +48,16 @@ superseded by later work and is kept for audit trail only.
 - [State Engine K1-K3 extension-first product closeout](state-engine-k1-k3-product-journey-v1.md)
 - [Productized State integrated public journey](productized-state-journey-v1.md)
 
-## Governed Intelligence platform substrate (ace-core 0.4.1 candidate)
+## Governed Intelligence platform substrate
 
-These records support the `GI2` domain-neutrality outcome in the
-[public roadmap](../../ROADMAP.md#governed-intelligence-platform-substrate--p1-and-p2-evidence-041-candidate).
-All are **candidate, local** evidence against an unreleased `ace-core` 0.4.1 and an unreleased,
-untagged `augmented-cognition-engine/domain-world-intelligence` source checkout — not verification
-of a public artifact.
+The [GI2 public cross-domain falsification](gi2-public-cross-domain-falsification-v1.md) is the
+current **public** closeout for the domain-neutrality outcome in the
+[public roadmap](../../ROADMAP.md#governed-intelligence-platform-substrate--p1-and-p2-evidence-041-public-closeout).
+It binds public Core 0.4.1, World 0.8.0, and Market 0.6.0 artifacts to the previously archived P1/P2
+records. Those records remain immutable point-in-time **candidate, local** documents; their old
+status wording is historical context and is not rewritten by the later public receipt.
+
+- [GI2 public cross-domain falsification](gi2-public-cross-domain-falsification-v1.md) — public, passed
 
 - [P1C1 declarative source-mapping](platform-p1c1-declarative-source-mapping-v1.md) — candidate, local
 - [P1C2 governed LIVE source ingress](platform-p1c2-governed-live-source-ingress-v1.md) — candidate, local

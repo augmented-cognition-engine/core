@@ -71,23 +71,23 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.4.0 is published on PyPI and GitHub from verified release commit `4d28fe85`. It puts
-Core + Intelligence in one install and ships governed LIVE source ingress, the LIVE Intelligence
-bridge, LIVE Brief synthesis, the inert JSON Domain Pack compiler, exact replay, and packaged
-external-consumer conformance seams. The release preserves schema head v175, the supported CLI
-identities, and exactly eleven thin MCP tools.
+`ace-core` 0.4.1 is published on PyPI and GitHub. It preserves the 0.4.0 governed-Intelligence
+foundation—Core + Intelligence in one install, governed LIVE source ingress, the LIVE bridge,
+Brief synthesis, the inert JSON Domain Pack compiler, exact replay, packaged external-consumer
+conformance seams, schema head v175, supported CLI identities, and exactly eleven thin MCP
+tools—while adding the public P1/P2 platform evidence required for independent domain validation.
 
-The [0.4.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.0)
-triggered the trusted PyPI publication workflow, and a clean Python 3.12 environment installed and
-reported `ace-core==0.4.0` from the public index. This passes the governed Intelligence foundation
-outcome, **GI1**, which is a packaging, contract, and publication outcome.
+The [0.4.1 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.1)
+and public `ace-core==0.4.1` package carry that release line forward. GI1 remains the packaging,
+contract, and publication outcome first passed by 0.4.0.
 
-It does **not** establish that the Intelligence foundation is domain-neutral. Neutrality is a
-falsification result, not a packaging result: a single-domain abstraction always looks neutral from
-inside that domain, so only an independent second domain running the same lifecycle can establish
-it. That claim is tracked separately as **GI2**, which is **not ready**. The World Intelligence
-journey that would establish it is locally verified only, because its repository is not yet
-published with a tagged, reproducible conformance journey.
+Domain neutrality remains a falsification result rather than a packaging property: a single-domain
+abstraction always looks neutral from inside that domain. **GI2 is now passed** through the public
+Core 0.4.1, World Intelligence 0.8.0, and Market Intelligence 0.6.0 artifacts. The tagged World
+journey reproduces its frozen Case and Brief identities, while a clean public-index environment
+compiles and activates both inert packs through unchanged platform APIs, retires Market, and proves
+the World binding remains active and byte-identical. The exact receipts and limitations are in the
+[GI2 public cross-domain evidence](docs/evidence/gi2-public-cross-domain-falsification-v1.md).
 
 This release also does not by itself close the broader governed-cognition builder-experience gate
 in issue #3; that remaining **GC1** journey stays active in 0.4.x.
@@ -529,24 +529,21 @@ linked from the current release checkpoint above.
 This does not close GC1, SI1–SI4, or any domain product. It establishes the shared substrate those
 outcomes consume.
 
-### Governed Intelligence platform substrate — P1 and P2 evidence (0.4.1 candidate)
+### Governed Intelligence platform substrate — P1 and P2 evidence (0.4.1 public closeout)
 
-GI1 passed with the packaged, published `ace-core` 0.4.0 distribution described above. Work on
-`main` since that release has produced a further `ace-core` 0.4.1 implementation and evidence
-candidate that extends the same substrate. That candidate work **may be complete as local
-implementation and evidence**, but it is **not** a public release: as of this writing only
-`ace-core` 0.4.0 has a git tag, a GitHub Release, and a published PyPI package. `ace-core` 0.4.1 has
-none of the three yet, so it remains a candidate, not a shipped version, and nothing in this section
-reopens or changes the `GI1` or `GI2` states above.
+GI1 passed with the packaged `ace-core` 0.4.0 distribution described above. `ace-core` 0.4.1 then
+published the P1/P2 platform evidence records that extend the same substrate. The individual
+records below remain immutable point-in-time documents and retain their original
+candidate/local wording; the later
+[GI2 public cross-domain evidence](docs/evidence/gi2-public-cross-domain-falsification-v1.md)
+binds them to the public release line rather than rewriting their historical status.
 
-The Domain-World-Intelligence repository (`augmented-cognition-engine/domain-world-intelligence`)
-that exercises this substrate as a second, independent domain is public source, but it is also
-unreleased: it carries no version tag, no GitHub Release, and no PyPI package. Until both
-repositories publish tagged, reproducible artifacts, an outside reader cannot independently re-run
-the packet evidence below, so it remains local, candidate evidence in support of `GI2`, not a public
-falsification result.
+The independent `augmented-cognition-engine/domain-world-intelligence` repository is now tagged,
+released, and published as `ace-domain-world-intelligence==0.8.0`. The separate Market repository
+is likewise public as `ace-domain-market-intelligence==0.6.0`. Their tagged and installed-artifact
+journeys close the publication dependency that kept GI2 open.
 
-The candidate substrate was delivered in two ordered packet sequences:
+The 0.4.1 substrate was delivered in two ordered packet sequences:
 
 **P1 — the first governed LIVE spine**, from one authorized live source through a routed Brief and
 a closed feedback loop:
@@ -569,8 +566,8 @@ a closed feedback loop:
 seven conformance tests, five fail-closed mutations, and co-installation alongside the Market
 Domain Pack. P2A is consumer-repository conformance evidence recorded in the
 Domain-World-Intelligence repository, not in `ace-core`, so no separate Core evidence record was
-ported into this archive for it. Like the rest of this section, it remains non-publicly
-reproducible until the World repository is tagged, released on GitHub, and packaged.
+ported into this archive for it. Its public `v0.8.0` tag and package now make that consumer proof
+independently reproducible.
 
 **P2 — Case-bound governance and domain-neutral falsification packets**, run against the second,
 independent World Intelligence domain:
@@ -596,12 +593,11 @@ and the
 [Productized State golden-journey checkpoint](docs/evidence/productized-state-golden-journey-v1.md).
 Both predate the P1/P2 sequence above and are superseded by it.
 
-None of this candidate evidence moves `GI1`, `GI2`, `GC1`, or any other outcome state. It records
-what the 0.4.1 candidate substrate delivered. The exact gate before this evidence can support a
-public claim is: merge the pending Core evidence; tag, GitHub-Release, and publish to PyPI
-`ace-core` 0.4.1; tag, GitHub-Release, and publish to PyPI the Domain-World-Intelligence `World`
-package; then re-run the clean-install two-domain journey end to end. `GI2` stays `not ready` until
-that final reproduction passes.
+These point-in-time records did not move an outcome by themselves. Their former publication gate
+has now passed: Core 0.4.1, World 0.8.0, and Market 0.6.0 are public, the tagged World conformance
+suite passes, and the clean public-index two-domain activation and retirement-isolation journey
+passes. GI2 is therefore reconciled to `passed`; GI1 remains passed, GC1 remains active, and
+SI1–SI4 remain bounded future outcomes.
 
 ### 1. Complete the governed-cognition builder journey
 
@@ -716,7 +712,7 @@ general-intelligence claim.
 | K3 | passed | Simulate, compare, and reconcile consequences of possible actions | [K1-K3 product evidence](docs/evidence/state-engine-k1-k3-product-journey-v1.md) proves action/no-action/alternative comparisons, durable decision/I3/promotion receipts, immutable outcome reconciliation, correction supersession, real restart/interruption recovery, later material use, and honest failure bounds |
 | PS1 | passed | Make the passed State Engine an obvious supported extension-first product journey | [Productized State evidence](docs/evidence/productized-state-journey-v1.md) passes authenticated adapter discovery/ingestion, `ace state` orchestration, integrated G1/IA-R1 and I1–I3 receipt inspection, v171 schema-zero, v168→v171 upgrade, restarts, correction, and later material use; the [0.3.1 release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md) binds the exact tag, official CI, trusted PyPI publication, matching registry hashes, and clean public-index installation |
 | GI1 | passed | Ship the governed Intelligence foundation as one installable distribution with inert Domain Pack compilation and governed LIVE seams | [ace-core 0.4.0](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.0) packages Core + Intelligence, the inert Domain Pack compiler, LIVE source ingress, the LIVE bridge, Brief synthesis, exact replay, external conformance seams, schema v175, unchanged eleven-tool MCP, trusted PyPI publication, and clean public-index installation. This is a packaging, contract, and publication outcome; the domain-neutrality claim it previously carried moved to GI2 |
-| GI2 | not ready | Prove the Intelligence foundation is domain-neutral through an independent, publicly reproducible second-domain falsification | Requires the platform packet evidence records published on this release line, and a versioned public World Intelligence repository with a tagged conformance journey an outside reader can re-run. Locally verified only: the World journey reproduces `case:412426eee708d56f6bda931ccf9e5d8b` and `brief:25d8232c9bfa27050bdcb160fb75f06c` byte-identically, but no published artifact lets a third party re-derive them. Packaging evidence cannot establish neutrality, and a single-domain abstraction always appears neutral from inside that domain |
+| GI2 | passed | Prove the Intelligence foundation is domain-neutral through an independent, publicly reproducible second-domain falsification | [GI2 public cross-domain evidence](docs/evidence/gi2-public-cross-domain-falsification-v1.md) binds public Core 0.4.1, World 0.8.0, and Market 0.6.0 artifacts. The tagged World suite passes 81 tests and reproduces `case:412426eee708d56f6bda931ccf9e5d8b` and `brief:25d8232c9bfa27050bdcb160fb75f06c`; a clean public-index install compiles and activates both packs through unchanged APIs, then retires Market without changing the active World binding. This is domain-neutral substrate evidence, not SI1–SI4 completion or a claim of general real-world accuracy |
 | GC1 | active | Make governed cognition an obvious supported teach, inspect, approve, use, measure, revise, and retire journey | E1 and GI1 are passed; issue [#3](https://github.com/augmented-cognition-engine/core/issues/3) remains open until one public external-consumer journey passes proposal, human disposition, exact revision use, failure controls, restart, and attribution through supported interfaces |
 | T1 | not ready | Strengthen task recovery, replay, portability, cancellation, and resource reporting | [TP1 evidence](docs/evidence/state-engine-tp1-reliable-memory-lifecycle-v1.md) closes reliable observation claiming/recovery; cancellation, portability, reporting, and topology guarantees remain |
 | E1 | passed | Stabilize the extension and governed-cognition boundary | [E1 release evidence](docs/evidence/e1-governed-cognition-release-v1.md) binds the canonical E1-A–G lifecycle to ace-core 0.3.0, exact current/N-1 and mixed-package evidence, public artifacts and fresh install, deployment inventory, independent AI security acceptance, and release-owner countersignature; the pass is limited to trusted in-process extensions and is not a human penetration test or certification |
