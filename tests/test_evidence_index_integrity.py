@@ -7,9 +7,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_DIR = REPO_ROOT / "docs" / "evidence"
 EVIDENCE_README = EVIDENCE_DIR / "README.md"
 
-# Candidate labels are intentional pre-release assertions. The final post-publication
-# reconciliation must update these checks together with ROADMAP.md and
-# tests/test_public_roadmap_positioning.py.
+# Historical candidate labels remain intentional after publication: the point-in-time P1/P2
+# records are immutable. The later public GI2 receipt is separately indexed as the authoritative
+# passed closeout. Keep these checks aligned with tests/test_public_roadmap_positioning.py.
 
 LOCAL_MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+\.md)(?:#[^)]*)?\)")
 
@@ -49,6 +49,7 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
 
     required_targets = [
         "../../MANIFESTO.md",
+        "gi2-public-cross-domain-falsification-v1.md",
         "platform-p1c1-declarative-source-mapping-v1.md",
         "platform-p1c2-governed-live-source-ingress-v1.md",
         "platform-p1d1-governed-routed-brief-v1.md",
@@ -71,6 +72,9 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
 
 def test_evidence_readme_labels_candidate_and_historical_records_honestly() -> None:
     text = EVIDENCE_README.read_text(encoding="utf-8")
+
+    gi2_line = next(line for line in text.splitlines() if line.startswith("- [GI2 public cross-domain falsification]("))
+    assert "public, passed" in gi2_line
 
     for line in text.splitlines():
         if "platform-p1" in line or "platform-p2" in line:
@@ -99,6 +103,7 @@ def test_every_evidence_markdown_file_referenced_from_this_pr_is_indexed() -> No
         "platform-p2f-supersession-impact-projection-v1.md",
         "context-manifest-code-context-v1.md",
         "productized-state-golden-journey-v1.md",
+        "gi2-public-cross-domain-falsification-v1.md",
     }
     for name in newly_added:
         assert (EVIDENCE_DIR / name).is_file(), f"expected fixture file missing: {name}"
