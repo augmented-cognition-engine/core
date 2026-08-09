@@ -5,17 +5,26 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The 0.4.1 publication assertions below are the coordinated post-release gate. Historical P1/P2
-# records retain their point-in-time candidate labels, while the later GI2 public receipt owns the
-# current outcome state. Keep these assertions aligned with tests/test_evidence_index_integrity.py.
+# The 0.4.2 checkpoint assertions are the coordinated post-release gate. Historical 0.4.1 GI2 and
+# P1/P2 identities remain exact point-in-time evidence, while the later GC1 public-surface receipt
+# owns only the builder-interface claim. Keep these aligned with test_evidence_index_integrity.py.
 
 
 def test_current_release_and_active_milestone_are_not_conflated() -> None:
-    assert "`ace-core` 0.4.1 is published on PyPI and GitHub" in ROADMAP
+    assert "`ace-core` 0.4.2 is published on PyPI and GitHub" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Active** |") == 1
     assert "| 0.4.0 | Governed Cognition | **Delivered** |" not in ROADMAP
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
     assert "| 0.5.0 | Reasoning into Action | **Next** |" in ROADMAP
+
+
+def test_042_public_builder_surface_is_recorded_without_closing_gc1() -> None:
+    assert "[0.4.2 GitHub Release]" in ROADMAP
+    assert "public `ace-core==0.4.2` package" in ROADMAP_ONE_LINE
+    assert "[GC1 public builder-surface evidence]" in ROADMAP
+    assert "Its public builder surface is now verified from a fresh PyPI install" in ROADMAP_ONE_LINE
+    assert "This does not close GC1" in ROADMAP
+    assert "**GC1** therefore stays active in 0.4.x" in ROADMAP_ONE_LINE
 
 
 def test_governed_intelligence_pass_does_not_overstate_governed_cognition() -> None:

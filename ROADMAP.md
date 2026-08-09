@@ -71,15 +71,24 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.4.1 is published on PyPI and GitHub. It preserves the 0.4.0 governed-Intelligence
-foundation—Core + Intelligence in one install, governed LIVE source ingress, the LIVE bridge,
-Brief synthesis, the inert JSON Domain Pack compiler, exact replay, packaged external-consumer
-conformance seams, schema head v175, supported CLI identities, and exactly eleven thin MCP
-tools—while adding the public P1/P2 platform evidence required for independent domain validation.
+`ace-core` 0.4.2 is published on PyPI and GitHub. It preserves the governed-Intelligence
+foundation and public P1/P2 evidence carried by 0.4.1—Core + Intelligence in one install,
+governed LIVE source ingress, the LIVE bridge, Brief synthesis, the inert JSON Domain Pack
+compiler, exact replay, packaged external-consumer conformance seams, schema head v175, supported
+CLI identities, and exactly eleven thin MCP tools—while adding the public `ace cognition` builder
+workflow over the existing authenticated cognition boundary.
+
+The [0.4.2 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.2)
+and public `ace-core==0.4.2` package expose proposal teaching, semantic-diff inspection, authorized
+human review, materially attributed fresh use, exact receipt inspection, and lifecycle governance.
+The [GC1 public builder-surface evidence](docs/evidence/gc1-public-builder-surface-v1.md) binds the
+tag, trusted publication, artifact hashes, and fresh public-index smoke test. GI1 remains the
+packaging, contract, and publication outcome first passed by 0.4.0.
 
 The [0.4.1 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.1)
-and public `ace-core==0.4.1` package carry that release line forward. GI1 remains the packaging,
-contract, and publication outcome first passed by 0.4.0.
+and public `ace-core==0.4.1` package remain the exact Core identity used by the completed GI2
+cross-domain falsification below; that historical receipt is not rewritten to substitute the newer
+release.
 
 Domain neutrality remains a falsification result rather than a packaging property: a single-domain
 abstraction always looks neutral from inside that domain. **GI2 is now passed** through the public
@@ -89,8 +98,10 @@ compiles and activates both inert packs through unchanged platform APIs, retires
 the World binding remains active and byte-identical. The exact receipts and limitations are in the
 [GI2 public cross-domain evidence](docs/evidence/gi2-public-cross-domain-falsification-v1.md).
 
-This release also does not by itself close the broader governed-cognition builder-experience gate
-in issue #3; that remaining **GC1** journey stays active in 0.4.x.
+This release does not by itself close the broader governed-cognition builder-experience gate in
+issue #3. The supported public surface is now proven, but the external-consumer journey must still
+pass proposal, human disposition, exact revision use, restart persistence, retirement failure,
+and attribution against a running deployment. **GC1** therefore stays active in 0.4.x.
 
 The release remains bounded to the documented single-node topology and trusted in-process Python
 extensions. It does not establish hostile-code isolation, distributed operation, general
@@ -208,12 +219,12 @@ or retire.
 - Support rejection, rollback, supersession, conflict, expiry, disablement, and retirement without
   erasing history or enabling silent self-modification.
 
-The current GC1 implementation packet adds a thin `ace cognition` builder workflow over the
-existing authenticated HTTP boundary. It makes proposal, semantic-diff inspection, authorized
-review, materially attributed fresh use, receipt inspection, and lifecycle governance explicit
-without adding authority or a new cognition model. This packet does not move GC1 by itself; the
-external-consumer, restart, failure-control, and public-artifact acceptance journey remains the
-outcome gate.
+The public `ace-core==0.4.2` release adds a thin `ace cognition` builder workflow over the existing
+authenticated HTTP boundary. It makes proposal, semantic-diff inspection, authorized review,
+materially attributed fresh use, receipt inspection, and lifecycle governance explicit without
+adding authority or a new cognition model. Its public builder surface is now verified from a fresh
+PyPI install. This does not close GC1: the external-consumer, restart, failure-control, and
+running-deployment acceptance journey remains the outcome gate.
 
 Release gate: GI1 is passed. GC1 passes when an external consumer can teach ACE a reusable
 capability through public interfaces, a human can inspect and govern the change, and a fresh

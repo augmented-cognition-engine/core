@@ -49,6 +49,7 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
 
     required_targets = [
         "../../MANIFESTO.md",
+        "gc1-public-builder-surface-v1.md",
         "gi2-public-cross-domain-falsification-v1.md",
         "platform-p1c1-declarative-source-mapping-v1.md",
         "platform-p1c2-governed-live-source-ingress-v1.md",
@@ -72,6 +73,13 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
 
 def test_evidence_readme_labels_candidate_and_historical_records_honestly() -> None:
     text = EVIDENCE_README.read_text(encoding="utf-8")
+
+    gc1_line = next(
+        line for line in text.splitlines() if line.startswith("- [GC1 public governed-cognition builder surface](")
+    )
+    assert "public" in gc1_line
+    assert "passed" in gc1_line
+    assert "GC1 active" in " ".join(text.split())
 
     gi2_line = next(line for line in text.splitlines() if line.startswith("- [GI2 public cross-domain falsification]("))
     assert "public, passed" in gi2_line
@@ -104,6 +112,7 @@ def test_every_evidence_markdown_file_referenced_from_this_pr_is_indexed() -> No
         "context-manifest-code-context-v1.md",
         "productized-state-golden-journey-v1.md",
         "gi2-public-cross-domain-falsification-v1.md",
+        "gc1-public-builder-surface-v1.md",
     }
     for name in newly_added:
         assert (EVIDENCE_DIR / name).is_file(), f"expected fixture file missing: {name}"
