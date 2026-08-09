@@ -13,6 +13,7 @@ from core.engine.cognition.contracts import (
     CognitionSourceV1,
     ScopeKind,
     canonical_hash,
+    canonical_json,
     stable_id,
 )
 from core.engine.cognition.governance import (
@@ -62,6 +63,15 @@ def _same_review_replay(
     )
 
 
+def _validated_payload(row: dict[str, Any], contract_type: Any) -> Any:
+    """Restore exact contract bytes when available, with pre-v176 compatibility."""
+    payload_json = row.get("payload_json")
+    if isinstance(payload_json, str):
+        return contract_type.model_validate_json(payload_json)
+    payload = row.get("payload")
+    return contract_type.model_validate(payload) if isinstance(payload, dict) else None
+
+
 async def _query_or_raise(db: Any, query: str, params: dict[str, Any]) -> Any:
     if ";" in query and hasattr(db, "query_raw"):
         response = await db.query_raw(query, params)
@@ -95,15 +105,14 @@ class CognitionGovernanceStore:
         async with self.pool.connection() as db:
             existing = parse_one(
                 await db.query(
-                    "SELECT proposal_hash, payload FROM ONLY "
+                    "SELECT proposal_hash, payload_json, payload FROM ONLY "
                     "type::record('cognition_proposal', $record_key) "
                     "WHERE product = $product LIMIT 1",
                     {"record_key": key, "product": parse_record_id(product_id)},
                 )
             )
             if existing:
-                payload = existing.get("payload")
-                stored = CognitionProposalV1.model_validate(payload) if isinstance(payload, dict) else None
+                stored = _validated_payload(existing, CognitionProposalV1)
                 if (
                     stored is not None
                     and str(existing.get("proposal_hash")) == proposal.proposal_hash
@@ -122,6 +131,7 @@ class CognitionGovernanceStore:
                 "base_revision_id": proposal.base_revision_id,
                 "state": ProposalState.PENDING.value,
                 "payload": proposal.model_dump(mode="python"),
+                "payload_json": canonical_json(proposal),
                 "created_at": proposal.created_at,
             }
             await _query_or_raise(
@@ -135,29 +145,24 @@ class CognitionGovernanceStore:
         async with self.pool.connection() as db:
             row = parse_one(
                 await db.query(
-                    "SELECT payload FROM ONLY type::record('cognition_proposal', $record_key) "
+                    "SELECT payload_json, payload FROM ONLY type::record('cognition_proposal', $record_key) "
                     "WHERE product = $product LIMIT 1",
                     {"record_key": _record_key(proposal_id), "product": parse_record_id(product_id)},
                 )
             )
-        return (
-            CognitionProposalV1.model_validate(row["payload"]) if row and isinstance(row.get("payload"), dict) else None
-        )
+        return _validated_payload(row, CognitionProposalV1) if row else None
 
     async def load_review(self, receipt_id: str, *, product_id: str) -> CognitionReviewReceiptV1 | None:
         async with self.pool.connection() as db:
             row = parse_one(
                 await db.query(
-                    "SELECT payload FROM ONLY type::record('cognition_review_receipt', $record_key) "
+                    "SELECT payload_json, payload FROM ONLY "
+                    "type::record('cognition_review_receipt', $record_key) "
                     "WHERE product = $product LIMIT 1",
                     {"record_key": _record_key(receipt_id), "product": parse_record_id(product_id)},
                 )
             )
-        return (
-            CognitionReviewReceiptV1.model_validate(row["payload"])
-            if row and isinstance(row.get("payload"), dict)
-            else None
-        )
+        return _validated_payload(row, CognitionReviewReceiptV1) if row else None
 
     async def load_proposal_state(self, proposal_id: str, *, product_id: str) -> ProposalState | None:
         async with self.pool.connection() as db:
@@ -174,23 +179,21 @@ class CognitionGovernanceStore:
         async with self.pool.connection() as db:
             row = parse_one(
                 await db.query(
-                    "SELECT payload FROM ONLY type::record('cognition_revision', $record_key) LIMIT 1",
+                    "SELECT payload_json, payload FROM ONLY type::record('cognition_revision', $record_key) LIMIT 1",
                     {"record_key": _record_key(revision_id)},
                 )
             )
-        return (
-            CognitionRevisionV1.model_validate(row["payload"]) if row and isinstance(row.get("payload"), dict) else None
-        )
+        return _validated_payload(row, CognitionRevisionV1) if row else None
 
     async def load_head(self, head_id: str) -> CognitionHeadV1 | None:
         async with self.pool.connection() as db:
             row = parse_one(
                 await db.query(
-                    "SELECT payload FROM ONLY type::record('cognition_head', $record_key) LIMIT 1",
+                    "SELECT payload_json, payload FROM ONLY type::record('cognition_head', $record_key) LIMIT 1",
                     {"record_key": _record_key(head_id)},
                 )
             )
-        return CognitionHeadV1.model_validate(row["payload"]) if row and isinstance(row.get("payload"), dict) else None
+        return _validated_payload(row, CognitionHeadV1) if row else None
 
     async def persist_disposition(
         self,
@@ -226,13 +229,14 @@ class CognitionGovernanceStore:
         async with self.pool.connection() as db:
             existing_review = parse_one(
                 await db.query(
-                    "SELECT payload FROM ONLY type::record('cognition_review_receipt', $record_key) "
+                    "SELECT payload_json, payload FROM ONLY "
+                    "type::record('cognition_review_receipt', $record_key) "
                     "WHERE product = $product LIMIT 1",
                     {"record_key": review_key, "product": parse_record_id(product_id)},
                 )
             )
             if existing_review:
-                stored = CognitionReviewReceiptV1.model_validate(existing_review.get("payload"))
+                stored = _validated_payload(existing_review, CognitionReviewReceiptV1)
                 if _same_review_replay(stored, receipt):
                     return stored
                 raise CognitionReplayConflict(f"stable review {receipt.receipt_id} contains different material")
@@ -277,6 +281,7 @@ class CognitionGovernanceStore:
                     "result_revision_id": receipt.result_revision_id,
                     "result_head_id": receipt.result_head_id,
                     "payload": receipt.model_dump(mode="python"),
+                    "payload_json": canonical_json(receipt),
                     "reviewed_at": receipt.reviewed_at,
                 },
             }
@@ -316,12 +321,12 @@ class CognitionGovernanceStore:
                 )
                 existing_identity = parse_one(
                     await db.query(
-                        "SELECT payload FROM ONLY type::record('cognition', $record_key) LIMIT 1",
+                        "SELECT payload_json, payload FROM ONLY type::record('cognition', $record_key) LIMIT 1",
                         {"record_key": identity_key},
                     )
                 )
                 if existing_identity:
-                    stored_identity = CognitionIdentityV1.model_validate(existing_identity.get("payload"))
+                    stored_identity = _validated_payload(existing_identity, CognitionIdentityV1)
                     if stored_identity != identity:
                         raise CognitionReplayConflict("stable cognition identity contains different material")
                 else:
@@ -378,6 +383,7 @@ def _identity_content(identity: CognitionIdentityV1) -> dict[str, Any]:
         "owner": identity.owner.model_dump(mode="python"),
         "stable_key": identity.stable_key,
         "payload": identity.model_dump(mode="python"),
+        "payload_json": canonical_json(identity),
     }
 
 
@@ -392,6 +398,7 @@ def _revision_content(revision: CognitionRevisionV1) -> dict[str, Any]:
         "material_hash": revision.material_hash,
         "approval_receipt_id": revision.approval_receipt_id,
         "payload": revision.model_dump(mode="python"),
+        "payload_json": canonical_json(revision),
     }
 
 
@@ -406,6 +413,7 @@ def _head_content(head: CognitionHeadV1) -> dict[str, Any]:
         "authority_receipt_id": head.authority_receipt_id,
         "expires_at": head.expires_at,
         "payload": head.model_dump(mode="python"),
+        "payload_json": canonical_json(head),
     }
     content["effective_at"] = head.effective_at or datetime.now(timezone.utc)
     return content

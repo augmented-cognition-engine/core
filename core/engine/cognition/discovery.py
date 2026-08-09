@@ -44,6 +44,14 @@ ReceiptToken = Annotated[
 ReceiptReason = Annotated[str, Field(min_length=1, max_length=240)]
 
 
+def _restore_contract(row: dict[str, Any], contract_type: Any) -> Any:
+    """Restore exact canonical bytes, with compatibility for pre-v176 rows."""
+    payload_json = row.get("payload_json")
+    if isinstance(payload_json, str):
+        return contract_type.model_validate_json(payload_json)
+    return contract_type.model_validate(row.get("payload"))
+
+
 class CandidateDisposition(StrEnum):
     SELECTED = "selected"
     OMITTED = "omitted"
@@ -521,7 +529,7 @@ class DurableCognitionDiscovery:
             async with self.pool.connection() as db:
                 rows = parse_rows(
                     await db.query(
-                        "SELECT id, payload FROM cognition_head "
+                        "SELECT id, payload_json, payload FROM cognition_head "
                         "WHERE scope.product_id = $product AND lifecycle = 'active' "
                         "ORDER BY id LIMIT 64",
                         {"product": product_id},
@@ -529,16 +537,17 @@ class DurableCognitionDiscovery:
                 )
                 for row in rows:
                     try:
-                        head = CognitionHeadV1.model_validate(row.get("payload"))
+                        head = _restore_contract(row, CognitionHeadV1)
                         revision_rows = parse_rows(
                             await db.query(
-                                "SELECT payload FROM ONLY type::record('cognition_revision', $revision_key) LIMIT 1",
+                                "SELECT payload_json, payload FROM ONLY "
+                                "type::record('cognition_revision', $revision_key) LIMIT 1",
                                 {"revision_key": str(head.active_revision_id).partition(":")[2]},
                             )
                         )
                         if not revision_rows:
                             raise LookupError("active_revision_missing")
-                        revision = CognitionRevisionV1.model_validate(revision_rows[0].get("payload"))
+                        revision = _restore_contract(revision_rows[0], CognitionRevisionV1)
                         if revision.revision_id != head.active_revision_id:
                             raise ValueError("active_revision_identity_mismatch")
                         if revision.contract_version != COGNITION_REVISION_VERSION:
@@ -681,8 +690,8 @@ class DurableCognitionDiscovery:
         *,
         product_id: str,
     ) -> CognitionSelectionReceiptV1 | None:
-        payload = await self._load("cognition_selection_receipt", receipt_id, product_id)
-        return CognitionSelectionReceiptV1.model_validate(payload) if payload is not None else None
+        row = await self._load("cognition_selection_receipt", receipt_id, product_id)
+        return _restore_contract(row, CognitionSelectionReceiptV1) if row is not None else None
 
     async def load_use(
         self,
@@ -690,8 +699,8 @@ class DurableCognitionDiscovery:
         *,
         product_id: str,
     ) -> CognitionUseReceiptV1 | None:
-        payload = await self._load("cognition_use_receipt", receipt_id, product_id)
-        return CognitionUseReceiptV1.model_validate(payload) if payload is not None else None
+        row = await self._load("cognition_use_receipt", receipt_id, product_id)
+        return _restore_contract(row, CognitionUseReceiptV1) if row is not None else None
 
     async def _load(self, table: str, receipt_id: str, product_id: str) -> dict[str, Any] | None:
         key = receipt_id.partition(":")[2]
@@ -700,12 +709,12 @@ class DurableCognitionDiscovery:
         async with self.pool.connection() as db:
             rows = parse_rows(
                 await db.query(
-                    f"SELECT payload FROM ONLY type::record('{table}', $record_key) WHERE product = $product LIMIT 1",
+                    f"SELECT payload_json, payload FROM ONLY type::record('{table}', $record_key) "
+                    "WHERE product = $product LIMIT 1",
                     {"record_key": key, "product": parse_record_id(product_id)},
                 )
             )
-        payload = rows[0].get("payload") if rows else None
-        return payload if isinstance(payload, dict) else None
+        return rows[0] if rows else None
 
     async def _persist(
         self,
@@ -738,6 +747,7 @@ class DurableCognitionDiscovery:
                             "product": parse_record_id(product_id),
                             "material_hash": material_hash,
                             "payload": payload,
+                            "payload_json": canonical_json(payload),
                         },
                     },
                 )

@@ -83,12 +83,16 @@ def test_governed_state_migrations_are_additive_and_append_only() -> None:
             (173, "governed_state_approval_subject"),
             (174, "immutable_record_ledger"),
             (175, "immutable_record_canonical_payload"),
+            (176, "governed_cognition_canonical_payload"),
         )
     ]
     assert "immutable_record" in migrations[2]
     assert "append_only_transaction_receipt" in migrations[2]
     assert "FOR update NONE" in migrations[2]
     assert "FOR delete NONE" in migrations[2]
+    assert "payload_json" in migrations[4]
+    assert "cognition_proposal" in migrations[4]
+    assert "cognition_selection_receipt" in migrations[4]
     for migration in migrations:
         assert "UPDATE " not in migration
         assert "DELETE " not in migration
