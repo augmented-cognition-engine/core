@@ -19,6 +19,7 @@ def cli(ctx, url):
 # Import and register command groups
 from core.engine.cli.commands.assertions import assertion
 from core.engine.cli.commands.briefing import briefing
+from core.engine.cli.commands.cognition import cognition
 from core.engine.cli.commands.conflicts import conflicts
 from core.engine.cli.commands.doctor import doctor
 from core.engine.cli.commands.evolve import evolve
@@ -60,6 +61,7 @@ cli.add_command(service)
 cli.add_command(onboarding)
 cli.add_command(briefing)
 cli.add_command(conflicts)
+cli.add_command(cognition)
 # Legacy experimental compatibility surface: callable, but no longer promoted
 # alongside the 0.1.x product-builder path.
 cli.add_command(skills)

@@ -208,6 +208,13 @@ or retire.
 - Support rejection, rollback, supersession, conflict, expiry, disablement, and retirement without
   erasing history or enabling silent self-modification.
 
+The current GC1 implementation packet adds a thin `ace cognition` builder workflow over the
+existing authenticated HTTP boundary. It makes proposal, semantic-diff inspection, authorized
+review, materially attributed fresh use, receipt inspection, and lifecycle governance explicit
+without adding authority or a new cognition model. This packet does not move GC1 by itself; the
+external-consumer, restart, failure-control, and public-artifact acceptance journey remains the
+outcome gate.
+
 Release gate: GI1 is passed. GC1 passes when an external consumer can teach ACE a reusable
 capability through public interfaces, a human can inspect and govern the change, and a fresh
 invocation materially uses the exact approved revision with complete attribution. Until then, the

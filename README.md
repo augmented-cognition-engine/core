@@ -616,6 +616,8 @@ Setup and provider details:
 ·
 [`docs/capability-maturity.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md)
 ·
+[`docs/governed-cognition-builder.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/governed-cognition-builder.md)
+·
 [`docs/governed-cognition-operations.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/governed-cognition-operations.md)
 
 ---

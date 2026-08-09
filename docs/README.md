@@ -43,6 +43,8 @@ Point-in-time release and acceptance records live in the
 - [Build your first extension](build-your-first-extension.md) — scaffold, run, and package an
   extension.
 - [Extension API](extension-api.md) — stable and experimental extension-author contracts.
+- [Governed cognition builder journey](governed-cognition-builder.md) — teach, inspect, approve,
+  use, attribute, and retire reusable cognition through supported interfaces.
 
 ## Project
 

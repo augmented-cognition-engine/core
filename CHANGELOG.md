@@ -4,7 +4,16 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
-No unreleased changes.
+### Governed Cognition builder experience
+
+- Add the `ace cognition` command family over the existing authenticated cognition API: teach from
+  a task, inspect proposals and semantic diffs, record authorized human review, require materially
+  attributed fresh use, inspect revisions/heads/receipts, and govern rollback, reactivation,
+  disablement, expiry, or retirement.
+- Keep authority and persistence unchanged. The CLI adds no model write path, refuses to report a
+  fresh task as successful cognition use without matching non-empty selection/use revision IDs and
+  a material-use hash, and leaves the eleven-tool MCP surface unchanged.
+- Add a builder guide for the supported lifecycle and its explicit GC1 boundary.
 
 ## 0.4.1
 
