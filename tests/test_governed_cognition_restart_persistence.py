@@ -91,6 +91,7 @@ async def _initialize(url: str) -> None:
             "v169_governed_cognition_catalog.surql",
             "v170_governed_cognition_review.surql",
             "v171_governed_cognition_use.surql",
+            "v176_governed_cognition_canonical_payload.surql",
         ):
             result = await db.query((ROOT / "core/schema" / name).read_text())
             assert not isinstance(result, str), result
@@ -112,6 +113,7 @@ def _proposal() -> CognitionProposalV1:
         "slug": "restart_recipe",
         "name": "Restart Recipe",
         "description": "Persist through a runtime restart.",
+        "round_trip_probe": {"kept": "exact", "optional": None},
         "domain_intelligences": ["testing"],
         "activation_signals": ["implement", "test", "restart", "persistence"],
         "archetype_affinity": {"executor": 1.0},
@@ -215,6 +217,10 @@ async def test_governed_cognition_chain_survives_fresh_database_connection(tmp_p
         restored_revision = await second_store.load_revision(str(receipt.result_revision_id))
         restored_head = await second_store.load_head(str(receipt.result_head_id))
         assert restored_proposal == proposal
+        assert restored_proposal.draft_body["round_trip_probe"] == {
+            "kept": "exact",
+            "optional": None,
+        }
         assert restored_review == receipt
         assert restored_revision is not None
         assert restored_revision.approval_receipt_id == receipt.receipt_id

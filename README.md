@@ -679,7 +679,7 @@ Report vulnerabilities per
 │   └── testing/              ← packaged conformance seams for external packages
 ├── core/
 │   ├── engine/               ← the host runtime (private): API, CLI, orchestration, adapters
-│   ├── schema/               ← SurrealDB migrations (head: v175)
+│   ├── schema/               ← SurrealDB migrations (head: v176)
 │   └── ui/canvas/            ← Atrium, an experimental React research canvas (repository beta)
 ├── ace_mcp_client/           ← thin pure-HTTP MCP client (the eleven tools)
 ├── extensions/reference/     ← the worked extension example the kernel actually loads

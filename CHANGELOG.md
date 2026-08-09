@@ -2,6 +2,18 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## Unreleased
+
+### Governed Cognition persistence correctness
+
+- Preserve exact canonical JSON alongside queryable SurrealDB object projections for cognition
+  identities, revisions, heads, proposals, review receipts, selection receipts, and use receipts.
+  This prevents flexible-object normalization from changing nested optional material across a
+  database round trip and invalidating content-derived identities.
+- Prefer the canonical payload on reload while retaining read compatibility with records written
+  before schema v176. A real-database restart regression covers proposal, approval, discovery,
+  material use, lifecycle governance, and receipt reload with nested null material.
+
 ## 0.4.2
 
 ### Governed Cognition builder experience
