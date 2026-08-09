@@ -2,7 +2,7 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
-## Unreleased
+## 0.4.2
 
 ### Governed Cognition builder experience
 
