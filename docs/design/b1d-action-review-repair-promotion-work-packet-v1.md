@@ -1,6 +1,6 @@
 # B1D action review, repair, and promotion work packet (v1)
 
-Status: **active candidate for ACE 0.5.0; does not complete T1 or B1**
+Status: **merged candidate for ACE 0.5.0; released-artifact acceptance pending**
 
 Date: 2026-08-10
 
