@@ -327,16 +327,19 @@ class TestTeamPattern:
     async def test_concurrent_execution(self):
         """Multiple agents execute concurrently (not sequentially)."""
         bus = OrchestrationBus()
-        execution_times: dict[str, float] = {}
+        active_executions = 0
+        peak_active_executions = 0
 
         class TimedShell(TrackingShell):
             async def execute(self, task, context=None):
-                import time
-
-                start = time.monotonic()
-                await asyncio.sleep(0.05)  # Simulate work
-                execution_times[self.agent_id] = time.monotonic() - start
-                return AgentResult(agent_id=self.agent_id, status="completed", output=f"{self.agent_id} done")
+                nonlocal active_executions, peak_active_executions
+                active_executions += 1
+                peak_active_executions = max(peak_active_executions, active_executions)
+                try:
+                    await asyncio.sleep(0.05)  # Yield so concurrently scheduled agents overlap.
+                    return AgentResult(agent_id=self.agent_id, status="completed", output=f"{self.agent_id} done")
+                finally:
+                    active_executions -= 1
 
         factory = TrackingFactory(
             bus,
@@ -351,21 +354,14 @@ class TestTeamPattern:
 
         pattern = TeamPattern(bus=bus, factory=factory)
 
-        import time
-
-        start = time.monotonic()
         result = await pattern.execute(
             task="Analyze market trends",
             config=_make_config(),
             agent_configs=[_agent("researcher"), _agent("analyst")],
         )
-        wall_clock = time.monotonic() - start
 
         assert result.status == "completed"
-        # If sequential, would take ~0.1s+ (2 agents x 0.05s each + synthesis).
-        # Parallel should be ~0.05s + synthesis time.
-        # We use a generous bound to avoid flakiness.
-        assert wall_clock < 0.3, f"Team execution took {wall_clock:.2f}s — likely sequential"
+        assert peak_active_executions == 2
 
     @pytest.mark.asyncio
     async def test_discovery_forwarding(self):
