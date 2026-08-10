@@ -14,6 +14,5 @@ install it, construct it, and register its exact artifact identity explicitly. T
 release workflow builds it independently and attaches its wheel and source distribution to the
 matching GitHub Release; only the Core distribution is sent to PyPI.
 
-The dependency begins at `ace-core>=0.5.0,<0.6`. Before the release is public, candidate
-conformance installs the locally built Core and adapter wheels together. After release, install
-`ace-core==0.5.0` from PyPI and the adapter wheel from the `v0.5.0` GitHub Release assets.
+The dependency begins at `ace-core>=0.5.0,<0.6`. Install `ace-core==0.5.0` from PyPI and the adapter
+wheel from the public [`v0.5.0` GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.5.0).

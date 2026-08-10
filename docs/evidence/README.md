@@ -24,6 +24,7 @@ superseded by later work and is kept for audit trail only.
 - [R6 ace-core 0.1.3 release readiness](r6-release-readiness.md)
 - [R7 ace-core 0.2.0 release evidence](r7-release-readiness.md)
 - [ace-core 0.3.1 Productized State release evidence](productized-state-v0.3.1-release-readiness.md)
+- [ace-core 0.5.0 Reasoning into Action release evidence](reasoning-into-action-v0.5.0-release-readiness.md) — public, passed
 
 ## Product outcomes
 
@@ -92,13 +93,19 @@ Two earlier local checkpoints predate the P1/P2 sequence and are superseded by i
 
 ## Extension invocation
 
-- [T1A durable cancellation candidate](t1a-durable-cancellation-candidate-v1.md) — candidate, merged; release pending
-- [T1B execution limits and timeout receipts](t1b-execution-limits-candidate-v1.md) — candidate, merged; release pending
-- [T1C durable task attempt and replay](t1c-durable-task-replay-candidate-v1.md) — candidate, merged; release pending
-- [B1A governed action execution](b1a-governed-action-execution-candidate-v1.md) — candidate, merged; independently buildable adapter supplied by B1C, released-artifact acceptance pending
-- [B1B durable action restart and host composition](b1b-durable-action-restart-candidate-v1.md) — candidate, merged; released-artifact acceptance pending
-- [B1C independent action adapter](b1c-independent-action-adapter-candidate-v1.md) — candidate, merged; released-artifact acceptance pending
-- [B1D action review, repair, and promotion](b1d-action-review-repair-promotion-candidate-v1.md) — candidate, merged; released-artifact acceptance pending
+The [ACE 0.5.0 Reasoning into Action release evidence](reasoning-into-action-v0.5.0-release-readiness.md)
+composes the seven historical candidate records below with the exact public tag, PyPI artifacts,
+separately released adapter, clean installation, and independent World Intelligence P2C2 journey.
+T1 and B1 are therefore **passed** for the documented single-host, trusted-adapter topology. The
+candidate labels below remain point-in-time history rather than current roadmap state.
+
+- [T1A durable cancellation candidate](t1a-durable-cancellation-candidate-v1.md) — historical candidate, merged; closed by the public 0.5.0 receipt
+- [T1B execution limits and timeout receipts](t1b-execution-limits-candidate-v1.md) — historical candidate, merged; closed by the public 0.5.0 receipt
+- [T1C durable task attempt and replay](t1c-durable-task-replay-candidate-v1.md) — historical candidate, merged; closed by the public 0.5.0 receipt
+- [B1A governed action execution](b1a-governed-action-execution-candidate-v1.md) — historical candidate, merged; closed by the public 0.5.0 receipt
+- [B1B durable action restart and host composition](b1b-durable-action-restart-candidate-v1.md) — historical candidate, merged; closed by the public 0.5.0 receipt
+- [B1C independent action adapter](b1c-independent-action-adapter-candidate-v1.md) — historical candidate, merged; closed by the public 0.5.0 receipt
+- [B1D action review, repair, and promotion](b1d-action-review-repair-promotion-candidate-v1.md) — historical candidate, merged; closed by the public 0.5.0 receipt
 - [Phase 3 lifecycle acceptance](phase-3-extension-invocation-lifecycle-acceptance.md)
 - [Phase 4 structured-outcome acceptance](phase-4-extension-outcome-acceptance.md)
 - [Phase 5 Extension SDK acceptance](phase-5-extension-sdk-acceptance.md)

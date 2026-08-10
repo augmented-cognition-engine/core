@@ -53,6 +53,7 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
         "gc1-public-builder-surface-v1.md",
         "gc1-public-external-consumer-v1.md",
         "gi2-public-cross-domain-falsification-v1.md",
+        "reasoning-into-action-v0.5.0-release-readiness.md",
         "platform-p1c1-declarative-source-mapping-v1.md",
         "platform-p1c2-governed-live-source-ingress-v1.md",
         "platform-p1d1-governed-routed-brief-v1.md",
@@ -91,6 +92,13 @@ def test_evidence_readme_labels_candidate_and_historical_records_honestly() -> N
     gi2_line = next(line for line in text.splitlines() if line.startswith("- [GI2 public cross-domain falsification]("))
     assert "public, passed" in gi2_line
 
+    action_line = next(
+        line
+        for line in text.splitlines()
+        if line.startswith("- [ace-core 0.5.0 Reasoning into Action release evidence](")
+    )
+    assert "public, passed" in action_line
+
     for line in text.splitlines():
         if "platform-p1" in line or "platform-p2" in line:
             assert "candidate, local" in line, f"unlabeled candidate record: {line!r}"
@@ -121,6 +129,7 @@ def test_every_evidence_markdown_file_referenced_from_this_pr_is_indexed() -> No
         "gi2-public-cross-domain-falsification-v1.md",
         "gc1-public-builder-surface-v1.md",
         "gc1-public-external-consumer-v1.md",
+        "reasoning-into-action-v0.5.0-release-readiness.md",
     }
     for name in newly_added:
         assert (EVIDENCE_DIR / name).is_file(), f"expected fixture file missing: {name}"
