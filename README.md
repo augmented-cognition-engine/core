@@ -4,8 +4,9 @@
 
 **The open-source foundation for governed intelligence.**
 
-ACE turns changing evidence into entities, shifts, signals, briefs, decisions, and bounded actions—with
-provenance, authority, and feedback built in. Self-hosted and provider-neutral, it commits every
+ACE turns changing evidence into entities, shifts, signals, briefs, and decisions—with provenance,
+authority, and feedback built in. It can carry authorized decisions into bounded actions. Self-hosted
+and provider-neutral, it commits every
 observation, derivation, brief, decision, action, and outcome as an immutable, product-scoped record
 under explicit authority.
 
