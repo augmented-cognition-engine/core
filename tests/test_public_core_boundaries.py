@@ -107,6 +107,7 @@ def test_host_adapters_are_the_only_core_engine_edge_into_public_ace() -> None:
         "core/engine/core/governed_state.py",
         "core/engine/core/immutable_records.py",
         "core/engine/core/live_cognition.py",
+        "core/engine/core/action_execution.py",
     }
     offenders = sorted(
         str(path.relative_to(REPO))
@@ -127,6 +128,7 @@ forbidden = (
     'ace.application.live_source_ingress',
     'ace.application.live_intelligence_bridge',
     'core.engine.core.live_cognition',
+    'core.engine.core.action_execution',
     'extensions',
 )
 loaded = sorted(name for name in sys.modules if name.startswith(forbidden))

@@ -17,6 +17,7 @@ from enum import StrEnum
 from typing import Any, Callable, Literal, Protocol, Self
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
+from pydantic_core import to_json
 
 from ace.core.contracts import FrozenContract, canonical_hash, canonical_json
 from ace.core.decisions import DecisionActionDisposition, DecisionV1Alpha1
@@ -494,7 +495,7 @@ class GovernedActionExecutionService:
     async def _decision(self, intent: ActionIntentV1Alpha1) -> DecisionV1Alpha1:
         record = await self._load_record(intent.decision, kind="decision")
         try:
-            decision = DecisionV1Alpha1.model_validate(record.payload)
+            decision = DecisionV1Alpha1.model_validate_json(to_json(record.payload))
         except Exception as exc:
             raise GovernedActionExecutionError("Decision payload failed exact revalidation") from exc
         if (
@@ -524,7 +525,7 @@ class GovernedActionExecutionService:
         record = await self._load_record(transaction.records[0], kind=kind)
         model = ActionAdmissionV1Alpha1 if stage == "admission" else ActionTerminalV1Alpha1
         try:
-            value = model.model_validate(record.payload)
+            value = model.model_validate_json(to_json(record.payload))
         except Exception as exc:
             raise GovernedActionReplayConflict(f"{kind} payload failed exact replay") from exc
         if record.payload_contract != value.contract:
