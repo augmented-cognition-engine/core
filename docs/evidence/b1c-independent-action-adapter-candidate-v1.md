@@ -1,6 +1,6 @@
 # B1C independent action adapter candidate evidence (v1)
 
-**Status:** candidate; public review, merge, and released-artifact evidence pending
+**Status:** candidate, merged to `main`; released-artifact evidence pending
 
 **Date:** 2026-08-10
 
@@ -25,9 +25,10 @@ untrusted-plugin sandbox, distributed execution guarantee, or completion of B1/T
 ## Candidate identity
 
 - branch: `codex/b1c-independent-action-adapter`;
-- reviewed head: pending;
-- merge identity: pending;
-- GitHub Actions run: pending; and
+- final reviewed head: `494b8d9b28cdfc10f0e5bb0980944ada1c05b033`;
+- squash merge on `main`: `496b14dc21ad098952597cbbe7db86641d7702e8`;
+- successful final-head GitHub Actions run:
+  [31400684983](https://github.com/augmented-cognition-engine/core/actions/runs/31400684983); and
 - release identity: pending.
 
 ## Current verification
@@ -81,12 +82,33 @@ created `exports/proof.md`, and observed:
 {"adapter_module":"ace_reference_workspace_action.adapter","core_module":"ace.core.action_execution","disposition":"succeeded","effect_state":"confirmed","content":"# Installed B1C proof\n"}
 ```
 
-This is isolated local-wheel evidence, not a PyPI or ACE 0.5.0 release claim. Public review,
-final-head CI, and merge reconciliation remain to be added.
+This is isolated local-wheel evidence, not a PyPI or ACE 0.5.0 release claim.
+
+## Public review and final-head CI
+
+[Pull request #80](https://github.com/augmented-cognition-engine/core/pull/80) preserved the adapter
+boundary and merged only after the refreshed final head passed all six repository gates:
+
+- Lint;
+- Tests (fast gate);
+- Naked kernel (zero extensions);
+- Canvas (core/ui/canvas);
+- Security Audit; and
+- Docker Build.
+
+The first run and one rerun of the original B1C head each failed one pre-existing orchestration
+test that inferred concurrency from an absolute sub-300-millisecond wall-clock threshold. B1C did
+not touch that code; the same test passed repeatedly in isolation. The baseline repair was isolated
+in [pull request #81](https://github.com/augmented-cognition-engine/core/pull/81): it replaced the
+timing guess with a deterministic overlapping-execution assertion, passed all six gates, and merged
+as `fd57abb881f59075f9b730b807039b17c460f5fa`. B1C then merged current `main`, passed its focused
+72-test integration slice locally, and passed all six gates on the exact final reviewed head above.
+No product behavior or B1C adapter material changed in the CI repair.
 
 ## Remaining closeout gate
 
-B1C remains a candidate until public review, final-head CI, merge reconciliation, and released
-artifact evidence exist. B1 additionally requires explicit action review, repair, and promotion.
-T1 portability/topology and the complete context-to-action-to-updated-state release journey also
-remain before ACE 0.5.0 can pass.
+B1C remains a candidate until released-artifact evidence exists. Public review, final-head CI,
+merge reconciliation, local wheel isolation, and a real create-only installed-wheel effect are
+complete. B1 additionally requires explicit action review, repair, and promotion. T1
+portability/topology and the complete context-to-action-to-updated-state release journey also remain
+before ACE 0.5.0 can pass.

@@ -290,8 +290,8 @@ The fourth bounded packet is
 introduces a domain-neutral public candidate service that binds an authorized Decision to one
 effect-free adapter plan, persists admission before execution, and records success, failure,
 partial effect, timeout, cancellation, or restart uncertainty without allowing a Domain Pack to
-execute code. B1A is merged as a candidate pending independent-adapter and released-artifact
-closeout. Its
+execute code. B1A is merged as a candidate pending released-artifact closeout; B1C now supplies the
+merged independently buildable adapter proof. Its
 [candidate evidence](docs/evidence/b1a-governed-action-execution-candidate-v1.md) binds public review,
 final-head CI, exact merge identity, the focused contract suite, full regression, naked-kernel
 boundary, an isolated local-wheel probe, and the merged B1B fresh-process restart proof. It does not
@@ -316,9 +316,10 @@ adds a separately buildable trusted reference distribution over the public actio
 and one real create-only workspace export. The adapter is excluded from the Core wheel, imports no
 host internals, performs no discovery, and must be constructed and registered explicitly by exact
 artifact identity. Its
-[candidate evidence](docs/evidence/b1c-independent-action-adapter-candidate-v1.md) currently binds
-the focused conformance and host-registration checks; public review, final-head CI, merge,
-installed-wheel evidence, and released-artifact closeout remain. B1C does not provide arbitrary
+[candidate evidence](docs/evidence/b1c-independent-action-adapter-candidate-v1.md) binds the focused
+conformance and host-registration checks, independently built and installed wheels, public review,
+all six final-head CI gates, and the exact merge identity. Released-artifact closeout remains. B1C
+does not provide arbitrary
 filesystem access, safe untrusted code, distributed exactly-once effects, compensation, action
 review/repair/promotion, or T1 topology portability, and therefore does not complete T1 or B1.
 
