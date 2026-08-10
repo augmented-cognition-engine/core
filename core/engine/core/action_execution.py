@@ -14,6 +14,7 @@ from ace.core.action_execution import (
     GovernedActionAuthorizer,
     GovernedActionExecutionService,
 )
+from ace.core.action_review import GovernedActionReviewService
 from ace.core.reasoning import GovernedOperationBindingV1Alpha1
 from ace.core.records import ImmutableRecordStore
 from ace.core.runtime_use import CapabilityArtifactIdentityV1Alpha1
@@ -124,10 +125,50 @@ def build_surreal_governed_action_execution_service(
     )
 
 
+def build_governed_action_review_service(
+    *,
+    store: ImmutableRecordStore,
+    executor: GovernedActionExecutionService,
+    clock: Callable[[], datetime],
+) -> GovernedActionReviewService:
+    """Compose the exact human lifecycle over an already bounded executor."""
+
+    return GovernedActionReviewService(store=store, executor=executor, clock=clock)
+
+
+def build_surreal_governed_action_review_service(
+    *,
+    db: Any,
+    authorizer: GovernedActionAuthorizer,
+    operation_binding: GovernedOperationBindingV1Alpha1,
+    adapters: BoundedActionAdapterRegistry,
+    clock: Callable[[], datetime],
+) -> GovernedActionReviewService:
+    """Compose one durable executor and review lifecycle over the same store."""
+
+    from core.engine.core.immutable_records import SurrealImmutableRecordStore
+
+    store = SurrealImmutableRecordStore(db)
+    executor = build_governed_action_execution_service(
+        store=store,
+        authorizer=authorizer,
+        operation_binding=operation_binding,
+        adapters=adapters,
+        clock=clock,
+    )
+    return build_governed_action_review_service(
+        store=store,
+        executor=executor,
+        clock=clock,
+    )
+
+
 __all__ = [
     "ActionAdapterPort",
     "ActionCompositionError",
     "BoundedActionAdapterRegistry",
     "build_governed_action_execution_service",
+    "build_governed_action_review_service",
     "build_surreal_governed_action_execution_service",
+    "build_surreal_governed_action_review_service",
 ]

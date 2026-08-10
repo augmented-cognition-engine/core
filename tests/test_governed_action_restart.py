@@ -14,8 +14,11 @@ from ace.core import (
     ActionDisposition,
     ActionEffectState,
     ActionIntentV1Alpha1,
+    ActionPromotionDisposition,
     ActionResultV1Alpha1,
     ActionReversibility,
+    ActionReviewDisposition,
+    ActionVerificationDisposition,
     AppendOnlyTransactionRequestV1,
     AuthenticatedRuntimeContextV1Alpha1,
     CapabilityArtifactIdentityV1Alpha1,
@@ -38,7 +41,9 @@ from ace.core import (
 from core.engine.core.action_execution import (
     BoundedActionAdapterRegistry,
     build_governed_action_execution_service,
+    build_governed_action_review_service,
     build_surreal_governed_action_execution_service,
+    build_surreal_governed_action_review_service,
 )
 
 pytestmark = pytest.mark.integration
@@ -328,3 +333,103 @@ async def test_real_database_fresh_process_orphans_admission_without_reexecuting
     assert replay.terminal.model_dump(mode="json") == reopened["terminal"]
     assert replay_adapter.prepare_calls == 0
     assert replay_adapter.execute_calls == 0
+
+    reviewed_intent = ActionIntentV1Alpha1.model_validate(
+        {
+            **intent.model_dump(mode="python", exclude={"intent_id", "intent_digest"}),
+            "action_key": f"action:review-restart:{suffix}",
+        }
+    )
+    reviewed_adapter = _Adapter(
+        artifact=artifact,
+        prepared_at=now + timedelta(seconds=7),
+        completed_at=now + timedelta(seconds=11),
+    )
+    reviewed_authorization = GovernedActionAuthorizationProjection(
+        authorization_ref=ReceiptReferenceV1Alpha1(
+            receipt_id=f"authorization:review:{suffix}",
+            receipt_digest="sha256:" + canonical_hash({"authorization": "review", "suffix": suffix}),
+        ),
+        authorized_at=now + timedelta(seconds=8),
+        state_preconditions=preconditions,
+    )
+    review_store = SurrealImmutableRecordStore(db_pool)
+    review_executor = build_governed_action_execution_service(
+        store=review_store,
+        authorizer=_Authorizer(reviewed_authorization),
+        operation_binding=binding,
+        adapters=BoundedActionAdapterRegistry((reviewed_adapter,)),
+        clock=lambda: now + timedelta(seconds=10),
+    )
+    review_service = build_governed_action_review_service(
+        store=review_store,
+        executor=review_executor,
+        clock=lambda: now + timedelta(seconds=9),
+    )
+    prepared = await review_service.prepare_for_review(reviewed_intent)
+    review = await review_service.review(
+        prepared,
+        review_key=f"review:restart:{suffix}",
+        reviewer_context=AuthenticatedRuntimeContextV1Alpha1.model_validate(
+            {
+                **context.model_dump(mode="python"),
+                "actor_ref": "principal:reviewer",
+            }
+        ),
+        disposition=ActionReviewDisposition.APPROVE,
+        rationale="Approve the exact durable restart plan.",
+    )
+    assert reviewed_adapter.prepare_calls == 1
+    assert reviewed_adapter.execute_calls == 0
+
+    reopened_times = iter(
+        (
+            now + timedelta(seconds=10),
+            now + timedelta(seconds=12),
+            now + timedelta(seconds=13),
+        )
+    )
+    reopened_review = build_surreal_governed_action_review_service(
+        db=db_pool,
+        authorizer=_UnusedAuthorizer(),
+        operation_binding=binding,
+        adapters=BoundedActionAdapterRegistry((reviewed_adapter,)),
+        clock=lambda: next(reopened_times),
+    )
+    durable_review = await reopened_review.load_review(
+        product_id=product_id,
+        review_key=review.review_key,
+    )
+    assert durable_review == review
+    reviewed_outcome = await reopened_review.execute_reviewed(durable_review)
+    verification = await reopened_review.verify(
+        durable_review,
+        reviewed_outcome,
+        verification_key=f"verification:restart:{suffix}",
+        verifier_context=AuthenticatedRuntimeContextV1Alpha1.model_validate(
+            {
+                **context.model_dump(mode="python"),
+                "actor_ref": "principal:verifier",
+            }
+        ),
+        disposition=ActionVerificationDisposition.VERIFIED,
+        rationale="The durable action result passed exact verification.",
+    )
+    promotion = await reopened_review.promote(
+        verification,
+        promotion_key=f"promotion:restart:{suffix}",
+        promoter_context=AuthenticatedRuntimeContextV1Alpha1.model_validate(
+            {
+                **context.model_dump(mode="python"),
+                "actor_ref": "principal:promoter",
+            }
+        ),
+        disposition=ActionPromotionDisposition.PROMOTED,
+        target_ref="workspace:approved",
+        rationale="Adopt the verified durable output.",
+    )
+
+    assert reviewed_outcome.admission.plan == review.plan
+    assert reviewed_adapter.prepare_calls == 1
+    assert reviewed_adapter.execute_calls == 1
+    assert promotion.verification == verification

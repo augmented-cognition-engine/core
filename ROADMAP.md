@@ -323,6 +323,17 @@ does not provide arbitrary
 filesystem access, safe untrusted code, distributed exactly-once effects, compensation, action
 review/repair/promotion, or T1 topology portability, and therefore does not complete T1 or B1.
 
+The seventh bounded packet is
+[B1D action review, repair, and promotion](docs/design/b1d-action-review-repair-promotion-work-packet-v1.md).
+It adds an additive reviewed lifecycle around the unchanged B1A admission and terminal contracts:
+an authenticated human judgment binds the exact effect-free plan and Core authorization before
+execution; post-effect verification stays separate from promotion; and repair is a new linked
+successor rather than a silent retry. Unknown effects are ineligible for repair, and success never
+promotes itself. B1D is an active candidate pending public review, final-head CI, evidence
+reconciliation, and released-artifact closeout. It does not provide compensation, distributed
+exactly-once effects, remote execution, untrusted code, or T1 topology portability, and therefore
+does not complete T1 or B1.
+
 ### 0.6.0 — Measured Intelligence
 
 Public promise: reasoning revisions are promoted, rejected, rolled back, or retired because of

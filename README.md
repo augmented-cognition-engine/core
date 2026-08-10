@@ -744,8 +744,9 @@ understand → reason → decide → act with authority → observe outcomes →
 ```
 
 0.4.0 delivers the governed-cognition span of that loop. 0.5.0 (*Reasoning into Action*) carries an
-approved decision into bounded, attributable action; 0.6.0 (*Measured Intelligence*) promotes or
-retires reasoning revisions because of measured outcomes.
+approved decision through exact human review into bounded, attributable action, separate
+verification, linked repair when effects are known, and explicit promotion; 0.6.0 (*Measured
+Intelligence*) promotes or retires reasoning revisions because of measured outcomes.
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries

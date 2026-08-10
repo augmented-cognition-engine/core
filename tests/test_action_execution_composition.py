@@ -7,6 +7,7 @@ import pytest
 from ace.core import (
     CapabilityArtifactIdentityV1Alpha1,
     GovernedActionExecutionService,
+    GovernedActionReviewService,
     GovernedOperationBindingV1Alpha1,
     GovernedStateHeadPreconditionV1Alpha1,
 )
@@ -14,6 +15,7 @@ from core.engine.core.action_execution import (
     ActionCompositionError,
     BoundedActionAdapterRegistry,
     build_governed_action_execution_service,
+    build_governed_action_review_service,
 )
 
 pytestmark = pytest.mark.unit
@@ -103,3 +105,22 @@ def test_host_composition_requires_the_exact_explicitly_registered_adapter() -> 
             adapters=BoundedActionAdapterRegistry(),
             clock=lambda: datetime.now(UTC),
         )
+
+
+def test_review_composition_wraps_the_same_store_and_exact_executor() -> None:
+    store = object()
+    executor = build_governed_action_execution_service(
+        store=store,  # type: ignore[arg-type]
+        authorizer=object(),  # type: ignore[arg-type]
+        operation_binding=_binding(),
+        adapters=BoundedActionAdapterRegistry((_Adapter(),)),
+        clock=lambda: datetime.now(UTC),
+    )
+
+    service = build_governed_action_review_service(
+        store=store,  # type: ignore[arg-type]
+        executor=executor,
+        clock=lambda: datetime.now(UTC),
+    )
+
+    assert isinstance(service, GovernedActionReviewService)
