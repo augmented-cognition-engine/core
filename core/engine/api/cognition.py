@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 
 from core.engine.cognition import composer as composer_module
@@ -148,7 +149,7 @@ async def teach_from_task(
             ProposalSourceV1(
                 source_id=str(task.get("id") or body.task_id),
                 source_kind="task",
-                content_hash=canonical_hash(source_payload),
+                content_hash=canonical_hash(jsonable_encoder(source_payload)),
                 relation="taught_from",
             ),
         ),

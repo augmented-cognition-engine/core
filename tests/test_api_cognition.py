@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 
 import pytest
 from fastapi import FastAPI
@@ -68,7 +69,10 @@ async def test_teach_from_task_creates_non_selectable_sourced_proposal(client, m
             "product": "product:alpha",
             "description": "Frame and verify a migration.",
             "output": "Accepted migration plan.",
-            "decision_receipt": {"id": "decision:source"},
+            "decision_receipt": {
+                "id": "decision:source",
+                "reviewed_at": datetime(2026, 8, 9, 12, 30, tzinfo=UTC),
+            },
         }
     )
     monkeypatch.setattr(cognition_api, "pool", _Pool(db))
