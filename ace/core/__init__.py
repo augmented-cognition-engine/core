@@ -1,5 +1,23 @@
 """Stable public contracts owned by the ACE Core bounded context."""
 
+from ace.core.action_execution import (
+    ACTION_OPERATION,
+    ACTION_RECORD_SPACE,
+    ActionAdmissionV1Alpha1,
+    ActionDisposition,
+    ActionEffectState,
+    ActionEvidenceV1Alpha1,
+    ActionIntentV1Alpha1,
+    ActionResultV1Alpha1,
+    ActionReversibility,
+    ActionTerminalV1Alpha1,
+    GovernedActionAdapter,
+    GovernedActionExecutionError,
+    GovernedActionExecutionService,
+    GovernedActionOutcome,
+    GovernedActionReplayConflict,
+    PreparedActionV1Alpha1,
+)
 from ace.core.contracts import FrozenContract, canonical_hash, canonical_json, stable_id
 from ace.core.decisions import (
     DecisionActionDisposition,
@@ -81,6 +99,16 @@ from ace.core.state import (
 )
 
 __all__ = [
+    "ACTION_OPERATION",
+    "ACTION_RECORD_SPACE",
+    "ActionAdmissionV1Alpha1",
+    "ActionDisposition",
+    "ActionEffectState",
+    "ActionEvidenceV1Alpha1",
+    "ActionIntentV1Alpha1",
+    "ActionResultV1Alpha1",
+    "ActionReversibility",
+    "ActionTerminalV1Alpha1",
     "CoreAuthorityResolver",
     "CoreRuntimeUseResolver",
     "ContextBindingV1Alpha1",
@@ -100,6 +128,11 @@ __all__ = [
     "FrozenContextItemV1Alpha1",
     "GovernedActionAuthorizationProjection",
     "GovernedActionAuthorizationRequestV1Alpha1",
+    "GovernedActionAdapter",
+    "GovernedActionExecutionError",
+    "GovernedActionExecutionService",
+    "GovernedActionOutcome",
+    "GovernedActionReplayConflict",
     "GovernedOperationBindingV1Alpha1",
     "GovernedReasoningError",
     "GovernedReasoningOrphanedAttempt",
@@ -129,6 +162,7 @@ __all__ = [
     "ProviderRouteV1Alpha1",
     "ProviderStructuredOutputV1Alpha1",
     "ProviderUsageV1Alpha1",
+    "PreparedActionV1Alpha1",
     "GOVERNED_OPERATION_CONFIGURATION_STATE_KIND",
     "GOVERNED_OPERATION_BINDING_VERSION",
     "REASONING_CONFIGURATION_STATE_KIND",
