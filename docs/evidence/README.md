@@ -98,6 +98,7 @@ Two earlier local checkpoints predate the P1/P2 sequence and are superseded by i
 - [B1A governed action execution](b1a-governed-action-execution-candidate-v1.md) — candidate, merged; independently buildable adapter supplied by B1C, released-artifact acceptance pending
 - [B1B durable action restart and host composition](b1b-durable-action-restart-candidate-v1.md) — candidate, merged; released-artifact acceptance pending
 - [B1C independent action adapter](b1c-independent-action-adapter-candidate-v1.md) — candidate, merged; released-artifact acceptance pending
+- [B1D action review, repair, and promotion](b1d-action-review-repair-promotion-candidate-v1.md) — candidate, merged; released-artifact acceptance pending
 - [Phase 3 lifecycle acceptance](phase-3-extension-invocation-lifecycle-acceptance.md)
 - [Phase 4 structured-outcome acceptance](phase-4-extension-outcome-acceptance.md)
 - [Phase 5 Extension SDK acceptance](phase-5-extension-sdk-acceptance.md)

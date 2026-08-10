@@ -329,8 +329,10 @@ It adds an additive reviewed lifecycle around the unchanged B1A admission and te
 an authenticated human judgment binds the exact effect-free plan and Core authorization before
 execution; post-effect verification stays separate from promotion; and repair is a new linked
 successor rather than a silent retry. Unknown effects are ineligible for repair, and success never
-promotes itself. B1D is an active candidate pending public review, final-head CI, evidence
-reconciliation, and released-artifact closeout. It does not provide compensation, distributed
+promotes itself. B1D is merged as a candidate pending released-artifact closeout. Its
+[candidate evidence](docs/evidence/b1d-action-review-repair-promotion-candidate-v1.md) binds the
+exact reviewed head and merge, all six final-head CI gates, full regression, real SurrealDB
+review-to-promotion restart, and independently built wheels. It does not provide compensation, distributed
 exactly-once effects, remote execution, untrusted code, or T1 topology portability, and therefore
 does not complete T1 or B1.
 
