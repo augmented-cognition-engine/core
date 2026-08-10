@@ -71,6 +71,13 @@ Repository-wide Ruff lint, format, and `git diff --check` passed. Existing warni
 suite were non-failing deprecation, test-collection, fixture-key, and coroutine-cleanup warnings;
 no new failure was suppressed.
 
+The disposable real-store restart test also passed:
+
+```text
+tests/test_task_cancellation_restart.py
+1 passed in 1.64s
+```
+
 ## Isolated wheel probe
 
 The candidate wheel was installed with its declared dependencies into a new Python 3.12 virtual
@@ -101,17 +108,29 @@ by process loss. Calling the installed artifact's startup reconciliation produce
 ```
 
 This is an isolated installed-artifact contract probe with a deterministic persistence adapter. It
-is not yet a public-index deployment or a hard process-kill test against a real SurrealDB runtime.
+is not yet a public-index deployment.
+
+## Real durable-store restart
+
+The candidate also started a disposable SurrealDB SurrealKV process, created a real persisted
+`running` task with `cancellation.state=requested` and a stale `running` extension receipt, then
+invoked startup reconciliation from a fresh Python runtime process. The fresh runtime reconciled
+exactly one task to terminal degraded/interrupted state, preserved the cancellation actor, reason,
+and request timestamp, and rebuilt the extension receipt with no available output.
+
+A second fresh runtime reconciled zero tasks and left the full terminal cancellation fact
+unchanged. This proves restart idempotence over the real durable adapter used by the single-node
+preview. It does not simulate a distributed worker, prove remote-effect reversal, or make process
+termination atomic with an external system.
 
 ## Remaining closeout gate
 
 T1A remains candidate until all of the following are bound to the exact public source identity:
 
-1. PR review and required GitHub checks pass;
+1. PR review and required GitHub checks pass on the final candidate head;
 2. the merged commit is recorded;
-3. a real process-restart journey over durable storage reproduces the receipt transition;
-4. the supported/public maturity wording is reconciled without broadening the claim; and
-5. a released artifact, if T1A is promoted in a patch or minor release, passes the same journey from
+3. the supported/public maturity wording is reconciled without broadening the claim; and
+4. a released artifact, if T1A is promoted in a patch or minor release, passes the same journey from
    the public package index.
 
 Until then, the overall roadmap remains unchanged: T1 and B1 are not ready, and 0.5.0 remains next.
