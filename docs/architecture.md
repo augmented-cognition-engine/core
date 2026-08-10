@@ -54,7 +54,7 @@ engine. Atrium consumes API and event state and is not a kernel composition root
 | Grounded State Engine | `grounded_state/` owns temporal evidence, deterministic candidate receipts, reviewed epistemic assertion revisions, as-of belief projections, transition hypotheses, bounded consequence rollouts, reasoning-use receipts, promotion lineage, and later-outcome reconciliation | **Verified:** TP0–TP8, the repeated provider-free readiness audit, and the independent-extension product journey cover product-fenced append-only persistence, task integration, restart/replay/interruption, the retained 220,000-claim single-node corpus, 40 frozen K2 domain cases, five repeated K3 process journeys, and the supported clean-builder path; K1/K2/K3 passed for the named bounded capability; no benefit, distributed, causal-accuracy, calibration, or general-world-model claim |
 | MAKE / SHIP | `arms/base.py` defines the abstract arm contract; code/design/data/scaffold are MAKE implementations and `ship_arm.py` is the composite gate | **Verified:** arm discovery is lazy but registration is decorator/import based in `arms/registry.py` |
 | Model providers | `core/llm.py` owns `LLMProvider`, provider resolution, and several concrete routes; LiteLLM and any-llm adapters are optional extras and lazy imports | **Verified:** protocol is narrow; the main module still combines contract, resolver, and concrete Anthropic/subprocess implementations |
-| Execution adapters | `ace/core/action_execution.py` defines the public candidate contract and service; `core/engine/core/action_execution.py` owns exact constructor-only host registration and durable composition; existing runtime, session, arm, Git/GitHub, and command tooling remain separate experimental seams | **Candidate:** one explicitly registered trusted adapter can prepare an effect-free exact plan, receive Core authorization and pre-effect admission, execute once, and return an immutable honest terminal receipt; no public HTTP route, container equivalence, remote execution, or broad stable-adapter claim yet |
+| Execution adapters | `ace/core/action_execution.py` defines the public candidate contract and service; `core/engine/core/action_execution.py` owns exact constructor-only host registration and durable composition; `adapters/reference_workspace_action/` is a separately buildable trusted reference distribution excluded from the Core wheel; existing runtime, session, arm, Git/GitHub, and command tooling remain separate experimental seams | **Candidate:** one explicitly registered trusted adapter can prepare an effect-free exact plan, receive Core authorization and pre-effect admission, and create one absent workspace export through symlink-safe exclusive creation; no dynamic discovery, public HTTP route, arbitrary filesystem access, safe-untrusted-code, container equivalence, remote execution, or broad stable-adapter claim yet |
 | Extensions | `extensions/base.py` defines `Extension`; `extensions/registry.py` is the facade; `loader.py` discovers `ace.extensions` entry points and `ACE_EXTENSIONS` | **Verified:** individual failures are logged and skipped; `ACE_DISABLE_EXTENSIONS=1` supports a naked kernel; the in-tree `extensions/reference` package is registered by `pyproject.toml` |
 | SurrealDB/schema | `core/db.py` owns the pool; `core/schema.py`, `scripts/schema_apply.py`, and the versioned `core/schema/v*.surql` files own core migration order | **Verified:** graph/capture/intelligence services frequently query through the concrete global pool; extension schema registration exists but is documented as not consumed by the kernel migration runner |
 | Atrium | `core/ui/canvas` is a separate React/Vite client using HTTP, WebSocket, and canvas/event APIs | **Verified:** it depends outward on host state and can fail independently of the MCP/CLI golden path |
@@ -136,8 +136,16 @@ dynamic import, prefix matching, or version fallback. The supported SurrealDB co
 fresh-process integration journey prove that strict Decision and action receipts survive database
 JSON and that an uncertain effect is not executed again after application restart.
 
+B1C adds one reference implementation without moving the effect into Core. The separately built
+`ace-reference-workspace-action` distribution imports only `ace.core`, must be explicitly
+constructed with an existing approved workspace, and can only create one absent bounded UTF-8
+export. Its parent directories are opened component by component without following symlinks and
+the final file is created exclusively. The adapter is trusted application code; it is neither a
+Domain Pack nor a sandbox for untrusted plugins, and installing it does not register or authorize
+it.
+
 The candidate deliberately excludes
-arbitrary shell execution, a built-in writable adapter, cross-process locks, distributed exactly-once
+arbitrary shell execution, a built-in or dynamically discovered writable adapter, cross-process locks, distributed exactly-once
 effects, compensation, container or remote portability, and promotion through the complete SHIP
 gate. Those exclusions keep T1 and B1 not ready.
 
