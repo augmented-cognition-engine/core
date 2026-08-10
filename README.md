@@ -4,12 +4,12 @@
 
 **The open-source foundation for governed intelligence.**
 
-ACE turns changing evidence into entities, shifts, signals, briefs, and decisions—with provenance,
-authority, and feedback built in. Self-hosted and provider-neutral, it commits every observation,
-derivation, brief, decision, and outcome as an immutable, product-scoped record under explicit
-authority.
+ACE turns changing evidence into entities, shifts, signals, briefs, decisions, and bounded actions—with
+provenance, authority, and feedback built in. Self-hosted and provider-neutral, it commits every
+observation, derivation, brief, decision, action, and outcome as an immutable, product-scoped record
+under explicit authority.
 
-![version 0.4.4](https://img.shields.io/badge/version-0.4.4-blue)
+![version 0.5.0](https://img.shields.io/badge/version-0.5.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -38,6 +38,9 @@ configured model supplies inference inside the loop; ACE owns the loop around it
   deliberation, and synthesize an inspectable recommendation grounded in the admitted context.
 - **Decide.** Record the recommendation, human disposition, decision, rationale, and evidence as
   durable, attributable state rather than leaving them in a chat transcript.
+- **Act.** Carry an authorized Decision into an effect-free plan, exact human review, bounded
+  execution, honest terminal state, verification, repair, and separate promotion through an
+  explicitly registered trusted adapter.
 - **Observe and improve.** Reconcile decisions and forecasts with later outcomes, preserve
   corrections, and make governed feedback available to later reasoning. ACE does not silently
   rewrite history or grant itself new authority.
@@ -63,13 +66,16 @@ flowchart LR
 
     REC --> DEC["governed decision"]
     BRIEF --> DEC
-    DEC --> OUT["observed outcome"]
+    DEC --> REVIEW["exact plan review"]
+    REVIEW --> ACTION["bounded action"]
+    ACTION --> OUT["verified outcome"]
     OUT -.->|"correction + material use"| CLASSIFY
     OUT -.->|"governed feedback"| CHANGE
 
     CORE["Core<br/>authority · state · provenance · receipts"] -.->|governs| REC
     CORE -.->|governs| BRIEF
     CORE -.->|commits| DEC
+    CORE -.->|authorizes + receipts| ACTION
     CORE -.->|commits| OUT
 ```
 

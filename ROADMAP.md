@@ -336,6 +336,14 @@ review-to-promotion restart, and independently built wheels. It does not provide
 exactly-once effects, remote execution, untrusted code, or T1 topology portability, and therefore
 does not complete T1 or B1.
 
+The bounded release closeout is frozen in the
+[0.5.0 Reasoning into Action release work packet](docs/design/reasoning-into-action-v0.5.0-release-work-packet-v1.md).
+The supported topology is one ACE host, one durable store, and explicitly trusted in-process
+adapters; portability means an independently packaged adapter consumes only the public contract,
+not distributed execution. World Intelligence P2C2 supplies the external Decision-to-reviewed-
+action journey. T1, B1, and 0.5.0 remain unpassed until the exact tag, PyPI Core package, separate
+adapter release assets, and checkout-free World reproduction are verified.
+
 ### 0.6.0 — Measured Intelligence
 
 Public promise: reasoning revisions are promoted, rejected, rolled back, or retired because of

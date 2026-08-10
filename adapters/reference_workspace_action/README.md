@@ -10,7 +10,10 @@ execution creates a new file with exclusive-create semantics. Existing files, sy
 parent directories, absolute paths, traversal, and paths outside the workspace fail closed.
 
 This package is not included in the `ace-core` wheel and is not dynamically discovered. A host must
-install it, construct it, and register its exact artifact identity explicitly.
+install it, construct it, and register its exact artifact identity explicitly. The ACE 0.5.0
+release workflow builds it independently and attaches its wheel and source distribution to the
+matching GitHub Release; only the Core distribution is sent to PyPI.
 
-The dependency begins at `ace-core>=0.5.0`; until that release exists, candidate conformance installs
-the locally built Core wheel first and installs this wheel without dependency resolution.
+The dependency begins at `ace-core>=0.5.0,<0.6`. Before the release is public, candidate
+conformance installs the locally built Core and adapter wheels together. After release, install
+`ace-core==0.5.0` from PyPI and the adapter wheel from the `v0.5.0` GitHub Release assets.

@@ -1,3 +1,3 @@
 """Single source of truth for the ACE distribution version."""
 
-VERSION = "0.4.4"
+VERSION = "0.5.0"

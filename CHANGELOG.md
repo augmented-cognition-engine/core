@@ -2,6 +2,33 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 0.5.0
+
+### Reasoning into Action
+
+- Carry an exact approved Decision into a bounded action lifecycle without granting Domain Packs
+  executable authority. Core validates the Decision, adapter identity, permissions, target,
+  preconditions, timeout, and declared side effects; persists admission before an effect; and
+  records success, failure, partial effect, cancellation, timeout, or restart uncertainty
+  honestly.
+- Add durable exact-material human review before execution, separate post-effect verification,
+  linked repair as a new successor rather than a silent retry, and a separate promotion decision.
+  Unknown effects cannot be retried, and success never promotes itself.
+- Add constructor-only host composition and restart-safe action replay. An admitted action without
+  a terminal receipt reopens as uncertain after restart and is never implicitly executed again.
+- Add the separately packaged `ace-reference-workspace-action` 0.1.0 adapter as a bounded reference
+  implementation. It performs one create-only workspace export, imports only the public Core
+  contract, is never dynamically discovered, and is not included in the `ace-core` distribution.
+
+### Governed task execution
+
+- Add negotiated durable cancellation, declared wall-clock limits, terminal resource receipts,
+  generic attempt identity, and restart-safe linked replay for eligible direct tasks.
+- Keep the supported execution topology explicit: single-node host composition with trusted
+  in-process adapters. This release does not claim distributed exactly-once effects, remote
+  execution, compensation, arbitrary filesystem access, untrusted-code isolation, or unrestricted
+  autonomy.
+
 ## 0.4.4
 
 ### Governed Cognition source evidence
