@@ -174,7 +174,16 @@ async def test_pending_cancellation_reconciles_across_a_fresh_runtime_process(tm
             "actor": "user:t1a_restart",
             "reason": "operator requested stop",
         },
-        "execution": {"state": "running", "usable_output": False},
+        "execution": {
+            "state": "running",
+            "usable_output": False,
+            "limits": {
+                "contract_version": "task-execution-limits-v1",
+                "wall_time_seconds": 30.0,
+                "enforcement": "core_runtime_deadline",
+                "topology": "current_runtime_process",
+            },
+        },
     }
 
     try:
@@ -193,6 +202,8 @@ async def test_pending_cancellation_reconciles_across_a_fresh_runtime_process(tm
         assert reconciled["error"]["code"] == "cancellation_process_unavailable"
         assert reconciled["execution"]["state"] == "interrupted"
         assert reconciled["execution"]["usable_output"] is False
+        assert reconciled["execution"]["limits"]["wall_time_seconds"] == 30.0
+        assert reconciled["execution"]["limits"]["enforcement"] == "core_runtime_deadline"
         assert reconciled["cancellation"]["state"] == "process_stopped_during_cancellation"
         assert reconciled["cancellation"]["actor"] == "user:t1a_restart"
         assert reconciled["cancellation"]["reason"] == "operator requested stop"
