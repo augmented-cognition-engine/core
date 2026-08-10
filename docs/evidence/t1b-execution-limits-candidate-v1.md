@@ -1,6 +1,6 @@
 # T1B execution limits and timeout receipts candidate evidence (v1)
 
-**Status:** candidate, local; public review and released-artifact evidence pending
+**Status:** candidate, merged to main; released-artifact evidence pending
 
 **Date:** 2026-08-09
 
@@ -20,8 +20,9 @@ generation, exactly-once external effects, compensation, or unrestricted autonom
 ## Source and artifact identity
 
 The candidate was built on branch `codex/t1b-execution-limits` from Core main commit
-`141e38bdd1a293519b75d3441a52ec003323ea4d`. Commit, PR, final-head CI, and merge identities are
-pending public review.
+`141e38bdd1a293519b75d3441a52ec003323ea4d`. [PR #72](https://github.com/augmented-cognition-engine/core/pull/72)
+merged head `c11b82986bf62c215c641053e8d5d5eb39d8c75a` to main as squash commit
+`701c7ef62d1087f809c372437b72064167b33a27`.
 
 The locally built wheel retained the unreleased base version `ace-core==0.4.4`:
 
@@ -32,6 +33,21 @@ SHA-256 d8ea9e3619ea6560491b11263ed29e2f83c29aa4f25d627b29a89627bb7b86be
 
 The wheel version is not a new release claim. A later release must bind its own tag, version,
 trusted publication, public-index hashes, and installed-package journey.
+
+## Public review and CI
+
+PR #72 passed final-head [CI run 152](https://github.com/augmented-cognition-engine/core/actions/runs/31353132061)
+before merge. The required jobs all completed successfully:
+
+- Lint;
+- Security Audit;
+- Canvas typecheck, tests, and naked build;
+- Tests (fast gate);
+- Naked kernel with all extensions disabled; and
+- Docker build and health-endpoint verification.
+
+The PR was marked ready only after all six jobs passed, then squash merged without changing the
+verified head.
 
 ## Contract result
 
@@ -99,9 +115,9 @@ resource usage. This is an isolated installed-wheel contract probe, not a public
 
 ## Remaining closeout gate
 
-T1B remains a local candidate until public review, final-head CI, merge identity, and a released
-artifact from the public package index reproduce the bounded journey. T1A also still awaits its
-released-artifact closeout.
+T1B remains a candidate until a released artifact from the public package index reproduces the
+bounded journey and binds the exact tag, package version, hashes, and limitations. T1A also still
+awaits its released-artifact closeout.
 
 T1 remains not ready because cross-process replay/recovery, portability, distributed topology, and
 broader resource enforcement remain open. B1 remains not ready because no writable execution
