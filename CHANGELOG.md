@@ -2,6 +2,14 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 0.4.4
+
+### Governed Cognition source evidence
+
+- Normalize task-source evidence to JSON-native values before computing its canonical proposal
+  hash. Teaching reusable cognition from completed tasks now handles nested database-native
+  timestamps without weakening deterministic provenance.
+
 ## 0.4.3
 
 ### Governed Cognition persistence correctness
