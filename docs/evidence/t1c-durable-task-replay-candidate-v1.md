@@ -1,6 +1,6 @@
 # T1C durable task attempt and replay candidate evidence (v1)
 
-**Status:** candidate, local branch; merge and released-artifact evidence pending
+**Status:** candidate, merged to main; released-artifact evidence pending
 
 **Date:** 2026-08-09
 
@@ -21,8 +21,9 @@ compensation, portable execution, or unrestricted autonomy.
 ## Source and artifact identity
 
 The candidate was built on branch `codex/t1c-durable-task-replay` from Core main commit
-`bd50785055b51e165608998e83f79095f1be0cc9`. Merge, pull-request, and final CI identities remain
-pending and must be reconciled after public review.
+`bd50785055b51e165608998e83f79095f1be0cc9`. [PR #74](https://github.com/augmented-cognition-engine/core/pull/74)
+merged head `28bb16d124170f0c4ebec98b22e270f585e941f0` to main as squash commit
+`de4f2a00666dd3a362a77fd2a56abaf075fe9261`.
 
 The locally built wheel retained the unreleased base version `ace-core==0.4.4`:
 
@@ -33,6 +34,21 @@ SHA-256 e227188ad618befd53276bf6552b7600beeb34db8a2a4c2e97e50400ebc84cf3
 
 The wheel version is not a new release claim. A later release must bind its own tag, version,
 trusted publication, public-index hashes, and installed-package journey.
+
+## Public review and CI
+
+PR #74 passed final-head [CI run 31357262389](https://github.com/augmented-cognition-engine/core/actions/runs/31357262389)
+before merge. The required jobs all completed successfully:
+
+- Lint;
+- Security Audit;
+- Canvas typecheck, tests, and naked build;
+- Tests (fast gate);
+- Naked kernel with all extensions disabled; and
+- Docker build and health-endpoint verification.
+
+The PR was marked ready only after all six jobs passed, then squash merged without changing the
+verified head.
 
 ## Contract result
 
@@ -113,9 +129,9 @@ This is an isolated installed-wheel contract probe, not a public-index deploymen
 
 ## Remaining closeout gate
 
-T1C remains a candidate until the implementation is merged with final-head CI and a released
-artifact from the public package index reproduces the bounded journey with exact tag, package
-version, hashes, and limitations. T1A and T1B also still await released-artifact closeout.
+T1C remains a candidate until a released artifact from the public package index reproduces the
+bounded journey with exact tag, package version, hashes, and limitations. T1A and T1B also still
+await released-artifact closeout.
 
 T1 remains not ready because portability, distributed recovery and topology, remote execution,
 and broader resource enforcement remain open. B1 remains not ready because no writable execution
