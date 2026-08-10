@@ -277,9 +277,10 @@ The third bounded packet is
 [T1C durable task attempt and replay](docs/design/t1c-durable-task-replay-work-packet-v1.md). It
 predeclares a domain-neutral attempt identity on every new task receipt and lets failed or
 restart-degraded direct tasks create one deterministic linked successor from their persisted
-request. T1C is an active candidate pending repository and installed-artifact closeout. It does not
-request. [Candidate evidence](docs/evidence/t1c-durable-task-replay-candidate-v1.md) binds the local
-implementation, real restart, full regression, and isolated wheel probe. T1C does not claim
+request. T1C is merged as a candidate pending released-artifact closeout. Its
+[candidate evidence](docs/evidence/t1c-durable-task-replay-candidate-v1.md) binds public review,
+final-head CI, exact merge identity, real restart, full regression, and an isolated wheel probe.
+T1C does not claim
 distributed exactly-once execution, remote-worker recovery, provider-stream continuation,
 portable execution, or external-effect compensation, and therefore does not complete T1 or
 advance B1.
