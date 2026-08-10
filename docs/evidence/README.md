@@ -95,7 +95,7 @@ Two earlier local checkpoints predate the P1/P2 sequence and are superseded by i
 - [T1A durable cancellation candidate](t1a-durable-cancellation-candidate-v1.md) — candidate, merged; release pending
 - [T1B execution limits and timeout receipts](t1b-execution-limits-candidate-v1.md) — candidate, merged; release pending
 - [T1C durable task attempt and replay](t1c-durable-task-replay-candidate-v1.md) — candidate, merged; release pending
-- [B1A governed action execution](b1a-governed-action-execution-candidate-v1.md) — candidate, local; merge and broader acceptance pending
+- [B1A governed action execution](b1a-governed-action-execution-candidate-v1.md) — candidate, merged; real-restart, independent-adapter, and released-artifact acceptance pending
 - [Phase 3 lifecycle acceptance](phase-3-extension-invocation-lifecycle-acceptance.md)
 - [Phase 4 structured-outcome acceptance](phase-4-extension-outcome-acceptance.md)
 - [Phase 5 Extension SDK acceptance](phase-5-extension-sdk-acceptance.md)
