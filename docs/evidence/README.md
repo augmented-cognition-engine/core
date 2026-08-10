@@ -93,7 +93,7 @@ Two earlier local checkpoints predate the P1/P2 sequence and are superseded by i
 ## Extension invocation
 
 - [T1A durable cancellation candidate](t1a-durable-cancellation-candidate-v1.md) — candidate, merged; release pending
-- [T1B execution limits and timeout receipts](t1b-execution-limits-candidate-v1.md) — candidate, local
+- [T1B execution limits and timeout receipts](t1b-execution-limits-candidate-v1.md) — candidate, merged; release pending
 - [Phase 3 lifecycle acceptance](phase-3-extension-invocation-lifecycle-acceptance.md)
 - [Phase 4 structured-outcome acceptance](phase-4-extension-outcome-acceptance.md)
 - [Phase 5 Extension SDK acceptance](phase-5-extension-sdk-acceptance.md)
