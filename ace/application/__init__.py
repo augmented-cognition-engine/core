@@ -66,6 +66,15 @@ from ace.application.live_source_ingress import (
     LiveSourceIngressReplayConflict,
     LiveSourceIngressService,
 )
+from ace.application.measured_impact import (
+    IMPACT_EVALUATION_RECORD_KIND,
+    IMPACT_PROPOSAL_RECORD_KIND,
+    MEASURED_IMPACT_RECORD_SPACE,
+    MeasuredImpactAdmission,
+    MeasuredImpactError,
+    MeasuredImpactReplayConflict,
+    MeasuredImpactService,
+)
 from ace.application.supersession_impact import (
     SupersessionImpactAdmission,
     SupersessionImpactAdmissionError,
@@ -95,6 +104,9 @@ __all__ = [
     "DomainActivationAdmissionService",
     "EffectivePreparedFeedback",
     "LIVE_SOURCE_RECORD_SPACE",
+    "IMPACT_EVALUATION_RECORD_KIND",
+    "IMPACT_PROPOSAL_RECORD_KIND",
+    "MEASURED_IMPACT_RECORD_SPACE",
     "LiveBriefAdmission",
     "LiveBriefSynthesisError",
     "LiveBriefSynthesisReplayConflict",
@@ -107,6 +119,10 @@ __all__ = [
     "LiveSourceIngressError",
     "LiveSourceIngressReplayConflict",
     "LiveSourceIngressService",
+    "MeasuredImpactAdmission",
+    "MeasuredImpactError",
+    "MeasuredImpactReplayConflict",
+    "MeasuredImpactService",
     "PreparedBriefAppendAdmission",
     "PreparedCaseBriefAppendAdmission",
     "PreparedDecisionAdmission",
