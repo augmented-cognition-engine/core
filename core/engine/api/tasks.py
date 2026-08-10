@@ -13,6 +13,7 @@ import logging
 import re
 import time
 import uuid
+import weakref
 from dataclasses import asdict, is_dataclass
 from datetime import datetime, timezone
 from enum import Enum
@@ -333,6 +334,7 @@ _CONTRACT_VERSION = "async-receipt-v1"
 _TERMINAL_STATES = {"completed", "failed", "degraded", "cancelled"}
 _RUNTIME_ID = uuid.uuid4().hex
 _active_tasks: dict[str, asyncio.Task] = {}
+_cancellation_locks: weakref.WeakValueDictionary[str, asyncio.Lock] = weakref.WeakValueDictionary()
 _submission_lock: asyncio.Lock | None = None
 _submission_lock_loop: asyncio.AbstractEventLoop | None = None
 _accepting_tasks = True
@@ -802,11 +804,28 @@ async def _update_receipt(task_id: str, fields: dict) -> dict | None:
 
 async def cancel_task_execution(task_id: str, *, actor: str, reason: str) -> dict | None:
     """Request cancellation and return the durable terminal/acknowledgement state."""
+    lock = _cancellation_locks.get(task_id)
+    if lock is None:
+        lock = asyncio.Lock()
+        _cancellation_locks[task_id] = lock
+    async with lock:
+        return await _cancel_task_execution(task_id, actor=actor, reason=reason)
+
+
+async def _cancel_task_execution(task_id: str, *, actor: str, reason: str) -> dict | None:
+    """Serialize one task's cancellation transition and preserve its first terminal fact."""
     task = await _get_task_record(task_id)
     if not task:
         return None
     now = datetime.now(timezone.utc)
     status = str(task.get("status") or "degraded")
+    prior_cancellation = task.get("cancellation") if isinstance(task.get("cancellation"), dict) else {}
+    if prior_cancellation.get("state") in {
+        "acknowledged",
+        "completed_before_cancellation",
+        "process_stopped_during_cancellation",
+    }:
+        return task
     if status in _TERMINAL_STATES:
         cancellation = {
             "state": "completed_before_cancellation",
@@ -1248,6 +1267,19 @@ async def initialize_task_runtime() -> int:
                 """,
                 {"contract_version": _CONTRACT_VERSION, "runtime_id": _RUNTIME_ID},
             )
+        )
+    # Rebuild the public extension receipt from the reconciled durable facts.
+    # A restart must not leave a stale "running" receipt beside a degraded task.
+    for row in rows:
+        metadata = row.get("extension_invocation")
+        if not isinstance(metadata, dict):
+            continue
+        prior_receipt = row.get("extension_receipt")
+        prior_outcome = prior_receipt.get("outcome") if isinstance(prior_receipt, dict) else None
+        extension_receipt = build_extension_receipt(row, metadata, outcome=prior_outcome)
+        await _update_receipt(
+            str(row.get("id") or ""),
+            {"extension_receipt": extension_receipt, "updated_at": datetime.now(timezone.utc)},
         )
     _accepting_tasks = True
     return len(rows)
