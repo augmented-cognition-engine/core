@@ -159,10 +159,11 @@ attempt could duplicate an effect that already happened. These lifecycle records
 facts, not effects: only the explicitly supplied adapter can change the target, and Domain Packs
 remain declarative.
 
-The candidate deliberately excludes
-arbitrary shell execution, a built-in or dynamically discovered writable adapter, cross-process locks, distributed exactly-once
-effects, compensation, container or remote portability, and promotion through the complete SHIP
-gate. Those exclusions keep T1 and B1 not ready.
+The supported 0.5.0 boundary deliberately excludes arbitrary shell execution, a built-in or
+dynamically discovered writable adapter, cross-process locks, distributed exactly-once effects,
+compensation, container or remote portability, and promotion through the complete SHIP gate. T1
+and B1 are passed only for the documented single-host, trusted-adapter topology; these excluded
+guarantees remain later platform and collaborative-runtime work.
 
 ### Structured extension-invocation lifecycle
 

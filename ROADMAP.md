@@ -71,13 +71,25 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.4.4 is published on PyPI and GitHub. It preserves the governed-Intelligence
-foundation and public P1/P2 evidence carried by 0.4.1—Core + Intelligence in one install,
-governed LIVE source ingress, the LIVE bridge, Brief synthesis, the inert JSON Domain Pack
-compiler, exact replay, packaged external-consumer conformance seams, supported CLI identities,
-and exactly eleven thin MCP tools—while exposing the public `ace cognition` builder workflow over
-the existing authenticated cognition boundary. Patch releases 0.4.3 and 0.4.4 hardened canonical
-cognition persistence and task-source timestamp compatibility; schema head is v176.
+`ace-core` 0.5.0 is published on PyPI and GitHub. It carries the governed-cognition and Intelligence
+foundation forward and completes the bounded Reasoning into Action promise: an exact approved
+Decision can proceed through an effect-free plan, exact human review, durable admission, bounded
+execution, honest terminal state, separate verification, linked repair when the prior effect is
+known, and separate promotion. T1 and B1 are passed for the documented single-host topology with
+explicitly trusted constructor-supplied adapters; schema head remains v176 and the thin MCP surface
+remains exactly eleven tools.
+
+The [0.5.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.5.0),
+public [`ace-core==0.5.0`](https://pypi.org/project/ace-core/0.5.0/) package, and separately released
+`ace-reference-workspace-action==0.1.0` adapter are bound by the
+[Reasoning into Action release evidence](docs/evidence/reasoning-into-action-v0.5.0-release-readiness.md).
+A checkout-free environment installed both public artifacts and reproduced the independent World
+Intelligence P2C2 governed Reality Brief-to-reviewed-action journey. World Intelligence 0.9.0 is
+also independently published and resolves the public Core 0.5.0 dependency.
+
+The 0.4.x line remains the passed Governed Cognition milestone. Patch releases 0.4.3 and 0.4.4
+hardened canonical cognition persistence and task-source timestamp compatibility, and the public
+0.4.4 artifact remains the exact GC1 external-consumer receipt below.
 
 The [0.4.4 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.4)
 and public `ace-core==0.4.4` package expose proposal teaching, semantic-diff inspection, authorized
@@ -142,8 +154,8 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.2.x | State Engine stabilization | **Maintenance** | Inherits the passed R0, R1, R2, R3, R4, R5, R6, R7, G1, IA-R1, I1, I2, I3, F1, L1, K1, K2, and K3 foundation; patch work is limited to compatibility, migration, recovery, observability, reliability, security, and documentation hardening | [#1](https://github.com/augmented-cognition-engine/core/issues/1) |
 | 0.3.x | Productized State | **Maintenance** | PS1 passed in 0.3.1 through the K1–K3 spine, R1/R4 onboarding pattern, G1 and IA-R1 inspection, I1–I3 receipts, and E1 extension/governance boundary; later patches are compatible hardening only | [#2](https://github.com/augmented-cognition-engine/core/issues/2) |
 | 0.4.x | Governed Cognition | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 through the supported teach, inspect, approve, use, measure, revise, rollback, and retire lifecycle, an independent Market consumer, restart durability, attribution, and failure controls | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
-| 0.5.0 | Reasoning into Action | **Next** | Advances T1 and B1 from approved decision to bounded attributable action; uses I1 authority receipts and begins the execution-adapter slice of E2 | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
-| 0.6.0 | Measured Intelligence | **Later** | Productizes the bounded L1 evidence loop, connects I3 material use to product-owned outcomes, advances the SI4 orientation/attention evaluation slice, and advances F2 only where evidence or demonstrated user need justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
+| 0.5.0 | Reasoning into Action | **Passed** | T1 and B1 pass for bounded attributable action under the explicit single-host, trusted-adapter topology; I1 authority receipts govern the execution-adapter slice | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
+| 0.6.0 | Measured Intelligence | **Next** | Productizes the bounded L1 evidence loop, connects I3 material use to product-owned outcomes, advances the SI4 orientation/attention evaluation slice, and advances F2 only where evidence or demonstrated user need justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
 | 0.7.0 | Domain and Extension Platform | **Later** | Completes the stable third-party platform promise across GI1, E1, and E2 and advances SI3: pack schemas, SDKs, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Reasoning Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
 | 0.9.0 | Collaborative Runtime | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
@@ -162,7 +174,7 @@ decision cadences. A failure found by either domain returns to Core only as a do
 contract, compiler, conformance, governance, or runtime requirement. A domain-specific workaround
 does not become platform code.
 
-This work proceeds in parallel with preparation for 0.5.0. A domain demonstration does not promote
+This work proceeds in parallel with Core releases. A domain demonstration does not promote
 an ACE capability by itself; promotion still requires reproducible public evidence, declared
 limitations, and reconciliation in this roadmap. The Market GC1 journey contributes to the passed
 Core outcome only because it is composed with the public builder surface and released Core
@@ -237,8 +249,8 @@ the exact approved revision with complete attribution before and after restart, 
 failed a distinct later required use closed. Released conformance tests cover the remaining
 rejection, revision, rollback, expiry, unavailable-dependency, and effectiveness branches.
 
-Release gate: **passed.** GI1 and GC1 are passed, the 0.4.x milestone is complete, and 0.5.0 remains
-next under its own T1 and B1 gates.
+Release gate: **passed.** GI1 and GC1 are passed and the 0.4.x milestone is complete. The subsequent
+0.5.0 T1/B1 gate also passed under its separately recorded boundary.
 
 ### 0.5.0 — Reasoning into Action
 
@@ -254,63 +266,63 @@ bounded, attributable action.
 - Require MAKE artifacts to pass independent SHIP security, testing, observability, operations,
   and scale gates before promotion.
 
-Release gate: a reproducible journey proceeds from context to decision to authorized action to
-result to updated state, including denial, timeout, retry, duplicate-request, partial-failure, and
-human-approval behavior. ACE makes no unrestricted-autonomy claim.
+Release gate: **passed.** The public-artifact journey proceeds from admitted evidence to governed
+reasoning, an authorized Decision, exact human review, bounded action, honest terminal receipt,
+separate verification, and separate promotion. Released conformance covers denial, timeout,
+cancellation, duplicate request, partial effect, restart uncertainty, linked repair, and exact
+replay. ACE makes no unrestricted-autonomy claim.
 
-The first bounded packet is
+The first bounded packet was
 [T1A durable cancellation](docs/design/t1a-durable-cancellation-work-packet-v1.md). It hardens the
 existing negotiated extension-invocation seam around immutable duplicate handling and restart
-receipt reconciliation. T1A remains a candidate until its independent artifact journey and
-closeout evidence pass; it does not by itself complete T1, authorize external effects, or advance
-B1.
+receipt reconciliation. T1A's historical candidate record is composed into the passed public
+0.5.0 closeout; it did not independently authorize external effects.
 
-The second bounded packet is
+The second bounded packet was
 [T1B execution limits and timeout receipts](docs/design/t1b-execution-limits-work-packet-v1.md).
 It adds a neutral declared wall-clock limit, process-local deadline enforcement, and explicit
-terminal resource reporting to direct and trusted-extension tasks. T1B is merged as a candidate
-pending released-artifact closeout; it does not claim CPU or memory enforcement,
-distributed deadlines, portable execution, or writable authority, and therefore does not complete
-T1 or advance B1.
+terminal resource reporting to direct and trusted-extension tasks. Its historical candidate record
+is composed into the passed public 0.5.0 closeout. It does not claim CPU or memory enforcement,
+distributed deadlines, or remote execution.
 
-The third bounded packet is
+The third bounded packet was
 [T1C durable task attempt and replay](docs/design/t1c-durable-task-replay-work-packet-v1.md). It
 predeclares a domain-neutral attempt identity on every new task receipt and lets failed or
 restart-degraded direct tasks create one deterministic linked successor from their persisted
-request. T1C is merged as a candidate pending released-artifact closeout. Its
+request. T1C's historical candidate evidence is composed into the public 0.5.0 closeout. Its
 [candidate evidence](docs/evidence/t1c-durable-task-replay-candidate-v1.md) binds public review,
 final-head CI, exact merge identity, real restart, full regression, and an isolated wheel probe.
 T1C does not claim
 distributed exactly-once execution, remote-worker recovery, provider-stream continuation,
-portable execution, or external-effect compensation, and therefore does not complete T1 or
-advance B1.
+remote execution, or external-effect compensation.
 
-The fourth bounded packet is
+The fourth bounded packet was
 [B1A governed action execution](docs/design/b1a-governed-action-execution-work-packet-v1.md). It
 introduces a domain-neutral public candidate service that binds an authorized Decision to one
 effect-free adapter plan, persists admission before execution, and records success, failure,
 partial effect, timeout, cancellation, or restart uncertainty without allowing a Domain Pack to
-execute code. B1A is merged as a candidate pending released-artifact closeout; B1C now supplies the
-merged independently buildable adapter proof. Its
+execute code. B1C supplies the independently released adapter proof, and B1A's historical candidate
+record is composed into the public 0.5.0 closeout. Its
 [candidate evidence](docs/evidence/b1a-governed-action-execution-candidate-v1.md) binds public review,
 final-head CI, exact merge identity, the focused contract suite, full regression, naked-kernel
 boundary, an isolated local-wheel probe, and the merged B1B fresh-process restart proof. It does not
 claim cross-process or distributed
 exactly-once effects, compensation, container equivalence, remote execution, or complete SHIP
-promotion, and therefore does not complete T1 or B1.
+promotion beyond the documented bounded lifecycle.
 
-The fifth bounded packet is
+The fifth bounded packet was
 [B1B durable action restart and host composition](docs/design/b1b-durable-action-restart-work-packet-v1.md).
 It adds exact constructor-only host registration, the supported SurrealDB composition path, strict
 database-JSON replay, and a fresh-process proof that an admitted action with no terminal receipt is
-never implicitly executed again. B1B is merged as a candidate pending released-artifact closeout.
+never implicitly executed again. B1B's historical candidate record is composed into the public
+0.5.0 closeout.
 Its [candidate evidence](docs/evidence/b1b-durable-action-restart-candidate-v1.md) binds the exact
 reviewed head and merge, all six final-head CI gates, full regression, real SurrealDB fresh-process
 replay, and isolated installed-wheel host composition. It does not claim
 distributed exactly-once effects, compensation, an independently packaged adapter, action
-review/repair/promotion, or released-artifact closeout, and therefore does not complete T1 or B1.
+review/repair/promotion by itself.
 
-The sixth bounded packet is
+The sixth bounded packet was
 [B1C independent action adapter](docs/design/b1c-independent-action-adapter-work-packet-v1.md). It
 adds a separately buildable trusted reference distribution over the public action-adapter contract
 and one real create-only workspace export. The adapter is excluded from the Core wheel, imports no
@@ -318,31 +330,33 @@ host internals, performs no discovery, and must be constructed and registered ex
 artifact identity. Its
 [candidate evidence](docs/evidence/b1c-independent-action-adapter-candidate-v1.md) binds the focused
 conformance and host-registration checks, independently built and installed wheels, public review,
-all six final-head CI gates, and the exact merge identity. Released-artifact closeout remains. B1C
+all six final-head CI gates, and the exact merge identity. Public 0.5.0 supplies the released-
+artifact closeout. B1C
 does not provide arbitrary
 filesystem access, safe untrusted code, distributed exactly-once effects, compensation, action
-review/repair/promotion, or T1 topology portability, and therefore does not complete T1 or B1.
+review/repair/promotion by itself.
 
-The seventh bounded packet is
+The seventh bounded packet was
 [B1D action review, repair, and promotion](docs/design/b1d-action-review-repair-promotion-work-packet-v1.md).
 It adds an additive reviewed lifecycle around the unchanged B1A admission and terminal contracts:
 an authenticated human judgment binds the exact effect-free plan and Core authorization before
 execution; post-effect verification stays separate from promotion; and repair is a new linked
 successor rather than a silent retry. Unknown effects are ineligible for repair, and success never
-promotes itself. B1D is merged as a candidate pending released-artifact closeout. Its
+promotes itself. B1D's historical candidate record is composed into the public 0.5.0 closeout. Its
 [candidate evidence](docs/evidence/b1d-action-review-repair-promotion-candidate-v1.md) binds the
 exact reviewed head and merge, all six final-head CI gates, full regression, real SurrealDB
 review-to-promotion restart, and independently built wheels. It does not provide compensation, distributed
-exactly-once effects, remote execution, untrusted code, or T1 topology portability, and therefore
-does not complete T1 or B1.
+exactly-once effects, remote execution, or untrusted code.
 
 The bounded release closeout is frozen in the
 [0.5.0 Reasoning into Action release work packet](docs/design/reasoning-into-action-v0.5.0-release-work-packet-v1.md).
 The supported topology is one ACE host, one durable store, and explicitly trusted in-process
 adapters; portability means an independently packaged adapter consumes only the public contract,
 not distributed execution. World Intelligence P2C2 supplies the external Decision-to-reviewed-
-action journey. T1, B1, and 0.5.0 remain unpassed until the exact tag, PyPI Core package, separate
-adapter release assets, and checkout-free World reproduction are verified.
+action journey. The exact tag, PyPI Core package, separate adapter release assets, checkout-free
+World reproduction, hashes, and boundaries are recorded in the
+[0.5.0 release evidence](docs/evidence/reasoning-into-action-v0.5.0-release-readiness.md). T1, B1,
+and 0.5.0 are therefore **passed** for the explicit single-host topology.
 
 ### 0.6.0 — Measured Intelligence
 
@@ -570,8 +584,8 @@ flowchart LR
 | 1. Reasoning foundation | Can ACE reliably reason, remember, and explain what happened? | **Passed** | R0–R7, G1, IA-R1, I1–I3, and F1 passed | through 0.2.x |
 | 2. Product state | Can a product maintain grounded state and reason about change and consequences? | **Passed** | K1–K3, E1, and PS1 passed; Productized State is published in 0.3.1 | 0.3.x |
 | 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 and an independent Market consumer | 0.4.x |
-| 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Next** | GC1 and I1 are passed; T1 and B1 remain not ready | 0.5.0 |
-| 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Bounded evidence gate passed; productization next** | L1 and I3 passed; F2 not ready | 0.6.0 |
+| 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Passed** | T1 and B1 passed in 0.5.0 for the bounded single-host, trusted-adapter topology | 0.5.0 |
+| 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Next; bounded evidence gate passed** | L1 and I3 passed; F2 not ready | 0.6.0 |
 | 6. Domain and extension ecosystem | Can any product adopt, specialize, operate, and retain ownership of ACE intelligence? | **Pack foundation passed; ecosystem gated** | GI1 and E1 passed; E2 and H1 not ready | 0.7.0 and 0.9.0 |
 | 7. Human experience | Can people inspect and govern the full loop without learning ACE internals? | **Read-only and governance foundations passed** | IA-R1, G1, E1, and L1 passed; the writable workspace remains bounded by B1 and H1 | 0.8.0 |
 | 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
@@ -829,10 +843,10 @@ general-intelligence claim.
 | GI1 | passed | Ship the governed Intelligence foundation as one installable distribution with inert Domain Pack compilation and governed LIVE seams | [ace-core 0.4.0](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.0) packages Core + Intelligence, the inert Domain Pack compiler, LIVE source ingress, the LIVE bridge, Brief synthesis, exact replay, external conformance seams, schema v175, unchanged eleven-tool MCP, trusted PyPI publication, and clean public-index installation. This is a packaging, contract, and publication outcome; the domain-neutrality claim it previously carried moved to GI2 |
 | GI2 | passed | Prove the Intelligence foundation is domain-neutral through an independent, publicly reproducible second-domain falsification | [GI2 public cross-domain evidence](docs/evidence/gi2-public-cross-domain-falsification-v1.md) binds public Core 0.4.1, World 0.8.0, and Market 0.6.0 artifacts. The tagged World suite passes 81 tests and reproduces `case:412426eee708d56f6bda931ccf9e5d8b` and `brief:25d8232c9bfa27050bdcb160fb75f06c`; a clean public-index install compiles and activates both packs through unchanged APIs, then retires Market without changing the active World binding. This is domain-neutral substrate evidence, not SI1–SI4 completion or a claim of general real-world accuracy |
 | GC1 | passed | Make governed cognition an obvious supported teach, inspect, approve, use, measure, revise, and retire journey | [GC1 public external-consumer evidence](docs/evidence/gc1-public-external-consumer-v1.md) composes the public 0.4.4 artifact identity, independent Market prepare/restart/resume/retire journey, exact material-use attribution, fail-closed post-retirement request, and released Core coverage for rejection, revision, rollback, expiry, unavailable dependencies, and effectiveness |
-| T1 | not ready | Strengthen task recovery, replay, portability, cancellation, and resource reporting | [TP1 evidence](docs/evidence/state-engine-tp1-reliable-memory-lifecycle-v1.md) closes reliable observation claiming/recovery; [T1A candidate evidence](docs/evidence/t1a-durable-cancellation-candidate-v1.md) binds merged negotiated process-local cancellation; [T1B candidate evidence](docs/evidence/t1b-execution-limits-candidate-v1.md) binds merged process-local declared deadlines and terminal resource receipts; [T1C candidate evidence](docs/evidence/t1c-durable-task-replay-candidate-v1.md) binds generic attempt identity and restart-safe linked replay; released-artifact closeout, portability, distributed recovery, broader resource enforcement, and topology guarantees remain |
+| T1 | passed | Strengthen task recovery, replay, portability, cancellation, and resource reporting | [ACE 0.5.0 release evidence](docs/evidence/reasoning-into-action-v0.5.0-release-readiness.md) composes TP1 and T1A–T1C with exact public artifacts, a separately installable public-contract adapter, checkout-free external reproduction, negotiated cancellation, declared deadlines, terminal resource receipts, attempt identity, and restart-safe linked replay. The pass is bounded to one host and one durable store; remote workers, distributed recovery, cross-process ordering, and broader CPU/memory enforcement remain outside the supported topology |
 | E1 | passed | Stabilize the extension and governed-cognition boundary | [E1 release evidence](docs/evidence/e1-governed-cognition-release-v1.md) binds the canonical E1-A–G lifecycle to ace-core 0.3.0, exact current/N-1 and mixed-package evidence, public artifacts and fresh install, deployment inventory, independent AI security acceptance, and release-owner countersignature; the pass is limited to trusted in-process extensions and is not a human penetration test or certification |
 | L1 | passed | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative retrospective probe and v5/v6 failures, then records the preregistered v7 correction replicate: all 192 cases and 48 clusters were eligible, and ACE passed persistence, naïve/base-rate, and matched model-only under the frozen all-controls interval rule; the claim is limited to the executable benchmark |
-| B1 | not ready | Carry approved decisions through attributable implementation, review, repair, and promotion | Requires I1 approval receipts, stronger T1 guarantees, and explicit execution authority |
+| B1 | passed | Carry approved decisions through attributable implementation, review, repair, and promotion | [ACE 0.5.0 release evidence](docs/evidence/reasoning-into-action-v0.5.0-release-readiness.md) binds I1 authority to an effect-free plan, exact human review, durable admission, bounded trusted-adapter execution, honest terminal states, separate verification, linked repair, separate promotion, exact replay, and an independent World consumer. It does not claim unrestricted autonomy, compensation, distributed exactly-once effects, remote execution, or untrusted-code isolation |
 | F2 | not ready | Broaden consequence types where product evidence justifies the complexity | Bounded L1 evidence now exists; F2 still requires demonstrated product need and its own consequence-contract evidence without reopening F1 |
 | H1 | not ready | Support secure collaboration and managed operation without transferring ownership of durable intelligence | Requires tenancy, portability, authority, and recovery guarantees |
 | E2 | not ready | Grow the provider-neutral Domain Pack, connector, extension, telemetry, and execution-adapter ecosystem | Requires GI1 and E1 conformance plus stable distribution, compatibility, permission, and lifecycle policy |

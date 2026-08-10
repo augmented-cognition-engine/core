@@ -5,17 +5,29 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The 0.4.4 checkpoint assertions are the coordinated GC1 closeout gate. Historical 0.4.1 GI2,
-# 0.4.2 builder-surface, and P1/P2 identities remain exact point-in-time evidence. Keep these
-# aligned with test_evidence_index_integrity.py.
+# The 0.5.0 checkpoint assertions are the coordinated T1/B1 closeout gate. Historical 0.4.1 GI2,
+# 0.4.2 builder-surface, 0.4.4 GC1, and P1/P2 identities remain exact point-in-time evidence. Keep
+# these aligned with test_evidence_index_integrity.py.
 
 
 def test_current_release_and_passed_milestone_are_not_conflated() -> None:
-    assert "`ace-core` 0.4.4 is published on PyPI and GitHub" in ROADMAP
+    assert "`ace-core` 0.5.0 is published on PyPI and GitHub" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
     assert "| 0.4.0 | Governed Cognition | **Delivered** |" not in ROADMAP
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
-    assert "| 0.5.0 | Reasoning into Action | **Next** |" in ROADMAP
+    assert "| 0.5.0 | Reasoning into Action | **Passed** |" in ROADMAP
+    assert "| 0.6.0 | Measured Intelligence | **Next** |" in ROADMAP
+
+
+def test_050_public_external_consumer_closes_t1_and_b1_with_bounded_topology() -> None:
+    assert "[0.5.0 GitHub Release]" in ROADMAP
+    assert "public [`ace-core==0.5.0`]" in ROADMAP
+    assert "[Reasoning into Action release evidence]" in ROADMAP
+    assert "| T1 | passed |" in ROADMAP
+    assert "| B1 | passed |" in ROADMAP
+    assert "checkout-free environment" in ROADMAP_ONE_LINE
+    assert "single-host, trusted-adapter topology" in ROADMAP_ONE_LINE
+    assert "does not claim unrestricted autonomy" in ROADMAP_ONE_LINE
 
 
 def test_044_public_external_consumer_closes_gc1_without_rewriting_042() -> None:

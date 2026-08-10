@@ -1,6 +1,6 @@
 # ACE 0.5.0 Reasoning into Action release work packet (v1)
 
-Status: **active release candidate; publication and public-artifact reproduction pending**
+Status: **complete; public release and external-consumer reproduction passed**
 
 Date: 2026-08-10
 
@@ -61,6 +61,10 @@ action code or authority. Its only effect is a human-reviewed create-only local 
 The consumer proof does not claim test-time network freshness, autonomous monitoring, automatic
 publishing, political persuasion, or legal/policy impact.
 
+The consumer is now public as World Intelligence
+[`v0.9.0`](https://github.com/augmented-cognition-engine/domain-world-intelligence/releases/tag/v0.9.0)
+and `ace-domain-world-intelligence==0.9.0`.
+
 ## Acceptance sequence
 
 1. Version all Core identities, container labels, lock metadata, and the trusted-publishing default
@@ -93,8 +97,16 @@ The release does not pass if any of the following is true:
 - restart replay prepares or executes a second effect; or
 - the external consumer requires a private Core or host-internal import.
 
-## Promotion boundary
+## Closeout
 
-This candidate may be merged after its own checks pass, but T1, B1, and the 0.5.0 milestone remain
-unpassed until the tag, GitHub Release, PyPI package, adapter release assets, and checkout-free World
-journey are all verified and recorded. Publication requires separate explicit release authority.
+All seven acceptance steps passed. The exact merge was tagged and published as
+[`v0.5.0`](https://github.com/augmented-cognition-engine/core/releases/tag/v0.5.0),
+`ace-core==0.5.0` is public on PyPI, both independently built adapter archives are attached with
+matching digests, and a checkout-free environment reproduced the World P2C2 journey from public
+Core and adapter artifacts. The authoritative hashes, install receipts, external test totals, and
+limitations are recorded in the
+[0.5.0 release evidence](../evidence/reasoning-into-action-v0.5.0-release-readiness.md).
+
+T1, B1, and the 0.5.0 milestone are **passed** for the supported one-host, one-durable-store,
+explicitly trusted in-process-adapter topology. Later distributed and hostile-code guarantees are
+not implied.

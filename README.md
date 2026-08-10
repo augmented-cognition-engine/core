@@ -340,10 +340,25 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.4.0 adds
+## What 0.5.0 adds
 
-0.4.0 is the **Governed Cognition** release. It closes the gap between "ACE can analyze material you
-hand it" and "ACE can go get material under authority and stay governed the whole way."
+0.5.0 is the **Reasoning into Action** release. It carries the governed cognition and Intelligence
+foundation from 0.4.x through an exact approved Decision into bounded, attributable work.
+
+- **Governed action execution.** Core binds an authorized Decision to one effect-free adapter plan,
+  persists admission before execution, and records success, failure, partial effect, timeout,
+  cancellation, or restart uncertainty honestly.
+- **Human review, verification, repair, and promotion.** Exact-material review happens before an
+  effect; verification and promotion remain separate after it; repair creates a linked successor
+  and is forbidden when the earlier effect is unknown.
+- **Restart-safe task control.** Negotiated cancellation, declared wall-clock limits, terminal
+  resource receipts, durable attempt identity, and deterministic linked replay support the bounded
+  journey.
+- **A separately packaged reference adapter.** `ace-reference-workspace-action==0.1.0` imports only
+  the public Core contract, is explicitly constructed and registered, and performs one create-only
+  workspace export. It is attached to the 0.5.0 GitHub Release, not bundled in `ace-core`.
+
+The governed Intelligence foundation introduced in 0.4.0 remains part of the same install:
 
 - **Governed LIVE source ingress** as a packaged public application service. One exact resolved
   source definition is captured through an activation-bound, authority-checked adapter and admitted
@@ -705,7 +720,7 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.4.0 is a developer preview and a single-node governed-cognition release.** Read this section
+**0.5.0 is a developer preview and a single-node Reasoning into Action release.** Read this section
 before you build on it.
 
 What is bounded:
@@ -750,10 +765,10 @@ The north-star loop is:
 understand → reason → decide → act with authority → observe outcomes → improve future reasoning
 ```
 
-0.4.0 delivers the governed-cognition span of that loop. 0.5.0 (*Reasoning into Action*) carries an
-approved decision through exact human review into bounded, attributable action, separate
-verification, linked repair when effects are known, and explicit promotion; 0.6.0 (*Measured
-Intelligence*) promotes or retires reasoning revisions because of measured outcomes.
+0.5.0 delivers the bounded Reasoning into Action span of that loop: an approved decision proceeds
+through exact human review into attributable action, separate verification, linked repair when
+effects are known, and explicit promotion. 0.6.0 (*Measured Intelligence*) is next and promotes or
+retires reasoning revisions because of measured outcomes.
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries
