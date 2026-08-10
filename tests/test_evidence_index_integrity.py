@@ -93,7 +93,8 @@ def test_evidence_readme_labels_candidate_and_historical_records_honestly() -> N
     assert "public, passed" in gi2_line
 
     action_line = next(
-        line for line in text.splitlines()
+        line
+        for line in text.splitlines()
         if line.startswith("- [ace-core 0.5.0 Reasoning into Action release evidence](")
     )
     assert "public, passed" in action_line
