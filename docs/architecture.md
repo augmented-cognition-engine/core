@@ -54,7 +54,7 @@ engine. Atrium consumes API and event state and is not a kernel composition root
 | Grounded State Engine | `grounded_state/` owns temporal evidence, deterministic candidate receipts, reviewed epistemic assertion revisions, as-of belief projections, transition hypotheses, bounded consequence rollouts, reasoning-use receipts, promotion lineage, and later-outcome reconciliation | **Verified:** TP0–TP8, the repeated provider-free readiness audit, and the independent-extension product journey cover product-fenced append-only persistence, task integration, restart/replay/interruption, the retained 220,000-claim single-node corpus, 40 frozen K2 domain cases, five repeated K3 process journeys, and the supported clean-builder path; K1/K2/K3 passed for the named bounded capability; no benefit, distributed, causal-accuracy, calibration, or general-world-model claim |
 | MAKE / SHIP | `arms/base.py` defines the abstract arm contract; code/design/data/scaffold are MAKE implementations and `ship_arm.py` is the composite gate | **Verified:** arm discovery is lazy but registration is decorator/import based in `arms/registry.py` |
 | Model providers | `core/llm.py` owns `LLMProvider`, provider resolution, and several concrete routes; LiteLLM and any-llm adapters are optional extras and lazy imports | **Verified:** protocol is narrow; the main module still combines contract, resolver, and concrete Anthropic/subprocess implementations |
-| Execution adapters | `runtime/adapters/`, `session/adapters/`, arm execution modules, Git/GitHub and command tooling connect approved intent to tools | **Verified:** multiple seams exist; there is not yet one preview-stable execution-adapter contract |
+| Execution adapters | `ace/core/action_execution.py` defines the B1A public candidate contract and service; existing `runtime/adapters/`, `session/adapters/`, arm execution modules, Git/GitHub, and command tooling remain separate experimental seams | **Candidate:** one supplied trusted adapter can prepare an effect-free exact plan, receive Core authorization and pre-effect admission, execute once, and return an immutable honest terminal receipt; no host registry, public HTTP route, container equivalence, remote execution, or broad stable-adapter claim yet |
 | Extensions | `extensions/base.py` defines `Extension`; `extensions/registry.py` is the facade; `loader.py` discovers `ace.extensions` entry points and `ACE_EXTENSIONS` | **Verified:** individual failures are logged and skipped; `ACE_DISABLE_EXTENSIONS=1` supports a naked kernel; the in-tree `extensions/reference` package is registered by `pyproject.toml` |
 | SurrealDB/schema | `core/db.py` owns the pool; `core/schema.py`, `scripts/schema_apply.py`, and the versioned `core/schema/v*.surql` files own core migration order | **Verified:** graph/capture/intelligence services frequently query through the concrete global pool; extension schema registration exists but is documented as not consumed by the kernel migration runner |
 | Atrium | `core/ui/canvas` is a separate React/Vite client using HTTP, WebSocket, and canvas/event APIs | **Verified:** it depends outward on host state and can fail independently of the MCP/CLI golden path |
@@ -118,6 +118,22 @@ longer waits for orchestration, MCP-host or proxy request limits do not set the 
 Public semantic model aliases are resolved before orchestration, and receipt provenance falls back
 to the selected provider and resolved request model when nested execution does not populate the
 aggregate provider/model counters.
+
+### Governed action execution candidate
+
+`ace.core.GovernedActionExecutionService` is the first B1A candidate seam from an approved Decision
+to an application- or extension-owned side effect. Core validates the exact Decision/action/actor
+link, asks the supplied adapter for an effect-free target plan, authorizes that exact plan through
+the existing governed-operation boundary, and appends admission before calling the adapter. The
+adapter owns target resolution and effects; Domain Packs remain declarative.
+
+Successful, failed, partial, timed-out, cancelled, and restart-uncertain work have distinct terminal
+receipts. Exact replays never invoke the adapter again, concurrent duplicate callers converge in one
+process, and an admission left without a terminal record after restart becomes
+`degraded/effect_unknown` instead of being silently retried. The candidate deliberately excludes
+arbitrary shell execution, a built-in writable adapter, cross-process locks, distributed exactly-once
+effects, compensation, container or remote portability, and promotion through the complete SHIP
+gate. Those exclusions keep T1 and B1 not ready.
 
 ### Structured extension-invocation lifecycle
 

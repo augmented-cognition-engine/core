@@ -285,6 +285,19 @@ distributed exactly-once execution, remote-worker recovery, provider-stream cont
 portable execution, or external-effect compensation, and therefore does not complete T1 or
 advance B1.
 
+The fourth bounded packet is
+[B1A governed action execution](docs/design/b1a-governed-action-execution-work-packet-v1.md). It
+introduces a domain-neutral public candidate service that binds an authorized Decision to one
+effect-free adapter plan, persists admission before execution, and records success, failure,
+partial effect, timeout, cancellation, or restart uncertainty without allowing a Domain Pack to
+execute code. B1A remains an active candidate pending repository, real-restart, independent
+adapter, and released-artifact closeout. Its
+[candidate evidence](docs/evidence/b1a-governed-action-execution-candidate-v1.md) binds the focused
+contract suite, full regression, naked-kernel boundary, and isolated local-wheel probe. It does not
+claim cross-process or distributed
+exactly-once effects, compensation, container equivalence, remote execution, or complete SHIP
+promotion, and therefore does not complete T1 or B1.
+
 ### 0.6.0 — Measured Intelligence
 
 Public promise: reasoning revisions are promoted, rejected, rolled back, or retired because of
