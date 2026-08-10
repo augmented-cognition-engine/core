@@ -94,15 +94,20 @@ imply cancellation.
 
 ### What happens if the ACE process restarts during a task?
 
-The single-process 0.1.x runtime does not claim transparent resumption. On restart, receipts left
-`pending` or `running` by the previous runtime are reconciled to `degraded`. Completed output remains
-retrievable. Submit a deliberate retry with a new idempotency key when re-execution is required.
+ACE does not claim transparent provider-stream resumption. On restart, receipts left `pending` or
+`running` by the previous runtime are reconciled to `degraded`; completed output remains
+retrievable. For a direct task, an authenticated caller can deliberately use
+`POST /tasks/{task_id}/resume`. ACE revalidates the persisted request and creates one linked
+successor attempt. Extension invocations use their extension-specific resume route so domain
+preparation and authorization cannot be bypassed.
 
 ### Will retrying the same request duplicate work?
 
 ACE reuses active identical work and same-hour automatic retries. A caller can also provide the
 same explicit idempotency key to retrieve or repeat the same request identity. A new key signals an
-intentional rerun. Retry identity is scoped to the product and user.
+intentional independent rerun. The resume routes instead create one deterministic successor and
+record predecessor/root lineage. Direct-task resume is scoped to the original product, principal,
+and workspace; distributed exactly-once execution is not claimed.
 
 ### Does ACE fail open or fail closed?
 

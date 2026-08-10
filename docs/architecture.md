@@ -100,10 +100,17 @@ thin MCP / CLI
 The receipt is created before provider or orchestration work, so losing the submitting connection
 does not erase task identity or cancel execution. Retry identity is product/user scoped. The
 single-process preview reconciles receipts left `pending` or `running` by a runtime restart to
-`degraded`; it does not claim resumable distributed execution, and the ordinary task API has no
-public cancellation endpoint. An extension invocation whose manifest explicitly negotiates
+`degraded`. Every new receipt also carries a `task-attempt-v1` root/attempt identity.
+`POST /tasks/{task_id}/resume` deliberately reconstructs a failed or degraded direct task from its
+private durable request and creates one deterministic linked successor. Duplicate process-local
+resume requests return that successor; active, completed, and cancelled attempts return the same
+receipt. The route is bound to the original product, principal, and workspace and fails closed on
+invalid lineage. It does not claim provider-stream continuation, distributed exactly-once
+execution, or external-effect compensation, and the ordinary task API has no public cancellation
+endpoint. An extension invocation whose manifest explicitly negotiates
 cancellation can request process-local cancellation through its experimental HTTP surface.
 Extension invocations can also resume a degraded operation by creating a linked successor task;
+they must use their own resume route so extension preparation and authorization run again, and
 they do not claim to continue a lost provider stream mid-token. Pattern
 deadlines (normally 600 seconds), agent/provider deadlines, database acquisition/connect bounds,
 and the thin client's ordinary 30-second HTTP timeout remain independent. Because submission no

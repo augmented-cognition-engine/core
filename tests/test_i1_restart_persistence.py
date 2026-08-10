@@ -156,6 +156,22 @@ async def _seed_interrupted_extension_invocation(db_url: str, source_task_id: st
         await db.close()
 
 
+async def _mark_direct_task_interrupted(db_url: str, task_id: str) -> None:
+    """Turn a completed direct fixture into a prior-runtime in-flight receipt."""
+    db = AsyncSurreal(db_url)
+    await db.connect()
+    await db.signin({"username": "root", "password": "root"})
+    await db.use("ace_i1_restart", "ace_i1_restart")
+    try:
+        await db.query(
+            "UPDATE <record>$task SET status = 'running', runtime_id = 'prior-runtime', "
+            "output = NONE, error = NONE, completed_at = NONE, updated_at = time::now()",
+            {"task": task_id},
+        )
+    finally:
+        await db.close()
+
+
 async def _seed_intervention_prediction(db_url: str, decision_id: str) -> str:
     from core.engine.foresight.contracts import build_comparator_plan
 
@@ -408,7 +424,7 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         await _wait_port(db_port, db_process)
         api_process = subprocess.Popen(command, cwd=ROOT, env=env, stdout=api_log, stderr=subprocess.STDOUT)
         await _wait_health(api_url, api_process)
-        await _assert_schema_version(db_url, 171)
+        await _assert_schema_version(db_url, 177)
         await _verify_legacy_rows_survive_v144(db_url)
         client = AceClient(base_url=api_url, token=token, timeout=10)
         thin_tools._client = client
@@ -442,6 +458,26 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
             await asyncio.sleep(0.1)
         assert extension_status["extension_receipt"]["coverage"]["state"] == "complete"
         interrupted_extension_id = await _seed_interrupted_extension_invocation(db_url, extension_task_id)
+
+        direct_submission = await client.post(
+            "/tasks",
+            json={
+                "description": "Exercise direct task attempt recovery across a real restart",
+                "workspace_id": "workspace:default",
+                "model": "budget",
+                "idempotency_key": "i1-direct-restart-source",
+            },
+        )
+        interrupted_direct_id = direct_submission["id"]
+        for _ in range(50):
+            direct_status = await client.get(f"/tasks/{interrupted_direct_id}")
+            if direct_status["status"] == "completed":
+                break
+            await asyncio.sleep(0.1)
+        assert direct_status["status"] == "completed"
+        assert direct_status["attempt"]["number"] == 1
+        assert direct_status["attempt"]["root_task_id"] == interrupted_direct_id
+        await _mark_direct_task_interrupted(db_url, interrupted_direct_id)
 
         deliberation_ids: dict[str, str] = {}
 
@@ -715,6 +751,29 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         thin_tools._client = fresh_client
         after_load = await thin_tools.ace_load("i1.restart")
         after = {item["correction_id"]: item for item in after_load["corrections"]}
+        interrupted_direct = await fresh_client.get(f"/tasks/{interrupted_direct_id}")
+        assert interrupted_direct["status"] == "degraded"
+        assert interrupted_direct["error"]["code"] == "runtime_restarted"
+        resumed_direct = await fresh_client.post(
+            f"/tasks/{interrupted_direct_id}/resume",
+            json={"reason": "real runtime restart acceptance"},
+        )
+        resumed_direct_id = resumed_direct["id"]
+        for _ in range(50):
+            resumed_direct = await fresh_client.get(f"/tasks/{resumed_direct_id}")
+            if resumed_direct["status"] == "completed":
+                break
+            await asyncio.sleep(0.1)
+        assert resumed_direct["status"] == "completed"
+        assert resumed_direct["attempt"]["number"] == 2
+        assert resumed_direct["attempt"]["root_task_id"] == interrupted_direct_id
+        assert resumed_direct["attempt"]["retry_of_task_id"] == interrupted_direct_id
+        assert resumed_direct["attempt"]["retry_reason"] == "real runtime restart acceptance"
+        prior_direct = await fresh_client.get(f"/tasks/{interrupted_direct_id}")
+        assert prior_direct["attempt"]["resumed_by_task_id"] == resumed_direct_id
+        replayed_direct = await fresh_client.post(f"/tasks/{interrupted_direct_id}/resume", json={})
+        assert replayed_direct["id"] == resumed_direct_id
+        assert replayed_direct["idempotent_replay"] is True
         interrupted_extension = await fresh_client.get(f"/tasks/{interrupted_extension_id}")
         assert interrupted_extension["status"] == "degraded"
         assert interrupted_extension["extension_receipt"]["attempt"]["resumable"] is True
@@ -731,10 +790,14 @@ async def test_same_decision_and_correction_relationship_survive_real_api_restar
         resumed_receipt = resumed_extension["extension_receipt"]
         assert resumed_receipt["attempt"]["number"] == 2
         assert resumed_receipt["attempt"]["retry_of_task_id"] == interrupted_extension_id
+        assert resumed_extension["attempt"]["number"] == 2
+        assert resumed_extension["attempt"]["root_task_id"] == interrupted_extension_id
+        assert resumed_extension["attempt"]["retry_of_task_id"] == interrupted_extension_id
         assert resumed_receipt["coverage"]["state"] == "complete"
         assert resumed_receipt["provenance"]["provider"] == "DeterministicFixtureProvider"
         prior_after_resume = await fresh_client.get(f"/tasks/{interrupted_extension_id}")
         assert prior_after_resume["extension_receipt"]["attempt"]["resumed_by_task_id"] == resumed_extension_id
+        assert prior_after_resume["attempt"]["resumed_by_task_id"] == resumed_extension_id
         extension_history = await fresh_client.get(f"/extension-invocations/{resumed_extension_id}/history")
         assert [attempt["id"] for attempt in extension_history["attempts"]] == [
             interrupted_extension_id,

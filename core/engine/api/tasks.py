@@ -77,6 +77,7 @@ class TaskResponse(BaseModel):
     phase_traces: list[dict] | None = None
     reasoning_trace: dict | None = None
     execution: dict = Field(default_factory=dict)
+    attempt: dict = Field(default_factory=dict)
     decision_receipt: dict = Field(default_factory=dict)
     deliberation_receipt: dict = Field(default_factory=dict)
     intelligence_use_receipt: dict = Field(default_factory=dict)
@@ -336,11 +337,22 @@ class TaskCreate(BaseModel):
     wait_seconds: float = Field(default=0.0, ge=0.0, le=2.0)
 
 
+class TaskResumeRequest(BaseModel):
+    """Bounded operator intent for creating a successor task attempt."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reason: str = Field(default="user_requested_retry", min_length=1, max_length=500)
+    policy_version: str = Field(default="task-retry-v1", min_length=1, max_length=120)
+
+
 _CONTRACT_VERSION = "async-receipt-v1"
+_ATTEMPT_CONTRACT_VERSION = "task-attempt-v1"
 _TERMINAL_STATES = {"completed", "failed", "degraded", "cancelled"}
 _RUNTIME_ID = uuid.uuid4().hex
 _active_tasks: dict[str, asyncio.Task] = {}
 _cancellation_locks: weakref.WeakValueDictionary[str, asyncio.Lock] = weakref.WeakValueDictionary()
+_resume_locks: weakref.WeakValueDictionary[str, asyncio.Lock] = weakref.WeakValueDictionary()
 _submission_lock: asyncio.Lock | None = None
 _submission_lock_loop: asyncio.AbstractEventLoop | None = None
 _accepting_tasks = True
@@ -365,6 +377,99 @@ def _task_fingerprint(body: TaskCreate) -> str:
     payload = body.model_dump(exclude={"idempotency_key", "wait_seconds"}, exclude_none=True)
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _direct_task_id() -> str:
+    """Predeclare an opaque identity so the first durable row contains its root lineage."""
+    return f"task:direct_{uuid.uuid4().hex}"
+
+
+def _retry_task_id(task: dict, *, attempt_number: int) -> str:
+    attempt = _normalize_task_attempt(task)
+    material = {
+        "contract_version": _ATTEMPT_CONTRACT_VERSION,
+        "root_task_id": attempt["root_task_id"],
+        "retry_of_task_id": str(task.get("id") or ""),
+        "attempt_number": attempt_number,
+        "product_id": str(task.get("product") or ""),
+        "workspace_id": str(task.get("workspace") or ""),
+        "user_id": str(task.get("user") or ""),
+    }
+    encoded = json.dumps(material, sort_keys=True, separators=(",", ":")).encode()
+    return f"task:retry_{hashlib.sha256(encoded).hexdigest()[:32]}"
+
+
+def _new_task_attempt(
+    task_id: str,
+    *,
+    retry_of_task_id: str | None = None,
+    attempt_number: int = 1,
+    root_task_id: str | None = None,
+    retry_reason: str | None = None,
+    retry_actor: str | None = None,
+    retry_requested_at: str | None = None,
+    retry_policy_version: str | None = None,
+) -> dict:
+    return {
+        "contract_version": _ATTEMPT_CONTRACT_VERSION,
+        "number": max(1, int(attempt_number)),
+        "root_task_id": str(root_task_id or task_id),
+        "retry_of_task_id": str(retry_of_task_id) if retry_of_task_id else None,
+        "resumed_by_task_id": None,
+        "retry_reason": str(retry_reason)[:500] if retry_reason else None,
+        "retry_actor": str(retry_actor)[:200] if retry_actor else None,
+        "retry_requested_at": retry_requested_at,
+        "retry_policy_version": str(retry_policy_version)[:120] if retry_policy_version else None,
+    }
+
+
+def _normalize_task_attempt(task: dict) -> dict:
+    """Return the bounded public lineage projection, including legacy rows."""
+    task_id = str(task.get("id") or "")
+    raw = task.get("attempt")
+    if not isinstance(raw, dict):
+        return _new_task_attempt(task_id, retry_of_task_id=task.get("retry_of_task_id"))
+    number = raw.get("number", 1)
+    try:
+        number = max(1, int(number))
+    except (TypeError, ValueError):
+        number = 1
+    return {
+        "contract_version": _ATTEMPT_CONTRACT_VERSION,
+        "number": number,
+        "root_task_id": str(raw.get("root_task_id") or task_id)[:200],
+        "retry_of_task_id": str(raw["retry_of_task_id"])[:200] if raw.get("retry_of_task_id") else None,
+        "resumed_by_task_id": (str(raw["resumed_by_task_id"])[:200] if raw.get("resumed_by_task_id") else None),
+        "retry_reason": str(raw["retry_reason"])[:500] if raw.get("retry_reason") else None,
+        "retry_actor": str(raw["retry_actor"])[:200] if raw.get("retry_actor") else None,
+        "retry_requested_at": (str(raw["retry_requested_at"])[:80] if raw.get("retry_requested_at") else None),
+        "retry_policy_version": (str(raw["retry_policy_version"])[:120] if raw.get("retry_policy_version") else None),
+    }
+
+
+def _task_attempt_lineage_error(task: dict) -> str | None:
+    """Fail closed on persisted lineage that cannot name one immutable chain."""
+    raw = task.get("attempt")
+    if raw is None:
+        if task.get("retry_of_task_id"):
+            return "task_attempt_legacy_lineage_incomplete"
+        return None  # Legacy receipts receive a safe attempt-one projection.
+    if not isinstance(raw, dict) or raw.get("contract_version") != _ATTEMPT_CONTRACT_VERSION:
+        return "task_attempt_contract_invalid"
+    normalized = _normalize_task_attempt(task)
+    task_id = str(task.get("id") or "")
+    root_task_id = normalized["root_task_id"]
+    retry_of_task_id = normalized["retry_of_task_id"]
+    if not task_id or not root_task_id:
+        return "task_attempt_identity_invalid"
+    if normalized["number"] == 1 and (root_task_id != task_id or retry_of_task_id is not None):
+        return "task_attempt_root_invalid"
+    if normalized["number"] > 1 and not retry_of_task_id:
+        return "task_attempt_predecessor_invalid"
+    top_level_parent = task.get("retry_of_task_id")
+    if top_level_parent and str(top_level_parent) != retry_of_task_id:
+        return "task_attempt_predecessor_conflict"
+    return None
 
 
 def _resolve_idempotency(body: TaskCreate, *, fingerprint: str | None = None) -> tuple[str, str, str]:
@@ -534,6 +639,7 @@ def _public_task(task: dict, *, idempotent_replay: bool = False) -> dict:
     result.setdefault("call_estimate", None)
     result.setdefault("model_calls", None)
     result.setdefault("latency", None)
+    result["attempt"] = _normalize_task_attempt(result)
     result["decision_receipt"] = normalize_decision_receipt(result.get("decision_receipt"), task=result)
     result["deliberation_receipt"] = normalize_deliberation_receipt(result.get("deliberation_receipt"), task=result)
     result["intelligence_use_receipt"] = normalize_intelligence_use_receipt(
@@ -711,6 +817,7 @@ async def _create_or_get_receipt(
     retry_of_task_id: str | None = None,
     fingerprint_override: str | None = None,
     requested_task_id: str | None = None,
+    task_attempt: dict | None = None,
 ) -> tuple[dict, bool]:
     product_id = user.get("product", "product:default")
     user_id = user.get("sub", "user:default")
@@ -771,11 +878,28 @@ async def _create_or_get_receipt(
 
             options = body.model_dump(exclude={"idempotency_key", "wait_seconds"}, exclude_none=True)
             call_estimate = _estimate_task_model_calls(body)
-            create_target = "<record>$requested_task_id" if requested_task_id is not None else "task"
+            planned_task_id = requested_task_id or _direct_task_id()
+            extension_attempt = extension_invocation.get("attempt") if isinstance(extension_invocation, dict) else None
+            durable_attempt = task_attempt
+            if durable_attempt is None and isinstance(extension_attempt, dict):
+                durable_attempt = _new_task_attempt(
+                    planned_task_id,
+                    retry_of_task_id=extension_attempt.get("retry_of_task_id") or retry_of_task_id,
+                    attempt_number=extension_attempt.get("number", 1),
+                    root_task_id=extension_attempt.get("root_invocation_id") or planned_task_id,
+                    retry_reason=extension_attempt.get("retry_reason"),
+                    retry_actor=extension_attempt.get("retry_actor"),
+                    retry_requested_at=extension_attempt.get("retry_requested_at"),
+                    retry_policy_version=extension_attempt.get("retry_policy_version"),
+                )
+            durable_attempt = durable_attempt or _new_task_attempt(
+                planned_task_id,
+                retry_of_task_id=retry_of_task_id,
+            )
             created = parse_one(
                 await db.query(
-                    f"""
-                    CREATE ONLY {create_target} SET
+                    """
+                    CREATE ONLY <record>$requested_task_id SET
                         product = $product,
                         workspace = $workspace,
                         user = $user,
@@ -789,6 +913,7 @@ async def _create_or_get_receipt(
                         request_options = $options,
                         extension_invocation = $extension_invocation,
                         retry_of_task_id = $retry_of_task_id,
+                        attempt = $attempt,
                         call_estimate = $call_estimate,
                         execution = $execution,
                         runtime_id = $runtime_id,
@@ -807,12 +932,11 @@ async def _create_or_get_receipt(
                         "options": options,
                         "extension_invocation": extension_invocation,
                         "retry_of_task_id": retry_of_task_id,
+                        "attempt": durable_attempt,
                         "call_estimate": call_estimate,
                         "execution": _execution_state(body, state="accepted"),
                         "runtime_id": _RUNTIME_ID,
-                        "requested_task_id": (
-                            parse_record_id(requested_task_id) if requested_task_id is not None else None
-                        ),
+                        "requested_task_id": parse_record_id(planned_task_id),
                     },
                 )
             )
@@ -1451,6 +1575,7 @@ async def submit_task(
     retry_of_task_id: str | None = None,
     fingerprint_override: str | None = None,
     requested_task_id: str | None = None,
+    task_attempt: dict | None = None,
 ) -> dict:
     """Submit through the one durable task lifecycle used by public and extension callers."""
     if not _accepting_tasks:
@@ -1465,6 +1590,8 @@ async def submit_task(
         receipt_kwargs["fingerprint_override"] = fingerprint_override
     if requested_task_id is not None:
         receipt_kwargs["requested_task_id"] = requested_task_id
+    if task_attempt is not None:
+        receipt_kwargs["task_attempt"] = task_attempt
     receipt, created = await _create_or_get_receipt(body, user, **receipt_kwargs)
     task_id = str(receipt["id"])
     job = _active_tasks.get(task_id)
@@ -1510,6 +1637,133 @@ async def get_task(task_id: str, user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Task not found")
     _verify_task_access(task, user)
     return _public_task(task)
+
+
+def _verify_task_resume_access(task: dict, user: dict) -> None:
+    """Bind replay to the original product, principal, and workspace."""
+    _verify_task_access(task, user)
+    task_product = str(task.get("product") or "")
+    user_product = str(user.get("product") or "product:default")
+    if task_product and task_product != user_product:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task_user = str(task.get("user") or "")
+    user_id = str(user.get("sub") or "user:default")
+    if task_user and task_user != user_id:
+        raise HTTPException(status_code=404, detail="Task not found")
+    workspace = str(task.get("workspace") or "")
+    claimed_workspace = user.get("workspace")
+    claimed_workspaces = user.get("workspaces")
+    if workspace and claimed_workspace is not None and workspace != str(claimed_workspace):
+        raise HTTPException(status_code=404, detail="Task not found")
+    if (
+        workspace
+        and isinstance(claimed_workspaces, list)
+        and workspace not in {str(value) for value in claimed_workspaces}
+    ):
+        raise HTTPException(status_code=404, detail="Task not found")
+
+
+async def _link_attempt_successor(task_id: str, successor_task_id: str) -> dict:
+    """Persist the predecessor link without allowing lineage to be rewritten."""
+    current = await _get_task_record(task_id)
+    if not current:
+        raise HTTPException(status_code=409, detail={"code": "task_attempt_predecessor_unavailable"})
+    attempt = _normalize_task_attempt(current)
+    linked = attempt.get("resumed_by_task_id")
+    if linked and linked != successor_task_id:
+        raise HTTPException(status_code=409, detail={"code": "task_attempt_successor_conflict"})
+    if linked == successor_task_id:
+        return current
+    attempt["resumed_by_task_id"] = successor_task_id
+    return await _update_receipt(task_id, {"attempt": attempt, "updated_at": datetime.now(timezone.utc)}) or current
+
+
+@router.post("/{task_id}/resume", status_code=202, response_model=TaskResponse)
+async def resume_task(
+    task_id: str,
+    body: TaskResumeRequest | None = None,
+    user: dict = Depends(get_current_user),
+):
+    """Create one linked successor for a terminal failed/degraded direct task."""
+    request_body = body or TaskResumeRequest()
+    lock = _resume_locks.setdefault(task_id, asyncio.Lock())
+    async with lock:
+        task = await _get_task_record(task_id)
+        if not task:
+            raise HTTPException(status_code=404, detail="Task not found")
+        _verify_task_resume_access(task, user)
+        if isinstance(task.get("extension_invocation"), dict):
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "code": "extension_retry_route_required",
+                    "message": "Use the extension invocation retry route so domain context is prepared again.",
+                },
+            )
+        if lineage_error := _task_attempt_lineage_error(task):
+            raise HTTPException(status_code=409, detail={"code": lineage_error})
+
+        status = str(task.get("status") or "degraded")
+        if status in {"pending", "running", "completed", "cancelled"}:
+            return _public_task(task, idempotent_replay=True)
+        if status not in {"failed", "degraded"}:
+            raise HTTPException(status_code=409, detail={"code": "task_attempt_status_not_resumable"})
+
+        attempt = _normalize_task_attempt(task)
+        linked = attempt.get("resumed_by_task_id")
+        if linked:
+            successor = await _get_task_record(linked)
+            if not successor:
+                raise HTTPException(status_code=409, detail={"code": "task_attempt_successor_unavailable"})
+            _verify_task_resume_access(successor, user)
+            return _public_task(successor, idempotent_replay=True)
+
+        options = task.get("request_options")
+        if not isinstance(options, dict):
+            raise HTTPException(
+                status_code=409,
+                detail={"code": "task_request_unavailable", "message": "The durable task request cannot be replayed."},
+            )
+        try:
+            original = TaskCreate.model_validate(options)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=409,
+                detail={"code": "task_request_invalid", "message": "The durable task request failed validation."},
+            ) from exc
+        if str(original.workspace_id) != str(task.get("workspace") or ""):
+            raise HTTPException(status_code=409, detail={"code": "task_request_scope_conflict"})
+        fingerprint = task.get("request_fingerprint")
+        if fingerprint and str(fingerprint) != _task_fingerprint(original):
+            raise HTTPException(status_code=409, detail={"code": "task_request_fingerprint_conflict"})
+
+        next_attempt = attempt["number"] + 1
+        successor_task_id = _retry_task_id(task, attempt_number=next_attempt)
+        retry_body = original.model_copy(
+            update={
+                "idempotency_key": f"task-resume-v1:{task_id}:{next_attempt}",
+                "wait_seconds": 0.0,
+            }
+        )
+        successor_attempt = _new_task_attempt(
+            successor_task_id,
+            retry_of_task_id=task_id,
+            attempt_number=next_attempt,
+            root_task_id=attempt["root_task_id"],
+            retry_reason=request_body.reason,
+            retry_actor=str(user.get("sub") or "user:default"),
+            retry_requested_at=datetime.now(timezone.utc).isoformat(),
+            retry_policy_version=request_body.policy_version,
+        )
+        successor = await submit_task(
+            retry_body,
+            user,
+            retry_of_task_id=task_id,
+            requested_task_id=successor_task_id,
+            task_attempt=successor_attempt,
+        )
+        await _link_attempt_successor(task_id, successor["id"])
+        return successor
 
 
 class FeedbackType(str, Enum):
