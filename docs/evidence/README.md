@@ -48,14 +48,18 @@ superseded by later work and is kept for audit trail only.
 - [State Engine K1-K3 extension-first product closeout](state-engine-k1-k3-product-journey-v1.md)
 - [Productized State integrated public journey](productized-state-journey-v1.md)
 
-## Governed cognition builder surface
+## Governed cognition
 
-The [GC1 public builder-surface record](gc1-public-builder-surface-v1.md) binds the public
-`ace-core==0.4.2` tag, trusted publication, artifact hashes, and fresh public-index CLI smoke test.
-It proves the supported builder surface, not the remaining external-consumer, restart, and
-failure-control journey; GC1 therefore remains active.
+The [GC1 public external-consumer closeout](gc1-public-external-consumer-v1.md) composes the public
+builder surface, the independent Market Intelligence prepare/restart/resume/retire journey, and
+the released Core conformance coverage for negative lifecycle and effectiveness branches. GC1 is
+therefore **passed**.
 
-- [GC1 public governed-cognition builder surface](gc1-public-builder-surface-v1.md) — public surface passed; GC1 active
+The earlier builder-surface record remains an immutable point-in-time receipt. Its statement that
+GC1 was still active was true before the external-consumer gate passed and is now historical.
+
+- [GC1 public external-consumer closeout](gc1-public-external-consumer-v1.md) — public, passed
+- [GC1 public governed-cognition builder surface](gc1-public-builder-surface-v1.md) — public surface passed; historical pre-closeout state
 
 ## Governed Intelligence platform substrate
 

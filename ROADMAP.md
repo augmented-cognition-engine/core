@@ -71,19 +71,24 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.4.2 is published on PyPI and GitHub. It preserves the governed-Intelligence
+`ace-core` 0.4.4 is published on PyPI and GitHub. It preserves the governed-Intelligence
 foundation and public P1/P2 evidence carried by 0.4.1—Core + Intelligence in one install,
 governed LIVE source ingress, the LIVE bridge, Brief synthesis, the inert JSON Domain Pack
-compiler, exact replay, packaged external-consumer conformance seams, schema head v175, supported
-CLI identities, and exactly eleven thin MCP tools—while adding the public `ace cognition` builder
-workflow over the existing authenticated cognition boundary.
+compiler, exact replay, packaged external-consumer conformance seams, supported CLI identities,
+and exactly eleven thin MCP tools—while exposing the public `ace cognition` builder workflow over
+the existing authenticated cognition boundary. Patch releases 0.4.3 and 0.4.4 hardened canonical
+cognition persistence and task-source timestamp compatibility; schema head is v176.
 
-The [0.4.2 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.2)
-and public `ace-core==0.4.2` package expose proposal teaching, semantic-diff inspection, authorized
-human review, materially attributed fresh use, exact receipt inspection, and lifecycle governance.
-The [GC1 public builder-surface evidence](docs/evidence/gc1-public-builder-surface-v1.md) binds the
-tag, trusted publication, artifact hashes, and fresh public-index smoke test. GI1 remains the
-packaging, contract, and publication outcome first passed by 0.4.0.
+The [0.4.4 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.4)
+and public `ace-core==0.4.4` package expose proposal teaching, semantic-diff inspection, authorized
+human review, materially attributed fresh use, exact receipt inspection, lifecycle governance, and
+the canonical persistence fixes required by a real external consumer. The
+[GC1 public external-consumer evidence](docs/evidence/gc1-public-external-consumer-v1.md) binds the
+tag, trusted publication, artifact hashes, clean public-index runtime, independent Market journey,
+restart durability, failure controls, and released conformance coverage. The earlier
+[builder-surface evidence](docs/evidence/gc1-public-builder-surface-v1.md) remains the exact
+point-in-time receipt for 0.4.2. GI1 remains the packaging, contract, and publication outcome first
+passed by 0.4.0.
 
 The [0.4.1 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.1)
 and public `ace-core==0.4.1` package remain the exact Core identity used by the completed GI2
@@ -98,10 +103,12 @@ compiles and activates both inert packs through unchanged platform APIs, retires
 the World binding remains active and byte-identical. The exact receipts and limitations are in the
 [GI2 public cross-domain evidence](docs/evidence/gi2-public-cross-domain-falsification-v1.md).
 
-This release does not by itself close the broader governed-cognition builder-experience gate in
-issue #3. The supported public surface is now proven, but the external-consumer journey must still
-pass proposal, human disposition, exact revision use, restart persistence, retirement failure,
-and attribution against a running deployment. **GC1** therefore stays active in 0.4.x.
+The broader governed-cognition builder-experience gate is now passed. An independent Market
+Intelligence consumer reproduced proposal, human disposition, exact revision use, restart
+persistence, retirement failure, and attribution against a running public-package deployment.
+Released Core conformance tests cover rejection, revision, rollback, expiry, unavailable
+dependencies, effectiveness classification, and non-selectable revision/retirement proposals.
+**GC1** is therefore passed in 0.4.x.
 
 The release remains bounded to the documented single-node topology and trusted in-process Python
 extensions. It does not establish hostile-code isolation, distributed operation, general
@@ -134,8 +141,8 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 |---|---|---|---|---|
 | 0.2.x | State Engine stabilization | **Maintenance** | Inherits the passed R0, R1, R2, R3, R4, R5, R6, R7, G1, IA-R1, I1, I2, I3, F1, L1, K1, K2, and K3 foundation; patch work is limited to compatibility, migration, recovery, observability, reliability, security, and documentation hardening | [#1](https://github.com/augmented-cognition-engine/core/issues/1) |
 | 0.3.x | Productized State | **Maintenance** | PS1 passed in 0.3.1 through the K1–K3 spine, R1/R4 onboarding pattern, G1 and IA-R1 inspection, I1–I3 receipts, and E1 extension/governance boundary; later patches are compatible hardening only | [#2](https://github.com/augmented-cognition-engine/core/issues/2) |
-| 0.4.x | Governed Cognition | **Active** | GI1 passed in 0.4.0 with governed LIVE ingress, the Intelligence bridge, Brief synthesis, Domain Pack compiler, exact replay, and external conformance seams; GC1 remains the supported teach, inspect, approve, use, measure, revise, and retire journey | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
-| 0.5.0 | Reasoning into Action | **Next** | Advances T1 and B1 from approved decision to bounded attributable action after GC1 passes; uses I1 authority receipts and begins the execution-adapter slice of E2 | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
+| 0.4.x | Governed Cognition | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 through the supported teach, inspect, approve, use, measure, revise, rollback, and retire lifecycle, an independent Market consumer, restart durability, attribution, and failure controls | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
+| 0.5.0 | Reasoning into Action | **Next** | Advances T1 and B1 from approved decision to bounded attributable action; uses I1 authority receipts and begins the execution-adapter slice of E2 | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
 | 0.6.0 | Measured Intelligence | **Later** | Productizes the bounded L1 evidence loop, connects I3 material use to product-owned outcomes, advances the SI4 orientation/attention evaluation slice, and advances F2 only where evidence or demonstrated user need justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
 | 0.7.0 | Domain and Extension Platform | **Later** | Completes the stable third-party platform promise across GI1, E1, and E2 and advances SI3: pack schemas, SDKs, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Reasoning Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
@@ -155,9 +162,11 @@ decision cadences. A failure found by either domain returns to Core only as a do
 contract, compiler, conformance, governance, or runtime requirement. A domain-specific workaround
 does not become platform code.
 
-This work proceeds in parallel with GC1 and preparation for 0.5.0. A domain demonstration does not
-promote an ACE capability by itself; promotion still requires reproducible public evidence,
-declared limitations, and reconciliation in this roadmap.
+This work proceeds in parallel with preparation for 0.5.0. A domain demonstration does not promote
+an ACE capability by itself; promotion still requires reproducible public evidence, declared
+limitations, and reconciliation in this roadmap. The Market GC1 journey contributes to the passed
+Core outcome only because it is composed with the public builder surface and released Core
+conformance evidence.
 
 ### 0.2.x — State Engine stabilization
 
@@ -210,7 +219,7 @@ or retire.
   Signal, attention disposition, and governed Brief resources with provenance and exact replay.
 - Preserve the eleven-tool MCP surface, naked-kernel startup, schema v175, and single-node limits.
 
-**Active in 0.4.x — GC1:**
+**Passed in 0.4.x — GC1:**
 
 - Make the canonical E1 teaching lifecycle obvious through supported public interfaces.
 - Create inspectable proposals from authorized tasks, corrections, conversations, and documents.
@@ -219,17 +228,17 @@ or retire.
 - Support rejection, rollback, supersession, conflict, expiry, disablement, and retirement without
   erasing history or enabling silent self-modification.
 
-The public `ace-core==0.4.2` release adds a thin `ace cognition` builder workflow over the existing
-authenticated HTTP boundary. It makes proposal, semantic-diff inspection, authorized review,
-materially attributed fresh use, receipt inspection, and lifecycle governance explicit without
-adding authority or a new cognition model. Its public builder surface is now verified from a fresh
-PyPI install. This does not close GC1: the external-consumer, restart, failure-control, and
-running-deployment acceptance journey remains the outcome gate.
+The public `ace-core==0.4.2` release added a thin `ace cognition` builder workflow over the existing
+authenticated HTTP boundary. Releases 0.4.3 and 0.4.4 hardened canonical persistence and
+task-source timestamp compatibility discovered by the external-consumer journey. Public 0.4.4 now
+passes the complete supported gate: an independent consumer taught a reusable capability through
+public interfaces, a human inspected and governed the change, fresh invocations materially used
+the exact approved revision with complete attribution before and after restart, and retirement
+failed a distinct later required use closed. Released conformance tests cover the remaining
+rejection, revision, rollback, expiry, unavailable-dependency, and effectiveness branches.
 
-Release gate: GI1 is passed. GC1 passes when an external consumer can teach ACE a reusable
-capability through public interfaces, a human can inspect and govern the change, and a fresh
-invocation materially uses the exact approved revision with complete attribution. Until then, the
-0.4.x milestone remains active and 0.5.0 remains next.
+Release gate: **passed.** GI1 and GC1 are passed, the 0.4.x milestone is complete, and 0.5.0 remains
+next under its own T1 and B1 gates.
 
 ### 0.5.0 — Reasoning into Action
 
@@ -474,8 +483,8 @@ flowchart LR
 |---|---|---|---|---|
 | 1. Reasoning foundation | Can ACE reliably reason, remember, and explain what happened? | **Passed** | R0–R7, G1, IA-R1, I1–I3, and F1 passed | through 0.2.x |
 | 2. Product state | Can a product maintain grounded state and reason about change and consequences? | **Passed** | K1–K3, E1, and PS1 passed; Productized State is published in 0.3.1 | 0.3.x |
-| 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Active** | GI1 passed in 0.4.0; GC1 remains the supported teaching journey | 0.4.x |
-| 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Next; gated by GC1** | T1 and B1 not ready; I1 authority foundation passed | 0.5.0 |
+| 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 and an independent Market consumer | 0.4.x |
+| 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Next** | GC1 and I1 are passed; T1 and B1 remain not ready | 0.5.0 |
 | 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Bounded evidence gate passed; productization next** | L1 and I3 passed; F2 not ready | 0.6.0 |
 | 6. Domain and extension ecosystem | Can any product adopt, specialize, operate, and retain ownership of ACE intelligence? | **Pack foundation passed; ecosystem gated** | GI1 and E1 passed; E2 and H1 not ready | 0.7.0 and 0.9.0 |
 | 7. Human experience | Can people inspect and govern the full loop without learning ACE internals? | **Read-only and governance foundations passed** | IA-R1, G1, E1, and L1 passed; the writable workspace remains bounded by B1 and H1 | 0.8.0 |
@@ -614,20 +623,20 @@ Both predate the P1/P2 sequence above and are superseded by it.
 These point-in-time records did not move an outcome by themselves. Their former publication gate
 has now passed: Core 0.4.1, World 0.8.0, and Market 0.6.0 are public, the tagged World conformance
 suite passes, and the clean public-index two-domain activation and retirement-isolation journey
-passes. GI2 is therefore reconciled to `passed`; GI1 remains passed, GC1 remains active, and
-SI1–SI4 remain bounded future outcomes.
+passes. GI2 is therefore reconciled to `passed`; GI1 and GC1 are passed, while SI1–SI4 remain
+bounded future outcomes.
 
-### 1. Complete the governed-cognition builder journey
+### 1. Completed governed-cognition builder journey
 
 E1 passed for ace-core 0.3.0 and establishes one canonical cognition model. GI1 passed in 0.4.0 and
-establishes the governed Intelligence substrate. GC1 now makes the cognition lifecycle an obvious
+establishes the governed Intelligence substrate. GC1 makes the cognition lifecycle an obvious
 supported public experience:
 
 ```text
 teach → propose → inspect → approve → use → measure → revise or retire
 ```
 
-The dependency sequence is:
+The accepted dependency sequence was:
 
 1. preserve the converged recipe and legacy `Skill`/`Job`/`Phase` migration behavior;
 2. create inspectable learning proposals from tasks, corrections, conversations, and documents;
@@ -637,9 +646,11 @@ The dependency sequence is:
 5. discover and load only relevant approved cognition within explicit context and cost budgets;
 6. record the exact cognition revisions considered, selected, used, omitted, or unavailable.
 
-Exit condition: an extension can teach ACE a reusable reasoning capability, a human can govern the
-change, and a fresh invocation can materially use the approved revision without widening the thin
-MCP contract.
+Exit condition: **passed.** The public 0.4.4 builder and independent Market consumer journeys prove
+that an extension can teach ACE a reusable reasoning capability, a human can govern the change,
+and fresh invocations can materially use the exact approved revision across restart without
+widening the thin MCP contract. The exact receipts and composed negative-path coverage are in the
+[GC1 public external-consumer evidence](docs/evidence/gc1-public-external-consumer-v1.md).
 
 ### 2. Strengthen the runtime before writable action
 
@@ -731,7 +742,7 @@ general-intelligence claim.
 | PS1 | passed | Make the passed State Engine an obvious supported extension-first product journey | [Productized State evidence](docs/evidence/productized-state-journey-v1.md) passes authenticated adapter discovery/ingestion, `ace state` orchestration, integrated G1/IA-R1 and I1–I3 receipt inspection, v171 schema-zero, v168→v171 upgrade, restarts, correction, and later material use; the [0.3.1 release evidence](docs/evidence/productized-state-v0.3.1-release-readiness.md) binds the exact tag, official CI, trusted PyPI publication, matching registry hashes, and clean public-index installation |
 | GI1 | passed | Ship the governed Intelligence foundation as one installable distribution with inert Domain Pack compilation and governed LIVE seams | [ace-core 0.4.0](https://github.com/augmented-cognition-engine/core/releases/tag/v0.4.0) packages Core + Intelligence, the inert Domain Pack compiler, LIVE source ingress, the LIVE bridge, Brief synthesis, exact replay, external conformance seams, schema v175, unchanged eleven-tool MCP, trusted PyPI publication, and clean public-index installation. This is a packaging, contract, and publication outcome; the domain-neutrality claim it previously carried moved to GI2 |
 | GI2 | passed | Prove the Intelligence foundation is domain-neutral through an independent, publicly reproducible second-domain falsification | [GI2 public cross-domain evidence](docs/evidence/gi2-public-cross-domain-falsification-v1.md) binds public Core 0.4.1, World 0.8.0, and Market 0.6.0 artifacts. The tagged World suite passes 81 tests and reproduces `case:412426eee708d56f6bda931ccf9e5d8b` and `brief:25d8232c9bfa27050bdcb160fb75f06c`; a clean public-index install compiles and activates both packs through unchanged APIs, then retires Market without changing the active World binding. This is domain-neutral substrate evidence, not SI1–SI4 completion or a claim of general real-world accuracy |
-| GC1 | active | Make governed cognition an obvious supported teach, inspect, approve, use, measure, revise, and retire journey | E1 and GI1 are passed; issue [#3](https://github.com/augmented-cognition-engine/core/issues/3) remains open until one public external-consumer journey passes proposal, human disposition, exact revision use, failure controls, restart, and attribution through supported interfaces |
+| GC1 | passed | Make governed cognition an obvious supported teach, inspect, approve, use, measure, revise, and retire journey | [GC1 public external-consumer evidence](docs/evidence/gc1-public-external-consumer-v1.md) composes the public 0.4.4 artifact identity, independent Market prepare/restart/resume/retire journey, exact material-use attribution, fail-closed post-retirement request, and released Core coverage for rejection, revision, rollback, expiry, unavailable dependencies, and effectiveness |
 | T1 | not ready | Strengthen task recovery, replay, portability, cancellation, and resource reporting | [TP1 evidence](docs/evidence/state-engine-tp1-reliable-memory-lifecycle-v1.md) closes reliable observation claiming/recovery; cancellation, portability, reporting, and topology guarantees remain |
 | E1 | passed | Stabilize the extension and governed-cognition boundary | [E1 release evidence](docs/evidence/e1-governed-cognition-release-v1.md) binds the canonical E1-A–G lifecycle to ace-core 0.3.0, exact current/N-1 and mixed-package evidence, public artifacts and fresh install, deployment inventory, independent AI security acceptance, and release-owner countersignature; the pass is limited to trusted in-process extensions and is not a human penetration test or certification |
 | L1 | passed | Use resolved conditional forecasts to improve later reasoning and decision quality | [L1 evidence](docs/evidence/l1-foresight-impact-evidence.md) preserves the negative retrospective probe and v5/v6 failures, then records the preregistered v7 correction replicate: all 192 cases and 48 clusters were eligible, and ACE passed persistence, naïve/base-rate, and matched model-only under the frozen all-controls interval rule; the claim is limited to the executable benchmark |
