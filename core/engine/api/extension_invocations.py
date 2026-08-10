@@ -17,6 +17,7 @@ from core.engine.api.tasks import (
     TaskResponse,
     _bounded_public_error,
     _get_task_record,
+    _normalize_task_attempt,
     _public_task,
     _update_receipt,
     cancel_task_execution,
@@ -467,6 +468,8 @@ async def resume_extension_invocation(
 
         prior_metadata = copy.deepcopy(metadata)
         prior_metadata.setdefault("attempt", {})["resumed_by_task_id"] = successor["id"]
+        prior_task_attempt = _normalize_task_attempt(task)
+        prior_task_attempt["resumed_by_task_id"] = successor["id"]
         prior_receipt = task.get("extension_receipt")
         prior_outcome = prior_receipt.get("outcome") if isinstance(prior_receipt, dict) else None
         updated_prior_receipt = build_extension_receipt(task, prior_metadata, outcome=prior_outcome)
@@ -475,6 +478,7 @@ async def resume_extension_invocation(
             {
                 "extension_invocation": prior_metadata,
                 "extension_receipt": updated_prior_receipt,
+                "attempt": prior_task_attempt,
             },
         )
         return successor
