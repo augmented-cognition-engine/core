@@ -1,6 +1,6 @@
 # B1B durable action restart candidate evidence (v1)
 
-**Status:** candidate, local branch; final-head CI, merge, independent-adapter, and released-artifact evidence pending
+**Status:** candidate, merged to `main`; independent-adapter and released-artifact evidence pending
 
 **Date:** 2026-08-09
 
@@ -21,6 +21,17 @@ does not authorize, prepare, or execute the adapter again; it records `degraded/
 
 This is application-process restart evidence over a durable database. It does not claim a database
 server restart, distributed exactly-once effects, or safe automatic retry after uncertain effects.
+
+## Source and artifact identity
+
+The candidate was reviewed and verified in
+[pull request #78](https://github.com/augmented-cognition-engine/core/pull/78):
+
+- final reviewed head: `716171f4a1cf4613578df7c211a5acfce51ff3d7`;
+- squash merge on `main`: `e824151230f98bae5b563bc06131e605a2d386fe`; and
+- final-head CI run: [31363773057](https://github.com/augmented-cognition-engine/core/actions/runs/31363773057).
+
+The release identity remains pending.
 
 ## Current verification
 
@@ -52,6 +63,15 @@ Roadmap, public-positioning, and evidence-index integrity:
 
 Repository-wide Ruff checks, format checks, and `git diff --check` passed.
 
+Final-head CI completed successfully on the exact reviewed head. All six repository gates passed:
+
+- Lint;
+- Tests (fast gate);
+- Naked kernel (zero extensions);
+- Canvas (core/ui/canvas);
+- Security Audit; and
+- Docker Build.
+
 ## Isolated wheel probe
 
 The local candidate wheel retained the unreleased base version `ace-core==0.4.4`:
@@ -66,12 +86,10 @@ outside the source tree, the probe imported the supported host module from `site
 the exact registry, resolved only the registered artifact, and reached the SurrealDB builder. The
 wheel version is not a new release claim.
 
-The exact final-head CI, pull request, and merge identity remain pending and will be reconciled
-after public review.
-
 ## Remaining closeout gate
 
-B1B remains a candidate until the full repository acceptance suite, isolated installed-wheel host
-probe, public review, final-head CI, and merge reconciliation pass. B1 still additionally requires an
-independently packaged trusted adapter plus explicit action review, repair, and promotion behavior.
-T1 portability/topology and released-artifact closeout also remain before ACE 0.5.0 can pass.
+B1B remains a candidate pending released-artifact reproduction. Local acceptance, isolated-wheel
+host composition, public review, final-head CI, and merge reconciliation are complete. B1 still
+additionally requires an independently packaged trusted adapter plus explicit action review, repair,
+and promotion behavior. T1 portability/topology and released-artifact closeout also remain before
+ACE 0.5.0 can pass.

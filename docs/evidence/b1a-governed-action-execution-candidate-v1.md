@@ -1,6 +1,6 @@
 # B1A governed action execution candidate evidence (v1)
 
-**Status:** candidate, merged to `main`; real-restart, independent-adapter, and released-artifact evidence pending
+**Status:** candidate, merged to `main`; independent-adapter and released-artifact evidence pending
 
 **Date:** 2026-08-09
 
@@ -115,9 +115,10 @@ This is an isolated installed-wheel import/contract probe, not a public-index or
 
 ## Remaining closeout gate
 
-B1A remains a candidate until a real database restart reproduces admission/orphan reconciliation,
-an independently packaged trusted adapter proves the same contract without importing host internals,
-and a later released artifact reproduces the bounded journey. Public review, final-head CI, and merge
-reconciliation are complete. A later packet must also add host composition, explicit action review
-and repair/promotion, container portability evidence, and the remaining T1 topology guarantees before
-T1, B1, or 0.5.0 can pass.
+B1A remains a candidate until an independently packaged trusted adapter proves the same contract
+without importing host internals and a later released artifact reproduces the bounded journey.
+[B1B durable restart evidence](b1b-durable-action-restart-candidate-v1.md) now binds supported host
+composition, strict database replay, and fresh-process admission/orphan reconciliation. Public review,
+final-head CI, and merge reconciliation are complete. A later packet must still add explicit action
+review and repair/promotion, container portability evidence, and the remaining T1 topology guarantees
+before T1, B1, or 0.5.0 can pass.

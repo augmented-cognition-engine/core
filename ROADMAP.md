@@ -290,11 +290,12 @@ The fourth bounded packet is
 introduces a domain-neutral public candidate service that binds an authorized Decision to one
 effect-free adapter plan, persists admission before execution, and records success, failure,
 partial effect, timeout, cancellation, or restart uncertainty without allowing a Domain Pack to
-execute code. B1A is merged as a candidate pending real-restart, independent-adapter, and
-released-artifact closeout. Its
+execute code. B1A is merged as a candidate pending independent-adapter and released-artifact
+closeout. Its
 [candidate evidence](docs/evidence/b1a-governed-action-execution-candidate-v1.md) binds public review,
 final-head CI, exact merge identity, the focused contract suite, full regression, naked-kernel
-boundary, and an isolated local-wheel probe. It does not claim cross-process or distributed
+boundary, an isolated local-wheel probe, and the merged B1B fresh-process restart proof. It does not
+claim cross-process or distributed
 exactly-once effects, compensation, container equivalence, remote execution, or complete SHIP
 promotion, and therefore does not complete T1 or B1.
 
@@ -302,9 +303,10 @@ The fifth bounded packet is
 [B1B durable action restart and host composition](docs/design/b1b-durable-action-restart-work-packet-v1.md).
 It adds exact constructor-only host registration, the supported SurrealDB composition path, strict
 database-JSON replay, and a fresh-process proof that an admitted action with no terminal receipt is
-never implicitly executed again. B1B remains a local candidate pending full regression, isolated
-artifact acceptance, public review, final-head CI, and merge reconciliation. Its
-[candidate evidence](docs/evidence/b1b-durable-action-restart-candidate-v1.md) does not claim
+never implicitly executed again. B1B is merged as a candidate pending released-artifact closeout.
+Its [candidate evidence](docs/evidence/b1b-durable-action-restart-candidate-v1.md) binds the exact
+reviewed head and merge, all six final-head CI gates, full regression, real SurrealDB fresh-process
+replay, and isolated installed-wheel host composition. It does not claim
 distributed exactly-once effects, compensation, an independently packaged adapter, action
 review/repair/promotion, or released-artifact closeout, and therefore does not complete T1 or B1.
 
