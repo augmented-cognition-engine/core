@@ -28,6 +28,8 @@ from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from core.engine.execution.contracts import TaskExecutionLimits
+
 ENVELOPE_VERSION = "extension-invocation-v1"
 RECEIPT_VERSION = "extension-invocation-receipt-v1"
 MAX_REFERENCES = 60
@@ -167,6 +169,7 @@ class ExtensionTaskPlan(BaseModel):
     deep: bool = False
     force_skill: str | None = Field(default=None, max_length=200)
     frameworks_hint: list[str] | None = Field(default=None, max_length=25)
+    execution_limits: TaskExecutionLimits | None = None
     context_resolution: list[ContextResolution] = Field(default_factory=list, max_length=MAX_REFERENCES)
     context_records: list[ResolvedContextRecord] = Field(default_factory=list, max_length=MAX_REFERENCES)
     # Bounded, JSON-safe coordinates for Core-owned completion work.  These are

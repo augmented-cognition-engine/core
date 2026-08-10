@@ -9,6 +9,7 @@ from fastapi import HTTPException
 
 from core.engine.api import extension_invocations as api
 from core.engine.api import tasks as task_api
+from core.engine.execution.contracts import TaskExecutionLimits
 from core.engine.extensions.invocation import (
     ContextResolution,
     ExtensionInvocationEnvelope,
@@ -97,6 +98,23 @@ async def test_create_extension_invocation_submits_structured_metadata(monkeypat
     assert metadata["capability"]["extension_id"] == "example"
     assert metadata["context_resolution"][0]["status"] == "resolved"
     assert metadata["request"]["question"] == "Reason about this record."
+
+
+def test_extension_task_plan_propagates_the_neutral_execution_limit():
+    envelope = _envelope()
+    plan = ExtensionTaskPlan(
+        description="Bounded extension work.",
+        execution_limits=TaskExecutionLimits(wall_time_seconds=30),
+        outcome_contract="example-reasoning-outcome-v1",
+    )
+
+    body = api._task_body(envelope, plan)
+
+    assert body.execution_limits == TaskExecutionLimits(wall_time_seconds=30)
+    assert body.model_dump(mode="json")["execution_limits"] == {
+        "contract_version": "task-execution-limits-v1",
+        "wall_time_seconds": 30.0,
+    }
 
 
 @pytest.mark.asyncio

@@ -154,6 +154,7 @@ def _task_body(envelope: ExtensionInvocationEnvelope, plan) -> TaskCreate:
         deep=plan.deep,
         force_skill=plan.force_skill,
         frameworks_hint=plan.frameworks_hint,
+        execution_limits=plan.execution_limits,
         decision=plan.runtime_coordinates.get("structured_decision") or None,
         idempotency_key=envelope.idempotency_key,
         wait_seconds=envelope.wait_seconds,

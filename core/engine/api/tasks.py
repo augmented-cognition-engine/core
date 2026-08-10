@@ -26,6 +26,11 @@ from core.engine.cognition.discovery import normalize_selection_receipt, normali
 from core.engine.core.auth import get_current_user, verify_ownership
 from core.engine.core.db import parse_one, parse_record_id, parse_rows, pool
 from core.engine.core.tasks import logged_task
+from core.engine.execution.contracts import (
+    TaskExecutionLimits,
+    execution_limit_receipt,
+    task_resource_report,
+)
 from core.engine.extensions.invocation import (
     build_extension_receipt,
     normalize_extension_receipt,
@@ -326,6 +331,7 @@ class TaskCreate(BaseModel):
     force_skill: str | None = None
     frameworks_hint: list[str] | None = None
     decision: StructuredDecisionCreate | None = None
+    execution_limits: TaskExecutionLimits | None = None
     idempotency_key: str | None = Field(default=None, min_length=1, max_length=200)
     wait_seconds: float = Field(default=0.0, ge=0.0, le=2.0)
 
@@ -382,6 +388,27 @@ def _bounded_public_error(error: object, *, code: str = "orchestration_failed") 
     raw = re.sub(r"(?<!\w)(?:/[A-Za-z0-9._-]+){2,}", "<path>", raw)
     raw = " ".join(raw.split())[:400]
     return {"code": code, "message": raw or "Task execution failed."}
+
+
+def _execution_state(
+    body: TaskCreate,
+    *,
+    state: str,
+    usable_output: bool = False,
+    resources: dict | None = None,
+    attention: dict | None = None,
+) -> dict:
+    """Build the common public execution-control projection for a task receipt."""
+    execution = {
+        "state": state,
+        "usable_output": usable_output,
+        "limits": execution_limit_receipt(body.execution_limits),
+    }
+    if resources is not None:
+        execution["resources"] = resources
+    if attention is not None:
+        execution["attention"] = attention
+    return execution
 
 
 def _orchestration_error(result: object) -> object:
@@ -763,6 +790,7 @@ async def _create_or_get_receipt(
                         extension_invocation = $extension_invocation,
                         retry_of_task_id = $retry_of_task_id,
                         call_estimate = $call_estimate,
+                        execution = $execution,
                         runtime_id = $runtime_id,
                         accepted_at = time::now(),
                         updated_at = time::now()
@@ -780,6 +808,7 @@ async def _create_or_get_receipt(
                         "extension_invocation": extension_invocation,
                         "retry_of_task_id": retry_of_task_id,
                         "call_estimate": call_estimate,
+                        "execution": _execution_state(body, state="accepted"),
                         "runtime_id": _RUNTIME_ID,
                         "requested_task_id": (
                             parse_record_id(requested_task_id) if requested_task_id is not None else None
@@ -862,6 +891,8 @@ async def _cancel_task_execution(task_id: str, *, actor: str, reason: str) -> di
 
     cancellation["state"] = "process_stopped_during_cancellation"
     cancellation["acknowledged_at"] = datetime.now(timezone.utc)
+    interrupted_execution = dict(task.get("execution") or {})
+    interrupted_execution.update({"state": "interrupted", "usable_output": False})
     return await _update_receipt(
         task_id,
         {
@@ -871,7 +902,7 @@ async def _cancel_task_execution(task_id: str, *, actor: str, reason: str) -> di
                 "code": "cancellation_process_unavailable",
                 "message": "The execution process was unavailable while cancellation was requested.",
             },
-            "execution": {"state": "interrupted", "usable_output": False},
+            "execution": interrupted_execution,
             "completed_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc),
         },
@@ -885,9 +916,18 @@ async def _execute_receipt(
     *,
     extension_invocation: dict | None = None,
 ) -> None:
+    started_monotonic = time.monotonic()
     try:
         now = datetime.now(timezone.utc)
-        await _update_receipt(task_id, {"status": "running", "started_at": now, "updated_at": now})
+        await _update_receipt(
+            task_id,
+            {
+                "status": "running",
+                "execution": _execution_state(body, state="running"),
+                "started_at": now,
+                "updated_at": now,
+            },
+        )
         from core.engine.orchestration import orchestrate
         from core.engine.orchestration.request import OrchestrationRequest
 
@@ -902,7 +942,54 @@ async def _execute_receipt(
             force_frameworks=body.deep,
             frameworks_hint=body.frameworks_hint,
         )
-        result = await orchestrate(request)
+        if body.execution_limits is None:
+            result = await orchestrate(request)
+        else:
+            try:
+                result = await asyncio.wait_for(
+                    orchestrate(request),
+                    timeout=body.execution_limits.wall_time_seconds,
+                )
+            except TimeoutError:
+                elapsed_ms = max(0, int(round((time.monotonic() - started_monotonic) * 1_000)))
+                error = {
+                    "code": "execution_timeout",
+                    "message": "The task exceeded its declared wall-clock execution limit.",
+                }
+                execution = _execution_state(
+                    body,
+                    state="timed_out",
+                    resources=task_resource_report(
+                        limits=body.execution_limits,
+                        wall_time_ms=elapsed_ms,
+                        outcome="timed_out",
+                        terminal_telemetry_available=False,
+                    ),
+                    attention={
+                        "required": True,
+                        "code": "execution_timeout",
+                        "message": "Orchestration was cancelled after the declared Core runtime deadline.",
+                    },
+                )
+                timeout_task = {
+                    "id": task_id,
+                    "status": "degraded",
+                    "error": error,
+                    "execution": execution,
+                }
+                extension_receipt = build_extension_receipt(timeout_task, extension_invocation)
+                await _update_receipt(
+                    task_id,
+                    {
+                        "status": "degraded",
+                        "error": error,
+                        "execution": execution,
+                        "extension_receipt": extension_receipt,
+                        "completed_at": datetime.now(timezone.utc),
+                        "updated_at": datetime.now(timezone.utc),
+                    },
+                )
+                return
         status = result.status
         error = None
         if status not in {"completed", "complete"}:
@@ -916,6 +1003,7 @@ async def _execute_receipt(
 
         reasoning_trace = _reasoning_trace(result)
         execution = _execution_coverage(result)
+        execution["limits"] = execution_limit_receipt(body.execution_limits)
         provenance = reasoning_trace.setdefault("provenance", {})
         provenance["task_id"] = task_id
         if not provenance.get("provider") or not provenance.get("model"):
@@ -947,6 +1035,15 @@ async def _execute_receipt(
             "retry_count": int(latency.get("retry_count") or 0),
             "over_soft_limit": actual_calls > call_estimate["soft_limit"],
         }
+        resource_outcome = status if status in {"completed", "failed", "degraded"} else "degraded"
+        execution["resources"] = task_resource_report(
+            limits=body.execution_limits,
+            wall_time_ms=max(0, int(round((time.monotonic() - started_monotonic) * 1_000))),
+            outcome=resource_outcome,
+            model_calls=model_calls,
+            token_usage=token_usage,
+            terminal_telemetry_available=True,
+        )
         intelligence_use_receipt = runtime_intelligence_use_receipt(
             task_id=task_id,
             product_id=user.get("product", "product:default"),
@@ -1135,12 +1232,22 @@ async def _execute_receipt(
                 "state": "acknowledged",
                 "acknowledged_at": datetime.now(timezone.utc),
             }
+            execution = _execution_state(
+                body,
+                state="cancelled",
+                resources=task_resource_report(
+                    limits=body.execution_limits,
+                    wall_time_ms=max(0, int(round((time.monotonic() - started_monotonic) * 1_000))),
+                    outcome="cancelled",
+                    terminal_telemetry_available=False,
+                ),
+            )
             cancelled_task = {
                 "id": task_id,
                 "status": "cancelled",
                 "cancellation": cancellation,
                 "error": {"code": "invocation_cancelled", "message": "The invocation was cancelled."},
-                "execution": {"state": "cancelled", "usable_output": False},
+                "execution": execution,
             }
             extension_receipt = build_extension_receipt(cancelled_task, extension_invocation)
             await _update_receipt(
@@ -1149,13 +1256,28 @@ async def _execute_receipt(
                     "status": "cancelled",
                     "cancellation": cancellation,
                     "error": cancelled_task["error"],
-                    "execution": cancelled_task["execution"],
+                    "execution": execution,
                     "extension_receipt": extension_receipt,
                     "completed_at": datetime.now(timezone.utc),
                     "updated_at": datetime.now(timezone.utc),
                 },
             )
             raise
+        interrupted_execution = _execution_state(
+            body,
+            state="interrupted",
+            resources=task_resource_report(
+                limits=body.execution_limits,
+                wall_time_ms=max(0, int(round((time.monotonic() - started_monotonic) * 1_000))),
+                outcome="interrupted",
+                terminal_telemetry_available=False,
+            ),
+            attention={
+                "required": True,
+                "code": "runtime_stopped",
+                "message": "Execution stopped before contributor coverage could complete.",
+            },
+        )
         extension_receipt = build_extension_receipt(
             {
                 "id": task_id,
@@ -1164,7 +1286,7 @@ async def _execute_receipt(
                     "code": "runtime_stopped",
                     "message": "The API runtime stopped before orchestration completed.",
                 },
-                "execution": {"state": "interrupted", "usable_output": False},
+                "execution": interrupted_execution,
             },
             extension_invocation,
         )
@@ -1176,15 +1298,7 @@ async def _execute_receipt(
                     "code": "runtime_stopped",
                     "message": "The API runtime stopped before orchestration completed; the task was not reported as failed.",
                 },
-                "execution": {
-                    "state": "interrupted",
-                    "usable_output": False,
-                    "attention": {
-                        "required": True,
-                        "code": "runtime_stopped",
-                        "message": "Execution stopped before contributor coverage could complete.",
-                    },
-                },
+                "execution": interrupted_execution,
                 "extension_receipt": extension_receipt,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
@@ -1194,12 +1308,27 @@ async def _execute_receipt(
     except Exception as exc:
         logger.exception("Asynchronous task execution failed for %s", task_id)
         public_error = _bounded_public_error(exc)
+        failed_execution = _execution_state(
+            body,
+            state="failed",
+            resources=task_resource_report(
+                limits=body.execution_limits,
+                wall_time_ms=max(0, int(round((time.monotonic() - started_monotonic) * 1_000))),
+                outcome="failed",
+                terminal_telemetry_available=False,
+            ),
+            attention={
+                "required": True,
+                "code": "orchestration_failed",
+                "message": "Execution failed before a usable result was produced.",
+            },
+        )
         extension_receipt = build_extension_receipt(
             {
                 "id": task_id,
                 "status": "failed",
                 "error": public_error,
-                "execution": {"state": "failed", "usable_output": False},
+                "execution": failed_execution,
             },
             extension_invocation,
         )
@@ -1208,15 +1337,7 @@ async def _execute_receipt(
             {
                 "status": "failed",
                 "error": public_error,
-                "execution": {
-                    "state": "failed",
-                    "usable_output": False,
-                    "attention": {
-                        "required": True,
-                        "code": "orchestration_failed",
-                        "message": "Execution failed before a usable result was produced.",
-                    },
-                },
+                "execution": failed_execution,
                 "extension_receipt": extension_receipt,
                 "completed_at": datetime.now(timezone.utc),
                 "updated_at": datetime.now(timezone.utc),
@@ -1250,6 +1371,7 @@ async def initialize_task_runtime() -> int:
                     execution = {
                         state: 'interrupted',
                         usable_output: false,
+                        limits: execution.limits,
                         attention: {
                             required: true,
                             code: IF cancellation.state IN ['requested', 'process_stopped_during_cancellation']

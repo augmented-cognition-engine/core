@@ -13,6 +13,7 @@ from fastapi import HTTPException
 
 from core.engine.api import tasks
 from core.engine.api.tasks import TaskCreate
+from core.engine.execution.contracts import TaskExecutionLimits
 from core.engine.extensions.invocation import (
     ExtensionInvocationEnvelope,
     ExtensionOutcome,
@@ -136,6 +137,139 @@ async def test_simulated_31_second_task_returns_receipt_then_survives_disconnect
     assert completed["deliberation_receipt"]["contract_version"] == "deliberation-receipt-v1"
     assert completed["intelligence_use_receipt"]["contract_version"] == "intelligence-use-receipt-v1"
     assert completed["extension_receipt"] == {}
+    assert completed["execution"]["limits"] == {
+        "contract_version": "task-execution-limits-v1",
+        "wall_time_seconds": None,
+        "enforcement": "not_requested",
+        "topology": "current_runtime_process",
+    }
+    assert completed["execution"]["resources"]["contract_version"] == "task-resource-report-v1"
+    assert completed["execution"]["resources"]["outcome"] == "completed"
+    assert completed["execution"]["resources"]["model_calls"] == 0
+    assert completed["execution"]["resources"]["total_tokens"] == 42
+    assert completed["execution"]["resources"]["telemetry_completeness"] == "terminal"
+
+
+def test_execution_limit_is_bounded_and_changes_direct_task_identity():
+    bounded = TaskExecutionLimits(wall_time_seconds=15)
+    assert bounded.model_dump(mode="json") == {
+        "contract_version": "task-execution-limits-v1",
+        "wall_time_seconds": 15.0,
+    }
+
+    short = TaskCreate(
+        description="bounded work",
+        workspace_id="workspace:test",
+        execution_limits={"wall_time_seconds": 5},
+    )
+    long = TaskCreate(
+        description="bounded work",
+        workspace_id="workspace:test",
+        execution_limits={"wall_time_seconds": 10},
+    )
+    assert tasks._task_fingerprint(short) != tasks._task_fingerprint(long)
+
+
+@pytest.mark.asyncio
+async def test_declared_wall_time_limit_cancels_orchestration_and_persists_timeout_receipt():
+    store = MemoryReceiptStore(task_id="task:timeout")
+    cancelled = asyncio.Event()
+
+    async def blocked_orchestrate(_request):
+        try:
+            await asyncio.Event().wait()
+        finally:
+            cancelled.set()
+
+    body = TaskCreate(
+        description="bounded slow work",
+        workspace_id="workspace:test",
+        execution_limits={"wall_time_seconds": 0.01},
+    )
+    with (
+        patch.object(tasks, "_update_receipt", new=store.update),
+        patch("core.engine.orchestration.orchestrate", new=blocked_orchestrate),
+    ):
+        await tasks._execute_receipt(
+            store.task_id,
+            body,
+            {"sub": "user:test", "product": "product:test"},
+        )
+
+    assert cancelled.is_set()
+    assert store.state["status"] == "degraded"
+    assert store.state["error"] == {
+        "code": "execution_timeout",
+        "message": "The task exceeded its declared wall-clock execution limit.",
+    }
+    execution = store.state["execution"]
+    assert execution["state"] == "timed_out"
+    assert execution["usable_output"] is False
+    assert execution["limits"]["wall_time_seconds"] == 0.01
+    assert execution["limits"]["enforcement"] == "core_runtime_deadline"
+    assert execution["resources"]["deadline_exceeded"] is True
+    assert execution["resources"]["wall_time_limit_ms"] == 10
+    assert execution["resources"]["wall_time_ms"] >= 10
+    assert execution["resources"]["telemetry_completeness"] == "partial"
+    assert "provider_usage_unavailable_before_terminal_result" in execution["resources"]["limitations"]
+    assert execution["attention"]["code"] == "execution_timeout"
+
+
+@pytest.mark.asyncio
+async def test_extension_timeout_receipt_exposes_deadline_without_projecting_an_outcome():
+    store = MemoryReceiptStore(task_id="task:extension-timeout")
+    envelope = ExtensionInvocationEnvelope(
+        extension_id="example",
+        extension_version="1.0.0",
+        action="bounded",
+        workspace_id="workspace:test",
+        question="Perform bounded work.",
+        correlation_id="corr:bounded-timeout",
+    )
+    plan = ExtensionTaskPlan(
+        description="Perform bounded work.",
+        execution_limits=TaskExecutionLimits(wall_time_seconds=0.01),
+        outcome_contract="example-outcome-v1",
+    )
+    action = RegisteredTaskAction(
+        extension_id="example",
+        extension_version="1.0.0",
+        action="bounded",
+        prepare=lambda _envelope, _actor: plan,
+        output_contract="example-outcome-v1",
+    )
+    metadata = invocation_metadata(envelope, plan, action)
+
+    async def blocked_orchestrate(_request):
+        await asyncio.Event().wait()
+
+    with (
+        patch.object(tasks, "_update_receipt", new=store.update),
+        patch("core.engine.orchestration.orchestrate", new=blocked_orchestrate),
+    ):
+        await tasks._execute_receipt(
+            store.task_id,
+            TaskCreate(
+                description=plan.description,
+                workspace_id="workspace:test",
+                execution_limits=plan.execution_limits,
+            ),
+            {"sub": "user:test", "product": "product:test"},
+            extension_invocation=metadata,
+        )
+
+    receipt = store.state["extension_receipt"]
+    assert receipt["attempt"]["status"] == "degraded"
+    assert receipt["attempt"]["terminal"] is True
+    assert receipt["attempt"]["resumable"] is True
+    assert receipt["coverage"]["execution_state"] == "timed_out"
+    assert receipt["raw_core_output"] == {"available": False, "content": None}
+    assert receipt["failures"] == [
+        {
+            "code": "execution_timeout",
+            "message": "The task exceeded its declared wall-clock execution limit.",
+        }
+    ]
 
 
 def test_pre_acceptance_call_estimate_is_bounded_and_explained():
@@ -618,6 +752,7 @@ async def test_runtime_restart_reconciliation_marks_interrupted_rows_degraded():
     with patch.object(tasks, "pool", new=FakePool()):
         count = await tasks.initialize_task_runtime()
     assert count == 1
+    assert "limits: execution.limits" in db.query.await_args.args[0]
     query = db.query.call_args.args[0]
     assert "status = 'degraded'" in query
     assert "runtime_id != $runtime_id" in query
