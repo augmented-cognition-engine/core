@@ -412,6 +412,15 @@ class GovernedActionOutcome:
     replayed: bool
 
 
+@dataclass(frozen=True, slots=True)
+class GovernedPreparedAction:
+    """Exact effect-free material awaiting a separate human review decision."""
+
+    intent: ActionIntentV1Alpha1
+    plan: PreparedActionV1Alpha1
+    authorization: GovernedActionAuthorizationProjection
+
+
 def _transaction_key(action_key: str, stage: Literal["admission", "terminal"]) -> str:
     return f"action_{stage}:{canonical_hash([action_key, stage])[:32]}"
 
@@ -613,6 +622,54 @@ class GovernedActionExecutionService:
         async with self._lock(validated.product_id, validated.action_key):
             return await self._execute_validated(validated)
 
+    async def prepare(self, intent: ActionIntentV1Alpha1) -> GovernedPreparedAction:
+        """Prepare and authorize exact material without admission or adapter effects."""
+
+        try:
+            validated = ActionIntentV1Alpha1.model_validate(intent.model_dump(mode="python"))
+        except Exception as exc:
+            raise GovernedActionExecutionError("action intent failed exact revalidation") from exc
+        return await self._prepare_validated(validated)
+
+    async def _prepare_validated(self, validated: ActionIntentV1Alpha1) -> GovernedPreparedAction:
+        await self._decision(validated)
+        try:
+            plan = PreparedActionV1Alpha1.model_validate(
+                (await self.adapter.prepare(validated)).model_dump(mode="python")
+            )
+        except Exception as exc:
+            raise GovernedActionExecutionError("action adapter preparation failed closed") from exc
+        if (
+            plan.product_id != validated.product_id
+            or plan.intent_id != validated.intent_id
+            or plan.intent_digest != validated.intent_digest
+            or plan.action_type != validated.action_type
+            or plan.artifact != self.operation_binding.artifact
+            or plan.prepared_at < validated.requested_at
+            or not (
+                validated.authenticated_context.authenticated_at
+                <= plan.prepared_at
+                < validated.authenticated_context.expires_at
+            )
+        ):
+            raise GovernedActionExecutionError("prepared action crossed exact intent or adapter scope")
+        authorization_request = GovernedActionAuthorizationRequestV1Alpha1(
+            authorization_key=f"action:{validated.action_key}",
+            product_id=validated.product_id,
+            authenticated_context=validated.authenticated_context,
+            execution_binding=self.operation_binding,
+            operation=ACTION_OPERATION,
+            subject_ref=str(plan.plan_id),
+            subject_digest=str(plan.plan_digest),
+            requested_at=plan.prepared_at,
+            required_state_preconditions=(),
+        )
+        try:
+            authorization = await self.authorizer.authorize_action(authorization_request)
+        except Exception as exc:
+            raise GovernedActionExecutionError("Core action authorization failed closed") from exc
+        return GovernedPreparedAction(intent=validated, plan=plan, authorization=authorization)
+
     async def _execute_validated(self, validated: ActionIntentV1Alpha1) -> GovernedActionOutcome:
         admission_loaded = await self._load_stage(intent=validated, stage="admission")
         if admission_loaded is not None:
@@ -656,42 +713,9 @@ class GovernedActionExecutionService:
                 replayed=True,
             )
 
-        await self._decision(validated)
-        try:
-            plan = PreparedActionV1Alpha1.model_validate(
-                (await self.adapter.prepare(validated)).model_dump(mode="python")
-            )
-        except Exception as exc:
-            raise GovernedActionExecutionError("action adapter preparation failed closed") from exc
-        if (
-            plan.product_id != validated.product_id
-            or plan.intent_id != validated.intent_id
-            or plan.intent_digest != validated.intent_digest
-            or plan.action_type != validated.action_type
-            or plan.artifact != self.operation_binding.artifact
-            or plan.prepared_at < validated.requested_at
-            or not (
-                validated.authenticated_context.authenticated_at
-                <= plan.prepared_at
-                < validated.authenticated_context.expires_at
-            )
-        ):
-            raise GovernedActionExecutionError("prepared action crossed exact intent or adapter scope")
-        authorization_request = GovernedActionAuthorizationRequestV1Alpha1(
-            authorization_key=f"action:{validated.action_key}",
-            product_id=validated.product_id,
-            authenticated_context=validated.authenticated_context,
-            execution_binding=self.operation_binding,
-            operation=ACTION_OPERATION,
-            subject_ref=str(plan.plan_id),
-            subject_digest=str(plan.plan_digest),
-            requested_at=plan.prepared_at,
-            required_state_preconditions=(),
-        )
-        try:
-            authorization = await self.authorizer.authorize_action(authorization_request)
-        except Exception as exc:
-            raise GovernedActionExecutionError("Core action authorization failed closed") from exc
+        prepared = await self._prepare_validated(validated)
+        plan = prepared.plan
+        authorization = prepared.authorization
         admitted_at = self._now()
         admission = ActionAdmissionV1Alpha1(
             product_id=validated.product_id,
@@ -777,6 +801,7 @@ __all__ = [
     "GovernedActionExecutionError",
     "GovernedActionExecutionService",
     "GovernedActionOutcome",
+    "GovernedPreparedAction",
     "GovernedActionReplayConflict",
     "PreparedActionV1Alpha1",
 ]

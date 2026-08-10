@@ -144,6 +144,21 @@ the final file is created exclusively. The adapter is trusted application code; 
 Domain Pack nor a sandbox for untrusted plugins, and installing it does not register or authorize
 it.
 
+B1D adds a separate human-governance lifecycle without changing the B1A admission or terminal
+schemas. `GovernedActionReviewService` first asks the existing executor for an effect-free prepared
+plan and Core policy authorization. A durable review receipt embeds that complete exact material,
+including target, permissions, side effects, reversibility, before evidence, timeout, adapter
+identity, and governed-state preconditions. An approval resumes from the receipt—even after service
+reconstruction—without asking the adapter to choose a fresh target. A rejection never reaches
+admission or the adapter effect.
+
+Execution success is not adoption. The lifecycle records a separate post-effect verification and
+then a separate promotion or rejection. A repair is an explicit human-requested successor with a
+new action key and exact parent lineage; an unknown effect cannot be repaired because a second
+attempt could duplicate an effect that already happened. These lifecycle records are governance
+facts, not effects: only the explicitly supplied adapter can change the target, and Domain Packs
+remain declarative.
+
 The candidate deliberately excludes
 arbitrary shell execution, a built-in or dynamically discovered writable adapter, cross-process locks, distributed exactly-once
 effects, compensation, container or remote portability, and promotion through the complete SHIP

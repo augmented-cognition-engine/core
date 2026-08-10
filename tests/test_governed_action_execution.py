@@ -11,8 +11,11 @@ from ace.core import (
     ActionDisposition,
     ActionEffectState,
     ActionIntentV1Alpha1,
+    ActionPromotionDisposition,
     ActionResultV1Alpha1,
     ActionReversibility,
+    ActionReviewDisposition,
+    ActionVerificationDisposition,
     AppendOnlyTransactionRequestV1,
     AuthenticatedRuntimeContextV1Alpha1,
     CapabilityArtifactIdentityV1Alpha1,
@@ -24,6 +27,9 @@ from ace.core import (
     GovernedActionExecutionError,
     GovernedActionExecutionService,
     GovernedActionReplayConflict,
+    GovernedActionReviewError,
+    GovernedActionReviewReplayConflict,
+    GovernedActionReviewService,
     GovernedOperationBindingV1Alpha1,
     GovernedStateHeadPreconditionV1Alpha1,
     GovernedStateHeadV1,
@@ -283,6 +289,14 @@ def _service(store: _Store, adapter: _Adapter, authorizer: _Authorizer | None = 
     )
 
 
+def _review_service(store: _Store, adapter: _Adapter, *, clock: _Clock | None = None):
+    return GovernedActionReviewService(
+        store=store,
+        executor=_service(store, adapter),
+        clock=clock or _Clock(),
+    )
+
+
 @pytest.mark.asyncio
 async def test_success_is_admitted_before_effect_and_replays_without_reexecution():
     store = _Store()
@@ -485,3 +499,262 @@ def test_non_success_result_requires_explicit_failure():
 def test_action_record_space_remains_domain_neutral():
     assert ACTION_RECORD_SPACE == "action_execution"
     assert canonical_hash({"space": ACTION_RECORD_SPACE})
+
+
+@pytest.mark.asyncio
+async def test_exact_human_review_survives_reconstruction_and_executes_once():
+    store = _Store()
+    intent = await _intent(store)
+    adapter = _Adapter(store)
+    first_service = _review_service(store, adapter)
+
+    prepared = await first_service.prepare_for_review(intent)
+    review = await first_service.review(
+        prepared,
+        review_key="review:fixture:1",
+        reviewer_context=_context("principal:reviewer"),
+        disposition=ActionReviewDisposition.APPROVE,
+        rationale="The exact target, permissions, and declared effect are approved.",
+    )
+
+    assert adapter.prepare_calls == 1
+    assert adapter.execute_calls == 0
+    assert store.admitted is False
+
+    restarted = _review_service(store, adapter)
+    first = await restarted.execute_reviewed(review)
+    replay = await restarted.execute_reviewed(review)
+
+    assert first.admission.plan == review.plan
+    assert first.admission.authorization == review.authorization
+    assert first.replayed is False
+    assert replay.replayed is True
+    assert replay.terminal == first.terminal
+    assert adapter.prepare_calls == 1
+    assert adapter.execute_calls == 1
+
+
+@pytest.mark.asyncio
+async def test_rejected_review_is_durable_and_never_admits_or_executes():
+    store = _Store()
+    adapter = _Adapter(store)
+    service = _review_service(store, adapter)
+    review = await service.review(
+        await service.prepare_for_review(await _intent(store)),
+        review_key="review:fixture:rejected",
+        reviewer_context=_context("principal:reviewer"),
+        disposition=ActionReviewDisposition.REJECT,
+        rationale="The target is not approved for this run.",
+    )
+
+    with pytest.raises(GovernedActionReviewError, match="rejected"):
+        await service.execute_reviewed(review)
+
+    assert store.admitted is False
+    assert adapter.execute_calls == 0
+
+
+@pytest.mark.asyncio
+async def test_review_cannot_be_added_after_action_admission():
+    store = _Store()
+    adapter = _Adapter(store)
+    intent = await _intent(store)
+    await _service(store, adapter).execute(intent)
+
+    with pytest.raises(GovernedActionReviewError, match="already admitted"):
+        await _review_service(store, adapter).prepare_for_review(intent)
+
+
+@pytest.mark.asyncio
+async def test_expired_or_cross_product_reviewer_fails_before_review_persistence():
+    store = _Store()
+    service = _review_service(store, _Adapter(store))
+    prepared = await service.prepare_for_review(await _intent(store))
+    expired = AuthenticatedRuntimeContextV1Alpha1.model_validate(
+        {
+            **_context("principal:reviewer").model_dump(mode="python"),
+            "expires_at": NOW + timedelta(seconds=3),
+        }
+    )
+
+    with pytest.raises(ValidationError, match="reviewer, or product scope"):
+        await service.review(
+            prepared,
+            review_key="review:fixture:expired",
+            reviewer_context=expired,
+            disposition=ActionReviewDisposition.APPROVE,
+            rationale="This expired authenticated window must fail closed.",
+        )
+
+
+@pytest.mark.asyncio
+async def test_stable_review_key_cannot_change_human_disposition():
+    store = _Store()
+    service = _review_service(store, _Adapter(store))
+    prepared = await service.prepare_for_review(await _intent(store))
+    await service.review(
+        prepared,
+        review_key="review:fixture:stable",
+        reviewer_context=_context("principal:reviewer"),
+        disposition=ActionReviewDisposition.APPROVE,
+        rationale="Approve the exact prepared material.",
+    )
+
+    with pytest.raises(GovernedActionReviewReplayConflict, match="different exact material"):
+        await service.review(
+            prepared,
+            review_key="review:fixture:stable",
+            reviewer_context=_context("principal:reviewer"),
+            disposition=ActionReviewDisposition.REJECT,
+            rationale="Attempt to change the already durable judgment.",
+        )
+
+
+@pytest.mark.asyncio
+async def test_success_requires_separate_verification_before_promotion():
+    store = _Store()
+    adapter = _Adapter(store)
+    clock = _Clock()
+    service = _review_service(store, adapter, clock=clock)
+    review = await service.review(
+        await service.prepare_for_review(await _intent(store)),
+        review_key="review:fixture:promotion",
+        reviewer_context=_context("principal:reviewer"),
+        disposition=ActionReviewDisposition.APPROVE,
+        rationale="Approve the exact prepared export.",
+    )
+    outcome = await service.execute_reviewed(review)
+
+    with pytest.raises(ValidationError, match="promotion requires"):
+        from ace.core import ActionPromotionReceiptV1Alpha1, ActionVerificationReceiptV1Alpha1
+
+        repair_required = ActionVerificationReceiptV1Alpha1(
+            verification_key="verification:not-ready",
+            product_id=PRODUCT,
+            review=review,
+            terminal=outcome.terminal,
+            verifier_context=_context("principal:verifier"),
+            disposition=ActionVerificationDisposition.REPAIR_REQUIRED,
+            rationale="Verification has not passed.",
+            verified_at=NOW + timedelta(seconds=4),
+        )
+        ActionPromotionReceiptV1Alpha1(
+            promotion_key="promotion:too-early",
+            product_id=PRODUCT,
+            verification=repair_required,
+            promoter_context=_context("principal:promoter"),
+            disposition=ActionPromotionDisposition.PROMOTED,
+            target_ref="workspace:approved",
+            rationale="Must not promote before verification.",
+            promoted_at=NOW + timedelta(seconds=5),
+        )
+
+    verification = await service.verify(
+        review,
+        outcome,
+        verification_key="verification:fixture:promotion",
+        verifier_context=_context("principal:verifier"),
+        disposition=ActionVerificationDisposition.VERIFIED,
+        rationale="The exact output and effect evidence passed verification.",
+    )
+    promotion = await service.promote(
+        verification,
+        promotion_key="promotion:fixture:1",
+        promoter_context=_context("principal:promoter"),
+        disposition=ActionPromotionDisposition.PROMOTED,
+        target_ref="workspace:approved",
+        rationale="Adopt the verified output.",
+    )
+
+    assert verification.terminal == outcome.terminal
+    assert promotion.verification == verification
+    assert promotion.disposition is ActionPromotionDisposition.PROMOTED
+
+
+@pytest.mark.asyncio
+async def test_unknown_effect_cannot_create_repair_successor():
+    store = _Store()
+    service = _review_service(store, _Adapter(store, mode="raise"), clock=_Clock())
+    review = await service.review(
+        await service.prepare_for_review(await _intent(store)),
+        review_key="review:fixture:unknown",
+        reviewer_context=_context("principal:reviewer"),
+        disposition=ActionReviewDisposition.APPROVE,
+        rationale="Approve the bounded attempt.",
+    )
+    outcome = await service.execute_reviewed(review)
+    verification = await service.verify(
+        review,
+        outcome,
+        verification_key="verification:fixture:unknown",
+        verifier_context=_context("principal:verifier"),
+        disposition=ActionVerificationDisposition.REPAIR_REQUIRED,
+        rationale="The adapter failed and the effect is unknown.",
+    )
+    successor = await _intent(
+        store,
+        action_key="action:fixture:repair-unknown",
+        requested_at=NOW + timedelta(seconds=5),
+    )
+
+    with pytest.raises(ValidationError, match="known effects"):
+        await service.request_repair(
+            verification,
+            successor,
+            repair_key="repair:fixture:unknown",
+            requester_context=_context("principal:reviewer"),
+            rationale="Must not retry an action whose effect may have happened.",
+        )
+
+
+@pytest.mark.asyncio
+async def test_confirmed_partial_effect_can_only_create_distinct_linked_repair():
+    store = _Store()
+    service = _review_service(store, _Adapter(store, mode="partial"), clock=_Clock())
+    review = await service.review(
+        await service.prepare_for_review(await _intent(store)),
+        review_key="review:fixture:partial",
+        reviewer_context=_context("principal:reviewer"),
+        disposition=ActionReviewDisposition.APPROVE,
+        rationale="Approve the bounded attempt.",
+    )
+    outcome = await service.execute_reviewed(review)
+    verification = await service.verify(
+        review,
+        outcome,
+        verification_key="verification:fixture:partial",
+        verifier_context=_context("principal:verifier"),
+        disposition=ActionVerificationDisposition.REPAIR_REQUIRED,
+        rationale="A declared verification failed after a confirmed partial effect.",
+    )
+    successor = await _intent(
+        store,
+        action_key="action:fixture:repair-partial",
+        requested_at=NOW + timedelta(seconds=5),
+    )
+    repair = await service.request_repair(
+        verification,
+        successor,
+        repair_key="repair:fixture:partial",
+        requester_context=_context("principal:reviewer"),
+        rationale="Create a separately reviewed corrective attempt.",
+    )
+
+    assert repair.verification == verification
+    assert repair.successor_intent.action_key != outcome.terminal.action_key
+    assert repair.successor_intent.intent_id != review.intent.intent_id
+
+    reused_key = ActionIntentV1Alpha1.model_validate(
+        {
+            **successor.model_dump(mode="python", exclude={"intent_id", "intent_digest"}),
+            "action_key": outcome.terminal.action_key,
+        }
+    )
+    with pytest.raises(ValidationError, match="fresh successor"):
+        await service.request_repair(
+            verification,
+            reused_key,
+            repair_key="repair:fixture:reused-parent",
+            requester_context=_context("principal:reviewer"),
+            rationale="A repair must not reuse the parent action identity.",
+        )
