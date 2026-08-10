@@ -1,6 +1,6 @@
 # T1A durable cancellation candidate evidence (v1)
 
-**Status:** candidate, local; public PR/CI and released-artifact evidence pending
+**Status:** candidate, merged to main; released-artifact evidence pending
 
 **Date:** 2026-08-09
 
@@ -20,8 +20,9 @@ autonomy.
 ## Source and artifact identity
 
 The candidate was built from branch `codex/t1a-durable-cancellation` based on Core main commit
-`6657615464644b18a479bcfd18343c16e25a10ff`. Its eventual PR head and merge identity remain pending
-and must be added before public closeout.
+`6657615464644b18a479bcfd18343c16e25a10ff`. [PR #70](https://github.com/augmented-cognition-engine/core/pull/70)
+merged head `ffb3c8913067099d27266149b17e210b7813556b` to main as squash commit
+`e9164c2b2d9f9cb8baf901fc441078e063acdbcb`.
 
 The locally built wheel retained the unreleased base version `ace-core==0.4.4`:
 
@@ -32,6 +33,22 @@ SHA-256 80cce09d06de8272db1317dd0c023be08852392a17fe2067411d87f3fb503d43
 
 The wheel version is not a new release claim. A later release must bind its own tag, version,
 trusted publication, public-index hashes, and installed-package journey.
+
+## Public review and CI
+
+PR #70 passed the final-head [CI run 148](https://github.com/augmented-cognition-engine/core/actions/runs/31349860505)
+before merge. The required jobs all completed successfully:
+
+- Lint;
+- Security Audit;
+- Canvas typecheck, tests, and naked build;
+- Tests (fast gate);
+- Naked kernel with all extensions disabled; and
+- Docker build and health-endpoint verification.
+
+The PR was mergeable, marked ready for review only after the first full run passed, and squash
+merged only after the stronger final head with the real SurrealKV restart test passed the same
+required workflow.
 
 ## Contract result
 
@@ -125,12 +142,11 @@ termination atomic with an external system.
 
 ## Remaining closeout gate
 
-T1A remains candidate until all of the following are bound to the exact public source identity:
+The merged source, PR, CI, real-store restart, and local wheel identities are now recorded. The
+extension-invocation surface remains explicitly experimental in capability-maturity documentation,
+so merge does not silently promote a supported general cancellation API.
 
-1. PR review and required GitHub checks pass on the final candidate head;
-2. the merged commit is recorded;
-3. the supported/public maturity wording is reconciled without broadening the claim; and
-4. a released artifact, if T1A is promoted in a patch or minor release, passes the same journey from
-   the public package index.
+T1A remains candidate until a released artifact passes the same journey from the public package
+index and its release evidence binds the exact tag, package version, hashes, and limitations.
 
 Until then, the overall roadmap remains unchanged: T1 and B1 are not ready, and 0.5.0 remains next.
