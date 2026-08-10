@@ -244,7 +244,9 @@ changed for it.
 - Attempt-level resume may repeat provider calls or extension preparation. It is not transaction
   replay or exactly-once execution.
 - Outcome projection is generated/extension-defined data, not proof of causality or quality.
-- Cancellation is process-local and cooperative; distributed recovery, external-side-effect
+- Cancellation is process-local and cooperative. Core persists the request before interruption,
+  preserves the first terminal cancellation fact across duplicate requests, and rebuilds a
+  reconciled extension receipt after restart. Distributed recovery, external-side-effect
   cancellation, resource guarantees, and portable task claiming remain T1.
 - E1 still requires at least one packaged non-reference example, a published conformance matrix,
   compatibility/version-skew evidence, and preservation of the eleven-tool boundary across those

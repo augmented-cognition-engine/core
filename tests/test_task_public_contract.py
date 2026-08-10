@@ -626,6 +626,80 @@ async def test_runtime_restart_reconciliation_marks_interrupted_rows_degraded():
 
 
 @pytest.mark.asyncio
+async def test_runtime_restart_rebuilds_extension_receipt_from_reconciled_facts():
+    action = RegisteredTaskAction(
+        extension_id="example",
+        extension_version="1.0.0",
+        action="reason",
+        prepare=lambda envelope, actor: ExtensionTaskPlan(
+            description="reason",
+            outcome_contract="example-outcome-v1",
+        ),
+        output_contract="example-outcome-v1",
+        lifecycle_operations=["submit", "retrieve", "history", "retry", "cancel"],
+        cancellation_supported=True,
+    )
+    envelope = ExtensionInvocationEnvelope(
+        extension_id="example",
+        extension_version="1.0.0",
+        action="reason",
+        workspace_id="workspace:test",
+        question="Reason about this.",
+        references=[],
+        correlation_id="corr:restart",
+    )
+    plan = ExtensionTaskPlan(description="reason", outcome_contract="example-outcome-v1")
+    metadata = invocation_metadata(envelope, plan, action)
+    reconciled = {
+        "id": "task:old",
+        "status": "degraded",
+        "extension_invocation": metadata,
+        "extension_receipt": {"attempt": {"status": "running"}},
+        "cancellation": {
+            "state": "process_stopped_during_cancellation",
+            "requested_at": "2026-08-09T12:00:00Z",
+            "acknowledged_at": "2026-08-09T12:00:01Z",
+            "actor": "user:test",
+        },
+        "execution": {"state": "interrupted", "usable_output": False},
+        "error": {
+            "code": "cancellation_process_unavailable",
+            "message": "The execution process stopped while cancellation was pending.",
+        },
+    }
+    db = AsyncMock()
+    db.query = AsyncMock(return_value=[reconciled])
+
+    class FakePool:
+        @asynccontextmanager
+        async def connection(self):
+            yield db
+
+    update = AsyncMock(return_value=reconciled)
+    with (
+        patch.object(tasks, "pool", new=FakePool()),
+        patch.object(tasks, "_update_receipt", new=update),
+    ):
+        count = await tasks.initialize_task_runtime()
+
+    assert count == 1
+    fields = update.await_args.args[1]
+    assert fields["extension_receipt"]["attempt"]["status"] == "degraded"
+    assert fields["extension_receipt"]["attempt"]["terminal"] is True
+    assert fields["extension_receipt"]["cancellation"] == {
+        "supported": True,
+        "state": "process_stopped_during_cancellation",
+        "requested_at": "2026-08-09T12:00:00Z",
+        "acknowledged_at": "2026-08-09T12:00:01Z",
+        "actor": "user:test",
+    }
+    assert fields["extension_receipt"]["raw_core_output"] == {
+        "available": False,
+        "content": None,
+    }
+
+
+@pytest.mark.asyncio
 async def test_client_poll_timeout_does_not_masquerade_as_task_failure(monkeypatch):
     from ace_mcp_client.client import AceClient
 
@@ -671,7 +745,46 @@ async def test_cancellation_records_completed_before_request(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_supported_cancellation_persists_requested_then_acknowledged():
+@pytest.mark.parametrize(
+    ("status", "cancellation_state"),
+    [
+        ("cancelled", "acknowledged"),
+        ("completed", "completed_before_cancellation"),
+        ("degraded", "process_stopped_during_cancellation"),
+    ],
+)
+async def test_repeated_cancellation_preserves_first_terminal_fact(
+    monkeypatch,
+    status,
+    cancellation_state,
+):
+    prior = {
+        "id": "task:terminal-cancellation",
+        "status": status,
+        "cancellation": {
+            "state": cancellation_state,
+            "requested_at": "2026-08-09T12:00:00Z",
+            "acknowledged_at": "2026-08-09T12:00:01Z",
+            "actor": "user:first",
+            "reason": "first reason",
+        },
+    }
+    monkeypatch.setattr(tasks, "_get_task_record", AsyncMock(return_value=prior))
+    update = AsyncMock()
+    monkeypatch.setattr(tasks, "_update_receipt", update)
+
+    result = await tasks.cancel_task_execution(
+        "task:terminal-cancellation",
+        actor="user:second",
+        reason="second reason",
+    )
+
+    assert result == prior
+    update.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_concurrent_supported_cancellation_persists_one_requested_then_acknowledged_transition():
     store = MemoryReceiptStore(task_id="task:cancel-active")
     release = asyncio.Event()
     updates: list[str] = []
@@ -696,16 +809,25 @@ async def test_supported_cancellation_persists_requested_then_acknowledged():
     ):
         await tasks.create_task(body, user)
         await asyncio.sleep(0)
-        result = await tasks.cancel_task_execution(
-            store.task_id,
-            actor="user:test",
-            reason="no longer needed",
+        result, duplicate = await asyncio.gather(
+            tasks.cancel_task_execution(
+                store.task_id,
+                actor="user:test",
+                reason="no longer needed",
+            ),
+            tasks.cancel_task_execution(
+                store.task_id,
+                actor="user:test",
+                reason="duplicate request",
+            ),
         )
 
     assert result["status"] == "cancelled"
     assert result["cancellation"]["state"] == "acknowledged"
     assert result["cancellation"]["requested_at"] is not None
     assert result["cancellation"]["acknowledged_at"] is not None
+    assert duplicate["cancellation"] == result["cancellation"]
+    assert duplicate["cancellation"]["reason"] == "no longer needed"
     assert updates == ["requested", "acknowledged"]
 
 
