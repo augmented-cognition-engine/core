@@ -298,6 +298,16 @@ boundary, and an isolated local-wheel probe. It does not claim cross-process or 
 exactly-once effects, compensation, container equivalence, remote execution, or complete SHIP
 promotion, and therefore does not complete T1 or B1.
 
+The fifth bounded packet is
+[B1B durable action restart and host composition](docs/design/b1b-durable-action-restart-work-packet-v1.md).
+It adds exact constructor-only host registration, the supported SurrealDB composition path, strict
+database-JSON replay, and a fresh-process proof that an admitted action with no terminal receipt is
+never implicitly executed again. B1B remains a local candidate pending full regression, isolated
+artifact acceptance, public review, final-head CI, and merge reconciliation. Its
+[candidate evidence](docs/evidence/b1b-durable-action-restart-candidate-v1.md) does not claim
+distributed exactly-once effects, compensation, an independently packaged adapter, action
+review/repair/promotion, or released-artifact closeout, and therefore does not complete T1 or B1.
+
 ### 0.6.0 — Measured Intelligence
 
 Public promise: reasoning revisions are promoted, rejected, rolled back, or retired because of
