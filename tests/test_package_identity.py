@@ -50,7 +50,7 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     assert "reference-workspace-action-distributions" in workflow
     assert "python -m build --outdir dist/reference-adapter adapters/reference_workspace_action" in workflow
     assert "packages-dir: dist/core/" in workflow
-    assert 'gh release upload "$RELEASE_TAG" dist/reference-adapter/* --clobber' in workflow
+    assert 'gh release upload "$RELEASE_TAG" dist/reference-adapter/* --repo "$GITHUB_REPOSITORY" --clobber' in workflow
 
 
 def test_docker_image_includes_public_cli_package() -> None:
