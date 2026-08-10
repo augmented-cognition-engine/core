@@ -122,4 +122,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
-        run: gh release upload "$RELEASE_TAG" dist/reference-adapter/* --clobber
+        run: gh release upload "$RELEASE_TAG" dist/reference-adapter/* --repo "$GITHUB_REPOSITORY" --clobber
