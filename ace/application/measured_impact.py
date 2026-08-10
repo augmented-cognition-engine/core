@@ -392,7 +392,13 @@ class MeasuredImpactService:
         if not (validated.requested_at <= authorization.authorized_at < validated.authenticated_context.expires_at):
             raise MeasuredImpactError("measured-impact authorization is outside the authenticated request window")
         expected_preconditions = authorization_request.required_state_preconditions
-        if authorization.state_preconditions != expected_preconditions:
+        authorized_preconditions = {
+            (item.state_kind, item.product_id, item.state_id): item for item in authorization.state_preconditions
+        }
+        if any(
+            authorized_preconditions.get((item.state_kind, item.product_id, item.state_id)) != item
+            for item in expected_preconditions
+        ):
             raise MeasuredImpactError("measured-impact authorization changed the frozen governed heads")
         evaluation, proposal = evaluate_measured_impact(
             validated,

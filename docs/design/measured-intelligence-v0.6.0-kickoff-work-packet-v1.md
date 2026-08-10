@@ -130,7 +130,9 @@ receipt states that association is not causality and records missing latency or 
 
 The application service authorizes a semantic operation digest against both the explicit
 operation binding and exact criterion head. A denial appends nothing. The evaluation and optional
-proposal append in one immutable transaction with stable identities.
+proposal append in one immutable transaction with stable identities. An authority projection may
+add stricter capability or grant heads, but it must preserve every requested frozen head exactly;
+replacing or omitting one fails closed.
 
 An exact request replay returns the historical transaction, evaluation, and proposal without
 reclassification or reauthorization, including after a fresh store and process restart. Reusing

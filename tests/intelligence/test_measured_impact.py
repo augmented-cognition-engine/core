@@ -141,21 +141,43 @@ def _projection(product_id: str, *, suffix: str, authorized_at: datetime):
 
 
 class _Authorizer:
-    def __init__(self, *, deny: bool = False) -> None:
+    def __init__(self, *, deny: bool = False, expand: bool = False, change_head: bool = False) -> None:
         self.deny = deny
+        self.expand = expand
+        self.change_head = change_head
         self.requests = []
 
     async def authorize_action(self, request):
         self.requests.append(request)
         if self.deny:
             raise PermissionError("denied")
+        preconditions = list(request.required_state_preconditions)
+        if self.change_head:
+            preconditions[0] = preconditions[0].model_copy(
+                update={
+                    "sequence": preconditions[0].sequence + 1,
+                    "revision_id": "changed-revision",
+                    "commit_receipt_id": "changed-commit",
+                }
+            )
+        if self.expand:
+            preconditions.append(
+                GovernedStateHeadPreconditionV1Alpha1(
+                    state_kind="authority_grant",
+                    product_id=request.product_id,
+                    state_id="authority_grant:append-measured-impact",
+                    sequence=1,
+                    revision_id="authority_grant_revision:1",
+                    commit_receipt_id="governed_state_commit:authority-grant-1",
+                )
+            )
         return GovernedActionAuthorizationProjection(
             authorization_ref=ReceiptReferenceV1Alpha1(
                 receipt_id="authorization:measured-impact",
                 receipt_digest="sha256:" + "9" * 64,
             ),
             authorized_at=AUTHORIZED,
-            state_preconditions=request.required_state_preconditions,
+            state_preconditions=tuple(preconditions),
         )
 
 
@@ -700,6 +722,54 @@ async def test_duplicate_replay_restart_and_divergent_material_are_fail_closed()
     )
     with pytest.raises(MeasuredImpactReplayConflict, match="different exact request"):
         await service.evaluate(divergent)
+
+
+@pytest.mark.asyncio
+async def test_authority_may_add_stricter_heads_without_changing_frozen_heads() -> None:
+    store, _, request, operation_head = await _scenario(
+        product_id="product:expanded-authority",
+        treatment_value=1.0,
+        control_value=0.0,
+    )
+    store.set_governed_state_head(
+        GovernedStateHeadV1(
+            state_kind="authority_grant",
+            product_id=request.product_id,
+            state_id="authority_grant:append-measured-impact",
+            sequence=1,
+            revision_id="authority_grant_revision:1",
+            commit_receipt_id="governed_state_commit:authority-grant-1",
+            updated_at=BASE,
+        )
+    )
+    service = MeasuredImpactService(
+        store=store,
+        authorizer=_Authorizer(expand=True),
+        operation_binding=_binding(request.product_id, operation_head),
+    )
+
+    admission = await service.evaluate(request)
+
+    assert admission.evaluation.classification is ImpactClassification.USEFUL
+    assert len(admission.transaction_receipt.governed_state_preconditions) == 3
+
+
+@pytest.mark.asyncio
+async def test_authority_cannot_replace_a_frozen_head() -> None:
+    store, _, request, operation_head = await _scenario(
+        product_id="product:changed-authority-head",
+        treatment_value=1.0,
+        control_value=0.0,
+    )
+    service = MeasuredImpactService(
+        store=store,
+        authorizer=_Authorizer(change_head=True),
+        operation_binding=_binding(request.product_id, operation_head),
+    )
+
+    with pytest.raises(MeasuredImpactError, match="changed the frozen governed heads"):
+        await service.evaluate(request)
+    assert not any(record.record_space == MEASURED_IMPACT_RECORD_SPACE for record in store.records.values())
 
 
 @pytest.mark.asyncio

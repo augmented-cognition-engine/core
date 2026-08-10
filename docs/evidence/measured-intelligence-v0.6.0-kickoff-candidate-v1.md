@@ -120,6 +120,33 @@ The frozen baseline source retained its recorded
 executes all 7,446 non-E2E/non-extension test cases without altering historical evidence. This
 candidate record remains an implementation receipt rather than a release receipt.
 
+### World integration addendum
+
+The first source-checkout run from World Intelligence exposed one composition mismatch: the real
+Core reasoning authorizer correctly strengthens an authorization with exact capability and grant
+heads, while the measured-impact service originally required its projection to contain only the
+criterion and operation heads. The service now requires both requested heads to remain present and
+byte/model exact while permitting additional exact heads. A changed requested head still fails
+closed before append; an expanded authorization appends with the complete strengthened closure.
+
+```text
+uv run pytest tests/intelligence/test_measured_impact.py -q --tb=short
+18 passed in 1.95s
+
+uv run ruff check ace/application/measured_impact.py \
+  tests/intelligence/test_measured_impact.py
+PASS
+
+World source-checkout candidate against this Core tree
+2 passed in 0.55s
+```
+
+The repository-wide non-E2E run in this isolated worktree reached `7459 passed, 48 skipped` and
+only the same three documented `.git/HEAD` pointer-layout failures. The original candidate's
+ordinary-checkout replay result and green GitHub checks remain the applicable evidence for those
+environment-sensitive historical tests; the authority change touches neither baseline path nor
+source hash.
+
 ## Boundary and remaining work
 
 The candidate changes no package version, storage schema, CLI/MCP surface, existing public record
