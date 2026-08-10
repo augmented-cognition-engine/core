@@ -5,31 +5,31 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The 0.4.2 checkpoint assertions are the coordinated post-release gate. Historical 0.4.1 GI2 and
-# P1/P2 identities remain exact point-in-time evidence, while the later GC1 public-surface receipt
-# owns only the builder-interface claim. Keep these aligned with test_evidence_index_integrity.py.
+# The 0.4.4 checkpoint assertions are the coordinated GC1 closeout gate. Historical 0.4.1 GI2,
+# 0.4.2 builder-surface, and P1/P2 identities remain exact point-in-time evidence. Keep these
+# aligned with test_evidence_index_integrity.py.
 
 
-def test_current_release_and_active_milestone_are_not_conflated() -> None:
-    assert "`ace-core` 0.4.2 is published on PyPI and GitHub" in ROADMAP
-    assert ROADMAP.count("| 0.4.x | Governed Cognition | **Active** |") == 1
+def test_current_release_and_passed_milestone_are_not_conflated() -> None:
+    assert "`ace-core` 0.4.4 is published on PyPI and GitHub" in ROADMAP
+    assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
     assert "| 0.4.0 | Governed Cognition | **Delivered** |" not in ROADMAP
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
     assert "| 0.5.0 | Reasoning into Action | **Next** |" in ROADMAP
 
 
-def test_042_public_builder_surface_is_recorded_without_closing_gc1() -> None:
-    assert "[0.4.2 GitHub Release]" in ROADMAP
-    assert "public `ace-core==0.4.2` package" in ROADMAP_ONE_LINE
-    assert "[GC1 public builder-surface evidence]" in ROADMAP
-    assert "Its public builder surface is now verified from a fresh PyPI install" in ROADMAP_ONE_LINE
-    assert "This does not close GC1" in ROADMAP
-    assert "**GC1** therefore stays active in 0.4.x" in ROADMAP_ONE_LINE
+def test_044_public_external_consumer_closes_gc1_without_rewriting_042() -> None:
+    assert "[0.4.4 GitHub Release]" in ROADMAP
+    assert "public `ace-core==0.4.4` package" in ROADMAP_ONE_LINE
+    assert "[GC1 public external-consumer evidence]" in ROADMAP
+    assert "point-in-time receipt for 0.4.2" in ROADMAP_ONE_LINE
+    assert "independent Market Intelligence consumer" in ROADMAP_ONE_LINE
+    assert "**GC1** is therefore passed in 0.4.x" in ROADMAP_ONE_LINE
 
 
-def test_governed_intelligence_pass_does_not_overstate_governed_cognition() -> None:
+def test_governed_intelligence_substrate_is_not_retroactively_made_gc1_evidence() -> None:
     assert "| GI1 | passed | Ship the governed Intelligence foundation as one installable" in ROADMAP
-    assert "| GC1 | active | Make governed cognition an obvious supported" in ROADMAP
+    assert "| GC1 | passed | Make governed cognition an obvious supported" in ROADMAP
     assert "This does not close GC1, SI1–SI4, or any domain product" in ROADMAP
 
 
@@ -73,11 +73,11 @@ def test_041_and_both_domain_falsification_packages_are_public() -> None:
     assert "Core 0.4.1, World Intelligence 0.8.0, and Market Intelligence 0.6.0 artifacts" in ROADMAP_ONE_LINE
 
 
-def test_platform_substrate_section_reconciles_only_gi2() -> None:
+def test_platform_substrate_section_preserves_gi2_and_acknowledges_later_gc1_closeout() -> None:
     assert "### Governed Intelligence platform substrate" in ROADMAP
     assert "GI2 is therefore reconciled to `passed`" in ROADMAP
-    assert "GI1 remains passed, GC1 remains active" in ROADMAP
-    assert "SI1–SI4 remain bounded future outcomes" in ROADMAP
+    assert "GI1 and GC1 are passed" in ROADMAP
+    assert "SI1–SI4 remain bounded future outcomes" in ROADMAP_ONE_LINE
 
 
 def test_041_public_p2a_domain_pack_conformance_is_recorded() -> None:
@@ -110,6 +110,6 @@ def test_041_publication_gate_is_complete_and_bounded() -> None:
     assert "clean public-index two-domain activation and retirement-isolation journey passes" in ROADMAP_ONE_LINE
     assert "does not establish hostile-code isolation" in ROADMAP_ONE_LINE
 
-    assert "| GC1 | active |" in ROADMAP
+    assert "| GC1 | passed |" in ROADMAP
     for outcome in ("SI1", "SI2", "SI3", "SI4"):
         assert f"| {outcome} | not ready |" in ROADMAP

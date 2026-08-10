@@ -7,9 +7,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_DIR = REPO_ROOT / "docs" / "evidence"
 EVIDENCE_README = EVIDENCE_DIR / "README.md"
 
-# Historical candidate labels remain intentional after publication: the point-in-time P1/P2
-# records are immutable. The later public GI2 receipt is separately indexed as the authoritative
-# passed closeout. Keep these checks aligned with tests/test_public_roadmap_positioning.py.
+# Historical candidate labels remain intentional after publication: the point-in-time P1/P2 and
+# GC1 builder-surface records are immutable. The later public GI2 and GC1 receipts are separately
+# indexed as authoritative passed closeouts. Keep these checks aligned with
+# tests/test_public_roadmap_positioning.py.
 
 LOCAL_MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+\.md)(?:#[^)]*)?\)")
 
@@ -50,6 +51,7 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
     required_targets = [
         "../../MANIFESTO.md",
         "gc1-public-builder-surface-v1.md",
+        "gc1-public-external-consumer-v1.md",
         "gi2-public-cross-domain-falsification-v1.md",
         "platform-p1c1-declarative-source-mapping-v1.md",
         "platform-p1c2-governed-live-source-ingress-v1.md",
@@ -74,12 +76,17 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
 def test_evidence_readme_labels_candidate_and_historical_records_honestly() -> None:
     text = EVIDENCE_README.read_text(encoding="utf-8")
 
-    gc1_line = next(
+    gc1_builder_line = next(
         line for line in text.splitlines() if line.startswith("- [GC1 public governed-cognition builder surface](")
     )
-    assert "public" in gc1_line
-    assert "passed" in gc1_line
-    assert "GC1 active" in " ".join(text.split())
+    assert "public surface passed" in gc1_builder_line
+    assert "historical pre-closeout state" in gc1_builder_line
+
+    gc1_closeout_line = next(
+        line for line in text.splitlines() if line.startswith("- [GC1 public external-consumer closeout](")
+    )
+    assert "public, passed" in gc1_closeout_line
+    assert "GC1 is therefore **passed**" in " ".join(text.split())
 
     gi2_line = next(line for line in text.splitlines() if line.startswith("- [GI2 public cross-domain falsification]("))
     assert "public, passed" in gi2_line
@@ -113,6 +120,7 @@ def test_every_evidence_markdown_file_referenced_from_this_pr_is_indexed() -> No
         "productized-state-golden-journey-v1.md",
         "gi2-public-cross-domain-falsification-v1.md",
         "gc1-public-builder-surface-v1.md",
+        "gc1-public-external-consumer-v1.md",
     }
     for name in newly_added:
         assert (EVIDENCE_DIR / name).is_file(), f"expected fixture file missing: {name}"
