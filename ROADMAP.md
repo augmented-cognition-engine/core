@@ -310,6 +310,18 @@ replay, and isolated installed-wheel host composition. It does not claim
 distributed exactly-once effects, compensation, an independently packaged adapter, action
 review/repair/promotion, or released-artifact closeout, and therefore does not complete T1 or B1.
 
+The sixth bounded packet is
+[B1C independent action adapter](docs/design/b1c-independent-action-adapter-work-packet-v1.md). It
+adds a separately buildable trusted reference distribution over the public action-adapter contract
+and one real create-only workspace export. The adapter is excluded from the Core wheel, imports no
+host internals, performs no discovery, and must be constructed and registered explicitly by exact
+artifact identity. Its
+[candidate evidence](docs/evidence/b1c-independent-action-adapter-candidate-v1.md) currently binds
+the focused conformance and host-registration checks; public review, final-head CI, merge,
+installed-wheel evidence, and released-artifact closeout remain. B1C does not provide arbitrary
+filesystem access, safe untrusted code, distributed exactly-once effects, compensation, action
+review/repair/promotion, or T1 topology portability, and therefore does not complete T1 or B1.
+
 ### 0.6.0 — Measured Intelligence
 
 Public promise: reasoning revisions are promoted, rejected, rolled back, or retired because of
