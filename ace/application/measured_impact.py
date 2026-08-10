@@ -243,6 +243,26 @@ class MeasuredImpactService:
             measures = ImpactOutcomeMeasuresV1Alpha1.model_validate_json(outcome.intent.value_json)
         except Exception:
             raise MeasuredImpactError(f"{label} Outcome does not carry exact impact measures") from None
+        observed_result = measures.observed_result
+        if observed_result is None:
+            if request.criterion.requires_observed_result:
+                reasons.add("observed_result_unavailable")
+        else:
+            if observed_result.product_id != request.product_id:
+                raise MeasuredImpactError(f"{label} observed result crossed exact product scope")
+            if self._after_cutoff(observed_result, cutoff_at=request.cutoff_at):
+                # The exact envelope is sufficient to exclude this evidence;
+                # do not inspect a result unavailable at the frozen cutoff.
+                reasons.add("evidence_after_cutoff")
+            else:
+                if observed_result.as_of != outcome.intent.observed_at:
+                    reasons.add("observed_result_time_mismatch")
+                if observed_result.available_at > outcome.intent.recorded_at:
+                    reasons.add("observed_result_recording_mismatch")
+                try:
+                    await self._load_exact(observed_result)
+                except MeasuredImpactError:
+                    reasons.add("observed_result_unavailable")
         if measures.primary_value is None:
             reasons.add("outcome_unavailable")
         return measures, reasons

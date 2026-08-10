@@ -188,11 +188,20 @@ state. World P2C3/P2C4 compose the source-checkout candidate over recorded offic
 preserving a bounded `useful` structural result while a separately authorized reviewer rejects its
 broader `promote` proposal.
 
+The stacked
+[observed-result provenance candidate](design/measured-impact-observed-result-provenance-work-packet-v1.md)
+lets a product criterion require the exact immutable reviewed-result record behind each Outcome
+score. World P2C5 uses that neutral coordinate for a World-owned citation-correctness review and a
+citation-preserving semantic-corruption control; product vocabulary and review policy remain
+outside Core and Intelligence.
+
 These candidates are not a supported 0.6.0 capability or release claim. SI4 is not passed, no
 proposal application path is added, the recorded transport does not prove live freshness, and
 material use or statistical association does not establish causality or general benefit. See the
 [kickoff evidence](evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md) and
 [disposition evidence](evidence/measured-impact-proposal-disposition-candidate-v1.md).
+The exact-result extension is recorded in the
+[observed-result candidate evidence](evidence/measured-impact-observed-result-provenance-candidate-v1.md).
 
 ## Implemented architecture beyond the compatibility contract
 
