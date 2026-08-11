@@ -48,6 +48,7 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     assert 'if [ "$RELEASE_TAG" != "v$package_version" ]' in workflow
     assert "ace-core-python-distributions" in workflow
     assert "reference-workspace-action-distributions" in workflow
+    assert "build==1.5.0 setuptools==83.0.0 twine==7.0.0" in workflow
     assert "python -m build --outdir dist/reference-adapter adapters/reference_workspace_action" in workflow
     assert "from build_backend import _normalize_sdist" in workflow
     assert "packages-dir: dist/core/" in workflow
