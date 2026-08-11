@@ -88,9 +88,10 @@ A checkout-free environment installed the public artifacts and reproduced seven 
 matched evaluations, historical replay, and an explicit governed rejection that applied nothing
 and changed no effective state.
 
-The 0.5.0 Reasoning into Action boundary remains passed for its documented single-host topology
-with explicitly trusted constructor-supplied adapters. Its exact public artifacts and independent
-World P2C2 journey remain bound by the
+The [0.5.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.5.0),
+public [`ace-core==0.5.0`](https://pypi.org/project/ace-core/0.5.0/) package, and independent World
+P2C2 journey remain the passed Reasoning into Action boundary for its documented single-host
+topology with explicitly trusted constructor-supplied adapters. They remain bound by the
 [Reasoning into Action release evidence](docs/evidence/reasoning-into-action-v0.5.0-release-readiness.md).
 
 The 0.4.x line remains the passed Governed Cognition milestone. Patch releases 0.4.3 and 0.4.4
