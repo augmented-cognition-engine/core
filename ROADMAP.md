@@ -384,10 +384,27 @@ The first bounded
 is a **candidate**, not a release closeout. It freezes domain-neutral criterion, conditions,
 attribution, Decision, reviewed Action, Outcome, evaluation, and non-effective proposal identities;
 the [candidate evidence](docs/evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md) records
-useful, harmful, and unproven fixture coverage plus exact real-store restart replay. The milestone
-remains **Next** until World Intelligence proves the public real-data journey and an explicit
-authorized disposition without self-promotion. Issue #49 F1, F3, and F5 also require an explicit
-0.6.0 release-owner disposition because their accepted deadline is "next minor."
+useful, harmful, and unproven fixture coverage plus exact real-store restart replay. The stacked
+[proposal disposition packet](docs/design/measured-impact-proposal-disposition-work-packet-v1.md)
+adds an exact authorized accept/reject Core Decision that always remains `no_action`. World
+P2C3/P2C4 compose the source-checkout candidate over recorded official public data: the frozen
+structural criterion remains `useful` and proposes `promote`, while a separate authorized reviewer
+rejects broader promotion without rewriting history or changing effective state. The stacked
+[observed-result provenance packet](docs/design/measured-impact-observed-result-provenance-work-packet-v1.md)
+lets a product criterion require an exact immutable result behind each Outcome score. World
+P2C5-P2C10 now exercise citation correctness, contradiction attention, detection delay, revision
+stability, forecast scoring, and a materially different BLS correction family while keeping every
+proposal non-effective. An independent Market candidate reproduces the unchanged neutral contract.
+The bounded
+[release-convergence packet](docs/design/measured-intelligence-v0.6.0-release-convergence-work-packet-v1.md)
+now owns installed-artifact and combined-gate evidence. The milestone remains **Next** pending
+merged-source review, public release artifacts, compatibility/security/release acceptance, and
+explicit release-owner resolution or re-dating of issue #49 F1, F3, and F5. Those three items are
+open release gates; they are not silently waived, deferred, or implemented here.
+The follow-on
+[merge-candidate audit](docs/design/measured-intelligence-v0.6.0-merge-candidate-audit-work-packet-v1.md)
+binds a World direct-to-live-main integration candidate and presents bounded F1/F3/F5 owner choices.
+It does not select those choices or advance the milestone beyond **Next**.
 
 ### 0.7.0 — Domain and Extension Platform
 

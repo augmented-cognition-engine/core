@@ -92,9 +92,10 @@ The focused suite covers:
 ## Verification
 
 - Focused P2G plus adjacent public-contract tests: `31 passed`.
-- Complete Intelligence suite: `404 passed, 2 skipped`.
-- Release-equivalent repository set: `7,456 passed`, `50 skipped`, `260 deselected`:
-  - the clean naked-kernel run excluding two runner-sensitive files passed `7,447` tests;
+- Final monitoring/measured-impact/disposition contract overlap: `55 passed`.
+- Complete Intelligence suite: `419 passed, 2 skipped`.
+- Release-equivalent repository set: `7,471 passed`, `50 skipped`, `260 deselected`:
+  - the clean naked-kernel run excluding two runner-sensitive files passed `7,462` tests;
   - the historical baseline file passed `7` tests when pointed at the primary checkout's real Git
     control directory because that historical helper assumes `.git` is a directory rather than a
     linked-worktree pointer file;
@@ -102,8 +103,8 @@ The focused suite covers:
     teardown encountered a transient SurrealDB write conflict;
   - the explicit naked-kernel boundary passed `4` tests and is also included in the clean run.
 - Source and wheel artifacts built successfully. Local candidate hashes:
-  - wheel: `b2698f333b283ced6a14cc717997e160e2e438b0c20cdd69e83ca093152e18c0`;
-  - sdist: `29bd439778543473876352bd6390f32eb18fe7d3d59a1c354fa64402e6ef3d1b`.
+  - wheel: `3b7628fc0ba4d6efb1c006a87cdfbded30f43a220147532f7d7c72361b51421d`;
+  - sdist: `5db16bf6acf76ec2f92557657a8637349fbc2b4ec6b595461dfb56387140717d`.
 - A checkout-free Python 3.12 environment installed the wheel and imported `ace` only from
   `site-packages`. It reproduced lifecycle anchor
   `monitoring_intent:7999a6454ca3fdbaf6f1d72f6ce0b5d7`, pause receipt

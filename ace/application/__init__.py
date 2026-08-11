@@ -75,6 +75,16 @@ from ace.application.measured_impact import (
     MeasuredImpactReplayConflict,
     MeasuredImpactService,
 )
+from ace.application.measured_impact_disposition import (
+    IMPACT_PROPOSAL_DISPOSITION_DECISION_TYPE,
+    IMPACT_PROPOSAL_DISPOSITION_RECORD_KIND,
+    MEASURED_IMPACT_DISPOSITION_REQUEST_VERSION,
+    MeasuredImpactDispositionAdmission,
+    MeasuredImpactDispositionError,
+    MeasuredImpactDispositionReplayConflict,
+    MeasuredImpactDispositionRequestV1Alpha1,
+    MeasuredImpactDispositionService,
+)
 from ace.application.monitoring import (
     LIVE_MONITORING_RECORD_SPACE,
     MonitoringLifecycleAdmission,
@@ -118,6 +128,9 @@ __all__ = [
     "LIVE_MONITORING_RECORD_SPACE",
     "IMPACT_EVALUATION_RECORD_KIND",
     "IMPACT_PROPOSAL_RECORD_KIND",
+    "IMPACT_PROPOSAL_DISPOSITION_DECISION_TYPE",
+    "IMPACT_PROPOSAL_DISPOSITION_RECORD_KIND",
+    "MEASURED_IMPACT_DISPOSITION_REQUEST_VERSION",
     "MEASURED_IMPACT_RECORD_SPACE",
     "LiveBriefAdmission",
     "LiveBriefSynthesisError",
@@ -135,6 +148,11 @@ __all__ = [
     "MeasuredImpactError",
     "MeasuredImpactReplayConflict",
     "MeasuredImpactService",
+    "MeasuredImpactDispositionAdmission",
+    "MeasuredImpactDispositionError",
+    "MeasuredImpactDispositionReplayConflict",
+    "MeasuredImpactDispositionRequestV1Alpha1",
+    "MeasuredImpactDispositionService",
     "MonitoringLifecycleAdmission",
     "MonitoringLifecycleError",
     "MonitoringLifecycleReplayConflict",

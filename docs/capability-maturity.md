@@ -181,11 +181,41 @@ and a useful, harmful, or unproven receipt. Its append-only proposal may name pr
 rollback, or retirement but is non-effective, non-selectable, and requires separate human/Core
 authority. Exact replay survives a fresh real-store process without reclassification.
 
-This candidate is not a supported 0.6.0 capability or a release claim. World Intelligence has not
-yet completed the public real-data journey, SI4 is not passed, no proposal application path is
-added here, and material use or statistical association does not establish causality or general
-benefit. See the [kickoff work packet](design/measured-intelligence-v0.6.0-kickoff-work-packet-v1.md)
-and [candidate evidence](evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md).
+The stacked [proposal disposition candidate](design/measured-impact-proposal-disposition-work-packet-v1.md)
+adds an exact authorized accept/reject Core Decision over one proposal. The Decision is always
+`no_action`: it preserves append-only history and cannot apply the proposal or change effective
+state. World P2C3/P2C4 compose the source-checkout candidate over recorded official public data,
+preserving a bounded `useful` structural result while a separately authorized reviewer rejects its
+broader `promote` proposal.
+
+The stacked
+[observed-result provenance candidate](design/measured-impact-observed-result-provenance-work-packet-v1.md)
+lets a product criterion require the exact immutable reviewed-result record behind each Outcome
+score. World P2C5 uses that neutral coordinate for a World-owned citation-correctness review and a
+citation-preserving semantic-corruption control; product vocabulary and review policy remain
+outside Core and Intelligence.
+
+These candidates are not a supported 0.6.0 capability or release claim. SI4 is not passed, no
+proposal application path is added, the recorded transport does not prove live freshness, and
+material use or statistical association does not establish causality or general benefit. See the
+[kickoff evidence](evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md) and
+[disposition evidence](evidence/measured-impact-proposal-disposition-candidate-v1.md).
+The exact-result extension is recorded in the
+[observed-result candidate evidence](evidence/measured-impact-observed-result-provenance-candidate-v1.md).
+
+The bounded
+[release-convergence packet](design/measured-intelligence-v0.6.0-release-convergence-work-packet-v1.md)
+composes installed candidate artifacts with the public World result and independent Market
+reproduction. It does not promote the capability to supported. Issue #49 F1, F3, and F5 are
+explicitly recorded as open 0.6 release gates—not waived, deferred, or resolved—so release closeout
+remains blocked on an owner disposition even if all candidate verification is green.
+The exact point-in-time results and environment splits are in the
+[release-convergence candidate evidence](evidence/measured-intelligence-v0.6.0-release-convergence-candidate-v1.md).
+The later
+[merge-candidate audit](design/measured-intelligence-v0.6.0-merge-candidate-audit-work-packet-v1.md)
+reconciles the World journey onto live World `main` and turns issue #49 F1/F3/F5 into explicit
+owner choices. The capability remains experimental until those choices, reviewed merges, final
+artifacts, and release acceptance are complete.
 
 ## Implemented architecture beyond the compatibility contract
 
