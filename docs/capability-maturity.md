@@ -216,9 +216,12 @@ The later
 reconciles the World journey onto live World `main` and turns issue #49 F1/F3/F5 into explicit
 owner choices. The bounded
 [#49 hardening packet](design/measured-intelligence-v0.6.0-issue49-hardening-work-packet-v1.md)
-implements F1 and F5 candidates but does not close them before review and merge; F3 still requires
-an explicit authenticated owner disposition. The capability remains experimental until those
-choices, reviewed merges, final artifacts, and release acceptance are complete.
+implements F1 and F5, now merged in exact Core `main`. The bounded
+[merged-source convergence packet](design/measured-intelligence-v0.6.0-merged-source-convergence-work-packet-v1.md)
+reproduces the unchanged public World and independent Market results from an installed exact Core
+wheel. Issue #49 checklist reconciliation and an explicit F3 owner disposition remain open. The
+capability remains experimental until World review/merge, final versions and public artifacts,
+public-index installation, and release acceptance are complete.
 
 ## Implemented architecture beyond the compatibility contract
 
