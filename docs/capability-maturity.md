@@ -1,6 +1,6 @@
-# ACE 0.5.0 capability maturity
+# ACE 0.6.0 capability maturity
 
-ACE 0.5.0 is a developer preview. This page distinguishes the public contract from implemented
+ACE 0.6.0 is a developer preview. This page distinguishes the public contract from implemented
 surfaces that remain experimental.
 
 ## Preview contract
@@ -12,13 +12,13 @@ install ace-core → configure a provider and SurrealDB → start ACE → authen
 → ace doctor → reason and capture → load retained intelligence → stop cleanly
 ```
 
-The 0.5.0 public identities are:
+The 0.6.0 public identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.5.0`
+- version: `0.6.0`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -172,57 +172,34 @@ proves public-contract portability for this bounded topology. The exact tag, pac
 journey, hashes, and non-claims are in the
 [0.5.0 release evidence](evidence/reasoning-into-action-v0.5.0-release-readiness.md).
 
-## Experimental 0.6.0 Measured Intelligence candidate
+## Supported 0.6.0 Measured Intelligence boundary
 
-The source tree contains a bounded candidate for exact measured-impact evaluation. It links an
+ACE 0.6.0 supports bounded exact measured-impact evaluation. It links an
 intelligence artifact or immutable cognition revision to product-owned criteria, matched
 conditions, material-use attribution, Decision, reviewed Action, observed Outcome, uncertainty,
 and a useful, harmful, or unproven receipt. Its append-only proposal may name promotion, rejection,
 rollback, or retirement but is non-effective, non-selectable, and requires separate human/Core
 authority. Exact replay survives a fresh real-store process without reclassification.
 
-The stacked [proposal disposition candidate](design/measured-impact-proposal-disposition-work-packet-v1.md)
-adds an exact authorized accept/reject Core Decision over one proposal. The Decision is always
-`no_action`: it preserves append-only history and cannot apply the proposal or change effective
-state. World P2C3/P2C4 compose the source-checkout candidate over recorded official public data,
-preserving a bounded `useful` structural result while a separately authorized reviewer rejects its
-broader `promote` proposal.
+The public World Intelligence 0.10.0 journey composes those contracts over recorded official data.
+It reproduces seven World-owned matched evaluations as `useful`, preserves every proposal as
+non-effective and non-selectable, and records a separately authorized `reject` / `no_action`
+Decision without changing governed state. Core's deterministic coverage also proves `harmful` and
+`unproven` classifications plus fail-closed attribution, condition, availability, leakage,
+duplicate, replay, interruption, and authority controls. The exact tag, public packages, hashes,
+checks, and limitations are in the
+[0.6.0 release closeout](evidence/measured-intelligence-v0.6.0-release-closeout-v1.md).
 
-The stacked
-[observed-result provenance candidate](design/measured-impact-observed-result-provenance-work-packet-v1.md)
-lets a product criterion require the exact immutable reviewed-result record behind each Outcome
-score. World P2C5 uses that neutral coordinate for a World-owned citation-correctness review and a
-citation-preserving semantic-corruption control; product vocabulary and review policy remain
-outside Core and Intelligence.
+The kickoff, disposition, observed-result, convergence, audit, #49 hardening, and merged-source
+packets remain historical construction records for this public closeout. Issue #49 marks F1 and F5
+complete against merged Core and re-dates unresolved, unwaived F3 to `2026-11-05` under documented
+containment.
 
-These candidates are not a supported 0.6.0 capability or release claim. SI4 is not passed, no
-proposal application path is added, the recorded transport does not prove live freshness, and
-material use or statistical association does not establish causality or general benefit. See the
-[kickoff evidence](evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md) and
-[disposition evidence](evidence/measured-impact-proposal-disposition-candidate-v1.md).
-The exact-result extension is recorded in the
-[observed-result candidate evidence](evidence/measured-impact-observed-result-provenance-candidate-v1.md).
-
-The bounded
-[release-convergence packet](design/measured-intelligence-v0.6.0-release-convergence-work-packet-v1.md)
-composes installed candidate artifacts with the public World result and independent Market
-reproduction. It does not promote the capability to supported. Issue #49 F1, F3, and F5 are
-explicitly recorded as open 0.6 release gates—not waived, deferred, or resolved—so release closeout
-remains blocked on an owner disposition even if all candidate verification is green.
-The exact point-in-time results and environment splits are in the
-[release-convergence candidate evidence](evidence/measured-intelligence-v0.6.0-release-convergence-candidate-v1.md).
-The later
-[merge-candidate audit](design/measured-intelligence-v0.6.0-merge-candidate-audit-work-packet-v1.md)
-reconciles the World journey onto live World `main` and turns issue #49 F1/F3/F5 into explicit
-owner choices. The bounded
-[#49 hardening packet](design/measured-intelligence-v0.6.0-issue49-hardening-work-packet-v1.md)
-implements F1 and F5, now merged in exact Core `main`. The bounded
-[merged-source convergence packet](design/measured-intelligence-v0.6.0-merged-source-convergence-work-packet-v1.md)
-reproduces the unchanged public World and independent Market results from an installed exact Core
-wheel. Issue #49 now marks F1 and F5 complete against merged Core and re-dates unresolved, unwaived
-F3 to `2026-11-05` under documented containment. The capability remains experimental until World
-review/merge, final versions and public artifacts, public-index installation, and release
-acceptance are complete.
+The supported claim does not include proposal application, self-certification, autonomous
+optimization, causal effect, population performance, general model quality, human benefit, live
+network freshness, or general SI4 completion. Product measures, thresholds, source policy, and
+domain nouns remain outside Core and Intelligence. Market's public reproduction is the next
+independent falsifier, not a condition retroactively added to the released World-based boundary.
 
 ## Implemented architecture beyond the compatibility contract
 

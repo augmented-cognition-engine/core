@@ -25,6 +25,7 @@ superseded by later work and is kept for audit trail only.
 - [R7 ace-core 0.2.0 release evidence](r7-release-readiness.md)
 - [ace-core 0.3.1 Productized State release evidence](productized-state-v0.3.1-release-readiness.md)
 - [ace-core 0.5.0 Reasoning into Action release evidence](reasoning-into-action-v0.5.0-release-readiness.md) — public, passed
+- [ace-core 0.6.0 Measured Intelligence release closeout](measured-intelligence-v0.6.0-release-closeout-v1.md) — public, passed
 
 ## Product outcomes
 
@@ -49,6 +50,8 @@ superseded by later work and is kept for audit trail only.
   — exact merged Core artifact, public World reproduction, independent Market restart proof, and remaining release gates; not release closeout
 - [ACE 0.6.0 Measured Intelligence release candidate](measured-intelligence-v0.6.0-release-candidate-v1.md)
   — reproducible package identities, installed-artifact proof, and green required CI; unpublished
+- [ACE 0.6.0 Measured Intelligence release closeout](measured-intelligence-v0.6.0-release-closeout-v1.md)
+  — public Core and World artifacts, matched product evaluation, governed disposition, and exact release boundaries; passed
 - [State Engine TP0 current-runtime baseline](state-engine-tp0-runtime-baseline-v1.md)
 - [State Engine TP1A truthful observation outcomes](state-engine-tp1a-truthful-observation-outcomes-v1.md)
 - [State Engine TP1 reliable memory lifecycle](state-engine-tp1-reliable-memory-lifecycle-v1.md)

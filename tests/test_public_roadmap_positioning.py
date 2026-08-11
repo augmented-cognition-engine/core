@@ -5,18 +5,28 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The 0.5.0 checkpoint assertions are the coordinated T1/B1 closeout gate. Historical 0.4.1 GI2,
-# 0.4.2 builder-surface, 0.4.4 GC1, and P1/P2 identities remain exact point-in-time evidence. Keep
-# these aligned with test_evidence_index_integrity.py.
+# The current-release assertions are the coordinated 0.6 closeout gate. Historical 0.4.1 GI2,
+# 0.4.2 builder-surface, 0.4.4 GC1, 0.5.0 T1/B1, and P1/P2 identities remain exact point-in-time
+# evidence. Keep these aligned with test_evidence_index_integrity.py.
 
 
 def test_current_release_and_passed_milestone_are_not_conflated() -> None:
-    assert "`ace-core` 0.5.0 is published on PyPI and GitHub" in ROADMAP
+    assert "`ace-core` 0.6.0 is published on PyPI and GitHub" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
     assert "| 0.4.0 | Governed Cognition | **Delivered** |" not in ROADMAP
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
     assert "| 0.5.0 | Reasoning into Action | **Passed** |" in ROADMAP
-    assert "| 0.6.0 | Measured Intelligence | **Next** |" in ROADMAP
+    assert "| 0.6.0 | Measured Intelligence | **Passed** |" in ROADMAP
+    assert "| 0.7.0 | Domain and Extension Platform | **Next** |" in ROADMAP
+
+
+def test_060_public_world_journey_closes_the_bounded_measured_intelligence_release() -> None:
+    assert "[0.6.0 GitHub Release]" in ROADMAP
+    assert "public [`ace-core==0.6.0`]" in ROADMAP
+    assert "[Measured Intelligence release evidence]" in ROADMAP
+    assert "seven World-owned matched evaluations" in ROADMAP_ONE_LINE
+    assert "SI4's broader two-domain situational-orientation gate remains not ready" in ROADMAP_ONE_LINE
+    assert "SI4 | not ready" in ROADMAP
 
 
 def test_050_public_external_consumer_closes_t1_and_b1_with_bounded_topology() -> None:
