@@ -650,7 +650,9 @@ disposition.
 Exit condition: **passed.** The next bounded dispatch is the 0.7.0 Domain and Extension Platform
 packet: freeze the supported third-party contract and use an independently public Market measured-
 impact journey as a domain-neutral falsifier without moving Market policy or nouns into Core. That
-follow-on work does not reopen 0.6.0 or silently advance SI1–SI4.
+follow-on work does not reopen 0.6.0 or silently advance SI1–SI4. The exact initial boundary is
+frozen in the
+[0.7.0 kickoff work packet](docs/design/domain-extension-platform-v0.7.0-kickoff-work-packet-v1.md).
 
 ### Completed technical prerequisite: bounded Product State outcomes
 
