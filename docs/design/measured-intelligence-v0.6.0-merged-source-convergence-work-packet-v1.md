@@ -57,14 +57,15 @@ separate human/Core authority. This packet adds no proposal-application path.
 ## Issue #49 boundary
 
 F1 and F5 implementation are merged in exact Core `main` and are re-derived here through focused,
-default-branch, and external-consumer evidence. Issue #49 itself remains open until its public
-checklist is explicitly reconciled by an authenticated release owner.
+default-branch, and external-consumer evidence. On `2026-08-11`, an authenticated release owner
+reconciled the public issue #49 checklist by marking F1 and F5 complete against exact Core
+`7013de62ae7320c51c3de9e9a03b049e768e4d84`.
 
-F3 is not implemented, resolved, waived, or silently re-dated here. The bounded recommendation
-remains to re-date it to `2026-11-05` only under trusted-package-only scope,
-`ACE_DISABLE_EXTENSIONS=1`, compatibility-matrix verification, and operator disablement on
-unexpected partial registration. Recording that disposition on issue #49 requires a separate
-explicit owner action.
+F3 remains unimplemented, unresolved, and unwaived. The same public disposition re-dated it to
+`2026-11-05` under trusted-package-only scope, `ACE_DISABLE_EXTENSIONS=1`, compatibility-matrix
+verification, and operator disablement on unexpected partial registration. Issue #49 remains open,
+and its future packet must stage every mutable registration surface, enforce ceilings, publish or
+roll back atomically, and emit a bounded failure report.
 
 ## Owned files, rollback, and deletion criteria
 
@@ -74,5 +75,5 @@ package version, workflow, World or Market policy, issue checklist, tag, or rele
 
 Rollback removes only these additive records and references. Preserve the evidence as historical
 if later artifact epochs, package versions, World source, or release identities change. Supersede
-it with a release-readiness receipt only after World review/merge, explicit #49 disposition, final
-artifact/version decisions, public-index installation, and release-owner acceptance.
+it with a release-readiness receipt only after World review/merge, final artifact/version decisions,
+public-index installation, and release-owner acceptance.

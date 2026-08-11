@@ -108,9 +108,11 @@ published and is therefore still an open release gate.
 The stacked merge automatically closed issue #38 despite the explicit no-close boundary. The
 milestone was reopened with a public correction; it remains **Next**.
 
-F1 and F5 implementation are now merged and reproduced from exact `main`. Issue #49 remains open
-until an authenticated owner reconciles its checklist. F3 remains unimplemented and requires an
-explicit owner decision; this evidence neither waives nor silently re-dates it.
+F1 and F5 implementation are now merged and reproduced from exact `main`. On `2026-08-11`, an
+authenticated release owner reconciled issue #49 by marking F1 and F5 complete against exact Core
+`7013de62ae7320c51c3de9e9a03b049e768e4d84`. F3 remains unimplemented, unresolved, and unwaived;
+the owner explicitly re-dated it to `2026-11-05` under the trusted-package-only, extension-kill-
+switch, compatibility-matrix, and operator-disablement containment recorded on the still-open issue.
 
 ## What this proves and what remains
 
@@ -120,7 +122,7 @@ attribution, append-only replay, explicit uncertainty, restart durability, and p
 authority. This is the smallest honest cross-domain convergence result; it is not a supported or
 published release.
 
-Remaining gates are World PR #17 review/merge, explicit issue #49 owner
-reconciliation including F3, final Core/World version and artifact identities, public-index-only
-installation, release compatibility/security acceptance, publication, and explicit release-owner
-acceptance. No tag or publication occurred.
+Remaining gates are World PR #17 review/merge, final Core/World version and artifact identities,
+public-index-only installation, release compatibility/security acceptance, publication, and
+explicit release-owner acceptance. F3 remains tracked on open issue #49 under its documented
+containment; no tag or publication occurred.

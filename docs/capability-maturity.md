@@ -219,9 +219,10 @@ owner choices. The bounded
 implements F1 and F5, now merged in exact Core `main`. The bounded
 [merged-source convergence packet](design/measured-intelligence-v0.6.0-merged-source-convergence-work-packet-v1.md)
 reproduces the unchanged public World and independent Market results from an installed exact Core
-wheel. Issue #49 checklist reconciliation and an explicit F3 owner disposition remain open. The
-capability remains experimental until World review/merge, final versions and public artifacts,
-public-index installation, and release acceptance are complete.
+wheel. Issue #49 now marks F1 and F5 complete against merged Core and re-dates unresolved, unwaived
+F3 to `2026-11-05` under documented containment. The capability remains experimental until World
+review/merge, final versions and public artifacts, public-index installation, and release
+acceptance are complete.
 
 ## Implemented architecture beyond the compatibility contract
 

@@ -398,8 +398,8 @@ proposal non-effective. An independent Market candidate reproduces the unchanged
 The bounded
 [release-convergence packet](docs/design/measured-intelligence-v0.6.0-release-convergence-work-packet-v1.md)
 now owns installed-artifact and combined-gate evidence. The milestone remains **Next** pending
-World review/merge, public release artifacts, compatibility/security/release acceptance, and
-explicit release-owner reconciliation of issue #49. These gates are not silently waived.
+World review/merge, public release artifacts, and compatibility/security/release acceptance. These
+gates are not silently waived.
 The follow-on
 [merge-candidate audit](docs/design/measured-intelligence-v0.6.0-merge-candidate-audit-work-packet-v1.md)
 binds a World direct-to-live-main integration candidate and presents bounded F1/F3/F5 owner choices.
@@ -408,9 +408,9 @@ The subsequent
 implements bounded F1 and F5, now merged in exact Core `main`. The subsequent
 [merged-source convergence packet](docs/design/measured-intelligence-v0.6.0-merged-source-convergence-work-packet-v1.md)
 rebuilds the exact Core and World wheels, reproduces the public World `useful` and independent
-Market `unproven` results, and retains proposal-only authority. Issue #49 checklist reconciliation
-and an explicit F3 owner disposition still remain. This does not advance the milestone beyond
-**Next**.
+Market `unproven` results, and retains proposal-only authority. Issue #49 now records F1 and F5 as
+complete against merged Core and explicitly re-dates unresolved, unwaived F3 to `2026-11-05` under
+documented containment. This does not advance the milestone beyond **Next**.
 
 ### 0.7.0 — Domain and Extension Platform
 
