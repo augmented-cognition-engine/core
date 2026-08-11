@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 import shutil
 import socket
@@ -27,15 +28,19 @@ from core.engine.cognition.discovery import DurableCognitionDiscovery
 from core.engine.cognition.governance import (
     ActorClass,
     CognitionProposalV1,
+    CognitionReviewReceiptV1,
     ProposalSourceV1,
+    ProposalState,
     ReviewActorV1,
     ReviewDisposition,
 )
 from core.engine.cognition.governance_persistence import (
     CognitionGovernanceStore,
+    CognitionPersistenceError,
     DurableCognitionGovernanceService,
 )
 from core.engine.cognition.lifecycle import CognitionLifecycleService, LifecycleAction
+from core.engine.core.db import parse_one
 
 pytestmark = pytest.mark.e2e
 
@@ -46,6 +51,16 @@ def _port() -> int:
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         return int(sock.getsockname()[1])
+
+
+def _surreal_binary() -> str | None:
+    surreal = os.environ.get("ACE_I1_SURREAL_BIN") or shutil.which("surreal")
+    if surreal:
+        return surreal
+    for candidate in (Path("/opt/homebrew/bin/surreal"), Path.home() / ".surrealdb/surreal"):
+        if candidate.exists():
+            return str(candidate)
+    return None
 
 
 async def _wait_port(port: int, process: subprocess.Popen) -> None:
@@ -78,6 +93,46 @@ class _Pool:
             yield db
         finally:
             await db.close()
+
+
+class _ConnectionWrapper:
+    def __init__(self, db, *, barrier: asyncio.Barrier | None = None, fail_after_commit: bool = False) -> None:
+        self.db = db
+        self.barrier = barrier
+        self.fail_after_commit = fail_after_commit
+
+    def __getattr__(self, name):
+        return getattr(self.db, name)
+
+    async def query_raw(self, query, params):
+        if self.barrier is not None and "BEGIN TRANSACTION" in query:
+            await self.barrier.wait()
+        result = await self.db.query_raw(query, params)
+        if self.fail_after_commit:
+            raise RuntimeError("simulated connection loss after durable commit")
+        return result
+
+
+class _GuardedPool(_Pool):
+    def __init__(
+        self,
+        url: str,
+        *,
+        barrier: asyncio.Barrier | None = None,
+        fail_after_commit: bool = False,
+    ) -> None:
+        super().__init__(url)
+        self.barrier = barrier
+        self.fail_after_commit = fail_after_commit
+
+    @asynccontextmanager
+    async def connection(self):
+        async with super().connection() as db:
+            yield _ConnectionWrapper(
+                db,
+                barrier=self.barrier,
+                fail_after_commit=self.fail_after_commit,
+            )
 
 
 async def _initialize(url: str) -> None:
@@ -146,13 +201,41 @@ def _proposal() -> CognitionProposalV1:
     )
 
 
+def _variant_proposal(*, stable_key: str, variant: str) -> CognitionProposalV1:
+    base = _proposal()
+    identity = CognitionIdentityV1(
+        cognition_type=CognitionType.RECIPE,
+        owner=base.target_identity.owner,
+        stable_key=stable_key,
+    )
+    body = dict(base.draft_body)
+    body.update(
+        {
+            "slug": stable_key,
+            "name": stable_key.replace("_", " ").title(),
+            "description": f"Durable review variant {variant}.",
+        }
+    )
+    return CognitionProposalV1(
+        target_identity=identity,
+        scope=base.scope,
+        intent=f"Review durable variant {variant}.",
+        sources=(
+            ProposalSourceV1(
+                source_id=f"task:{stable_key}:{variant}",
+                source_kind="task",
+                content_hash=canonical_hash({"stable_key": stable_key, "variant": variant}),
+            ),
+        ),
+        body_schema_version=base.body_schema_version,
+        draft_body=body,
+        dependencies=base.dependencies,
+        created_by=base.created_by,
+    )
+
+
 async def test_governed_cognition_chain_survives_fresh_database_connection(tmp_path) -> None:
-    surreal = os.environ.get("ACE_I1_SURREAL_BIN") or shutil.which("surreal")
-    if not surreal:
-        for candidate in (Path("/opt/homebrew/bin/surreal"), Path.home() / ".surrealdb/surreal"):
-            if candidate.exists():
-                surreal = str(candidate)
-                break
+    surreal = _surreal_binary()
     if not surreal:
         pytest.skip("surreal binary is unavailable")
     port = _port()
@@ -361,6 +444,167 @@ async def test_governed_cognition_chain_survives_fresh_database_connection(tmp_p
         )
         assert restored_revision.revision_id in rollback_composition.cognition_revision_ids.values()
         assert second_revision.revision_id not in rollback_composition.cognition_revision_ids.values()
+    finally:
+        process.terminate()
+        try:
+            process.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=10)
+        log.close()
+
+
+async def test_real_database_review_race_and_ambiguous_commit_reconcile_exactly(tmp_path) -> None:
+    surreal = _surreal_binary()
+    if not surreal:
+        pytest.skip("surreal binary is unavailable")
+    port = _port()
+    log = (tmp_path / "surreal.log").open("wb")
+    process = subprocess.Popen(
+        [
+            surreal,
+            "start",
+            "--no-banner",
+            "--username",
+            "root",
+            "--password",
+            "root",
+            "--bind",
+            f"127.0.0.1:{port}",
+            f"surrealkv://{tmp_path / 'store'}",
+        ],
+        cwd=ROOT,
+        stdout=log,
+        stderr=subprocess.STDOUT,
+    )
+    url = f"ws://127.0.0.1:{port}"
+    actor = ReviewActorV1(
+        actor_id="user:reviewer",
+        actor_class=ActorClass.HUMAN,
+        authorities=("cognition-review",),
+    )
+    try:
+        await _wait_port(port, process)
+        await _initialize(url)
+
+        ambiguous = _variant_proposal(stable_key="ambiguous_review", variant="only")
+        await DurableCognitionGovernanceService(CognitionGovernanceStore(_Pool(url))).propose(ambiguous)
+        ambiguous_service = DurableCognitionGovernanceService(
+            CognitionGovernanceStore(_GuardedPool(url, fail_after_commit=True))
+        )
+        reconciled = await ambiguous_service.review(
+            proposal_id=str(ambiguous.proposal_id),
+            product_id="product:alpha",
+            review_request_id="review-request:ambiguous-commit",
+            actor=actor,
+            disposition=ReviewDisposition.APPROVE,
+            rationale="Reconcile the exact durable winner after transport loss.",
+            expected_head_generation=0,
+        )
+        restarted = DurableCognitionGovernanceService(CognitionGovernanceStore(_Pool(url)))
+        assert (
+            await restarted.review(
+                proposal_id=str(ambiguous.proposal_id),
+                product_id="product:alpha",
+                review_request_id="review-request:ambiguous-commit",
+                actor=actor,
+                disposition=ReviewDisposition.APPROVE,
+                rationale="Reconcile the exact durable winner after transport loss.",
+                expected_head_generation=0,
+            )
+            == reconciled
+        )
+
+        proposals = (
+            _variant_proposal(stable_key="concurrent_review", variant="alpha"),
+            _variant_proposal(stable_key="concurrent_review", variant="beta"),
+        )
+        ordinary = DurableCognitionGovernanceService(CognitionGovernanceStore(_Pool(url)))
+        for proposal in proposals:
+            await ordinary.propose(proposal)
+
+        barrier = asyncio.Barrier(2)
+
+        async def approve(index: int):
+            proposal = proposals[index]
+            service = DurableCognitionGovernanceService(
+                CognitionGovernanceStore(_GuardedPool(url, barrier=barrier))
+            )
+            return await service.review(
+                proposal_id=str(proposal.proposal_id),
+                product_id="product:alpha",
+                review_request_id=f"review-request:concurrent-{index}",
+                actor=actor,
+                disposition=ReviewDisposition.APPROVE,
+                rationale=f"Concurrent exact review {index}.",
+                expected_head_generation=0,
+            )
+
+        results = await asyncio.wait_for(
+            asyncio.gather(approve(0), approve(1), return_exceptions=True),
+            timeout=20,
+        )
+        winners = [item for item in results if isinstance(item, CognitionReviewReceiptV1)]
+        failures = [item for item in results if isinstance(item, Exception)]
+        assert len(winners) == 1
+        assert len(failures) == 1
+        assert isinstance(failures[0], CognitionPersistenceError)
+
+        winner = winners[0]
+        winner_proposal = next(item for item in proposals if item.proposal_id == winner.proposal_id)
+        loser_proposal = next(item for item in proposals if item.proposal_id != winner.proposal_id)
+        restored = CognitionGovernanceStore(_Pool(url))
+        assert (
+            await restored.load_review(str(winner.receipt_id), product_id="product:alpha")
+            == winner
+        )
+        assert (
+            await restored.load_proposal_state(str(winner_proposal.proposal_id), product_id="product:alpha")
+            is ProposalState.APPROVED
+        )
+        assert (
+            await restored.load_proposal_state(str(loser_proposal.proposal_id), product_id="product:alpha")
+            is ProposalState.PENDING
+        )
+        head = await restored.load_head(str(winner.result_head_id))
+        assert head is not None
+        assert head.generation == 1
+        assert head.active_revision_id == winner.result_revision_id
+        assert await restored.load_revision(str(winner.result_revision_id)) is not None
+
+        cognition_key = str(winner_proposal.target_identity.cognition_id).split(":", 1)[1]
+        async with _Pool(url).connection() as db:
+            revision_count = parse_one(
+                await db.query(
+                    "SELECT count() AS total FROM cognition_revision "
+                    "WHERE cognition = type::record('cognition', $record_key) GROUP ALL",
+                    {"record_key": cognition_key},
+                )
+            )
+            activation_count = parse_one(
+                await db.query(
+                    "SELECT count() AS total FROM cognition_activation_event "
+                    "WHERE cognition = type::record('cognition', $record_key) GROUP ALL",
+                    {"record_key": cognition_key},
+                )
+            )
+        assert revision_count == {"total": 1}
+        assert activation_count == {"total": 1}
+
+        with pytest.raises(CognitionPersistenceError, match="cognition_head_generation_conflict"):
+            await ordinary.review(
+                proposal_id=str(loser_proposal.proposal_id),
+                product_id="product:alpha",
+                review_request_id="review-request:loser-retry",
+                actor=actor,
+                disposition=ReviewDisposition.APPROVE,
+                rationale="A stale loser must remain pending.",
+                expected_head_generation=0,
+            )
+        assert (
+            await restored.load_proposal_state(str(loser_proposal.proposal_id), product_id="product:alpha")
+            is ProposalState.PENDING
+        )
     finally:
         process.terminate()
         try:

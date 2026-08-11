@@ -35,6 +35,9 @@ from core.engine.core.db import parse_rows, pool
 
 router = APIRouter(prefix="/self-optimizer", tags=["self-optimizer"])
 
+_LEGACY_PROPOSAL_TABLE = "self_optimizer_proposal"
+_LEGACY_PROPOSAL_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+
 
 def _slugify(name: str) -> str:
     slug = name.lower().strip()
@@ -52,6 +55,17 @@ def _product(user: dict[str, Any], requested: str) -> str:
     if not product_id.startswith("product:") or requested != product_id:
         raise HTTPException(status_code=403, detail={"code": "foreign_product_scope"})
     return product_id
+
+
+def _legacy_proposal_key(proposal_id: str) -> str:
+    table, separator, record_key = proposal_id.partition(":")
+    if (
+        not separator
+        or table != _LEGACY_PROPOSAL_TABLE
+        or _LEGACY_PROPOSAL_KEY.fullmatch(record_key) is None
+    ):
+        raise HTTPException(status_code=404, detail="Proposal not found")
+    return record_key
 
 
 def _review_actor(user: dict[str, Any]) -> ReviewActorV1:
@@ -144,8 +158,14 @@ def _canonical_proposal(legacy: dict[str, Any], product_id: str, actor: ReviewAc
 
 
 async def _legacy_proposal(proposal_id: str, product_id: str) -> dict[str, Any]:
+    record_key = _legacy_proposal_key(proposal_id)
     async with pool.connection() as db:
-        rows = parse_rows(await db.query("SELECT * FROM ONLY <record>$id", {"id": proposal_id}))
+        rows = parse_rows(
+            await db.query(
+                "SELECT * FROM ONLY type::record('self_optimizer_proposal', $record_key)",
+                {"record_key": record_key},
+            )
+        )
     if not rows:
         raise HTTPException(status_code=404, detail="Proposal not found")
     proposal = rows[0]
@@ -161,13 +181,15 @@ async def _project_legacy_state(
     canonical_proposal_id: str,
     canonical_review_id: str,
 ) -> str:
+    record_key = _legacy_proposal_key(proposal_id)
     try:
         async with pool.connection() as db:
             await db.query(
-                "UPDATE <record>$id SET status = $status, canonical_proposal_id = $canonical_proposal_id, "
+                "UPDATE ONLY type::record('self_optimizer_proposal', $record_key) "
+                "SET status = $status, canonical_proposal_id = $canonical_proposal_id, "
                 "canonical_review_id = $canonical_review_id, reviewed_at = time::now()",
                 {
-                    "id": proposal_id,
+                    "record_key": record_key,
                     "status": status,
                     "canonical_proposal_id": canonical_proposal_id,
                     "canonical_review_id": canonical_review_id,

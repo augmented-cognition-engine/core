@@ -204,6 +204,43 @@ async def test_approve_not_found(authed_client):
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "proposal_id",
+    (
+        "foreign_table:abc",
+        "self_optimizer_proposal:",
+        "self_optimizer_proposal:abc/def",
+        "self_optimizer_proposal:abc:def",
+    ),
+)
+async def test_approve_rejects_unpinned_or_malformed_record_before_query(
+    authed_client,
+    proposal_id,
+):
+    mock_pool, mock_conn = _make_pool_single([])
+
+    with patch("core.engine.api.self_optimizer.pool", mock_pool):
+        resp = await authed_client.post(f"/self-optimizer/proposals/{proposal_id}/approve")
+
+    assert resp.status_code == 404
+    mock_conn.query.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_approve_lookup_is_pinned_to_legacy_proposal_table(authed_client):
+    mock_pool, mock_conn = _make_pool_single([])
+
+    with patch("core.engine.api.self_optimizer.pool", mock_pool):
+        resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:missing/approve")
+
+    assert resp.status_code == 404
+    query, params = mock_conn.query.await_args.args
+    assert "type::record('self_optimizer_proposal', $record_key)" in query
+    assert "<record>$id" not in query
+    assert params == {"record_key": "missing"}
+
+
+@pytest.mark.asyncio
 async def test_approve_skill_proposal(authed_client):
     proposal = {
         "id": "self_optimizer_proposal:1",
@@ -423,6 +460,46 @@ async def test_dismiss_already_dismissed_returns_409(authed_client):
         resp = await authed_client.post("/self-optimizer/proposals/self_optimizer_proposal:5/dismiss")
 
     assert resp.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_legacy_projection_update_is_pinned_to_proposal_table(monkeypatch):
+    from core.engine.api import self_optimizer
+
+    mock_pool, mock_conn = _make_pool_single([])
+    monkeypatch.setattr(self_optimizer, "pool", mock_pool)
+
+    result = await self_optimizer._project_legacy_state(
+        "self_optimizer_proposal:abc",
+        status="approved",
+        canonical_proposal_id="cognition_proposal:abc",
+        canonical_review_id="cognition_review_receipt:abc",
+    )
+
+    assert result == "updated"
+    query, params = mock_conn.query.await_args.args
+    assert "UPDATE ONLY type::record('self_optimizer_proposal', $record_key)" in query
+    assert "<record>$id" not in query
+    assert params["record_key"] == "abc"
+
+
+@pytest.mark.asyncio
+async def test_legacy_projection_rejects_foreign_table_before_mutation(monkeypatch):
+    from core.engine.api import self_optimizer
+
+    mock_pool, mock_conn = _make_pool_single([])
+    monkeypatch.setattr(self_optimizer, "pool", mock_pool)
+
+    with pytest.raises(self_optimizer.HTTPException) as failure:
+        await self_optimizer._project_legacy_state(
+            "foreign_table:abc",
+            status="approved",
+            canonical_proposal_id="cognition_proposal:abc",
+            canonical_review_id="cognition_review_receipt:abc",
+        )
+
+    assert failure.value.status_code == 404
+    mock_conn.query.assert_not_awaited()
 
 
 # ---------------------------------------------------------------------------
