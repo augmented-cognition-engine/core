@@ -10,7 +10,7 @@ and provider-neutral, it commits every
 observation, derivation, brief, decision, action, and outcome as an immutable, product-scoped record
 under explicit authority.
 
-![version 0.5.0](https://img.shields.io/badge/version-0.5.0-blue)
+![version 0.6.0](https://img.shields.io/badge/version-0.6.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -342,23 +342,31 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.5.0 adds
+## What 0.6.0 adds
 
-0.5.0 is the **Reasoning into Action** release. It carries the governed cognition and Intelligence
-foundation from 0.4.x through an exact approved Decision into bounded, attributable work.
+0.6.0 is the **Measured Intelligence** release candidate. It adds a bounded, domain-neutral way to
+determine whether an intelligence artifact or governed cognition revision helped, harmed, or
+remains unproven under explicit product-owned criteria. The candidate is not a published release
+and no governance proposal applies itself.
 
-- **Governed action execution.** Core binds an authorized Decision to one effect-free adapter plan,
-  persists admission before execution, and records success, failure, partial effect, timeout,
-  cancellation, or restart uncertainty honestly.
-- **Human review, verification, repair, and promotion.** Exact-material review happens before an
-  effect; verification and promotion remain separate after it; repair creates a linked successor
-  and is forbidden when the earlier effect is unknown.
-- **Restart-safe task control.** Negotiated cancellation, declared wall-clock limits, terminal
-  resource receipts, durable attempt identity, and deterministic linked replay support the bounded
-  journey.
-- **A separately packaged reference adapter.** `ace-reference-workspace-action==0.1.0` imports only
-  the public Core contract, is explicitly constructed and registered, and performs one create-only
-  workspace export. It is attached to the 0.5.0 GitHub Release, not bundled in `ace-core`.
+- **Exact evaluation identity.** Product-owned criteria, matched conditions, evaluated artifacts,
+  material-use attribution, Decisions, reviewed Actions, observed results, Outcomes, controls, and
+  cutoffs remain exact immutable coordinates rather than free-form claims.
+- **Useful, harmful, or unproven.** Missing attribution, mismatched conditions, post-cutoff
+  evidence, unavailable outcomes, duplicate evidence, and insufficient matched support fail closed
+  to explicit exclusions or `unproven` rather than manufacturing benefit.
+- **Append-only governance proposals.** Evaluations may propose promotion, rejection, rollback, or
+  retirement, but every proposal remains non-effective, non-selectable, unapplied, and subject to
+  separate human/Core authority. An authorized disposition records `accept` or `reject` as a
+  durable `no_action` Decision without silently changing live state.
+- **Durable replay and provenance.** Evaluation and proposal receipts reopen exactly across a real
+  store restart; stable replay returns historical material, while divergent replay, scope drift,
+  and unauthorized promotion fail closed.
+
+The bounded **Reasoning into Action** topology introduced in 0.5.0 remains unchanged: one ACE host,
+one durable store, and explicitly trusted in-process adapters. The separately packaged reference
+adapter candidate is distribution 0.2.0 with `ace-core>=0.6.0,<0.7`; its unchanged executable
+implementation keeps artifact identity 0.1.0.
 
 The governed Intelligence foundation introduced in 0.4.0 remains part of the same install:
 
@@ -722,8 +730,9 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.5.0 is a developer preview and a single-node Reasoning into Action release.** Read this section
-before you build on it.
+**0.6.0 is an unpublished developer-preview release candidate.** Its Measured Intelligence claim
+is bounded to the recorded product criteria, matched controls, exact provenance, and single-node
+topology. Read this section before you build on it.
 
 What is bounded:
 
@@ -767,10 +776,10 @@ The north-star loop is:
 understand → reason → decide → act with authority → observe outcomes → improve future reasoning
 ```
 
-0.5.0 delivers the bounded Reasoning into Action span of that loop: an approved decision proceeds
-through exact human review into attributable action, separate verification, linked repair when
-effects are known, and explicit promotion. 0.6.0 (*Measured Intelligence*) is next and promotes or
-retires reasoning revisions because of measured outcomes.
+0.5.0 delivers the bounded Reasoning into Action span of that loop. The unpublished 0.6.0
+(*Measured Intelligence*) candidate connects that journey to later product-owned outcomes and may
+propose promotion, rejection, rollback, or retirement without applying any of them. Public artifact
+installation and release-owner acceptance remain separate gates.
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries

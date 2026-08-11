@@ -4,6 +4,32 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+## 0.6.0
+
+### Measured Intelligence
+
+- Add domain-neutral, versioned criteria, condition, evidence, evaluation, and governance-proposal
+  contracts that link an intelligence artifact or cognition revision to exact material-use,
+  Decision, reviewed Action, observed-result, Outcome, control, and cutoff provenance.
+- Classify bounded matched evidence as `useful`, `harmful`, or `unproven` without accepting a
+  caller-supplied quality label. Missing attribution, mismatched conditions, future leakage,
+  unavailable outcomes, duplicate evidence, and insufficient matched support remain explicit.
+- Persist evaluation and proposal receipts atomically through Core's append-only record boundary.
+  Exact historical replay survives restart; divergent replay, scope drift, and unauthorized
+  promotion fail closed.
+- Keep promotion, rejection, rollback, and retirement proposals non-effective, non-selectable, and
+  unapplied. A separately authorized reviewer may record an accept/reject `no_action` Decision but
+  cannot silently change effective state.
+
+### Release and hardening boundary
+
+- Version the Core distribution at 0.6.0 and the separately packaged reference action adapter at
+  0.2.0 with an `ace-core>=0.6.0,<0.7` dependency. The unchanged adapter implementation retains its
+  0.1.0 capability artifact identity.
+- Add the issue #49 F1 generation guard and durable receipt reconciliation, and pin the legacy
+  optimizer query to `self_optimizer_proposal`. F3 remains unresolved and tracked separately under
+  its explicit containment and 2026-11-05 deadline.
+
 ### Owner-governed monitoring
 
 - Add public append-only lifecycle requests, receipts, and a durable application service for one

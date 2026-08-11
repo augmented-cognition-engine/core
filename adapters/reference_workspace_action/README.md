@@ -10,9 +10,12 @@ execution creates a new file with exclusive-create semantics. Existing files, sy
 parent directories, absolute paths, traversal, and paths outside the workspace fail closed.
 
 This package is not included in the `ace-core` wheel and is not dynamically discovered. A host must
-install it, construct it, and register its exact artifact identity explicitly. The ACE 0.5.0
-release workflow builds it independently and attaches its wheel and source distribution to the
-matching GitHub Release; only the Core distribution is sent to PyPI.
+install it, construct it, and register its exact artifact identity explicitly. The ACE 0.6.0
+release-candidate workflow builds it independently and would attach its wheel and source
+distribution to a separately authorized matching GitHub Release; only the Core distribution would
+be sent to PyPI.
 
-The dependency begins at `ace-core>=0.5.0,<0.6`. Install `ace-core==0.5.0` from PyPI and the adapter
-wheel from the public [`v0.5.0` GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.5.0).
+Distribution 0.2.0 targets `ace-core>=0.6.0,<0.7`. The executable implementation is unchanged from
+0.1.0, so its public capability artifact identity remains 0.1.0 rather than manufacturing a new
+implementation identity for dependency metadata alone. The 0.2.0 archives remain unpublished
+candidate artifacts until the separate release gate passes.

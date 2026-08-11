@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "0.5.0"
+version = "0.6.0"
 description = "Self-hosted runtime for governed reasoning and intelligence applications"
 readme = "README.md"
 license = "Apache-2.0"

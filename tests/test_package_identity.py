@@ -20,7 +20,7 @@ def test_distribution_import_cli_and_version_identities() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
     assert project["name"] == "ace-core"
-    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.5.0"
+    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "0.6.0"
     assert ProductExtension.version == project["version"]
     assert project["scripts"]["ace"] == "core.engine.cli.main:cli"
     assert "aiohttp>=3.14.3" in project["dependencies"]
@@ -43,12 +43,13 @@ def test_package_copy_and_public_links_are_release_ready() -> None:
 def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
 
-    assert "default: v0.5.0" in workflow
+    assert "default: v0.6.0" in workflow
     assert "Validate release tag matches package version" in workflow
     assert 'if [ "$RELEASE_TAG" != "v$package_version" ]' in workflow
     assert "ace-core-python-distributions" in workflow
     assert "reference-workspace-action-distributions" in workflow
     assert "python -m build --outdir dist/reference-adapter adapters/reference_workspace_action" in workflow
+    assert "from build_backend import _normalize_sdist" in workflow
     assert "packages-dir: dist/core/" in workflow
     assert 'gh release upload "$RELEASE_TAG" dist/reference-adapter/* --repo "$GITHUB_REPOSITORY" --clobber' in workflow
 
@@ -56,13 +57,13 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
 def test_docker_image_includes_public_cli_package() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     assert "COPY ace/ ace/" in dockerfile
-    assert "ARG ACE_VERSION=0.5.0" in dockerfile
+    assert "ARG ACE_VERSION=0.6.0" in dockerfile
     assert 'org.opencontainers.image.version="${ACE_VERSION}"' in dockerfile
     assert "uv sync --frozen --no-dev --no-editable --no-cache" in dockerfile
 
     compose = (ROOT / "infra" / "docker-compose.yml").read_text(encoding="utf-8")
-    assert compose.count('ACE_VERSION: "0.5.0"') == 3
-    assert compose.count('org.opencontainers.image.version: "0.5.0"') == 2
+    assert compose.count('ACE_VERSION: "0.6.0"') == 3
+    assert compose.count('org.opencontainers.image.version: "0.6.0"') == 2
 
 
 def test_lock_tracks_the_distribution_identity() -> None:
