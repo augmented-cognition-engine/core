@@ -401,6 +401,10 @@ now owns installed-artifact and combined-gate evidence. The milestone remains **
 merged-source review, public release artifacts, compatibility/security/release acceptance, and
 explicit release-owner resolution or re-dating of issue #49 F1, F3, and F5. Those three items are
 open release gates; they are not silently waived, deferred, or implemented here.
+The follow-on
+[merge-candidate audit](docs/design/measured-intelligence-v0.6.0-merge-candidate-audit-work-packet-v1.md)
+binds a World direct-to-live-main integration candidate and presents bounded F1/F3/F5 owner choices.
+It does not select those choices or advance the milestone beyond **Next**.
 
 ### 0.7.0 — Domain and Extension Platform
 

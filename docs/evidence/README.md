@@ -41,6 +41,8 @@ superseded by later work and is kept for audit trail only.
   — stacked candidate, local; exact accept/reject Decision with no proposal application
 - [Measured Intelligence release-convergence candidate](measured-intelligence-v0.6.0-release-convergence-candidate-v1.md)
   — installed-artifact World reproduction and explicit open #49 release gates; not release closeout
+- [Measured Intelligence merge-candidate audit](measured-intelligence-v0.6.0-merge-candidate-audit-v1.md)
+  — live-main World integration, exact artifact receipts, and explicit F1/F3/F5 owner choices; not release closeout
 - [State Engine TP0 current-runtime baseline](state-engine-tp0-runtime-baseline-v1.md)
 - [State Engine TP1A truthful observation outcomes](state-engine-tp1a-truthful-observation-outcomes-v1.md)
 - [State Engine TP1 reliable memory lifecycle](state-engine-tp1-reliable-memory-lifecycle-v1.md)
