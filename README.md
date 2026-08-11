@@ -344,10 +344,9 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ## What 0.6.0 adds
 
-0.6.0 is the **Measured Intelligence** release candidate. It adds a bounded, domain-neutral way to
+0.6.0 is the public **Measured Intelligence** release. It adds a bounded, domain-neutral way to
 determine whether an intelligence artifact or governed cognition revision helped, harmed, or
-remains unproven under explicit product-owned criteria. The candidate is not a published release
-and no governance proposal applies itself.
+remains unproven under explicit product-owned criteria. No governance proposal applies itself.
 
 - **Exact evaluation identity.** Product-owned criteria, matched conditions, evaluated artifacts,
   material-use attribution, Decisions, reviewed Actions, observed results, Outcomes, controls, and
@@ -365,7 +364,7 @@ and no governance proposal applies itself.
 
 The bounded **Reasoning into Action** topology introduced in 0.5.0 remains unchanged: one ACE host,
 one durable store, and explicitly trusted in-process adapters. The separately packaged reference
-adapter candidate is distribution 0.2.0 with `ace-core>=0.6.0,<0.7`; its unchanged executable
+adapter is distribution 0.2.0 with `ace-core>=0.6.0,<0.7`; its unchanged executable
 implementation keeps artifact identity 0.1.0.
 
 The governed Intelligence foundation introduced in 0.4.0 remains part of the same install:
@@ -730,7 +729,7 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.6.0 is an unpublished developer-preview release candidate.** Its Measured Intelligence claim
+**0.6.0 is a published developer-preview release.** Its Measured Intelligence claim
 is bounded to the recorded product criteria, matched controls, exact provenance, and single-node
 topology. Read this section before you build on it.
 
@@ -776,10 +775,11 @@ The north-star loop is:
 understand → reason → decide → act with authority → observe outcomes → improve future reasoning
 ```
 
-0.5.0 delivers the bounded Reasoning into Action span of that loop. The unpublished 0.6.0
-(*Measured Intelligence*) candidate connects that journey to later product-owned outcomes and may
-propose promotion, rejection, rollback, or retirement without applying any of them. Public artifact
-installation and release-owner acceptance remain separate gates.
+0.5.0 delivers the bounded Reasoning into Action span of that loop. Public 0.6.0
+(*Measured Intelligence*) connects that journey to later product-owned outcomes and may propose
+promotion, rejection, rollback, or retirement without applying any of them. The exact public
+artifacts and boundaries are recorded in the
+[release closeout](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/measured-intelligence-v0.6.0-release-closeout-v1.md).
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries

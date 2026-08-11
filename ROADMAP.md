@@ -71,21 +71,27 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.5.0 is published on PyPI and GitHub. It carries the governed-cognition and Intelligence
-foundation forward and completes the bounded Reasoning into Action promise: an exact approved
-Decision can proceed through an effect-free plan, exact human review, durable admission, bounded
-execution, honest terminal state, separate verification, linked repair when the prior effect is
-known, and separate promotion. T1 and B1 are passed for the documented single-host topology with
-explicitly trusted constructor-supplied adapters; schema head remains v176 and the thin MCP surface
+`ace-core` 0.6.0 is published on PyPI and GitHub. It completes the bounded Measured Intelligence
+promise: exact product-owned criteria link an intelligence artifact or immutable cognition
+revision through material use, Decision, reviewed Action, observed result, Outcome, matched
+controls, and append-only evaluation to a deterministic `useful`, `harmful`, or `unproven`
+classification. Any promote, reject, rollback, or retire result remains a non-effective proposal
+until separate human/Core authority disposes it. Schema head remains v177 and the thin MCP surface
 remains exactly eleven tools.
 
-The [0.5.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.5.0),
-public [`ace-core==0.5.0`](https://pypi.org/project/ace-core/0.5.0/) package, and separately released
-`ace-reference-workspace-action==0.1.0` adapter are bound by the
+The [0.6.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.6.0),
+public [`ace-core==0.6.0`](https://pypi.org/project/ace-core/0.6.0/) package, separately released
+`ace-reference-workspace-action==0.2.0` adapter, and public World Intelligence 0.10.0 proving
+journey are bound by the
+[Measured Intelligence release evidence](docs/evidence/measured-intelligence-v0.6.0-release-closeout-v1.md).
+A checkout-free environment installed the public artifacts and reproduced seven World-owned
+matched evaluations, historical replay, and an explicit governed rejection that applied nothing
+and changed no effective state.
+
+The 0.5.0 Reasoning into Action boundary remains passed for its documented single-host topology
+with explicitly trusted constructor-supplied adapters. Its exact public artifacts and independent
+World P2C2 journey remain bound by the
 [Reasoning into Action release evidence](docs/evidence/reasoning-into-action-v0.5.0-release-readiness.md).
-A checkout-free environment installed both public artifacts and reproduced the independent World
-Intelligence P2C2 governed Reality Brief-to-reviewed-action journey. World Intelligence 0.9.0 is
-also independently published and resolves the public Core 0.5.0 dependency.
 
 The 0.4.x line remains the passed Governed Cognition milestone. Patch releases 0.4.3 and 0.4.4
 hardened canonical cognition persistence and task-source timestamp compatibility, and the public
@@ -155,8 +161,8 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.3.x | Productized State | **Maintenance** | PS1 passed in 0.3.1 through the K1–K3 spine, R1/R4 onboarding pattern, G1 and IA-R1 inspection, I1–I3 receipts, and E1 extension/governance boundary; later patches are compatible hardening only | [#2](https://github.com/augmented-cognition-engine/core/issues/2) |
 | 0.4.x | Governed Cognition | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 through the supported teach, inspect, approve, use, measure, revise, rollback, and retire lifecycle, an independent Market consumer, restart durability, attribution, and failure controls | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
 | 0.5.0 | Reasoning into Action | **Passed** | T1 and B1 pass for bounded attributable action under the explicit single-host, trusted-adapter topology; I1 authority receipts govern the execution-adapter slice | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
-| 0.6.0 | Measured Intelligence | **Next** | Productizes the bounded L1 evidence loop, connects I3 material use to product-owned outcomes, advances the SI4 orientation/attention evaluation slice, and advances F2 only where evidence or demonstrated user need justifies a broader consequence contract | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
-| 0.7.0 | Domain and Extension Platform | **Later** | Completes the stable third-party platform promise across GI1, E1, and E2 and advances SI3: pack schemas, SDKs, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
+| 0.6.0 | Measured Intelligence | **Passed** | Public Core 0.6.0 and World 0.10.0 artifacts reproduce exact useful/harmful/unproven classification, matched leakage-bounded controls, durable replay, and proposal-only governance under product-owned criteria; SI4 remains a broader future outcome | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
+| 0.7.0 | Domain and Extension Platform | **Next** | Completes the stable third-party platform promise across GI1, E1, and E2 and advances SI3: pack schemas, SDKs, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Reasoning Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
 | 0.9.0 | Collaborative Runtime | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
 | 1.0.0 | Reasoning OS | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, Intelligence, Domain Packs, connectors, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
@@ -397,9 +403,7 @@ stability, forecast scoring, and a materially different BLS correction family wh
 proposal non-effective. An independent Market candidate reproduces the unchanged neutral contract.
 The bounded
 [release-convergence packet](docs/design/measured-intelligence-v0.6.0-release-convergence-work-packet-v1.md)
-now owns installed-artifact and combined-gate evidence. The milestone remains **Next** pending
-World review/merge, public release artifacts, and compatibility/security/release acceptance. These
-gates are not silently waived.
+owns installed-artifact and combined-gate evidence.
 The follow-on
 [merge-candidate audit](docs/design/measured-intelligence-v0.6.0-merge-candidate-audit-work-packet-v1.md)
 binds a World direct-to-live-main integration candidate and presents bounded F1/F3/F5 owner choices.
@@ -410,7 +414,12 @@ implements bounded F1 and F5, now merged in exact Core `main`. The subsequent
 rebuilds the exact Core and World wheels, reproduces the public World `useful` and independent
 Market `unproven` results, and retains proposal-only authority. Issue #49 now records F1 and F5 as
 complete against merged Core and explicitly re-dates unresolved, unwaived F3 to `2026-11-05` under
-documented containment. This does not advance the milestone beyond **Next**.
+documented containment. The public Core 0.6.0 and World 0.10.0 artifacts, trusted publication,
+cache-free installation, seven World-owned matched evaluations, governed rejection/no-action
+disposition, historical replay, required checks, and exact boundaries are composed in the
+[public release closeout](docs/evidence/measured-intelligence-v0.6.0-release-closeout-v1.md).
+The 0.6.0 milestone is therefore **passed**. This advances only the bounded SI4 evaluation slice;
+SI4's broader two-domain situational-orientation gate remains not ready.
 
 ### 0.7.0 — Domain and Extension Platform
 
@@ -618,12 +627,29 @@ flowchart LR
 | 2. Product state | Can a product maintain grounded state and reason about change and consequences? | **Passed** | K1–K3, E1, and PS1 passed; Productized State is published in 0.3.1 | 0.3.x |
 | 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 and an independent Market consumer | 0.4.x |
 | 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Passed** | T1 and B1 passed in 0.5.0 for the bounded single-host, trusted-adapter topology | 0.5.0 |
-| 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Next; bounded evidence gate passed** | L1 and I3 passed; F2 not ready | 0.6.0 |
+| 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Passed for the public 0.6.0 boundary** | Product-owned matched evaluation, exact attribution, durable replay, and proposal-only governance are public; F2 and general benefit remain not ready | 0.6.0 |
 | 6. Domain and extension ecosystem | Can any product adopt, specialize, operate, and retain ownership of ACE intelligence? | **Pack foundation passed; ecosystem gated** | GI1 and E1 passed; E2 and H1 not ready | 0.7.0 and 0.9.0 |
 | 7. Human experience | Can people inspect and govern the full loop without learning ACE internals? | **Read-only and governance foundations passed** | IA-R1, G1, E1, and L1 passed; the writable workspace remains bounded by B1 and H1 | 0.8.0 |
 | 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
 
 ## Immediate dispatch
+
+### Completed milestone: 0.6.0 Measured Intelligence
+
+The public Core 0.6.0 and World Intelligence 0.10.0 artifacts close the bounded release gate. Exact
+product-owned criteria can classify matched attributed evidence as useful, harmful, or unproven;
+missing attribution, mismatched conditions, unavailable or post-cutoff outcomes, duplicate
+evidence, divergent replay, interrupted append, and denied authority fail closed. World reproduces
+the complete recorded public-data journey through a non-effective proposal and a separately
+authorized rejection/no-action Decision. The
+[release closeout](docs/evidence/measured-intelligence-v0.6.0-release-closeout-v1.md) binds the
+tags, artifacts, hashes, workflows, public installation, replay, limitations, and issue #49
+disposition.
+
+Exit condition: **passed.** The next bounded dispatch is the 0.7.0 Domain and Extension Platform
+packet: freeze the supported third-party contract and use an independently public Market measured-
+impact journey as a domain-neutral falsifier without moving Market policy or nouns into Core. That
+follow-on work does not reopen 0.6.0 or silently advance SI1–SI4.
 
 ### Completed technical prerequisite: bounded Product State outcomes
 
