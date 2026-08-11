@@ -45,6 +45,8 @@ superseded by later work and is kept for audit trail only.
   — live-main World integration, exact artifact receipts, and explicit F1/F3/F5 owner choices; not release closeout
 - [Measured Intelligence issue #49 F1/F5 hardening](measured-intelligence-v0.6.0-issue49-hardening-candidate-v1.md)
   — candidate in-transaction generation guard, durable review reconciliation, and legacy table pin; not release closeout
+- [Measured Intelligence merged-source convergence](measured-intelligence-v0.6.0-merged-source-convergence-candidate-v1.md)
+  — exact merged Core artifact, public World reproduction, independent Market restart proof, and remaining release gates; not release closeout
 - [State Engine TP0 current-runtime baseline](state-engine-tp0-runtime-baseline-v1.md)
 - [State Engine TP1A truthful observation outcomes](state-engine-tp1a-truthful-observation-outcomes-v1.md)
 - [State Engine TP1 reliable memory lifecycle](state-engine-tp1-reliable-memory-lifecycle-v1.md)
