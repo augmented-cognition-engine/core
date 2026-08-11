@@ -211,6 +211,11 @@ explicitly recorded as open 0.6 release gates—not waived, deferred, or resolve
 remains blocked on an owner disposition even if all candidate verification is green.
 The exact point-in-time results and environment splits are in the
 [release-convergence candidate evidence](evidence/measured-intelligence-v0.6.0-release-convergence-candidate-v1.md).
+The later
+[merge-candidate audit](design/measured-intelligence-v0.6.0-merge-candidate-audit-work-packet-v1.md)
+reconciles the World journey onto live World `main` and turns issue #49 F1/F3/F5 into explicit
+owner choices. The capability remains experimental until those choices, reviewed merges, final
+artifacts, and release acceptance are complete.
 
 ## Implemented architecture beyond the compatibility contract
 
