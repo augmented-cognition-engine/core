@@ -40,6 +40,7 @@ from ace.intelligence.epistemic import (
     derive_claim_epistemic_statuses,
     derive_claim_epistemic_statuses_with_families,
 )
+from ace.intelligence.impact import ResolvedImpactEvidence, evaluate_measured_impact
 from ace.intelligence.routing import (
     EligibleSignalRoute,
     SignalRoutingError,
@@ -89,6 +90,7 @@ __all__ = [
     "DerivationFamilyClosure",
     "DerivationFamilyError",
     "IMPACT_RELATIONS",
+    "ResolvedImpactEvidence",
     "ImpactedResource",
     "SUPERSEDING_RELATION",
     "SUPERSESSION_IMPACT_POLICY",
@@ -118,6 +120,7 @@ __all__ = [
     "detect_numeric_shift",
     "eligible_live_signal_routes",
     "eligible_signal_routes",
+    "evaluate_measured_impact",
     "interpret_live_source_mapping",
     "interpret_prepared_source_mapping",
     "render_canonical_brief_body",
