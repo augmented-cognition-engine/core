@@ -85,6 +85,7 @@ status wording is historical context and is not rewritten by the later public re
 - [P2D per-statement epistemic status](platform-p2d-per-statement-epistemic-status-v1.md) — candidate, local
 - [P2E derivation-family independence](platform-p2e-derivation-family-independence-v1.md) — candidate, local
 - [P2F supersession-impact projection](platform-p2f-supersession-impact-projection-v1.md) — candidate, local
+- [P2G owner-governed monitoring](platform-p2g-owner-governed-monitoring-v1.md) — candidate, local
 
 Two earlier local checkpoints predate the P1/P2 sequence and are superseded by it:
 
