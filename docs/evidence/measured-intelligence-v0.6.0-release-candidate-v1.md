@@ -1,6 +1,6 @@
 # ACE 0.6.0 Measured Intelligence release-candidate evidence (v1)
 
-Status: **candidate, unpublished; verification incomplete; does not close issue #38**
+Status: **candidate, unpublished; required repository verification passed; does not close issue #38**
 
 Date: 2026-08-11
 
@@ -91,9 +91,21 @@ failures were environmental rather than measured-impact or package-identity fail
   this packet is intentionally built in a linked Git worktree whose `.git` entry is a file.
 
 The historical baseline reader was not changed to conceal that worktree limitation: doing so would
-change checksum-frozen acceptance source. A normal-checkout GitHub run is therefore a mandatory
-remaining gate. The draft PR must also pass the repository's naked-kernel, security, Canvas,
-Docker, and other required checks before this candidate can advance.
+change checksum-frozen acceptance source.
+
+Draft PR #96 then ran the repository workflow from normal-checkout head
+`b53acad80af6a038d2e0b25a28de79d2b3b595d4`. GitHub Actions run `31530146316` passed all six
+required jobs:
+
+- lint — passed in 11 seconds;
+- Canvas typecheck, tests, and naked build — passed in 1 minute 19 seconds;
+- fast tests — passed in 6 minutes 26 seconds;
+- security audit — passed in 14 seconds;
+- naked kernel with zero extensions — passed in 6 minutes 45 seconds;
+- Docker build and health-endpoint probe — passed in 50 seconds.
+
+That normal-checkout result settles the linked-worktree baseline limitation without changing the
+checksum-frozen reader.
 
 ## Product evidence composed, not re-certified
 
@@ -111,10 +123,9 @@ harm. Both contracts remain domain-neutral; source policy and domain nouns stay 
 ## Remaining release gates and non-claims
 
 The candidate is not release-ready until human review and merge of Core PR #95 and World PR #17,
-normal-checkout CI, final-merge artifact rebuild, compatibility/security acceptance, clean
-public-index installation, independently rerun World artifact evidence, and explicit release-owner
-approval all pass. Issue #49 F3 remains open, unwaived, contained, and explicitly due
-`2026-11-05`; this packet does not silently resolve it.
+final-merge artifact rebuild, clean public-index installation, independently rerun World artifact
+evidence, and explicit release-owner approval all pass. Issue #49 F3 remains open, unwaived,
+contained, and explicitly due `2026-11-05`; this packet does not silently resolve it.
 
 This evidence does not prove causality, general benefit, SI4 completion, live freshness,
 hostile-code isolation, distributed execution, cross-process exactly-once effects, automatic
