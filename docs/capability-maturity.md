@@ -181,11 +181,18 @@ and a useful, harmful, or unproven receipt. Its append-only proposal may name pr
 rollback, or retirement but is non-effective, non-selectable, and requires separate human/Core
 authority. Exact replay survives a fresh real-store process without reclassification.
 
-This candidate is not a supported 0.6.0 capability or a release claim. World Intelligence has not
-yet completed the public real-data journey, SI4 is not passed, no proposal application path is
-added here, and material use or statistical association does not establish causality or general
-benefit. See the [kickoff work packet](design/measured-intelligence-v0.6.0-kickoff-work-packet-v1.md)
-and [candidate evidence](evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md).
+The stacked [proposal disposition candidate](design/measured-impact-proposal-disposition-work-packet-v1.md)
+adds an exact authorized accept/reject Core Decision over one proposal. The Decision is always
+`no_action`: it preserves append-only history and cannot apply the proposal or change effective
+state. World P2C3/P2C4 compose the source-checkout candidate over recorded official public data,
+preserving a bounded `useful` structural result while a separately authorized reviewer rejects its
+broader `promote` proposal.
+
+These candidates are not a supported 0.6.0 capability or release claim. SI4 is not passed, no
+proposal application path is added, the recorded transport does not prove live freshness, and
+material use or statistical association does not establish causality or general benefit. See the
+[kickoff evidence](evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md) and
+[disposition evidence](evidence/measured-impact-proposal-disposition-candidate-v1.md).
 
 ## Implemented architecture beyond the compatibility contract
 
