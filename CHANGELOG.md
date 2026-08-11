@@ -2,6 +2,24 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## Unreleased
+
+### Owner-governed monitoring
+
+- Add public append-only lifecycle requests, receipts, and a durable application service for one
+  principal-owned Monitor or Subscription. Create, pause, resume, and terminal revoke preserve the
+  exact intent and owner binding, fail closed on divergent replay, and reopen across service
+  restarts through Core's immutable-record port. A stable append-once lifecycle anchor prevents a
+  revoked intent from being silently recreated under a new transition key; append-once sequence
+  slots prevent two transitions from branching off the same prior receipt.
+- Add explicitly requested sensing-window requests, evaluations, receipts, and a durable service.
+  Each bounded window records exact lifecycle revisions, source transactions, accepted/replayed
+  material, and one routed-or-suppressed disposition. Paused or revoked windows require zero
+  acquisition, stale lifecycle receipts fail closed, and corrections cannot be suppressed as no
+  material change.
+- Keep the new surface effect-free: it grants no scheduler, source transport, delivery,
+  publication, persuasion, Decision, Outcome, or external-action authority.
+
 ## 0.5.0
 
 ### Reasoning into Action

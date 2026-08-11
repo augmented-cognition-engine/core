@@ -115,7 +115,8 @@ governed state as part of the product and makes the reasoning replayable.
 - **Core owns cognition and control.** Authority, temporal and immutable state, reasoning,
   receipts, decisions, and outcomes. Nothing durable is written except through Core.
 - **Intelligence owns sensing and orientation.** The Observation → Entity Snapshot → Shift → Signal
-  → Brief pipeline, monitors, routing, and pack conformance are domain-neutral.
+  → Brief pipeline, owner-governed monitor/subscription lifecycle, explicitly requested sensing
+  windows, routing, and pack conformance are domain-neutral.
 - **Domain Packs supply vocabulary and policy.** Ontology, source mappings, shift definitions,
   personas, synthesis templates, and policy ship as independently versioned, **inert declarative
   data** — compiled and content-addressed, never imported or executed.
@@ -166,12 +167,13 @@ flowchart TB
             A2["LIVE Intelligence bridge"]
             A3["Brief / case-brief synthesis"]
             A4["decision feedback · supersession impact"]
+            A5["owner lifecycle · sensing windows"]
         end
         subgraph INT["ace.intelligence — invariant machinery"]
             I1["pack compiler + conformance"]
             I2["detection · routing · synthesis"]
             I3["epistemic status · derivation families"]
-            I4["monitors · personas · subscriptions"]
+            I4["monitors · personas · subscriptions<br/>lifecycle + window receipts"]
         end
         subgraph CORE["ace.core — governed cognition"]
             C1["authority + activation"]
@@ -198,8 +200,8 @@ host.** Architecture gates in the test suite assert this.
 | Layer | Owns | Explicitly does not own |
 |---|---|---|
 | **`ace.core`** | Authority resolution and authority-use receipts; capability-use receipts; immutable records and atomic append-only transactions; governed-state heads with rechecked preconditions; canonical source snapshots and URI/IP validation; governed reasoning requests, bindings, and terminal receipts; decisions and outcomes. | Domain vocabulary. Core never learns what a "competitor" or a "port call" is. |
-| **`ace.intelligence`** | The Domain Pack compiler and its fail-closed diagnostics; the Observation → Entity Snapshot → Shift → Signal → Brief resource contracts; numeric-delta and categorical-transition detection; signal routing; brief synthesis and canonical rendering; epistemic status and derivation families; supersession impact; monitors, persona bindings, subscriptions. | Persistence, authority, network access, or a clock. Importing `ace.intelligence` performs no discovery, I/O, compilation, activation, or host composition. |
-| **`ace.application`** | Services that compose the two: LIVE source ingress, the LIVE Intelligence bridge, Brief and case-brief synthesis, prepared intelligence ledger, decision feedback, supersession-impact admission, domain-activation admission. | Connector implementations, transport, or scheduling — those are the host's. |
+| **`ace.intelligence`** | The Domain Pack compiler and its fail-closed diagnostics; the Observation → Entity Snapshot → Shift → Signal → Brief resource contracts; numeric-delta and categorical-transition detection; signal routing; brief synthesis and canonical rendering; epistemic status and derivation families; supersession impact; monitors, persona bindings, subscriptions; owner-lifecycle and sensing-window receipts. | Persistence, network access, scheduling, delivery, or a clock. Importing `ace.intelligence` performs no discovery, I/O, compilation, activation, or host composition. |
+| **`ace.application`** | Services that compose the two: LIVE source ingress, the LIVE Intelligence bridge, Brief and case-brief synthesis, prepared intelligence ledger, decision feedback, supersession-impact admission, domain-activation admission, owner-governed monitoring lifecycle, and sensing-window admission. | Connector implementations, source transport, scheduling, delivery, publication, or external action — those remain separately authorized host/application responsibilities. |
 | **Domain Pack** (separate artifact) | Ontology, source mappings, detection rules, personas and routing rules, synthesis templates, epistemic-status vocabularies, feedback policy, capability requirements, authority requests, overlay slots. | Code. A pack is data all the way down. |
 
 ---

@@ -743,6 +743,10 @@ independent World Intelligence domain:
   — packet `WI-CR-003`, domain-neutral derivation-family independence.
 - [P2F supersession-impact projection](docs/evidence/platform-p2f-supersession-impact-projection-v1.md)
   — packet `WI-CR-004`, domain-neutral supersession-impact projection.
+- [P2G owner-governed monitoring](docs/evidence/platform-p2g-owner-governed-monitoring-v1.md)
+  — local candidate closing the implementation side of packets `WI-CR-007` and `WI-CR-008` with
+  append-only owner lifecycle and explicitly requested sensing-window receipts. Public artifact
+  publication and independent consumer replay remain open, so SI1–SI4 do not advance here.
 
 Two earlier local checkpoints record intermediate 0.3.x/0.4.x-era work and are preserved for history
 rather than as current status: the
@@ -831,7 +835,8 @@ SI1–SI4 now begin from the passed GI1 substrate rather than asking each vertic
 entity, Shift, Signal, Brief, Case, provenance, and feedback machinery. The validation sequence is:
 
 1. freeze domain-neutral contracts for standing investigations, orientation revisions, reaction
-   dossiers, attention policies, subscriptions, and attention receipts;
+   dossiers, attention policies, subscriptions, and attention receipts; the P2G local candidate
+   now covers owner lifecycle and bounded sensing-window receipts without claiming scheduled work;
 2. keep structured measurements, time series, geospatial tracks, market state, source-origin
    clustering, entitlement, privacy, and source-specific materiality in Domain Packs or connectors;
 3. run World Intelligence through the public compiler and application seams using public-issue,
