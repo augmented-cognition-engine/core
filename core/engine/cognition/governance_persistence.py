@@ -195,6 +195,49 @@ class CognitionGovernanceStore:
             )
         return _validated_payload(row, CognitionHeadV1) if row else None
 
+    async def _classify_possible_review_winner(
+        self,
+        *,
+        proposal: CognitionProposalV1,
+        receipt: CognitionReviewReceiptV1,
+        revision: CognitionRevisionV1 | None,
+        head: CognitionHeadV1 | None,
+        original: CognitionPersistenceError,
+    ) -> CognitionReviewReceiptV1:
+        """Accept an ambiguous write only when every exact durable effect reconciles."""
+
+        product_id = _scope_product(proposal.scope)
+        try:
+            stored = await self.load_review(str(receipt.receipt_id), product_id=product_id)
+            if stored is None:
+                raise original
+            if not _same_review_replay(stored, receipt):
+                raise CognitionReplayConflict(
+                    f"stable review {receipt.receipt_id} contains different material"
+                ) from None
+            expected_state = (
+                ProposalState.APPROVED
+                if receipt.disposition is ReviewDisposition.APPROVE
+                else (
+                    ProposalState.REJECTED
+                    if receipt.disposition is ReviewDisposition.REJECT
+                    else ProposalState.CHANGES_REQUESTED
+                )
+            )
+            if await self.load_proposal_state(str(proposal.proposal_id), product_id=product_id) is not expected_state:
+                raise CognitionPersistenceError("possible review winner did not reconcile proposal state") from None
+            if revision is not None and await self.load_revision(str(revision.revision_id)) != revision:
+                raise CognitionPersistenceError("possible review winner did not reconcile exact revision") from None
+            if head is not None and await self.load_head(str(head.head_id)) != head:
+                raise CognitionPersistenceError("possible review winner did not reconcile exact head") from None
+            return stored
+        except CognitionReplayConflict:
+            raise
+        except CognitionPersistenceError:
+            raise
+        except Exception:
+            raise CognitionPersistenceError("possible review winner failed exact durable reconciliation") from None
+
     async def persist_disposition(
         self,
         *,
@@ -254,12 +297,20 @@ class CognitionGovernanceStore:
             if proposal_row.get("state") != ProposalState.PENDING.value:
                 raise CognitionPersistenceError("proposal is not pending")
 
-            statements = ["BEGIN TRANSACTION"]
+            statements = [
+                "BEGIN TRANSACTION",
+                "LET $current_proposal_state = SELECT VALUE state FROM ONLY "
+                "type::record('cognition_proposal', $proposal_key) WHERE product = $product",
+                "IF $current_proposal_state != 'pending' { THROW 'cognition_proposal_state_conflict'; }",
+            ]
             params: dict[str, Any] = {
                 "proposal_key": proposal_key,
                 "review_key": review_key,
                 "product": parse_record_id(product_id),
                 "expected_generation": receipt.expected_head_generation,
+                "expected_current_generation": (
+                    None if receipt.expected_head_generation == 0 else receipt.expected_head_generation
+                ),
                 "proposal_state": (
                     ProposalState.APPROVED.value
                     if receipt.disposition is ReviewDisposition.APPROVE
@@ -355,12 +406,14 @@ class CognitionGovernanceStore:
                     )
                 statements.extend(
                     [
+                        "LET $transaction_generation = SELECT VALUE generation FROM ONLY "
+                        "type::record('cognition_head', $head_key)",
+                        "IF $transaction_generation != $expected_current_generation "
+                        "{ THROW 'cognition_head_generation_conflict'; }",
                         "CREATE ONLY type::record('cognition_revision', $revision_key) CONTENT $revision_content",
-                        (
-                            "CREATE ONLY type::record('cognition_head', $head_key) CONTENT $head_content"
-                            if current_head is None
-                            else "UPDATE ONLY type::record('cognition_head', $head_key) CONTENT $head_content"
-                        ),
+                        "IF $transaction_generation = NONE "
+                        "{ CREATE ONLY type::record('cognition_head', $head_key) CONTENT $head_content; } "
+                        "ELSE { UPDATE ONLY type::record('cognition_head', $head_key) CONTENT $head_content; }",
                         "CREATE ONLY type::record('cognition_activation_event', $activation_key) "
                         "CONTENT $activation_content",
                     ]
@@ -372,7 +425,21 @@ class CognitionGovernanceStore:
                     "COMMIT TRANSACTION",
                 ]
             )
-            await _query_or_raise(db, ";\n".join(statements) + ";", params)
+            try:
+                await _query_or_raise(db, ";\n".join(statements) + ";", params)
+            except Exception as exc:
+                original = (
+                    exc
+                    if isinstance(exc, CognitionPersistenceError)
+                    else CognitionPersistenceError("governed cognition persistence failed")
+                )
+                return await self._classify_possible_review_winner(
+                    proposal=proposal,
+                    receipt=receipt,
+                    revision=revision,
+                    head=head,
+                    original=original,
+                )
         return receipt
 
 
