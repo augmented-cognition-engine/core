@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "DeltaDirection": {
+      "description": "Direction filters applied after a numeric delta is computed.",
+      "enum": [
+        "any",
+        "increase",
+        "decrease"
+      ],
+      "title": "DeltaDirection",
+      "type": "string"
+    },
+    "NumericDeltaMetric": {
+      "description": "Supported domain-neutral comparisons for the alpha numeric detector.",
+      "enum": [
+        "absolute_change",
+        "percent_change"
+      ],
+      "title": "NumericDeltaMetric",
+      "type": "string"
+    },
+    "NumericDeltaRuleV1": {
+      "additionalProperties": false,
+      "description": "A declarative request to compare one numeric attribute with its prior value.\n\nThe rule names domain types but contains no implementation. Intelligence owns the\n``numeric_delta`` strategy; a pack supplies the watched attribute and materiality policy.",
+      "properties": {
+        "attribute_id": {
+          "title": "Attribute Id",
+          "type": "string"
+        },
+        "baseline": {
+          "const": "prior_snapshot",
+          "default": "prior_snapshot",
+          "title": "Baseline",
+          "type": "string"
+        },
+        "context_attribute_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "title": "Context Attribute Ids",
+          "type": "array"
+        },
+        "detector_id": {
+          "title": "Detector Id",
+          "type": "string"
+        },
+        "direction": {
+          "$ref": "#/$defs/DeltaDirection",
+          "default": "any"
+        },
+        "entity_type_id": {
+          "title": "Entity Type Id",
+          "type": "string"
+        },
+        "metric": {
+          "$ref": "#/$defs/NumericDeltaMetric"
+        },
+        "shift_type": {
+          "title": "Shift Type",
+          "type": "string"
+        },
+        "signal_type": {
+          "title": "Signal Type",
+          "type": "string"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "gt": 0,
+          "title": "Threshold"
+        }
+      },
+      "required": [
+        "detector_id",
+        "entity_type_id",
+        "attribute_id",
+        "metric",
+        "threshold",
+        "shift_type",
+        "signal_type"
+      ],
+      "title": "NumericDeltaRuleV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/detection-v1alpha1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One immutable module of declarative detector rules.",
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.detection/v1alpha1",
+      "default": "ace.intelligence.detection/v1alpha1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    },
+    "numeric_delta_rules": {
+      "items": {
+        "$ref": "#/$defs/NumericDeltaRuleV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Numeric Delta Rules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "module_id",
+    "numeric_delta_rules"
+  ],
+  "title": "DetectionModuleV1",
+  "type": "object"
+}

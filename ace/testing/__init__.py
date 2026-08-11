@@ -1,5 +1,6 @@
 """Packaged conformance seams for external ACE bounded-context packages."""
 
+from ace.testing.domain_pack import conformance_receipt_json, run_domain_pack_conformance
 from ace.testing.immutable_records import (
     InMemoryImmutableRecordStore,
     PreparedLedgerConformanceResult,
@@ -22,4 +23,6 @@ __all__ = [
     "exercise_live_source_ingress_restart",
     "exercise_prepared_ledger_restart",
     "exercise_prepared_source_mapping",
+    "conformance_receipt_json",
+    "run_domain_pack_conformance",
 ]

@@ -141,7 +141,7 @@ backend-path = ["."]
 include = ["ace", "ace.*", "ace_mcp_client*", "core*", "extensions*", "scripts*", "evaluations*"]
 
 [tool.setuptools.package-data]
-"ace" = ["py.typed"]
+"ace" = ["py.typed", "intelligence/schemas/*.json"]
 "core.schema" = ["*.surql"]
 "core.engine.onboarding" = ["*.json"]
 "core.engine.runtime" = ["*.yml"]

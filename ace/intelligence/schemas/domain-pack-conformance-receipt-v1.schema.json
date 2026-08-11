@@ -1,0 +1,179 @@
+{
+  "$defs": {
+    "PackCompatibilityStatus": {
+      "enum": [
+        "supported",
+        "deprecated",
+        "migration_required",
+        "rejected"
+      ],
+      "title": "PackCompatibilityStatus",
+      "type": "string"
+    },
+    "PackDiagnosticV1": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "path": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "severity",
+        "code",
+        "path",
+        "message"
+      ],
+      "title": "PackDiagnosticV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/domain-pack-conformance-receipt-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "actual_digest": {
+      "title": "Actual Digest",
+      "type": "string"
+    },
+    "compatibility_status": {
+      "$ref": "#/$defs/PackCompatibilityStatus"
+    },
+    "compilation_result_digest": {
+      "title": "Compilation Result Digest",
+      "type": "string"
+    },
+    "compilation_result_id": {
+      "title": "Compilation Result Id",
+      "type": "string"
+    },
+    "compiled_pack_id": {
+      "title": "Compiled Pack Id",
+      "type": "string"
+    },
+    "compiler_contract": {
+      "title": "Compiler Contract",
+      "type": "string"
+    },
+    "contract": {
+      "const": "ace.intelligence.domain-pack-conformance-receipt/v1",
+      "default": "ace.intelligence.domain-pack-conformance-receipt/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "#/$defs/PackDiagnosticV1"
+      },
+      "maxItems": 256,
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "expected_digest": {
+      "title": "Expected Digest",
+      "type": "string"
+    },
+    "fixture_digest": {
+      "title": "Fixture Digest",
+      "type": "string"
+    },
+    "fixture_id": {
+      "title": "Fixture Id",
+      "type": "string"
+    },
+    "fixture_version": {
+      "title": "Fixture Version",
+      "type": "string"
+    },
+    "intelligence_contract": {
+      "title": "Intelligence Contract",
+      "type": "string"
+    },
+    "manifest_contract": {
+      "title": "Manifest Contract",
+      "type": "string"
+    },
+    "pack_digest": {
+      "title": "Pack Digest",
+      "type": "string"
+    },
+    "pack_id": {
+      "title": "Pack Id",
+      "type": "string"
+    },
+    "pack_version": {
+      "title": "Pack Version",
+      "type": "string"
+    },
+    "passed": {
+      "title": "Passed",
+      "type": "boolean"
+    },
+    "receipt_digest": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Receipt Digest"
+    },
+    "receipt_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Receipt Id"
+    }
+  },
+  "required": [
+    "pack_id",
+    "pack_version",
+    "compiled_pack_id",
+    "pack_digest",
+    "manifest_contract",
+    "compiler_contract",
+    "intelligence_contract",
+    "compatibility_status",
+    "compilation_result_id",
+    "compilation_result_digest",
+    "fixture_id",
+    "fixture_version",
+    "fixture_digest",
+    "expected_digest",
+    "actual_digest",
+    "passed"
+  ],
+  "title": "DomainPackConformanceReceiptV1",
+  "type": "object"
+}

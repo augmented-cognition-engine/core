@@ -11,6 +11,12 @@ from ace.intelligence.contracts.activation import (
     OrganizationOverlayV1,
     OverlayValueV1,
 )
+from ace.intelligence.contracts.conformance import (
+    DomainPackConformanceReceiptV1,
+    DomainPackGoldenFixtureV1,
+    GoldenDetectorOutcomeV1,
+    GoldenObservationTransitionV1,
+)
 from ace.intelligence.contracts.detection import (
     CategoricalTransitionRuleV1,
     CategoricalTransitionV1,
@@ -120,11 +126,13 @@ from ace.intelligence.contracts.pack import (
     OntologyModuleV1,
     OverlaySlotDeclarationV1,
     OverlayValueKind,
+    PackCompatibilityRangeV1,
     PackCompatibilityV1,
     PackMetadataV1,
     PackModuleRefV1,
     PackResourceV1,
     RelationTypeDeclarationV1,
+    StableDomainPackManifestV1,
 )
 from ace.intelligence.contracts.personas import (
     PersonaArchetypeV1,
@@ -219,6 +227,12 @@ from ace.intelligence.contracts.synthesis import (
 )
 
 __all__ = [
+    "DomainPackConformanceReceiptV1",
+    "DomainPackGoldenFixtureV1",
+    "GoldenDetectorOutcomeV1",
+    "GoldenObservationTransitionV1",
+    "PackCompatibilityRangeV1",
+    "StableDomainPackManifestV1",
     "BriefDraftClaimStatusBindingV1Alpha1",
     "BriefEpistemicStatusProjectionV1Alpha1",
     "BriefEpistemicStatusProjectionV1Alpha2",

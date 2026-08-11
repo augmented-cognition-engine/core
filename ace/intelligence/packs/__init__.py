@@ -5,7 +5,20 @@ from ace.intelligence.packs.activation import (
     prepare_activation_revision,
     prepare_domain_activation,
 )
-from ace.intelligence.packs.compiler import PackCompilationError, compile_pack, compile_pack_document
+from ace.intelligence.packs.compiler import (
+    CompiledPackResultV1,
+    PackCompilationError,
+    compile_pack,
+    compile_pack_document,
+    compile_pack_document_with_report,
+    negotiate_pack_compatibility,
+    validate_compiled_pack_set,
+)
+from ace.intelligence.packs.diagnostics import (
+    PackCompatibilityResultV1,
+    PackCompatibilityStatus,
+    StablePackCompilationResultV1,
+)
 from ace.intelligence.packs.runtime import (
     PreparedActivationBinding,
     PreparedActivationBindingError,
@@ -17,6 +30,10 @@ from ace.intelligence.packs.runtime import (
 
 __all__ = [
     "PackCompilationError",
+    "CompiledPackResultV1",
+    "PackCompatibilityResultV1",
+    "PackCompatibilityStatus",
+    "StablePackCompilationResultV1",
     "PreparedActivationBinding",
     "PreparedActivationBindingError",
     "ResolvedSourceMappingPolicy",
@@ -24,8 +41,11 @@ __all__ = [
     "compile_overlay",
     "compile_pack",
     "compile_pack_document",
+    "compile_pack_document_with_report",
     "prepare_activation_revision",
     "prepare_domain_activation",
+    "negotiate_pack_compatibility",
+    "validate_compiled_pack_set",
     "resolve_source_mapping_rule",
     "resolve_source_mapping_policy",
 ]

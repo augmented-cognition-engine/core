@@ -5,12 +5,14 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
+from contextvars import ContextVar
+from dataclasses import dataclass
 from typing import Any, Callable
 
 from pydantic import ValidationError
 
 from ace.core.contracts import canonical_hash, canonical_json
-from ace.intelligence.contracts.common import MAX_PACK_BYTES, MAX_RESOURCE_BYTES
+from ace.intelligence.contracts.common import MAX_PACK_BYTES, MAX_RESOURCE_BYTES, validate_contract
 from ace.intelligence.contracts.detection import (
     DETECTION_MODULE_V1ALPHA2_VERSION,
     DETECTION_MODULE_VERSION,
@@ -28,7 +30,16 @@ from ace.intelligence.contracts.feedback import (
     DecisionOutcomesModuleV1,
 )
 from ace.intelligence.contracts.pack import (
+    COMPILED_DOMAIN_PACK_STABLE_VERSION,
+    DOMAIN_PACK_MANIFEST_STABLE_VERSION,
+    DOMAIN_PACK_MANIFEST_VERSION,
+    INTELLIGENCE_RUNTIME_NEXT_BREAKING_VERSION,
+    INTELLIGENCE_RUNTIME_VERSION,
     ONTOLOGY_MODULE_VERSION,
+    PACK_COMPILER_NEXT_BREAKING_VERSION,
+    PACK_COMPILER_VERSION,
+    STABLE_INTELLIGENCE_RUNTIME_VERSION,
+    STABLE_PACK_COMPILER_VERSION,
     AttributeValueType,
     CompiledDomainPackV1,
     CompiledModuleV1,
@@ -47,7 +58,14 @@ from ace.intelligence.contracts.synthesis import (
     SynthesisModuleV1,
     SynthesisModuleV1Alpha2,
 )
-from ace.intelligence.packs.diagnostics import PackCompilationReportV1, PackDiagnosticV1
+from ace.intelligence.packs.diagnostics import (
+    STABLE_PACK_COMPILATION_REPORT_VERSION,
+    PackCompatibilityResultV1,
+    PackCompatibilityStatus,
+    PackCompilationReportV1,
+    PackDiagnosticV1,
+    StablePackCompilationResultV1,
+)
 
 
 class PackCompilationError(ValueError):
@@ -59,12 +77,27 @@ class PackCompilationError(ValueError):
         super().__init__(f"{first.code} at {first.path}: {first.message}")
 
 
-def _fail(code: str, path: str, message: str) -> None:
+@dataclass(frozen=True, slots=True)
+class CompiledPackResultV1:
+    pack: CompiledDomainPackV1
+    compatibility: PackCompatibilityResultV1
+    compilation: StablePackCompilationResultV1
+
+
+_STABLE_DIAGNOSTICS: ContextVar[bool] = ContextVar("stable_pack_diagnostics", default=False)
+
+
+def _fail(code: str, path: str, message: str, *, stable: bool = False) -> None:
     bounded_code = str(code)[:120] or "compilation_error"
     bounded_path = str(path)[:500] or "pack"
     bounded_message = str(message)[:1_000] or "pack compilation failed"
     raise PackCompilationError(
         PackCompilationReportV1(
+            contract=(
+                STABLE_PACK_COMPILATION_REPORT_VERSION
+                if stable or _STABLE_DIAGNOSTICS.get()
+                else "ace.intelligence.pack-compilation-report/v1alpha1"
+            ),
             success=False,
             diagnostics=(
                 PackDiagnosticV1(
@@ -76,6 +109,165 @@ def _fail(code: str, path: str, message: str) -> None:
             ),
         )
     )
+
+
+def negotiate_pack_compatibility(
+    manifest_contract: str,
+    compatibility: Mapping[str, Any] | None,
+) -> PackCompatibilityResultV1:
+    """Negotiate declared contracts against the stable host without package-version inference."""
+
+    try:
+        normalized_manifest_contract = validate_contract(manifest_contract)
+    except (TypeError, ValueError):
+        normalized_manifest_contract = "ace.intelligence.domain-pack-manifest/v0"
+
+    if manifest_contract == DOMAIN_PACK_MANIFEST_VERSION:
+        diagnostic = PackDiagnosticV1(
+            severity="warning",
+            code="deprecated_manifest_contract",
+            path="manifest.contract",
+            message="v1alpha1 remains supported for the documented prior-version window; migrate offline to v1",
+        )
+        return PackCompatibilityResultV1(
+            manifest_contract=manifest_contract,
+            compiler_contract=PACK_COMPILER_VERSION,
+            intelligence_contract=INTELLIGENCE_RUNTIME_VERSION,
+            status=PackCompatibilityStatus.DEPRECATED,
+            diagnostics=(diagnostic,),
+        )
+    if manifest_contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION:
+        declared = compatibility if isinstance(compatibility, Mapping) else {}
+        declared_digest = f"sha256:{canonical_hash(dict(declared))}"
+        compiler_range = (
+            declared.get("compiler_minimum"),
+            declared.get("compiler_maximum_exclusive"),
+        )
+        runtime_range = (
+            declared.get("intelligence_minimum"),
+            declared.get("intelligence_maximum_exclusive"),
+        )
+        compiler_supported = (
+            compiler_range[0] in {PACK_COMPILER_VERSION, STABLE_PACK_COMPILER_VERSION}
+            and compiler_range[1] == PACK_COMPILER_NEXT_BREAKING_VERSION
+        )
+        if not compiler_supported:
+            diagnostic = PackDiagnosticV1(
+                severity="error",
+                code="unsupported_compiler_range",
+                path="manifest.compatibility",
+                message="v1 requires a compiler minimum of v1alpha1 or v1 and an exclusive v2 ceiling",
+            )
+            return PackCompatibilityResultV1(
+                manifest_contract=manifest_contract,
+                compiler_contract=STABLE_PACK_COMPILER_VERSION,
+                intelligence_contract=STABLE_INTELLIGENCE_RUNTIME_VERSION,
+                declared_compatibility_digest=declared_digest,
+                status=PackCompatibilityStatus.REJECTED,
+                diagnostics=(diagnostic,),
+            )
+        runtime_supported = (
+            runtime_range[0] in {INTELLIGENCE_RUNTIME_VERSION, STABLE_INTELLIGENCE_RUNTIME_VERSION}
+            and runtime_range[1] == INTELLIGENCE_RUNTIME_NEXT_BREAKING_VERSION
+        )
+        if not runtime_supported:
+            diagnostic = PackDiagnosticV1(
+                severity="error",
+                code="unsupported_runtime_range",
+                path="manifest.compatibility",
+                message="v1 requires a runtime minimum of v1alpha1 or v1 and an exclusive v2 ceiling",
+            )
+            return PackCompatibilityResultV1(
+                manifest_contract=manifest_contract,
+                compiler_contract=STABLE_PACK_COMPILER_VERSION,
+                intelligence_contract=STABLE_INTELLIGENCE_RUNTIME_VERSION,
+                declared_compatibility_digest=declared_digest,
+                status=PackCompatibilityStatus.REJECTED,
+                diagnostics=(diagnostic,),
+            )
+        return PackCompatibilityResultV1(
+            manifest_contract=manifest_contract,
+            compiler_contract=STABLE_PACK_COMPILER_VERSION,
+            intelligence_contract=STABLE_INTELLIGENCE_RUNTIME_VERSION,
+            declared_compatibility_digest=declared_digest,
+            status=PackCompatibilityStatus.SUPPORTED,
+        )
+
+    is_v1_prerelease = isinstance(manifest_contract, str) and manifest_contract.startswith(
+        "ace.intelligence.domain-pack-manifest/v1"
+    )
+    status = PackCompatibilityStatus.MIGRATION_REQUIRED if is_v1_prerelease else PackCompatibilityStatus.REJECTED
+    code = "manifest_migration_required" if is_v1_prerelease else "unsupported_manifest_contract"
+    message = (
+        "this prerelease manifest must be migrated offline to the stable v1 schema"
+        if is_v1_prerelease
+        else "the host accepts only the stable v1 contract and the documented v1alpha1 prior window"
+    )
+    diagnostic = PackDiagnosticV1(severity="error", code=code, path="manifest.contract", message=message)
+    return PackCompatibilityResultV1(
+        manifest_contract=normalized_manifest_contract,
+        compiler_contract=STABLE_PACK_COMPILER_VERSION,
+        intelligence_contract=STABLE_INTELLIGENCE_RUNTIME_VERSION,
+        status=status,
+        diagnostics=(diagnostic,),
+    )
+
+
+_FORBIDDEN_AUTHORITY_TOKENS = {
+    "action",
+    "command",
+    "connector",
+    "delivery",
+    "execute",
+    "extension",
+    "network",
+    "persist",
+    "publish",
+    "schedule",
+}
+
+
+def _validate_stable_authority_boundary(manifest: DomainPackManifestV1) -> None:
+    if manifest.contract != DOMAIN_PACK_MANIFEST_STABLE_VERSION:
+        return
+    for request in manifest.authority_requests:
+        parts = set(request.authority.replace("-", "_").split("_"))
+        if parts & _FORBIDDEN_AUTHORITY_TOKENS:
+            _fail(
+                "authority_escalation",
+                f"manifest.authority_requests.{request.request_id}.authority",
+                "Domain Packs cannot request executable, transport, persistence, scheduling, delivery, publication, or action authority",
+                stable=True,
+            )
+    for requirement in manifest.capability_requirements:
+        parts = set(requirement.capability.replace("-", "_").split("_"))
+        if parts & _FORBIDDEN_AUTHORITY_TOKENS:
+            _fail(
+                "capability_escalation",
+                f"manifest.capability_requirements.{requirement.requirement_id}.capability",
+                "Domain Packs cannot acquire connector, extension, transport, persistence, scheduling, delivery, publication, or action capability",
+                stable=True,
+            )
+
+
+def _validate_stable_resource_boundaries(
+    manifest: DomainPackManifestV1,
+    modules: list[CompiledModuleV1],
+) -> None:
+    if manifest.contract != DOMAIN_PACK_MANIFEST_STABLE_VERSION:
+        return
+    for compiled in modules:
+        if compiled.contract != SOURCE_MAPPING_MODULE_VERSION:
+            continue
+        module = SourceMappingModuleV1.model_validate_json(compiled.canonical_payload)
+        for mapping in module.mappings:
+            if "://" in mapping.source_definition_ref:
+                _fail(
+                    "network_location_forbidden",
+                    f"modules.{compiled.module_id}.mappings.{mapping.mapping_id}.source_definition_ref",
+                    "Domain Packs may name reviewed source definitions and URI schemes but cannot embed network locations",
+                    stable=True,
+                )
 
 
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -519,7 +711,7 @@ def _sha256_bytes(value: bytes) -> str:
     return f"sha256:{hashlib.sha256(value).hexdigest()}"
 
 
-def compile_pack(
+def _compile_pack(
     manifest: DomainPackManifestV1,
     resources: Mapping[str, bytes],
 ) -> CompiledDomainPackV1:
@@ -528,6 +720,15 @@ def compile_pack(
     The function performs no discovery, import, I/O, clock read, model call, secret lookup,
     registry mutation, or persistence operation.
     """
+
+    compatibility = negotiate_pack_compatibility(
+        manifest.contract,
+        manifest.compatibility.model_dump(mode="python"),
+    )
+    if compatibility.status not in {PackCompatibilityStatus.SUPPORTED, PackCompatibilityStatus.DEPRECATED}:
+        diagnostic = compatibility.diagnostics[0]
+        _fail(diagnostic.code, diagnostic.path, diagnostic.message, stable=True)
+    _validate_stable_authority_boundary(manifest)
 
     declared_paths = {item.path for item in manifest.resources}
     supplied_paths = set(resources)
@@ -583,9 +784,23 @@ def compile_pack(
         )
 
     _validate_source_mapping_modules(manifest, compiled_modules)
+    _validate_stable_resource_boundaries(manifest, compiled_modules)
 
     try:
         return CompiledDomainPackV1(
+            contract=(
+                COMPILED_DOMAIN_PACK_STABLE_VERSION
+                if manifest.contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION
+                else "ace.intelligence.compiled-domain-pack/v1alpha1"
+            ),
+            compiler_contract=compatibility.compiler_contract,
+            intelligence_contract=compatibility.intelligence_contract,
+            manifest_contract=manifest.contract,
+            declared_compatibility=(
+                manifest.compatibility
+                if manifest.contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION
+                else None
+            ),
             metadata=manifest.metadata,
             modules=tuple(sorted(compiled_modules, key=lambda item: item.module_id)),
             capability_requirements=manifest.capability_requirements,
@@ -599,6 +814,19 @@ def compile_pack(
         _fail("invalid_pack_ir", path, error["msg"])
 
 
+def compile_pack(
+    manifest: DomainPackManifestV1,
+    resources: Mapping[str, bytes],
+) -> CompiledDomainPackV1:
+    """Compile exact resources while selecting diagnostics from the declared manifest contract."""
+
+    token = _STABLE_DIAGNOSTICS.set(manifest.contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION)
+    try:
+        return _compile_pack(manifest, resources)
+    finally:
+        _STABLE_DIAGNOSTICS.reset(token)
+
+
 def compile_pack_document(
     manifest_document: bytes,
     resources: Mapping[str, bytes],
@@ -610,11 +838,71 @@ def compile_pack_document(
     if len(manifest_document) > MAX_RESOURCE_BYTES:
         _fail("manifest_too_large", "manifest", f"manifest exceeds the {MAX_RESOURCE_BYTES}-byte bound")
     payload = _parse_json(manifest_document, path="manifest")
+    if not isinstance(payload, dict):
+        _fail("invalid_manifest", "manifest", "manifest must be a JSON object", stable=True)
+    manifest_contract = payload.get("contract")
+    if not isinstance(manifest_contract, str):
+        _fail("invalid_manifest_contract", "manifest.contract", "manifest contract must be a string", stable=True)
+    compatibility = negotiate_pack_compatibility(manifest_contract, payload.get("compatibility"))
+    if compatibility.status not in {PackCompatibilityStatus.SUPPORTED, PackCompatibilityStatus.DEPRECATED}:
+        diagnostic = compatibility.diagnostics[0]
+        _fail(diagnostic.code, diagnostic.path, diagnostic.message, stable=True)
     try:
         manifest = DomainPackManifestV1.model_validate(payload)
     except ValidationError as exc:
         error = exc.errors(include_url=False)[0]
         location = ".".join(str(part) for part in error["loc"])
         path = f"manifest.{location}" if location else "manifest"
-        _fail("invalid_manifest", path, error["msg"])
+        _fail("invalid_manifest", path, error["msg"], stable=manifest_contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION)
     return compile_pack(manifest, resources)
+
+
+def compile_pack_document_with_report(
+    manifest_document: bytes,
+    resources: Mapping[str, bytes],
+) -> CompiledPackResultV1:
+    """Compile and return exact successful negotiation and compilation evidence."""
+
+    pack = compile_pack_document(manifest_document, resources)
+    compatibility = negotiate_pack_compatibility(
+        pack.manifest_contract,
+        pack.declared_compatibility.model_dump(mode="python")
+        if pack.declared_compatibility is not None
+        else None,
+    )
+    compilation = StablePackCompilationResultV1(
+        manifest_contract=pack.manifest_contract,
+        compiler_contract=pack.compiler_contract,
+        intelligence_contract=pack.intelligence_contract,
+        compatibility_result_id=compatibility.result_id,
+        compatibility_result_digest=compatibility.result_digest,
+        compiled_pack_id=pack.compiled_pack_id,
+        pack_digest=pack.pack_digest,
+        diagnostics=compatibility.diagnostics,
+    )
+    return CompiledPackResultV1(pack=pack, compatibility=compatibility, compilation=compilation)
+
+
+def validate_compiled_pack_set(
+    packs: tuple[CompiledDomainPackV1, ...] | list[CompiledDomainPackV1],
+) -> tuple[CompiledDomainPackV1, ...]:
+    """Validate deterministic co-installation without creating mutable registry state."""
+
+    validated: list[CompiledDomainPackV1] = []
+    by_id: dict[str, CompiledDomainPackV1] = {}
+    for candidate in packs:
+        try:
+            pack = CompiledDomainPackV1.model_validate(candidate.model_dump(mode="python"))
+        except (AttributeError, TypeError, ValueError):
+            _fail("invalid_pack_ir", "packs", "co-installed Pack IR failed exact revalidation", stable=True)
+        prior = by_id.get(pack.metadata.pack_id)
+        if prior is not None:
+            _fail(
+                "pack_identifier_collision",
+                f"packs.{pack.metadata.pack_id}",
+                "co-installed Domain Packs must use globally unique pack_id values",
+                stable=True,
+            )
+        by_id[pack.metadata.pack_id] = pack
+        validated.append(pack)
+    return tuple(sorted(validated, key=lambda item: item.metadata.pack_id))

@@ -1,0 +1,126 @@
+{
+  "$defs": {
+    "PackDiagnosticV1": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        },
+        "path": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "severity",
+        "code",
+        "path",
+        "message"
+      ],
+      "title": "PackDiagnosticV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/pack-compilation-result-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Successful stable compilation evidence bound to exact Pack IR and negotiation.",
+  "properties": {
+    "compatibility_result_digest": {
+      "title": "Compatibility Result Digest",
+      "type": "string"
+    },
+    "compatibility_result_id": {
+      "title": "Compatibility Result Id",
+      "type": "string"
+    },
+    "compiled_pack_id": {
+      "title": "Compiled Pack Id",
+      "type": "string"
+    },
+    "compiler_contract": {
+      "title": "Compiler Contract",
+      "type": "string"
+    },
+    "contract": {
+      "const": "ace.intelligence.pack-compilation-result/v1",
+      "default": "ace.intelligence.pack-compilation-result/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "#/$defs/PackDiagnosticV1"
+      },
+      "maxItems": 16,
+      "title": "Diagnostics",
+      "type": "array"
+    },
+    "intelligence_contract": {
+      "title": "Intelligence Contract",
+      "type": "string"
+    },
+    "manifest_contract": {
+      "title": "Manifest Contract",
+      "type": "string"
+    },
+    "pack_digest": {
+      "title": "Pack Digest",
+      "type": "string"
+    },
+    "result_digest": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Digest"
+    },
+    "result_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Result Id"
+    }
+  },
+  "required": [
+    "manifest_contract",
+    "compiler_contract",
+    "intelligence_contract",
+    "compatibility_result_id",
+    "compatibility_result_digest",
+    "compiled_pack_id",
+    "pack_digest"
+  ],
+  "title": "StablePackCompilationResultV1",
+  "type": "object"
+}

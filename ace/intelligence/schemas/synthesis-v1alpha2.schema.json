@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "BriefTemplateV1Alpha2": {
+      "additionalProperties": false,
+      "description": "Ordered structural Brief policy for synthesis ``v1alpha2``.",
+      "properties": {
+        "brief_type": {
+          "title": "Brief Type",
+          "type": "string"
+        },
+        "claim_policy": {
+          "const": "citation_or_explicit_inference",
+          "default": "citation_or_explicit_inference",
+          "title": "Claim Policy",
+          "type": "string"
+        },
+        "display_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "objective": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "recommendation_required": {
+          "default": true,
+          "title": "Recommendation Required",
+          "type": "boolean"
+        },
+        "required_sections": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Required Sections",
+          "type": "array"
+        },
+        "template_id": {
+          "title": "Template Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "template_id",
+        "brief_type",
+        "display_name",
+        "objective",
+        "required_sections"
+      ],
+      "title": "BriefTemplateV1Alpha2",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/synthesis-v1alpha2.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One immutable ordered-section module of domain-owned Brief structures.",
+  "properties": {
+    "brief_templates": {
+      "items": {
+        "$ref": "#/$defs/BriefTemplateV1Alpha2"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Brief Templates",
+      "type": "array"
+    },
+    "contract": {
+      "const": "ace.intelligence.synthesis/v1alpha2",
+      "default": "ace.intelligence.synthesis/v1alpha2",
+      "title": "Contract",
+      "type": "string"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "module_id",
+    "brief_templates"
+  ],
+  "title": "SynthesisModuleV1Alpha2",
+  "type": "object"
+}

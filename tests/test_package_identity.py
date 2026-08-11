@@ -125,3 +125,11 @@ def test_frozen_state_engine_corpus_is_packaged_for_checkout_free_smoke_runs() -
     assert belief_evaluation.DEFAULT_CORPUS == runtime_corpus
     assert candidate_evaluation.DEFAULT_CORPUS == runtime_corpus
     assert "fixtures/*.json" in project["tool"]["setuptools"]["package-data"]["core.engine.grounded_state"]
+
+
+def test_domain_pack_schemas_are_declared_as_wheel_package_data() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+
+    assert "intelligence/schemas/*.json" in project["tool"]["setuptools"]["package-data"]["ace"]
+    assert (ROOT / "ace/intelligence/schemas/domain-pack-contracts-v1.json").is_file()
+    assert (ROOT / "ace/intelligence/schemas/domain-pack-manifest-v1.schema.json").is_file()

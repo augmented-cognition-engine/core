@@ -1,0 +1,29 @@
+{
+  "conformance": {
+    "compilation_schema": "pack-compilation-result-v1.schema.json",
+    "fixture_schema": "domain-pack-golden-fixture-v1.schema.json",
+    "receipt_schema": "domain-pack-conformance-receipt-v1.schema.json"
+  },
+  "contract": "ace.intelligence.domain-pack-schema-index/v1",
+  "host_contracts": {
+    "compiler": "ace.intelligence.pack-compiler/v1",
+    "runtime": "ace.intelligence.runtime/v1"
+  },
+  "manifest_schema": "domain-pack-manifest-v1.schema.json",
+  "module_schemas": {
+    "decision-outcomes-v1alpha1": "decision-outcomes-v1alpha1.schema.json",
+    "detection-v1alpha1": "detection-v1alpha1.schema.json",
+    "detection-v1alpha2": "detection-v1alpha2.schema.json",
+    "epistemic-status-v1alpha1": "epistemic-status-v1alpha1.schema.json",
+    "epistemic-status-v1alpha2": "epistemic-status-v1alpha2.schema.json",
+    "ontology-v1alpha1": "ontology-v1alpha1.schema.json",
+    "personas-v1alpha1": "personas-v1alpha1.schema.json",
+    "source-mapping-v1alpha1": "source-mapping-v1alpha1.schema.json",
+    "synthesis-v1alpha1": "synthesis-v1alpha1.schema.json",
+    "synthesis-v1alpha2": "synthesis-v1alpha2.schema.json"
+  },
+  "supported_manifest_contracts": [
+    "ace.intelligence.domain-pack-manifest/v1",
+    "ace.intelligence.domain-pack-manifest/v1alpha1"
+  ]
+}

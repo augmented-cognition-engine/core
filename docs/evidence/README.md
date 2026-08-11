@@ -89,6 +89,7 @@ records. Those records remain immutable point-in-time **candidate, local** docum
 status wording is historical context and is not rewritten by the later public receipt.
 
 - [GI2 public cross-domain falsification](gi2-public-cross-domain-falsification-v1.md) — public, passed
+- [0.7 stable Domain Pack Core contract](domain-pack-platform-v0.7.0-core-candidate-v1.md) — candidate, local; external World and Market falsification remains
 
 - [P1C1 declarative source-mapping](platform-p1c1-declarative-source-mapping-v1.md) — candidate, local
 - [P1C2 governed LIVE source ingress](platform-p1c2-governed-live-source-ingress-v1.md) — candidate, local
