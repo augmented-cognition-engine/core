@@ -8,7 +8,7 @@ on:
       tag:
         description: Git tag to publish
         required: true
-        default: v0.5.0
+        default: v0.6.0
 
 permissions:
   contents: read
@@ -46,8 +46,8 @@ jobs:
             exit 1
           fi
           adapter_version="$(python -c 'import pathlib, tomllib; print(tomllib.loads(pathlib.Path("adapters/reference_workspace_action/pyproject.toml").read_text())["project"]["version"])')"
-          if [ "$adapter_version" != "0.1.0" ]; then
-            echo "Reference workspace adapter version must be 0.1.0; found $adapter_version" >&2
+          if [ "$adapter_version" != "0.2.0" ]; then
+            echo "Reference workspace adapter version must be 0.2.0; found $adapter_version" >&2
             exit 1
           fi
 
@@ -61,7 +61,7 @@ jobs:
               pathlib.Path("adapters/reference_workspace_action/pyproject.toml").read_text()
           )["project"]
           assert project["name"] == "ace-reference-workspace-action"
-          assert project["dependencies"] == ["ace-core>=0.5.0,<0.6"]
+          assert project["dependencies"] == ["ace-core>=0.6.0,<0.7"]
           PY
 
       - name: Install build tooling
@@ -74,6 +74,21 @@ jobs:
         run: |
           python -m build --outdir dist/core
           python -m build --outdir dist/reference-adapter adapters/reference_workspace_action
+
+          # The root project uses build_backend.py directly. The independently packaged adapter
+          # uses setuptools, so normalize its completed sdist through the same fixed-epoch helper
+          # before validation and upload.
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          from build_backend import _normalize_sdist
+
+          archives = sorted(Path("dist/reference-adapter").glob("*.tar.gz"))
+          assert len(archives) == 1, archives
+          _normalize_sdist(archives[0], int(os.environ["SOURCE_DATE_EPOCH"]))
+          PY
+
           python -m twine check dist/core/* dist/reference-adapter/*
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

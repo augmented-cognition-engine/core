@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import ast
+import tomllib
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 from ace_reference_workspace_action import (
     ACTION_TYPE,
+    ADAPTER_ARTIFACT,
     ReferenceWorkspaceActionAdapter,
     ReferenceWorkspaceActionError,
 )
@@ -25,6 +27,16 @@ from ace.core import (
 
 NOW = datetime.now(UTC).replace(microsecond=0)
 PRODUCT = "product:reference-action"
+
+
+def test_distribution_targets_core_06_without_rekeying_unchanged_implementation() -> None:
+    project = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8"))[
+        "project"
+    ]
+
+    assert project["version"] == "0.2.0"
+    assert project["dependencies"] == ["ace-core>=0.6.0,<0.7"]
+    assert ADAPTER_ARTIFACT.implementation_version == "0.1.0"
 
 
 def _precondition(kind: str, sequence: int) -> GovernedStateHeadPreconditionV1Alpha1:

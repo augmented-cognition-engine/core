@@ -47,6 +47,8 @@ superseded by later work and is kept for audit trail only.
   — candidate in-transaction generation guard, durable review reconciliation, and legacy table pin; not release closeout
 - [Measured Intelligence merged-source convergence](measured-intelligence-v0.6.0-merged-source-convergence-candidate-v1.md)
   — exact merged Core artifact, public World reproduction, independent Market restart proof, and remaining release gates; not release closeout
+- [ACE 0.6.0 Measured Intelligence release candidate](measured-intelligence-v0.6.0-release-candidate-v1.md)
+  — reproducible package identities, installed-artifact proof, and green required CI; unpublished
 - [State Engine TP0 current-runtime baseline](state-engine-tp0-runtime-baseline-v1.md)
 - [State Engine TP1A truthful observation outcomes](state-engine-tp1a-truthful-observation-outcomes-v1.md)
 - [State Engine TP1 reliable memory lifecycle](state-engine-tp1-reliable-memory-lifecycle-v1.md)
