@@ -203,6 +203,15 @@ material use or statistical association does not establish causality or general 
 The exact-result extension is recorded in the
 [observed-result candidate evidence](evidence/measured-impact-observed-result-provenance-candidate-v1.md).
 
+The bounded
+[release-convergence packet](design/measured-intelligence-v0.6.0-release-convergence-work-packet-v1.md)
+composes installed candidate artifacts with the public World result and independent Market
+reproduction. It does not promote the capability to supported. Issue #49 F1, F3, and F5 are
+explicitly recorded as open 0.6 release gates—not waived, deferred, or resolved—so release closeout
+remains blocked on an owner disposition even if all candidate verification is green.
+The exact point-in-time results and environment splits are in the
+[release-convergence candidate evidence](evidence/measured-intelligence-v0.6.0-release-convergence-candidate-v1.md).
+
 ## Implemented architecture beyond the compatibility contract
 
 The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,
