@@ -133,6 +133,7 @@ class ImpactCriterionV1Alpha1(_StrictFrozenContract):
     harmful_effect_threshold: StrictFloat = Field(gt=0.0)
     minimum_matched_pairs: int = Field(ge=2, le=MAX_IMPACT_EVIDENCE)
     requires_reviewed_action: bool = True
+    requires_observed_result: bool = False
     useful_action: Literal[ImpactGovernanceAction.PROMOTE] | None = ImpactGovernanceAction.PROMOTE
     harmful_action: Literal[
         ImpactGovernanceAction.REJECT,
@@ -223,6 +224,7 @@ class ImpactOutcomeMeasuresV1Alpha1(_StrictFrozenContract):
 
     contract: Literal["ace.intelligence.impact-outcome-measures/v1alpha1"] = IMPACT_OUTCOME_MEASURES_VERSION
     primary_value: StrictFloat | None = None
+    observed_result: ImmutableRecordReferenceV1 | None = None
     latency_ms: int | None = Field(default=None, ge=0)
     cost_usd: StrictFloat | None = Field(default=None, ge=0.0)
     failure_count: int = Field(default=0, ge=0)

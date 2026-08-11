@@ -389,8 +389,13 @@ useful, harmful, and unproven fixture coverage plus exact real-store restart rep
 adds an exact authorized accept/reject Core Decision that always remains `no_action`. World
 P2C3/P2C4 compose the source-checkout candidate over recorded official public data: the frozen
 structural criterion remains `useful` and proposes `promote`, while a separate authorized reviewer
-rejects broader promotion without rewriting history or changing effective state. The milestone
-remains **Next** pending stronger independently reviewed product outcomes, public artifact and
+rejects broader promotion without rewriting history or changing effective state. The stacked
+[observed-result provenance packet](docs/design/measured-impact-observed-result-provenance-work-packet-v1.md)
+lets a product criterion require an exact immutable result behind each Outcome score. World P2C5
+uses it for independent citation-correctness review: a citation-preserving date-swap control keeps
+coverage at `1.0` while correctness falls from `1.0` to `0.0` over two matched pairs. This remains
+a bounded source-checkout candidate and non-effective proposal. The milestone remains **Next**
+pending materially different product outcomes, public artifact and
 compatibility/security/release evidence, and independent Market reproduction. Issue #49 F1, F3,
 and F5 also require an explicit 0.6.0 release-owner disposition because their accepted deadline is
 "next minor."

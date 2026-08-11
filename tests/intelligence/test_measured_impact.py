@@ -236,6 +236,9 @@ async def _variant(
     target,
     primary_value: float,
     outcome_available_at: datetime | None = None,
+    observed_result_available_at: datetime | None = None,
+    persist_observed_result: bool = True,
+    observed_result_product_id: str | None = None,
 ):
     context = _context(product_id, suffix)
     use = ContextUseReceiptV1Alpha1(
@@ -390,8 +393,23 @@ async def _variant(
     )
     await _persist(store, terminal_record)
 
+    result_product_id = observed_result_product_id or product_id
+    observed_result_record = ImmutableRecordV1(
+        product_id=result_product_id,
+        record_space="observed_result",
+        record_kind="product_review",
+        record_key=f"review:{suffix}",
+        payload_contract="fixture.product-review/v1",
+        payload={"score": primary_value, "subject": target.storage_id},
+        as_of=OBSERVED,
+        available_at=observed_result_available_at or OBSERVED + timedelta(seconds=30),
+        processing_order=0,
+    )
+    if persist_observed_result:
+        await _persist(store, observed_result_record)
     measures = ImpactOutcomeMeasuresV1Alpha1(
         primary_value=primary_value,
+        observed_result=observed_result_record.reference(),
         latency_ms=100 if suffix.startswith("treatment") else 120,
         cost_usd=0.01 if suffix.startswith("treatment") else 0.012,
         failure_count=0,
@@ -456,6 +474,9 @@ async def _scenario(
     mismatch_conditions: bool = False,
     unavailable_treatment_outcome: bool = False,
     late_treatment_outcome: bool = False,
+    unavailable_treatment_observed_result: bool = False,
+    late_treatment_observed_result: bool = False,
+    foreign_treatment_observed_result: bool = False,
     harmful_action: ImpactGovernanceAction = ImpactGovernanceAction.ROLLBACK,
     target_kind: ImpactTargetKind = ImpactTargetKind.INTELLIGENCE_ARTIFACT,
     store=None,
@@ -483,6 +504,9 @@ async def _scenario(
             target=target,
             primary_value=treatment_value,
             outcome_available_at=CUTOFF + timedelta(minutes=1) if late_treatment_outcome else None,
+            observed_result_available_at=CUTOFF + timedelta(minutes=1) if late_treatment_observed_result else None,
+            persist_observed_result=not unavailable_treatment_observed_result,
+            observed_result_product_id="product:foreign" if foreign_treatment_observed_result else None,
         )
         baseline = await _variant(
             store,
@@ -534,6 +558,7 @@ async def _scenario(
         useful_effect_threshold=0.2,
         harmful_effect_threshold=0.2,
         minimum_matched_pairs=2,
+        requires_observed_result=True,
         harmful_action=harmful_action,
         state_head_precondition=GovernedStateHeadPreconditionV1Alpha1.from_head(criterion_head),
         frozen_at=BASE,
@@ -600,6 +625,8 @@ async def test_exact_matched_journey_classifies_use_harm_or_unproven(
         ({"mismatch_conditions": True}, "condition_mismatch"),
         ({"unavailable_treatment_outcome": True}, "outcome_unavailable"),
         ({"late_treatment_outcome": True}, "evidence_after_cutoff"),
+        ({"unavailable_treatment_observed_result": True}, "observed_result_unavailable"),
+        ({"late_treatment_observed_result": True}, "evidence_after_cutoff"),
     ],
 )
 async def test_unsafe_or_unavailable_evidence_is_explicitly_unproven(scenario_updates, reason) -> None:
@@ -642,6 +669,54 @@ async def test_post_cutoff_evidence_is_excluded_without_loading_its_payload() ->
     assert admission.evaluation.classification is ImpactClassification.UNPROVEN
     assert future_storage_ids
     assert future_storage_ids.isdisjoint(loaded_storage_ids)
+
+
+@pytest.mark.asyncio
+async def test_post_cutoff_observed_result_is_excluded_without_loading_its_payload() -> None:
+    store, service, request, _ = await _scenario(
+        product_id="product:negative-result-no-leakage",
+        treatment_value=1.0,
+        control_value=0.0,
+        late_treatment_observed_result=True,
+    )
+    treatment_outcome = request.evidence[0].treatment_outcome
+    assert treatment_outcome is not None
+    outcome_record = await store.load_record(
+        treatment_outcome.storage_id,
+        product_id=treatment_outcome.product_id,
+        record_space=treatment_outcome.record_space,
+        record_kind=treatment_outcome.record_kind,
+    )
+    assert outcome_record is not None
+    outcome = OutcomeV1Alpha1.model_validate(outcome_record.payload)
+    measures = ImpactOutcomeMeasuresV1Alpha1.model_validate_json(outcome.intent.value_json)
+    assert measures.observed_result is not None
+    future_result_id = measures.observed_result.storage_id
+    loaded_storage_ids: list[str] = []
+    load_record = store.load_record
+
+    async def tracked_load_record(storage_id, **scope):
+        loaded_storage_ids.append(storage_id)
+        return await load_record(storage_id, **scope)
+
+    store.load_record = tracked_load_record
+    admission = await service.evaluate(request)
+
+    assert admission.evaluation.classification is ImpactClassification.UNPROVEN
+    assert "evidence_after_cutoff" in {reason for item in admission.evaluation.exclusions for reason in item.reasons}
+    assert future_result_id not in loaded_storage_ids
+
+
+@pytest.mark.asyncio
+async def test_observed_result_cannot_cross_product_scope() -> None:
+    _, service, request, _ = await _scenario(
+        product_id="product:negative-result-scope",
+        treatment_value=1.0,
+        control_value=0.0,
+        foreign_treatment_observed_result=True,
+    )
+    with pytest.raises(MeasuredImpactError, match="observed result crossed exact product scope"):
+        await service.evaluate(request)
 
 
 @pytest.mark.asyncio
