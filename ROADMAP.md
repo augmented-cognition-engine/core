@@ -379,6 +379,16 @@ Release gate: a public evaluation journey traces a governed change from proposal
 result and explicit promotion, rejection, rollback, or retirement. ACE does not self-certify
 improvement or optimize outside product-defined outcomes and authority.
 
+The first bounded
+[Measured Intelligence kickoff packet](docs/design/measured-intelligence-v0.6.0-kickoff-work-packet-v1.md)
+is a **candidate**, not a release closeout. It freezes domain-neutral criterion, conditions,
+attribution, Decision, reviewed Action, Outcome, evaluation, and non-effective proposal identities;
+the [candidate evidence](docs/evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md) records
+useful, harmful, and unproven fixture coverage plus exact real-store restart replay. The milestone
+remains **Next** until World Intelligence proves the public real-data journey and an explicit
+authorized disposition without self-promotion. Issue #49 F1, F3, and F5 also require an explicit
+0.6.0 release-owner disposition because their accepted deadline is "next minor."
+
 ### 0.7.0 — Domain and Extension Platform
 
 Public promise: third parties can build, test, distribute, and operate ACE Domain Packs,
@@ -756,15 +766,17 @@ and fresh invocations can materially use the exact approved revision across rest
 widening the thin MCP contract. The exact receipts and composed negative-path coverage are in the
 [GC1 public external-consumer evidence](docs/evidence/gc1-public-external-consumer-v1.md).
 
-### 2. Strengthen the runtime before writable action
+### 2. Preserve the passed bounded action runtime
 
-T1 must establish cancellation, replay identity, restart recovery, portability, resource
-reporting, and explicit single-process versus distributed guarantees. Only then should B1 progress
-from read-only inspection to a local writable workspace, isolated container execution, and later
-remote adapters. MAKE artifacts must pass independent SHIP security, testing, observability,
-operations, and scale gates before promotion.
+T1 and B1 passed in 0.5.0 for one ACE host, one durable store, and explicitly trusted in-process
+adapters. Cancellation, replay identity, restart recovery, resource reporting, explicit review,
+and attributable terminal effects are now inputs to later outcome work rather than prerequisites
+still awaiting dispatch. Future runtime packets may harden isolated or remote adapters, but must
+keep distributed guarantees, untrusted execution, and implicit model authority outside the passed
+boundary until independently demonstrated.
 
-Exit condition: approved reasoning can produce attributable work without giving a model implicit or
+Exit condition: **passed for the documented 0.5.0 topology and preserved as a release input.**
+Approved reasoning produces attributable reviewed work without giving a model implicit or
 unbounded execution authority.
 
 ### 3. Productize bounded learning-impact evidence

@@ -35,6 +35,8 @@ superseded by later work and is kept for audit trail only.
 - [I3 intelligence-use evidence](i3-intelligence-use-evidence.md)
 - [F1 foresight closeout evidence](f1-foresight-evidence.md)
 - [L1 foresight-impact evidence gate](l1-foresight-impact-evidence.md)
+- [0.6.0 Measured Intelligence kickoff candidate](measured-intelligence-v0.6.0-kickoff-candidate-v1.md)
+  — candidate, local; not a milestone closeout
 - [State Engine TP0 current-runtime baseline](state-engine-tp0-runtime-baseline-v1.md)
 - [State Engine TP1A truthful observation outcomes](state-engine-tp1a-truthful-observation-outcomes-v1.md)
 - [State Engine TP1 reliable memory lifecycle](state-engine-tp1-reliable-memory-lifecycle-v1.md)

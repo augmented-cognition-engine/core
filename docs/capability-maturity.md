@@ -1,6 +1,6 @@
-# ACE 0.3.1 capability maturity
+# ACE 0.5.0 capability maturity
 
-ACE 0.3.1 is a developer preview. This page distinguishes the public contract from implemented
+ACE 0.5.0 is a developer preview. This page distinguishes the public contract from implemented
 surfaces that remain experimental.
 
 ## Preview contract
@@ -12,13 +12,13 @@ install ace-core → configure a provider and SurrealDB → start ACE → authen
 → ace doctor → reason and capture → load retained intelligence → stop cleanly
 ```
 
-The 0.3.1 public identities are:
+The 0.5.0 public identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.3.1`
+- version: `0.5.0`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -37,8 +37,8 @@ The thin MCP surface contains exactly eleven tools:
 | `ace_related` | Find related code and knowledge |
 
 The CLI, thin MCP adapter, persistence migrations, reference extension mechanism, and documented
-provider routes are the compatibility focus for 0.3.x. Changes to these surfaces receive
-migration notes when needed.
+provider routes are the compatibility focus for the current developer preview. Changes to these
+surfaces receive migration notes when needed.
 
 The supported CLI also includes `ace landscape`, a versioned, authenticated, strictly read-only
 Living Product Graph snapshot. It exposes stable object identity, canonical and non-operational
@@ -157,6 +157,36 @@ The [Productized State guide](productized-state.md) and
 [release evidence](evidence/productized-state-v0.3.1-release-readiness.md) record the exact journey,
 failure behavior, receipt identities, and artifact boundary.
 
+## Supported 0.5.0 Reasoning into Action boundary
+
+ACE 0.5.0 supports one ACE host, one durable store, and explicitly trusted in-process Action
+adapters. Approved reasoning proceeds through an exact Decision, human review of the effect-free
+plan, Core authorization and admission, a terminal result, separate post-effect verification, and
+explicit promotion. Cancellation, attempt identity, replay, limits, restart recovery, and resource
+outcomes remain durable and inspectable. Neither a successful effect nor verification promotes
+itself.
+
+The supported claim is not distributed execution, untrusted adapter isolation, globally exactly-
+once effects, compensation, or remote orchestration. The separate World Intelligence adapter
+proves public-contract portability for this bounded topology. The exact tag, packages, restart
+journey, hashes, and non-claims are in the
+[0.5.0 release evidence](evidence/reasoning-into-action-v0.5.0-release-readiness.md).
+
+## Experimental 0.6.0 Measured Intelligence candidate
+
+The source tree contains a bounded candidate for exact measured-impact evaluation. It links an
+intelligence artifact or immutable cognition revision to product-owned criteria, matched
+conditions, material-use attribution, Decision, reviewed Action, observed Outcome, uncertainty,
+and a useful, harmful, or unproven receipt. Its append-only proposal may name promotion, rejection,
+rollback, or retirement but is non-effective, non-selectable, and requires separate human/Core
+authority. Exact replay survives a fresh real-store process without reclassification.
+
+This candidate is not a supported 0.6.0 capability or a release claim. World Intelligence has not
+yet completed the public real-data journey, SI4 is not passed, no proposal application path is
+added here, and material use or statistical association does not establish causality or general
+benefit. See the [kickoff work packet](design/measured-intelligence-v0.6.0-kickoff-work-packet-v1.md)
+and [candidate evidence](evidence/measured-intelligence-v0.6.0-kickoff-candidate-v1.md).
+
 ## Implemented architecture beyond the compatibility contract
 
 The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,
@@ -173,9 +203,10 @@ does not broaden the supported governed-cognition boundary. See the
 [experimental extension-invocation contract](extension-invocation-contract.md).
 
 Long-running public tasks use persisted receipts and expose pending, running, completed, failed,
-and degraded outcomes. The single-process preview does not claim distributed task claiming,
-transparent resumption after interruption, or general task cancellation. The experimental
-extension-invocation surface separately supports explicit linked retries and negotiated
+cancelled, and degraded outcomes. In the supported 0.5.0 single-host topology, durable attempt
+identity, cancellation, exact replay, limits, and restart recovery are passed. This does not claim
+distributed task claiming, multi-host coordination, or general exactly-once external effects. The
+experimental extension-invocation surface separately supports linked retries and negotiated
 process-local cancellation; neither is a distributed guarantee.
 
 The supported I1 nested decision/correction receipt contract, explicit incomplete provenance,

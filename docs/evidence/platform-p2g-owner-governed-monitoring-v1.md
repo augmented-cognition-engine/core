@@ -92,9 +92,9 @@ The focused suite covers:
 ## Verification
 
 - Focused P2G plus adjacent public-contract tests: `31 passed`.
-- Complete Intelligence suite: `386 passed, 2 skipped`.
-- Release-equivalent repository set: `7,438 passed`, `50 skipped`, `260 deselected`:
-  - the clean naked-kernel run excluding two runner-sensitive files passed `7,429` tests;
+- Complete Intelligence suite: `404 passed, 2 skipped`.
+- Release-equivalent repository set: `7,456 passed`, `50 skipped`, `260 deselected`:
+  - the clean naked-kernel run excluding two runner-sensitive files passed `7,447` tests;
   - the historical baseline file passed `7` tests when pointed at the primary checkout's real Git
     control directory because that historical helper assumes `.git` is a directory rather than a
     linked-worktree pointer file;
@@ -102,13 +102,13 @@ The focused suite covers:
     teardown encountered a transient SurrealDB write conflict;
   - the explicit naked-kernel boundary passed `4` tests and is also included in the clean run.
 - Source and wheel artifacts built successfully. Local candidate hashes:
-  - wheel: `2ddef13339bee605964e0eefb9d69abc6145544c3d3d5bea23d0d3f44249e47c`;
-  - sdist: `f2840cec1bd8ad21a7228a7a10253137ab359acfdb577e755a7ea9ae59785053`.
+  - wheel: `b2698f333b283ced6a14cc717997e160e2e438b0c20cdd69e83ca093152e18c0`;
+  - sdist: `29bd439778543473876352bd6390f32eb18fe7d3d59a1c354fa64402e6ef3d1b`.
 - A checkout-free Python 3.12 environment installed the wheel and imported `ace` only from
   `site-packages`. It reproduced lifecycle anchor
-  `monitoring_intent:ea657840f48e182a742bf56416433ef2`, pause receipt
-  `monitoring_lifecycle:ba7e114aa06c89c2502d64b255b9a1d9`, sensing receipt
-  `sensing_window:067dd1ed83928faada3944b056345e35`, `owner_paused` zero-acquisition
+  `monitoring_intent:7999a6454ca3fdbaf6f1d72f6ce0b5d7`, pause receipt
+  `monitoring_lifecycle:5306c8b397e2c6d75a600187e412457f`, sensing receipt
+  `sensing_window:328b43f39539986ce05e4d27333e26fc`, `owner_paused` zero-acquisition
   suppression, false authority flags, and exact fresh-service replay over nine immutable records,
   including the append-once anchor and lifecycle sequence slots.
 
