@@ -224,30 +224,19 @@ class CognitionGovernanceStore:
                     else ProposalState.CHANGES_REQUESTED
                 )
             )
-            if (
-                await self.load_proposal_state(str(proposal.proposal_id), product_id=product_id)
-                is not expected_state
-            ):
-                raise CognitionPersistenceError(
-                    "possible review winner did not reconcile proposal state"
-                ) from None
+            if await self.load_proposal_state(str(proposal.proposal_id), product_id=product_id) is not expected_state:
+                raise CognitionPersistenceError("possible review winner did not reconcile proposal state") from None
             if revision is not None and await self.load_revision(str(revision.revision_id)) != revision:
-                raise CognitionPersistenceError(
-                    "possible review winner did not reconcile exact revision"
-                ) from None
+                raise CognitionPersistenceError("possible review winner did not reconcile exact revision") from None
             if head is not None and await self.load_head(str(head.head_id)) != head:
-                raise CognitionPersistenceError(
-                    "possible review winner did not reconcile exact head"
-                ) from None
+                raise CognitionPersistenceError("possible review winner did not reconcile exact head") from None
             return stored
         except CognitionReplayConflict:
             raise
         except CognitionPersistenceError:
             raise
         except Exception:
-            raise CognitionPersistenceError(
-                "possible review winner failed exact durable reconciliation"
-            ) from None
+            raise CognitionPersistenceError("possible review winner failed exact durable reconciliation") from None
 
     async def persist_disposition(
         self,
@@ -312,8 +301,7 @@ class CognitionGovernanceStore:
                 "BEGIN TRANSACTION",
                 "LET $current_proposal_state = SELECT VALUE state FROM ONLY "
                 "type::record('cognition_proposal', $proposal_key) WHERE product = $product",
-                "IF $current_proposal_state != 'pending' "
-                "{ THROW 'cognition_proposal_state_conflict'; }",
+                "IF $current_proposal_state != 'pending' { THROW 'cognition_proposal_state_conflict'; }",
             ]
             params: dict[str, Any] = {
                 "proposal_key": proposal_key,

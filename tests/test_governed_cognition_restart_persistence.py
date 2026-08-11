@@ -527,9 +527,7 @@ async def test_real_database_review_race_and_ambiguous_commit_reconcile_exactly(
 
         async def approve(index: int):
             proposal = proposals[index]
-            service = DurableCognitionGovernanceService(
-                CognitionGovernanceStore(_GuardedPool(url, barrier=barrier))
-            )
+            service = DurableCognitionGovernanceService(CognitionGovernanceStore(_GuardedPool(url, barrier=barrier)))
             return await service.review(
                 proposal_id=str(proposal.proposal_id),
                 product_id="product:alpha",
@@ -554,10 +552,7 @@ async def test_real_database_review_race_and_ambiguous_commit_reconcile_exactly(
         winner_proposal = next(item for item in proposals if item.proposal_id == winner.proposal_id)
         loser_proposal = next(item for item in proposals if item.proposal_id != winner.proposal_id)
         restored = CognitionGovernanceStore(_Pool(url))
-        assert (
-            await restored.load_review(str(winner.receipt_id), product_id="product:alpha")
-            == winner
-        )
+        assert await restored.load_review(str(winner.receipt_id), product_id="product:alpha") == winner
         assert (
             await restored.load_proposal_state(str(winner_proposal.proposal_id), product_id="product:alpha")
             is ProposalState.APPROVED

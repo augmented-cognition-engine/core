@@ -59,11 +59,7 @@ def _product(user: dict[str, Any], requested: str) -> str:
 
 def _legacy_proposal_key(proposal_id: str) -> str:
     table, separator, record_key = proposal_id.partition(":")
-    if (
-        not separator
-        or table != _LEGACY_PROPOSAL_TABLE
-        or _LEGACY_PROPOSAL_KEY.fullmatch(record_key) is None
-    ):
+    if not separator or table != _LEGACY_PROPOSAL_TABLE or _LEGACY_PROPOSAL_KEY.fullmatch(record_key) is None:
         raise HTTPException(status_code=404, detail="Proposal not found")
     return record_key
 
