@@ -81,5 +81,8 @@ support the public roadmap but do not compete with it for outcome state or dispa
   — the bounded 0.7D Intelligence Agent and Briefing Agent proposals, exact approval, first-Brief,
   restart, failure controls, and downstream handoff.
 - [Domain Packs + Activation work packet](design/domain-packs-activation-v0.7.0-work-packet-v1.md)
-  — the bounded 0.7E two-phase audit, additive exact-plan authority seam, compatibility and
-  rollback threat model, external consumer fixtures, and 0.7D integration plan.
+  — the bounded 0.7E audit, additive exact-plan authority seam, accepted inert 0.7D handoff,
+  compatibility and rollback threat model, and external consumer packet boundary.
+- [Domain Packs + Activation Core candidate evidence](evidence/domain-packs-activation-v0.7.0-core-candidate-v1.md)
+  — exact activation/reference identities, negative controls, full verification, installed-wheel
+  reproduction, and the remaining World/Market consumer handoff.

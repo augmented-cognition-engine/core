@@ -1,9 +1,10 @@
 # ACE 0.7E Domain Packs + Activation work packet (v1)
 
-**Status:** Phase 1 additive implementation candidate. This packet is stacked on the 0.7C Map
-head `e1f6492db2417cbeccee14c04c5803ba1502afa6`. The separate 0.7D Watch + Brief lane is still in
-progress. This packet does not integrate unpublished 0.7D code, claim independent World/Market
-proof, close issue #39, or declare 0.7.0 ready.
+**Status:** Phase 2 bounded Core candidate. This packet is stacked on the accepted 0.7D Watch +
+Brief head `dab0866af239af9a13b4d2772a0d3950f932fa2e` (draft PR #104), whose base is the 0.7C Map
+head `e1f6492db2417cbeccee14c04c5803ba1502afa6`. It integrates only the published 0.7D inert
+identities into the accepted sibling v1alpha2 activation-plan path. It does not claim independent
+World/Market proof, close issue #39, or declare 0.7.0 ready.
 
 **Control-tower boundary accepted:** 2026-08-11. The accepted additive v1alpha2 activation-plan
 seam must preserve every v1alpha1 Domain Activation identity and receipt unchanged.
@@ -19,9 +20,10 @@ Work is divided into two phases:
 1. **Phase 1 — independent foundation:** audit 0.7A–0.7C, freeze this packet, add the sibling exact
    activation-plan contract and admission seam, stabilize lifecycle compatibility, define
    acceptance fixtures and the two-consumer packet, and prove focused restart/rollback behavior.
-2. **Phase 2 — exact 0.7D integration:** only after the control tower supplies the completed 0.7D
-   branch and commit, consume its approved Intelligence Agent and Briefing Agent handoffs and bind
-   them to runtime Monitors, Subscriptions, Shifts, and canonical Brief resources.
+2. **Phase 2 — exact 0.7D integration:** consume the accepted 0.7D approved Intelligence Agent and
+   Briefing Agent bodies as an exact non-authorizing handoff, bind that handoff into the separately
+   approved activation plan, and independently revalidate it at admission before authority or
+   persistence.
 
 0.7D owns separate proposal/preview contracts, immutable edit and approval, a cited provider-free
 first Brief preview, and restart-stable identities. Its Brief is deliberately inert and
@@ -38,9 +40,9 @@ temporary runtime resources as substitutes for the unpublished 0.7D contracts.
 | 0.7A activation spec | `DomainActivationSpecV1` v1alpha1 binds Pack IR, overlay, compilation, capabilities, authorities, and conformance references | Embed and independently revalidate unchanged. Do not add, alias, or reinterpret fields. |
 | Existing v1alpha1 activation | `DomainActivationRevisionV1` and `DomainActivationAdmissionService` resolve approval against `spec_id` and commit an opaque Core revision | Preserve unchanged for compatibility. It cannot satisfy 0.7E exact-plan approval and is not silently upgraded. |
 | Core authority/state | `CoreAuthorityResolver`, optimistic governed-state head, append-only revision, atomic commit and immutable commit receipt | Reuse unchanged. The sibling envelope sets `approval_subject_ref` to the exact v1alpha2 plan ID. Core remains domain-neutral. |
-| 0.7B Connect | Exact source-scope/profile proposals and approved source-profile handoff | Consume only in Phase 2 through the cumulative exact handoff chain. No credentials or connector execution enter a pack or plan. |
-| 0.7C Map | Exact cited concept-model proposal/disposition and approved handoff | Consume only in Phase 2. No ontology mutation or pack generation occurs in this independent packet. |
-| 0.7D Watch + Brief | Separate planned intelligence-model and first-Brief preview handoffs | Dependency only. Do not import unpublished contracts or duplicate their proposals/previews. |
+| 0.7B Connect | Exact source-scope/profile proposals and approved source-profile handoff | Preserved transitively by the accepted session and 0.7D evidence chain. No credentials or connector execution enter a pack or plan. |
+| 0.7C Map | Exact cited concept-model proposal/disposition and approved handoff | Bound by exact IDs/digests from the accepted first-Brief derivation. No ontology mutation or pack generation occurs in this Core packet. |
+| 0.7D Watch + Brief | Published session, authorized observation set, approved intelligence-model proposal/disposition, cited derivation, and inert first-Brief preview | Revalidate exact bodies and session artifact history into `ace.application.activation-onboarding-handoff/v1alpha2`; never treat them as live authority. |
 | Monitoring/subscriptions/live bridge | Existing owner-governed monitor, subscription, Shift, Brief, runtime-use, and Core persistence seams | Phase 2 composes them after exact activation; it does not replace their receipts or grant activation authority to packs. |
 
 ### Exact conflict found and resolved
@@ -65,6 +67,9 @@ to store an opaque payload and exact plan subject reference.
 
 The v1alpha2 plan content-addresses and preserves:
 
+- one exact `ace.application.activation-onboarding-handoff/v1alpha2`, including the accepted 0.7D
+  session revision, Map proposal/disposition, authorized observation set, Watch
+  proposal/disposition, Brief derivation, and first-preview IDs and digests;
 - lifecycle action: initial activation, upgrade, suspension, reactivation, rollback, or retirement;
 - exact embedded `DomainActivationSpecV1.spec_id` and `sha256:<spec_hash>`;
 - closed requested effect set and digest;
@@ -94,8 +99,8 @@ scope, state, plan, revision, receipt, digest, or `live_authority` material fail
 non-committed input and a commit receipt that fails its own derived-identity revalidation.
 
 Any changed spec, effect, capability, authority, lifecycle action, expected head, rollback target,
-or time creates a new plan identity and requires a new approval. The original activation approval
-does not authorize upgrade, suspension, reactivation, rollback, or retirement.
+handoff coordinate, or time creates a new plan identity and requires a new approval. The original
+activation approval does not authorize upgrade, suspension, reactivation, rollback, or retirement.
 
 ## Compatibility matrix
 
@@ -110,6 +115,7 @@ does not authorize upgrade, suspension, reactivation, rollback, or retirement.
 | Missing, failed, stale, foreign, or host-mismatched conformance receipt | stable path refuses | no | Fail before authority resolution or commit. |
 | Spec, overlay, Pack IR, compilation, capability, or authority drift | no | no | Reconstructed spec must be byte/identity-equivalent. |
 | Plan approval naming `spec_id`, another plan, or an earlier plan | v1alpha1 semantics unchanged | no | Exact plan subject is mandatory. |
+| Missing, stale, crossed, or digest-drifted 0.7D handoff | not applicable | no | Exact published bodies and final session artifact history are rebuilt before authority lookup. |
 | Stale expected head or superseded plan | optimistic conflict only | no | Preflight fails; the atomic Core head guard remains the race backstop. |
 
 Package versions never substitute for contract compatibility. The host re-negotiates the manifest,
@@ -147,11 +153,13 @@ capabilities.
 | Reactivation silently inherits initial approval | Reactivation is a distinct content-addressed action and plan subject | Initial approval fails against reactivation plan ID. |
 | Persisted payload is rewritten after commit | Reload revalidates the plan, revision, opaque envelope, head, and Core receipt pair | Restart equality and drift failures are tested. |
 | Old persisted identities are rewritten during adoption | v1alpha1 service and contracts are untouched; v1alpha2 rejects a mixed head | Legacy regression and mixed-history negative gate. |
+| An inert Watch/Brief preview is replayed as runtime authority | Handoff literals are `pre_activation_handoff` and `live_authority = false`; admission still requires a new exact plan approval and current grants | Schema const checks, crossed-input rejection, and zero authority calls before exact-handoff validation. |
 | A Domain Pack gains execution or credentials | Pack compiler retains inert-data and authority-escalation checks; plan effect enum has no connector, credential, provider, arbitrary persistence, delivery, or external-action effect | Existing 0.7A security suite plus exact plan schema checks. |
 
-The remaining Phase 2 threat analysis must bind approved 0.7D handoff IDs/digests to every emitted
-monitor, subscription, Shift, and canonical Brief coordinate. No temporary resource contract may
-stand in for that proof.
+The separate World and Market consumer packets must bind the committed activation coordinates to
+their existing runtime Monitor, Subscription, Shift, and canonical Brief resources. This Core
+packet does not invent a temporary runtime resource or move consumer-owned domain configuration
+into the platform.
 
 ## Acceptance fixtures
 
@@ -195,21 +203,25 @@ Material difference must be demonstrated across entity/relation shape, source ma
 family or cadence, persona/routing, synthesis policy, and epistemic/decision policy—not merely pack
 name or fixture values. Domain nouns and consumer code stay outside Core.
 
-## Phase 2 implementation plan
+## Phase 2 implementation and remaining consumer plan
 
-After the control tower supplies the exact completed 0.7D branch/commit:
+The exact 0.7D integration is implemented as follows:
 
-1. diff only its published contracts and evidence against this base;
-2. import the exact approved intelligence-model and first-Brief handoff types without changing
-   their identities;
-3. extend the activation plan with exact handoff references and generated inert pack/configuration
-   bytes, producing a new plan identity if any material changes;
-4. compile and conform the generated pack through unchanged 0.7A APIs;
-5. after exact plan approval and admission, compose existing monitor, subscription, live-derivation,
-   and canonical Brief services using the committed activation revision as their authority binding;
-6. prove restart, later Observation update or explicit no-material-shift, and governed feedback;
-7. dispatch separate World and Market consumer packets; and
-8. record cumulative installed-wheel, naked-kernel, exact eleven-tool, and two-domain evidence.
+1. exact accepted 0.7D bodies are structurally revalidated without contract rewrites;
+2. the final `first_briefing_ready` session must contain the exact Map, Observation, Watch, and
+   first-Brief artifact history;
+3. the Brief derivation must cross-bind the exact approved Watch proposal/disposition, Observation
+   set, and Map proposal/disposition;
+4. those coordinates close into an inert content-addressed activation-onboarding handoff;
+5. the handoff is required plan material, so any drift produces a different plan and approval; and
+6. admission independently rebuilds and compares the handoff before lifecycle, compatibility,
+   conformance, authority, and atomic Core commit checks.
+
+The remaining consumer work is to compile and conform each external World and Market pack through
+the unchanged 0.7A APIs, submit its separately approved v1alpha2 plan, and bind the resulting
+committed activation coordinates to existing consumer-side runtime resources. Each packet must
+prove restart, upgrade/rollback, later Observation/Shift/Brief behavior, and installed-wheel
+reproduction without changing the Core contract or eleven-tool surface.
 
 If published 0.7D identities cannot be embedded without altering them, stop and return the conflict
 to the control tower. Do not create a compatibility alias or temporary runtime resource.
@@ -225,13 +237,11 @@ Phase 1 Core ownership is limited to:
 - this work packet and its later candidate evidence record; and
 - narrowly required package/schema documentation.
 
-Phase 2 may add one separate Activation Agent service and focused tests after the 0.7D commit is
-known. World and Market manifests, fixtures, SDK glue, and evidence must not be added to this Core
-patch.
+World and Market manifests, fixtures, SDK glue, and evidence must not be added to this Core patch.
 
 ## Verification matrix
 
-Phase 1 must pass:
+The candidate must pass:
 
 - focused v1alpha2 plan/admission/lifecycle/negative tests;
 - existing v1alpha1 activation, 0.7A compiler/conformance, and 0.7B–0.7C regression;
@@ -242,8 +252,8 @@ Phase 1 must pass:
 - Ruff, lock, whitespace, package-data, and documentation integrity checks; and
 - a proportionate broader non-E2E suite with any linked-worktree limitations reported honestly.
 
-No merge, release, package publication, push, or PR belongs to this packet without separate
-control-tower authorization.
+The control tower authorizes a commit, push, and stacked draft PR only after all gates pass. No
+merge, release, tag, or package publication is authorized.
 
 ## Rollback
 
@@ -255,8 +265,7 @@ code rollback is not authority to alter product state.
 
 ## Open dependency and non-claims
 
-Phase 2 is blocked only on the control tower supplying the exact completed 0.7D branch/commit. This
-packet does not yet implement the Activation Agent, generate a pack from onboarding proposals,
-materialize runtime Monitors or Subscriptions, consume a first-Brief preview, edit World or Market,
-prove installed-wheel convergence, or close 0.7E. It changes neither the MCP tool registry nor the
-naked-kernel extension boundary.
+The exact 0.7D dependency is satisfied. This packet does not edit World or Market, does not claim
+their independent two-domain runtime proof, and does not add a new runtime resource family. Those
+consumer packets remain the only open product proof. The Core packet changes neither the MCP tool
+registry nor the naked-kernel extension boundary.

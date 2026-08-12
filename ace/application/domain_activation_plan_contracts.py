@@ -28,15 +28,10 @@ from ace.intelligence.contracts.common import (
     validate_slug,
 )
 
-INTELLIGENCE_ACTIVATION_PLAN_V1ALPHA2_VERSION = (
-    "ace.application.intelligence-activation-plan/v1alpha2"
-)
-DOMAIN_ACTIVATION_REVISION_V1ALPHA2_VERSION = (
-    "ace.intelligence.domain-activation-revision/v1alpha2"
-)
-DOMAIN_ACTIVATION_COMMIT_REFERENCE_V1ALPHA2_VERSION = (
-    "ace.application.domain-activation-commit-reference/v1alpha2"
-)
+INTELLIGENCE_ACTIVATION_PLAN_V1ALPHA2_VERSION = "ace.application.intelligence-activation-plan/v1alpha2"
+DOMAIN_ACTIVATION_REVISION_V1ALPHA2_VERSION = "ace.intelligence.domain-activation-revision/v1alpha2"
+DOMAIN_ACTIVATION_COMMIT_REFERENCE_V1ALPHA2_VERSION = "ace.application.domain-activation-commit-reference/v1alpha2"
+ACTIVATION_ONBOARDING_HANDOFF_V1ALPHA2_VERSION = "ace.application.activation-onboarding-handoff/v1alpha2"
 
 
 class ActivationPlanAction(StrEnum):
@@ -89,13 +84,91 @@ def _material_digest(value: Any) -> str:
     return f"sha256:{canonical_hash(value)}"
 
 
+class ActivationOnboardingHandoffV1Alpha2(FrozenContract):
+    """Inert exact coordinates from the approved 0.7D Watch + Brief handoff."""
+
+    contract: Literal["ace.application.activation-onboarding-handoff/v1alpha2"] = (
+        ACTIVATION_ONBOARDING_HANDOFF_V1ALPHA2_VERSION
+    )
+    authority_stage: Literal["pre_activation_handoff"] = "pre_activation_handoff"
+    live_authority: Literal[False] = False
+    session_id: str
+    session_revision_id: str
+    session_revision_digest: str
+    concept_model_proposal_id: str
+    concept_model_proposal_digest: str
+    concept_model_disposition_id: str
+    concept_model_disposition_digest: str
+    observation_set_id: str
+    observation_set_digest: str
+    intelligence_model_proposal_id: str
+    intelligence_model_proposal_digest: str
+    intelligence_model_disposition_id: str
+    intelligence_model_disposition_digest: str
+    briefing_derivation_id: str
+    briefing_derivation_digest: str
+    first_briefing_preview_id: str
+    first_briefing_preview_digest: str
+    handoff_id: str | None = None
+    handoff_digest: str | None = None
+
+    @field_validator(
+        "session_id",
+        "session_revision_id",
+        "concept_model_proposal_id",
+        "concept_model_disposition_id",
+        "observation_set_id",
+        "intelligence_model_proposal_id",
+        "intelligence_model_disposition_id",
+        "briefing_derivation_id",
+        "first_briefing_preview_id",
+        "handoff_id",
+    )
+    @classmethod
+    def validate_handoff_refs(cls, value: str | None, info) -> str | None:
+        return validate_reference(value, name=info.field_name) if value is not None else None
+
+    @field_validator(
+        "session_revision_digest",
+        "concept_model_proposal_digest",
+        "concept_model_disposition_digest",
+        "observation_set_digest",
+        "intelligence_model_proposal_digest",
+        "intelligence_model_disposition_digest",
+        "briefing_derivation_digest",
+        "first_briefing_preview_digest",
+        "handoff_digest",
+    )
+    @classmethod
+    def validate_handoff_digests(cls, value: str | None) -> str | None:
+        return validate_digest(value) if value is not None else None
+
+    @model_validator(mode="after")
+    def derive_handoff_identity(self) -> Self:
+        material = self.model_dump(
+            mode="json",
+            exclude={"handoff_id", "handoff_digest"},
+        )
+        digest = canonical_hash(material)
+        expected_id = f"activation_onboarding_handoff:{digest[:32]}"
+        expected_digest = f"sha256:{digest}"
+        if self.handoff_id is not None and self.handoff_id != expected_id:
+            raise ValueError("activation onboarding handoff identity does not match exact material")
+        if self.handoff_digest is not None and self.handoff_digest != expected_digest:
+            raise ValueError("activation onboarding handoff digest does not match exact material")
+        object.__setattr__(self, "handoff_id", expected_id)
+        object.__setattr__(self, "handoff_digest", expected_digest)
+        return self
+
+
 class IntelligenceActivationPlanV1Alpha2(FrozenContract):
     """Immutable plan that is the exact subject of human/Core approval."""
 
-    contract: Literal[
-        "ace.application.intelligence-activation-plan/v1alpha2"
-    ] = INTELLIGENCE_ACTIVATION_PLAN_V1ALPHA2_VERSION
+    contract: Literal["ace.application.intelligence-activation-plan/v1alpha2"] = (
+        INTELLIGENCE_ACTIVATION_PLAN_V1ALPHA2_VERSION
+    )
     action: ActivationPlanAction
+    onboarding_handoff: ActivationOnboardingHandoffV1Alpha2
     spec: DomainActivationSpecV1
     embedded_spec_id: str | None = None
     embedded_spec_digest: str | None = None
@@ -193,12 +266,8 @@ class IntelligenceActivationPlanV1Alpha2(FrozenContract):
         object.__setattr__(self, "embedded_spec_digest", expected_spec_digest)
 
         effect_digest = _material_digest([item.value for item in self.requested_effects])
-        capability_digest = _material_digest(
-            [item.model_dump(mode="json") for item in self.requested_capabilities]
-        )
-        authority_digest = _material_digest(
-            [item.model_dump(mode="json") for item in self.requested_authorities]
-        )
+        capability_digest = _material_digest([item.model_dump(mode="json") for item in self.requested_capabilities])
+        authority_digest = _material_digest([item.model_dump(mode="json") for item in self.requested_authorities])
         for field_name, supplied, expected in (
             ("requested_effects_digest", self.requested_effects_digest, effect_digest),
             (
@@ -269,9 +338,9 @@ class IntelligenceActivationPlanV1Alpha2(FrozenContract):
 class DomainActivationRevisionV1Alpha2(FrozenContract):
     """Append-only activation revision whose approval subject is its exact plan."""
 
-    contract: Literal[
-        "ace.intelligence.domain-activation-revision/v1alpha2"
-    ] = DOMAIN_ACTIVATION_REVISION_V1ALPHA2_VERSION
+    contract: Literal["ace.intelligence.domain-activation-revision/v1alpha2"] = (
+        DOMAIN_ACTIVATION_REVISION_V1ALPHA2_VERSION
+    )
     activation_id: str | None = None
     revision: StrictInt = Field(ge=1)
     plan: IntelligenceActivationPlanV1Alpha2
@@ -308,8 +377,7 @@ class DomainActivationRevisionV1Alpha2(FrozenContract):
     @model_validator(mode="after")
     def validate_and_derive(self) -> Self:
         expected_activation_id = (
-            "domain_activation:"
-            f"{canonical_hash([self.plan.spec.product_id, self.plan.spec.activation_key])[:32]}"
+            f"domain_activation:{canonical_hash([self.plan.spec.product_id, self.plan.spec.activation_key])[:32]}"
         )
         if self.activation_id is not None and self.activation_id != expected_activation_id:
             raise ValueError("activation identity does not match the plan product and activation scope")
@@ -352,9 +420,9 @@ class DomainActivationRevisionV1Alpha2(FrozenContract):
 class DomainActivationCommitReferenceV1Alpha2(FrozenContract):
     """Opaque historical coordinates that grant no present runtime authority."""
 
-    contract: Literal[
-        "ace.application.domain-activation-commit-reference/v1alpha2"
-    ] = DOMAIN_ACTIVATION_COMMIT_REFERENCE_V1ALPHA2_VERSION
+    contract: Literal["ace.application.domain-activation-commit-reference/v1alpha2"] = (
+        DOMAIN_ACTIVATION_COMMIT_REFERENCE_V1ALPHA2_VERSION
+    )
     authority_stage: Literal["historical_reference"] = "historical_reference"
     live_authority: Literal[False] = False
     product_id: str
@@ -402,10 +470,12 @@ class DomainActivationCommitReferenceV1Alpha2(FrozenContract):
 
 
 __all__ = [
+    "ACTIVATION_ONBOARDING_HANDOFF_V1ALPHA2_VERSION",
     "DOMAIN_ACTIVATION_COMMIT_REFERENCE_V1ALPHA2_VERSION",
     "DOMAIN_ACTIVATION_REVISION_V1ALPHA2_VERSION",
     "INTELLIGENCE_ACTIVATION_PLAN_V1ALPHA2_VERSION",
     "ActivationPlanAction",
+    "ActivationOnboardingHandoffV1Alpha2",
     "ActivationRequestedEffect",
     "ActivationRuntimeState",
     "DomainActivationCommitReferenceV1Alpha2",

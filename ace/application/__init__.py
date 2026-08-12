@@ -63,9 +63,11 @@ from ace.application.domain_activation_plan import (
     DomainActivationPlanAdmissionError,
     DomainActivationPlanAdmissionService,
     activation_commit_reference,
+    prepare_activation_onboarding_handoff,
     validate_activation_commit_reference,
 )
 from ace.application.domain_activation_plan_contracts import (
+    ActivationOnboardingHandoffV1Alpha2,
     ActivationPlanAction,
     ActivationRequestedEffect,
     ActivationRuntimeState,
@@ -274,6 +276,7 @@ __all__ = [
     "DetectorProposalV1",
     "DetectorStrategyKind",
     "ActivationPlanAction",
+    "ActivationOnboardingHandoffV1Alpha2",
     "ActivationRequestedEffect",
     "ActivationRuntimeState",
     "DomainActivationAdmissionError",
@@ -390,6 +393,7 @@ __all__ = [
     "SupersessionImpactService",
     "bind_committed_activation",
     "activation_commit_reference",
+    "prepare_activation_onboarding_handoff",
     "validate_activation_commit_reference",
     "concept_model_semantic_diff",
     "intelligence_model_semantic_diff",
