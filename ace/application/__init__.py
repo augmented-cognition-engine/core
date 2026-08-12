@@ -248,6 +248,22 @@ from ace.application.live_source_ingress import (
     LiveSourceIngressReplayConflict,
     LiveSourceIngressService,
 )
+from ace.application.measured_composition import (
+    COMPOSITION_EVALUATION_AUTHORITY_RESOLUTION_VERSION,
+    CONDITION_ASSIGNMENT_RECORD_KIND,
+    EVALUATION_AUTHORITY_RECORD_KIND,
+    EVALUATION_PROTOCOL_RECORD_KIND,
+    MATCHED_COMPARISON_RECORD_KIND,
+    MEASURED_COMPOSITION_RECORD_SPACE,
+    POLICY_CHANGE_PROPOSAL_RECORD_KIND,
+    RUN_OBSERVATION_RECORD_KIND,
+    CompositionEvaluationAuthorityResolutionV1Alpha1,
+    MeasuredCompositionClosure,
+    MeasuredCompositionError,
+    MeasuredCompositionEvaluationService,
+    MeasuredCompositionPreregistration,
+    evaluation_authority_reference,
+)
 from ace.application.measured_impact import (
     IMPACT_EVALUATION_RECORD_KIND,
     IMPACT_PROPOSAL_RECORD_KIND,
@@ -310,6 +326,20 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "COMPOSITION_EVALUATION_AUTHORITY_RESOLUTION_VERSION",
+    "CONDITION_ASSIGNMENT_RECORD_KIND",
+    "EVALUATION_AUTHORITY_RECORD_KIND",
+    "EVALUATION_PROTOCOL_RECORD_KIND",
+    "MATCHED_COMPARISON_RECORD_KIND",
+    "MEASURED_COMPOSITION_RECORD_SPACE",
+    "POLICY_CHANGE_PROPOSAL_RECORD_KIND",
+    "RUN_OBSERVATION_RECORD_KIND",
+    "CompositionEvaluationAuthorityResolutionV1Alpha1",
+    "MeasuredCompositionClosure",
+    "MeasuredCompositionError",
+    "MeasuredCompositionEvaluationService",
+    "MeasuredCompositionPreregistration",
+    "evaluation_authority_reference",
     "ADMINISTER_LIFECYCLE_AUTHORITY",
     "AGENT_BINDING_LIFECYCLE_STATE_KIND",
     "AGENT_DEFINITION_LIFECYCLE_STATE_KIND",

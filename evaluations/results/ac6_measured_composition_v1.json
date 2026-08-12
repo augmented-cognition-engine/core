@@ -1,0 +1,156 @@
+{
+  "authority_digest": "sha256:545c7b8aa3588fdf5a99672466c7c176ebb46102e8948b6d0ad7cc1ac84ffc2e",
+  "authority_id": "composition_evaluation_authority_resolution:545c7b8aa3588fdf5a99672466c7c176",
+  "case_count": 14,
+  "condition_count": 3,
+  "fixture_contract": "ace.evaluation.measured-composition-conformance/v1",
+  "network_used": false,
+  "preregistration_receipt_id": "append_only_receipt:1792f37a9706252a12235954a1213852",
+  "proposal_count": 1,
+  "protocol_digest": "sha256:96c3c13495976d8734301af72fbb9864057758495610d46b565909990bcbb732",
+  "protocol_id": "composition_evaluation_protocol:96c3c13495976d8734301af72fbb9864",
+  "provider_credentials_used": false,
+  "restart_replay_identical": true,
+  "results": [
+    {
+      "case_id": "solo_suffices",
+      "comparison_digest": "sha256:f542d20476f3b76e78f86dfc8b5db05613188a384d5949169f4331a465d20755",
+      "comparison_id": "composition_matched_comparison:f542d20476f3b76e78f86dfc8b5db056",
+      "disposition": "control_suffices",
+      "observation_records": 3,
+      "paired_and_controlled": true,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "dynamic_helps",
+      "comparison_digest": "sha256:3352cc8a2017567a73ef1016b566364956930546d7a99915f9865a00b778ed54",
+      "comparison_id": "composition_matched_comparison:3352cc8a2017567a73ef1016b5663649",
+      "disposition": "dynamic_materially_helps",
+      "observation_records": 3,
+      "paired_and_controlled": true,
+      "proposal_digest": "sha256:cb759967e70809413edf0360734a1656028949ae11ecf3cc78241bda7b4daa2a",
+      "proposal_id": "composition_policy_change_proposal:cb759967e70809413edf0360734a1656"
+    },
+    {
+      "case_id": "dynamic_cost_no_benefit",
+      "comparison_digest": "sha256:7ab8b4b5f919224c2bc8bc64ff5ef0ca874d122c271b51cbcc71e595b75e3fd2",
+      "comparison_id": "composition_matched_comparison:7ab8b4b5f919224c2bc8bc64ff5ef0ca",
+      "disposition": "no_material_benefit",
+      "observation_records": 3,
+      "paired_and_controlled": true,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "missing_participant",
+      "comparison_digest": "sha256:8c402120ddcbf3a40d3801db982068900f8ccced93ca12977de5c2299da5f0c6",
+      "comparison_id": "composition_matched_comparison:8c402120ddcbf3a40d3801db98206890",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "timeout",
+      "comparison_digest": "sha256:0572d7248acbb61df40a7fd2c7e531326ecbef6642f726104fe03ef7beb55fc6",
+      "comparison_id": "composition_matched_comparison:0572d7248acbb61df40a7fd2c7e53132",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "partial_tainted_join",
+      "comparison_digest": "sha256:5c554bf285ff3e486a067c32523ecea39a0198551e20c15ea3ea2ddac3de8448",
+      "comparison_id": "composition_matched_comparison:5c554bf285ff3e486a067c32523ecea3",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "stale_authority",
+      "comparison_digest": "sha256:680db71c21adb7f7adab652bb00d9df68cea3aadba9bb3c0a6f908911fc774fe",
+      "comparison_id": "composition_matched_comparison:680db71c21adb7f7adab652bb00d9df6",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "revoked_rotated_authority",
+      "comparison_digest": "sha256:673ec5a3424c9e03aecf8245f13d5b948115951a0500518b37562d4edeef41cf",
+      "comparison_id": "composition_matched_comparison:673ec5a3424c9e03aecf8245f13d5b94",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "delivery_denial",
+      "comparison_digest": "sha256:78c40e8c24d4fd90ea0a60872c10da9b96b338c43cd7b6a7356b60213464c27c",
+      "comparison_id": "composition_matched_comparison:78c40e8c24d4fd90ea0a60872c10da9b",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "effect_denial",
+      "comparison_digest": "sha256:aeefe614a6b6e2fd2858ffb002d6aa43fcdbc513b234863a864eef53585e33e1",
+      "comparison_id": "composition_matched_comparison:aeefe614a6b6e2fd2858ffb002d6aa43",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "usage_cost_telemetry_unavailable",
+      "comparison_digest": "sha256:9bf606649ee458b14784131dcb761d9fa59c6d972331e534f28ff2ab00cdf7fb",
+      "comparison_id": "composition_matched_comparison:9bf606649ee458b14784131dcb761d9f",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "abstention",
+      "comparison_digest": "sha256:be38eae1cf945692c8e91af65b30e7f1c5558792fc4f3b28adbacc68a15afb97",
+      "comparison_id": "composition_matched_comparison:be38eae1cf945692c8e91af65b30e7f1",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "attempted_policy_self_activation",
+      "comparison_digest": "sha256:958233c491b9f3dfa54ae27782620102ebf088c1ef4d22226b96300df74630a3",
+      "comparison_id": "composition_matched_comparison:958233c491b9f3dfa54ae27782620102",
+      "disposition": "unproven_fail_closed",
+      "observation_records": 3,
+      "paired_and_controlled": false,
+      "proposal_digest": null,
+      "proposal_id": null
+    },
+    {
+      "case_id": "duplicate_effect_prevention",
+      "comparison_digest": "sha256:1020eb287a0912d9b51ebef32f4fab870025cd41c982a2fb8fbe90ab514e8a5c",
+      "comparison_id": "composition_matched_comparison:1020eb287a0912d9b51ebef32f4fab87",
+      "disposition": "no_material_benefit",
+      "observation_records": 3,
+      "paired_and_controlled": true,
+      "proposal_digest": null,
+      "proposal_id": null
+    }
+  ]
+}

@@ -58,6 +58,7 @@ def test_intelligence_initializer_exports_contracts_and_pure_interpreters_only()
         "ace.intelligence.detection",
         "ace.intelligence.epistemic",
         "ace.intelligence.impact",
+        "ace.intelligence.measured_composition",
         "ace.intelligence.routing",
         "ace.intelligence.source_mapping",
         "ace.intelligence.supersession",

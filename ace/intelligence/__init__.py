@@ -41,6 +41,7 @@ from ace.intelligence.epistemic import (
     derive_claim_epistemic_statuses_with_families,
 )
 from ace.intelligence.impact import ResolvedImpactEvidence, evaluate_measured_impact
+from ace.intelligence.measured_composition import compare_measured_composition
 from ace.intelligence.routing import (
     EligibleSignalRoute,
     SignalRoutingError,
@@ -121,6 +122,7 @@ __all__ = [
     "eligible_live_signal_routes",
     "eligible_signal_routes",
     "evaluate_measured_impact",
+    "compare_measured_composition",
     "interpret_live_source_mapping",
     "interpret_prepared_source_mapping",
     "render_canonical_brief_body",
