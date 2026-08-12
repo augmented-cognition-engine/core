@@ -307,11 +307,11 @@ class IntelligenceResourceQueryV1Alpha1(_StrictFrozenContract):
             raise ValueError("resource query crossed authenticated product scope")
         if self.available_at < self.as_of:
             raise ValueError("query available_at cannot precede as_of")
-        if not (
-            self.authenticated_context.authenticated_at <= self.available_at < self.authenticated_context.expires_at
-        ):
-            raise ValueError("query availability cutoff must be inside the authenticated window")
-        material = self.model_dump(mode="json", exclude={"cursor", "query_id", "query_digest"})
+        material = self.model_dump(
+            mode="json",
+            exclude={"authenticated_context", "cursor", "query_id", "query_digest"},
+        )
+        material["actor_ref"] = self.authenticated_context.actor_ref
         digest = canonical_hash(material)
         expected_id = f"resource_query:{digest[:32]}"
         expected_digest = f"sha256:{digest}"

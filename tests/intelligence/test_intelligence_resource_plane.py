@@ -33,13 +33,19 @@ PRODUCT = "product:resource-plane"
 NOW = datetime(2026, 8, 12, 20, 0, tzinfo=UTC)
 
 
-def _context(*, product_id: str = PRODUCT) -> AuthenticatedRuntimeContextV1Alpha1:
+def _context(
+    *,
+    product_id: str = PRODUCT,
+    actor_ref: str = "principal:analyst",
+    receipt_suffix: str = "resource-plane",
+    authenticated_at: datetime = NOW - timedelta(minutes=10),
+) -> AuthenticatedRuntimeContextV1Alpha1:
     return AuthenticatedRuntimeContextV1Alpha1(
         product_id=product_id,
-        actor_ref="principal:analyst",
-        authentication_receipt_ref="authentication_receipt:resource-plane",
+        actor_ref=actor_ref,
+        authentication_receipt_ref=f"authentication_receipt:{receipt_suffix}",
         authentication_receipt_digest="sha256:" + "a" * 64,
-        authenticated_at=NOW - timedelta(minutes=10),
+        authenticated_at=authenticated_at,
         expires_at=NOW + timedelta(minutes=30),
     )
 
@@ -213,6 +219,50 @@ def test_query_identity_excludes_cursor_but_cursor_is_bound_to_the_exact_query()
             cursor=cursor,
             kinds=(IntelligenceResourceKind.BRIEF,),
         )
+
+
+def test_query_identity_survives_reauthentication_but_remains_actor_bound() -> None:
+    first = _query()
+    refreshed_context = _context(
+        receipt_suffix="resource-plane-refresh",
+        authenticated_at=NOW - timedelta(minutes=1),
+    )
+    refreshed = IntelligenceResourceQueryV1Alpha1(
+        **{
+            **first.model_dump(
+                mode="python",
+                exclude={"authenticated_context", "query_id", "query_digest"},
+            ),
+            "authenticated_context": refreshed_context,
+        }
+    )
+    assert refreshed.query_id == first.query_id
+    assert refreshed.query_digest == first.query_digest
+
+    other_actor = IntelligenceResourceQueryV1Alpha1(
+        **{
+            **first.model_dump(
+                mode="python",
+                exclude={"authenticated_context", "query_id", "query_digest"},
+            ),
+            "authenticated_context": _context(actor_ref="principal:other"),
+        }
+    )
+    assert other_actor.query_id != first.query_id
+
+
+def test_historical_cutoff_is_authorized_at_request_time_not_authentication_time() -> None:
+    context = _context(authenticated_at=NOW)
+    query = IntelligenceResourceQueryV1Alpha1(
+        authenticated_context=context,
+        product_id=PRODUCT,
+        authority_grant_ref="authority_grant:resource-read",
+        resource_kinds=(IntelligenceResourceKind.BRIEF,),
+        as_of=NOW - timedelta(days=2),
+        available_at=NOW - timedelta(days=1),
+        page_size=10,
+    )
+    assert query.available_at < context.authenticated_at
 
 
 def test_record_requires_exact_provenance_scope_and_revision_lineage() -> None:

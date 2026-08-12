@@ -1,8 +1,8 @@
 # ACE 0.8.0 unified Intelligence resource plane work packet
 
-Status: **active 0.8C packet; C1 public facade and C2 immutable-ledger projection implemented**
+Status: **active 0.8C packet; C1 facade, C2 ledger projection, and C3 governed HTTP query implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@bf4a75a` (0.8A architecture, AM4 lifecycle, completed 0.8B, and C1 facade)
+Accepted base: `main@6b4d6b2` (0.8A architecture, AM4 lifecycle, completed 0.8B, C1 facade, and C2 projection)
 
 ## Outcome
 
@@ -73,9 +73,16 @@ projects Entity Snapshots as public Entities, preserves exact lineage and payloa
 subject and cursor, and remains reproducible when reconstructed over the same store. Unsupported or
 unavailable buckets return explicit degradation while preserving available truth.
 
-C3 must add governed-state projections for the remaining canonical families, expose the contracts
-through one supported machine interface, and verify packaged schema/import integrity. C4 must prove
-Atrium consumes that interface rather than privileged internal state.
+C3 exposes `POST /v1/intelligence/resources/query` as the first machine interface. The host derives
+the authenticated context from a verified bearer token, persists an opaque authentication receipt,
+requires the token's `observe_read` authority, resolves the current Core grant, and returns the same
+public page contract. Historical data cutoffs are independent from login time; every page is
+reauthenticated and reauthorized, while query identity remains stable across authentication receipt
+refreshes for the same actor and exact selector.
+
+C3 must still add governed-state projections for the remaining canonical families and complete
+packaged schema/import integrity. C4 must prove Atrium consumes this interface rather than
+privileged internal state.
 
 The 0.8C exit gate is one authorized query path that can reproduce the evidence-to-outcome resource
 chain after restart, report partial truth honestly, and remain identical for World and Market
