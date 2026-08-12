@@ -74,3 +74,6 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [Intelligence Builder Connect work packet](design/intelligence-builder-connect-v0.7.0-work-packet-v1.md)
   — the bounded 0.7B Connection Agent implementation, reuse audit, failure controls, and evidence
   plan.
+- [Intelligence Builder Map work packet](design/intelligence-builder-map-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7C Ontology Agent proposal, immutable edit, exact approval, restart, and evidence
+  plan.

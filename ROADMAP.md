@@ -444,7 +444,8 @@ connectors, and trusted extensions underneath that experience.
   [0.7B Connect work packet](docs/design/intelligence-builder-connect-v0.7.0-work-packet-v1.md).
 - **0.7C — Map:** the Ontology Agent proposes an editable, cited concept model—entities, aliases,
   relations, attributes, terminology, and exclusions—with explicit confidence and no silent
-  mutation.
+  mutation. Its bounded implementation and evidence gates are frozen in the
+  [0.7C Map work packet](docs/design/intelligence-builder-map-v0.7.0-work-packet-v1.md).
 - **0.7D — Watch + Brief:** the Intelligence Agent proposes monitors, materiality, audiences,
   routing, and cadence; the Briefing Agent produces the cited first briefing with uncertainty,
   disagreement, omissions, and why each item matters.

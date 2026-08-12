@@ -32,7 +32,9 @@ ONBOARDING_ARTIFACT_REFERENCE_VERSION = "ace.application.onboarding-artifact-ref
 ONBOARDING_SESSION_REVISION_VERSION = "ace.application.intelligence-builder-session-revision/v1alpha1"
 
 
-class _StrictFrozenContract(FrozenContract):
+class IntelligenceBuilderContract(FrozenContract):
+    """Strict frozen base shared by versioned Intelligence Builder artifacts."""
+
     model_config = ConfigDict(
         extra="forbid",
         frozen=True,
@@ -43,20 +45,20 @@ class _StrictFrozenContract(FrozenContract):
     )
 
 
-def _aware(value: datetime, *, name: str) -> datetime:
+def aware_datetime(value: datetime, *, name: str) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError(f"{name} must include a timezone")
     return value.astimezone(UTC)
 
 
-def _bounded(value: str, *, name: str, maximum: int = 2_000) -> str:
+def bounded_text(value: str, *, name: str, maximum: int = 2_000) -> str:
     if not value or value != value.strip() or len(value) > maximum:
         raise ValueError(f"{name} must be non-empty, trimmed, and at most {maximum} characters")
     return value
 
 
-def _derive_identity(
-    instance: _StrictFrozenContract,
+def derive_builder_identity(
+    instance: IntelligenceBuilderContract,
     *,
     prefix: str,
     id_field: str,
@@ -125,6 +127,7 @@ class OnboardingArtifactKind(StrEnum):
     SOURCE_SCOPE_PROPOSAL = "source_scope_proposal"
     SOURCE_PROFILE_PROPOSAL = "source_profile_proposal"
     CONCEPT_MODEL_PROPOSAL = "concept_model_proposal"
+    CONCEPT_MODEL_DISPOSITION = "concept_model_disposition"
     INTELLIGENCE_MODEL_PROPOSAL = "intelligence_model_proposal"
     FIRST_BRIEFING_PREVIEW = "first_briefing_preview"
     ACTIVATION_PLAN = "activation_plan"
@@ -133,7 +136,7 @@ class OnboardingArtifactKind(StrEnum):
     FEEDBACK = "feedback"
 
 
-class SourceOptionV1(_StrictFrozenContract):
+class SourceOptionV1(IntelligenceBuilderContract):
     """One host-described source option; it contains no credential material."""
 
     option_id: str
@@ -178,7 +181,7 @@ class SourceOptionV1(_StrictFrozenContract):
         return tuple(sorted(value, key=lambda item: item.value))
 
 
-class SourceOptionCatalogV1(_StrictFrozenContract):
+class SourceOptionCatalogV1(IntelligenceBuilderContract):
     contract: Literal["ace.application.source-option-catalog/v1alpha1"] = SOURCE_OPTION_CATALOG_VERSION
     provider_ref: str
     provider_digest: str
@@ -203,7 +206,7 @@ class SourceOptionCatalogV1(_StrictFrozenContract):
 
     @model_validator(mode="after")
     def derive_identity(self) -> Self:
-        _derive_identity(
+        derive_builder_identity(
             self,
             prefix="source_option_catalog",
             id_field="catalog_id",
@@ -212,7 +215,7 @@ class SourceOptionCatalogV1(_StrictFrozenContract):
         return self
 
 
-class SourceScopeSelectionV1(_StrictFrozenContract):
+class SourceScopeSelectionV1(IntelligenceBuilderContract):
     option_id: str
     permissions: tuple[str, ...] = Field(min_length=1, max_length=64)
     scopes: tuple[str, ...] = Field(min_length=1, max_length=128)
@@ -240,7 +243,7 @@ class SourceScopeSelectionV1(_StrictFrozenContract):
         return tuple(sorted(value, key=lambda item: item.value))
 
 
-class SourceScopeProposalV1(_StrictFrozenContract):
+class SourceScopeProposalV1(IntelligenceBuilderContract):
     contract: Literal["ace.application.source-scope-proposal/v1alpha1"] = SOURCE_SCOPE_PROPOSAL_VERSION
     session_id: str
     goal_ref: str
@@ -271,11 +274,11 @@ class SourceScopeProposalV1(_StrictFrozenContract):
     @field_validator("created_at")
     @classmethod
     def validate_created_at(cls, value: datetime) -> datetime:
-        return _aware(value, name="created_at")
+        return aware_datetime(value, name="created_at")
 
     @model_validator(mode="after")
     def derive_identity(self) -> Self:
-        _derive_identity(
+        derive_builder_identity(
             self,
             prefix="source_scope_proposal",
             id_field="proposal_id",
@@ -284,7 +287,7 @@ class SourceScopeProposalV1(_StrictFrozenContract):
         return self
 
 
-class SourceFieldProfileV1(_StrictFrozenContract):
+class SourceFieldProfileV1(IntelligenceBuilderContract):
     field_path: str
     value_kind: SourceValueKind
     nullable: StrictBool
@@ -299,7 +302,7 @@ class SourceFieldProfileV1(_StrictFrozenContract):
         return value
 
 
-class SourceSampleV1(_StrictFrozenContract):
+class SourceSampleV1(IntelligenceBuilderContract):
     contract: Literal["ace.application.source-sample/v1alpha1"] = SOURCE_SAMPLE_VERSION
     option_id: str
     connector_ref: str
@@ -358,11 +361,11 @@ class SourceSampleV1(_StrictFrozenContract):
     @field_validator("observed_at")
     @classmethod
     def validate_observed_at(cls, value: datetime) -> datetime:
-        return _aware(value, name="observed_at")
+        return aware_datetime(value, name="observed_at")
 
     @model_validator(mode="after")
     def derive_identity(self) -> Self:
-        _derive_identity(
+        derive_builder_identity(
             self,
             prefix="source_sample",
             id_field="sample_id",
@@ -371,7 +374,7 @@ class SourceSampleV1(_StrictFrozenContract):
         return self
 
 
-class SourceProfileProposalV1(_StrictFrozenContract):
+class SourceProfileProposalV1(IntelligenceBuilderContract):
     contract: Literal["ace.application.source-profile-proposal/v1alpha1"] = (
         SOURCE_PROFILE_PROPOSAL_VERSION
     )
@@ -403,12 +406,12 @@ class SourceProfileProposalV1(_StrictFrozenContract):
     @classmethod
     def normalize_limitations(cls, value: Any) -> tuple[str, ...]:
         values = normalized_strings(value, label="limitations", maximum=64)
-        return tuple(_bounded(item, name="limitation", maximum=500) for item in values)
+        return tuple(bounded_text(item, name="limitation", maximum=500) for item in values)
 
     @field_validator("created_at")
     @classmethod
     def validate_created_at(cls, value: datetime) -> datetime:
-        return _aware(value, name="created_at")
+        return aware_datetime(value, name="created_at")
 
     @model_validator(mode="after")
     def validate_and_derive(self) -> Self:
@@ -418,7 +421,7 @@ class SourceProfileProposalV1(_StrictFrozenContract):
             for sample in self.samples
         ):
             raise ValueError("every source sample must bind the exact scope proposal")
-        _derive_identity(
+        derive_builder_identity(
             self,
             prefix="source_profile_proposal",
             id_field="proposal_id",
@@ -427,7 +430,7 @@ class SourceProfileProposalV1(_StrictFrozenContract):
         return self
 
 
-class OnboardingArtifactReferenceV1(_StrictFrozenContract):
+class OnboardingArtifactReferenceV1(IntelligenceBuilderContract):
     contract: Literal["ace.application.onboarding-artifact-reference/v1alpha1"] = (
         ONBOARDING_ARTIFACT_REFERENCE_VERSION
     )
@@ -446,7 +449,7 @@ class OnboardingArtifactReferenceV1(_StrictFrozenContract):
         return validate_digest(value)
 
 
-class IntelligenceBuilderSessionRevisionV1(_StrictFrozenContract):
+class IntelligenceBuilderSessionRevisionV1(IntelligenceBuilderContract):
     contract: Literal["ace.application.intelligence-builder-session-revision/v1alpha1"] = (
         ONBOARDING_SESSION_REVISION_VERSION
     )
@@ -507,12 +510,12 @@ class IntelligenceBuilderSessionRevisionV1(_StrictFrozenContract):
     @field_validator("safe_diagnostic")
     @classmethod
     def validate_safe_diagnostic(cls, value: str | None) -> str | None:
-        return _bounded(value, name="safe_diagnostic", maximum=500) if value is not None else None
+        return bounded_text(value, name="safe_diagnostic", maximum=500) if value is not None else None
 
     @field_validator("occurred_at")
     @classmethod
     def validate_occurred_at(cls, value: datetime) -> datetime:
-        return _aware(value, name="occurred_at")
+        return aware_datetime(value, name="occurred_at")
 
     @model_validator(mode="after")
     def validate_chain_state_and_identity(self) -> Self:
@@ -537,7 +540,7 @@ class IntelligenceBuilderSessionRevisionV1(_StrictFrozenContract):
         }
         if requires_approval != (self.approval_receipt_ref is not None):
             raise ValueError("disposition transitions require one approval receipt and proposal transitions forbid one")
-        _derive_identity(
+        derive_builder_identity(
             self,
             prefix="intelligence_builder_session_revision",
             id_field="revision_id",
@@ -548,6 +551,7 @@ class IntelligenceBuilderSessionRevisionV1(_StrictFrozenContract):
 
 __all__ = [
     "ConnectionEffect",
+    "IntelligenceBuilderContract",
     "IntelligenceBuilderSessionRevisionV1",
     "ONBOARDING_ARTIFACT_REFERENCE_VERSION",
     "ONBOARDING_SESSION_REVISION_VERSION",
@@ -568,4 +572,7 @@ __all__ = [
     "SourceScopeProposalV1",
     "SourceScopeSelectionV1",
     "SourceValueKind",
+    "aware_datetime",
+    "bounded_text",
+    "derive_builder_identity",
 ]

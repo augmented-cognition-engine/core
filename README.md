@@ -73,11 +73,12 @@ Generated material still passes the same fail-closed schema, compatibility, conf
 and activation boundaries as an expert-built pack.
 
 **Maturity:** ACE 0.6 already ships the governed source, monitoring, briefing, decision, feedback,
-and durable receipt substrates through developer-facing contracts. The stacked 0.7A candidate
-stabilizes generated Domain Pack compilation and conformance. The active 0.7 roadmap composes those
-capabilities cumulatively as Connect (0.7B), Map (0.7C), Watch + Brief (0.7D), and Activate + prove
-(0.7E). The complete five-stage journey is the acceptance target, not a claim about the current
-released UI.
+and durable receipt substrates through developer-facing contracts. The stacked 0.7A and 0.7B
+candidates stabilize generated Domain Pack compilation/conformance and the provider-free Connect
+handoff. The 0.7C candidate adds the cited, editable Map proposal and exact human approval. The
+active roadmap continues cumulatively through Watch + Brief (0.7D) and Activate + prove (0.7E).
+The complete five-stage journey is the acceptance target, not a claim about the current released
+UI.
 
 ### Two connected loops
 

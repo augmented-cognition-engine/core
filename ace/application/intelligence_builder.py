@@ -26,6 +26,7 @@ from ace.application.intelligence_builder_contracts import (
     SourceScopeProposalV1,
     SourceScopeSelectionV1,
 )
+from ace.application.ontology_agent_contracts import ConceptModelDispositionV1, ConceptModelProposalV1
 from ace.core.contracts import canonical_hash
 from ace.core.records import (
     AppendOnlyTransactionReceiptV1,
@@ -41,11 +42,18 @@ INTELLIGENCE_BUILDER_RECORD_SPACE = "ace.application.intelligence-builder"
 ONBOARDING_SESSION_REVISION_RECORD_KIND = "onboarding_session_revision"
 ONBOARDING_ARTIFACT_RECORD_KIND = "onboarding_artifact"
 
-OnboardingArtifact = SourceScopeProposalV1 | SourceProfileProposalV1
+OnboardingArtifact = (
+    SourceScopeProposalV1
+    | SourceProfileProposalV1
+    | ConceptModelProposalV1
+    | ConceptModelDispositionV1
+)
 OnboardingArtifactT = TypeVar(
     "OnboardingArtifactT",
     SourceScopeProposalV1,
     SourceProfileProposalV1,
+    ConceptModelProposalV1,
+    ConceptModelDispositionV1,
 )
 
 
@@ -132,6 +140,9 @@ _PRIMARY_TRANSITIONS: dict[
     (OnboardingStage.SOURCES_READY, OnboardingStage.CONCEPT_MODEL_PROPOSED): (
         OnboardingTransitionAuthority.AGENT_PROPOSAL
     ),
+    (OnboardingStage.CONCEPT_MODEL_PROPOSED, OnboardingStage.CONCEPT_MODEL_PROPOSED): (
+        OnboardingTransitionAuthority.AGENT_PROPOSAL
+    ),
     (OnboardingStage.CONCEPT_MODEL_PROPOSED, OnboardingStage.CONCEPT_MODEL_APPROVED): (
         OnboardingTransitionAuthority.HUMAN_CORE_DISPOSITION
     ),
@@ -180,6 +191,22 @@ def _artifact_material(artifact: OnboardingArtifact) -> tuple[str, str, datetime
         return str(artifact.proposal_id), str(artifact.proposal_digest), artifact.created_at
     if isinstance(artifact, SourceProfileProposalV1):
         return str(artifact.proposal_id), str(artifact.proposal_digest), artifact.created_at
+    if isinstance(artifact, ConceptModelProposalV1):
+        return str(artifact.proposal_id), str(artifact.proposal_digest), artifact.created_at
+    if isinstance(artifact, ConceptModelDispositionV1):
+        return str(artifact.disposition_id), str(artifact.disposition_digest), artifact.approved_at
+    raise TypeError("unsupported onboarding artifact contract")
+
+
+def _artifact_kind(artifact: OnboardingArtifact) -> OnboardingArtifactKind:
+    if isinstance(artifact, SourceScopeProposalV1):
+        return OnboardingArtifactKind.SOURCE_SCOPE_PROPOSAL
+    if isinstance(artifact, SourceProfileProposalV1):
+        return OnboardingArtifactKind.SOURCE_PROFILE_PROPOSAL
+    if isinstance(artifact, ConceptModelProposalV1):
+        return OnboardingArtifactKind.CONCEPT_MODEL_PROPOSAL
+    if isinstance(artifact, ConceptModelDispositionV1):
+        return OnboardingArtifactKind.CONCEPT_MODEL_DISPOSITION
     raise TypeError("unsupported onboarding artifact contract")
 
 
@@ -237,6 +264,10 @@ class IntelligenceBuilderSessionService:
             exact = SourceScopeProposalV1.model_validate(artifact.model_dump(mode="python"))
         elif isinstance(artifact, SourceProfileProposalV1):
             exact = SourceProfileProposalV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, ConceptModelProposalV1):
+            exact = ConceptModelProposalV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, ConceptModelDispositionV1):
+            exact = ConceptModelDispositionV1.model_validate(artifact.model_dump(mode="python"))
         else:
             raise IntelligenceBuilderSessionError("unsupported onboarding artifact failed closed")
         artifact_id, artifact_digest, occurred_at = _artifact_material(exact)
@@ -271,13 +302,7 @@ class IntelligenceBuilderSessionService:
             )
         persisted = await self.load_artifact(
             product_id=product_id,
-            reference=_artifact(
-                OnboardingArtifactKind.SOURCE_SCOPE_PROPOSAL
-                if isinstance(exact, SourceScopeProposalV1)
-                else OnboardingArtifactKind.SOURCE_PROFILE_PROPOSAL,
-                artifact_id,
-                artifact_digest,
-            ),
+            reference=_artifact(_artifact_kind(exact), artifact_id, artifact_digest),
             artifact_type=type(exact),
             available_at=occurred_at,
         )

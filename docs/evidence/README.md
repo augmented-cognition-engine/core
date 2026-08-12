@@ -31,6 +31,8 @@ superseded by later work and is kept for audit trail only.
 
 - [0.7B Intelligence Builder Connect candidate](intelligence-builder-connect-v0.7.0-candidate-v1.md)
   — stacked candidate; provider-free exact source-scope/profile persistence and resumable Connect
+- [0.7C Intelligence Builder Map candidate](intelligence-builder-map-v0.7.0-candidate-v1.md)
+  — stacked candidate; cited immutable concept-model edits, exact approval, and restart handoff
 - [E1 governed-cognition release evidence](e1-governed-cognition-release-v1.md)
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md)
 - [IA-R1 product-map evidence](ia-r1-product-map.md)

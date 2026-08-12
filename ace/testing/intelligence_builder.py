@@ -128,6 +128,7 @@ class ConnectionAgentReferenceResult:
     restarted_scope: SourceScopeProposalV1
     restarted_profile: SourceProfileProposalV1
     provider: FixtureRegisteredSourceOptionProvider
+    store: InMemoryImmutableRecordStore
 
 
 def provider_free_source_catalog() -> tuple[SourceOptionCatalogV1, tuple[FixtureSourceProfile, ...]]:
@@ -280,6 +281,7 @@ async def exercise_connection_agent_restart() -> ConnectionAgentReferenceResult:
         restarted_scope=restarted_scope,
         restarted_profile=restarted_profile,
         provider=provider,
+        store=store,
     )
 
 

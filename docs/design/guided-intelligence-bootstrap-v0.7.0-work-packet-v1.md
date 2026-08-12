@@ -1,9 +1,9 @@
 # ACE 0.7 Intelligence Builder onboarding sequence (v1)
 
 **Status:** cumulative product contract and dispatch plan. 0.7A is the stable
-compiler/conformance candidate in draft PR #100. 0.7B Connect is the next implementation packet.
-0.7C–0.7E remain planned until their own code and evidence pass. This document does not claim the
-full onboarding journey is built.
+compiler/conformance candidate in draft PR #100. 0.7B Connect is the candidate in draft PR #102.
+0.7C Map is the active stacked candidate packet. 0.7D–0.7E remain planned until their own code and
+evidence pass. This document does not claim the full onboarding journey is built.
 
 ## Product promise
 
@@ -140,10 +140,11 @@ boundary, and failure semantics.
 
 ### 2. Ontology Agent — Map
 
-**0.7C dispatch contract:** a separate `OntologyAgent` service owns the planned
-`ace.application.concept-model-proposal/v1alpha1` output and consumes source-profile references
-without gaining connector authority. 0.7C must freeze and publish that schema before implementation
-can be accepted.
+**0.7C versioned boundary:** a separate `OntologyAgent` service owns
+`ace.application.concept-model-proposal/v1alpha1` and
+`ace.application.concept-model-disposition/v1alpha1`, consumes exact source-profile references
+without gaining connector authority, and persists immutable proposal/disposition handoffs through
+the shared opaque Core record seam.
 
 **Inputs**
 
