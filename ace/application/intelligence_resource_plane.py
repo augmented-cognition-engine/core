@@ -16,7 +16,7 @@ from ace.intelligence.contracts.resource_plane import (
 )
 
 RESOURCE_QUERY_OPERATION = "query_intelligence_resources"
-RESOURCE_QUERY_AUTHORITY = "read_intelligence_resources"
+RESOURCE_QUERY_AUTHORITY = "observe_read"
 
 
 class IntelligenceResourcePlaneError(RuntimeError):

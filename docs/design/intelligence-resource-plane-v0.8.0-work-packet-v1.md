@@ -1,8 +1,8 @@
 # ACE 0.8.0 unified Intelligence resource plane work packet
 
-Status: **active 0.8C packet; C1 public contracts and authorized query service implemented**
+Status: **active 0.8C packet; C1 public facade and C2 immutable-ledger projection implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@18d0aef` (0.8A architecture, AM4 lifecycle, and completed 0.8B boundary realignment)
+Accepted base: `main@bf4a75a` (0.8A architecture, AM4 lifecycle, completed 0.8B, and C1 facade)
 
 ## Outcome
 
@@ -43,7 +43,8 @@ The C1 seam provides:
 
 Queries and cursors never become bearer authority. Every page preserves the exact authenticated
 principal, product, query digest, grant, operation, evaluation time, and Core authority-use receipt.
-A cursor changes the read position but not the query identity.
+A cursor changes the read position but not the query identity. Resource queries use Core's existing
+`observe_read` authority class; the resource plane does not invent a parallel grant vocabulary.
 
 Readers fail closed if they widen product, resource-kind, subject, temporal, pagination, or result
 size boundaries. Degraded results require explicit reason references. Tombstoned resources cannot
@@ -66,10 +67,15 @@ the requested point-in-time view.
 
 ## Remaining 0.8C sequence
 
-C2 must bind the projection-reader port to supported PREPARED/LIVE Intelligence and governed-state
-records, preserving exact provenance and restart behavior. C3 must expose the same contracts through
-one supported machine interface and verify packaged schema/import integrity. C4 must prove Atrium
-consumes that interface rather than privileged internal state.
+C2 binds the six existing immutable PREPARED/LIVE resource families—Observations, Entity Snapshots,
+Signals, Shifts, Cases, and Briefs—to the same public plane. The adapter merges record spaces,
+projects Entity Snapshots as public Entities, preserves exact lineage and payloads, filters by
+subject and cursor, and remains reproducible when reconstructed over the same store. Unsupported or
+unavailable buckets return explicit degradation while preserving available truth.
+
+C3 must add governed-state projections for the remaining canonical families, expose the contracts
+through one supported machine interface, and verify packaged schema/import integrity. C4 must prove
+Atrium consumes that interface rather than privileged internal state.
 
 The 0.8C exit gate is one authorized query path that can reproduce the evidence-to-outcome resource
 chain after restart, report partial truth honestly, and remain identical for World and Market
