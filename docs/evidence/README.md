@@ -132,6 +132,9 @@ Two earlier local checkpoints predate the P1/P2 sequence and are superseded by i
 - [AM3 authorized recall and Context Planner candidate](agent-memory-am3-candidate-v1.md) — stacked
   candidate; provider-free selection, Context Manifest/I3 lineage, matched material influence,
   privacy, restart/rebuild, and installed-wheel evidence
+- [AM6 evaluation-preparation candidate](agent-memory-am6-evaluation-prep-candidate-v1.md) — stacked
+  candidate; provider-free corpus, matched memory/no-memory/full-context controls, 31 measures,
+  explicit negative/underpowered outcomes, and AM4-gated placeholders without lifecycle invention
 
 ## Extension invocation
 
