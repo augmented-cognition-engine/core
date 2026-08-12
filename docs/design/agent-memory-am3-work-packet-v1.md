@@ -2,9 +2,10 @@
 
 ## Frozen coordinate and claim
 
-AM3 begins at exact AM2 head `0938a63d577f817a68c61cbd8b56841c50d770e2` on
-`codex/v0.7-agent-memory-am2`. PR #108 remains AM0 authority, PR #117 remains the exact
-non-rewriting AC7+AM0 convergence, PR #118 remains AM1 authority, and PR #119 remains AM2
+AM3 preserves exact AM2 authority head `0938a63d577f817a68c61cbd8b56841c50d770e2` and is stacked
+on isolated repair head `9cf4d56fa88dc8c75c69a730319f05af976d3240` from
+`codex/v0.7-agent-memory-am2-correction-kind-fix`. PR #108 remains AM0 authority, PR #117 remains
+the exact non-rewriting AC7+AM0 convergence, PR #118 remains AM1 authority, and PR #119 remains AM2
 authority. AM3 does not rewrite those branches, PRs, identities, contracts, or claims.
 
 AM3 establishes a bounded capability only: an authenticated later task can receive the smallest
@@ -36,10 +37,11 @@ AM3 is additive over existing owners:
 - Existing search, embedding, and optional provider paths enter through provider-neutral signal
   ports. AM3 creates no search engine, vector store, cache, or provider-specific index.
 
-The only required repair below AM3 is an implementation correction in AM2 graph construction:
-correction candidates are classified as correction nodes on first insertion instead of being
-inserted first as assertions and then rejected as a conflicting node kind. No AM2 contract,
-identity, stored record, branch, PR, or claim changes.
+The isolated repair below AM3 changes only AM2 graph construction: correction candidates are
+classified as correction nodes on first insertion instead of being inserted first as assertions
+and then rejected as a conflicting node kind. Its exact commit is
+`9cf4d56fa88dc8c75c69a730319f05af976d3240`; no AM2 contract, identity, stored record, authority
+branch, PR, or claim changes.
 
 ## Versioned contract families
 
