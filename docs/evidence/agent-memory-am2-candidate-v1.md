@@ -5,7 +5,9 @@
 - Exact AM1 base: `8b5cd08e5c49962024323bb981bc221deacef649`
 - Base branch: `codex/v0.7-agent-memory-am1`
 - Candidate branch: `codex/v0.7-agent-memory-am2`
-- Exact AM2 implementation artifact: pending immutable commit
+- Exact AM2 implementation artifact: `5f678941e0cfca82463a932b5fd3eb8c785bece9`
+- Checkout-free wheel: `ace_core-0.6.0-py3-none-any.whl`
+- Wheel SHA-256: `44f101e8e5d6e3bb659e194e1568e8db0ba9d5a9b586e70d0c5f2333a9c1df80`
 - Status: isolated stacked draft candidate; not accepted, merged, released or supported
 
 ## Claim and limit
@@ -30,7 +32,7 @@ in `docs/design/agent-memory-am2-work-packet-v1.md`.
 | Full supported non-E2E/non-extension lane | 7,589 passed, 245 skipped, 261 marker-deselected; four sandbox-only localhost failures passed in the exact unsandboxed rerun |
 | Package, naked kernel and exactly eleven MCP tools | 76 passed in the final focused boundary rerun; public MCP inventory remains exactly eleven |
 | Ruff, format, lock, diff, schema, authority, privacy, domain, composition and secret scans | Whole-repository Ruff, AM2-path format, lock, diff, focused schema (34 passed), AC6, AC7, secret and domain-vocabulary scans passed |
-| Checkout-free installed wheel in two clean targets | Pending final closeout |
+| Checkout-free installed wheel in two clean targets | Passed from the exact implementation artifact in two fresh `/tmp` targets outside the checkout; both loaded AM2 application and contract modules from the installed wheel, exposed all seven families and the `v1alpha1` candidate contract, and retained exactly eleven thin MCP tools |
 
 ## Environmental disclosure
 
