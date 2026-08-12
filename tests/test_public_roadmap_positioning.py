@@ -20,7 +20,7 @@ def test_current_release_and_passed_milestone_are_not_conflated() -> None:
     assert "| 0.7.0 | Intelligence Builder Foundation | **Passed** |" in ROADMAP
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
     assert "0.7.0 is a published developer-preview release" in " ".join(readme.split())
-    assert "| 0.8.0 | Intelligence OS Realignment | **Next** |" in ROADMAP
+    assert "| 0.8.0 | Intelligence OS Realignment | **Now** |" in ROADMAP
     assert "| 0.9.0 | Collaborative Intelligence | **Later** |" in ROADMAP
     assert "| 1.0.0 | Intelligence Operating System | **Later** |" in ROADMAP
 
