@@ -1,0 +1,71 @@
+{
+  "contract": "ace.evaluations.agent-onboarding-governance-conformance/v1",
+  "product_id": "product:agent-governance-conformance",
+  "required_head_kinds": [
+    "agent_principal_lifecycle",
+    "agent_definition_lifecycle",
+    "agent_binding_lifecycle",
+    "agent_grant_request_lifecycle",
+    "agent_runtime_health"
+  ],
+  "cases": [
+    {
+      "case_id": "deterministic_service",
+      "principal_kind": "service",
+      "protocol": "ace.agent.service/v1",
+      "expected": "eligible_after_all_gates"
+    },
+    {
+      "case_id": "model_agent",
+      "principal_kind": "model_agent",
+      "protocol": "ace.agent.model/v1",
+      "expected": "eligible_after_all_gates"
+    },
+    {
+      "case_id": "adversarial_definition",
+      "principal_kind": "model_agent",
+      "protocol": "ace.agent.model/v1",
+      "expected": "no_self_approval_or_self_activation"
+    },
+    {
+      "case_id": "stale_approval",
+      "principal_kind": "service",
+      "protocol": "ace.agent.service/v1",
+      "expected": "no_head_change"
+    },
+    {
+      "case_id": "widened_binding",
+      "principal_kind": "model_agent",
+      "protocol": "ace.agent.model/v1",
+      "expected": "no_head_change"
+    },
+    {
+      "case_id": "revoked_grant",
+      "principal_kind": "service",
+      "protocol": "ace.agent.service/v1",
+      "expected": "no_activation_receipt"
+    },
+    {
+      "case_id": "incompatible_protocol",
+      "principal_kind": "model_agent",
+      "protocol": "ace.agent.unsupported/v1",
+      "expected": "no_activation_receipt"
+    },
+    {
+      "case_id": "retired_principal",
+      "principal_kind": "service",
+      "protocol": "ace.agent.service/v1",
+      "expected": "no_new_eligibility_or_retry"
+    }
+  ],
+  "invariants": {
+    "installation_is_authority": false,
+    "discovery_is_authority": false,
+    "definition_approval_is_activation": false,
+    "grant_request_is_grant": false,
+    "health_is_authority": false,
+    "conformance_has_effect": false,
+    "dry_run_has_effect": false,
+    "activation_receipt_is_reusable_authority": false
+  }
+}

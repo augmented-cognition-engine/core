@@ -66,6 +66,10 @@ from ace.core.agent_composition import (
     UsageV1Alpha1,
     validate_run_receipt_against_manifest,
 )
+from ace.core.agent_governance import (
+    AGENT_GOVERNANCE_COORDINATE_VERSION,
+    AgentGovernanceCoordinateV1Alpha1,
+)
 from ace.core.contracts import FrozenContract, canonical_hash, canonical_json, stable_id
 from ace.core.decisions import (
     DecisionActionDisposition,
@@ -147,6 +151,7 @@ from ace.core.state import (
 )
 
 __all__ = [
+    "AGENT_GOVERNANCE_COORDINATE_VERSION",
     "DOMAIN_ACTIVATION_LINEAGE_VERSION",
     "AGENT_PRINCIPAL_VERSION",
     "AUTHORITY_COORDINATE_VERSION",
@@ -159,6 +164,7 @@ __all__ = [
     "TASK_COMPOSITION_PLAN_VERSION",
     "DomainActivationLineageV1Alpha1",
     "AgentPrincipalV1Alpha1",
+    "AgentGovernanceCoordinateV1Alpha1",
     "AuthorityClass",
     "AuthorityCoordinateV1Alpha1",
     "CompositionBudgetV1Alpha1",
