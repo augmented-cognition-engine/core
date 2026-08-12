@@ -146,17 +146,26 @@ The bridge must preserve existing recipe and instrument revisions, I2 execution-
 I3 eligible/authorized/selected/injected/reflected/decision-material lineage, failure/taint/partial
 coverage, existing task behavior and the exact eleven-tool public MCP surface.
 
-No AC2 wiring begins until the control tower supplies the exact completed dependency branch and
-commit.
+The 0.7D identity-compatibility prerequisite is satisfied at exact commit
+`dab0866af239af9a13b4d2772a0d3950f932fa2e`, but AC2 remains closed. Its entry gate is an explicit
+control-tower authorization after an exact landed 0.7E branch and commit provide the accepted
+plan-bound live admission/runtime-authority seam. The historical
+`ace.application.domain-activation-commit-reference/v1alpha2` reference cannot satisfy that gate.
+AC2 does not depend on AM1 ingestion.
 
 ## Dependency handoffs
 
 ### 0.7D Watch + Brief
 
 AC1 provides `ExactArtifactReferenceV1Alpha1` and `trigger_artifacts` as the future typed seam for
-the exact approved Watch proposal and inert cited Brief preview identities. It deliberately does
-not guess or publish their unfinished contract names. The preview is neither an activated runtime
-stage output nor evidence of scheduling, delivery, execution authority or activation.
+the exact approved Watch proposal and inert cited Brief preview identities. Compatibility is pinned
+to 0.7D commit `dab0866af239af9a13b4d2772a0d3950f932fa2e`: the proposal uses
+`ace.application.intelligence-model-proposal/v1alpha1`, its approval uses
+`ace.application.intelligence-model-disposition/v1alpha1`, and the preview uses
+`ace.application.first-briefing-preview/v1alpha1`. AC1 carries each as an opaque exact ID, digest
+and contract coordinate; it does not import those types into Core contracts or reinterpret their
+payloads. The preview is neither an activated runtime stage output nor evidence of scheduling,
+delivery, execution authority or activation.
 
 ### 0.7E Activate + prove
 

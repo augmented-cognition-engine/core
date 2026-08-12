@@ -8,6 +8,11 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+from ace.application.briefing_agent_contracts import FIRST_BRIEFING_PREVIEW_VERSION
+from ace.application.intelligence_agent_contracts import (
+    INTELLIGENCE_MODEL_DISPOSITION_VERSION,
+    INTELLIGENCE_MODEL_PROPOSAL_VERSION,
+)
 from ace.core.agent_composition import (
     AuthorityClass,
     AuthorityCoordinateV1Alpha1,
@@ -37,6 +42,7 @@ from ace.intelligence.contracts.agent_composition import (
     resolve_instruction_contributions,
     validate_role_binding_narrows_definition,
 )
+from ace.testing.watch_brief import exercise_watch_brief_restart
 
 pytestmark = pytest.mark.unit
 
@@ -464,3 +470,59 @@ def test_ac1_contracts_and_ports_preserve_import_boundaries() -> None:
     assert all(not name.startswith(("ace.application", "core.engine")) for name in semantic_imports)
     application_imports = _imports(REPO / "ace" / "application" / "agent_composition.py")
     assert all(not name.startswith(("core.engine", "ace_mcp_client")) for name in application_imports)
+
+
+@pytest.mark.asyncio
+async def test_final_07d_watch_and_brief_identities_are_inert_exact_trigger_coordinates() -> None:
+    dependency = _fixture()["dependency_seams"]["watch_brief_07d"]
+    result = await exercise_watch_brief_restart()
+    proposal = result.approved.proposal
+    disposition = result.approved.disposition
+    preview = result.briefing.brief
+
+    assert dependency["exact_commit"] == "dab0866af239af9a13b4d2772a0d3950f932fa2e"
+    assert dependency["proposal_contract"] == proposal.contract == INTELLIGENCE_MODEL_PROPOSAL_VERSION
+    assert dependency["approval_contract"] == disposition.contract == INTELLIGENCE_MODEL_DISPOSITION_VERSION
+    assert dependency["preview_contract"] == preview.contract == FIRST_BRIEFING_PREVIEW_VERSION
+    assert dependency["preview_is_activated_runtime_output"] is False
+
+    trigger_artifacts = (
+        ExactArtifactReferenceV1Alpha1(
+            artifact_id=str(proposal.proposal_id),
+            artifact_digest=str(proposal.proposal_digest),
+            artifact_contract=proposal.contract,
+        ),
+        ExactArtifactReferenceV1Alpha1(
+            artifact_id=str(disposition.disposition_id),
+            artifact_digest=str(disposition.disposition_digest),
+            artifact_contract=disposition.contract,
+        ),
+        ExactArtifactReferenceV1Alpha1(
+            artifact_id=str(preview.brief_id),
+            artifact_digest=str(preview.brief_digest),
+            artifact_contract=preview.contract,
+        ),
+    )
+    case = next(item for item in _fixture()["cases"] if item["name"] == "solo")
+    base = _build_plan(case)
+    material = base.model_dump(mode="python", exclude={"composition_plan_id", "composition_plan_digest"})
+    material["trigger_artifacts"] = trigger_artifacts
+    plan = TaskCompositionPlanV1Alpha1.model_validate(material)
+
+    assert {(item.artifact_contract, item.artifact_id, item.artifact_digest) for item in plan.trigger_artifacts} == {
+        (proposal.contract, str(proposal.proposal_id), str(proposal.proposal_digest)),
+        (disposition.contract, str(disposition.disposition_id), str(disposition.disposition_digest)),
+        (preview.contract, str(preview.brief_id), str(preview.brief_digest)),
+    }
+    assert plan.activation_lineage is not None and plan.activation_lineage.live_authority is False
+    assert all(
+        coordinate.authority_class
+        not in {
+            AuthorityClass.EXECUTE_EXTERNAL,
+            AuthorityClass.DELIVER_EXPORT,
+            AuthorityClass.ADMINISTER_LIFECYCLE,
+        }
+        for participant in plan.participants
+        for coordinate in participant.authority
+    )
+    assert not {"activate", "deliver", "execute_action", "send"}.intersection(type(preview).model_fields)

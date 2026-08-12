@@ -3,6 +3,15 @@
   "product_id": "product:ac1-conformance",
   "stage": "deliberate",
   "objective": "Produce one bounded, attributable recommendation without widening authority.",
+  "dependency_seams": {
+    "watch_brief_07d": {
+      "exact_commit": "dab0866af239af9a13b4d2772a0d3950f932fa2e",
+      "proposal_contract": "ace.application.intelligence-model-proposal/v1alpha1",
+      "approval_contract": "ace.application.intelligence-model-disposition/v1alpha1",
+      "preview_contract": "ace.application.first-briefing-preview/v1alpha1",
+      "preview_is_activated_runtime_output": false
+    }
+  },
   "cases": [
     {
       "name": "solo",
