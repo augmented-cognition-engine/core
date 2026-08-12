@@ -7,10 +7,15 @@
 - Base branch: `codex/v0.7-cumulative-integration-acceptance`
 - Candidate branch: `codex/v0.7-agent-memory-am6-evaluation-prep`
 - Exact implementation artifact: `948f452cc691e68c599dbe8ee4b57b61f0c95710`
-- Cumulative review-only authority: PR #122; unchanged by this lane
-- Unpublished wheel: `ace_core-0.6.0-py3-none-any.whl`
-- Wheel SHA-256: `191c2930163f80ffdd4deb98c0042a9907e3fad9618e2809969ffa737094b415`
-- Status: isolated stacked draft candidate; not accepted, merged, released, or supported
+- Pre-convergence AM6 head: `a6c6dc736648e58d378bf6813551982faafe9486`
+- Control-tower-supplied main coordinate: `9e0a9d248c073b6a7883451cb1d219eb7c15999b`
+- Actual current main at convergence: `11b44e84d92e0674fa433103779f4050eeca2725`
+- Two-parent convergence merge: `1eb30999b5082a4c07d2abd2af08132226bde939`
+- Merge parents, in order: AM6 `a6c6dc736648e58d378bf6813551982faafe9486` and main `11b44e84d92e0674fa433103779f4050eeca2725`
+- Cumulative review authority: merged PR #122; release source and closeout are preserved from main
+- Unpublished converged wheel: `ace_core-0.7.0-py3-none-any.whl`
+- Wheel SHA-256: `1aad86d2b7d609aa3e3c7cbfe66932f93bcefc1b87ee52883d89a577f6471487`
+- Status: main-converged draft candidate; not accepted, merged, released, or supported
 
 ## Candidate claim and limit
 
@@ -90,6 +95,8 @@ protocol. No current AM3 case, held constant, or v1 evidence record needs rewrit
 | Provider/host/storage/import boundary | Passed; pure Intelligence contracts/evaluator import no host, provider, extension, MCP, or SurrealDB runtime |
 | Authority/privacy/AM4-invention scan | Passed in focused negative conformance; no policy-applying type or AM4 service/contract exists in the diff |
 | Checkout-free installed-wheel reproduction | Passed in two clean targets; both loaded the evaluator from the installed wheel and reproduced exact corpus/protocol IDs, 18 outcomes, restart determinism, and 11 thin MCP tools |
+| Main convergence | Normal two-parent merge passed with no conflicts; actual current main was one release-closeout commit beyond the supplied coordinate |
+| Converged package/release/evaluation/boundary matrix | 98 passed; every package identity remained `0.7.0` and both AM6 and AC6 provider-free verifiers passed |
 
 The full supported lane emitted existing dependency deprecation, weak synthetic JWT test-key, and
 test-collection/runtime warnings. It had no failure. No local database, live provider, or external
@@ -100,8 +107,8 @@ network was used by AM6 acceptance.
 The wheel was built without isolation from the exact locked repository environment and was not
 published. It was installed without dependencies into:
 
-- `/tmp/ace-am6-wheel-target-one.3m7zNM`; and
-- `/tmp/ace-am6-wheel-target-two.UBQwf6`.
+- `/tmp/ace-am6-v070-target-one.BhUak8`; and
+- `/tmp/ace-am6-v070-target-two.gJM9C0`.
 
 Both targets loaded `ace.intelligence.agent_memory_evaluation` from the installed target rather
 than the checkout and reproduced:
@@ -110,11 +117,12 @@ than the checkout and reproduced:
 - protocol `memory_evaluation_protocol:434a03e50ca5c3c43c3eaa9430600ac9`;
 - 18 cases with outcome counts 8 beneficial, 1 harmful, 4 neutral, and 5 underpowered;
 - fresh reconstruction identity equality; and
-- exactly eleven unique public thin-MCP tools.
+- exactly eleven unique public thin-MCP tools; and
+- installed package version `0.7.0`.
 
 ## Artifacts and effective diff
 
-The implementation commit changes 12 paths against the exact base:
+The effective diff changes 14 paths against converged current `main`:
 
 - additive Intelligence contract and pure comparator modules;
 - additive exports in the existing Intelligence initializers;
@@ -125,30 +133,26 @@ The implementation commit changes 12 paths against the exact base:
 
 It changes no AM0–AM3 runtime implementation, AM4 branch or contract, AC6 composition policy,
 schema, migration, dependency, package version, MCP server, TaskCreate contract, release metadata,
-or external repository.
+or external repository. The merge preserves main's complete 0.7.0 package and release state without
+making it part of the effective AM6 PR diff.
 
 ## Publication and convergence limit
 
-The effective diff is independently reviewable against
-`codex/v0.7-cumulative-integration-acceptance` and contains no AM4 invention. It is therefore
-eligible only for the requested stacked **draft** PR while that exact remote base ref exists.
-Merge, release, tag, package publication, policy activation, and downstream dispatch remain
-prohibited.
+The earlier publication hold was accurate when PR #122 had merged and GitHub had deleted the
+requested stacked base. The control tower later explicitly authorized a normal main convergence
+and a draft PR targeting `main`, superseding that hold without rewriting the existing AM6 commits.
 
-After this evidence commit, the exact candidate branch was pushed successfully. The preferred
-GitHub integration rejected draft creation with `403 Resource not accessible by integration`. The
-authenticated CLI fallback then reported that both base and head SHA were blank and that the base
-was not a branch. Read-only inspection established the cause: PR #122 merged at
-`2026-08-12T20:04:34Z` with exact head
-`f761a682164d10e2ff81ba38cd2d0c987b4f8efd`, and GitHub deleted remote branch
-`codex/v0.7-cumulative-integration-acceptance`. The AM6 remote branch remains present at the exact
-candidate head. This lane did not recreate, mutate, or retarget an upstream branch and did not open
-a PR against `main`.
+Before merge, the branch was clean at exact pre-convergence head
+`a6c6dc736648e58d378bf6813551982faafe9486`. A fresh fetch found that the supplied main coordinate
+`9e0a9d248c073b6a7883451cb1d219eb7c15999b` was the sole parent of newer current main
+`11b44e84d92e0674fa433103779f4050eeca2725`, which adds the 0.7 release closeout. The normal merge
+used that actual current head so publication would not begin stale. Merge commit
+`1eb30999b5082a4c07d2abd2af08132226bde939` has exactly the two recorded parents and had no
+conflicts. No rebase, force-push, history rewrite, main mutation, release, or tag occurred.
 
-The minimal publication convergence is for the control tower to restore the requested base ref at
-exact `f761a682164d10e2ff81ba38cd2d0c987b4f8efd`, or explicitly authorize a new target after reviewing
-the merged topology. The unchanged AM6 branch can then be used to open the stacked draft. Retargeting
-is not inferred from PR #122's merge.
+The effective diff against `main` remains independently reviewable and contains no AM4 invention.
+It is eligible only for the control-tower-authorized draft PR. Merge, release, tag, package
+publication, policy activation, and downstream dispatch remain prohibited.
 
 After AM4 acceptance, the minimal convergence step is a new additive commit that supplies the exact
 accepted AM4 coordinate and observation evidence for the three gated cases, then reruns this frozen
