@@ -111,6 +111,14 @@ from ace.application.case_brief_synthesis import (
     PreparedCaseBriefAppendAdmission,
     ResolvedCaseClosure,
 )
+from ace.application.composition_policy_admission import (
+    ADMINISTER_COMPOSITION_POLICY_AUTHORITY,
+    COMPOSITION_POLICY_RECORD_SPACE,
+    COMPOSITION_POLICY_STATE_KIND,
+    CommittedCompositionPolicy,
+    CompositionPolicyAdmissionError,
+    CompositionPolicyAdmissionService,
+)
 from ace.application.decision_feedback import (
     EffectivePreparedFeedback,
     PreparedDecisionAdmission,
@@ -339,6 +347,12 @@ __all__ = [
     "MeasuredCompositionError",
     "MeasuredCompositionEvaluationService",
     "MeasuredCompositionPreregistration",
+    "ADMINISTER_COMPOSITION_POLICY_AUTHORITY",
+    "COMPOSITION_POLICY_RECORD_SPACE",
+    "COMPOSITION_POLICY_STATE_KIND",
+    "CommittedCompositionPolicy",
+    "CompositionPolicyAdmissionError",
+    "CompositionPolicyAdmissionService",
     "evaluation_authority_reference",
     "ADMINISTER_LIFECYCLE_AUTHORITY",
     "AGENT_BINDING_LIFECYCLE_STATE_KIND",

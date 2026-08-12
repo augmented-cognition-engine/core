@@ -410,6 +410,17 @@ provider; synthesis resolves contributions into a recommendation. Decisions, rec
 traces, and provenance can then be written through the capture and graph boundary. The model
 contributes inference inside these stages; it does not choose the architecture around them.
 
+Composition-policy changes follow a separate governed path. AC6 matched-composition artifacts and
+`CompositionPolicyChangeProposalV1Alpha1` are immutable evidence, never current configuration or
+authority. The bounded AC7 closeout exact-loads and recomputes that evidence, requires an
+independent exact review plus present-tense `administer_composition_policy` authority, and commits
+an immutable `CompositionPolicyRevisionV1Alpha1` through Core's existing compare-and-swap governed
+state. Runtime receives only a bounded, non-reusable projection of the current active policy head
+and current authority/configuration heads. The policy may constrain or prefer selection; it cannot
+grant authority, establish participant eligibility, choose a model/provider, execute, deliver,
+export, or admit an effect. Composition implementation freezes at this AC7 boundary pending
+integrated 0.7 acceptance.
+
 ### Attributable deliberation and synthesis
 
 I2 makes the transition from reasoning shape to final synthesis an explicit bounded receipt.

@@ -86,3 +86,9 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [Domain Packs + Activation Core candidate evidence](evidence/domain-packs-activation-v0.7.0-core-candidate-v1.md)
   — exact activation/reference identities, negative controls, full verification, installed-wheel
   reproduction, and the remaining World/Market consumer handoff.
+- [AC7 composition-policy admission work packet](design/composition-policy-admission-ac7-work-packet-v1.md)
+  — the finite AC6 closeout for exact review, Core authority, CAS policy-head lifecycle, bounded
+  runtime resolution, and the post-AC7 composition freeze pending integrated 0.7 acceptance.
+- [AC7 composition-policy admission candidate evidence](evidence/composition-policy-admission-ac7-candidate-v1.md)
+  — frozen provider-free coordinates, positive lifecycle, seventeen fail-closed cases, wheel proof,
+  and release/integration entry gate.

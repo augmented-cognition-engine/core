@@ -459,6 +459,13 @@ connectors, and trusted extensions underneath that experience.
 The cumulative contracts, state machine, authority boundary, and demo gate are frozen in the
 [Intelligence Builder onboarding sequence](docs/design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md).
 
+The parallel Agent Composition candidate closes its finite governance sequence with AC7:
+[composition-policy admission](docs/design/composition-policy-admission-ac7-work-packet-v1.md)
+consumes exact inert AC6 evaluation/proposal evidence, requires independent review and current Core
+authority, and uses the existing governed-state owner for an exact compare-and-swap policy head.
+Composition implementation freezes after AC7 pending the same cumulative integrated 0.7 acceptance;
+this candidate does not by itself complete 0.7 or open an AC8+ implementation sequence.
+
 The 0.7 milestone does not absorb connector SDK breadth, extension sandboxing, telemetry,
 heterogeneous-evidence breadth, workspace UI, collaboration, marketplace, managed service, or
 release-ecosystem closeout. Those remain separately dispatched follow-ons at the appropriate

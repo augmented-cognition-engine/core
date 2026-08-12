@@ -1,0 +1,46 @@
+{
+  "fixture_id": "ac7-composition-policy-admission-conformance-v1",
+  "status": "passed_provider_free_candidate_gate",
+  "claim": "one exact inert AC6 proposal can traverse a separate governed composition-policy lifecycle without creating authority",
+  "claim_limitations": [
+    "AC6 proved one narrow deterministic condition among fourteen",
+    "this candidate does not establish general dynamic-composition benefit",
+    "this candidate does not complete integrated 0.7 acceptance"
+  ],
+  "coordinates": {
+    "proposal_id": "composition_policy_change_proposal:1deb3eff369eec029b627ce10d4b9f9e",
+    "comparison_id": "composition_matched_comparison:9b2a6152b28766bb323fa247405916a1",
+    "plan_id": "composition_policy_plan:47a32ab8beedeebf93fe69f13774aa00",
+    "plan_digest": "sha256:47a32ab8beedeebf93fe69f13774aa00235ea73a6288f2b006769ab1b854602e",
+    "request_id": "composition_policy_request:e2b3a34acae4ee36cea8c21c57d47e50",
+    "review_id": "composition_policy_review:d6254c4dfc95aac938d660641d336798",
+    "revision_id": "composition_policy_revision:28148e08f4d788ef628864481e6c72db",
+    "revision_digest": "sha256:28148e08f4d788ef628864481e6c72db3779f2912d07d9a23e4e212513ac82eb",
+    "core_commit_receipt_id": "governed_state_commit:d6322b2cb8f978197bdceac1162b2ac1",
+    "admission_receipt_id": "composition_policy_admission:0db5d63a721dd3121dd42a4b89cb32fa",
+    "runtime_receipt_id": "composition_policy_runtime:e62fc2f7fe62d79e842d7bed33137d13",
+    "runtime_receipt_digest": "sha256:e62fc2f7fe62d79e842d7bed33137d13c0faaf96cdde5cbe3a751f08f1d8b01b"
+  },
+  "policy_head": {
+    "state_kind": "composition_policy",
+    "product_id": "product:ac6-conformance",
+    "state_id": "composition_policy:ac7-current",
+    "sequence": 1,
+    "revision_id": "composition_policy_revision:28148e08f4d788ef628864481e6c72db",
+    "commit_receipt_id": "governed_state_commit:d6322b2cb8f978197bdceac1162b2ac1"
+  },
+  "positive_lifecycle": [
+    "admit",
+    "runtime_resolve",
+    "suspend",
+    "recover",
+    "restart_reopen",
+    "supersede_new_proposal",
+    "rollback_new_transaction"
+  ],
+  "provider_required": false,
+  "network_required": false,
+  "credentials_required": false,
+  "agent_memory_writes": false,
+  "public_mcp_tool_count": 11
+}

@@ -35,6 +35,9 @@ superseded by later work and is kept for audit trail only.
   — stacked candidate; cited immutable concept-model edits, exact approval, and restart handoff
 - [0.7D Intelligence Builder Watch + Brief candidate](intelligence-builder-watch-brief-v0.7.0-candidate-v1.md)
   — stacked candidate; approved Watch proposal, cited first Brief, exact restart, and blocked paths
+- [AC7 composition-policy admission candidate](composition-policy-admission-ac7-candidate-v1.md)
+  — stacked AC6 closeout; exact review, CAS policy head, lifecycle, bounded runtime resolution, and
+  freeze gate
 - [E1 governed-cognition release evidence](e1-governed-cognition-release-v1.md)
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md)
 - [IA-R1 product-map evidence](ia-r1-product-map.md)
