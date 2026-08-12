@@ -25,6 +25,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from core.engine.cognition.discovery import normalize_selection_receipt, normalize_use_receipt
 from core.engine.core.auth import get_current_user, verify_ownership
 from core.engine.core.db import parse_one, parse_record_id, parse_rows, pool
+from core.engine.core.task_composition_auth import (
+    get_task_current_user,
+    governed_composition_from_user,
+)
 from core.engine.core.tasks import logged_task
 from core.engine.execution.contracts import (
     TaskExecutionLimits,
@@ -1066,15 +1070,22 @@ async def _execute_receipt(
             force_frameworks=body.deep,
             frameworks_hint=body.frameworks_hint,
         )
-        if body.execution_limits is None:
-            result = await orchestrate(request)
-        else:
-            try:
+        governed_context = governed_composition_from_user(user)
+        governed_token = None
+        if governed_context is not None:
+            from core.engine.orchestration.agent_composition_context import bind_governed_composition
+
+            governed_token = bind_governed_composition(governed_context)
+        try:
+            if body.execution_limits is None:
+                result = await orchestrate(request)
+            else:
                 result = await asyncio.wait_for(
                     orchestrate(request),
                     timeout=body.execution_limits.wall_time_seconds,
                 )
-            except TimeoutError:
+        except TimeoutError:
+            if body.execution_limits is not None:
                 elapsed_ms = max(0, int(round((time.monotonic() - started_monotonic) * 1_000)))
                 error = {
                     "code": "execution_timeout",
@@ -1114,6 +1125,12 @@ async def _execute_receipt(
                     },
                 )
                 return
+            raise
+        finally:
+            if governed_token is not None:
+                from core.engine.orchestration.agent_composition_context import reset_governed_composition
+
+                reset_governed_composition(governed_token)
         status = result.status
         error = None
         if status not in {"completed", "complete"}:
@@ -1127,6 +1144,9 @@ async def _execute_receipt(
 
         reasoning_trace = _reasoning_trace(result)
         execution = _execution_coverage(result)
+        governed_composition = result.snapshot.get("_governed_composition")
+        if isinstance(governed_composition, dict):
+            execution["governed_composition"] = governed_composition
         execution["limits"] = execution_limit_receipt(body.execution_limits)
         provenance = reasoning_trace.setdefault("provenance", {})
         provenance["task_id"] = task_id
@@ -1626,7 +1646,7 @@ async def submit_task(
 
 
 @router.post("", status_code=202, response_model=TaskResponse)
-async def create_task(body: TaskCreate, user: dict = Depends(get_current_user)):
+async def create_task(body: TaskCreate, user: dict = Depends(get_task_current_user)):
     return await submit_task(body, user)
 
 
@@ -1682,7 +1702,7 @@ async def _link_attempt_successor(task_id: str, successor_task_id: str) -> dict:
 async def resume_task(
     task_id: str,
     body: TaskResumeRequest | None = None,
-    user: dict = Depends(get_current_user),
+    user: dict = Depends(get_task_current_user),
 ):
     """Create one linked successor for a terminal failed/degraded direct task."""
     request_body = body or TaskResumeRequest()
