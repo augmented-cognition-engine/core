@@ -409,6 +409,13 @@ Acceptance gate:
 
 **Outcome:** users and operators control how long Agent Memory exists and where it can travel.
 
+Candidate posture (2026-08-12): AM4 is implemented on the isolated
+`codex/v0.7-agent-memory-am4` lane from exact cumulative integration base
+`f761a682164d10e2ff81ba38cd2d0c987b4f8efd`. Its bounded contract, ownership, backup limitation,
+verification matrix, and AM5/AM8/AM9 handoff are recorded in
+[`agent-memory-am4-work-packet-v1.md`](agent-memory-am4-work-packet-v1.md). This is a stacked draft
+candidate only; it changes no package identity, supported capability claim, release, or AM5+ state.
+
 Scope:
 
 - separate supersession, expiry, archival, redaction, soft forget, and hard erasure meanings;

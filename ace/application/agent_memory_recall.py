@@ -25,9 +25,12 @@ from ace.core.agent_composition import ExactArtifactReferenceV1Alpha1
 from ace.core.agent_memory import (
     AgentMemoryScopeV1Alpha1,
     KnowledgeTimeKind,
+    LifecycleEventV1Alpha1,
+    LifecycleState,
     TemporalQueryV1Alpha1,
     WorldTimeKind,
 )
+from ace.core.agent_memory_lifecycle import LIFECYCLE_EVENT_RECORD_KIND, lifecycle_record_space
 from ace.core.contracts import canonical_hash, stable_id
 from ace.core.records import AppendOnlyTransactionRequestV1, ImmutableRecordStore, ImmutableRecordV1
 from ace.intelligence.contracts.agent_memory import MemoryContextLineageV1Alpha1
@@ -147,6 +150,16 @@ def _reopen(model: Any, payload: Mapping[str, Any]) -> Any:
         return model.model_validate(payload, strict=False)
     except (TypeError, ValueError) as exc:
         raise AgentMemoryRecallError("durable memory material failed exact revalidation") from exc
+
+
+def _all_contract_strings(value: Any) -> tuple[str, ...]:
+    if isinstance(value, str):
+        return (value,)
+    if isinstance(value, Mapping):
+        return tuple(item for child in value.values() for item in _all_contract_strings(child))
+    if isinstance(value, (list, tuple)):
+        return tuple(item for child in value for item in _all_contract_strings(child))
+    return ()
 
 
 def _telemetry_local() -> RetrievalTelemetryV1Alpha1:
@@ -396,12 +409,13 @@ class ContextPlannerService:
             raise AgentMemoryRetrievalStateError("fused-rank policy head is stale")
 
         instructions = await self._resolve_instructions(request.instruction_request, now)
-        decisions = await self._load_decisions(recall_request, now)
+        canonical_decisions = await self._load_decisions(recall_request, now)
         projection = (
             None
             if recall_request.structured_question is not StructuredQuestionKind.NONE
-            else await self._load_projection(recall_request, decisions, current, now)
+            else await self._load_projection(recall_request, canonical_decisions, current, now)
         )
+        decisions = await self._filter_current_lifecycle(recall_request, canonical_decisions, now)
         ranked, route, degraded = await self._rank(
             request=recall_request,
             policy=request.policy,
@@ -700,6 +714,39 @@ class ContextPlannerService:
             await self._authorize(request, "inspect_memory_candidate", str(decision.candidate.candidate_id), now)
             decisions.append(decision)
         return tuple(sorted(decisions, key=lambda item: (item.ledger_coordinate.sequence, str(item.decision_id))))
+
+    async def _filter_current_lifecycle(
+        self,
+        request: AuthenticatedRecallRequestV1Alpha1,
+        decisions: tuple[MemoryReconciliationDecisionV1Alpha1, ...],
+        now: datetime,
+    ) -> tuple[MemoryReconciliationDecisionV1Alpha1, ...]:
+        lifecycle_records = await self.store.read_as_of(
+            product_id=request.scope.product_id,
+            record_space=lifecycle_record_space(request.scope),
+            record_kind=LIFECYCLE_EVENT_RECORD_KIND,
+            available_at=now,
+        )
+        lifecycle: dict[str, LifecycleEventV1Alpha1] = {}
+        for record in lifecycle_records:
+            await self._authorize(request, "inspect_memory_candidate", str(record.storage_id), now)
+            event = _reopen(LifecycleEventV1Alpha1, record.payload)
+            prior = lifecycle.get(event.target_ref)
+            if prior is None or (event.occurred_at, str(event.event_id)) > (
+                prior.occurred_at,
+                str(prior.event_id),
+            ):
+                lifecycle[event.target_ref] = event
+        current: list[MemoryReconciliationDecisionV1Alpha1] = []
+        for decision in decisions:
+            decision_refs = set(_all_contract_strings(decision.model_dump(mode="json")))
+            if any(
+                event.next_state is not LifecycleState.ACTIVE and target_ref in decision_refs
+                for target_ref, event in lifecycle.items()
+            ):
+                continue
+            current.append(decision)
+        return tuple(current)
 
     async def _load_projection(
         self,

@@ -46,6 +46,9 @@ superseded by later work and is kept for audit trail only.
   content-free receipts, ordering, replay, and restart evidence only
 - [Agent Memory AM2 correction-node kind repair](agent-memory-am2-correction-kind-repair-v1.md)
   — isolated draft repair; correction candidates rebuild as one content-free correction node
+- [AM4 lifecycle, retention, export, and erasure candidate](agent-memory-am4-candidate-v1.md)
+  — isolated stacked candidate; content-free dependency-complete live-store erasure, canonical
+  scoped export/import, restart non-reappearance, and explicit backup limitations
 - [E1 governed-cognition release evidence](e1-governed-cognition-release-v1.md)
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md)
 - [IA-R1 product-map evidence](ia-r1-product-map.md)
