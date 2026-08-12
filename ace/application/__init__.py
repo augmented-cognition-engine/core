@@ -340,6 +340,10 @@ from ace.application.intelligence_resource_plane import (
     IntelligenceResourceProjectionBatch,
     IntelligenceResourceProjectionReader,
 )
+from ace.application.intelligence_resource_projection import (
+    IntelligenceLedgerProjectionError,
+    IntelligenceLedgerResourceProjectionReader,
+)
 from ace.application.live_intelligence_bridge import (
     LiveBriefAdmission,
     LiveBriefSynthesisError,
@@ -442,6 +446,8 @@ __all__ = [
     "IntelligenceResourcePlaneService",
     "IntelligenceResourceProjectionBatch",
     "IntelligenceResourceProjectionReader",
+    "IntelligenceLedgerProjectionError",
+    "IntelligenceLedgerResourceProjectionReader",
     "ASSERTION_DECISION_RECORD_KIND",
     "EXTRACTION_RECEIPT_RECORD_KIND",
     "GRAPH_PROJECTION_RECORD_KIND",

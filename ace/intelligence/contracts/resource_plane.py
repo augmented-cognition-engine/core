@@ -402,7 +402,7 @@ class IntelligenceResourcePageV1Alpha1(_StrictFrozenContract):
             or authority.use_subject_ref != self.query_id
             or authority.use_subject_digest != self.query_digest
             or authority.operation != "query_intelligence_resources"
-            or authority.authority != "read_intelligence_resources"
+            or authority.authority != "observe_read"
             or authority.evaluated_at != self.evaluated_at
         ):
             raise ValueError("page does not preserve the exact resource-query authority evaluation")

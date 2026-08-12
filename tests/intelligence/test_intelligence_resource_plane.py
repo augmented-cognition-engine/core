@@ -12,6 +12,7 @@ from ace.application.intelligence_resource_plane import (
     IntelligenceResourcePlaneService,
     IntelligenceResourceProjectionBatch,
 )
+from ace.core.agent_composition import AuthorityClass
 from ace.core.runtime_use import AuthenticatedRuntimeContextV1Alpha1, AuthorityUseReceiptV1Alpha1
 from ace.core.state import GovernedStateHeadPreconditionV1Alpha1
 from ace.intelligence import IntelligenceResourceKind as PublicIntelligenceResourceKind
@@ -190,6 +191,7 @@ def test_resource_plane_is_exported_through_the_supported_public_packages() -> N
     assert PublicIntelligenceResourcePlaneService is IntelligenceResourcePlaneService
     assert PublicIntelligenceResourceKind is IntelligenceResourceKind
     assert IntelligenceResourceQueryV1Alpha1.model_json_schema()["type"] == "object"
+    assert RESOURCE_QUERY_AUTHORITY == AuthorityClass.OBSERVE_READ.value
 
 
 def test_query_identity_excludes_cursor_but_cursor_is_bound_to_the_exact_query() -> None:
