@@ -4,12 +4,14 @@
 
 **ACE, the Intelligence Builder. Build intelligence, not infrastructure.**
 
-Connect the sources that matter and let ACE turn changing evidence into a source-grounded briefing,
-living monitors, and an intelligence system that improves with governed feedback. ACE is
-self-hosted and provider-neutral; provenance, authority, durable state, and exact receipts stay
-built into the result instead of becoming infrastructure every product team must recreate.
+ACE is an open, self-hosted **Intelligence Operating System** for products that need to stay
+oriented as evidence changes. Its first product experience is the Intelligence Builder: connect
+the sources that matter and let ACE turn changing evidence into source-grounded briefings, living
+monitors, and an intelligence system that improves with governed feedback. ACE is provider-neutral;
+provenance, authority, durable state, and exact receipts stay built into the result instead of
+becoming infrastructure every product team must recreate.
 
-![version 0.6.0](https://img.shields.io/badge/version-0.6.0-blue)
+![version 0.7.0](https://img.shields.io/badge/version-0.7.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -30,10 +32,11 @@ built into the result instead of becoming infrastructure every product team must
 
 ## What ACE does
 
-ACE is the **Intelligence Builder**: a self-hosted system for turning authorized, changing sources
-into useful intelligence without asking each product team to build its own ingestion, ontology,
-monitoring, briefing, provenance, authority, and feedback infrastructure. A configured model may
-supply inference inside the loop; ACE owns the governed intelligence lifecycle around it.
+ACE is an **Intelligence Operating System**, experienced first through the **Intelligence Builder**:
+a guided way to turn authorized, changing sources into useful intelligence without asking each
+product team to build its own ingestion, ontology, monitoring, briefing, provenance, authority, and
+feedback infrastructure. A configured model may supply inference inside the loop; ACE owns the
+governed intelligence lifecycle around it.
 
 - **Understand.** Admit evidence with source identity and time, resolve it into a temporal entity
   graph, and preserve the difference between observations, claims, inference, and unknowns.
@@ -72,14 +75,12 @@ Builders should not hand-author Domain Pack JSON or learn compiler mechanics to 
 Generated material still passes the same fail-closed schema, compatibility, conformance, authority,
 and activation boundaries as an expert-built pack.
 
-**Maturity:** ACE 0.6 already ships the governed source, monitoring, briefing, decision, feedback,
-and durable receipt substrates through developer-facing contracts. The cumulative 0.7 candidate
-now composes stable Domain Pack compilation/conformance with provider-free Connect, cited and
-editable Map, approved Watch, cited first Brief, and exact Activate/restart behavior. The same
-candidate also composes governed Agent Composition through AC7 and authorized Agent Memory through
-AM3 without widening authority or changing the eleven-tool public MCP surface. Cumulative review,
-CI, independent Market acceptance, and release reconciliation remain open. This is not yet a
-released 0.7 package or a claim about the current released UI.
+**Maturity:** ACE 0.7 is the released Intelligence Builder Foundation. It composes stable Domain
+Pack compilation and conformance with provider-free Connect, cited and editable Map, approved
+Watch, cited first Brief, and exact Activate/restart behavior. The same release composes governed
+Agent Composition through AC7 and authorized Agent Memory through AM3 without widening authority
+or changing the eleven-tool public MCP surface. Independent World and Market consumers reproduce
+the activation boundary. The guided graphical workspace remains a later product milestone.
 
 ### Two connected loops
 
@@ -385,7 +386,32 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.6.0 adds
+## What 0.7.0 adds
+
+0.7.0 is the public **Intelligence Builder Foundation** release: the first coherent foundation for
+ACE as an Intelligence Operating System. The visible product journey is:
+
+```text
+Connect → Map → Watch → Brief → Activate
+```
+
+- **Five bounded onboarding agents.** Connection, Ontology, Intelligence, Briefing, and Activation
+  agents create editable proposals and exact handoffs. No agent grants itself authority.
+- **Stable generated Domain Packs.** Machine-readable schemas, deterministic compilation,
+  compatibility negotiation, golden-fixture conformance, structured diagnostics, and exact
+  activation receipts keep packs inert, portable, and inspectable.
+- **Governed composition.** AC1–AC7 separates participant eligibility, planning, onboarding,
+  lifecycle, delivery, measurement, and policy admission while preserving exact authority.
+- **Authorized memory.** AM0–AM3 adds episodic experience, typed assertions and corrections,
+  authorized recall, explicit scoring and omissions, and a canonical Context Manifest without
+  letting memory choose agents or widen tools.
+- **Two-domain proof.** World Intelligence and a private B2B Market Intelligence deployment
+  exercise materially different nouns and policies through unchanged Core + Intelligence APIs,
+  including restart, upgrade, rollback, and fail-closed conformance.
+- **Stable public boundary.** Core and Intelligence remain one install, schema head remains v177,
+  and the public MCP surface remains exactly eleven tools.
+
+### What 0.6.0 added
 
 0.6.0 is the public **Measured Intelligence** release. It adds a bounded, domain-neutral way to
 determine whether an intelligence artifact or governed cognition revision helped, harmed, or
@@ -407,7 +433,7 @@ remains unproven under explicit product-owned criteria. No governance proposal a
 
 The bounded **Reasoning into Action** topology introduced in 0.5.0 remains unchanged: one ACE host,
 one durable store, and explicitly trusted in-process adapters. The separately packaged reference
-adapter is distribution 0.2.0 with `ace-core>=0.6.0,<0.7`; its unchanged executable
+adapter is distribution 0.3.0 with `ace-core>=0.7.0,<0.8`; its unchanged executable
 implementation keeps artifact identity 0.1.0.
 
 The governed Intelligence foundation introduced in 0.4.0 remains part of the same install:
@@ -772,9 +798,9 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.6.0 is a published developer-preview release.** Its Measured Intelligence claim
-is bounded to the recorded product criteria, matched controls, exact provenance, and single-node
-topology. Read this section before you build on it.
+**0.7.0 is a published developer-preview release.** Its Intelligence Builder claim is bounded to
+the provider-free and installed-artifact journeys recorded in the evidence archive and the
+single-node topology below. Read this section before you build on it.
 
 What is bounded:
 
@@ -818,11 +844,11 @@ The north-star loop is:
 understand → reason → decide → act with authority → observe outcomes → improve future reasoning
 ```
 
-0.5.0 delivers the bounded Reasoning into Action span of that loop. Public 0.6.0
-(*Measured Intelligence*) connects that journey to later product-owned outcomes and may propose
-promotion, rejection, rollback, or retirement without applying any of them. The exact public
-artifacts and boundaries are recorded in the
-[release closeout](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/measured-intelligence-v0.6.0-release-closeout-v1.md).
+0.5.0 delivers bounded Reasoning into Action. Public 0.6.0 (*Measured Intelligence*) connects that
+journey to later product-owned outcomes. Public 0.7.0 turns the underlying system into the
+Intelligence Builder Foundation: Connect → Map → Watch → Brief → Activate, backed by governed
+composition and authorized memory. Exact integration evidence is recorded in the
+[0.7 acceptance packet](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/cumulative-core-v0.7-integration-acceptance-v1.md).
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries

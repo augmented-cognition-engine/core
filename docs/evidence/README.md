@@ -26,6 +26,7 @@ superseded by later work and is kept for audit trail only.
 - [ace-core 0.3.1 Productized State release evidence](productized-state-v0.3.1-release-readiness.md)
 - [ace-core 0.5.0 Reasoning into Action release evidence](reasoning-into-action-v0.5.0-release-readiness.md) — public, passed
 - [ace-core 0.6.0 Measured Intelligence release closeout](measured-intelligence-v0.6.0-release-closeout-v1.md) — public, passed
+- [ace-core 0.7.0 Intelligence Builder Foundation release closeout](intelligence-builder-foundation-v0.7.0-release-closeout-v1.md) — public, passed
 
 ## Product outcomes
 
