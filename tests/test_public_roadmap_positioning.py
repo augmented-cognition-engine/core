@@ -11,7 +11,7 @@ ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
 
 def test_current_release_and_passed_milestone_are_not_conflated() -> None:
-    assert "`ace-core` 0.6.0 is published on PyPI and GitHub" in ROADMAP
+    assert "latest published release remains `ace-core` 0.6.0 on PyPI and GitHub" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
     assert "| 0.4.0 | Governed Cognition | **Delivered** |" not in ROADMAP
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
@@ -19,7 +19,7 @@ def test_current_release_and_passed_milestone_are_not_conflated() -> None:
     assert "| 0.6.0 | Measured Intelligence | **Passed** |" in ROADMAP
     assert "| 0.7.0 | Intelligence Builder Foundation | **Candidate** |" in ROADMAP
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
-    assert "This is not yet a released 0.7 package" in " ".join(readme.split())
+    assert "0.7.0 is a developer-preview release candidate" in " ".join(readme.split())
     assert "| 0.8.0 | Intelligence Workspace | **Later** |" in ROADMAP
     assert "| 0.9.0 | Collaborative Intelligence | **Later** |" in ROADMAP
     assert "| 1.0.0 | Intelligence Operating System | **Later** |" in ROADMAP
