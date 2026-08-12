@@ -53,6 +53,7 @@ def test_contracts_never_import_application_compiler_or_host_dependencies() -> N
 def test_intelligence_initializer_exports_contracts_and_pure_interpreters_only() -> None:
     imports = _imports(INTELLIGENCE / "__init__.py")
     assert imports == {
+        "ace.intelligence.agent_memory_evaluation",
         "ace.intelligence.contracts",
         "ace.intelligence.derivation",
         "ace.intelligence.detection",

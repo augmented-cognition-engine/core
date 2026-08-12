@@ -7,6 +7,7 @@ exported here (routing, synthesis, epistemic, detection, source mapping) are
 deterministic functions over contract values only.
 """
 
+from ace.intelligence.agent_memory_evaluation import compare_memory_conditions
 from ace.intelligence.contracts import *  # noqa: F403
 from ace.intelligence.contracts import __all__ as _CONTRACTS_ALL
 from ace.intelligence.derivation import (
@@ -122,6 +123,7 @@ __all__ = [
     "eligible_live_signal_routes",
     "eligible_signal_routes",
     "evaluate_measured_impact",
+    "compare_memory_conditions",
     "compare_measured_composition",
     "interpret_live_source_mapping",
     "interpret_prepared_source_mapping",

@@ -1,0 +1,419 @@
+{
+  "am3_runnable_cases": 15,
+  "am4_gated_placeholders": 3,
+  "case_count": 18,
+  "condition_count": 3,
+  "corpus_digest": "sha256:57b629504eac4f10af39f7943be4143fac31d483e9029769aabfcea3024f02be",
+  "corpus_id": "memory_evaluation_corpus:57b629504eac4f10af39f7943be4143f",
+  "exact_base": "f761a682164d10e2ff81ba38cd2d0c987b4f8efd",
+  "fixture_contract": "ace.evaluation.agent-memory-am6-evaluation-prep/v1",
+  "measure_count": 31,
+  "network_used": false,
+  "observation_count": 54,
+  "outcome_counts": {
+    "beneficial": 8,
+    "harmful": 1,
+    "neutral": 4,
+    "underpowered": 5
+  },
+  "policy_changes_emitted": 0,
+  "protocol_digest": "sha256:434a03e50ca5c3c43c3eaa9430600ac95bf00e26101400795df030db4b045729",
+  "protocol_id": "memory_evaluation_protocol:434a03e50ca5c3c43c3eaa9430600ac9",
+  "provider_credentials_used": false,
+  "restart_reconstruction_identical": true,
+  "results": [
+    {
+      "assignment_digest": "sha256:fcc89ac82e8091bbe3a453a55721c9b597139ff3a4ad05d3f87ed5ea55bf8990",
+      "assignment_id": "memory_condition_assignment:fcc89ac82e8091bbe3a453a55721c9b5",
+      "benefit_disposition": "beneficial",
+      "case_id": "am1_ingestion_replay_restart",
+      "causality": "not_established",
+      "comparison_digest": "sha256:e1f82491fba8439dd7d9eebf411957c6a626ef206083d554eeade55166ad1e6e",
+      "comparison_id": "memory_matched_comparison:e1f82491fba8439dd7d9eebf411957c6",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:d77267a8ba383fbd83dad721bb162fd1",
+        "memory_run_observation:1aa1f90bcfb3d4bdbc261a7c3af189f3",
+        "memory_run_observation:9183701deb7bc47de8732d49f0f97bc4"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:a68f6d35434058e27108a6a90f564547510f1c16e3795d7d373d65dd678f74a8",
+      "assignment_id": "memory_condition_assignment:a68f6d35434058e27108a6a90f564547",
+      "benefit_disposition": "beneficial",
+      "case_id": "am2_family_extraction_and_spans",
+      "causality": "not_established",
+      "comparison_digest": "sha256:da5bc1a65828ae92e7369933ea9f4104bcca6e8e309085c8f233e42129541dfc",
+      "comparison_id": "memory_matched_comparison:da5bc1a65828ae92e7369933ea9f4104",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:cbd750323c3e9da6724234fd278167ce",
+        "memory_run_observation:2321bf0b12d0b16b7c724fc2e6c30993",
+        "memory_run_observation:c4d7f42f0d94f4ac4adac70760abd66c"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:ff1c2df030f0ab20213035231f6524bec596e55e59029d685bcce79ed38acde4",
+      "assignment_id": "memory_condition_assignment:ff1c2df030f0ab20213035231f6524be",
+      "benefit_disposition": "neutral",
+      "case_id": "am2_identity_and_unresolved",
+      "causality": "not_established",
+      "comparison_digest": "sha256:e3548e6461f483d3de048244fabbc21ce4c0a483049ad86fae0d7a0156f7405c",
+      "comparison_id": "memory_matched_comparison:e3548e6461f483d3de048244fabbc21c",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "not_observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:07e27e24b1aec189f9c689ba8eee3c8b",
+        "memory_run_observation:a5221c55f431fbc5e9615cc1106d8e8b",
+        "memory_run_observation:026bfa54222cba16b516f2ef9205e9c9"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:f6ac4b26e5bbd75c9133170eeabcdff5d8c6b7feeff7f953673e311ef2d0c603",
+      "assignment_id": "memory_condition_assignment:f6ac4b26e5bbd75c9133170eeabcdff5",
+      "benefit_disposition": "beneficial",
+      "case_id": "am2_conflict_correction_uncertainty",
+      "causality": "not_established",
+      "comparison_digest": "sha256:32f281850ca144de18d375757dc9953756e306a16e328be1581a02d8bef126c9",
+      "comparison_id": "memory_matched_comparison:32f281850ca144de18d375757dc99537",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:49d50df8de570b74918c2d17924887c4",
+        "memory_run_observation:fc8c24203d9c9153e0fb25200cc61edb",
+        "memory_run_observation:b2f14ea42cfc68100bf3e53e8922f8ce"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:1d8ef8d1a187ff503643f6d1a40c992493f75cb4c2bd66601f55341a30e0f32a",
+      "assignment_id": "memory_condition_assignment:1d8ef8d1a187ff503643f6d1a40c9924",
+      "benefit_disposition": "beneficial",
+      "case_id": "am2_instruction_isolation",
+      "causality": "not_established",
+      "comparison_digest": "sha256:2757916772fd0f30aec6bae446a2a831f3a4efc0a45738701b23c63b17b96969",
+      "comparison_id": "memory_matched_comparison:2757916772fd0f30aec6bae446a2a831",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:75863d76e480606daf934a8b3c6d772f",
+        "memory_run_observation:700f2effef477bedbd98e19b26fec22b",
+        "memory_run_observation:23eeba5b6b8242a6efc72014e884506c"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:86a301a72a58d87370890318bf6d2a59a29ea57d5732b13a099c03ee4be81cdb",
+      "assignment_id": "memory_condition_assignment:86a301a72a58d87370890318bf6d2a59",
+      "benefit_disposition": "beneficial",
+      "case_id": "am2_independent_time_axes",
+      "causality": "not_established",
+      "comparison_digest": "sha256:ba88be8306a13a6f10046630084d636737d8e97669577adb46b6e5c5234789bb",
+      "comparison_id": "memory_matched_comparison:ba88be8306a13a6f10046630084d6367",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:6d9762259ae111f4e34cfa52ffedfa12",
+        "memory_run_observation:a8792511b5b24a09aecb6254358e096c",
+        "memory_run_observation:f56b1e627dd4cfb30f6c2cc267df9bab"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:af72193d4154506bafb485248ca604c5dcfbe49e5c5166dfdd168aae7f73319e",
+      "assignment_id": "memory_condition_assignment:af72193d4154506bafb485248ca604c5",
+      "benefit_disposition": "neutral",
+      "case_id": "am1_scope_privacy_isolation",
+      "causality": "not_established",
+      "comparison_digest": "sha256:1b606fafc5467bc6cbc71cbc26405e12f2776d44b66006ced4d0c8a7ce20c82c",
+      "comparison_id": "memory_matched_comparison:1b606fafc5467bc6cbc71cbc26405e12",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "not_observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:be13be9ecf31a0db71d50b23c31ed441",
+        "memory_run_observation:d9cd800b1813c347bb87ecd48c3458a0",
+        "memory_run_observation:45b504821335f29c7fb2238790708b9f"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:155a2fd6883fbaf7109ce5475f43d6359d60610610a04d189aa49835ba48b6b8",
+      "assignment_id": "memory_condition_assignment:155a2fd6883fbaf7109ce5475f43d635",
+      "benefit_disposition": "neutral",
+      "case_id": "am3_authorization_denial",
+      "causality": "not_established",
+      "comparison_digest": "sha256:017b57a9213f1fd0db748f0b580753c6f8ad8a4f554515be29fe219380752098",
+      "comparison_id": "memory_matched_comparison:017b57a9213f1fd0db748f0b580753c6",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "not_observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:a58cd443bd9d30e435924c6144a426ae",
+        "memory_run_observation:4684c674b9d942e4dcda443ae62c9ec4",
+        "memory_run_observation:2b6361e9fe098aa83466d909e97d1d5d"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:39f2f271ea3fe513b28d0a4fb1361005143dce3003b82bd8abc10da5b15fb2db",
+      "assignment_id": "memory_condition_assignment:39f2f271ea3fe513b28d0a4fb1361005",
+      "benefit_disposition": "beneficial",
+      "case_id": "am3_stale_superseded_safety",
+      "causality": "not_established",
+      "comparison_digest": "sha256:3b6fd6b8e6ac1bcfc7ffb10def13a8087065e72b3ce3e90853cf204a1a5e6448",
+      "comparison_id": "memory_matched_comparison:3b6fd6b8e6ac1bcfc7ffb10def13a808",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:3a0465794c24e9a58f3d8351a6d859f0",
+        "memory_run_observation:87503ea7ee1dbabefed048c9e002e453",
+        "memory_run_observation:e373f4f0e3fd835078a25da159823980"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:9e1d76f018a7a253d715e357a7097799620a295cf3d70f65a9223a1960b46fe6",
+      "assignment_id": "memory_condition_assignment:9e1d76f018a7a253d715e357a7097799",
+      "benefit_disposition": "harmful",
+      "case_id": "am3_harmful_influence_probe",
+      "causality": "not_established",
+      "comparison_digest": "sha256:97da7593602cef25e0cb500e3eed1953b1ac072ee97d5c14fc0be4fc1b189a8f",
+      "comparison_id": "memory_matched_comparison:97da7593602cef25e0cb500e3eed1953",
+      "correctness": "incorrect",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:e629d0dd0ead7257a1ccdc047e5cbf4d",
+        "memory_run_observation:117bcc53337e88baee4fb7ab86684db0",
+        "memory_run_observation:153b4eb5c17e9989a200b542d4bbe001"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:58f2fb9be0d867d2dca893afea42cf53ef465407a8dd7a7e6808b30d3e191899",
+      "assignment_id": "memory_condition_assignment:58f2fb9be0d867d2dca893afea42cf53",
+      "benefit_disposition": "beneficial",
+      "case_id": "am3_manifest_selection_omission",
+      "causality": "not_established",
+      "comparison_digest": "sha256:50599871ebd15faeb65210afaca8f22e38e14fdbd9f04f234ead46e4d4c4be13",
+      "comparison_id": "memory_matched_comparison:50599871ebd15faeb65210afaca8f22e",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:24a19aa95e67e9271e7a393d15887177",
+        "memory_run_observation:4a34310ce54230cebac64ba19b1720da",
+        "memory_run_observation:82b078063720dfe257b133bbb85d6678"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:f26eb8ca1dd226f80dc03f96a8cccd3d439079de86f2aef1ba8267745cb26bec",
+      "assignment_id": "memory_condition_assignment:f26eb8ca1dd226f80dc03f96a8cccd3d",
+      "benefit_disposition": "underpowered",
+      "case_id": "am3_degraded_retrieval_signal",
+      "causality": "not_established",
+      "comparison_digest": "sha256:48d3353b1cf03a53b3688e7ac6156b8f365fabdf288a3c55d26f9107aaeb0022",
+      "comparison_id": "memory_matched_comparison:48d3353b1cf03a53b3688e7ac6156b8f",
+      "correctness": "underpowered",
+      "gate": "runnable_am3",
+      "material_influence": "underpowered",
+      "missing_measurements": [
+        "full_context:rank_quality_bps:vector_signal_unavailable",
+        "memory:rank_quality_bps:vector_signal_unavailable",
+        "no_memory:rank_quality_bps:not_applicable_without_memory"
+      ],
+      "observation_ids": [
+        "memory_run_observation:0edc18d000e8cdae07c17fb1f0f38b07",
+        "memory_run_observation:8fd12781f840d56e9e439b9f3153300c",
+        "memory_run_observation:0a28d7ad2f0db33f9e0e75322acd2ad4"
+      ],
+      "paired_and_controlled": false
+    },
+    {
+      "assignment_digest": "sha256:f9828ea49124f0beb1bf328ae492ecf7692930770fdacb06007b4300b73b6a2f",
+      "assignment_id": "memory_condition_assignment:f9828ea49124f0beb1bf328ae492ecf7",
+      "benefit_disposition": "beneficial",
+      "case_id": "am3_later_restart_material_use",
+      "causality": "not_established",
+      "comparison_digest": "sha256:4d38f752d449bace58e48c96b8500d28af250bc2127fdcd8986f000b2664dce0",
+      "comparison_id": "memory_matched_comparison:4d38f752d449bace58e48c96b8500d28",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:f3a57c9290de840c77470020c78e3fba",
+        "memory_run_observation:88e19700abc4e6631374c0c6e40184a0",
+        "memory_run_observation:784cd6dd5617c4cf2fd50c338a336ffe"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:5f9be4cee47b9e0bf31e07473e5b34f2bd4fb9e49b8a8b9db22b6be964e21a5a",
+      "assignment_id": "memory_condition_assignment:5f9be4cee47b9e0bf31e07473e5b34f2",
+      "benefit_disposition": "neutral",
+      "case_id": "am3_material_but_neutral",
+      "causality": "not_established",
+      "comparison_digest": "sha256:f4e73dee10ca9f6a289102d56976285bd92160c626aaca04d7ae525b1b0aa909",
+      "comparison_id": "memory_matched_comparison:f4e73dee10ca9f6a289102d56976285b",
+      "correctness": "correct",
+      "gate": "runnable_am3",
+      "material_influence": "observed",
+      "missing_measurements": [],
+      "observation_ids": [
+        "memory_run_observation:42422744a49fe02c399790547d557764",
+        "memory_run_observation:27d8cc5686f1c637cf520397eed07bd4",
+        "memory_run_observation:2fb1da45f0888dc9b34b5db760808195"
+      ],
+      "paired_and_controlled": true
+    },
+    {
+      "assignment_digest": "sha256:5940bfe597ac67253d5706fdc0e8b25c099415c6cf4b48d75ae0d3e03d078068",
+      "assignment_id": "memory_condition_assignment:5940bfe597ac67253d5706fdc0e8b25c",
+      "benefit_disposition": "underpowered",
+      "case_id": "am3_missing_resource_telemetry",
+      "causality": "not_established",
+      "comparison_digest": "sha256:4d114e9afbeb3cbfaa4bfa2143c11c4ebbbc4310c159cc4df82d54dcff8a2fba",
+      "comparison_id": "memory_matched_comparison:4d114e9afbeb3cbfaa4bfa2143c11c4e",
+      "correctness": "underpowered",
+      "gate": "runnable_am3",
+      "material_influence": "underpowered",
+      "missing_measurements": [
+        "memory:cost_microunits:cost_telemetry_unavailable"
+      ],
+      "observation_ids": [
+        "memory_run_observation:20334e8ee7c0cd69ee2e4726d2a56b59",
+        "memory_run_observation:1017cc5a8c783ab54f0d4c55f43a5bc9",
+        "memory_run_observation:292b8e29e58de9cb0dbf6793ce549ecb"
+      ],
+      "paired_and_controlled": false
+    },
+    {
+      "assignment_digest": "sha256:9dfe82fc11eae9e2a50b44636b126dd7e7ef00556b4d99ea1eea1514df9a4a98",
+      "assignment_id": "memory_condition_assignment:9dfe82fc11eae9e2a50b44636b126dd7",
+      "benefit_disposition": "underpowered",
+      "case_id": "am4_retention_expiry_placeholder",
+      "causality": "not_established",
+      "comparison_digest": "sha256:6befe9e2c7db2b7770e272af5b735c0007cc5fbd5b8d03cb5a90506161dfb51c",
+      "comparison_id": "memory_matched_comparison:6befe9e2c7db2b7770e272af5b735c00",
+      "correctness": "underpowered",
+      "gate": "future_accepted_am4",
+      "material_influence": "underpowered",
+      "missing_measurements": [
+        "full_context:omission_coverage_bps:future_accepted_am4_coordinate_required",
+        "full_context:retrieval_recall_bps:future_accepted_am4_coordinate_required",
+        "full_context:task_correctness_bps:future_accepted_am4_coordinate_required",
+        "future_accepted_am4_coordinate:required",
+        "memory:omission_coverage_bps:future_accepted_am4_coordinate_required",
+        "memory:retrieval_recall_bps:future_accepted_am4_coordinate_required",
+        "memory:task_correctness_bps:future_accepted_am4_coordinate_required",
+        "no_memory:omission_coverage_bps:future_accepted_am4_coordinate_required",
+        "no_memory:retrieval_recall_bps:future_accepted_am4_coordinate_required",
+        "no_memory:task_correctness_bps:future_accepted_am4_coordinate_required"
+      ],
+      "observation_ids": [
+        "memory_run_observation:755fc9c50abee66b42f365cceedc0ff7",
+        "memory_run_observation:72c46504851d87028e7579caff5d8851",
+        "memory_run_observation:dce306a6414458ec4d698a757a45b3d0"
+      ],
+      "paired_and_controlled": false
+    },
+    {
+      "assignment_digest": "sha256:9f1cfa79fa60866c7a60a04fe1acfe07e2c5caef0d602a1bdc9fe7345e602732",
+      "assignment_id": "memory_condition_assignment:9f1cfa79fa60866c7a60a04fe1acfe07",
+      "benefit_disposition": "underpowered",
+      "case_id": "am4_export_import_placeholder",
+      "causality": "not_established",
+      "comparison_digest": "sha256:a7e2d966cb2dc4f2813e1e2d40bdd0970ff307266837a56f9027df2cd0856271",
+      "comparison_id": "memory_matched_comparison:a7e2d966cb2dc4f2813e1e2d40bdd097",
+      "correctness": "underpowered",
+      "gate": "future_accepted_am4",
+      "material_influence": "underpowered",
+      "missing_measurements": [
+        "full_context:citation_correctness_bps:future_accepted_am4_coordinate_required",
+        "full_context:replay_correctness_bps:future_accepted_am4_coordinate_required",
+        "full_context:task_correctness_bps:future_accepted_am4_coordinate_required",
+        "future_accepted_am4_coordinate:required",
+        "memory:citation_correctness_bps:future_accepted_am4_coordinate_required",
+        "memory:replay_correctness_bps:future_accepted_am4_coordinate_required",
+        "memory:task_correctness_bps:future_accepted_am4_coordinate_required",
+        "no_memory:citation_correctness_bps:future_accepted_am4_coordinate_required",
+        "no_memory:replay_correctness_bps:future_accepted_am4_coordinate_required",
+        "no_memory:task_correctness_bps:future_accepted_am4_coordinate_required"
+      ],
+      "observation_ids": [
+        "memory_run_observation:e259ad712717bd2508f9789be7c43c1b",
+        "memory_run_observation:44d4f40e0f48f9a7ebd32e98a295ef98",
+        "memory_run_observation:53001b3d0ef1262c09031106e02d4cb1"
+      ],
+      "paired_and_controlled": false
+    },
+    {
+      "assignment_digest": "sha256:4f77cfd8908f6989da3d46c0ee0d35ee292c942dc526f09872a626e82962a452",
+      "assignment_id": "memory_condition_assignment:4f77cfd8908f6989da3d46c0ee0d35ee",
+      "benefit_disposition": "underpowered",
+      "case_id": "am4_hard_erasure_placeholder",
+      "causality": "not_established",
+      "comparison_digest": "sha256:3e923c96b466c7c7ebc3fea57e85183114d471a003e80aed248f076b38ff92ee",
+      "comparison_id": "memory_matched_comparison:3e923c96b466c7c7ebc3fea57e851831",
+      "correctness": "underpowered",
+      "gate": "future_accepted_am4",
+      "material_influence": "underpowered",
+      "missing_measurements": [
+        "full_context:omission_coverage_bps:future_accepted_am4_coordinate_required",
+        "full_context:task_correctness_bps:future_accepted_am4_coordinate_required",
+        "full_context:unauthorized_retrieval_count:future_accepted_am4_coordinate_required",
+        "future_accepted_am4_coordinate:required",
+        "memory:omission_coverage_bps:future_accepted_am4_coordinate_required",
+        "memory:task_correctness_bps:future_accepted_am4_coordinate_required",
+        "memory:unauthorized_retrieval_count:future_accepted_am4_coordinate_required",
+        "no_memory:omission_coverage_bps:future_accepted_am4_coordinate_required",
+        "no_memory:task_correctness_bps:future_accepted_am4_coordinate_required",
+        "no_memory:unauthorized_retrieval_count:future_accepted_am4_coordinate_required"
+      ],
+      "observation_ids": [
+        "memory_run_observation:1b1ef305a37efd202cd4742240059e69",
+        "memory_run_observation:39e998e4025cbedbfa7a89451a8d214a",
+        "memory_run_observation:ba7a686d0797250e76d0f8c596507790"
+      ],
+      "paired_and_controlled": false
+    }
+  ],
+  "route_frequency": {
+    "route:full-context-control": 15,
+    "route:gated-future-am4": 9,
+    "route:no-memory-control": 15,
+    "route:structured-or-fused-am3": 15
+  },
+  "tier_frequency": {
+    "tier:disabled": 15,
+    "tier:full-context": 15,
+    "tier:structured_or_fused": 15,
+    "tier:unavailable": 9
+  }
+}

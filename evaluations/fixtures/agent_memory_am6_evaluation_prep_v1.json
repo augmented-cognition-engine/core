@@ -1,0 +1,181 @@
+{
+  "contract": "ace.evaluation.agent-memory-am6-evaluation-prep/v1",
+  "claim_scope": "provider_free_measurement_contract_and_evaluator_conformance_only",
+  "synthetic_only": true,
+  "exact_base": "f761a682164d10e2ff81ba38cd2d0c987b4f8efd",
+  "source_artifacts": [
+    ["fixture:agent-memory-am0-contract-v1", "ace.evaluation.agent-memory-am0-contract/v1"],
+    ["fixture:agent-memory-am1-session-normalization-v1", "ace.evaluation.agent-memory-am1-session-normalization-spec/v1"],
+    ["fixture:agent-memory-am2-assertion-reconciliation-v1", "ace.evaluation.agent-memory-am2-assertion-reconciliation/v1"],
+    ["fixture:agent-memory-am3-context-planner-v1", "ace.evaluation.agent-memory-am3-context-planner/v1"],
+    ["evidence:ac6-measured-composition-v1", "ace.evidence.agent-measured-composition-ac6-candidate/v1"],
+    ["commit:cumulative-v0.7-integration-acceptance", "ace.repository.commit/v1"]
+  ],
+  "protocol": {
+    "minimum_beneficial_gain_bps": 1,
+    "maximum_full_context_correctness_gap_bps": 0,
+    "held_constants": {
+      "provider": ["provider:deterministic-fixture", "ace.evaluation.provider/v1"],
+      "model": ["model:none", "ace.evaluation.model/v1"],
+      "prompt_contract": ["prompt:am6-frozen-v1", "ace.evaluation.prompt-contract/v1"],
+      "decision_schema": ["decision-schema:bounded-choice-v1", "ace.evaluation.decision-schema/v1"],
+      "toolset": ["toolset:eleven-thin-mcp-unchanged", "ace.evaluation.toolset/v1"],
+      "configuration": ["configuration:am6-provider-free-v1", "ace.evaluation.configuration/v1"]
+    }
+  },
+  "cases": [
+    {
+      "case_id": "am1_ingestion_replay_restart",
+      "title": "AM1 ingestion completeness, exact replay, and restart",
+      "coverage_tags": ["am1", "ingestion", "replay", "restart", "episodic_experience"],
+      "required_measures": ["ingestion_completeness_bps", "replay_correctness_bps", "task_correctness_bps", "context_tokens", "latency_ms", "provider_calls", "cost_microunits"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am2_family_extraction_and_spans",
+      "title": "AM2 seven-family extraction and exact source spans",
+      "coverage_tags": ["am2", "identity", "learned_fact", "active_context", "preference", "instruction_policy_proposal", "uncertainty", "correction", "source_span"],
+      "required_measures": ["extraction_precision_bps", "extraction_recall_bps", "source_span_accuracy_bps", "task_correctness_bps"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am2_identity_and_unresolved",
+      "title": "AM2 identity error and explicit unresolved state",
+      "coverage_tags": ["am2", "identity", "unresolved_identity", "unknown_stays_unknown"],
+      "required_measures": ["identity_error_bps", "unresolved_identity_bps", "task_correctness_bps"],
+      "decision_mode": "same",
+      "scores": {"memory": 10000, "no_memory": 10000, "full_context": 10000},
+      "expected": "neutral"
+    },
+    {
+      "case_id": "am2_conflict_correction_uncertainty",
+      "title": "AM2 conflict, correction, contradiction, and uncertainty",
+      "coverage_tags": ["am2", "conflict", "correction", "contradiction", "uncertainty"],
+      "required_measures": ["correction_recall_bps", "contradiction_recall_bps", "uncertainty_recall_bps", "task_correctness_bps"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am2_instruction_isolation",
+      "title": "AM2 prompt-shaped source text remains outside instruction authority",
+      "coverage_tags": ["am2", "instruction_policy", "instruction_isolation", "prompt_injection"],
+      "required_measures": ["instruction_policy_recall_bps", "unauthorized_retrieval_count", "task_correctness_bps"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am2_independent_time_axes",
+      "title": "AM2 ledger, knowledge, and world-time selectors remain independent",
+      "coverage_tags": ["am2", "ledger_time", "knowledge_time", "world_time", "unknown_time"],
+      "required_measures": ["citation_correctness_bps", "omission_coverage_bps", "task_correctness_bps"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am1_scope_privacy_isolation",
+      "title": "AM1 product and principal scope privacy isolation",
+      "coverage_tags": ["am1", "scope", "privacy", "cross_product", "cross_principal"],
+      "required_measures": ["unauthorized_retrieval_count", "task_correctness_bps"],
+      "decision_mode": "same",
+      "scores": {"memory": 10000, "no_memory": 10000, "full_context": 10000},
+      "expected": "neutral"
+    },
+    {
+      "case_id": "am3_authorization_denial",
+      "title": "AM3 authorization denial precedes signal, graph, cache, and body access",
+      "coverage_tags": ["am3", "authorization_denial", "zero_tolerance", "non_disclosure"],
+      "required_measures": ["unauthorized_retrieval_count", "provider_calls", "task_correctness_bps"],
+      "decision_mode": "same",
+      "scores": {"memory": 10000, "no_memory": 10000, "full_context": 10000},
+      "expected": "neutral"
+    },
+    {
+      "case_id": "am3_stale_superseded_safety",
+      "title": "AM3 current correction excludes stale and superseded influence",
+      "coverage_tags": ["am3", "stale", "superseded", "correction_priority"],
+      "required_measures": ["stale_influence_count", "superseded_influence_count", "correction_recall_bps", "task_correctness_bps"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am3_harmful_influence_probe",
+      "title": "Synthetic negative probe detects stale or superseded harmful influence",
+      "coverage_tags": ["am3", "negative_probe", "stale", "superseded", "harmful"],
+      "required_measures": ["stale_influence_count", "superseded_influence_count", "task_correctness_bps"],
+      "scores": {"memory": 0, "no_memory": 10000, "full_context": 10000},
+      "overrides": {"memory": {"stale_influence_count": 1, "superseded_influence_count": 1}},
+      "expected": "harmful"
+    },
+    {
+      "case_id": "am3_manifest_selection_omission",
+      "title": "AM3 Context Manifest selection, omission, and material-use distinctions",
+      "coverage_tags": ["am3", "context_manifest", "selection", "omission", "injection", "reflection", "decision_material"],
+      "required_measures": ["retrieval_precision_bps", "retrieval_recall_bps", "rank_quality_bps", "citation_correctness_bps", "omission_coverage_bps", "selected_rate_bps", "injected_rate_bps", "reflected_rate_bps", "decision_material_rate_bps", "task_correctness_bps"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am3_degraded_retrieval_signal",
+      "title": "AM3 unavailable optional retrieval signal remains explicit",
+      "coverage_tags": ["am3", "degraded_retrieval", "missing_signal", "underpowered"],
+      "required_measures": ["rank_quality_bps", "task_correctness_bps"],
+      "unavailable": {"memory": {"rank_quality_bps": "vector_signal_unavailable"}, "full_context": {"rank_quality_bps": "vector_signal_unavailable"}, "no_memory": {"rank_quality_bps": "not_applicable_without_memory"}},
+      "expected": "underpowered"
+    },
+    {
+      "case_id": "am3_later_restart_material_use",
+      "title": "AM3 independent later invocation after restart distinguishes material use",
+      "coverage_tags": ["am3", "restart", "later_invocation", "selected", "injected", "reflected", "decision_material"],
+      "required_measures": ["selected_rate_bps", "injected_rate_bps", "reflected_rate_bps", "decision_material_rate_bps", "task_correctness_bps"],
+      "expected": "beneficial"
+    },
+    {
+      "case_id": "am3_material_but_neutral",
+      "title": "AM3 material influence remains distinct from bounded benefit",
+      "coverage_tags": ["am3", "material_influence", "neutral", "benefit_separation"],
+      "required_measures": ["decision_material_rate_bps", "task_correctness_bps"],
+      "scores": {"memory": 10000, "no_memory": 10000, "full_context": 10000},
+      "expected": "neutral"
+    },
+    {
+      "case_id": "am3_missing_resource_telemetry",
+      "title": "Missing token, latency, provider-call, or cost telemetry is underpowered",
+      "coverage_tags": ["am3", "telemetry", "tokens", "latency", "provider_calls", "cost", "underpowered"],
+      "required_measures": ["context_tokens", "residual_window_tokens", "latency_ms", "provider_calls", "cache_reuse_count", "cost_microunits", "task_correctness_bps"],
+      "unavailable": {"memory": {"cost_microunits": "cost_telemetry_unavailable"}},
+      "expected": "underpowered"
+    },
+    {
+      "case_id": "am4_retention_expiry_placeholder",
+      "title": "Future AM4 retention and expiry evaluation coordinate",
+      "coverage_tags": ["am4", "retention", "expiry", "gated_placeholder"],
+      "required_measures": ["retrieval_recall_bps", "omission_coverage_bps", "task_correctness_bps"],
+      "gate": "future_accepted_am4",
+      "expected": "underpowered"
+    },
+    {
+      "case_id": "am4_export_import_placeholder",
+      "title": "Future AM4 export and import evaluation coordinate",
+      "coverage_tags": ["am4", "export", "import", "identity", "lifecycle", "gated_placeholder"],
+      "required_measures": ["replay_correctness_bps", "citation_correctness_bps", "task_correctness_bps"],
+      "gate": "future_accepted_am4",
+      "expected": "underpowered"
+    },
+    {
+      "case_id": "am4_hard_erasure_placeholder",
+      "title": "Future AM4 dependency-complete hard-erasure evaluation coordinate",
+      "coverage_tags": ["am4", "hard_erasure", "derivatives", "restart", "gated_placeholder"],
+      "required_measures": ["unauthorized_retrieval_count", "omission_coverage_bps", "task_correctness_bps"],
+      "gate": "future_accepted_am4",
+      "expected": "underpowered"
+    }
+  ],
+  "invariants": {
+    "provider_required": false,
+    "network_required": false,
+    "public_mcp_tool_count": 11,
+    "changes_rank_policy": false,
+    "changes_retention_policy": false,
+    "changes_consolidation_policy": false,
+    "changes_promotion_policy": false,
+    "changes_roster_or_authority": false,
+    "delivers_or_sends_effect": false,
+    "am4_runtime_contracts_implemented": false,
+    "fixture_claims_agent_memory_benefit": false
+  }
+}

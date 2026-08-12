@@ -97,3 +97,6 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [Agent Memory AM3 work packet](design/agent-memory-am3-work-packet-v1.md) — authorized recall,
   frozen provider-neutral ranking, Context Planner and Manifest, composition/I3 lineage, matched
   materiality, durability, privacy, and AM4 stop boundary.
+- [Agent Memory AM6 evaluation-preparation work packet](design/agent-memory-am6-evaluation-prep-work-packet-v1.md)
+  — provider-free corpus, matched memory/no-memory/full-context controls, complete measurement
+  registry, bounded outcome labels, and exact AM4 convergence gates without lifecycle invention.
