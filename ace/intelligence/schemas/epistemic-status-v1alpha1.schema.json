@@ -1,0 +1,214 @@
+{
+  "$defs": {
+    "ClaimGroundingKind": {
+      "description": "Whether a claim is directly cited or an explicitly bounded inference.",
+      "enum": [
+        "cited",
+        "inference"
+      ],
+      "title": "ClaimGroundingKind",
+      "type": "string"
+    },
+    "EpistemicStatusDeclarationV1": {
+      "additionalProperties": false,
+      "description": "One domain-declared status label plus the generic facts ACE will enforce.\n\nThe label itself is opaque to ACE. Only the surrounding constraints are\ninterpreted, and only against domain-neutral support facts.",
+      "properties": {
+        "allowed_grounding_kinds": {
+          "items": {
+            "$ref": "#/$defs/ClaimGroundingKind"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Allowed Grounding Kinds",
+          "type": "array"
+        },
+        "allowed_support_kinds": {
+          "items": {
+            "$ref": "#/$defs/LineageResourceKind"
+          },
+          "minItems": 1,
+          "title": "Allowed Support Kinds",
+          "type": "array"
+        },
+        "contract": {
+          "const": "ace.intelligence.epistemic-status-declaration/v1alpha1",
+          "default": "ace.intelligence.epistemic-status-declaration/v1alpha1",
+          "title": "Contract",
+          "type": "string"
+        },
+        "definition": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Definition",
+          "type": "string"
+        },
+        "display_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "max_support_count": {
+          "anyOf": [
+            {
+              "maximum": 256,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Support Count"
+        },
+        "min_distinct_support_kinds": {
+          "default": 1,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Min Distinct Support Kinds",
+          "type": "integer"
+        },
+        "min_support_count": {
+          "default": 1,
+          "maximum": 256,
+          "minimum": 1,
+          "title": "Min Support Count",
+          "type": "integer"
+        },
+        "proves_source_family_independence": {
+          "const": false,
+          "default": false,
+          "title": "Proves Source Family Independence",
+          "type": "boolean"
+        },
+        "required_support_kinds": {
+          "items": {
+            "$ref": "#/$defs/LineageResourceKind"
+          },
+          "title": "Required Support Kinds",
+          "type": "array"
+        },
+        "requires_uncertainty": {
+          "default": false,
+          "title": "Requires Uncertainty",
+          "type": "boolean"
+        },
+        "status_id": {
+          "title": "Status Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status_id",
+        "display_name",
+        "definition",
+        "allowed_grounding_kinds",
+        "allowed_support_kinds"
+      ],
+      "title": "EpistemicStatusDeclarationV1",
+      "type": "object"
+    },
+    "EpistemicStatusSetV1": {
+      "additionalProperties": false,
+      "description": "One bounded status vocabulary bound to exact Brief templates.",
+      "properties": {
+        "brief_template_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Brief Template Ids",
+          "type": "array"
+        },
+        "contract": {
+          "const": "ace.intelligence.epistemic-status-set/v1alpha1",
+          "default": "ace.intelligence.epistemic-status-set/v1alpha1",
+          "title": "Contract",
+          "type": "string"
+        },
+        "display_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "require_status_for_every_claim": {
+          "default": true,
+          "title": "Require Status For Every Claim",
+          "type": "boolean"
+        },
+        "status_set_id": {
+          "title": "Status Set Id",
+          "type": "string"
+        },
+        "statuses": {
+          "items": {
+            "$ref": "#/$defs/EpistemicStatusDeclarationV1"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Statuses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status_set_id",
+        "display_name",
+        "brief_template_ids",
+        "statuses"
+      ],
+      "title": "EpistemicStatusSetV1",
+      "type": "object"
+    },
+    "LineageResourceKind": {
+      "description": "Domain-neutral resource families that may participate in the Intelligence DAG.",
+      "enum": [
+        "evidence",
+        "observation",
+        "entity_snapshot",
+        "signal",
+        "shift",
+        "case",
+        "brief",
+        "decision",
+        "outcome",
+        "receipt"
+      ],
+      "title": "LineageResourceKind",
+      "type": "string"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/epistemic-status-v1alpha1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One immutable declarative module of domain-owned status vocabularies.",
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.epistemic-status/v1alpha1",
+      "default": "ace.intelligence.epistemic-status/v1alpha1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    },
+    "status_sets": {
+      "items": {
+        "$ref": "#/$defs/EpistemicStatusSetV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Status Sets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "module_id",
+    "status_sets"
+  ],
+  "title": "EpistemicStatusModuleV1",
+  "type": "object"
+}

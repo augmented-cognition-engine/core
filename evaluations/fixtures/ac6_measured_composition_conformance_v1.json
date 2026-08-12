@@ -1,0 +1,250 @@
+{
+  "contract": "ace.evaluation.measured-composition-conformance/v1",
+  "product_id": "product:ac6-conformance",
+  "protocol": {
+    "admissible_output_contract": "ace.evaluation.fixture-output/v1",
+    "evidence_closure_criteria": [
+      "every_material_claim_binds_an_exact_evidence_coordinate",
+      "all_required_evidence_coordinates_are_cited"
+    ],
+    "material_use_criteria": [
+      "participant_output_is_bound_to_the_final_output",
+      "participant_contribution_changes_cited_structure_or_decision_material"
+    ],
+    "thresholds": {
+      "minimum_evidence_closure_gain_bps": 1000,
+      "minimum_material_participants": 2,
+      "minimum_observed_outcome_gain": 2,
+      "maximum_latency_increase_ms": 200,
+      "maximum_model_call_increase": 0,
+      "maximum_tool_call_increase": 1,
+      "maximum_token_increase": 0,
+      "maximum_cost_increase_microunits": 20,
+      "require_complete_usage_and_cost_telemetry": true
+    },
+    "held_constants": {
+      "provider_ref": "provider:deterministic-fixture",
+      "model_ref": "model:none",
+      "model_version_ref": "model-version:none",
+      "randomness_seed": 706,
+      "time_assumption_ref": "time-assumption:frozen-2026-08-12",
+      "authority_scope_ref": "scope:ac6-exact-fixture",
+      "destination_policy_ref": "destination-policy:no-external-effects",
+      "budget": {
+        "max_items": 64,
+        "max_tokens": 0,
+        "max_calls": 4,
+        "max_latency_ms": 1000,
+        "max_cost_microunits": 100,
+        "max_concurrency": 3,
+        "max_external_effects": 0
+      }
+    }
+  },
+  "default_metrics": {
+    "fixed_minimal": {
+      "valid_completion": true,
+      "evidence_closure_bps": 8000,
+      "material_participant_count": 1,
+      "outcome_availability": "not_applicable",
+      "bounded_outcome_value": null,
+      "latency_ms": 100,
+      "model_calls": 0,
+      "tool_calls": 1,
+      "token_telemetry": "available",
+      "tokens": 0,
+      "cost_telemetry": "available",
+      "cost_microunits": 10
+    },
+    "fixed_multi": {
+      "valid_completion": true,
+      "evidence_closure_bps": 8500,
+      "material_participant_count": 2,
+      "outcome_availability": "not_applicable",
+      "bounded_outcome_value": null,
+      "latency_ms": 160,
+      "model_calls": 0,
+      "tool_calls": 2,
+      "token_telemetry": "available",
+      "tokens": 0,
+      "cost_telemetry": "available",
+      "cost_microunits": 20
+    },
+    "dynamic": {
+      "valid_completion": true,
+      "evidence_closure_bps": 8500,
+      "material_participant_count": 2,
+      "outcome_availability": "not_applicable",
+      "bounded_outcome_value": null,
+      "latency_ms": 250,
+      "model_calls": 0,
+      "tool_calls": 3,
+      "token_telemetry": "available",
+      "tokens": 0,
+      "cost_telemetry": "available",
+      "cost_microunits": 35
+    }
+  },
+  "cases": [
+    {
+      "case_id": "solo_suffices",
+      "expected": "control_suffices",
+      "overrides": {
+        "fixed_minimal": {"evidence_closure_bps": 10000},
+        "fixed_multi": {"evidence_closure_bps": 10000},
+        "dynamic": {"evidence_closure_bps": 10000}
+      }
+    },
+    {
+      "case_id": "dynamic_helps",
+      "expected": "dynamic_materially_helps",
+      "proposal": true,
+      "overrides": {
+        "fixed_minimal": {"evidence_closure_bps": 6000, "outcome_availability": "observed", "bounded_outcome_value": 2},
+        "fixed_multi": {"evidence_closure_bps": 7000, "outcome_availability": "observed", "bounded_outcome_value": 3},
+        "dynamic": {"evidence_closure_bps": 9000, "outcome_availability": "observed", "bounded_outcome_value": 5}
+      }
+    },
+    {
+      "case_id": "dynamic_cost_no_benefit",
+      "expected": "no_material_benefit",
+      "overrides": {
+        "fixed_minimal": {"evidence_closure_bps": 9000},
+        "fixed_multi": {"evidence_closure_bps": 9000},
+        "dynamic": {"evidence_closure_bps": 9000, "cost_microunits": 50}
+      }
+    },
+    {
+      "case_id": "missing_participant",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["missing_participant"],
+        "valid_completion": false,
+        "material_participant_count": 1,
+        "deviation": "assigned_dynamic_participant_unavailable"
+      }
+    },
+    {
+      "case_id": "timeout",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["timeout"],
+        "valid_completion": false,
+        "timeouts": 1,
+        "deviation": "dynamic_condition_exceeded_frozen_timeout"
+      }
+    },
+    {
+      "case_id": "partial_tainted_join",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["partial_join", "tainted_join"],
+        "valid_completion": false,
+        "partial_joins": 1,
+        "tainted_joins": 1,
+        "deviation": "dynamic_join_failed_taint_and_completeness_gate"
+      }
+    },
+    {
+      "case_id": "stale_authority",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["stale_authority"],
+        "valid_completion": false,
+        "authority_denials": 1,
+        "deviation": "pre_execution_authority_head_stale"
+      }
+    },
+    {
+      "case_id": "revoked_rotated_authority",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["revoked_authority", "rotated_authority"],
+        "valid_completion": false,
+        "authority_denials": 1,
+        "deviation": "current_grant_revoked_or_rotated"
+      }
+    },
+    {
+      "case_id": "delivery_denial",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["delivery_denied"],
+        "valid_completion": false,
+        "destination_denials": 1,
+        "deviation": "destination_policy_denied_delivery"
+      }
+    },
+    {
+      "case_id": "effect_denial",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["effect_denied"],
+        "valid_completion": false,
+        "effect_denials": 1,
+        "deviation": "external_effect_policy_denied_operation"
+      }
+    },
+    {
+      "case_id": "usage_cost_telemetry_unavailable",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["usage_telemetry_unavailable", "cost_telemetry_unavailable"],
+        "token_telemetry": "unavailable",
+        "tokens": null,
+        "cost_telemetry": "unavailable",
+        "cost_microunits": null,
+        "deviation": "required_usage_and_cost_telemetry_unavailable"
+      }
+    },
+    {
+      "case_id": "abstention",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["abstention"],
+        "valid_completion": false,
+        "abstentions": 1,
+        "deviation": "dynamic_participant_abstained"
+      }
+    },
+    {
+      "case_id": "attempted_policy_self_activation",
+      "expected": "unproven_fail_closed",
+      "dynamic_failure": {
+        "failures": ["policy_self_activation_attempt"],
+        "valid_completion": false,
+        "deviation": "treatment_attempted_to_activate_its_own_policy"
+      }
+    },
+    {
+      "case_id": "duplicate_effect_prevention",
+      "expected": "no_material_benefit",
+      "dynamic_failure": {
+        "failures": ["duplicate_effect_prevented"],
+        "retries": 1,
+        "duplicate_effects_prevented": 1,
+        "disqualifies_pair": false,
+        "deviation": "replay_was_reconciled_without_duplicate_effect"
+      }
+    }
+  ],
+  "optional_real_model_run": {
+    "required_for_acceptance": false,
+    "performed": false,
+    "reason": "provider-free deterministic evidence is the acceptance authority"
+  },
+  "invariants": {
+    "protocol_frozen_before_observation": true,
+    "all_three_conditions_matched": true,
+    "provider_credentials_required": false,
+    "network_required": false,
+    "proposal_activates_policy": false,
+    "proposal_changes_roster": false,
+    "proposal_grants_authority": false,
+    "proposal_schedules_execution": false,
+    "proposal_delivers_or_exports": false,
+    "proposal_sends_external_effect": false,
+    "evaluation_writes_agent_memory": false,
+    "evaluation_trains_or_rewrites_policy": false
+  }
+}

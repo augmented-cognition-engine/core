@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "AttributeMappingV1": {
+      "additionalProperties": false,
+      "description": "Map one captured JSON value into one declared ontology attribute.",
+      "properties": {
+        "attribute_id": {
+          "title": "Attribute Id",
+          "type": "string"
+        },
+        "character_set": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceMappingCharacterSet"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_length": {
+          "anyOf": [
+            {
+              "maximum": 4096,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Length"
+        },
+        "min_length": {
+          "anyOf": [
+            {
+              "maximum": 4096,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Length"
+        },
+        "source_pointer": {
+          "title": "Source Pointer",
+          "type": "string"
+        },
+        "transform": {
+          "$ref": "#/$defs/SourceMappingTransform",
+          "default": "copy"
+        }
+      },
+      "required": [
+        "attribute_id",
+        "source_pointer"
+      ],
+      "title": "AttributeMappingV1",
+      "type": "object"
+    },
+    "SourceMappingCharacterSet": {
+      "description": "The complete alpha character-set constraint allowlist.",
+      "enum": [
+        "ascii_upper"
+      ],
+      "title": "SourceMappingCharacterSet",
+      "type": "string"
+    },
+    "SourceMappingRuleV1": {
+      "additionalProperties": false,
+      "description": "One inert source shape mapped to one already-resolved entity subject.",
+      "properties": {
+        "allowed_uri_schemes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 16,
+          "minItems": 1,
+          "title": "Allowed Uri Schemes",
+          "type": "array"
+        },
+        "attribute_mappings": {
+          "items": {
+            "$ref": "#/$defs/AttributeMappingV1"
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Attribute Mappings",
+          "type": "array"
+        },
+        "authority_request_id": {
+          "title": "Authority Request Id",
+          "type": "string"
+        },
+        "capability_requirement_id": {
+          "title": "Capability Requirement Id",
+          "type": "string"
+        },
+        "entity_type_id": {
+          "title": "Entity Type Id",
+          "type": "string"
+        },
+        "mapping_id": {
+          "title": "Mapping Id",
+          "type": "string"
+        },
+        "source_definition_ref": {
+          "title": "Source Definition Ref",
+          "type": "string"
+        },
+        "source_type_ref": {
+          "title": "Source Type Ref",
+          "type": "string"
+        },
+        "static_confidence": {
+          "title": "Static Confidence",
+          "type": "number"
+        },
+        "subject_binding_id": {
+          "title": "Subject Binding Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mapping_id",
+        "source_definition_ref",
+        "source_type_ref",
+        "capability_requirement_id",
+        "authority_request_id",
+        "allowed_uri_schemes",
+        "subject_binding_id",
+        "entity_type_id",
+        "attribute_mappings",
+        "static_confidence"
+      ],
+      "title": "SourceMappingRuleV1",
+      "type": "object"
+    },
+    "SourceMappingTransform": {
+      "description": "The complete alpha transform allowlist.",
+      "enum": [
+        "copy",
+        "decimal_text_to_number"
+      ],
+      "title": "SourceMappingTransform",
+      "type": "string"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/source-mapping-v1alpha1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One versioned module containing only closed source mapping declarations.",
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.source-mapping/v1alpha1",
+      "default": "ace.intelligence.source-mapping/v1alpha1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "mappings": {
+      "items": {
+        "$ref": "#/$defs/SourceMappingRuleV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Mappings",
+      "type": "array"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "module_id",
+    "mappings"
+  ],
+  "title": "SourceMappingModuleV1",
+  "type": "object"
+}

@@ -17,7 +17,12 @@ from ace.intelligence.contracts.activation import (
     OverlayValueV1,
     overlay_value_matches_kind,
 )
-from ace.intelligence.contracts.pack import CompiledDomainPackV1
+from ace.intelligence.contracts.conformance import DomainPackConformanceReceiptV1
+from ace.intelligence.contracts.diagnostics import PackCompatibilityStatus
+from ace.intelligence.contracts.pack import (
+    DOMAIN_PACK_MANIFEST_STABLE_VERSION,
+    CompiledDomainPackV1,
+)
 
 
 def _validate_overlay_values(pack: CompiledDomainPackV1, values: tuple[OverlayValueV1, ...]) -> None:
@@ -75,7 +80,8 @@ def prepare_domain_activation(
     pack: CompiledDomainPackV1,
     overlay: CompiledOverlayV1,
     compilation_receipt_ref: str,
-    conformance_receipt_refs: Iterable[str],
+    conformance_receipt_refs: Iterable[str] = (),
+    conformance_receipts: Iterable[DomainPackConformanceReceiptV1] = (),
     capability_bindings: Iterable[CapabilityBindingV1] = (),
     authority_bindings: Iterable[AuthorityBindingV1] = (),
 ) -> DomainActivationSpecV1:
@@ -86,6 +92,41 @@ def prepare_domain_activation(
     if overlay.pack_digest != pack.pack_digest:
         raise ValueError("compiled overlay targets a different pack digest")
     _validate_overlay_values(pack, overlay.values)
+
+    receipt_items: list[DomainPackConformanceReceiptV1] = []
+    for receipt in conformance_receipts:
+        try:
+            receipt_items.append(DomainPackConformanceReceiptV1.model_validate(receipt.model_dump(mode="python")))
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise ValueError("conformance receipt failed exact revalidation") from exc
+    supplied_refs = tuple(conformance_receipt_refs)
+    if pack.manifest_contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION:
+        if not receipt_items:
+            raise ValueError("stable Domain Pack activation requires passing exact conformance evidence")
+        for receipt in receipt_items:
+            if not receipt.passed:
+                raise ValueError("stable Domain Pack activation refuses failed conformance evidence")
+            if (
+                receipt.pack_id != pack.metadata.pack_id
+                or receipt.pack_version != pack.metadata.version
+                or receipt.compiled_pack_id != pack.compiled_pack_id
+                or receipt.pack_digest != pack.pack_digest
+            ):
+                raise ValueError("conformance receipt does not bind the exact compiled pack")
+            if (
+                receipt.manifest_contract != pack.manifest_contract
+                or receipt.compiler_contract != pack.compiler_contract
+                or receipt.intelligence_contract != pack.intelligence_contract
+                or receipt.compatibility_status
+                not in {PackCompatibilityStatus.SUPPORTED, PackCompatibilityStatus.DEPRECATED}
+            ):
+                raise ValueError("conformance receipt is stale or incompatible with the current host contract")
+            if compilation_receipt_ref != receipt.compilation_result_id:
+                raise ValueError("activation compilation evidence does not match the exact conformance receipt")
+        exact_refs = tuple(item.receipt_id for item in receipt_items)
+        if supplied_refs and supplied_refs != exact_refs:
+            raise ValueError("conformance receipt references do not match the supplied exact evidence")
+        supplied_refs = exact_refs
 
     capability_items = tuple(capability_bindings)
     capability_map = {item.requirement_id: item for item in capability_items}
@@ -127,7 +168,7 @@ def prepare_domain_activation(
         compilation_receipt_ref=compilation_receipt_ref,
         capability_bindings=capability_items,
         authority_bindings=authority_items,
-        conformance_receipt_refs=tuple(conformance_receipt_refs),
+        conformance_receipt_refs=supplied_refs,
     )
 
 

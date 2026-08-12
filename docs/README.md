@@ -1,11 +1,14 @@
 # ACE documentation
 
-These pages describe the current product, supported interfaces, and contributor-facing contracts.
+**ACE, the Intelligence Builder. Build intelligence, not infrastructure.** These pages describe
+the current product, supported interfaces, builder journeys, and contributor-facing contracts.
 Point-in-time release and acceptance records live in the
 [evidence archive](evidence/README.md) so they do not obscure the durable documentation.
 
 ## Start here
 
+- [ACE vision and manifesto](../MANIFESTO.md) — the Intelligence Builder promise, constitutional
+  boundaries, and open Intelligence Operating System direction.
 - [Project quickstart](../README.md) — install ACE and reach a first useful result.
 - [Capability maturity](capability-maturity.md) — what the current release supports and what remains
   experimental.
@@ -65,3 +68,32 @@ support the public roadmap but do not compete with it for outcome state or dispa
   adapter portability, experimental capabilities, deployment limits, and deferred work.
 - [State Engine Core-boundary readiness addendum](design/state-engine-core-boundary-readiness-v1.md)
   — K2/K3 bounded readiness delta while preserving the frozen TP8 boundary input.
+- [Intelligence Builder onboarding sequence](design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md)
+  — the cumulative 0.7A–0.7E Connect → Map → Watch → Brief → Activate contracts, authority
+  boundaries, state machine, and full-demo acceptance.
+- [Intelligence Builder Connect work packet](design/intelligence-builder-connect-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7B Connection Agent implementation, reuse audit, failure controls, and evidence
+  plan.
+- [Intelligence Builder Map work packet](design/intelligence-builder-map-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7C Ontology Agent proposal, immutable edit, exact approval, restart, and evidence
+  plan.
+- [Intelligence Builder Watch + Brief work packet](design/intelligence-builder-watch-brief-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7D Intelligence Agent and Briefing Agent proposals, exact approval, first-Brief,
+  restart, failure controls, and downstream handoff.
+- [Domain Packs + Activation work packet](design/domain-packs-activation-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7E audit, additive exact-plan authority seam, accepted inert 0.7D handoff,
+  compatibility and rollback threat model, and external consumer packet boundary.
+- [Domain Packs + Activation Core candidate evidence](evidence/domain-packs-activation-v0.7.0-core-candidate-v1.md)
+  — exact activation/reference identities, negative controls, full verification, installed-wheel
+  reproduction, and the remaining World/Market consumer handoff.
+- [AC7 composition-policy admission work packet](design/composition-policy-admission-ac7-work-packet-v1.md)
+  — the finite AC6 closeout for exact review, Core authority, CAS policy-head lifecycle, bounded
+  runtime resolution, and the post-AC7 composition freeze pending integrated 0.7 acceptance.
+- [AC7 composition-policy admission candidate evidence](evidence/composition-policy-admission-ac7-candidate-v1.md)
+  — frozen provider-free coordinates, positive lifecycle, seventeen fail-closed cases, wheel proof,
+  and release/integration entry gate.
+- [Agent Memory roadmap](design/agent-memory-roadmap.md) — bounded AM0–AM8 sequence for durable,
+  authorized, source-grounded agent memory.
+- [Agent Memory AM3 work packet](design/agent-memory-am3-work-packet-v1.md) — authorized recall,
+  frozen provider-neutral ranking, Context Planner and Manifest, composition/I3 lineage, matched
+  materiality, durability, privacy, and AM4 stop boundary.

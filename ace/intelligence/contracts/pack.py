@@ -50,10 +50,16 @@ from ace.intelligence.contracts.synthesis import (
 )
 
 DOMAIN_PACK_MANIFEST_VERSION = "ace.intelligence.domain-pack-manifest/v1alpha1"
+DOMAIN_PACK_MANIFEST_STABLE_VERSION = "ace.intelligence.domain-pack-manifest/v1"
 ONTOLOGY_MODULE_VERSION = "ace.intelligence.ontology/v1alpha1"
 COMPILED_DOMAIN_PACK_VERSION = "ace.intelligence.compiled-domain-pack/v1alpha1"
+COMPILED_DOMAIN_PACK_STABLE_VERSION = "ace.intelligence.compiled-domain-pack/v1"
 PACK_COMPILER_VERSION = "ace.intelligence.pack-compiler/v1alpha1"
 INTELLIGENCE_RUNTIME_VERSION = "ace.intelligence.runtime/v1alpha1"
+STABLE_PACK_COMPILER_VERSION = "ace.intelligence.pack-compiler/v1"
+STABLE_INTELLIGENCE_RUNTIME_VERSION = "ace.intelligence.runtime/v1"
+PACK_COMPILER_NEXT_BREAKING_VERSION = "ace.intelligence.pack-compiler/v2"
+INTELLIGENCE_RUNTIME_NEXT_BREAKING_VERSION = "ace.intelligence.runtime/v2"
 
 
 class AttributeValueType(StrEnum):
@@ -109,6 +115,21 @@ class PackMetadataV1(FrozenContract):
 class PackCompatibilityV1(FrozenContract):
     compiler_contract: Literal["ace.intelligence.pack-compiler/v1alpha1"] = PACK_COMPILER_VERSION
     intelligence_contract: Literal["ace.intelligence.runtime/v1alpha1"] = INTELLIGENCE_RUNTIME_VERSION
+
+
+class PackCompatibilityRangeV1(FrozenContract):
+    """Closed compatibility window declared by the stable manifest contract."""
+
+    compiler_minimum: Literal[
+        "ace.intelligence.pack-compiler/v1alpha1",
+        "ace.intelligence.pack-compiler/v1",
+    ] = PACK_COMPILER_VERSION
+    compiler_maximum_exclusive: Literal["ace.intelligence.pack-compiler/v2"] = PACK_COMPILER_NEXT_BREAKING_VERSION
+    intelligence_minimum: Literal[
+        "ace.intelligence.runtime/v1alpha1",
+        "ace.intelligence.runtime/v1",
+    ] = INTELLIGENCE_RUNTIME_VERSION
+    intelligence_maximum_exclusive: Literal["ace.intelligence.runtime/v2"] = INTELLIGENCE_RUNTIME_NEXT_BREAKING_VERSION
 
 
 class PackResourceV1(FrozenContract):
@@ -321,9 +342,12 @@ class OntologyModuleV1(FrozenContract):
 
 
 class DomainPackManifestV1(FrozenContract):
-    contract: Literal["ace.intelligence.domain-pack-manifest/v1alpha1"] = DOMAIN_PACK_MANIFEST_VERSION
+    contract: Literal[
+        "ace.intelligence.domain-pack-manifest/v1alpha1",
+        "ace.intelligence.domain-pack-manifest/v1",
+    ] = DOMAIN_PACK_MANIFEST_VERSION
     metadata: PackMetadataV1
-    compatibility: PackCompatibilityV1 = Field(default_factory=PackCompatibilityV1)
+    compatibility: PackCompatibilityV1 | PackCompatibilityRangeV1 = Field(default_factory=PackCompatibilityV1)
     resources: tuple[PackResourceV1, ...] = Field(min_length=1, max_length=MAX_DECLARATIONS)
     modules: tuple[PackModuleRefV1, ...] = Field(min_length=1, max_length=MAX_DECLARATIONS)
     capability_requirements: tuple[CapabilityRequirementV1, ...] = Field(
@@ -365,6 +389,12 @@ class DomainPackManifestV1(FrozenContract):
 
     @model_validator(mode="after")
     def validate_references(self) -> Self:
+        if self.contract == DOMAIN_PACK_MANIFEST_VERSION and not isinstance(self.compatibility, PackCompatibilityV1):
+            raise ValueError("v1alpha1 manifests require exact v1alpha1 compiler and runtime contracts")
+        if self.contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION and not isinstance(
+            self.compatibility, PackCompatibilityRangeV1
+        ):
+            raise ValueError("v1 manifests require explicit compiler and runtime compatibility ranges")
         resource_ids = {item.resource_id for item in self.resources}
         module_ids = {item.module_id for item in self.modules}
         referenced_resources = [item.resource_id for item in self.modules]
@@ -379,6 +409,13 @@ class DomainPackManifestV1(FrozenContract):
         if unknown_dependencies:
             raise ValueError(f"modules reference unknown dependencies: {sorted(unknown_dependencies)}")
         return self
+
+
+class StableDomainPackManifestV1(DomainPackManifestV1):
+    """The distributed stable v1 manifest schema for third-party packs."""
+
+    contract: Literal["ace.intelligence.domain-pack-manifest/v1"] = DOMAIN_PACK_MANIFEST_STABLE_VERSION
+    compatibility: PackCompatibilityRangeV1 = Field(default_factory=PackCompatibilityRangeV1)
 
 
 class CompiledModuleV1(FrozenContract):
@@ -836,9 +873,23 @@ def _validate_compiled_module_graph(
 
 
 class CompiledDomainPackV1(FrozenContract):
-    contract: Literal["ace.intelligence.compiled-domain-pack/v1alpha1"] = COMPILED_DOMAIN_PACK_VERSION
-    compiler_contract: Literal["ace.intelligence.pack-compiler/v1alpha1"] = PACK_COMPILER_VERSION
-    intelligence_contract: Literal["ace.intelligence.runtime/v1alpha1"] = INTELLIGENCE_RUNTIME_VERSION
+    contract: Literal[
+        "ace.intelligence.compiled-domain-pack/v1alpha1",
+        "ace.intelligence.compiled-domain-pack/v1",
+    ] = COMPILED_DOMAIN_PACK_VERSION
+    compiler_contract: Literal[
+        "ace.intelligence.pack-compiler/v1alpha1",
+        "ace.intelligence.pack-compiler/v1",
+    ] = PACK_COMPILER_VERSION
+    intelligence_contract: Literal[
+        "ace.intelligence.runtime/v1alpha1",
+        "ace.intelligence.runtime/v1",
+    ] = INTELLIGENCE_RUNTIME_VERSION
+    manifest_contract: Literal[
+        "ace.intelligence.domain-pack-manifest/v1alpha1",
+        "ace.intelligence.domain-pack-manifest/v1",
+    ] = DOMAIN_PACK_MANIFEST_VERSION
+    declared_compatibility: PackCompatibilityRangeV1 | None = None
     metadata: PackMetadataV1
     modules: tuple[CompiledModuleV1, ...] = Field(min_length=1, max_length=MAX_DECLARATIONS)
     capability_requirements: tuple[CapabilityRequirementV1, ...] = Field(
@@ -873,12 +924,32 @@ class CompiledDomainPackV1(FrozenContract):
 
     @model_validator(mode="after")
     def derive_identity(self) -> Self:
+        if self.manifest_contract == DOMAIN_PACK_MANIFEST_VERSION and (
+            self.contract != COMPILED_DOMAIN_PACK_VERSION
+            or self.compiler_contract != PACK_COMPILER_VERSION
+            or self.intelligence_contract != INTELLIGENCE_RUNTIME_VERSION
+            or self.declared_compatibility is not None
+        ):
+            raise ValueError("v1alpha1 Pack IR requires the v1alpha1 compiler and runtime contracts")
+        if self.manifest_contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION and (
+            self.contract != COMPILED_DOMAIN_PACK_STABLE_VERSION
+            or self.compiler_contract != STABLE_PACK_COMPILER_VERSION
+            or self.intelligence_contract != STABLE_INTELLIGENCE_RUNTIME_VERSION
+            or self.declared_compatibility is None
+        ):
+            raise ValueError("stable Pack IR requires the stable compiler and runtime contracts")
         _validate_compiled_module_graph(
             self.modules,
             self.capability_requirements,
             self.authority_requests,
         )
-        material = self.model_dump(mode="json", exclude={"compiled_pack_id", "pack_digest"})
+        excluded = {"compiled_pack_id", "pack_digest"}
+        if self.manifest_contract == DOMAIN_PACK_MANIFEST_VERSION:
+            # Preserve every released v1alpha1 Pack IR identity byte-for-byte.  The
+            # manifest contract was implicit in the historical material.
+            excluded.add("manifest_contract")
+            excluded.add("declared_compatibility")
+        material = self.model_dump(mode="json", exclude=excluded)
         digest = canonical_hash(material)
         expected_digest = f"sha256:{digest}"
         expected_id = f"pack_ir:{digest[:32]}"

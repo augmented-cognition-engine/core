@@ -1,0 +1,205 @@
+{
+  "$defs": {
+    "GoldenDetectorOutcomeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "detector_id": {
+          "title": "Detector Id",
+          "type": "string"
+        },
+        "entity_ref": {
+          "title": "Entity Ref",
+          "type": "string"
+        },
+        "material": {
+          "title": "Material",
+          "type": "boolean"
+        },
+        "persona_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 256,
+          "title": "Persona Ids",
+          "type": "array"
+        },
+        "routing_rule_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 256,
+          "title": "Routing Rule Ids",
+          "type": "array"
+        },
+        "shift_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Shift Type"
+        },
+        "signal_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signal Type"
+        },
+        "template_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 256,
+          "title": "Template Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "detector_id",
+        "entity_ref",
+        "material"
+      ],
+      "title": "GoldenDetectorOutcomeV1",
+      "type": "object"
+    },
+    "GoldenObservationTransitionV1": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_as_of": {
+          "format": "date-time",
+          "title": "Baseline As Of",
+          "type": "string"
+        },
+        "baseline_attributes_json": {
+          "maxLength": 32000,
+          "minLength": 2,
+          "title": "Baseline Attributes Json",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "current_as_of": {
+          "format": "date-time",
+          "title": "Current As Of",
+          "type": "string"
+        },
+        "current_attributes_json": {
+          "maxLength": 32000,
+          "minLength": 2,
+          "title": "Current Attributes Json",
+          "type": "string"
+        },
+        "entity_ref": {
+          "title": "Entity Ref",
+          "type": "string"
+        },
+        "entity_type_id": {
+          "title": "Entity Type Id",
+          "type": "string"
+        },
+        "expected": {
+          "items": {
+            "$ref": "#/$defs/GoldenDetectorOutcomeV1"
+          },
+          "maxItems": 256,
+          "title": "Expected",
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "entity_type_id",
+        "entity_ref",
+        "baseline_attributes_json",
+        "current_attributes_json",
+        "baseline_as_of",
+        "current_as_of",
+        "confidence"
+      ],
+      "title": "GoldenObservationTransitionV1",
+      "type": "object"
+    },
+    "OverlayValueV1": {
+      "additionalProperties": false,
+      "properties": {
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "value_json": {
+          "maxLength": 32000,
+          "minLength": 1,
+          "title": "Value Json",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slot_id",
+        "value_json"
+      ],
+      "title": "OverlayValueV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/domain-pack-golden-fixture-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.domain-pack-golden-fixture/v1",
+      "default": "ace.intelligence.domain-pack-golden-fixture/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "fixture_id": {
+      "title": "Fixture Id",
+      "type": "string"
+    },
+    "fixture_version": {
+      "title": "Fixture Version",
+      "type": "string"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/GoldenObservationTransitionV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Observations",
+      "type": "array"
+    },
+    "overlay_values": {
+      "items": {
+        "$ref": "#/$defs/OverlayValueV1"
+      },
+      "maxItems": 256,
+      "title": "Overlay Values",
+      "type": "array"
+    }
+  },
+  "required": [
+    "fixture_id",
+    "fixture_version",
+    "observations"
+  ],
+  "title": "DomainPackGoldenFixtureV1",
+  "type": "object"
+}

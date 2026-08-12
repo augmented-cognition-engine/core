@@ -40,7 +40,7 @@ def test_evidence_readme_manifesto_label_is_internally_consistent() -> None:
     carries must match what the legend defines for it, now and after publication.
     """
     text = EVIDENCE_README.read_text(encoding="utf-8")
-    manifesto_line = next(line for line in text.splitlines() if "ACE Core manifesto" in line)
+    manifesto_line = next(line for line in text.splitlines() if "ACE vision and manifesto" in line)
     assert "current, authoritative" in manifesto_line
     assert "public, current" not in manifesto_line
 

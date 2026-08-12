@@ -1,0 +1,59 @@
+{
+  "fixture_id": "ac7-composition-policy-admission-conformance-v1",
+  "product_id": "product:ac6-conformance",
+  "policy_id": "composition_policy:ac7-current",
+  "scope_ref": "scope:ac6-exact-fixture",
+  "authority": "administer_composition_policy",
+  "provider_required": false,
+  "network_required": false,
+  "credentials_required": false,
+  "agent_memory_writes": false,
+  "positive_lifecycle": [
+    "durable_ac6_evidence",
+    "immutable_plan_request",
+    "independent_review",
+    "present_tense_approval_authority",
+    "cas_admission",
+    "bounded_runtime_resolution",
+    "suspension",
+    "operator_recovery",
+    "restart_reopen",
+    "new_proposal_supersession",
+    "new_transaction_rollback"
+  ],
+  "fail_closed": [
+    "missing_foreign_fabricated_proposal",
+    "mismatched_protocol_comparison",
+    "positive_threshold_no_longer_satisfied",
+    "self_approval",
+    "missing_wrong_stale_revoked_expired_rotated_authority",
+    "actor_principal_scope_policy_mismatch",
+    "stale_expected_head",
+    "concurrent_adoption",
+    "duplicate_non_idempotent_request",
+    "tampered_revision",
+    "future_evidence",
+    "suspended_policy",
+    "roster_authority_model_delivery_effect_mutation",
+    "proposal_self_activation",
+    "rollback_using_historical_authority",
+    "restart_with_stale_cached_policy",
+    "unavailable_durable_owner"
+  ],
+  "runtime_invariants": {
+    "receipt_reusable": false,
+    "policy_grants_authority": false,
+    "policy_makes_participant_eligible": false,
+    "ac2_ac4_authority_revalidated_separately": true,
+    "participant_heads_revalidated_separately": true,
+    "task_scope_budget_revalidated_separately": true,
+    "delivery_export_effect_revalidated_separately": true
+  },
+  "public_surface": {
+    "package": "ace-core",
+    "taskcreate_changed": false,
+    "public_mcp_tool_count": 11,
+    "schema_changed": false,
+    "am1_dependency": false
+  }
+}

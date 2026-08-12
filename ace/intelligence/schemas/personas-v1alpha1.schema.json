@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "PersonaArchetypeV1": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "display_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "persona_id": {
+          "title": "Persona Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "persona_id",
+        "display_name",
+        "description"
+      ],
+      "title": "PersonaArchetypeV1",
+      "type": "object"
+    },
+    "SignalRoutingRuleV1": {
+      "additionalProperties": false,
+      "properties": {
+        "brief_template_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Brief Template Id"
+        },
+        "minimum_confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Minimum Confidence",
+          "type": "number"
+        },
+        "persona_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Persona Ids",
+          "type": "array"
+        },
+        "routing_rule_id": {
+          "title": "Routing Rule Id",
+          "type": "string"
+        },
+        "signal_type": {
+          "title": "Signal Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "routing_rule_id",
+        "signal_type",
+        "persona_ids",
+        "minimum_confidence"
+      ],
+      "title": "SignalRoutingRuleV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/personas-v1alpha1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.personas/v1alpha1",
+      "default": "ace.intelligence.personas/v1alpha1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    },
+    "personas": {
+      "items": {
+        "$ref": "#/$defs/PersonaArchetypeV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Personas",
+      "type": "array"
+    },
+    "signal_routing_rules": {
+      "items": {
+        "$ref": "#/$defs/SignalRoutingRuleV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Signal Routing Rules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "module_id",
+    "personas",
+    "signal_routing_rules"
+  ],
+  "title": "PersonasModuleV1",
+  "type": "object"
+}

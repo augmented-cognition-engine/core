@@ -15,25 +15,24 @@ def _read(rel_path: str) -> str:
 
 
 @pytest.mark.unit
-def test_readme_opens_with_governed_intelligence_framing():
-    """README's opening must define ACE as governed-intelligence infrastructure
-    and retain the load-bearing architecture language below the hero."""
+def test_readme_opens_with_intelligence_builder_framing():
+    """README leads with first intelligence value and retains trust boundaries below it."""
     readme = _read("README.md")
     head = " ".join(readme[:800].split())
-    # The launch hero leads with the platform category and concrete intelligence
-    # flow; the octopus section remains inspiration rather than a literal ratio.
-    assert "The open-source foundation for governed intelligence." in head
-    assert "entities, shifts, signals, briefs, and decisions" in head
-    assert "provenance, authority, and feedback built in" in head
+    assert "ACE, the Intelligence Builder. Build intelligence, not infrastructure." in head
+    assert "source-grounded briefing" in head
+    assert "provenance, authority, durable state, and exact receipts" in head
     assert "## What ACE does" in readme
+    assert "Connect → Map → Watch → Brief → Activate" in readme
+    assert "Domain Pack JSON" in readme
     assert "### Two connected loops" in readme
     assert "Decision reasoning" in readme
     assert "Continuous intelligence" in readme
     assert "### What you can build" in readme
-    assert "ACE is infrastructure, not a finished vertical application" in readme
+    assert "ACE supplies both the Intelligence Builder experience and the governed runtime" in readme
     assert "lean coordinating" in readme
     assert "not a literal ratio" in readme
-    assert "The architecture is the feature" in readme
+    assert "Trustworthy intelligence is the feature" in readme
     assert "A nine-layer cognitive pipeline" in readme
     assert "Dynamic composition" in readme
     assert "Human ↔ ACE ↔ LLM" in readme

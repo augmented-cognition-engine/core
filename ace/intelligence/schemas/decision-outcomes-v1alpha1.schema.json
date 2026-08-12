@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "DecisionActionDisposition": {
+      "enum": [
+        "no_action",
+        "authorize_action"
+      ],
+      "title": "DecisionActionDisposition",
+      "type": "string"
+    },
+    "DecisionDisposition": {
+      "enum": [
+        "accept",
+        "revise",
+        "reject"
+      ],
+      "title": "DecisionDisposition",
+      "type": "string"
+    },
+    "FeedbackPolicyV1": {
+      "additionalProperties": false,
+      "description": "One inert eligibility rule and bounded categorical adjustment table.",
+      "properties": {
+        "adjustments": {
+          "items": {
+            "$ref": "#/$defs/OutcomeAdjustmentV1"
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Adjustments",
+          "type": "array"
+        },
+        "decision_type": {
+          "title": "Decision Type",
+          "type": "string"
+        },
+        "eligible_action_dispositions": {
+          "items": {
+            "$ref": "#/$defs/DecisionActionDisposition"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Eligible Action Dispositions",
+          "type": "array"
+        },
+        "eligible_decision_dispositions": {
+          "items": {
+            "$ref": "#/$defs/DecisionDisposition"
+          },
+          "maxItems": 8,
+          "minItems": 1,
+          "title": "Eligible Decision Dispositions",
+          "type": "array"
+        },
+        "initial_value": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Initial Value",
+          "type": "number"
+        },
+        "maximum_value": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Maximum Value",
+          "type": "number"
+        },
+        "measure_id": {
+          "title": "Measure Id",
+          "type": "string"
+        },
+        "minimum_value": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Minimum Value",
+          "type": "number"
+        },
+        "outcome_type": {
+          "title": "Outcome Type",
+          "type": "string"
+        },
+        "persona_id": {
+          "title": "Persona Id",
+          "type": "string"
+        },
+        "policy_id": {
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "routing_rule_id": {
+          "title": "Routing Rule Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy_id",
+        "persona_id",
+        "routing_rule_id",
+        "decision_type",
+        "eligible_decision_dispositions",
+        "eligible_action_dispositions",
+        "outcome_type",
+        "measure_id",
+        "initial_value",
+        "minimum_value",
+        "maximum_value",
+        "adjustments"
+      ],
+      "title": "FeedbackPolicyV1",
+      "type": "object"
+    },
+    "OutcomeAdjustmentV1": {
+      "additionalProperties": false,
+      "properties": {
+        "delta": {
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Delta",
+          "type": "number"
+        },
+        "outcome_value_json": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Outcome Value Json",
+          "type": "string"
+        }
+      },
+      "required": [
+        "outcome_value_json",
+        "delta"
+      ],
+      "title": "OutcomeAdjustmentV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/decision-outcomes-v1alpha1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.decision-outcomes/v1alpha1",
+      "default": "ace.intelligence.decision-outcomes/v1alpha1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "feedback_policies": {
+      "items": {
+        "$ref": "#/$defs/FeedbackPolicyV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Feedback Policies",
+      "type": "array"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "module_id",
+    "feedback_policies"
+  ],
+  "title": "DecisionOutcomesModuleV1",
+  "type": "object"
+}

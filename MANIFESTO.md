@@ -1,18 +1,35 @@
-# ACE Core manifesto
+# ACE vision and manifesto
 
-ACE is an open, provider-neutral intelligence runtime. It gives products durable evidence, state,
-reasoning, authority, action, outcome, and learning mechanics around whichever models they use.
-Models perform inference inside that loop; ACE governs the loop and its receipts.
+**ACE, the Intelligence Builder. Build intelligence, not infrastructure.**
 
-ACE is designed as one product with two internal bounded contexts:
+Install ACE, connect the sources that matter, and ACE proposes a cited concept model and what to
+watch. A source-grounded first briefing appears for review. Explicit approval activates continuous
+intelligence, and later evidence and governed feedback improve relevance without silently changing
+authority or rewriting history.
+
+ACE supplies both that guided Intelligence Builder experience and the provider-neutral runtime
+beneath it. It is becoming an open **Intelligence Operating System**: a user-owned foundation for
+building living intelligence and operational applications over shared evidence, ontology,
+decisions, actions, and outcomes. Cognition—memory, learning, planning, and reasoning—is essential
+substrate, not ACE's public product category. Models and LLMs are optional inference providers;
+they are neither the system of record nor the center of the architecture.
+
+The product experience comes first:
 
 ```text
-ACE
-├── Core          governed evidence, state, cognition, authority, execution, outcomes, receipts
-└── Intelligence  ontology toolchain, orientation, detection, synthesis, operations
+Connect → Map → Watch → Brief → Activate
 ```
 
-Portable domain programs configure that runtime without becoming part of either bounded context:
+The platform beneath that experience preserves authority, provenance, and durable state:
+
+```text
+ACE application and onboarding orchestration
+                       ↓
+        Core + Intelligence bounded contexts
+```
+
+Generated, portable domain programs configure the platform without becoming part of either
+bounded context:
 
 ```text
 Domain Pack + Organization Overlay + Capability Bindings
@@ -20,14 +37,14 @@ Domain Pack + Organization Overlay + Capability Bindings
           validate → compile → preview → approve
                          ↓
                Versioned Domain Activation
-                         ↓
-                Core + Intelligence runtime
 ```
 
-Marketing intelligence, threat intelligence, supply-chain intelligence, scientific intelligence,
-and future verticals are intended to use the same runtime. A product surface may present the
-result as an application, API, agent, workflow, or embedded component, but it does not become
-another source of truth.
+Domain Packs are governed portable programs produced beneath the guided experience, not files a
+normal user must hand-author. World Intelligence and Market Intelligence are independent current
+falsifiers of the shared platform boundary. Corporate and strategy intelligence, and materially
+different future domains, are examples of where the platform may go rather than claims about what
+the current release ships. An application, API, agent, workflow, or embedded component may present
+the result, but it does not become another source of truth.
 
 ## Release and evidence status
 
@@ -120,6 +137,12 @@ native code, network or secret access, arbitrary imperative control flow, execut
 mutable remote references. It references versioned capabilities; it never imports their
 implementations.
 
+The Intelligence Builder normally generates and revises this content from approved source,
+concept-model, monitoring, and briefing proposals. Expert tooling may expose the format directly,
+but hand-authored JSON or YAML is never a prerequisite for reaching first intelligence value. A
+generated pack receives no special trust: it must pass the same schema, compatibility,
+conformance, authority, preview, approval, and activation boundaries as any other pack.
+
 Template ordering semantics are part of the declared schema identity. The legacy
 `ace.intelligence.synthesis/v1alpha1` contract retains its historical lexical canonicalization of
 required sections; packs that require declaration-order enforcement opt into
@@ -139,7 +162,9 @@ and independently replaceable. Installing a pack never silently enables executab
 
 ## Ontology language, engine, and toolchain
 
-ACE treats an operational ontology as more than a graph schema:
+ACE treats an operational ontology as more than a taxonomy or graph schema. It carries entities,
+relations, temporal state, provenance, metrics, signals and shifts, permissions, decisions,
+actions, and outcomes:
 
 - **Language:** the universal Intelligence grammar plus pack-declared nouns, relationships, verbs,
   policy, security requirements, and evaluation expectations.
@@ -224,7 +249,7 @@ earlier state.
 Authorization is monotonic: a derivative can never be less restricted than its inputs. Persona
 ranking may narrow attention but never broaden access. Every delivery rechecks current authority.
 
-## Reasoning belongs in Core
+## Cognition is governed substrate
 
 Intelligence invokes Core reasoning; Domain Packs teach it vocabulary, policy, examples, and
 expected behavior. Core owns how reasoning is composed and bounded, how selected context is
@@ -234,8 +259,10 @@ and outcomes. Intelligence, packs, adapters, and applications must not recreate 
 reasoning plane, memory system, provider router, provenance system, decision lifecycle, or outcome
 engine.
 
-This separation makes reasoning improvable once for every vertical while keeping domain meaning
-with the pack and domain authority with the organization activating it.
+Memory, learning, planning, and reasoning remain internal platform capabilities. This separation
+makes cognition improvable once for every domain while keeping domain meaning with the pack and
+domain authority with the organization activating it. It does not position ACE as a reasoning
+engine or make any inference provider the product boundary.
 
 ## Open-platform principles
 
@@ -285,13 +312,33 @@ If the final condition fails, the abstraction is incomplete. If the journey pass
 lower layer knows the domain's nouns, thresholds, prompts, sources, or action semantics, the
 abstraction is false.
 
+Success has a simpler user-facing test: a fresh user reaches a cited first briefing from two
+authorized sources without hand-authored configuration; later evidence updates it; corrections
+survive restart; and a materially different domain reproduces the journey through unchanged Core
+and Intelligence APIs.
+
 ## What ACE is becoming
 
-ACE is the open foundation for intelligence products that share one governed reasoning and state
-runtime, one operational ontology toolchain, one continuous-intelligence grammar, and one
-decision-and-action loop while remaining owned by their users and builders. How much of that
-vision exists at any moment is measured against the current tagged release, not against this
-document.
+ACE is becoming the open Intelligence Operating System for intelligence products that share one
+governed state and cognition runtime, one operational ontology toolchain, one
+continuous-intelligence grammar, and one decision/action/outcome loop while remaining owned by
+their users and builders.
+
+Its broader trajectory is deliberately staged rather than claimed as shipped:
+
+```text
+sources + connectors
+    → operational ontology + entity graph
+    → continuous intelligence
+    → decision + action + outcome loop
+    → shared workspace
+    → collaboration + tenancy
+    → ecosystem + SDK + marketplace + managed options
+```
+
+The current release and public roadmap determine how far along that trajectory ACE actually is.
+Workspace, collaboration, tenancy, marketplace, ecosystem, and managed-service capabilities do
+not become part of an earlier milestone merely because they appear in the vision.
 
 The first domain proves the product. The second proves the abstraction. The ecosystem proves the
 platform.

@@ -827,6 +827,13 @@ async def run(
         _bounded_contract = bounded_contract_for_request(request)
         _bounded_execution = None
         _bounded_stage_plan = None
+        from core.engine.orchestration.agent_composition_context import current_governed_composition
+
+        _early_governed_context = current_governed_composition()
+        if _bounded_contract is not None and _early_governed_context is not None:
+            raise ValidationError(
+                "governed composition blocks bounded execution until an exact manifest can be compiled"
+            )
         if _bounded_contract is not None:
             # This high-precision route intentionally runs before semantic
             # classification: the explicit output contract is the route signal,
@@ -1094,12 +1101,17 @@ async def run(
         # 2e. Multi-perspective engagement routing
         engagement = classification.get("engagement", {})
         perspectives = engagement.get("perspectives", [])
+        _selected_governed_context = _early_governed_context
 
         if _bounded_execution is not None or (len(perspectives) > 1 and not request.force_frameworks):
             # Engagement is a distinct model-call phase.  Without this boundary
             # its spin, evaluation, synthesis, and verification calls inherit
             # the earlier classification label in task receipts.
             if _bounded_execution is not None:
+                if _selected_governed_context is not None:
+                    raise ValidationError(
+                        "governed composition cannot adopt a bounded result executed before manifest authorization"
+                    )
                 engagement_result = _bounded_execution.result
                 engagement = classification["engagement"]
             else:
@@ -1108,6 +1120,29 @@ async def run(
 
                 set_stage("engagement")
                 classification = await inject_missing_perspectives(classification, request.product_id)
+                _engagement_prepared = None
+                _engagement_execution_authority = ()
+                if _selected_governed_context is not None:
+                    _engagement_configs = [
+                        AgentConfig(role=str(item), metadata={"i2_phase": "engagement"}) for item in perspectives
+                    ]
+                    _engagement_pattern = "adversarial" if engagement.get("adversarial_pair") else "fanout"
+                    _engagement_prepared = await _selected_governed_context.bridge.prepare(
+                        authenticated_context=_selected_governed_context.authenticated_context,
+                        task_ref=str(request.task_id or f"task:{run_id}"),
+                        session_ref=request.workspace_id,
+                        objective=request.description,
+                        classification=classification,
+                        snapshot={},
+                        pattern_name=_engagement_pattern,
+                        agent_configs=_engagement_configs,
+                        trigger_artifacts=_selected_governed_context.trigger_artifacts,
+                        activation_lineage=_selected_governed_context.activation_lineage,
+                    )
+                    _engagement_execution_authority = await _selected_governed_context.bridge.authorize_execution(
+                        prepared=_engagement_prepared,
+                        authenticated_context=_selected_governed_context.authenticated_context,
+                    )
                 engagement_result = await execute_engagement(
                     request.description,
                     classification,
@@ -1124,6 +1159,33 @@ async def run(
                 "verification_verdict": engagement_result.verification_verdict,
                 "verification_gaps": engagement_result.verification_gaps,
             }
+            if _selected_governed_context is not None and _bounded_execution is None:
+                from core.engine.orchestration.agent import AgentResult
+                from core.engine.orchestration.patterns.base import PatternResult
+
+                _engagement_agents = [
+                    AgentResult(
+                        agent_id=f"engagement:{index + 1}",
+                        status="completed",
+                        output=str(getattr(spin, "content", "") or ""),
+                    )
+                    for index, spin in enumerate(engagement_result.spins)
+                ]
+                _engagement_pattern_result = PatternResult(
+                    run_id=run_id,
+                    pattern_name="adversarial" if engagement.get("adversarial_pair") else "fanout",
+                    status="completed",
+                    output=output,
+                    agent_results=_engagement_agents,
+                )
+                _engagement_completed = _selected_governed_context.bridge.complete(
+                    prepared=_engagement_prepared,
+                    execution_authority=_engagement_execution_authority,
+                    pattern_result=_engagement_pattern_result,
+                    snapshot=snapshot,
+                    actual_route=None,
+                )
+                snapshot["_governed_composition"] = _engagement_completed.projection()
             if _bounded_execution is not None:
                 snapshot["bounded_interactive"] = {
                     "selected": True,
@@ -1563,6 +1625,34 @@ async def run(
                     except Exception:
                         pass
 
+                    _active_phases = list(composition.active_phases or [])
+                    _multiphase_governed_prepared = None
+                    _multiphase_execution_authority = ()
+                    if _selected_governed_context is not None:
+                        _multiphase_configs = [
+                            AgentConfig(
+                                role=str(getattr(phase, "cognitive_function", "reasoning_phase")),
+                                metadata={"i2_phase": "multi_phase"},
+                            )
+                            for phase in _active_phases
+                        ]
+                        _multiphase_governed_prepared = await _selected_governed_context.bridge.prepare(
+                            authenticated_context=_selected_governed_context.authenticated_context,
+                            task_ref=str(request.task_id or f"task:{run_id}"),
+                            session_ref=request.workspace_id,
+                            objective=request.description,
+                            classification=classification,
+                            snapshot=snapshot,
+                            pattern_name="multi-phase",
+                            agent_configs=_multiphase_configs,
+                            trigger_artifacts=_selected_governed_context.trigger_artifacts,
+                            activation_lineage=_selected_governed_context.activation_lineage,
+                        )
+                        _multiphase_execution_authority = await _selected_governed_context.bridge.authorize_execution(
+                            prepared=_multiphase_governed_prepared,
+                            authenticated_context=_selected_governed_context.authenticated_context,
+                        )
+
                     multi_output = await multi_exec.execute(
                         description=request.description,
                         composition=composition,
@@ -1575,7 +1665,6 @@ async def run(
                     # substrate (one keystone, four downstreams: forkable foresight, trace UI, canvas
                     # reasoning, sentinel realtime). The MAIN orchestrate path previously emitted nothing
                     # (only reasoning_run.py did), so the log sat empty.
-                    _active_phases = list(composition.active_phases or [])
                     await _record_reasoning_run(
                         request,
                         classification,
@@ -1606,6 +1695,42 @@ async def run(
                                 AgentResult(agent_id="multi-phase", output=multi_output, status="completed")
                             ],
                         )
+                        if _multiphase_governed_prepared is not None:
+                            _phase_agent_results = [
+                                AgentResult(
+                                    agent_id=f"multi_phase:{index + 1}",
+                                    status=(
+                                        "failed"
+                                        if isinstance(trace, dict) and trace.get("tainted") is True
+                                        else "completed"
+                                    ),
+                                    output=str((trace.get("output") if isinstance(trace, dict) else "") or ""),
+                                )
+                                for index, trace in enumerate(list(multi_exec._last_trace or []))
+                            ]
+                            while len(_phase_agent_results) < len(_multiphase_governed_prepared.manifests):
+                                _phase_agent_results.append(
+                                    AgentResult(
+                                        agent_id=f"multi_phase:{len(_phase_agent_results) + 1}",
+                                        status="completed",
+                                        output=multi_output,
+                                    )
+                                )
+                            _multiphase_pattern_result = PatternResult(
+                                run_id=run_id,
+                                pattern_name="multi-phase",
+                                output=multi_output,
+                                status="completed",
+                                agent_results=_phase_agent_results,
+                            )
+                            _multiphase_completed = _selected_governed_context.bridge.complete(
+                                prepared=_multiphase_governed_prepared,
+                                execution_authority=_multiphase_execution_authority,
+                                pattern_result=_multiphase_pattern_result,
+                                snapshot={"phase_traces": list(multi_exec._last_trace or [])},
+                                actual_route=None,
+                            )
+                            snapshot["_governed_composition"] = _multiphase_completed.projection()
                         pattern_name = "multi-phase"
                         task_id = None
                         if request.persist_task:
@@ -1757,6 +1882,32 @@ async def run(
             for config in agent_configs
         ]
 
+        # AC2 is selected only through the private task-local host envelope.
+        # Legacy tasks never enter this branch.  Once selected, every failure
+        # is fatal to the governed path; there is no claims-only or legacy
+        # execution fallback.
+        _governed_task_context = None
+        _governed_prepared = None
+        try:
+            from core.engine.orchestration.agent_composition_context import current_governed_composition
+
+            _governed_task_context = current_governed_composition()
+        except ImportError:  # pragma: no cover - naked-kernel compatibility
+            _governed_task_context = None
+        if _governed_task_context is not None:
+            _governed_prepared = await _governed_task_context.bridge.prepare(
+                authenticated_context=_governed_task_context.authenticated_context,
+                task_ref=str(request.task_id or f"task:{run_id}"),
+                session_ref=request.workspace_id,
+                objective=request.description,
+                classification=classification,
+                snapshot=snapshot,
+                pattern_name=pattern_name,
+                agent_configs=agent_configs,
+                trigger_artifacts=_governed_task_context.trigger_artifacts,
+                activation_lineage=_governed_task_context.activation_lineage,
+            )
+
         await bus.emit(
             PlanCreated(
                 run_id=run_id,
@@ -1789,11 +1940,40 @@ async def run(
 
         # 7. Execute pattern
         set_stage("execution")
+        _governed_execution_authority = ()
+        if _governed_prepared is not None and _governed_task_context is not None:
+            _governed_execution_authority = await _governed_task_context.bridge.authorize_execution(
+                prepared=_governed_prepared,
+                authenticated_context=_governed_task_context.authenticated_context,
+            )
         pattern_result = await strategy.execute(
             request.description,
             pattern_config,
             agent_configs,
         )
+        if _governed_prepared is not None and _governed_task_context is not None:
+            _route_summary = accumulator.summary() if accumulator is not None else {}
+            _providers = list(_route_summary.get("providers") or [])
+            _models = list(_route_summary.get("models") or [])
+            _actual_route = None
+            if _providers or _models:
+                from core.engine.core.agent_composition_runtime import ExactArtifactReferenceV1Alpha1, canonical_hash
+
+                _route_material = {"providers": _providers, "models": _models}
+                _route_digest = canonical_hash(_route_material)
+                _actual_route = ExactArtifactReferenceV1Alpha1(
+                    artifact_id=f"provider_route:{_route_digest[:32]}",
+                    artifact_digest=f"sha256:{_route_digest}",
+                    artifact_contract="ace.core.provider-route/v1alpha1",
+                )
+            _governed_completed = _governed_task_context.bridge.complete(
+                prepared=_governed_prepared,
+                execution_authority=_governed_execution_authority,
+                pattern_result=pattern_result,
+                snapshot=snapshot,
+                actual_route=_actual_route,
+            )
+            snapshot["_governed_composition"] = _governed_completed.projection()
 
         # Record deliberative (planned multi-agent) reasoning into the reasoning_event log — the
         # keystone substrate. This is the reviewer's "complex deliberative" cohort (agent_configs from

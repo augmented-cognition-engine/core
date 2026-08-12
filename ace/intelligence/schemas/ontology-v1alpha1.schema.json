@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "AttributeDeclarationV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attribute_id": {
+          "title": "Attribute Id",
+          "type": "string"
+        },
+        "many": {
+          "default": false,
+          "title": "Many",
+          "type": "boolean"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "value_type": {
+          "$ref": "#/$defs/AttributeValueType"
+        }
+      },
+      "required": [
+        "attribute_id",
+        "value_type"
+      ],
+      "title": "AttributeDeclarationV1",
+      "type": "object"
+    },
+    "AttributeValueType": {
+      "enum": [
+        "string",
+        "integer",
+        "number",
+        "boolean",
+        "datetime",
+        "entity_ref",
+        "json"
+      ],
+      "title": "AttributeValueType",
+      "type": "string"
+    },
+    "EntityTypeDeclarationV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "items": {
+            "$ref": "#/$defs/AttributeDeclarationV1"
+          },
+          "maxItems": 256,
+          "title": "Attributes",
+          "type": "array"
+        },
+        "display_name": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Name"
+        },
+        "entity_type_id": {
+          "title": "Entity Type Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_type_id"
+      ],
+      "title": "EntityTypeDeclarationV1",
+      "type": "object"
+    },
+    "RelationTypeDeclarationV1": {
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "items": {
+            "$ref": "#/$defs/AttributeDeclarationV1"
+          },
+          "maxItems": 256,
+          "title": "Attributes",
+          "type": "array"
+        },
+        "relation_type_id": {
+          "title": "Relation Type Id",
+          "type": "string"
+        },
+        "source_entity_types": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Source Entity Types",
+          "type": "array"
+        },
+        "target_entity_types": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Target Entity Types",
+          "type": "array"
+        }
+      },
+      "required": [
+        "relation_type_id",
+        "source_entity_types",
+        "target_entity_types"
+      ],
+      "title": "RelationTypeDeclarationV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/ontology-v1alpha1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.ontology/v1alpha1",
+      "default": "ace.intelligence.ontology/v1alpha1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "entity_types": {
+      "items": {
+        "$ref": "#/$defs/EntityTypeDeclarationV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Entity Types",
+      "type": "array"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    },
+    "relation_types": {
+      "items": {
+        "$ref": "#/$defs/RelationTypeDeclarationV1"
+      },
+      "maxItems": 256,
+      "title": "Relation Types",
+      "type": "array"
+    }
+  },
+  "required": [
+    "module_id",
+    "entity_types"
+  ],
+  "title": "OntologyModuleV1",
+  "type": "object"
+}

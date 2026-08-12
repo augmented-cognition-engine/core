@@ -2,13 +2,12 @@
 
 # ACE — Augmented Cognition Engine
 
-**The open-source foundation for governed intelligence.**
+**ACE, the Intelligence Builder. Build intelligence, not infrastructure.**
 
-ACE turns changing evidence into entities, shifts, signals, briefs, and decisions—with provenance,
-authority, and feedback built in. It can carry authorized decisions into bounded actions. Self-hosted
-and provider-neutral, it commits every
-observation, derivation, brief, decision, action, and outcome as an immutable, product-scoped record
-under explicit authority.
+Connect the sources that matter and let ACE turn changing evidence into a source-grounded briefing,
+living monitors, and an intelligence system that improves with governed feedback. ACE is
+self-hosted and provider-neutral; provenance, authority, durable state, and exact receipts stay
+built into the result instead of becoming infrastructure every product team must recreate.
 
 ![version 0.6.0](https://img.shields.io/badge/version-0.6.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
@@ -16,7 +15,9 @@ under explicit authority.
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
 
 [Quickstart](#quickstart) ·
+[Vision / Manifesto](https://github.com/augmented-cognition-engine/core/blob/main/MANIFESTO.md) ·
 [What ACE does](#what-ace-does) ·
+[Builder journey](#the-intelligence-builder-journey) ·
 [Architecture](#architecture-one-install-two-bounded-contexts) ·
 [Domain Packs](#domain-packs-add-a-vertical-without-touching-the-kernel) ·
 [Python surface](#the-public-python-surface) ·
@@ -29,9 +30,10 @@ under explicit authority.
 
 ## What ACE does
 
-ACE is the **Augmented Cognition Engine**: a self-hosted runtime for building systems that must
-reason over changing evidence without losing provenance, authority, or institutional memory. The
-configured model supplies inference inside the loop; ACE owns the loop around it.
+ACE is the **Intelligence Builder**: a self-hosted system for turning authorized, changing sources
+into useful intelligence without asking each product team to build its own ingestion, ontology,
+monitoring, briefing, provenance, authority, and feedback infrastructure. A configured model may
+supply inference inside the loop; ACE owns the governed intelligence lifecycle around it.
 
 - **Understand.** Admit evidence with source identity and time, resolve it into a temporal entity
   graph, and preserve the difference between observations, claims, inference, and unknowns.
@@ -45,6 +47,39 @@ configured model supplies inference inside the loop; ACE owns the loop around it
 - **Observe and improve.** Reconcile decisions and forecasts with later outcomes, preserve
   corrections, and make governed feedback available to later reasoning. ACE does not silently
   rewrite history or grant itself new authority.
+
+### The Intelligence Builder journey
+
+ACE's north-star experience is deliberately simpler than its internal architecture:
+
+```text
+Connect → Map → Watch → Brief → Activate
+```
+
+1. **Connect.** Choose a few supported sources, see the exact requested permission and scope, and
+   approve only the bounded connection you want.
+2. **Map.** ACE proposes an editable, cited **concept model** for the entities, relationships,
+   terminology, and exclusions it found.
+3. **Watch.** ACE proposes what to monitor, what counts as material change, who it matters to, and
+   how often to look.
+4. **Brief.** A cited first briefing appears with uncertainty, disagreement, and why each item
+   matters—even before every optional integration is configured.
+5. **Activate.** You review the exact permissions and effects, approve the plan, and receive an
+   activation receipt. ACE then keeps watching; feedback improves relevance without silently
+   changing authority.
+
+Builders should not hand-author Domain Pack JSON or learn compiler mechanics to reach this moment.
+Generated material still passes the same fail-closed schema, compatibility, conformance, authority,
+and activation boundaries as an expert-built pack.
+
+**Maturity:** ACE 0.6 already ships the governed source, monitoring, briefing, decision, feedback,
+and durable receipt substrates through developer-facing contracts. The cumulative 0.7 candidate
+now composes stable Domain Pack compilation/conformance with provider-free Connect, cited and
+editable Map, approved Watch, cited first Brief, and exact Activate/restart behavior. The same
+candidate also composes governed Agent Composition through AC7 and authorized Agent Memory through
+AM3 without widening authority or changing the eleven-tool public MCP surface. Cumulative review,
+CI, independent Market acceptance, and release reconciliation remain open. This is not yet a
+released 0.7 package or a claim about the current released UI.
 
 ### Two connected loops
 
@@ -100,8 +135,9 @@ resulting decision and outcome can change what the intelligence system watches n
 - **Governed AI backends** that need provider-neutral inference, scoped authority, append-only
   state, replay, human disposition, and attributable outcome feedback.
 
-ACE is infrastructure, not a finished vertical application. Domain-specific products ship
-separately and consume the same public Core + Intelligence contracts.
+ACE supplies both the Intelligence Builder experience and the governed runtime beneath it. Ready-
+to-use domain applications ship separately, but their users should encounter first intelligence
+value—not the names of ACE's internal layers.
 
 ---
 
@@ -141,14 +177,16 @@ PREPARED snapshots, `detect_live_numeric_shift` only LIVE ones. **No pure Intell
 grants LIVE authority** — the application bridge must independently prove a committed activation
 and authorize persistence through Core.
 
-### The architecture is the feature
+### Trustworthy intelligence is the feature
 
 ACE wraps a **lean coordinating** Core around specialized reasoning and Intelligence capabilities;
 the octopus is useful inspiration for that shape, **not a literal ratio** of code or intelligence.
 The existing cognitive runtime remains visible inside this architecture: **Human ↔ ACE ↔ LLM**,
 **A nine-layer cognitive pipeline**, and **Dynamic composition** describe how ACE assembles and
 governs reasoning. Core + Intelligence + Domain Packs describe how the same machinery becomes a
-reusable intelligence engine without putting domain nouns or executable behavior in the kernel.
+reusable intelligence-building system without putting domain nouns or executable behavior in the
+kernel. These boundaries explain why the experience can be trusted; they are not concepts an
+end-user must learn before receiving a useful Brief.
 
 ACE provides graph-grounded, calibrated foresight. It projects conditional consequences of
 decisions, exposes the mechanisms and uncertainty behind them, observes what actually happens, and
@@ -212,6 +250,11 @@ A Domain Pack is a manifest plus JSON module resources. The compiler
 (`ace.intelligence.packs.compiler.compile_pack_document`) is a **pure, deterministic function**: it
 performs no discovery, import, I/O, clock read, model call, secret lookup, registry mutation, or
 persistence operation.
+
+JSON is the portable wire and audit format, not a requirement that customers author configuration
+by hand. A UI, CLI, template, or guided agent can draft the same inert material from reviewed source
+scope and concept proposals. Regardless of authoring surface, the compiler and conformance helper
+validate the exact generated bytes before a separate approval can activate them.
 
 What that buys you:
 

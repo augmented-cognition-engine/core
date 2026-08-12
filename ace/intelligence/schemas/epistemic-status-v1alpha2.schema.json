@@ -1,0 +1,220 @@
+{
+  "$defs": {
+    "ClaimGroundingKind": {
+      "description": "Whether a claim is directly cited or an explicitly bounded inference.",
+      "enum": [
+        "cited",
+        "inference"
+      ],
+      "title": "ClaimGroundingKind",
+      "type": "string"
+    },
+    "EpistemicStatusDeclarationV1Alpha2": {
+      "additionalProperties": false,
+      "description": "A status declaration that may additionally require independent families.\n\nThis is the additive sibling of :class:`EpistemicStatusDeclarationV1`. It\nadds exactly one constraint: ``min_distinct_derivation_families``. A Pack\nthat does not raise that value above ``1`` behaves precisely as it did under\n``v1alpha1``, and a Pack that stays on ``v1alpha1`` is untouched.\n\nUnlike ``v1alpha1`` -- where ``proves_source_family_independence`` is pinned\nto ``False`` because the runtime could not establish it --\n``v1alpha2`` *derives* that flag and refuses to let a Pack state it\nincorrectly in either direction.",
+      "properties": {
+        "allowed_grounding_kinds": {
+          "items": {
+            "$ref": "#/$defs/ClaimGroundingKind"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Allowed Grounding Kinds",
+          "type": "array"
+        },
+        "allowed_support_kinds": {
+          "items": {
+            "$ref": "#/$defs/LineageResourceKind"
+          },
+          "minItems": 1,
+          "title": "Allowed Support Kinds",
+          "type": "array"
+        },
+        "contract": {
+          "const": "ace.intelligence.epistemic-status-declaration/v1alpha2",
+          "default": "ace.intelligence.epistemic-status-declaration/v1alpha2",
+          "title": "Contract",
+          "type": "string"
+        },
+        "definition": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Definition",
+          "type": "string"
+        },
+        "display_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "max_support_count": {
+          "anyOf": [
+            {
+              "maximum": 256,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Support Count"
+        },
+        "min_distinct_derivation_families": {
+          "default": 1,
+          "maximum": 256,
+          "minimum": 1,
+          "title": "Min Distinct Derivation Families",
+          "type": "integer"
+        },
+        "min_distinct_support_kinds": {
+          "default": 1,
+          "maximum": 10,
+          "minimum": 1,
+          "title": "Min Distinct Support Kinds",
+          "type": "integer"
+        },
+        "min_support_count": {
+          "default": 1,
+          "maximum": 256,
+          "minimum": 1,
+          "title": "Min Support Count",
+          "type": "integer"
+        },
+        "proves_source_family_independence": {
+          "default": false,
+          "title": "Proves Source Family Independence",
+          "type": "boolean"
+        },
+        "required_support_kinds": {
+          "items": {
+            "$ref": "#/$defs/LineageResourceKind"
+          },
+          "title": "Required Support Kinds",
+          "type": "array"
+        },
+        "requires_uncertainty": {
+          "default": false,
+          "title": "Requires Uncertainty",
+          "type": "boolean"
+        },
+        "status_id": {
+          "title": "Status Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status_id",
+        "display_name",
+        "definition",
+        "allowed_grounding_kinds",
+        "allowed_support_kinds"
+      ],
+      "title": "EpistemicStatusDeclarationV1Alpha2",
+      "type": "object"
+    },
+    "EpistemicStatusSetV1Alpha2": {
+      "additionalProperties": false,
+      "description": "A bounded status vocabulary whose statuses may require family independence.",
+      "properties": {
+        "brief_template_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Brief Template Ids",
+          "type": "array"
+        },
+        "contract": {
+          "const": "ace.intelligence.epistemic-status-set/v1alpha2",
+          "default": "ace.intelligence.epistemic-status-set/v1alpha2",
+          "title": "Contract",
+          "type": "string"
+        },
+        "display_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "require_status_for_every_claim": {
+          "default": true,
+          "title": "Require Status For Every Claim",
+          "type": "boolean"
+        },
+        "status_set_id": {
+          "title": "Status Set Id",
+          "type": "string"
+        },
+        "statuses": {
+          "items": {
+            "$ref": "#/$defs/EpistemicStatusDeclarationV1Alpha2"
+          },
+          "maxItems": 32,
+          "minItems": 1,
+          "title": "Statuses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "status_set_id",
+        "display_name",
+        "brief_template_ids",
+        "statuses"
+      ],
+      "title": "EpistemicStatusSetV1Alpha2",
+      "type": "object"
+    },
+    "LineageResourceKind": {
+      "description": "Domain-neutral resource families that may participate in the Intelligence DAG.",
+      "enum": [
+        "evidence",
+        "observation",
+        "entity_snapshot",
+        "signal",
+        "shift",
+        "case",
+        "brief",
+        "decision",
+        "outcome",
+        "receipt"
+      ],
+      "title": "LineageResourceKind",
+      "type": "string"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/epistemic-status-v1alpha2.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Declarative module of status vocabularies that may require independence.",
+  "properties": {
+    "contract": {
+      "const": "ace.intelligence.epistemic-status/v1alpha2",
+      "default": "ace.intelligence.epistemic-status/v1alpha2",
+      "title": "Contract",
+      "type": "string"
+    },
+    "module_id": {
+      "title": "Module Id",
+      "type": "string"
+    },
+    "status_sets": {
+      "items": {
+        "$ref": "#/$defs/EpistemicStatusSetV1Alpha2"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Status Sets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "module_id",
+    "status_sets"
+  ],
+  "title": "EpistemicStatusModuleV1Alpha2",
+  "type": "object"
+}

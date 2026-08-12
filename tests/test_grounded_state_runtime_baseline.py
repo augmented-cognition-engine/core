@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from core.engine.grounded_state import baseline as runtime_baseline
 from core.engine.grounded_state.baseline import (
     BaselineDisposition,
     RuntimeBaselineConfigV1,
@@ -17,6 +18,7 @@ from core.engine.grounded_state.baseline import (
     render_runtime_baseline_markdown,
     run_current_ace_baseline,
 )
+from tests.repository_layout import source_revision
 
 ROOT = Path(__file__).parents[1]
 CONFIG = ROOT / "evaluations/fixtures/state_engine_tp0_runtime_baseline_v1.json"
@@ -31,6 +33,11 @@ ADAPTER_HASH = "b42ec0dd7a25810ec2c923e3adf6811dbb84db22b9313f3abc86d6c2c6c9b88d
 UTC = timezone.utc
 
 
+@pytest.fixture(autouse=True)
+def _portable_git_layout(monkeypatch):
+    monkeypatch.setattr(runtime_baseline, "_source_revision", source_revision)
+
+
 def _run():
     return run_current_ace_baseline(
         load_runtime_baseline_config(CONFIG),
@@ -38,6 +45,29 @@ def _run():
         inspect_thin_mcp_surface(SURFACE),
         executed_at=datetime(2026, 8, 3, 18, tzinfo=UTC),
     )
+
+
+def test_source_revision_resolves_ordinary_and_linked_worktree_git_layouts(tmp_path):
+    revision = "a" * 40
+    ordinary = tmp_path / "ordinary"
+    ordinary_ref = ordinary / ".git/refs/heads"
+    ordinary_ref.mkdir(parents=True)
+    (ordinary / ".git/HEAD").write_text("ref: refs/heads/packet\n", encoding="utf-8")
+    (ordinary_ref / "packet").write_text(f"{revision}\n", encoding="utf-8")
+    assert source_revision(ordinary) == revision
+
+    linked = tmp_path / "linked"
+    linked.mkdir()
+    common = tmp_path / "metadata"
+    worktree_git_dir = common / "worktrees/packet"
+    worktree_git_dir.mkdir(parents=True)
+    common_ref = common / "refs/heads"
+    common_ref.mkdir(parents=True)
+    (linked / ".git").write_text("gitdir: ../metadata/worktrees/packet\n", encoding="utf-8")
+    (worktree_git_dir / "HEAD").write_text("ref: refs/heads/packet\n", encoding="utf-8")
+    (worktree_git_dir / "commondir").write_text("../..\n", encoding="utf-8")
+    (common_ref / "packet").write_text(f"{revision}\n", encoding="utf-8")
+    assert source_revision(linked) == revision
 
 
 def test_frozen_baseline_config_declares_zero_write_provider_free_rules():

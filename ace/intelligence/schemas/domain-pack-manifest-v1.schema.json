@@ -1,0 +1,350 @@
+{
+  "$defs": {
+    "AuthorityRequestV1": {
+      "additionalProperties": false,
+      "properties": {
+        "authority": {
+          "title": "Authority",
+          "type": "string"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "request_id",
+        "authority"
+      ],
+      "title": "AuthorityRequestV1",
+      "type": "object"
+    },
+    "CapabilityRequirementV1": {
+      "additionalProperties": false,
+      "properties": {
+        "capability": {
+          "title": "Capability",
+          "type": "string"
+        },
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "requirement_id": {
+          "title": "Requirement Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requirement_id",
+        "capability",
+        "contract"
+      ],
+      "title": "CapabilityRequirementV1",
+      "type": "object"
+    },
+    "OverlaySlotDeclarationV1": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_values_json": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Allowed Values Json",
+          "type": "array"
+        },
+        "max_items": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Items"
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum"
+        },
+        "min_items": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Items"
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Minimum"
+        },
+        "required": {
+          "default": false,
+          "title": "Required",
+          "type": "boolean"
+        },
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "value_kind": {
+          "$ref": "#/$defs/OverlayValueKind"
+        }
+      },
+      "required": [
+        "slot_id",
+        "value_kind"
+      ],
+      "title": "OverlaySlotDeclarationV1",
+      "type": "object"
+    },
+    "OverlayValueKind": {
+      "enum": [
+        "string",
+        "integer",
+        "number",
+        "boolean",
+        "string_list",
+        "json"
+      ],
+      "title": "OverlayValueKind",
+      "type": "string"
+    },
+    "PackCompatibilityRangeV1": {
+      "additionalProperties": false,
+      "description": "Closed compatibility window declared by the stable manifest contract.",
+      "properties": {
+        "compiler_maximum_exclusive": {
+          "const": "ace.intelligence.pack-compiler/v2",
+          "default": "ace.intelligence.pack-compiler/v2",
+          "title": "Compiler Maximum Exclusive",
+          "type": "string"
+        },
+        "compiler_minimum": {
+          "default": "ace.intelligence.pack-compiler/v1alpha1",
+          "enum": [
+            "ace.intelligence.pack-compiler/v1alpha1",
+            "ace.intelligence.pack-compiler/v1"
+          ],
+          "title": "Compiler Minimum",
+          "type": "string"
+        },
+        "intelligence_maximum_exclusive": {
+          "const": "ace.intelligence.runtime/v2",
+          "default": "ace.intelligence.runtime/v2",
+          "title": "Intelligence Maximum Exclusive",
+          "type": "string"
+        },
+        "intelligence_minimum": {
+          "default": "ace.intelligence.runtime/v1alpha1",
+          "enum": [
+            "ace.intelligence.runtime/v1alpha1",
+            "ace.intelligence.runtime/v1"
+          ],
+          "title": "Intelligence Minimum",
+          "type": "string"
+        }
+      },
+      "title": "PackCompatibilityRangeV1",
+      "type": "object"
+    },
+    "PackMetadataV1": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "display_name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Display Name",
+          "type": "string"
+        },
+        "pack_id": {
+          "title": "Pack Id",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pack_id",
+        "version",
+        "display_name"
+      ],
+      "title": "PackMetadataV1",
+      "type": "object"
+    },
+    "PackModuleRefV1": {
+      "additionalProperties": false,
+      "properties": {
+        "contract": {
+          "title": "Contract",
+          "type": "string"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 256,
+          "title": "Depends On",
+          "type": "array"
+        },
+        "module_id": {
+          "title": "Module Id",
+          "type": "string"
+        },
+        "resource_id": {
+          "title": "Resource Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "module_id",
+        "contract",
+        "resource_id"
+      ],
+      "title": "PackModuleRefV1",
+      "type": "object"
+    },
+    "PackResourceV1": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "title": "Digest",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "resource_id": {
+          "title": "Resource Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id",
+        "path",
+        "digest"
+      ],
+      "title": "PackResourceV1",
+      "type": "object"
+    }
+  },
+  "$id": "https://schemas.ace.dev/intelligence/domain-pack-manifest-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The distributed stable v1 manifest schema for third-party packs.",
+  "properties": {
+    "authority_requests": {
+      "items": {
+        "$ref": "#/$defs/AuthorityRequestV1"
+      },
+      "maxItems": 256,
+      "title": "Authority Requests",
+      "type": "array"
+    },
+    "capability_requirements": {
+      "items": {
+        "$ref": "#/$defs/CapabilityRequirementV1"
+      },
+      "maxItems": 256,
+      "title": "Capability Requirements",
+      "type": "array"
+    },
+    "compatibility": {
+      "$ref": "#/$defs/PackCompatibilityRangeV1"
+    },
+    "contract": {
+      "const": "ace.intelligence.domain-pack-manifest/v1",
+      "default": "ace.intelligence.domain-pack-manifest/v1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "#/$defs/PackMetadataV1"
+    },
+    "modules": {
+      "items": {
+        "$ref": "#/$defs/PackModuleRefV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Modules",
+      "type": "array"
+    },
+    "overlay_slots": {
+      "items": {
+        "$ref": "#/$defs/OverlaySlotDeclarationV1"
+      },
+      "maxItems": 256,
+      "title": "Overlay Slots",
+      "type": "array"
+    },
+    "resources": {
+      "items": {
+        "$ref": "#/$defs/PackResourceV1"
+      },
+      "maxItems": 256,
+      "minItems": 1,
+      "title": "Resources",
+      "type": "array"
+    }
+  },
+  "required": [
+    "metadata",
+    "resources",
+    "modules"
+  ],
+  "title": "StableDomainPackManifestV1",
+  "type": "object"
+}

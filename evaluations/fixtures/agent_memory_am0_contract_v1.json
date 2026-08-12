@@ -1,0 +1,81 @@
+{
+  "contract": "ace.evaluation.agent-memory-am0-contract/v1",
+  "claim_scope": "contract_and_receipt_trace_only",
+  "product_id": "product:agent-memory-am0-trace",
+  "actor_id": "principal:briefing-user",
+  "initial_session_id": "session:onboarding",
+  "later_session_id": "session:returning-user",
+  "source": {
+    "source_id": "source:market-briefing",
+    "initial_version_id": "source_version:market-briefing-v1",
+    "corrected_version_id": "source_version:market-briefing-v2",
+    "initial_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "corrected_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "acquisition_receipt_ref": "receipt:source-admission",
+    "capture_method_ref": "source.adapter.synthetic",
+    "span": {
+      "start_byte": 0,
+      "end_byte": 64
+    }
+  },
+  "concept_mapping": {
+    "policy_ref": "source_mapping:market-briefing",
+    "policy_version": "revision:source-mapping-v1"
+  },
+  "first_briefing": {
+    "query_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "receiver_ref": "briefing_stage:first",
+    "retrieval_policy_ref": "memory_policy:briefing-v1",
+    "authorization_filter_receipt_ref": "authority_receipt:first-briefing-filter",
+    "lifecycle_snapshot_ref": "lifecycle_snapshot:first-briefing",
+    "context_manifest_id": "context_manifest:first-briefing",
+    "context_item_ref": "context_item:current-market-state",
+    "context_item_source_receipt_ref": "context_source_receipt:first-briefing"
+  },
+  "refreshed_briefing": {
+    "query_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "receiver_ref": "briefing_stage:monitor-refresh",
+    "retrieval_policy_ref": "memory_policy:briefing-v1",
+    "authorization_filter_receipt_ref": "authority_receipt:refreshed-briefing-filter",
+    "lifecycle_snapshot_ref": "lifecycle_snapshot:refreshed-briefing",
+    "context_manifest_id": "context_manifest:refreshed-briefing",
+    "context_item_ref": "context_item:corrected-market-state",
+    "context_item_source_receipt_ref": "context_source_receipt:refreshed-briefing",
+    "intelligence_use_receipt_ref": "intelligence_use_receipt:refreshed-briefing",
+    "decision_ref": "decision:refreshed-briefing"
+  },
+  "later_session": {
+    "query_digest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "receiver_ref": "briefing_stage:returning-user",
+    "retrieval_policy_ref": "memory_policy:briefing-v1",
+    "authorization_filter_receipt_ref": "authority_receipt:returning-user-filter",
+    "lifecycle_snapshot_ref": "lifecycle_snapshot:returning-user"
+  },
+  "feedback": {
+    "feedback_receipt_ref": "feedback_receipt:briefing-relevance",
+    "policy_ref": "memory_evolution_policy:relevance-v1",
+    "policy_version": "revision:memory-evolution-v1",
+    "required_authority": "authority:memory-policy-review"
+  },
+  "required_cases": {
+    "ordinary": "accepted_current_assertion",
+    "unknown_time": "explicit_unknown_no_clock_substitution",
+    "disputed": "preserve_evidence_paths",
+    "superseded": "omit_from_current_refresh",
+    "hostile_scope": "fail_closed_before_ranking",
+    "repeated_poison": "remain_proposal_without_authority",
+    "cross_product": "fail_closed_without_disclosure",
+    "partial_write": "no_partial_ledger_records",
+    "lifecycle_restricted": "fail_closed_before_ranking",
+    "stale_cache": "explicit_degraded_or_recomputed",
+    "missing_use_receipt": "no_material_use_or_decision_claim"
+  },
+  "forbidden_implementations": [
+    "briefing_generator",
+    "connector",
+    "monitor_scheduler",
+    "onboarding_agent",
+    "ontology_mapper",
+    "user_interface"
+  ]
+}

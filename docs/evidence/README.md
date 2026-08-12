@@ -13,7 +13,7 @@ superseded by later work and is kept for audit trail only.
 
 ## Foundational
 
-- [ACE Core manifesto](../../MANIFESTO.md) — current, authoritative
+- [ACE vision and manifesto](../../MANIFESTO.md) — current, authoritative
 
 ## Release and onboarding
 
@@ -29,6 +29,23 @@ superseded by later work and is kept for audit trail only.
 
 ## Product outcomes
 
+- [0.7B Intelligence Builder Connect candidate](intelligence-builder-connect-v0.7.0-candidate-v1.md)
+  — stacked candidate; provider-free exact source-scope/profile persistence and resumable Connect
+- [0.7C Intelligence Builder Map candidate](intelligence-builder-map-v0.7.0-candidate-v1.md)
+  — stacked candidate; cited immutable concept-model edits, exact approval, and restart handoff
+- [0.7D Intelligence Builder Watch + Brief candidate](intelligence-builder-watch-brief-v0.7.0-candidate-v1.md)
+  — stacked candidate; approved Watch proposal, cited first Brief, exact restart, and blocked paths
+- [Cumulative Core 0.7 integration acceptance](cumulative-core-v0.7-integration-acceptance-v1.md)
+  — aggregate candidate; exact 0.7A–0.7E, AC1–AC7, and AM0–AM3 topology, combined journey,
+  installed-wheel proof, CI finding, and safe landing/rollback map
+- [AC7 composition-policy admission candidate](composition-policy-admission-ac7-candidate-v1.md)
+  — stacked AC6 closeout; exact review, CAS policy head, lifecycle, bounded runtime resolution, and
+  freeze gate
+- [Agent Memory AM1 episodic-ledger candidate](agent-memory-am1-candidate-v1.md)
+  — local isolated candidate under verification; provider-neutral ingestion, authorization,
+  content-free receipts, ordering, replay, and restart evidence only
+- [Agent Memory AM2 correction-node kind repair](agent-memory-am2-correction-kind-repair-v1.md)
+  — isolated draft repair; correction candidates rebuild as one content-free correction node
 - [E1 governed-cognition release evidence](e1-governed-cognition-release-v1.md)
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md)
 - [IA-R1 product-map evidence](ia-r1-product-map.md)
@@ -89,6 +106,7 @@ records. Those records remain immutable point-in-time **candidate, local** docum
 status wording is historical context and is not rewritten by the later public receipt.
 
 - [GI2 public cross-domain falsification](gi2-public-cross-domain-falsification-v1.md) — public, passed
+- [0.7 stable Domain Pack Core contract](domain-pack-platform-v0.7.0-core-candidate-v1.md) — candidate, local; external World and Market falsification remains
 
 - [P1C1 declarative source-mapping](platform-p1c1-declarative-source-mapping-v1.md) — candidate, local
 - [P1C2 governed LIVE source ingress](platform-p1c2-governed-live-source-ingress-v1.md) — candidate, local
@@ -108,6 +126,12 @@ Two earlier local checkpoints predate the P1/P2 sequence and are superseded by i
 
 - [Context manifest and code-context checkpoint](context-manifest-code-context-v1.md) — historical, local, superseded
 - [Productized State golden-journey checkpoint](productized-state-golden-journey-v1.md) — historical, local, superseded
+
+## Agent Memory
+
+- [AM3 authorized recall and Context Planner candidate](agent-memory-am3-candidate-v1.md) — stacked
+  candidate; provider-free selection, Context Manifest/I3 lineage, matched material influence,
+  privacy, restart/rebuild, and installed-wheel evidence
 
 ## Extension invocation
 

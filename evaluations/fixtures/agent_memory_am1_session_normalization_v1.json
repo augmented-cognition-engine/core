@@ -1,0 +1,180 @@
+{
+  "contract": "ace.evaluation.agent-memory-am1-session-normalization-spec/v1",
+  "claim_scope": "fixture_specification_only",
+  "authenticated_scope": {
+    "product_id": "product:agent-memory-am1-fixture",
+    "actor_id": "principal:fixture-user",
+    "session_id": "native-session:fixture-001",
+    "source_id": "source:fixture-session-export",
+    "visibility": "private",
+    "retention_class": "standard",
+    "authority_receipt_ref": "authority_receipt:fixture-import"
+  },
+  "immutable_source": {
+    "source_version_id": "source_version:fixture-session-export-v1",
+    "content_digest": "sha256:d9b8bb1c89ca23a0f7bf58172a1bf61739742552ac6a5551d3b46556349969c8",
+    "acquisition_receipt_ref": "receipt:fixture-session-export",
+    "knowledge_time": "2026-08-11T20:00:00Z"
+  },
+  "import_identity": {
+    "external_key": "import:fixture-001",
+    "mode": "batch"
+  },
+  "adapter_inputs": [
+    {
+      "adapter_ref": "session_adapter:event-stream-v1",
+      "native_session_coordinate": "fixture-001",
+      "events": [
+        {
+          "native_event_coordinate": "event-001",
+          "native_participant_coordinate": "user-001",
+          "role": "user",
+          "kind": "text",
+          "body": "Keep the weekly briefing concise.",
+          "world_time": "2026-08-11T19:55:00Z",
+          "source_span": {"kind": "byte_range", "start_byte": 0, "end_byte": 33},
+          "native_order": 1
+        },
+        {
+          "native_event_coordinate": "event-002",
+          "native_participant_coordinate": "assistant-001",
+          "role": "assistant",
+          "kind": "text",
+          "body": "I will keep future weekly briefings concise.",
+          "world_time": null,
+          "source_span": {"kind": "byte_range", "start_byte": 34, "end_byte": 78},
+          "native_order": 2
+        },
+        {
+          "native_event_coordinate": "event-003",
+          "native_participant_coordinate": "tool-001",
+          "role": "tool",
+          "kind": "tool_result",
+          "body": "briefing-preference-recorded",
+          "world_time": null,
+          "source_span": {"kind": "unavailable", "reason": "adapter_unsupported"},
+          "native_order": 3
+        }
+      ]
+    },
+    {
+      "adapter_ref": "session_adapter:transcript-export-v1",
+      "conversation_key": "fixture-001",
+      "messages": [
+        {
+          "message_key": "event-003",
+          "speaker": {"key": "tool-001", "type": "tool"},
+          "payload": {"type": "tool_result", "text": "briefing-preference-recorded"},
+          "position": 3,
+          "occurred_at": null,
+          "locator": null
+        },
+        {
+          "message_key": "event-001",
+          "speaker": {"key": "user-001", "type": "user"},
+          "payload": {"type": "text", "text": "Keep the weekly briefing concise."},
+          "position": 1,
+          "occurred_at": "2026-08-11T19:55:00Z",
+          "locator": {"utf8_start": 0, "utf8_end": 33}
+        },
+        {
+          "message_key": "event-002",
+          "speaker": {"key": "assistant-001", "type": "assistant"},
+          "payload": {"type": "text", "text": "I will keep future weekly briefings concise."},
+          "position": 2,
+          "occurred_at": null,
+          "locator": {"utf8_start": 34, "utf8_end": 78}
+        }
+      ]
+    }
+  ],
+  "expected_canonical_relations": {
+    "same_session_identity_material": true,
+    "same_participant_identity_material": true,
+    "same_event_identity_material": true,
+    "same_turn_identity_material": true,
+    "same_processing_order": ["event-001", "event-002", "event-003"],
+    "same_content_digests": true,
+    "same_source_coordinates": true,
+    "missing_world_time_remains_unknown": ["event-002", "event-003"],
+    "tool_result_grants_authority": false,
+    "public_receipt_contains_body": false
+  },
+  "expected_canonical_identities": {
+    "derivation_version": "agent-memory-am1-identity-v1",
+    "turn_boundary_policy_version": "agent-memory-am1-adjacent-role-turns-v1",
+    "scope_id": "agent_memory_scope:53a988d6fc6eea9c29cb6f45d1f92e39",
+    "session_id": "agent_memory_session:a5926f27a3fe0bb34b43e3fbfed2386e",
+    "participant_ids": {
+      "user-001": "agent_memory_participant:bc70771897866b2a0b6eec6d7052c0f3",
+      "assistant-001": "agent_memory_participant:911021c9130fa3f3a6dbbe6ae4139223",
+      "tool-001": "agent_memory_participant:bc90d9623f46f0b6b109ed668a3552d4"
+    },
+    "external_event_ids": {
+      "event-001": "agent_memory_external_event:ee306774b2399e4aeef2c5c7e386c9f7",
+      "event-002": "agent_memory_external_event:2fa6fc178118b9cf0e929ea1b8f594ab",
+      "event-003": "agent_memory_external_event:4ad84618d88addbc2692089b9c810b0a"
+    },
+    "content_digests": {
+      "event-001": "sha256:d9038925b34bf52cb290640ed05e98c367d8a45d835776dde6f152fc03266443",
+      "event-002": "sha256:c10b7e3f77eb3ba36464e96697f3b56171317685adb52c88b1a7778a386c08ce",
+      "event-003": "sha256:481b5f48d218ff1cbfcbba41f8df54fed8d757f5499f644ca386720190cd2a14"
+    },
+    "event_ids": {
+      "event-001": "agent_memory_event:3898b4bdbc9b292a7b491afd92e8ab10",
+      "event-002": "agent_memory_event:0e184b2a4bca778e78e4cb596580e9eb",
+      "event-003": "agent_memory_event:c6dfcc6d9511368d140c64901bc98644"
+    },
+    "source_span_ids": {
+      "event-001": "agent_memory_span:6c331f220146f85c54520eb4fcfc6caa",
+      "event-002": "agent_memory_span:5a2b43a7caa3d95cd30b8a29b7c8c567",
+      "event-003": "agent_memory_span:931fe2a133609c9d90cdebef953fbb8a"
+    },
+    "turn_ids": {
+      "event-001": "agent_memory_turn:e6e157f5f556b81f78cb3162604047a0",
+      "event-002": "agent_memory_turn:5ea6bcf7b9343a501afb29f9d59d3474",
+      "event-003": "agent_memory_turn:a81c1f93a3933fa316ab8ae7271675b8"
+    },
+    "adapter_specific_import_identities": {
+      "session_adapter:event-stream-v1": {
+        "adapter_id": "agent_memory_source_adapter:4a00feed466055fe7891faaf60c57387",
+        "idempotency_id": "agent_memory_idempotency:cb4daf06693c6514a0591819e5a3e137",
+        "intent_id": "agent_memory_import_intent:dc7c281f72e7527884ee0caf632f0a42",
+        "normalization_receipt_id": "agent_memory_normalization_receipt:bd335e5a20475a8dd2d1d46afc559dde"
+      },
+      "session_adapter:transcript-export-v1": {
+        "adapter_id": "agent_memory_source_adapter:691b92ce77cc265fdd038fe70fe85088",
+        "idempotency_id": "agent_memory_idempotency:64ba94eb739bfcd0958bbc412cf1443a",
+        "intent_id": "agent_memory_import_intent:bca20b68934bcf41d6d4f59eb2a020ec",
+        "normalization_receipt_id": "agent_memory_normalization_receipt:1c977c2868aede2a524aa468db1c8c16"
+      }
+    }
+  },
+  "required_cases": [
+    "cross_product_read",
+    "divergent_replay",
+    "duplicate_exact_event",
+    "exact_replay",
+    "hostile_payload_scope",
+    "indeterminate_append",
+    "lifecycle_restricted_read",
+    "missing_native_session_coordinate",
+    "missing_source_time",
+    "out_of_order_with_coordinates",
+    "out_of_order_without_coordinates",
+    "partial_write",
+    "private_body_projection",
+    "restart_replay",
+    "unknown_adapter_version"
+  ],
+  "identity_freeze_state": "exact_core_ids_and_content_digests_frozen_for_am1_conformance",
+  "forbidden_product_expansion": [
+    "briefing_generator",
+    "connector_user_experience",
+    "memory_management_user_interface",
+    "monitor_scheduler",
+    "onboarding_agent",
+    "ontology_mapper",
+    "semantic_memory_extractor"
+  ]
+}
