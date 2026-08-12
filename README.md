@@ -75,7 +75,7 @@ Builders should not hand-author Domain Pack JSON or learn compiler mechanics to 
 Generated material still passes the same fail-closed schema, compatibility, conformance, authority,
 and activation boundaries as an expert-built pack.
 
-**Maturity:** ACE 0.7 is the Intelligence Builder Foundation release candidate. It composes stable Domain
+**Maturity:** ACE 0.7 is the released Intelligence Builder Foundation. It composes stable Domain
 Pack compilation and conformance with provider-free Connect, cited and editable Map, approved
 Watch, cited first Brief, and exact Activate/restart behavior. The same release composes governed
 Agent Composition through AC7 and authorized Agent Memory through AM3 without widening authority
@@ -798,7 +798,7 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.7.0 is a developer-preview release candidate.** Its Intelligence Builder claim is bounded to
+**0.7.0 is a published developer-preview release.** Its Intelligence Builder claim is bounded to
 the provider-free and installed-artifact journeys recorded in the evidence archive and the
 single-node topology below. Read this section before you build on it.
 
