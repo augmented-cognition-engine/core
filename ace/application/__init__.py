@@ -1,5 +1,18 @@
 """Application services composing ACE Core and Intelligence bounded contexts."""
 
+from ace.application.agent_composition import (
+    AgentCompositionError,
+    CompositionPlanningPort,
+    ContextManifestResolutionPort,
+    ContextResolutionOutcome,
+    DeliveryEffectPort,
+    DeterministicJoinPort,
+    JoinOutcome,
+    PlanningOutcome,
+    PreparedStageHandoffPort,
+    StageExecutionPort,
+    StageRunManifestCompilerPort,
+)
 from ace.application.brief_synthesis import (
     BriefSynthesisError,
     BriefSynthesisReplayConflict,
@@ -223,6 +236,7 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "AgentCompositionError",
     "AudienceProposalV1",
     "AuthorizedObservationSetAdmission",
     "AuthorizedObservationSetV1",
@@ -237,6 +251,16 @@ __all__ = [
     "BriefingItemKind",
     "BriefingItemV1",
     "BriefingStrategy",
+    "CompositionPlanningPort",
+    "ContextManifestResolutionPort",
+    "ContextResolutionOutcome",
+    "DeliveryEffectPort",
+    "DeterministicJoinPort",
+    "JoinOutcome",
+    "PlanningOutcome",
+    "PreparedStageHandoffPort",
+    "StageExecutionPort",
+    "StageRunManifestCompilerPort",
     "BriefSynthesisError",
     "BriefSynthesisReplayConflict",
     "BriefSynthesisService",
