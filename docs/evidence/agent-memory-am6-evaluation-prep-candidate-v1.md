@@ -131,8 +131,24 @@ or external repository.
 
 The effective diff is independently reviewable against
 `codex/v0.7-cumulative-integration-acceptance` and contains no AM4 invention. It is therefore
-eligible only for the requested stacked **draft** PR. Merge, release, tag, package publication,
-policy activation, and downstream dispatch remain prohibited.
+eligible only for the requested stacked **draft** PR while that exact remote base ref exists.
+Merge, release, tag, package publication, policy activation, and downstream dispatch remain
+prohibited.
+
+After this evidence commit, the exact candidate branch was pushed successfully. The preferred
+GitHub integration rejected draft creation with `403 Resource not accessible by integration`. The
+authenticated CLI fallback then reported that both base and head SHA were blank and that the base
+was not a branch. Read-only inspection established the cause: PR #122 merged at
+`2026-08-12T20:04:34Z` with exact head
+`f761a682164d10e2ff81ba38cd2d0c987b4f8efd`, and GitHub deleted remote branch
+`codex/v0.7-cumulative-integration-acceptance`. The AM6 remote branch remains present at the exact
+candidate head. This lane did not recreate, mutate, or retarget an upstream branch and did not open
+a PR against `main`.
+
+The minimal publication convergence is for the control tower to restore the requested base ref at
+exact `f761a682164d10e2ff81ba38cd2d0c987b4f8efd`, or explicitly authorize a new target after reviewing
+the merged topology. The unchanged AM6 branch can then be used to open the stacked draft. Retargeting
+is not inferred from PR #122's merge.
 
 After AM4 acceptance, the minimal convergence step is a new additive commit that supplies the exact
 accepted AM4 coordinate and observation evidence for the three gated cases, then reruns this frozen
