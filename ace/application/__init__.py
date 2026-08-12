@@ -331,6 +331,15 @@ from ace.application.intelligence_ledger import (
     PreparedIntelligenceLedgerService,
     PreparedResourceSetAdmission,
 )
+from ace.application.intelligence_resource_plane import (
+    RESOURCE_QUERY_AUTHORITY,
+    RESOURCE_QUERY_OPERATION,
+    IntelligenceResourcePlaneAuthorizationPort,
+    IntelligenceResourcePlaneError,
+    IntelligenceResourcePlaneService,
+    IntelligenceResourceProjectionBatch,
+    IntelligenceResourceProjectionReader,
+)
 from ace.application.live_intelligence_bridge import (
     LiveBriefAdmission,
     LiveBriefSynthesisError,
@@ -426,6 +435,13 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "RESOURCE_QUERY_AUTHORITY",
+    "RESOURCE_QUERY_OPERATION",
+    "IntelligenceResourcePlaneAuthorizationPort",
+    "IntelligenceResourcePlaneError",
+    "IntelligenceResourcePlaneService",
+    "IntelligenceResourceProjectionBatch",
+    "IntelligenceResourceProjectionReader",
     "ASSERTION_DECISION_RECORD_KIND",
     "EXTRACTION_RECEIPT_RECORD_KIND",
     "GRAPH_PROJECTION_RECORD_KIND",

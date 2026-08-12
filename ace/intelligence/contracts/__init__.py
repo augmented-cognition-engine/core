@@ -363,6 +363,22 @@ from ace.intelligence.contracts.personas import (
     PersonasModuleV1,
     SignalRoutingRuleV1,
 )
+from ace.intelligence.contracts.resource_plane import (
+    MAX_RESOURCE_PLANE_PAGE_SIZE,
+    RESOURCE_PLANE_CURSOR_VERSION,
+    RESOURCE_PLANE_PAGE_VERSION,
+    RESOURCE_PLANE_QUERY_VERSION,
+    RESOURCE_PLANE_RECORD_VERSION,
+    RESOURCE_PLANE_REFERENCE_VERSION,
+    IntelligenceResourceAvailability,
+    IntelligenceResourceCursorV1Alpha1,
+    IntelligenceResourceKind,
+    IntelligenceResourcePageState,
+    IntelligenceResourcePageV1Alpha1,
+    IntelligenceResourceQueryV1Alpha1,
+    IntelligenceResourceRecordV1Alpha1,
+    IntelligenceResourceReferenceV1Alpha1,
+)
 from ace.intelligence.contracts.resources import (
     ActivationRevisionReferenceV1Alpha1,
     BriefV1Alpha1,
@@ -451,6 +467,20 @@ from ace.intelligence.contracts.synthesis import (
 )
 
 __all__ = [
+    "MAX_RESOURCE_PLANE_PAGE_SIZE",
+    "RESOURCE_PLANE_CURSOR_VERSION",
+    "RESOURCE_PLANE_PAGE_VERSION",
+    "RESOURCE_PLANE_QUERY_VERSION",
+    "RESOURCE_PLANE_RECORD_VERSION",
+    "RESOURCE_PLANE_REFERENCE_VERSION",
+    "IntelligenceResourceAvailability",
+    "IntelligenceResourceCursorV1Alpha1",
+    "IntelligenceResourceKind",
+    "IntelligenceResourcePageState",
+    "IntelligenceResourcePageV1Alpha1",
+    "IntelligenceResourceQueryV1Alpha1",
+    "IntelligenceResourceRecordV1Alpha1",
+    "IntelligenceResourceReferenceV1Alpha1",
     "ActivatedMemoryConstraintsV1Alpha1",
     "AssertionFamilyV1Alpha1",
     "AssertionLifecycle",
