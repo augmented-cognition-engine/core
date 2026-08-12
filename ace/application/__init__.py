@@ -48,6 +48,22 @@ from ace.application.agent_composition_runtime import (
     exact_reference,
     validate_bundle_for_manifest,
 )
+from ace.application.agent_governance import (
+    ADMINISTER_LIFECYCLE_AUTHORITY,
+    AGENT_BINDING_LIFECYCLE_STATE_KIND,
+    AGENT_DEFINITION_LIFECYCLE_STATE_KIND,
+    AGENT_GOVERNANCE_RECORD_SPACE,
+    AGENT_GRANT_REQUEST_LIFECYCLE_STATE_KIND,
+    AGENT_PRINCIPAL_LIFECYCLE_STATE_KIND,
+    AGENT_RUNTIME_HEALTH_STATE_KIND,
+    AgentGovernanceError,
+    AgentGovernanceService,
+    AgentGovernanceView,
+    CommittedAgentGovernanceRevision,
+    RecordedProposal,
+    RequiredCoreGrant,
+    agent_governance_head_id,
+)
 from ace.application.brief_synthesis import (
     BriefSynthesisError,
     BriefSynthesisReplayConflict,
@@ -271,6 +287,20 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "ADMINISTER_LIFECYCLE_AUTHORITY",
+    "AGENT_BINDING_LIFECYCLE_STATE_KIND",
+    "AGENT_DEFINITION_LIFECYCLE_STATE_KIND",
+    "AGENT_GOVERNANCE_RECORD_SPACE",
+    "AGENT_GRANT_REQUEST_LIFECYCLE_STATE_KIND",
+    "AGENT_PRINCIPAL_LIFECYCLE_STATE_KIND",
+    "AGENT_RUNTIME_HEALTH_STATE_KIND",
+    "AgentGovernanceError",
+    "AgentGovernanceService",
+    "AgentGovernanceView",
+    "CommittedAgentGovernanceRevision",
+    "RecordedProposal",
+    "RequiredCoreGrant",
+    "agent_governance_head_id",
     "AgentCompositionError",
     "AudienceProposalV1",
     "AuthorizedObservationSetAdmission",
