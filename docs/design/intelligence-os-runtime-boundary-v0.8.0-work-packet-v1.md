@@ -1,6 +1,6 @@
 # ACE 0.8.0 runtime-boundary realignment work packet
 
-Status: **active 0.8B packet; B1 compatibility isolation and B2 ownership guards implemented**
+Status: **active 0.8B packet; B1–B3 runtime isolation and ownership guards implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
 Accepted base: `main@bb7f4ba` (0.8A plus explicitly reviewed AM4 lifecycle semantics)
 
@@ -63,6 +63,18 @@ owner and treatment fails the boundary suite. Product-era arms, product surfaces
 explicitly frozen compatibility applications; their presence does not make their vocabulary or
 dependency direction canonical.
 
+## B3 — freeze deprecated callers and reproduce restart behavior
+
+The same disposition manifest freezes the current direct callers of the MAKE/SHIP-era arms, the
+Living Product Graph compatibility projection, and the broad engine MCP host. A new caller fails
+the ownership suite until an explicit compatibility review changes that allowlist; code cannot
+quietly deepen the dependency while 0.8 introduces canonical resources.
+
+The cumulative 0.7 builder, exact activation plan, Watch behavior, AM3 authorized recall, and AM4
+lifecycle/erasure gates reproduce on this boundary. The real AM3 later-use and AM4 non-reappearance
+checks also pass through fresh processes and disposable durable storage. This closes runtime
+ownership without claiming that historical host directories have been deleted.
+
 ## Acceptance
 
 B1 passes only when:
@@ -78,14 +90,14 @@ B1 passes only when:
 
 ## Remaining 0.8B work
 
-B1 and B2 do not close 0.8B. The remaining runtime-boundary packet must:
+B1–B3 close the bounded 0.8B runtime realignment when their independent reviews and CI pass. They:
 
 - keep generic planning, authority, execution admission, assurance, outcomes, and erasure behind
-  Core ports;
+  public Core ports;
 - keep Observation-to-Feedback interpretation behind Intelligence and application services;
-- verify artifact creation and external effects enter only through explicit strategy/adapter ports;
-- prevent new direct callers of deprecated MAKE/SHIP, Living Product Graph category, broad MCP, and
-  legacy product-intelligence paths; and
+- require artifact creation and external effects to enter through explicit strategy/adapter ports;
+- prevent new direct callers of deprecated MAKE/SHIP, Living Product Graph category, broad MCP,
+  and legacy product-intelligence paths; and
 - reproduce Connect → Map → Watch → Brief → Activate plus AM3/AM4 behavior after restart.
 
 0.8C may not depend on an undeclared legacy host route.

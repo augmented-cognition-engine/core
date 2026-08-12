@@ -115,3 +115,27 @@ def test_product_era_surface_is_explicitly_frozen_compatibility() -> None:
     assert legacy["owner"] == "application"
     assert "frozen" in legacy["treatment"]
     assert {"arms", "product", "product_state", "canvas"}.issubset(legacy["packages"])
+
+
+def test_deprecated_compatibility_surfaces_gain_no_new_direct_callers() -> None:
+    manifest = json.loads(DISPOSITION.read_text(encoding="utf-8"))
+    policies = manifest["deprecated_callsite_policies"]
+    assert set(policies) == {"make_ship_arms", "living_product_graph", "broad_engine_mcp"}
+
+    for policy_name, policy in policies.items():
+        imports = tuple(policy["import_prefixes"])
+        allowed_callers = set(policy["allowed_callers"])
+        allowed_prefixes = tuple(policy["allowed_caller_prefixes"])
+        offenders: list[str] = []
+
+        for path in LEGACY_HOST.rglob("*.py"):
+            if "__pycache__" in path.parts:
+                continue
+            caller = path.relative_to(REPO).as_posix()
+            for line, imported in _imports(path):
+                if imported.startswith(imports) and not (
+                    caller in allowed_callers or caller.startswith(allowed_prefixes)
+                ):
+                    offenders.append(f"{caller}:{line} ({imported})")
+
+        assert sorted(offenders) == [], f"{policy_name} gained undeclared callers: {offenders}"

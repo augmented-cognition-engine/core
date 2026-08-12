@@ -6,6 +6,45 @@
     "ace.intelligence",
     "ace.application"
   ],
+  "deprecated_callsite_policies": {
+    "make_ship_arms": {
+      "import_prefixes": ["core.engine.arms"],
+      "allowed_caller_prefixes": ["core/engine/arms/"],
+      "allowed_callers": ["core/engine/mcp/tools.py"]
+    },
+    "living_product_graph": {
+      "import_prefixes": [
+        "core.engine.product.living_graph",
+        "core.engine.product.living_graph_store"
+      ],
+      "allowed_caller_prefixes": [],
+      "allowed_callers": [
+        "core/engine/api/landscape.py",
+        "core/engine/cli/commands/landscape.py",
+        "core/engine/product/living_graph_store.py"
+      ]
+    },
+    "broad_engine_mcp": {
+      "import_prefixes": ["core.engine.mcp"],
+      "allowed_caller_prefixes": ["core/engine/mcp/"],
+      "allowed_callers": [
+        "core/engine/api/canvas.py",
+        "core/engine/api/codebase_qa.py",
+        "core/engine/api/diagnostics.py",
+        "core/engine/arms/code_planner.py",
+        "core/engine/arms/data_planner.py",
+        "core/engine/arms/design_planner.py",
+        "core/engine/arms/spec_reality.py",
+        "core/engine/arms/strategy/deep_phases.py",
+        "core/engine/arms/strategy/graph_classifier.py",
+        "core/engine/notifications/channels/discord.py",
+        "core/engine/product/spec_generator.py",
+        "core/engine/research/agent.py",
+        "core/engine/runtime/mid_session_observer.py",
+        "core/engine/runtime/tools/ace_tools.py"
+      ]
+    }
+  },
   "dispositions": {
     "transport_adapter_host": {
       "owner": "application",
