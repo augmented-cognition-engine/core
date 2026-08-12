@@ -333,9 +333,7 @@ def test_public_contracts_reject_forbidden_effects_credentials_and_imperative_fl
 def test_public_contracts_publish_machine_readable_schema_without_credential_fields():
     schema = SourceScopeProposalV1.model_json_schema()
 
-    assert schema["properties"]["contract"]["const"] == (
-        "ace.application.source-scope-proposal/v1alpha1"
-    )
+    assert schema["properties"]["contract"]["const"] == ("ace.application.source-scope-proposal/v1alpha1")
     assert "credentials" not in schema["properties"]
     selection = schema["$defs"]["SourceScopeSelectionV1"]
     effect_ref = selection["properties"]["effects"]["items"]["$ref"]

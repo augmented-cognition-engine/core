@@ -51,10 +51,7 @@ class FixtureRegisteredSourceOptionProvider:
         self._profiles = {item.option_id: item for item in profiles}
         if set(self._profiles) != {item.option_id for item in self._catalog.options}:
             raise ValueError("fixture profiles must exactly cover the source option catalog")
-        if any(
-            self._profiles[option.option_id].source_ref != option.source_ref
-            for option in self._catalog.options
-        ):
+        if any(self._profiles[option.option_id].source_ref != option.source_ref for option in self._catalog.options):
             raise ValueError("fixture profiles must bind the exact catalog source identity")
         self.fail = fail
         self.sample_calls = 0
@@ -251,14 +248,10 @@ async def exercise_connection_agent_restart() -> ConnectionAgentReferenceResult:
     if restarted is None or restarted != outcome.session.revision:
         raise AssertionError("fresh Connection Agent session service did not reopen exact durable state")
     scope_ref = next(
-        item
-        for item in restarted.artifacts
-        if item.artifact_kind is OnboardingArtifactKind.SOURCE_SCOPE_PROPOSAL
+        item for item in restarted.artifacts if item.artifact_kind is OnboardingArtifactKind.SOURCE_SCOPE_PROPOSAL
     )
     profile_ref = next(
-        item
-        for item in restarted.artifacts
-        if item.artifact_kind is OnboardingArtifactKind.SOURCE_PROFILE_PROPOSAL
+        item for item in restarted.artifacts if item.artifact_kind is OnboardingArtifactKind.SOURCE_PROFILE_PROPOSAL
     )
     restarted_scope = await restarted_service.load_artifact(
         product_id=restarted.product_id,

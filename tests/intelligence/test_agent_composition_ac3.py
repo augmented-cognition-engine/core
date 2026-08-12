@@ -281,19 +281,13 @@ def _request(stage: LifecycleStage, *, input_contract: str | None = None) -> Lif
         case_ref="case:bounded" if stage is LifecycleStage.INVESTIGATE else None,
         stage=stage,
         objective=f"Run the bounded {stage.value} compatibility owner.",
-        input_artifacts=(
-            _ref(f"{stage.value}-input", input_contract or profile.accepted_input_contracts[0]),
-        ),
+        input_artifacts=(_ref(f"{stage.value}-input", input_contract or profile.accepted_input_contracts[0]),),
         context_manifest=_ref("context-manifest", "ace.intelligence.context-manifest/v1alpha1"),
-        context_selection_receipt=_ref(
-            "context-selection", "ace.intelligence.context-selection-receipt/v1alpha1"
-        ),
+        context_selection_receipt=_ref("context-selection", "ace.intelligence.context-selection-receipt/v1alpha1"),
         instruction_resolution=_ref(
             "instruction-resolution", "ace.intelligence.instruction-resolution-receipt/v1alpha1"
         ),
-        instruction_layer_refs=(
-            _ref("instruction-layer", "ace.intelligence.instruction-contribution/v1alpha1"),
-        ),
+        instruction_layer_refs=(_ref("instruction-layer", "ace.intelligence.instruction-contribution/v1alpha1"),),
         source_scope_refs=(SCOPE_REF,),
         created_at=NOW + timedelta(seconds=4),
         expires_at=NOW + timedelta(minutes=20),
@@ -362,9 +356,7 @@ async def test_existing_lifecycle_owners_emit_canonical_stage_evidence(stage: Li
     assert participant.participant_kind is profile.participant_kind
     assert participant.definition_revision is None
     assert participant.role_binding is None
-    assert completed.manifest.execution_binding.artifact_contract == (
-        "ace.core.governed-operation-binding/v1alpha1"
-    )
+    assert completed.manifest.execution_binding.artifact_contract == ("ace.core.governed-operation-binding/v1alpha1")
     assert completed.run_receipt.state is RunState.COMPLETE
     assert completed.run_receipt.usage.external_effects == 0
     assert completed.handoff_receipt.state is HandoffState.PREPARED
@@ -668,9 +660,7 @@ async def test_restart_requires_fresh_authentication_and_produces_new_plan_ident
             "request_digest": None,
         }
     )
-    restarted_request = LifecycleStageRequestV1Alpha1.model_validate(
-        restarted_request.model_dump(mode="python")
-    )
+    restarted_request = LifecycleStageRequestV1Alpha1.model_validate(restarted_request.model_dump(mode="python"))
     restarted = await bridge.prepare(
         request=restarted_request,
         authenticated_context=fresh.runtime_context(),
@@ -732,9 +722,7 @@ def test_stage_maturity_and_ownership_inventory_is_bounded_and_explicit() -> Non
     }
     assert LIFECYCLE_STAGE_PROFILES[LifecycleStage.ACT].maturity.startswith("experimental")
     assert LIFECYCLE_STAGE_PROFILES[LifecycleStage.DELIVER].next_stage_id == "ac5_delivery_authority_gate"
-    assert LIFECYCLE_STAGE_PROFILES[LifecycleStage.DETECT].coordinate_ref.startswith(
-        "lifecycle_stage_profile:"
-    )
+    assert LIFECYCLE_STAGE_PROFILES[LifecycleStage.DETECT].coordinate_ref.startswith("lifecycle_stage_profile:")
     assert all(
         profile.participant_kind in {ParticipantKind.ADAPTER, ParticipantKind.DETERMINISTIC_SERVICE}
         for profile in LIFECYCLE_STAGE_PROFILES.values()

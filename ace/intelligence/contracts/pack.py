@@ -124,16 +124,12 @@ class PackCompatibilityRangeV1(FrozenContract):
         "ace.intelligence.pack-compiler/v1alpha1",
         "ace.intelligence.pack-compiler/v1",
     ] = PACK_COMPILER_VERSION
-    compiler_maximum_exclusive: Literal["ace.intelligence.pack-compiler/v2"] = (
-        PACK_COMPILER_NEXT_BREAKING_VERSION
-    )
+    compiler_maximum_exclusive: Literal["ace.intelligence.pack-compiler/v2"] = PACK_COMPILER_NEXT_BREAKING_VERSION
     intelligence_minimum: Literal[
         "ace.intelligence.runtime/v1alpha1",
         "ace.intelligence.runtime/v1",
     ] = INTELLIGENCE_RUNTIME_VERSION
-    intelligence_maximum_exclusive: Literal["ace.intelligence.runtime/v2"] = (
-        INTELLIGENCE_RUNTIME_NEXT_BREAKING_VERSION
-    )
+    intelligence_maximum_exclusive: Literal["ace.intelligence.runtime/v2"] = INTELLIGENCE_RUNTIME_NEXT_BREAKING_VERSION
 
 
 class PackResourceV1(FrozenContract):
@@ -393,9 +389,7 @@ class DomainPackManifestV1(FrozenContract):
 
     @model_validator(mode="after")
     def validate_references(self) -> Self:
-        if self.contract == DOMAIN_PACK_MANIFEST_VERSION and not isinstance(
-            self.compatibility, PackCompatibilityV1
-        ):
+        if self.contract == DOMAIN_PACK_MANIFEST_VERSION and not isinstance(self.compatibility, PackCompatibilityV1):
             raise ValueError("v1alpha1 manifests require exact v1alpha1 compiler and runtime contracts")
         if self.contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION and not isinstance(
             self.compatibility, PackCompatibilityRangeV1

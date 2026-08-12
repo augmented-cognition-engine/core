@@ -797,9 +797,7 @@ def _compile_pack(
             intelligence_contract=compatibility.intelligence_contract,
             manifest_contract=manifest.contract,
             declared_compatibility=(
-                manifest.compatibility
-                if manifest.contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION
-                else None
+                manifest.compatibility if manifest.contract == DOMAIN_PACK_MANIFEST_STABLE_VERSION else None
             ),
             metadata=manifest.metadata,
             modules=tuple(sorted(compiled_modules, key=lambda item: item.module_id)),
@@ -866,9 +864,7 @@ def compile_pack_document_with_report(
     pack = compile_pack_document(manifest_document, resources)
     compatibility = negotiate_pack_compatibility(
         pack.manifest_contract,
-        pack.declared_compatibility.model_dump(mode="python")
-        if pack.declared_compatibility is not None
-        else None,
+        pack.declared_compatibility.model_dump(mode="python") if pack.declared_compatibility is not None else None,
     )
     compilation = StablePackCompilationResultV1(
         manifest_contract=pack.manifest_contract,

@@ -169,7 +169,7 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.4.x | Governed Cognition | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 through the supported teach, inspect, approve, use, measure, revise, rollback, and retire lifecycle, an independent Market consumer, restart durability, attribution, and failure controls | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
 | 0.5.0 | Reasoning into Action | **Passed** | T1 and B1 pass for bounded attributable action under the explicit single-host, trusted-adapter topology; I1 authority receipts govern the execution-adapter slice | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
 | 0.6.0 | Measured Intelligence | **Passed** | Public Core 0.6.0 and World 0.10.0 artifacts reproduce exact useful/harmful/unproven classification, matched leakage-bounded controls, durable replay, and proposal-only governance under product-owned criteria; SI4 remains a broader future outcome | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
-| 0.7.0 | Intelligence Builder Foundation | **Next** | Completes 0.7A stable pack contracts and the cumulative 0.7B–0.7E Connect → Map → Watch → Brief → Activate reference journey, then proves unchanged public APIs across independent World and Market consumers | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
+| 0.7.0 | Intelligence Builder Foundation | **Candidate** | The cumulative Core candidate composes 0.7A–0.7E Connect → Map → Watch → Brief → Activate with AC1–AC7 and AM0–AM3; cumulative CI/review, independent Market acceptance, and release reconciliation remain open | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Intelligence Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
 | 0.9.0 | Collaborative Intelligence | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
 | 1.0.0 | Intelligence Operating System | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, Intelligence, Domain Packs, connectors, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
@@ -456,6 +456,12 @@ connectors, and trusted extensions underneath that experience.
   restart/update/feedback behavior, and reproduces unchanged public APIs across independent World
   and Market consumers.
 
+The exact cumulative Core source now reproduces the five-stage journey together with AC7 policy
+admission and AM3 authorized Context Manifest consumption. World provides accepted green external
+candidate evidence; independent Market acceptance and the final cumulative review/release gate
+remain open. See the
+[cumulative integration candidate](docs/evidence/cumulative-core-v0.7-integration-acceptance-v1.md).
+
 The cumulative contracts, state machine, authority boundary, and demo gate are frozen in the
 [Intelligence Builder onboarding sequence](docs/design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md).
 
@@ -664,7 +670,7 @@ flowchart LR
 | 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 and an independent Market consumer | 0.4.x |
 | 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Passed** | T1 and B1 passed in 0.5.0 for the bounded single-host, trusted-adapter topology | 0.5.0 |
 | 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Passed for the public 0.6.0 boundary** | Product-owned matched evaluation, exact attribution, durable replay, and proposal-only governance are public; F2 and general benefit remain not ready | 0.6.0 |
-| 6. Intelligence Builder foundation | Can any product connect sources, specialize, operate, and retain ownership of ACE intelligence? | **Pack foundation passed; guided journey gated** | GI1 and E1 passed; 0.7A–0.7E and H1 remain gated | 0.7.0 and 0.9.0 |
+| 6. Intelligence Builder foundation | Can any product connect sources, specialize, operate, and retain ownership of ACE intelligence? | **Cumulative 0.7 candidate; release gate open** | 0.7A–0.7E, AC1–AC7, and AM0–AM3 compose in the candidate; independent Market acceptance and H1 remain gated | 0.7.0 and 0.9.0 |
 | 7. Human experience | Can people inspect and govern the full loop without learning ACE internals? | **Read-only and governance foundations passed** | IA-R1, G1, E1, and L1 passed; the writable workspace remains bounded by B1 and H1 | 0.8.0 |
 | 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
 

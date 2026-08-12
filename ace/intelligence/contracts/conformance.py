@@ -50,8 +50,7 @@ class GoldenDetectorOutcomeV1(FrozenContract):
     @classmethod
     def normalize_ids(cls, value: Any, info) -> tuple[str, ...]:
         return tuple(
-            validate_slug(item, name=info.field_name)
-            for item in normalized_strings(value, label=info.field_name)
+            validate_slug(item, name=info.field_name) for item in normalized_strings(value, label=info.field_name)
         )
 
     @model_validator(mode="after")
@@ -59,7 +58,8 @@ class GoldenDetectorOutcomeV1(FrozenContract):
         if self.material and (self.shift_type is None or self.signal_type is None):
             raise ValueError("material outcomes require shift_type and signal_type")
         if not self.material and any(
-            value for value in (self.shift_type, self.signal_type, self.routing_rule_ids, self.persona_ids, self.template_ids)
+            value
+            for value in (self.shift_type, self.signal_type, self.routing_rule_ids, self.persona_ids, self.template_ids)
         ):
             raise ValueError("non-material outcomes cannot claim Shift, Signal, route, persona, or template selection")
         return self
@@ -144,9 +144,7 @@ class DomainPackGoldenFixtureV1(FrozenContract):
 
 
 class DomainPackConformanceReceiptV1(FrozenContract):
-    contract: Literal[
-        "ace.intelligence.domain-pack-conformance-receipt/v1"
-    ] = DOMAIN_PACK_CONFORMANCE_RECEIPT_VERSION
+    contract: Literal["ace.intelligence.domain-pack-conformance-receipt/v1"] = DOMAIN_PACK_CONFORMANCE_RECEIPT_VERSION
     pack_id: str
     pack_version: str
     compiled_pack_id: str
@@ -209,9 +207,7 @@ class DomainPackConformanceReceiptV1(FrozenContract):
         expected_pack_id = f"pack_ir:{self.pack_digest.removeprefix('sha256:')[:32]}"
         if self.compiled_pack_id != expected_pack_id:
             raise ValueError("conformance receipt Pack IR identity and digest do not agree")
-        expected_compilation_id = (
-            f"pack_compilation:{self.compilation_result_digest.removeprefix('sha256:')[:32]}"
-        )
+        expected_compilation_id = f"pack_compilation:{self.compilation_result_digest.removeprefix('sha256:')[:32]}"
         if self.compilation_result_id != expected_compilation_id:
             raise ValueError("conformance receipt compilation result identity and digest do not agree")
         material = self.model_dump(mode="json", exclude={"receipt_id", "receipt_digest"})

@@ -93,9 +93,7 @@ class PackCompatibilityResultV1(FrozenContract):
 class StablePackCompilationResultV1(FrozenContract):
     """Successful stable compilation evidence bound to exact Pack IR and negotiation."""
 
-    contract: Literal[
-        "ace.intelligence.pack-compilation-result/v1"
-    ] = STABLE_PACK_COMPILATION_RESULT_VERSION
+    contract: Literal["ace.intelligence.pack-compilation-result/v1"] = STABLE_PACK_COMPILATION_RESULT_VERSION
     manifest_contract: str
     compiler_contract: str
     intelligence_contract: str

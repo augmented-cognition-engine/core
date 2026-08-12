@@ -156,11 +156,15 @@ def _outcomes(pack, fixture: DomainPackGoldenFixtureV1) -> tuple[dict[str, Any],
                     current=current,
                     detected_at=case.current_as_of,
                 )
-                signal = None if shift is None else route_shift_as_signal(
-                    binding=binding,
-                    detector_id=rule.detector_id,
-                    shift=shift,
-                    detected_at=case.current_as_of,
+                signal = (
+                    None
+                    if shift is None
+                    else route_shift_as_signal(
+                        binding=binding,
+                        detector_id=rule.detector_id,
+                        shift=shift,
+                        detected_at=case.current_as_of,
+                    )
                 )
             else:
                 shift = detect_categorical_shift(
@@ -170,11 +174,15 @@ def _outcomes(pack, fixture: DomainPackGoldenFixtureV1) -> tuple[dict[str, Any],
                     current=current,
                     detected_at=case.current_as_of,
                 )
-                signal = None if shift is None else route_categorical_shift_as_signal(
-                    binding=binding,
-                    detector_id=rule.detector_id,
-                    shift=shift,
-                    detected_at=case.current_as_of,
+                signal = (
+                    None
+                    if shift is None
+                    else route_categorical_shift_as_signal(
+                        binding=binding,
+                        detector_id=rule.detector_id,
+                        shift=shift,
+                        detected_at=case.current_as_of,
+                    )
                 )
             routes = () if signal is None else eligible_signal_routes(binding=binding, signal=signal)
             case_outcomes.append(
@@ -194,7 +202,9 @@ def _outcomes(pack, fixture: DomainPackGoldenFixtureV1) -> tuple[dict[str, Any],
         results.append(
             {
                 "case_id": case.case_id,
-                "outcomes": [item.model_dump(mode="json") for item in sorted(case_outcomes, key=lambda x: x.detector_id)],
+                "outcomes": [
+                    item.model_dump(mode="json") for item in sorted(case_outcomes, key=lambda x: x.detector_id)
+                ],
             }
         )
     return tuple(results)
@@ -234,8 +244,10 @@ def run_domain_pack_conformance(
                 message=str(exc)[:1_000] or "golden-fixture evaluation failed",
             )
         )
-    if prior_receipt is not None and prior_receipt.fixture_id == fixture.fixture_id and (
-        prior_receipt.fixture_digest != fixture_digest or prior_receipt.expected_digest != _digest(expected)
+    if (
+        prior_receipt is not None
+        and prior_receipt.fixture_id == fixture.fixture_id
+        and (prior_receipt.fixture_digest != fixture_digest or prior_receipt.expected_digest != _digest(expected))
     ):
         diagnostics.append(
             PackDiagnosticV1(

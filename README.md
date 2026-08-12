@@ -73,13 +73,13 @@ Generated material still passes the same fail-closed schema, compatibility, conf
 and activation boundaries as an expert-built pack.
 
 **Maturity:** ACE 0.6 already ships the governed source, monitoring, briefing, decision, feedback,
-and durable receipt substrates through developer-facing contracts. The stacked 0.7A and 0.7B
-candidates stabilize generated Domain Pack compilation/conformance and the provider-free Connect
-handoff. The 0.7C candidate adds the cited, editable Map proposal and exact human approval. The
-0.7D candidate adds separately versioned Watch proposals and a provider-free cited first-Brief
-preview with exact approval and restart. Activate + prove (0.7E) remains next.
-The complete five-stage journey is the acceptance target, not a claim about the current released
-UI.
+and durable receipt substrates through developer-facing contracts. The cumulative 0.7 candidate
+now composes stable Domain Pack compilation/conformance with provider-free Connect, cited and
+editable Map, approved Watch, cited first Brief, and exact Activate/restart behavior. The same
+candidate also composes governed Agent Composition through AC7 and authorized Agent Memory through
+AM3 without widening authority or changing the eleven-tool public MCP surface. Cumulative review,
+CI, independent Market acceptance, and release reconciliation remain open. This is not yet a
+released 0.7 package or a claim about the current released UI.
 
 ### Two connected loops
 

@@ -1124,8 +1124,7 @@ async def run(
                 _engagement_execution_authority = ()
                 if _selected_governed_context is not None:
                     _engagement_configs = [
-                        AgentConfig(role=str(item), metadata={"i2_phase": "engagement"})
-                        for item in perspectives
+                        AgentConfig(role=str(item), metadata={"i2_phase": "engagement"}) for item in perspectives
                     ]
                     _engagement_pattern = "adversarial" if engagement.get("adversarial_pair") else "fanout"
                     _engagement_prepared = await _selected_governed_context.bridge.prepare(
@@ -1140,11 +1139,9 @@ async def run(
                         trigger_artifacts=_selected_governed_context.trigger_artifacts,
                         activation_lineage=_selected_governed_context.activation_lineage,
                     )
-                    _engagement_execution_authority = (
-                        await _selected_governed_context.bridge.authorize_execution(
-                            prepared=_engagement_prepared,
-                            authenticated_context=_selected_governed_context.authenticated_context,
-                        )
+                    _engagement_execution_authority = await _selected_governed_context.bridge.authorize_execution(
+                        prepared=_engagement_prepared,
+                        authenticated_context=_selected_governed_context.authenticated_context,
                     )
                 engagement_result = await execute_engagement(
                     request.description,
@@ -1651,11 +1648,9 @@ async def run(
                             trigger_artifacts=_selected_governed_context.trigger_artifacts,
                             activation_lineage=_selected_governed_context.activation_lineage,
                         )
-                        _multiphase_execution_authority = (
-                            await _selected_governed_context.bridge.authorize_execution(
-                                prepared=_multiphase_governed_prepared,
-                                authenticated_context=_selected_governed_context.authenticated_context,
-                            )
+                        _multiphase_execution_authority = await _selected_governed_context.bridge.authorize_execution(
+                            prepared=_multiphase_governed_prepared,
+                            authenticated_context=_selected_governed_context.authenticated_context,
                         )
 
                     multi_output = await multi_exec.execute(
@@ -1709,9 +1704,7 @@ async def run(
                                         if isinstance(trace, dict) and trace.get("tainted") is True
                                         else "completed"
                                     ),
-                                    output=str(
-                                        (trace.get("output") if isinstance(trace, dict) else "") or ""
-                                    ),
+                                    output=str((trace.get("output") if isinstance(trace, dict) else "") or ""),
                                 )
                                 for index, trace in enumerate(list(multi_exec._last_trace or []))
                             ]

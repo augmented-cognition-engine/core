@@ -17,7 +17,9 @@ def test_current_release_and_passed_milestone_are_not_conflated() -> None:
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
     assert "| 0.5.0 | Reasoning into Action | **Passed** |" in ROADMAP
     assert "| 0.6.0 | Measured Intelligence | **Passed** |" in ROADMAP
-    assert "| 0.7.0 | Intelligence Builder Foundation | **Next** |" in ROADMAP
+    assert "| 0.7.0 | Intelligence Builder Foundation | **Candidate** |" in ROADMAP
+    readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
+    assert "This is not yet a released 0.7 package" in " ".join(readme.split())
     assert "| 0.8.0 | Intelligence Workspace | **Later** |" in ROADMAP
     assert "| 0.9.0 | Collaborative Intelligence | **Later** |" in ROADMAP
     assert "| 1.0.0 | Intelligence Operating System | **Later** |" in ROADMAP

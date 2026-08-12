@@ -450,9 +450,7 @@ def concept_model_semantic_diff(
         changes.extend(f"{field_name}.added:{key}" for key in after.keys() - before.keys())
         changes.extend(f"{field_name}.removed:{key}" for key in before.keys() - after.keys())
         changes.extend(
-            f"{field_name}.changed:{key}"
-            for key in before.keys() & after.keys()
-            if before[key] != after[key]
+            f"{field_name}.changed:{key}" for key in before.keys() & after.keys() if before[key] != after[key]
         )
     for field_name in ("exclusions", "unknowns"):
         before = set(getattr(prior, field_name))

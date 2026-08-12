@@ -96,9 +96,7 @@ def prepare_domain_activation(
     receipt_items: list[DomainPackConformanceReceiptV1] = []
     for receipt in conformance_receipts:
         try:
-            receipt_items.append(
-                DomainPackConformanceReceiptV1.model_validate(receipt.model_dump(mode="python"))
-            )
+            receipt_items.append(DomainPackConformanceReceiptV1.model_validate(receipt.model_dump(mode="python")))
         except (AttributeError, TypeError, ValueError) as exc:
             raise ValueError("conformance receipt failed exact revalidation") from exc
     supplied_refs = tuple(conformance_receipt_refs)

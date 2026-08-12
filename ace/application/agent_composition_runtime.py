@@ -85,9 +85,7 @@ def _identity(instance: _StrictFrozen, prefix: str, id_field: str, digest_field:
 class TaskAuthenticationReceiptV1Alpha1(_StrictFrozen):
     """Opaque append-only proof of one successful host JWT verification."""
 
-    contract: Literal["ace.application.task-authentication-receipt/v1alpha1"] = (
-        TASK_AUTHENTICATION_RECEIPT_VERSION
-    )
+    contract: Literal["ace.application.task-authentication-receipt/v1alpha1"] = TASK_AUTHENTICATION_RECEIPT_VERSION
     product_id: str
     actor_ref: str
     verification_policy_ref: str

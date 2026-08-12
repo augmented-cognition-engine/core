@@ -76,9 +76,7 @@ def _stable_pack(*, authority: str | None = None):
         "modules/personas.json": {
             "contract": "ace.intelligence.personas/v1alpha1",
             "module_id": "personas",
-            "personas": [
-                {"persona_id": "analyst", "display_name": "Analyst", "description": "Reviews changes."}
-            ],
+            "personas": [{"persona_id": "analyst", "display_name": "Analyst", "description": "Reviews changes."}],
             "signal_routing_rules": [
                 {
                     "routing_rule_id": "measurement_route",
@@ -123,9 +121,7 @@ def _stable_pack(*, authority: str | None = None):
             {"module_id": module_id, "contract": contract, "resource_id": resource_id, "depends_on": depends_on}
             for module_id, contract, resource_id, depends_on in refs
         ],
-        "authority_requests": (
-            [] if authority is None else [{"request_id": "escalation", "authority": authority}]
-        ),
+        "authority_requests": ([] if authority is None else [{"request_id": "escalation", "authority": authority}]),
     }
     return _encoded(manifest), resources
 
@@ -159,8 +155,8 @@ def _fixture(*, threshold_expected: bool = True, fixture_id: str = "neutral_meas
                     "case_id": "material_change",
                     "entity_type_id": "measurement",
                     "entity_ref": "entity:measurement-one",
-                    "baseline_attributes_json": "{\"value\":10}",
-                    "current_attributes_json": "{\"value\":20}",
+                    "baseline_attributes_json": '{"value":10}',
+                    "current_attributes_json": '{"value":20}',
                     "baseline_as_of": "2026-08-11T00:00:00Z",
                     "current_as_of": "2026-08-11T01:00:00Z",
                     "confidence": 0.9,
@@ -503,7 +499,11 @@ def test_stable_source_mapping_refuses_embedded_network_location():
                 },
             ],
             "capability_requirements": [
-                {"requirement_id": "snapshot", "capability": "source_snapshot", "contract": "ace.source.snapshot/v1alpha1"}
+                {
+                    "requirement_id": "snapshot",
+                    "capability": "source_snapshot",
+                    "contract": "ace.source.snapshot/v1alpha1",
+                }
             ],
             "authority_requests": [{"request_id": "read_source", "authority": "source_read"}],
         }

@@ -494,9 +494,7 @@ class LifecycleServiceOutcomeV1Alpha1(_StrictFrozen):
 class PreparedLifecycleDeliveryV1Alpha1(_StrictFrozen):
     """An inert package awaiting AC5 destination and delivery authority."""
 
-    contract: Literal["ace.application.prepared-lifecycle-delivery/v1alpha1"] = (
-        PREPARED_LIFECYCLE_DELIVERY_VERSION
-    )
+    contract: Literal["ace.application.prepared-lifecycle-delivery/v1alpha1"] = PREPARED_LIFECYCLE_DELIVERY_VERSION
     product_id: str
     source_manifest: ExactArtifactReferenceV1Alpha1
     artifacts: tuple[ExactArtifactReferenceV1Alpha1, ...] = Field(min_length=1, max_length=64)
@@ -759,7 +757,10 @@ class LifecycleParticipantCompositionBridge:
         now = _aware(now or datetime.now(UTC), "now")
         profile = self.profile_for(request.stage)
         self._validate_owner(profile, owner)
-        if request.product_id != authenticated_context.product_id or request.actor_ref != authenticated_context.actor_ref:
+        if (
+            request.product_id != authenticated_context.product_id
+            or request.actor_ref != authenticated_context.actor_ref
+        ):
             raise LifecycleCompositionError("lifecycle request crossed authenticated product or actor scope")
         if not (authenticated_context.authenticated_at <= now < authenticated_context.expires_at):
             raise LifecycleCompositionError("lifecycle planning falls outside the authenticated window")
@@ -777,9 +778,10 @@ class LifecycleParticipantCompositionBridge:
             policy_ref=policy_ref,
             evaluated_at=now,
         )
-        participant_id = "composition_participant:" + canonical_hash(
-            {"request": request.request_id, "participant": owner.participant_ref}
-        )[:32]
+        participant_id = (
+            "composition_participant:"
+            + canonical_hash({"request": request.request_id, "participant": owner.participant_ref})[:32]
+        )
         participant = CompositionParticipantV1Alpha1(
             composition_participant_id=participant_id,
             participant_kind=owner.participant_kind,
@@ -812,7 +814,9 @@ class LifecycleParticipantCompositionBridge:
             composer_revision_ref="composer:ac3-lifecycle-adapter-v1",
             participants=(participant,),
             nodes=(node,),
-            orchestration_pattern="deterministic" if owner.participant_kind is ParticipantKind.DETERMINISTIC_SERVICE else "solo",
+            orchestration_pattern="deterministic"
+            if owner.participant_kind is ParticipantKind.DETERMINISTIC_SERVICE
+            else "solo",
             expected_output_contracts=profile.output_contracts,
             allowed_next_stage_ids=(profile.next_stage_id,),
             aggregate_budget=CompositionBudgetV1Alpha1(
@@ -985,9 +989,7 @@ class LifecycleParticipantCompositionBridge:
             service_outcome=outcome,
             handoff_contract=handoff_contract,
             handoff_receipt=handoff,
-            planning_authority_receipt=lifecycle_exact_reference(
-                prepared.planning_authority.resolution_receipt
-            ),
+            planning_authority_receipt=lifecycle_exact_reference(prepared.planning_authority.resolution_receipt),
             execution_authority_receipt=lifecycle_exact_reference(current.resolution_receipt),
         )
 

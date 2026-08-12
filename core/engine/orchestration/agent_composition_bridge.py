@@ -230,8 +230,7 @@ class LegacyOrchestrationCompositionBridge:
         if _pattern(pattern_name) == "human_gate":
             human_gate_participant = CompositionParticipantV1Alpha1(
                 composition_participant_id=(
-                    "composition_participant:"
-                    + canonical_hash({"task": task_ref, "kind": "human_gate"})[:32]
+                    "composition_participant:" + canonical_hash({"task": task_ref, "kind": "human_gate"})[:32]
                 ),
                 participant_kind=ParticipantKind.HUMAN,
                 participant_ref=f"human_gate:{authenticated_context.actor_ref}",
@@ -344,7 +343,9 @@ class LegacyOrchestrationCompositionBridge:
             policy_revision_ref=self.policy.composition_policy_revision_ref,
             composer_revision_ref=self.policy.composer_revision_ref,
             participants=participants,
-            nodes=tuple((*execution_nodes, *((human_gate_node,) if human_gate_node is not None else ()), join, handoff)),
+            nodes=tuple(
+                (*execution_nodes, *((human_gate_node,) if human_gate_node is not None else ()), join, handoff)
+            ),
             orchestration_pattern=canonical_pattern,
             expected_output_contracts=("ace.orchestration.legacy-synthesis/v1",),
             gate_refs=("gate:current-authority-pre-execution-v1",),
@@ -357,12 +358,7 @@ class LegacyOrchestrationCompositionBridge:
                 max_concurrency=max(1, len(agent_configs)),
             ),
             context_request_ref=f"context_request:{canonical_hash(context_material)[:32]}",
-            candidate_receipts=tuple(
-                {
-                    exact_reference(item.resolution_receipt): None
-                    for item in planning
-                }
-            ),
+            candidate_receipts=tuple({exact_reference(item.resolution_receipt): None for item in planning}),
             context_receipts=(context_receipt,),
             failure_policy_ref=self.policy.failure_policy_ref,
             created_at=now,
@@ -426,10 +422,10 @@ class LegacyOrchestrationCompositionBridge:
         results = []
         for index, manifest in enumerate(prepared.manifests):
             resolved = await self.authority.resolve_pre_execution(
-                    authenticated_context=authenticated_context,
-                    manifest=manifest,
-                    evaluated_at=now,
-                )
+                authenticated_context=authenticated_context,
+                manifest=manifest,
+                evaluated_at=now,
+            )
             planned = prepared.planning_authority[index]
             if (
                 resolved.execution_binding != planned.execution_binding
@@ -505,9 +501,7 @@ class LegacyOrchestrationCompositionBridge:
                 output_artifacts=output_artifacts,
                 context_states=_context_states(snapshot),
                 issue_codes=tuple(issue_codes),
-                retry_of_receipt_ref=(
-                    retry_of_receipt_refs[index] if index < len(retry_of_receipt_refs) else None
-                ),
+                retry_of_receipt_ref=(retry_of_receipt_refs[index] if index < len(retry_of_receipt_refs) else None),
             )
             validate_run_receipt_against_manifest(manifest, receipt)
             run_receipts.append(receipt)
@@ -562,9 +556,7 @@ class LegacyOrchestrationCompositionBridge:
             state=handoff_state,
             external_send_occurred=False,
             omitted_refs=tuple(
-                str(item.receipt_id)
-                for item in run_receipts
-                if item.state not in {RunState.COMPLETE, RunState.PARTIAL}
+                str(item.receipt_id) for item in run_receipts if item.state not in {RunState.COMPLETE, RunState.PARTIAL}
             ),
             idempotency_key=f"handoff:{prepared.plan.composition_plan_id}",
             occurred_at=now,

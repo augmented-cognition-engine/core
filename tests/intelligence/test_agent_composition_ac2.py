@@ -586,9 +586,9 @@ async def test_model_preferences_cannot_select_an_artifact_and_historical_refere
         prepared.planning_authority[0].resolution_receipt.model_copy(
             update={"capability_use": historical}
         ).__class__.model_validate(
-            prepared.planning_authority[0].resolution_receipt.model_copy(
-                update={"capability_use": historical}
-            ).model_dump(mode="python")
+            prepared.planning_authority[0]
+            .resolution_receipt.model_copy(update={"capability_use": historical})
+            .model_dump(mode="python")
         )
 
 
