@@ -6,7 +6,7 @@
 - Exact convergence: `a55edc2848c742dc98cfa01f6632bb75d5f31d81`
 - Convergence branch: `codex/v0.7-agent-memory-composition-convergence`
 - Candidate branch: `codex/v0.7-agent-memory-am1`
-- Exact AM1 implementation artifact: pending immutable implementation commit
+- Exact AM1 implementation artifact: `17d7d06c90365710da97504d56b24e0221378aa7`
 - Status: isolated publication candidate; not accepted, merged, released, or supported
 
 ## Candidate claim and limit
@@ -62,7 +62,7 @@ startup behavior may change.
 | Full supported non-E2E/non-extension lane | `7,570 passed, 244 skipped, 261 deselected`; four sandbox-only localhost denials all passed in a separate unsandboxed rerun (`4 passed`) |
 | Package, naked-kernel, extension-disabled and exactly-eleven-MCP checks | `31 passed, 1` intentional naked-kernel skip; installed source and wheel expose exactly eleven tools |
 | Ruff, format, lock, diff, schema, authority, privacy, domain, composition and secret scans | AM1 changed paths, lock, diff, schema tests, domain boundaries, AC6/AC7 provider-free checks and secret scan passed; whole-repository Ruff baseline remains red as disclosed below |
-| Checkout-free installed-wheel reproduction | Passed in two clean target directories; checkpoint artifact SHA-256 recorded below and final immutable artifact rebuilt after commit |
+| Checkout-free installed-wheel reproduction | Passed from exact implementation commit `17d7d06c90365710da97504d56b24e0221378aa7` in two clean target directories; exact SHA-256 recorded below |
 
 AM1 changed paths pass Ruff lint and format, `uv lock --check`, and `git diff --check`. Schema
 focused tests passed (`20 passed`); domain boundaries passed (`21 passed`); the secret scan found no
@@ -78,14 +78,14 @@ sandbox.
 
 ## Installed-wheel reproduction
 
-The checkpoint candidate wheel was built without publishing it:
+The exact implementation-commit wheel was built without publishing it:
 
 - artifact: `ace_core-0.6.0-py3-none-any.whl`;
 - disposable build path:
-  `/tmp/ace-am1-wheel-build.Q8tyu1/ace_core-0.6.0-py3-none-any.whl`;
-- SHA-256: `fcbb1d5236ccd51f16760a5cf337fd21a938c2731b946834b210e88d29e16682`;
-- clean checkout-free targets: `/tmp/ace-am1-wheel-target-one.623ya8` and
-  `/tmp/ace-am1-wheel-target-two.OdGNIR`.
+  `/tmp/ace-am1-final-wheel.inhXXq/ace_core-0.6.0-py3-none-any.whl`;
+- SHA-256: `6eddd6a1edd86daacdbcb5be54c7a63982dea468752a3d1c73c63692d2bd48a0`;
+- clean checkout-free targets: `/tmp/ace-am1-final-target-one.JswpAs` and
+  `/tmp/ace-am1-final-target-two.yTQb7A`.
 
 Both targets imported `ace.core.agent_memory_ingestion` and
 `ace.application.agent_memory_ingestion` from the installed wheel, loaded the packaged frozen AM1
@@ -99,9 +99,7 @@ The first isolated-build attempt could not resolve the exactly pinned `setuptool
 sandbox DNS was unavailable. The existing repository environment already contained exact
 setuptools 83.0.0, so the successful build used `python -m build --wheel --no-isolation`; no
 dependency, lock, package-version, or source change was made. The wheel was not uploaded or
-published. A checkout-free wheel will be rebuilt from the exact immutable implementation commit,
-and that commit-specific artifact will supersede this checkpoint coordinate in the publication
-record.
+published.
 
 ## Privacy, recovery, and receipt boundaries
 
