@@ -20,9 +20,22 @@ def test_current_release_and_passed_milestone_are_not_conflated() -> None:
     assert "| 0.7.0 | Intelligence Builder Foundation | **Passed** |" in ROADMAP
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
     assert "0.7.0 is a published developer-preview release" in " ".join(readme.split())
-    assert "| 0.8.0 | Intelligence Workspace | **Later** |" in ROADMAP
+    assert "| 0.8.0 | Intelligence OS Realignment | **Next** |" in ROADMAP
     assert "| 0.9.0 | Collaborative Intelligence | **Later** |" in ROADMAP
     assert "| 1.0.0 | Intelligence Operating System | **Later** |" in ROADMAP
+
+
+def test_080_is_a_bounded_intelligence_os_realignment_not_a_rename() -> None:
+    assert "### 0.8.0 — Intelligence OS Realignment" in ROADMAP
+    assert "**0.8A — architecture and compatibility:**" in ROADMAP
+    assert "**0.8B — runtime realignment:**" in ROADMAP
+    assert "**0.8C — unified intelligence resources:**" in ROADMAP
+    assert "**0.8D — Atrium experience:**" in ROADMAP
+    assert "**0.8E — cross-domain proof:**" in ROADMAP
+    assert "**0.8F — release acceptance:**" in ROADMAP
+    assert "World AI Command Center" in ROADMAP
+    assert "Atrium and a machine interface consume the same public durable intelligence" in ROADMAP_ONE_LINE
+    assert "does not become a second source of truth" in ROADMAP_ONE_LINE
 
 
 def test_060_public_world_journey_closes_the_bounded_measured_intelligence_release() -> None:
