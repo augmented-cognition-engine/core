@@ -4,6 +4,39 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+## 0.7.0
+
+### Intelligence Builder Foundation
+
+- Add the provider-free `Connect → Map → Watch → Brief → Activate` onboarding journey through five
+  separate proposal services: Connection, Ontology, Intelligence, Briefing, and Activation. Exact
+  human/Core approval remains required before activation.
+- Stabilize the generated Domain Pack contract with machine-readable schemas, deterministic
+  compilation, compatibility negotiation, golden-fixture conformance, structured diagnostics,
+  content-addressed receipts, and fail-closed activation. Packs remain inert declarative data.
+- Add governed Agent Composition through AC7: provider-neutral contracts, task and lifecycle
+  bridges, participant governance, delivery/export, measured evaluation, and policy admission.
+  Composition policy cannot grant authority or manufacture participant eligibility.
+- Add authorized Agent Memory through AM3: foundation contracts, episodic experience, typed
+  assertions and corrections, explicit reconciliation, authorized recall, visible ranking and
+  omissions, and canonical Context Manifests. Memory cannot select agents, widen tools, or rewrite
+  run authority.
+- Preserve one Core + Intelligence install, schema head v177, naked-kernel startup, and exactly
+  eleven public MCP tools.
+
+### External acceptance and release boundary
+
+- Reproduce the activation lifecycle against materially distinct World and Market Intelligence
+  consumers through unchanged Core APIs, including exact effect/capability/authority preview,
+  restart, separately approved upgrade and rollback, runtime bindings, and fail-closed stale
+  conformance.
+- Version the Core distribution at 0.7.0 and the separately packaged reference action adapter at
+  0.3.0 with an `ace-core>=0.7.0,<0.8` dependency. The unchanged adapter implementation retains
+  its 0.1.0 capability artifact identity.
+- Keep the release a developer preview for the documented single-node topology. The supported
+  artifact does not claim a graphical workspace, hostile-code isolation, distributed operation,
+  autonomous learning, general memory benefit, or general real-world causal correctness.
+
 ## 0.6.0
 
 ### Measured Intelligence

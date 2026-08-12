@@ -77,13 +77,15 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-`ace-core` 0.6.0 is published on PyPI and GitHub. It completes the bounded Measured Intelligence
-promise: exact product-owned criteria link an intelligence artifact or immutable cognition
-revision through material use, Decision, reviewed Action, observed result, Outcome, matched
-controls, and append-only evaluation to a deterministic `useful`, `harmful`, or `unproven`
-classification. Any promote, reject, rollback, or retire result remains a non-effective proposal
-until separate human/Core authority disposes it. Schema head remains v177 and the thin MCP surface
-remains exactly eleven tools.
+The latest published release remains `ace-core` 0.6.0 on PyPI and GitHub until the 0.7.0
+candidate below completes trusted publication.
+
+The cumulative 0.7 source is merged and its independent World and Market consumer gates have
+passed. The 0.7.0 release candidate advances ACE from internal architecture to the
+**Intelligence Builder Foundation**: Connect → Map → Watch → Brief → Activate, stable generated
+Domain Packs, governed Agent Composition through AC7, and authorized Agent Memory through AM3.
+Publication and public-artifact reconciliation are the remaining release gates. Schema head
+remains v177 and the thin MCP surface remains exactly eleven tools.
 
 The [0.6.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.6.0),
 public [`ace-core==0.6.0`](https://pypi.org/project/ace-core/0.6.0/) package, separately released
@@ -169,7 +171,7 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.4.x | Governed Cognition | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 through the supported teach, inspect, approve, use, measure, revise, rollback, and retire lifecycle, an independent Market consumer, restart durability, attribution, and failure controls | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
 | 0.5.0 | Reasoning into Action | **Passed** | T1 and B1 pass for bounded attributable action under the explicit single-host, trusted-adapter topology; I1 authority receipts govern the execution-adapter slice | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
 | 0.6.0 | Measured Intelligence | **Passed** | Public Core 0.6.0 and World 0.10.0 artifacts reproduce exact useful/harmful/unproven classification, matched leakage-bounded controls, durable replay, and proposal-only governance under product-owned criteria; SI4 remains a broader future outcome | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
-| 0.7.0 | Intelligence Builder Foundation | **Candidate** | The cumulative Core candidate composes 0.7A–0.7E Connect → Map → Watch → Brief → Activate with AC1–AC7 and AM0–AM3; cumulative CI/review, independent Market acceptance, and release reconciliation remain open | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
+| 0.7.0 | Intelligence Builder Foundation | **Candidate** | Cumulative Core CI/review and independent World/Market acceptance have passed for 0.7A–0.7E, AC1–AC7, and AM0–AM3; trusted publication and public-artifact release reconciliation remain open | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Intelligence Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
 | 0.9.0 | Collaborative Intelligence | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
 | 1.0.0 | Intelligence Operating System | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, Intelligence, Domain Packs, connectors, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
