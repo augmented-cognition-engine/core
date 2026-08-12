@@ -78,6 +78,10 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [Intelligence OS runtime-boundary realignment](design/intelligence-os-runtime-boundary-v0.8.0-work-packet-v1.md)
   — the active 0.8B packet, accepted AM4 input, default isolation of embedded product-intelligence
   engines, compatibility switch, remaining runtime convergence, and rollback.
+- [Unified Intelligence resource plane](design/intelligence-resource-plane-v0.8.0-work-packet-v1.md)
+  — the active 0.8C contract for domain-neutral resources, authorized point-in-time queries,
+  exact provenance, degradation, revision lineage, and rebuildable projections shared by Atrium,
+  World Intelligence, and Market Intelligence.
 - [Legacy host compatibility disposition](design/core-engine-compatibility-disposition-v0.8.0.json)
   — the machine-checked 0.8 owner and migration treatment for every top-level `core.engine`
   package; the canonical public roots remain `ace.core`, `ace.intelligence`, and `ace.application`.
