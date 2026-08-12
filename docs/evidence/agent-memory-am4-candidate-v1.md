@@ -6,7 +6,7 @@
 - Base branch: `codex/v0.7-cumulative-integration-acceptance`
 - Cumulative review-only PR: #122
 - Candidate branch: `codex/v0.7-agent-memory-am4`
-- Exact implementation artifact: pending local implementation commit
+- Exact implementation artifact: `769f5a89e6ab3fe39968cd0e493da67dc2dfc94b`
 - Draft PR: publication blocked only by invalid local GitHub CLI credentials
 - Status: isolated stacked draft candidate; not accepted, merged, released, or supported
 
