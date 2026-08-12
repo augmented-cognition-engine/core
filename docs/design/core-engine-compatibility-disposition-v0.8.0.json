@@ -1,0 +1,53 @@
+{
+  "schema_version": "ace.architecture.core-engine-disposition/v1",
+  "root": "core.engine",
+  "canonical_public_roots": [
+    "ace.core",
+    "ace.intelligence",
+    "ace.application"
+  ],
+  "dispositions": {
+    "transport_adapter_host": {
+      "owner": "application",
+      "treatment": "compatibility host; transports may call public ACE services but are not a source of truth",
+      "packages": ["api", "cli", "mcp", "worker"]
+    },
+    "host_infrastructure": {
+      "owner": "core",
+      "treatment": "compatibility infrastructure; migrate behind public Core ports without rewriting evidence",
+      "packages": ["core", "runtime", "seam"]
+    },
+    "governed_mechanics_bridge": {
+      "owner": "core",
+      "treatment": "retained implementation bridge; new public contracts belong in ace.core",
+      "packages": [
+        "cognition", "embedding", "events", "execution", "foresight", "graph",
+        "grounded_state", "learning", "orchestration", "orchestrator", "reasoning",
+        "recognition", "review", "session", "verification"
+      ]
+    },
+    "intelligence_lifecycle_bridge": {
+      "owner": "intelligence",
+      "treatment": "retained implementation bridge; new invariant lifecycle behavior belongs in ace.intelligence or ace.application",
+      "packages": [
+        "ai_briefing", "capture", "conductor", "contributions", "flow", "handoff",
+        "intelligence", "live", "notifications", "proactive", "scanner", "search",
+        "sentinel", "synthesis", "voice"
+      ]
+    },
+    "executable_specialization": {
+      "owner": "adapter_or_strategy",
+      "treatment": "explicitly enabled executable compatibility surface; never Domain Pack data or implicit authority",
+      "packages": ["extensions", "generation", "github", "playbooks", "runner", "templates"]
+    },
+    "legacy_product_application": {
+      "owner": "application",
+      "treatment": "frozen product-era compatibility surface; no new canonical callers or category language",
+      "packages": [
+        "arms", "atc", "canvas", "canvas_bridge", "chat", "diagram", "eval",
+        "evaluation", "ideas", "onboarding", "pm", "product", "product_state",
+        "reports", "research", "skills"
+      ]
+    }
+  }
+}

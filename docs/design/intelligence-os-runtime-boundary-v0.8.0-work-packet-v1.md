@@ -1,6 +1,6 @@
 # ACE 0.8.0 runtime-boundary realignment work packet
 
-Status: **active 0.8B packet; B1 compatibility isolation implemented**
+Status: **active 0.8B packet; B1 compatibility isolation and B2 ownership guards implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
 Accepted base: `main@bb7f4ba` (0.8A plus explicitly reviewed AM4 lifecycle semantics)
 
@@ -44,6 +44,25 @@ kernel-boundary, exact-eleven, AM1–AM4, and restart-oriented tests. Retention,
 soft forget, and dependency-complete supported-store erasure are therefore available to the later
 0.8C resource plane and 0.8D Atrium experience; they are not reimplemented here.
 
+## B2 — enforce ownership and classify the compatibility host
+
+The canonical dependency direction is now machine checked across every Python module in the three
+public layers:
+
+- `ace.core` cannot import Intelligence, application, the legacy host, transports, or extensions;
+- `ace.intelligence` cannot import application, the legacy host, transports, or extensions;
+- `ace.application` may compose public Core and Intelligence ports but cannot import the legacy
+  host or a transport framework; and
+- none of the three layers may acquire sources or execute external effects through a concrete
+  network, process, or socket client. Those operations enter through declared ports and adapters.
+
+The broader `core.engine` tree remains a compatibility host during 0.8. Every top-level package is
+therefore assigned exactly one machine-checked disposition in
+`core-engine-compatibility-disposition-v0.8.0.json`. Adding a directory without declaring its
+owner and treatment fails the boundary suite. Product-era arms, product surfaces, and Canvas are
+explicitly frozen compatibility applications; their presence does not make their vocabulary or
+dependency direction canonical.
+
 ## Acceptance
 
 B1 passes only when:
@@ -59,9 +78,8 @@ B1 passes only when:
 
 ## Remaining 0.8B work
 
-B1 does not close 0.8B. The remaining runtime-boundary packet must:
+B1 and B2 do not close 0.8B. The remaining runtime-boundary packet must:
 
-- publish a machine-checked disposition for the broader product-era `core.engine` surface;
 - keep generic planning, authority, execution admission, assurance, outcomes, and erasure behind
   Core ports;
 - keep Observation-to-Feedback interpretation behind Intelligence and application services;
