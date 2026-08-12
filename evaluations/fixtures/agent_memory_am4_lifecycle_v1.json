@@ -1,0 +1,59 @@
+{
+  "contract": "ace.evaluation.agent-memory-am4-lifecycle/v1",
+  "synthetic_only": true,
+  "provider_required": false,
+  "lifecycle_meanings": [
+    "supersession",
+    "expiry",
+    "archival",
+    "redaction",
+    "soft_forget",
+    "hard_erasure"
+  ],
+  "dependency_kinds": [
+    "primary_record",
+    "source_body",
+    "assertion",
+    "rank_candidate",
+    "context_manifest",
+    "use_lineage",
+    "graph_projection",
+    "graph_edge",
+    "embedding",
+    "vector_material",
+    "summary",
+    "cache",
+    "external_body",
+    "export_artifact"
+  ],
+  "positive_cases": [
+    "scope_category_source_policy_retention_preview",
+    "expiry_removes_current_recall_preserves_history",
+    "soft_forget_removes_current_recall_preserves_history",
+    "dependency_complete_hard_erasure",
+    "restart_rebuild_non_reappearance",
+    "export_import_round_trip",
+    "exact_import_replay"
+  ],
+  "fail_closed_cases": [
+    "authorization_before_scan_or_body_read",
+    "cross_product_and_principal_non_disclosure",
+    "dependency_incomplete",
+    "stale_prior_coordinate",
+    "stale_dependency_snapshot",
+    "atomic_erasure_failure",
+    "divergent_import_collision",
+    "missing_export_body",
+    "incompatible_import_policy",
+    "stale_export_ledger_coordinate"
+  ],
+  "receipt_body_fields_forbidden": [
+    "body",
+    "private_payload",
+    "query_text",
+    "statement",
+    "summary_text",
+    "vector"
+  ],
+  "backup_limit": "Hard erasure covers live supported stores and exact external-body owners; offline backups remain subject to operator recovery-window expiry and restore-time re-erasure."
+}

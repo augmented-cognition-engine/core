@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from enum import StrEnum
 from typing import Protocol, runtime_checkable
 
@@ -18,6 +19,7 @@ from ace.core.records import (
     ImmutableRecordReferenceV1,
     ImmutableRecordV1,
 )
+from ace.core.state import GovernedStateHeadPreconditionV1Alpha1
 
 
 class AgentMemoryPortFailureCode(StrEnum):
@@ -110,7 +112,35 @@ class MemoryDependencyIndex(Protocol):
     async def verify_erasure(self, event: LifecycleEventV1Alpha1) -> ErasureDependencyProofV1Alpha1: ...
 
 
+@runtime_checkable
+class AgentMemoryLifecycleStore(Protocol):
+    """Existing immutable-record owner extended with AM4 scan and erasure mechanics."""
+
+    async def append(self, request: AppendOnlyTransactionRequestV1) -> AppendOnlyTransactionReceiptV1: ...
+
+    async def scan_product_records(self, *, product_id: str) -> tuple[ImmutableRecordV1, ...]: ...
+
+    async def erase_records_atomically(
+        self,
+        *,
+        product_id: str,
+        expected_records: tuple[ImmutableRecordReferenceV1, ...],
+        receipt_request: AppendOnlyTransactionRequestV1,
+    ) -> AppendOnlyTransactionReceiptV1: ...
+
+    async def import_records_atomically(
+        self,
+        *,
+        product_id: str,
+        transaction_key: str,
+        records: tuple[ImmutableRecordV1, ...],
+        submitted_at: datetime,
+        governed_state_preconditions: tuple[GovernedStateHeadPreconditionV1Alpha1, ...],
+    ) -> str: ...
+
+
 __all__ = [
+    "AgentMemoryLifecycleStore",
     "AgentMemoryLedgerReader",
     "AgentMemoryLedgerWriter",
     "AgentMemoryPortError",

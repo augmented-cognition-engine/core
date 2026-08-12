@@ -584,6 +584,9 @@ class LifecycleState(StrEnum):
     RESTRICTED = "restricted"
     SUPERSEDED = "superseded"
     EXPIRED = "expired"
+    ARCHIVED = "archived"
+    REDACTED = "redacted"
+    FORGOTTEN = "forgotten"
     ERASE_PENDING = "erase_pending"
     ERASED = "erased"
     QUARANTINED = "quarantined"
@@ -594,6 +597,9 @@ class LifecycleOperation(StrEnum):
     RESTRICT = "restrict"
     SUPERSEDE = "supersede"
     EXPIRE = "expire"
+    ARCHIVE = "archive"
+    REDACT = "redact"
+    SOFT_FORGET = "soft_forget"
     REQUEST_ERASURE = "request_erasure"
     CONFIRM_ERASURE = "confirm_erasure"
     QUARANTINE = "quarantine"
@@ -605,6 +611,9 @@ _OPERATION_TARGET_STATE = {
     LifecycleOperation.RESTRICT: LifecycleState.RESTRICTED,
     LifecycleOperation.SUPERSEDE: LifecycleState.SUPERSEDED,
     LifecycleOperation.EXPIRE: LifecycleState.EXPIRED,
+    LifecycleOperation.ARCHIVE: LifecycleState.ARCHIVED,
+    LifecycleOperation.REDACT: LifecycleState.REDACTED,
+    LifecycleOperation.SOFT_FORGET: LifecycleState.FORGOTTEN,
     LifecycleOperation.REQUEST_ERASURE: LifecycleState.ERASE_PENDING,
     LifecycleOperation.CONFIRM_ERASURE: LifecycleState.ERASED,
     LifecycleOperation.QUARANTINE: LifecycleState.QUARANTINED,

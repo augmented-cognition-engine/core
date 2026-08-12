@@ -10,16 +10,19 @@ from ace.application.intelligence_ledger import (
     PreparedIntelligenceAdmission,
     PreparedIntelligenceLedgerService,
 )
+from ace.core.contracts import canonical_hash, stable_id
 from ace.core.records import (
     AppendOnlyTransactionReceiptV1,
     AppendOnlyTransactionRequestV1,
     ImmutableRecordPersistenceError,
     ImmutableRecordPreconditionFailed,
+    ImmutableRecordReferenceV1,
     ImmutableRecordReplayConflict,
+    ImmutableRecordScopeError,
     ImmutableRecordV1,
     append_only_receipt_id,
 )
-from ace.core.state import GovernedStateHeadV1
+from ace.core.state import GovernedStateHeadPreconditionV1Alpha1, GovernedStateHeadV1
 from ace.intelligence.contracts.ledger import PreparedResourceAdmissionV1Alpha1
 
 
@@ -163,6 +166,118 @@ class InMemoryImmutableRecordStore:
                 available_at=available_at,
             )
         )
+
+    async def scan_product_records(self, *, product_id: str) -> tuple[ImmutableRecordV1, ...]:
+        """Return exact product-fenced records for AM4 dependency enumeration."""
+
+        matches = [record for record in self.records.values() if record.product_id == product_id]
+        matches.sort(key=lambda record: str(record.storage_id))
+        return tuple(ImmutableRecordV1.model_validate(record.model_dump(mode="python")) for record in matches)
+
+    async def erase_records_atomically(
+        self,
+        *,
+        product_id: str,
+        expected_records: tuple[ImmutableRecordReferenceV1, ...],
+        receipt_request: AppendOnlyTransactionRequestV1,
+    ) -> AppendOnlyTransactionReceiptV1:
+        """Delete exact records and append content-free proof records as one commit."""
+
+        validated_request = AppendOnlyTransactionRequestV1.model_validate(receipt_request.model_dump(mode="python"))
+        if validated_request.product_id != product_id:
+            raise ImmutableRecordPersistenceError("erasure request crossed its exact product scope")
+        expected = validated_request.receipt()
+        async with self._lock:
+            replay = self.receipts.get(str(expected.receipt_id))
+            if replay is not None:
+                if replay == expected:
+                    return replay
+                raise ImmutableRecordReplayConflict("stable erasure transaction identity binds different material")
+            for precondition in validated_request.governed_state_preconditions:
+                current = self.governed_state_heads.get(
+                    (precondition.state_kind, precondition.product_id, precondition.state_id)
+                )
+                if current is None or (
+                    current.sequence != precondition.sequence
+                    or current.revision_id != precondition.revision_id
+                    or current.commit_receipt_id != precondition.commit_receipt_id
+                ):
+                    raise ImmutableRecordPreconditionFailed("immutable_record_governed_state_precondition_failed")
+            delete_ids: set[str] = set()
+            for reference in expected_records:
+                if reference.product_id != product_id:
+                    raise ImmutableRecordScopeError("erasure dependency crossed its exact product scope")
+                current = self.records.get(reference.storage_id)
+                if current is None or current.reference() != reference:
+                    raise ImmutableRecordPreconditionFailed("erasure dependency snapshot is stale")
+                delete_ids.add(reference.storage_id)
+            staged: dict[str, ImmutableRecordV1] = {}
+            for index, record in enumerate(validated_request.records, start=1):
+                storage_id = str(record.storage_id)
+                if record.product_id != product_id or storage_id in delete_ids:
+                    raise ImmutableRecordScopeError("erasure proof record crossed or reused a deleted identity")
+                if storage_id in self.records:
+                    raise ImmutableRecordReplayConflict("erasure proof record already exists without its receipt")
+                staged[storage_id] = record
+                if self.fail_after_records == index:
+                    raise ImmutableRecordPersistenceError("simulated interruption before atomic erasure commit")
+            remaining = {key: value for key, value in self.records.items() if key not in delete_ids}
+            remaining.update(staged)
+            self.records = remaining
+            self.receipts[str(expected.receipt_id)] = expected
+            return expected
+
+    async def import_records_atomically(
+        self,
+        *,
+        product_id: str,
+        transaction_key: str,
+        records: tuple[ImmutableRecordV1, ...],
+        submitted_at: datetime,
+        governed_state_preconditions: tuple[GovernedStateHeadPreconditionV1Alpha1, ...],
+    ) -> str:
+        """Atomically restore exact records across their original record spaces."""
+
+        if submitted_at.tzinfo is None or submitted_at.utcoffset() is None or not records:
+            raise ImmutableRecordPersistenceError("administrative import requires time and records")
+        validated = tuple(ImmutableRecordV1.model_validate(item.model_dump(mode="python")) for item in records)
+        if any(item.product_id != product_id for item in validated):
+            raise ImmutableRecordScopeError("administrative import crossed its exact product scope")
+        identity = stable_id(
+            "agent_memory_admin_import",
+            {"product_id": product_id, "transaction_key": transaction_key},
+        )
+        request_hash = f"sha256:{canonical_hash(tuple((item.storage_id, item.material_hash) for item in validated))}"
+        receipt_ref = stable_id(
+            "agent_memory_admin_import_receipt",
+            {"transaction_id": identity, "request_hash": request_hash},
+        )
+        async with self._lock:
+            prior = tuple(self.records.get(str(record.storage_id)) for record in validated)
+            if any(item is not None for item in prior):
+                if all(item == record for item, record in zip(prior, validated, strict=True)):
+                    return receipt_ref
+                raise ImmutableRecordReplayConflict("administrative import collided with existing material")
+            for precondition in governed_state_preconditions:
+                current = self.governed_state_heads.get(
+                    (precondition.state_kind, precondition.product_id, precondition.state_id)
+                )
+                if current is None or (
+                    current.sequence != precondition.sequence
+                    or current.revision_id != precondition.revision_id
+                    or current.commit_receipt_id != precondition.commit_receipt_id
+                ):
+                    raise ImmutableRecordPreconditionFailed("immutable_record_governed_state_precondition_failed")
+            for record in validated:
+                if str(record.storage_id) in self.records:
+                    raise ImmutableRecordReplayConflict("administrative import collided with an existing record")
+            staged: dict[str, ImmutableRecordV1] = {}
+            for index, record in enumerate(validated, start=1):
+                staged[str(record.storage_id)] = record
+                if self.fail_after_records == index:
+                    raise ImmutableRecordPersistenceError("simulated interruption before atomic import commit")
+            self.records.update(staged)
+            return receipt_ref
 
 
 @dataclass(frozen=True, slots=True)
