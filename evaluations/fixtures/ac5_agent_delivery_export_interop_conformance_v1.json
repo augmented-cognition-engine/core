@@ -1,0 +1,62 @@
+{
+  "contract": "ace.evaluation.agent-delivery-export-interoperability-conformance/v1",
+  "operations": [
+    "prepared_internal_handoff",
+    "destination_delivery",
+    "administrative_export",
+    "external_effect"
+  ],
+  "distinct_authorities": [
+    "destination_delivery",
+    "administrative_export",
+    "external_effect"
+  ],
+  "destination_policy_kinds": [
+    "capability",
+    "compatibility",
+    "entitlement",
+    "consent",
+    "redaction",
+    "data_class"
+  ],
+  "cases": [
+    {"case_id": "prepared_zero_effect", "expected": "no_external_send"},
+    {"case_id": "delivery_acknowledged", "expected": "receipt_evidence_only"},
+    {"case_id": "authority_non_substitution", "expected": "fail_closed"},
+    {"case_id": "stale_governance_head", "expected": "fail_before_adapter"},
+    {"case_id": "revoked_grant", "expected": "fail_before_adapter"},
+    {"case_id": "expired_grant", "expected": "fail_before_adapter"},
+    {"case_id": "foreign_product", "expected": "fail_before_adapter"},
+    {"case_id": "destination_drift", "expected": "fail_before_adapter"},
+    {"case_id": "consent_revoked", "expected": "fail_before_adapter"},
+    {"case_id": "entitlement_revoked", "expected": "fail_before_adapter"},
+    {"case_id": "redaction_mismatch", "expected": "fail_before_adapter"},
+    {"case_id": "payload_mismatch", "expected": "fail_before_adapter"},
+    {"case_id": "ack_mismatch", "expected": "fail_closed"},
+    {"case_id": "delivery_timeout", "expected": "unknown_result_lookup_required"},
+    {"case_id": "delivery_rejected", "expected": "terminal_rejected"},
+    {"case_id": "delivery_partial", "expected": "terminal_partial"},
+    {"case_id": "delivery_duplicate", "expected": "one_idempotent_operation"},
+    {"case_id": "cancellation", "expected": "fail_before_adapter"},
+    {"case_id": "effect_unknown", "expected": "blind_retry_forbidden"},
+    {"case_id": "restart_lookup", "expected": "reconcile_without_duplicate_effect"},
+    {"case_id": "unsupported_external_agent_protocol", "expected": "no_authority"},
+    {"case_id": "suspended_external_agent", "expected": "ineligible_no_authority"},
+    {"case_id": "export_omissions_redactions", "expected": "checksum_bound"},
+    {"case_id": "export_erasure_dependencies", "expected": "retained_in_manifest"}
+  ],
+  "invariants": {
+    "prepared_handoff_grants_delivery": false,
+    "delivery_grants_external_effect": false,
+    "export_grants_delivery": false,
+    "export_grants_runtime": false,
+    "acknowledgment_proves_truth": false,
+    "acknowledgment_proves_benefit": false,
+    "acknowledgment_proves_downstream_execution": false,
+    "installation_grants_authority": false,
+    "handshake_grants_execution": false,
+    "handshake_grants_delivery": false,
+    "unknown_effect_allows_blind_retry": false,
+    "contracts_contain_raw_credentials": false
+  }
+}

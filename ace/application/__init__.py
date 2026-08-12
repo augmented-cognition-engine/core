@@ -64,6 +64,12 @@ from ace.application.agent_governance import (
     RequiredCoreGrant,
     agent_governance_head_id,
 )
+from ace.application.agent_governance_runtime import (
+    GOVERNED_AGENT_PRE_EXECUTION_ADMISSION_VERSION,
+    GovernedAgentPreExecutionAdmissionV1Alpha1,
+    GovernedAgentPreExecutionError,
+    GovernedAgentPreExecutionResolver,
+)
 from ace.application.brief_synthesis import (
     BriefSynthesisError,
     BriefSynthesisReplayConflict,
@@ -138,6 +144,23 @@ from ace.application.domain_activation_plan_contracts import (
     DomainActivationCommitReferenceV1Alpha2,
     DomainActivationRevisionV1Alpha2,
     IntelligenceActivationPlanV1Alpha2,
+)
+from ace.application.external_agent import ExternalAgentHandshakeError, ExternalAgentHandshakeService
+from ace.application.external_operations import (
+    EXTERNAL_OPERATION_RECORD_SPACE,
+    AdministrativeExportAdapter,
+    DestinationDeliveryOutcome,
+    ExternalDestinationAdapter,
+    ExternalEffectOutcome,
+    ExternalOperationAuthorityPort,
+    ExternalOperationCancelled,
+    ExternalOperationError,
+    ExternalOperationReplayConflict,
+    GovernedAdministrativeExportService,
+    GovernedDestinationDeliveryService,
+    GovernedExternalEffectService,
+    delivery_payload_digest,
+    export_manifest_checksum,
 )
 from ace.application.intelligence_agent import (
     AuthorizedObservationSetAdmission,
@@ -297,6 +320,24 @@ __all__ = [
     "AgentGovernanceError",
     "AgentGovernanceService",
     "AgentGovernanceView",
+    "GOVERNED_AGENT_PRE_EXECUTION_ADMISSION_VERSION",
+    "GovernedAgentPreExecutionAdmissionV1Alpha1",
+    "GovernedAgentPreExecutionError",
+    "GovernedAgentPreExecutionResolver",
+    "ExternalAgentHandshakeError",
+    "ExternalAgentHandshakeService",
+    "EXTERNAL_OPERATION_RECORD_SPACE",
+    "AdministrativeExportAdapter",
+    "DestinationDeliveryOutcome",
+    "ExternalDestinationAdapter",
+    "ExternalEffectOutcome",
+    "ExternalOperationAuthorityPort",
+    "ExternalOperationCancelled",
+    "ExternalOperationError",
+    "ExternalOperationReplayConflict",
+    "GovernedAdministrativeExportService",
+    "GovernedDestinationDeliveryService",
+    "GovernedExternalEffectService",
     "CommittedAgentGovernanceRevision",
     "RecordedProposal",
     "RequiredCoreGrant",
@@ -518,4 +559,6 @@ __all__ = [
     "intelligence_model_semantic_diff",
     "supersession_impact_record",
     "validate_bundle_for_manifest",
+    "delivery_payload_digest",
+    "export_manifest_checksum",
 ]

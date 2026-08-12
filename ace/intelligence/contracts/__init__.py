@@ -103,6 +103,13 @@ from ace.intelligence.contracts.epistemic import (
     BriefEpistemicStatusProjectionV1Alpha2,
     DerivationFamilyMembershipV1Alpha1,
 )
+from ace.intelligence.contracts.external_agent import (
+    EXTERNAL_AGENT_HANDSHAKE_VERSION,
+    EXTERNAL_AGENT_PROTOCOL_IDENTITY_VERSION,
+    ExternalAgentHandshakeDisposition,
+    ExternalAgentHandshakeV1Alpha1,
+    ExternalAgentProtocolIdentityV1Alpha1,
+)
 from ace.intelligence.contracts.feedback import (
     DecisionOutcomesModuleV1,
     FeedbackPolicyStateV1Alpha1,
@@ -298,6 +305,11 @@ from ace.intelligence.contracts.synthesis import (
 )
 
 __all__ = [
+    "EXTERNAL_AGENT_HANDSHAKE_VERSION",
+    "EXTERNAL_AGENT_PROTOCOL_IDENTITY_VERSION",
+    "ExternalAgentHandshakeDisposition",
+    "ExternalAgentHandshakeV1Alpha1",
+    "ExternalAgentProtocolIdentityV1Alpha1",
     "AGENT_ACTIVATION_RECEIPT_VERSION",
     "AGENT_BINDING_LIFECYCLE_REVISION_VERSION",
     "AGENT_BINDING_PROPOSAL_VERSION",

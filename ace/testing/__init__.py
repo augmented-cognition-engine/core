@@ -24,6 +24,7 @@ from ace.testing.ontology_agent import (
     edited_fixture_proposal,
     exercise_ontology_agent_restart,
 )
+from ace.testing.reference_external_destination import ReferenceExternalDestinationAdapter
 from ace.testing.source_mapping import (
     SourceMappingConformanceResult,
     exercise_prepared_source_mapping,
@@ -49,6 +50,7 @@ __all__ = [
     "LiveSourceIngressConformanceResult",
     "OntologyAgentReferenceResult",
     "PreparedLedgerConformanceResult",
+    "ReferenceExternalDestinationAdapter",
     "SourceMappingConformanceResult",
     "WatchBriefReferenceResult",
     "exercise_live_source_ingress_restart",

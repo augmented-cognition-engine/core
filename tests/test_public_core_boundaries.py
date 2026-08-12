@@ -110,6 +110,7 @@ def test_host_adapters_are_the_only_core_engine_edge_into_public_ace() -> None:
         "core/engine/core/action_execution.py",
         "core/engine/core/agent_composition_runtime.py",
         "core/engine/core/agent_composition_lifecycle_runtime.py",
+        "core/engine/core/external_operations.py",
     }
     offenders = sorted(
         str(path.relative_to(REPO))
