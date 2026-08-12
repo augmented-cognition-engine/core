@@ -1,7 +1,7 @@
 # Agent Memory AM1 episodic experience ledger work packet v1
 
-**Status:** implementation-ready planning artifact; implementation not started
-**Date:** 2026-08-11
+**Status:** isolated publication candidate; implemented and verified, not accepted or merged
+**Date:** 2026-08-12
 **Depends on:** AM0-A through AM0-C contracts and the reviewed AM0 canonical-source bridge
 **Frozen fixture specification:**
 [`agent_memory_am1_session_normalization_v1.json`](../../evaluations/fixtures/agent_memory_am1_session_normalization_v1.json)
@@ -23,30 +23,27 @@ a second onboarding/session authority.
 
 ## 2. Entry gate and branch posture
 
-AM1 implementation may start only after one of these equivalent dependency conditions is explicit:
+The control tower authorized one exact, non-rewriting convergence:
 
-1. the reviewed AM0 contract set lands on an authorized base; or
-2. a new isolated AM1 worktree carries the exact reviewed AM0-owned file set and records its
-   content hashes as an uncommitted dependency.
+- AC7 parent: `c7ff511a80ab3bdd3a13e7ca270567eaf6b3b1bf` on
+  `codex/v0.7-composition-policy-admission` (draft PR #116);
+- AM0 parent: `48e1aea6ff848be63aab2d49adda1428231ca522` on
+  `codex/agent-memory-am0-final-verification` (draft PR #108);
+- exact two-parent convergence commit: `a55edc2848c742dc98cfa01f6632bb75d5f31d81` on
+  `codex/v0.7-agent-memory-composition-convergence`; and
+- AM1 implementation branch: `codex/v0.7-agent-memory-am1`, created from that exact convergence.
 
-If the active 0.7 Connect/Map stack lands first, AM1 must start from the resulting current main and
-consume only its public artifact identities. It must not rebase onto an in-progress 0.7C working
-tree, depend on unpublished implementation details, or modify PR #100, PR #102, or the 0.7C stack.
+PR #108 remains the authoritative review for all 21 AM0-owned paths and claims. Neither source
+identity may be rewritten, and the convergence publication must remain a convergence-only draft
+that forbids squash. AM1 publication must be an AM1-only draft against the exact convergence ref.
 
-The current AM0 worktree must not be staged, committed, pushed, published, or mixed with Core PR
-#99 merely to create an AM1 base. AM1 must use its own branch/worktree and exact migration list.
+Historical 0.7D through AC7 artifacts are optional lineage only. They are not episodic memory
+content, current memory authority, or an ingestion dependency. In particular, composition policy,
+participant eligibility, activation, delivery/export, and effect authority remain with their
+owning current-head systems.
 
-AM1 runtime work also requires an explicit implementation authorization naming its exact base and
-migration set after the final AM0 rebase verification. Watch/Brief and activation lineage are a
-stronger, separate integration gate: no AM1 code may consume them until the control tower supplies
-the exact completed 0.7D commit/PR and the exact landed 0.7E activation-plan, activation
-revision/receipt, rollback, and reactivation contract versions. Until then, 0.7D proposal/preview
-identities are fixture-only future lineage and 0.7E activation coordinates are unresolved external
-references.
-
-0.7G Agent Composition is not an AM1 ingestion dependency. Its exact task-composition plan,
-stage-run manifest, and run-receipt identities become later AM3/I3 lineage inputs; AM1 must not
-invent, embed, or duplicate those contracts.
+AM2 is not dispatched by this packet. It remains closed until the control tower accepts the AM1
+publication and names the exact integrated AM1 base.
 
 ## 3. Architectural boundary
 
@@ -56,7 +53,7 @@ invent, embed, or duplicate those contracts.
 | Intelligence | No required AM1 write-path ownership; may later consume authorized episodic references through AM2 proposals | Session identity, source scope, ingestion authority, or ledger truth |
 | Application | Validate an authenticated import request, select one explicitly authorized adapter, normalize, build one atomic append, recover indeterminate outcomes, and project bounded status | Foundational contract invention, model extraction, or product UI |
 | Adapter | Parse one exact source format and return inert bounded source events with native coordinates and explicit unavailable fields | Product/principal scope, canonical IDs, current-time defaults, persistence, authority, or silent fallback |
-| SurrealDB adapter | Implement Core ledger mechanics, product fences, atomic append, receipt lookup, ordering, and restart replay | Public semantics, concrete `RecordID` leakage, or adapter-specific identity |
+| Existing durable owner | Reuse `ImmutableRecordStore` and `SurrealImmutableRecordStore` for product fences, opaque atomic append, receipt lookup, ordering, and restart replay | A new schema, migration, database, persistence runtime, public semantics, concrete `RecordID` leakage, or adapter-specific identity |
 
 The public dependency direction remains Core → Intelligence → Domain. Meta-Intelligence is only an
 internal cross-cutting capability name and owns no AM1 package or port.
@@ -196,11 +193,11 @@ out-of-order arrival is normalized only when the fixture supplies sufficient sta
   provenance identity material.
 - Adapter-specific fields do not leak into canonical receipts.
 
-### AM1-D — Durable SurrealDB ledger adapter
+### AM1-D — Durable existing-owner integration
 
 **Outputs**
 
-- Schema and adapter behind existing Core ports.
+- Existing opaque Core/Surreal transaction owner used directly; no new schema or adapter.
 - Atomic append, product/principal fences, receipt lookup, and as-of ordering.
 - Queued/normalizing/partial/failed/retry/repair status history.
 
@@ -323,3 +320,12 @@ Pause and create a decision record if AM1 would:
 - implement an onboarding agent, connector UX, ontology mapping, briefing generation, monitor
   scheduling, or user-facing memory management; or
 - stage, commit, push, publish, or mix the work into Core PR #99 without explicit authorization.
+
+## 14. Candidate closeout record
+
+The point-in-time AM1 verification record is
+[`agent-memory-am1-candidate-v1.md`](../evidence/agent-memory-am1-candidate-v1.md). It must record
+the exact final AM1 commit, changed-path manifest, Core/application/adapter/schema ownership,
+database and service restart proof, focused and broad check results, and residual limitations
+before publication. Until those fields are complete and accepted, this work packet proves no
+production maturity, semantic-memory behavior, retrieval benefit, learning, or release readiness.

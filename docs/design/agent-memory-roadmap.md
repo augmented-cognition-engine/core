@@ -1,6 +1,7 @@
 # ACE Agent Memory roadmap
 
-Status: **proposed architecture and delivery sequence; not yet part of the public outcome ledger**
+Status: **AM0 published for draft review; AM1 is an isolated verified publication candidate, not
+an accepted or supported product outcome**
 
 This roadmap defines an open, ACE-native Agent Memory capability inside the internal,
 cross-cutting Meta-Intelligence capability. Meta-Intelligence is not a customer-facing package or
@@ -302,6 +303,19 @@ Acceptance gate:
 - turns remain correctly ordered after database/API restart;
 - foreign-product and unauthorized transcript reads fail without revealing existence; and
 - public receipts contain source identities and spans but no unrestricted transcript body.
+
+Candidate posture (2026-08-12): AM1 is implemented and verified on
+`codex/v0.7-agent-memory-am1` from exact convergence commit
+`a55edc2848c742dc98cfa01f6632bb75d5f31d81`. That convergence commit has exactly two parents:
+AC7 `c7ff511a80ab3bdd3a13e7ca270567eaf6b3b1bf` and AM0
+`48e1aea6ff848be63aab2d49adda1428231ca522`. PR #108 remains authoritative for all AM0-owned
+files and claims. The convergence history must not be squashed or rewritten. AM1 acceptance and
+publication evidence are still required; this coordinate is not a release, maturity, durability,
+or benefit claim.
+
+AM2 remains closed. It may not begin until the control tower accepts the AM1-only publication,
+records its exact integrated base, and confirms that AM1 stayed within provider-neutral episodic
+identity, authorized ingestion/read, lifecycle, privacy, and durable replay boundaries.
 
 ### AM2 — Typed memory assertions and reconciliation
 
@@ -641,5 +655,6 @@ failure behavior, authority change, compatibility impact, and explicit non-goals
 requires reproducible evidence and reconciliation across the public roadmap, capability maturity,
 architecture inventory, operations guidance, release artifact, and issue ledger.
 
-Until that reconciliation occurs, Agent Memory is a proposed cross-release capability roadmap—not
-a supported ACE claim.
+Until that reconciliation occurs, the AM1 implementation remains a bounded candidate and the
+remaining Agent Memory sequence remains a proposed cross-release capability roadmap—not a
+supported ACE claim.

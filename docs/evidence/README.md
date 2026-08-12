@@ -38,6 +38,9 @@ superseded by later work and is kept for audit trail only.
 - [AC7 composition-policy admission candidate](composition-policy-admission-ac7-candidate-v1.md)
   — stacked AC6 closeout; exact review, CAS policy head, lifecycle, bounded runtime resolution, and
   freeze gate
+- [Agent Memory AM1 episodic-ledger candidate](agent-memory-am1-candidate-v1.md)
+  — local isolated candidate under verification; provider-neutral ingestion, authorization,
+  content-free receipts, ordering, replay, and restart evidence only
 - [E1 governed-cognition release evidence](e1-governed-cognition-release-v1.md)
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md)
 - [IA-R1 product-map evidence](ia-r1-product-map.md)
