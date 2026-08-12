@@ -10,6 +10,12 @@
       "approval_contract": "ace.application.intelligence-model-disposition/v1alpha1",
       "preview_contract": "ace.application.first-briefing-preview/v1alpha1",
       "preview_is_activated_runtime_output": false
+    },
+    "domain_activation_07e": {
+      "exact_commit": "10bbed620291ac5f552c3313dd37580938a5b9d7",
+      "commit_reference_contract": "ace.application.domain-activation-commit-reference/v1alpha2",
+      "authority_stage": "historical_reference",
+      "live_authority": false
     }
   },
   "cases": [

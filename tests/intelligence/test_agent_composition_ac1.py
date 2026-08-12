@@ -9,6 +9,11 @@ import pytest
 from pydantic import ValidationError
 
 from ace.application.briefing_agent_contracts import FIRST_BRIEFING_PREVIEW_VERSION
+from ace.application.domain_activation_plan_contracts import (
+    DOMAIN_ACTIVATION_COMMIT_REFERENCE_V1ALPHA2_VERSION,
+    ActivationRuntimeState,
+    DomainActivationCommitReferenceV1Alpha2,
+)
 from ace.application.intelligence_agent_contracts import (
     INTELLIGENCE_MODEL_DISPOSITION_VERSION,
     INTELLIGENCE_MODEL_PROPOSAL_VERSION,
@@ -31,6 +36,7 @@ from ace.core.agent_composition import (
     UsageV1Alpha1,
     validate_run_receipt_against_manifest,
 )
+from ace.core.contracts import canonical_hash
 from ace.intelligence.contracts.agent_composition import (
     GovernedAgentDefinitionRevisionV1Alpha1,
     InstructionConstraintsV1Alpha1,
@@ -314,6 +320,50 @@ def test_activation_commit_reference_is_lineage_only_and_cannot_be_an_activation
         )
     with pytest.raises(ValidationError):
         DomainActivationLineageV1Alpha1.model_validate({**lineage.model_dump(mode="python"), "live_authority": True})
+
+
+def test_published_07e_commit_reference_canonicalizes_as_opaque_non_live_lineage() -> None:
+    dependency = _fixture()["dependency_seams"]["domain_activation_07e"]
+    upstream = DomainActivationCommitReferenceV1Alpha2(
+        product_id=PRODUCT,
+        activation_key="ac1-fixture",
+        activation_id="domain_activation:" + "1" * 32,
+        state=ActivationRuntimeState.ACTIVE,
+        plan_id="domain_activation_plan:" + "2" * 32,
+        plan_digest="sha256:" + "3" * 64,
+        revision=1,
+        revision_id="activation_revision:" + "4" * 32,
+        revision_digest="sha256:" + "5" * 64,
+        commit_receipt_id="governed_state_commit:" + "6" * 32,
+        commit_receipt_digest="sha256:" + "7" * 64,
+        committed_at=NOW,
+    )
+    digest = canonical_hash(upstream.model_dump(mode="json"))
+    coordinate = ExactArtifactReferenceV1Alpha1(
+        artifact_id=f"domain_activation_commit_reference:{digest[:32]}",
+        artifact_digest=f"sha256:{digest}",
+        artifact_contract=upstream.contract,
+    )
+    lineage = DomainActivationLineageV1Alpha1(commit_reference=coordinate)
+
+    assert dependency["exact_commit"] == "10bbed620291ac5f552c3313dd37580938a5b9d7"
+    assert dependency["commit_reference_contract"] == upstream.contract
+    assert upstream.contract == DOMAIN_ACTIVATION_COMMIT_REFERENCE_V1ALPHA2_VERSION
+    assert upstream.authority_stage == "historical_reference"
+    assert upstream.live_authority is False
+    assert lineage.live_authority is False
+    assert lineage.commit_reference.artifact_id.startswith("domain_activation_commit_reference:")
+    assert lineage.commit_reference.artifact_id != upstream.plan_id
+    assert lineage.commit_reference.artifact_digest not in {
+        upstream.plan_digest,
+        upstream.revision_digest,
+        upstream.commit_receipt_digest,
+    }
+    assert "plan_id" not in DomainActivationLineageV1Alpha1.model_fields
+    with pytest.raises(ValidationError):
+        DomainActivationCommitReferenceV1Alpha2.model_validate(
+            {**upstream.model_dump(mode="python"), "live_authority": True}
+        )
 
 
 def test_definition_and_stage_role_binding_are_provider_neutral_and_binding_only_narrows() -> None:

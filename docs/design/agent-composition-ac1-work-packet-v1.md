@@ -147,11 +147,12 @@ I3 eligible/authorized/selected/injected/reflected/decision-material lineage, fa
 coverage, existing task behavior and the exact eleven-tool public MCP surface.
 
 The 0.7D identity-compatibility prerequisite is satisfied at exact commit
-`dab0866af239af9a13b4d2772a0d3950f932fa2e`, but AC2 remains closed. Its entry gate is an explicit
-control-tower authorization after an exact landed 0.7E branch and commit provide the accepted
-plan-bound live admission/runtime-authority seam. The historical
-`ace.application.domain-activation-commit-reference/v1alpha2` reference cannot satisfy that gate.
-AC2 does not depend on AM1 ingestion.
+`dab0866af239af9a13b4d2772a0d3950f932fa2e`. The accepted 0.7E Core dependency is satisfied at
+exact commit `10bbed620291ac5f552c3313dd37580938a5b9d7`, but AC2 remains closed. Its remaining entry gate
+is an explicit control-tower authorization to begin lifecycle wiring, with execution still requiring
+separate exact grants and runtime-authority coordinates. The historical
+`ace.application.domain-activation-commit-reference/v1alpha2` reference cannot satisfy any such
+grant or gate. AC2 does not depend on AM1 ingestion.
 
 ## Dependency handoffs
 
@@ -171,8 +172,12 @@ delivery, execution authority or activation.
 
 The accepted historical seam is
 `ace.application.domain-activation-commit-reference/v1alpha2`. AC1 wraps that exact opaque reference
-only in `DomainActivationLineageV1Alpha1`, whose `live_authority` field is literally false. It may
-support context and lineage inspection. It cannot satisfy a grant, runtime-authority, execution,
+only in `DomainActivationLineageV1Alpha1`, whose `live_authority` field is literally false. The real
+upstream contract is pinned at 0.7E commit `10bbed620291ac5f552c3313dd37580938a5b9d7`; its complete
+frozen value is canonicalized by the boundary adapter into an opaque exact artifact ID and digest.
+Core imports no application type, and the Task Composition Plan does not copy the upstream
+`plan_id`, `plan_digest`, activation revision or commit-receipt fields into its own identity. The
+lineage may support context inspection. It cannot satisfy a grant, runtime-authority, execution,
 delivery, approval or lifecycle gate.
 
 Domain Activation Plan identity, digest, approval, embedded-material admission, upgrade, rollback,
