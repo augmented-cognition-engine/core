@@ -4,13 +4,14 @@ import asyncio
 import json
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from surrealdb import AsyncSurreal
 
 from ace.application.agent_memory_assertions import MemoryGraphProjectionService
-from ace.core.agent_memory import AgentMemoryScopeV1Alpha1
+from ace.application.agent_memory_ingestion import AuthorizedAgentMemoryUse
+from ace.core.agent_memory import AgentMemoryScopeV1Alpha1, LifecycleState
 from ace.core.agent_memory_lifecycle import (
     DEPENDENCY_SNAPSHOT_RECORD_KIND,
     ERASURE_RECEIPT_RECORD_KIND,
@@ -19,7 +20,22 @@ from ace.core.agent_memory_lifecycle import (
 )
 from ace.core.runtime_use import AuthenticatedRuntimeContextV1Alpha1
 from core.engine.core.immutable_records import SurrealImmutableRecordStore
-from tests.agent_memory.am2.test_surreal_am2_restart import _Authority
+
+
+class _Authority:
+    async def authorize(self, *, context, scope, operation, subject_ref, evaluated_at):
+        del context
+        return AuthorizedAgentMemoryUse(
+            product_id=scope.product_id,
+            actor_id=scope.actor_id,
+            operation=operation,
+            subject_ref=subject_ref,
+            authority_receipt_ref=scope.authority_receipt_ref,
+            evaluated_at=evaluated_at,
+            lifecycle_snapshot_ref="lifecycle_snapshot:am4-surreal-restart-current",
+            lifecycle_state=LifecycleState.ACTIVE,
+            expires_at=evaluated_at + timedelta(minutes=2),
+        )
 
 
 class _Pool:
