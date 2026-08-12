@@ -896,7 +896,11 @@ class MemoryGraphProjectionService(_AuthorizedAssertionService):
             self._node(nodes, MemoryGraphNodeKind.SOURCE, source.source_id, source.contract, source.envelope_digest)
             self._node(
                 nodes,
-                MemoryGraphNodeKind.ASSERTION,
+                (
+                    MemoryGraphNodeKind.CORRECTION
+                    if candidate.family is AssertionFamilyV1Alpha1.CORRECTION
+                    else MemoryGraphNodeKind.ASSERTION
+                ),
                 str(candidate.candidate_id),
                 candidate.contract,
                 candidate.candidate_digest,

@@ -710,6 +710,14 @@ async def test_correction_and_instruction_policy_require_exact_governed_admissio
         clock=lambda: NOW + timedelta(seconds=1),
     )
     assert correction.decisions[0].disposition is ReconciliationDisposition.CORRECTION_PROPOSAL
+    graph = await MemoryGraphProjectionService(
+        store=store,
+        authorization=_Authority(),
+        clock=lambda: NOW + timedelta(minutes=2),
+    ).rebuild(context=_context(_scope()), scope=_scope())
+    correction_nodes = [node for node in graph.nodes if node.ref == str(correction.candidates[0].candidate_id)]
+    assert len(correction_nodes) == 1
+    assert correction_nodes[0].kind is MemoryGraphNodeKind.CORRECTION
     governed = _GovernedState()
     promotion = MemoryGovernedPromotionService(
         store=store,

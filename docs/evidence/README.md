@@ -41,6 +41,8 @@ superseded by later work and is kept for audit trail only.
 - [Agent Memory AM1 episodic-ledger candidate](agent-memory-am1-candidate-v1.md)
   — local isolated candidate under verification; provider-neutral ingestion, authorization,
   content-free receipts, ordering, replay, and restart evidence only
+- [Agent Memory AM2 correction-node kind repair](agent-memory-am2-correction-kind-repair-v1.md)
+  — isolated draft repair; correction candidates rebuild as one content-free correction node
 - [E1 governed-cognition release evidence](e1-governed-cognition-release-v1.md)
 - [G1 Living Product Graph evidence](g1-living-product-graph-evidence.md)
 - [IA-R1 product-map evidence](ia-r1-product-map.md)
