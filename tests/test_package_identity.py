@@ -31,7 +31,7 @@ def test_package_copy_and_public_links_are_release_ready() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
 
-    assert project["description"] == ("Self-hosted runtime for governed reasoning and intelligence applications")
+    assert project["description"] == "Self-hosted Intelligence Builder and governed intelligence runtime"
     assert project["urls"]["Documentation"] == "https://github.com/augmented-cognition-engine/core#readme"
     assert project["urls"]["Changelog"].endswith("/blob/main/CHANGELOG.md")
     relative_links = [

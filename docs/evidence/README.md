@@ -13,7 +13,7 @@ superseded by later work and is kept for audit trail only.
 
 ## Foundational
 
-- [ACE Core manifesto](../../MANIFESTO.md) — current, authoritative
+- [ACE vision and manifesto](../../MANIFESTO.md) — current, authoritative
 
 ## Release and onboarding
 

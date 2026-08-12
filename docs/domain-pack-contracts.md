@@ -36,6 +36,25 @@ The v1 host accepts these independently versioned module contracts:
 Their JSON Schemas and the schema index are installed with `ace-core`. Support for a manifest does
 not imply support for an undeclared module version.
 
+## Authoring is not the product surface
+
+The manifest and module JSON are portable interchange, identity, and audit material. They do not
+require a customer to hand-author files or understand the compiler. Templates, CLIs, product
+surfaces, and guided agents may generate the exact same inert documents from reviewed source scope
+and concept proposals. The compiler accepts bytes and resources rather than an authoring session,
+so generation does not change the stable contract or receive special trust.
+
+Every generated draft must still pass strict parsing, compatibility negotiation, compilation, and
+golden-fixture conformance. Before activation, the product must separately expose requested source
+scope, capabilities, authorities, and bindings for human or host-policy approval. Secrets, live
+connector sessions, and authority grants are never embedded in a pack. A generator may propose an
+authority request; it cannot satisfy that request or grant itself authority.
+
+The cumulative 0.7B–0.7E product sequence composes these contracts through the
+[Intelligence Builder onboarding journey](design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md).
+Those packets add proposals, previews, approvals, and receipts above this wire boundary; they do
+not silently revise stable pack identities.
+
 ## Change classification
 
 - **Additive** changes add optional declarations or a new independently negotiated module

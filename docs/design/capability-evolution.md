@@ -1,5 +1,10 @@
 # ACE governed cognition design
 
+> **Current product framing:** ACE is the Intelligence Builder and is becoming an Intelligence
+> Operating System. Governed cognition remains an internal substrate of that product journey, not
+> its public category. See the [ACE vision and manifesto](../../MANIFESTO.md) and the
+> [public roadmap](../../ROADMAP.md).
+
 This roadmap describes how ACE can become easier to teach, extend, and trust without changing its
 identity into a general-purpose autonomous agent. It is capability-led: the useful outcomes are
 graph-native procedural learning, reviewable evolution, efficient capability discovery, and safe

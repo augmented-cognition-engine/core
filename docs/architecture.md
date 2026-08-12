@@ -1,9 +1,11 @@
 # ACE Architecture
 
-**ACE — the Augmented Cognition Engine.** A reasoning core you partner with, not a chatbot you
-operate. You bring a problem; ACE composes a problem-fit set of perspectives, routes them through
-the model provider you configure, and synthesizes the result. The model does not drive the loop —
-ACE does.
+**ACE, the Intelligence Builder. Build intelligence, not infrastructure.** ACE supplies a guided
+Connect → Map → Watch → Brief → Activate experience and the governed runtime beneath it. Reasoning,
+memory, planning, learning, graph state, authority, and models are internal substrates rather than
+the public product category. The canonical direction is the [ACE vision and
+manifesto](../MANIFESTO.md); this document records the as-built dependency map and architectural
+boundaries.
 
 This document is the map: how the pieces fit, why they're shaped that way, and where your own work plugs in.
 
@@ -272,7 +274,7 @@ work; it is not a literal claim about the ratio of code or intelligence in each 
 flowchart TB
     H([You]) <--> BRAIN
 
-    subgraph BRAIN["🧠 The brain — the reasoning core"]
+    subgraph BRAIN["🧠 The brain — cognition coordinator"]
         direction LR
         CL[classify] --> CO[compose] --> EN[engage]
     end

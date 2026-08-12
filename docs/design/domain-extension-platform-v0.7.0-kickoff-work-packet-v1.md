@@ -16,6 +16,10 @@ public conformance suite, and remain portable across explicitly compatible hosts
 The first 0.7 packet promotes no domain ontology into ACE. It turns the existing alpha pack
 substrate into a versioned product contract with an explicit compatibility window, deterministic
 diagnostics, machine-readable schemas, golden-fixture conformance, and a deprecation policy.
+In the 0.7 product sequence this is the 0.7A substrate. Its scope remains frozen: it makes guided
+intelligence building safe and portable, but it is not itself the customer onboarding experience.
+JSON is the machine-readable interchange and audit format; no product promise requires a customer
+to hand-author it or understand compiler mechanics.
 
 World Intelligence and Market Intelligence are the independent falsifiers:
 
@@ -203,12 +207,20 @@ contract, and authority decision.
 
 ## Following packets
 
-After this packet passes, 0.7 proceeds in bounded slices:
+After this 0.7A packet passes, the Intelligence Builder journey proceeds in bounded slices:
 
-1. connector SDK, source permissions, transport policy, and heterogeneous Observation semantics;
-2. trusted-extension capability, isolation, registration ceilings, recovery, and effect policy;
-3. telemetry and diagnosable lifecycle operation across packs, connectors, and extensions; and
-4. independent installed-artifact convergence across World and Market before release closeout.
+1. **0.7B Connect:** Connection Agent, source option/profile/scope proposals, and resumable session
+   state;
+2. **0.7C Map:** Ontology Agent and cited, editable concept-model proposals;
+3. **0.7D Watch + Brief:** separate Intelligence and Briefing Agents, monitor/materiality proposals,
+   and the first grounded Brief preview; and
+4. **0.7E Activate + prove:** Activation Agent, exact approval/conformance/activation, restart,
+   update, feedback, and independent World and Market consumer proof.
+
+The five agent boundaries and cumulative acceptance are frozen in the
+[Intelligence Builder onboarding sequence](guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md).
+Connector SDK breadth, trusted-extension isolation, heterogeneous Observation semantics, telemetry,
+and release closeout still require their own evidence within or alongside those product slices.
 
 These packets may advance SI3 and E2 only through their own evidence. They do not inherit a pass
 from this kickoff.

@@ -31,6 +31,25 @@ The activation contract continues to store only opaque receipt references. It do
 resource identifiers or product nouns to Core receipts. The v1alpha1 compilation path retains its
 historical Pack IR identities and exact-equality compiler/runtime behavior.
 
+## Intelligence Builder journey fit
+
+The stable boundary was re-evaluated against the product journey `install → connect sources → map
+concepts → preview a grounded Brief and monitors → approve → activate → improve with feedback`.
+The result is additive product work, not a reason to revise the stable pack contract:
+
+| Journey need | 0.7A contract fit | Next bounded product work |
+|---|---|---|
+| Discover a source | Connectors remain separate and a pack cannot perform discovery or transport. | A Connection Agent composes only explicitly available connector descriptions. |
+| Preview permission and scope | Capability requirements, authority requests, and source-mapping bindings are inspectable before activation. | Produce a redacted source-scope proposal and exact preview receipt before requesting any grant. |
+| Draft concepts and ontology | Installed schemas are machine-readable; the manifest and modules are inert bytes, not an authoring UI. | An Ontology Agent generates reviewable concept-model drafts so customers do not hand-author JSON. |
+| Validate behavior | Stable diagnostics, compilation evidence, golden fixtures, and conformance receipts already bind exact material. | Present diagnostics in product language and preserve the exact underlying codes and identities. |
+| Preview monitors and Briefs | Detector, routing, persona, and synthesis declarations plus provider-free fixtures can exercise expected selection. | Bind proposed monitor/Brief previews, omissions, source scope, Pack IR, and conformance evidence in one plan. |
+| Approve and activate | Activation requires exact passing evidence, complete capability/authority bindings, and a separate approval receipt. | Compose preview → approve → activate without allowing an agent or pack to satisfy its own authority request. |
+
+Nothing in the contract requires YAML/JSON hand-authoring, a compiler-facing customer workflow, or
+exposure of Core/Intelligence layering. The wire formats remain available for experts and tooling;
+the future guided experience can generate them and must pass exactly the same fail-closed gates.
+
 ## Failure controls
 
 Focused tests cover unsupported and migration-required versions, incompatible ranges, duplicate
@@ -81,7 +100,13 @@ sandbox, telemetry, heterogeneous-evidence expansion, registry, marketplace UI, 
 or release tag is included. The MCP surface remains exactly eleven tools and naked-kernel startup
 remains intact.
 
-The next independent gate belongs in the consumer repositories: World and Market must build their
-own inert packs, run the installed helper unchanged, and record exact Core plus consumer artifact
-identities. Only failures that reduce to a domain-neutral contract/compiler/conformance/runtime
-requirement return to Core.
+The next independent conformance gate belongs in the consumer repositories: World and Market must
+build their own inert packs, run the installed helper unchanged, and record exact Core plus consumer
+artifact identities. Only failures that reduce to a domain-neutral
+contract/compiler/conformance/runtime requirement return to Core.
+
+After 0.7A passes, the next bounded Core product packet is **0.7B Connect** in the
+[Intelligence Builder onboarding sequence](../design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md).
+It adds the Connection Agent, source option/profile/scope proposals, and resumable session state
+without adding UI or agent runtime to this candidate and without inheriting a conformance pass from
+it. Map, Watch + Brief, and Activate + prove remain separately accepted 0.7C–0.7E packets.

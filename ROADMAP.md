@@ -1,10 +1,10 @@
 # ACE public roadmap
 
-ACE is the open-source foundation for governed intelligence: a provider-neutral runtime for
-building products that maintain context, reason over evidence, detect meaningful change, make
-inspectable decisions, act under explicit authority, and learn from outcomes. Models provide
-inference inside the loop. ACE owns the state, composition, lifecycle, authority, provenance, and
-outcome loop around them.
+**ACE, the Intelligence Builder. Build intelligence, not infrastructure.** ACE is an open,
+provider-neutral Intelligence Operating System for turning authorized sources into living,
+source-grounded briefings, monitors, decisions, and improving institutional knowledge. Models may
+provide inference inside the loop. ACE owns the durable state, composition, lifecycle, authority,
+provenance, and outcome loop around it.
 
 This roadmap is the authoritative public view of ACE outcome state and dispatch. It describes
 product capabilities rather than internal release operations, commercial plans, customer work, or
@@ -12,11 +12,17 @@ security-sensitive details. Priorities may change as maintainers learn from user
 
 ## North star
 
-The complete product loop is:
+The north-star builder journey is:
 
 ```text
-understand → reason → decide → act with authority → observe outcomes → improve future reasoning
+install → Connect → Map a concept model → Watch what matters → Brief with citations → Activate
+→ keep updating → improve relevance through feedback
 ```
+
+The outcome must arrive before the architecture lesson. A builder should not need to understand
+Core, Intelligence, Domain Packs, compiler mechanics, or hand-authored JSON to reach first value.
+Those boundaries remain essential implementation and trust guarantees underneath a guided product
+experience.
 
 ACE is organized around four durable responsibilities:
 
@@ -35,9 +41,9 @@ ACE is organized around four durable responsibilities:
 
 The north-star acceptance test is:
 
-> Can a builder use ACE to make a product more context-aware, evidence-driven, inspectable, and
-> adaptive without forking Core or Intelligence, embedding domain nouns in the platform, or
-> surrendering human authority?
+> Can a builder connect authorized sources and receive useful, source-grounded intelligence that
+> stays current and improves with feedback—without building the underlying infrastructure,
+> surrendering human authority, or learning ACE's internal layers first?
 
 One cross-cutting expression of that north star is **continuous situational intelligence**: ACE
 maintains living orientation over any bounded, changing subject a user is authorized to examine.
@@ -163,10 +169,10 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.4.x | Governed Cognition | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 through the supported teach, inspect, approve, use, measure, revise, rollback, and retire lifecycle, an independent Market consumer, restart durability, attribution, and failure controls | [#3](https://github.com/augmented-cognition-engine/core/issues/3) |
 | 0.5.0 | Reasoning into Action | **Passed** | T1 and B1 pass for bounded attributable action under the explicit single-host, trusted-adapter topology; I1 authority receipts govern the execution-adapter slice | [#37](https://github.com/augmented-cognition-engine/core/issues/37) |
 | 0.6.0 | Measured Intelligence | **Passed** | Public Core 0.6.0 and World 0.10.0 artifacts reproduce exact useful/harmful/unproven classification, matched leakage-bounded controls, durable replay, and proposal-only governance under product-owned criteria; SI4 remains a broader future outcome | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
-| 0.7.0 | Domain and Extension Platform | **Next** | Completes the stable third-party platform promise across GI1, E1, and E2 and advances SI3: pack schemas, SDKs, conformance, compatibility, permissions, isolation, heterogeneous evidence sources, telemetry, adapters, and lifecycle policy | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
-| 0.8.0 | Reasoning Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
-| 0.9.0 | Collaborative Runtime | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
-| 1.0.0 | Reasoning OS | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, Intelligence, Domain Packs, connectors, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
+| 0.7.0 | Intelligence Builder Foundation | **Next** | Completes 0.7A stable pack contracts and the cumulative 0.7B–0.7E Connect → Map → Watch → Brief → Activate reference journey, then proves unchanged public APIs across independent World and Market consumers | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
+| 0.8.0 | Intelligence Workspace | **Later** | Builds on G1 and IA-R1 to expose the I1–I3, E1, B1, L1, and SI1–SI4 lifecycle through a coherent permission-aware human experience | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
+| 0.9.0 | Collaborative Intelligence | **Later** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
+| 1.0.0 | Intelligence Operating System | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, Intelligence, Domain Packs, connectors, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
 
 ### Parallel domain validation
 
@@ -422,32 +428,47 @@ disposition, historical replay, required checks, and exact boundaries are compos
 The 0.6.0 milestone is therefore **passed**. This advances only the bounded SI4 evaluation slice;
 SI4's broader two-domain situational-orientation gate remains not ready.
 
-### 0.7.0 — Domain and Extension Platform
+### 0.7.0 — Intelligence Builder Foundation
 
-Public promise: third parties can build, test, distribute, and operate ACE Domain Packs,
-connectors, and trusted extensions that remain portable across compatible hosts.
+Public promise: a builder can connect authorized sources and reach a useful first briefing and
+monitoring loop without building intelligence infrastructure or understanding ACE's internal
+layers. Third parties can still build, test, distribute, and operate the portable Domain Packs,
+connectors, and trusted extensions underneath that experience.
 
-- Publish versioned pack schemas, connector and extension SDKs, manifests and capability models,
-  permission declarations, golden-fixture conformance suites, and deprecation policy.
-- Demonstrate independent Domain Packs from multiple domains without forking or embedding product
-  logic in Core or Intelligence.
-- Establish supported Core/Intelligence/pack/connector/extension version skew, upgrade and
-  deprecation policy, isolation, security review, recovery and effect semantics, telemetry, and
-  failure diagnosis.
-- Grow E2 across product-owned sources, scheduled work, IDEs, messaging, webhooks, and bounded
-  execution adapters.
-- Demonstrate pack- and connector-owned qualitative, quantitative, time-series, geospatial, track,
-  event, and market-contract evidence with explicit units, vintages, precision, coverage,
-  revisions, gaps, and source-specific semantics rather than flattening every observation into
-  prose.
+- **0.7A — stable contract/compiler/conformance:** the PR #100 candidate freezes machine-readable
+  generated Domain Pack schemas, compatibility, deterministic conformance, activation refusal, and
+  lifecycle policy.
+- **0.7B — Connect:** the Connection Agent proposes supported source options, exact permission and
+  scope, provider-free fixture profiles, and resumable blocked/retry state without owning transport
+  or credentials. Its bounded implementation and evidence gates are frozen in the
+  [0.7B Connect work packet](docs/design/intelligence-builder-connect-v0.7.0-work-packet-v1.md).
+- **0.7C — Map:** the Ontology Agent proposes an editable, cited concept model—entities, aliases,
+  relations, attributes, terminology, and exclusions—with explicit confidence and no silent
+  mutation.
+- **0.7D — Watch + Brief:** the Intelligence Agent proposes monitors, materiality, audiences,
+  routing, and cadence; the Briefing Agent produces the cited first briefing with uncertainty,
+  disagreement, omissions, and why each item matters.
+- **0.7E — Activate + prove:** the Activation Agent compiles approved proposals through 0.7A,
+  shows exact permission/effect scope, obtains approval, activates with exact receipts, proves
+  restart/update/feedback behavior, and reproduces unchanged public APIs across independent World
+  and Market consumers.
 
-Release gate: independent packs, connectors, and trusted extensions pass their applicable public
-compatibility and conformance checks; requested authority is visible before activation; and
-failures remain isolated and diagnosable.
+The cumulative contracts, state machine, authority boundary, and demo gate are frozen in the
+[Intelligence Builder onboarding sequence](docs/design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md).
 
-### 0.8.0 — Reasoning Workspace
+The 0.7 milestone does not absorb connector SDK breadth, extension sandboxing, telemetry,
+heterogeneous-evidence breadth, workspace UI, collaboration, marketplace, managed service, or
+release-ecosystem closeout. Those remain separately dispatched follow-ons at the appropriate
+milestone after the cumulative A–E journey is accepted.
 
-Public promise: builders and operators can inspect and govern the full reasoning lifecycle from one
+Release gate: one clean builder journey reaches a source-grounded first Brief without hand-authored
+pack material or required knowledge of ACE internals; independent packs, connectors, and trusted
+extensions pass their applicable public compatibility and conformance checks; requested source
+scope and authority are visible before activation; and failures remain isolated and diagnosable.
+
+### 0.8.0 — Intelligence Workspace
+
+Public promise: builders and operators can inspect and govern the full intelligence lifecycle from one
 coherent, permission-aware workspace.
 
 - Evolve the G1 and IA-R1 read foundation into navigable views of context, evidence, provenance,
@@ -465,9 +486,9 @@ Release gate: one end-to-end journey can be understood, inspected, and governed 
 without reading internal implementation details. The workspace is optional and does not become a
 second source of truth.
 
-### 0.9.0 — Collaborative Runtime
+### 0.9.0 — Collaborative Intelligence
 
-Public promise: teams can operate shared reasoning systems with explicit tenancy, authority,
+Public promise: teams can operate shared intelligence systems with explicit tenancy, authority,
 portability, and recovery guarantees.
 
 - Establish isolation between products, teams, and tenants plus attributable roles, approvals,
@@ -485,10 +506,11 @@ Release gate: isolation and authorization boundaries are reproducibly tested; sh
 attributable and recoverable; and portability preserves required public records across supported
 deployment modes.
 
-### 1.0.0 — Reasoning OS
+### 1.0.0 — Intelligence Operating System
 
-Public promise: ACE is a stable, open, provider-neutral reasoning technology stack that any product
-can extend to become more context-aware, evidence-driven, inspectable, governable, and adaptive.
+Public promise: ACE is a stable, open, provider-neutral Intelligence Operating System that lets any
+product build living, source-grounded, inspectable, governable, and adaptive intelligence without
+rebuilding the infrastructure underneath it.
 
 - Stabilize the public contracts for context, state, evidence, deliberation, decisions, correction,
   cognition, authority, action, outcomes, standing investigations, versioned orientations,
@@ -499,6 +521,9 @@ can extend to become more context-aware, evidence-driven, inspectable, governabl
   policies.
 - Demonstrate the complete loop through multiple independent product and extension journeys across
   supported providers and deployment modes.
+- Complete the open-platform trajectory from connectors and operational ontology through
+  continuous intelligence, the decision/action/outcome loop, workspace, collaboration and tenancy,
+  and a versioned ecosystem of SDKs, marketplace distributions, and optional managed operation.
 
 Release gate: every milestone-critical contract is supported and reproducible from public artifacts
 and evidence, with no hidden mutation, implicit execution authority, provider lock-in, deployment
@@ -518,8 +543,8 @@ observe → detect material change → update bounded state → compare claims, 
 This is a cross-cutting product outcome, not a new domain in Core or Intelligence and not an
 additional promise silently added to an earlier minor release. It uses the passed GI1, K1–K3, and
 I1–I3 foundations and is delivered incrementally through governed cognition, measured
-intelligence, the domain and extension platform, the reasoning workspace, and the collaborative
-runtime. The public SI1–SI4 outcome and acceptance work are tracked in
+intelligence, the Intelligence Builder Foundation, the Intelligence Workspace, and Collaborative
+Intelligence. The public SI1–SI4 outcome and acceptance work are tracked in
 [issue #47](https://github.com/augmented-cognition-engine/core/issues/47).
 
 ### SI1. Reproducible situational orientation
@@ -595,7 +620,7 @@ Evaluation must include future-information leakage controls, duplicated-origin a
 negative controls, causal-overclaim checks, alert-quality measures, and declared limits; it does
 not claim omniscience, general real-world causal accuracy, or universal benefit.
 
-## Reasoning OS architecture sequence
+## Intelligence Operating System architecture sequence
 
 ```mermaid
 flowchart LR
@@ -629,7 +654,7 @@ flowchart LR
 | 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 and an independent Market consumer | 0.4.x |
 | 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Passed** | T1 and B1 passed in 0.5.0 for the bounded single-host, trusted-adapter topology | 0.5.0 |
 | 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Passed for the public 0.6.0 boundary** | Product-owned matched evaluation, exact attribution, durable replay, and proposal-only governance are public; F2 and general benefit remain not ready | 0.6.0 |
-| 6. Domain and extension ecosystem | Can any product adopt, specialize, operate, and retain ownership of ACE intelligence? | **Pack foundation passed; ecosystem gated** | GI1 and E1 passed; E2 and H1 not ready | 0.7.0 and 0.9.0 |
+| 6. Intelligence Builder foundation | Can any product connect sources, specialize, operate, and retain ownership of ACE intelligence? | **Pack foundation passed; guided journey gated** | GI1 and E1 passed; 0.7A–0.7E and H1 remain gated | 0.7.0 and 0.9.0 |
 | 7. Human experience | Can people inspect and govern the full loop without learning ACE internals? | **Read-only and governance foundations passed** | IA-R1, G1, E1, and L1 passed; the writable workspace remains bounded by B1 and H1 | 0.8.0 |
 | 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
 
@@ -647,11 +672,12 @@ authorized rejection/no-action Decision. The
 tags, artifacts, hashes, workflows, public installation, replay, limitations, and issue #49
 disposition.
 
-Exit condition: **passed.** The next bounded dispatch is the 0.7.0 Domain and Extension Platform
-packet: freeze the supported third-party contract and use an independently public Market measured-
-impact journey as a domain-neutral falsifier without moving Market policy or nouns into Core. That
-follow-on work does not reopen 0.6.0 or silently advance SI1–SI4. The exact initial boundary is
-frozen in the
+Exit condition: **passed.** The 0.7.0 Intelligence Builder Foundation begins with 0.7A: freeze the
+supported third-party contract without moving consumer policy or nouns into Core. It then proceeds
+through the bounded 0.7B Connect, 0.7C Map, 0.7D Watch + Brief, and 0.7E Activate + prove packets in
+the
+[Intelligence Builder onboarding sequence](docs/design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md).
+This work does not reopen 0.6.0 or silently advance SI1–SI4. The exact 0.7A boundary remains frozen in the
 [0.7.0 kickoff work packet](docs/design/domain-extension-platform-v0.7.0-kickoff-work-packet-v1.md).
 
 ### Completed technical prerequisite: bounded Product State outcomes

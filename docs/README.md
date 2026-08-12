@@ -1,11 +1,14 @@
 # ACE documentation
 
-These pages describe the current product, supported interfaces, and contributor-facing contracts.
+**ACE, the Intelligence Builder. Build intelligence, not infrastructure.** These pages describe
+the current product, supported interfaces, builder journeys, and contributor-facing contracts.
 Point-in-time release and acceptance records live in the
 [evidence archive](evidence/README.md) so they do not obscure the durable documentation.
 
 ## Start here
 
+- [ACE vision and manifesto](../MANIFESTO.md) — the Intelligence Builder promise, constitutional
+  boundaries, and open Intelligence Operating System direction.
 - [Project quickstart](../README.md) — install ACE and reach a first useful result.
 - [Capability maturity](capability-maturity.md) — what the current release supports and what remains
   experimental.
@@ -65,3 +68,9 @@ support the public roadmap but do not compete with it for outcome state or dispa
   adapter portability, experimental capabilities, deployment limits, and deferred work.
 - [State Engine Core-boundary readiness addendum](design/state-engine-core-boundary-readiness-v1.md)
   — K2/K3 bounded readiness delta while preserving the frozen TP8 boundary input.
+- [Intelligence Builder onboarding sequence](design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md)
+  — the cumulative 0.7A–0.7E Connect → Map → Watch → Brief → Activate contracts, authority
+  boundaries, state machine, and full-demo acceptance.
+- [Intelligence Builder Connect work packet](design/intelligence-builder-connect-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7B Connection Agent implementation, reuse audit, failure controls, and evidence
+  plan.
