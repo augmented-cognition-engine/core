@@ -11,6 +11,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol, TypeVar
 
+from ace.application.briefing_agent_contracts import FirstBriefingPreviewV1
+from ace.application.intelligence_agent_contracts import (
+    AuthorizedObservationSetV1,
+    IntelligenceModelDispositionV1,
+    IntelligenceModelProposalV1,
+)
 from ace.application.intelligence_builder_contracts import (
     ONBOARDING_SESSION_REVISION_VERSION,
     ConnectionEffect,
@@ -47,6 +53,10 @@ OnboardingArtifact = (
     | SourceProfileProposalV1
     | ConceptModelProposalV1
     | ConceptModelDispositionV1
+    | AuthorizedObservationSetV1
+    | IntelligenceModelProposalV1
+    | IntelligenceModelDispositionV1
+    | FirstBriefingPreviewV1
 )
 OnboardingArtifactT = TypeVar(
     "OnboardingArtifactT",
@@ -54,6 +64,10 @@ OnboardingArtifactT = TypeVar(
     SourceProfileProposalV1,
     ConceptModelProposalV1,
     ConceptModelDispositionV1,
+    AuthorizedObservationSetV1,
+    IntelligenceModelProposalV1,
+    IntelligenceModelDispositionV1,
+    FirstBriefingPreviewV1,
 )
 
 
@@ -128,9 +142,7 @@ _PRIMARY_TRANSITIONS: dict[
     tuple[OnboardingStage, OnboardingStage],
     OnboardingTransitionAuthority,
 ] = {
-    (OnboardingStage.GOAL_SELECTED, OnboardingStage.SOURCES_CONNECTING): (
-        OnboardingTransitionAuthority.AGENT_PROPOSAL
-    ),
+    (OnboardingStage.GOAL_SELECTED, OnboardingStage.SOURCES_CONNECTING): (OnboardingTransitionAuthority.AGENT_PROPOSAL),
     (OnboardingStage.SOURCES_CONNECTING, OnboardingStage.SOURCES_CONNECTING): (
         OnboardingTransitionAuthority.AGENT_PROPOSAL
     ),
@@ -149,6 +161,9 @@ _PRIMARY_TRANSITIONS: dict[
     (OnboardingStage.CONCEPT_MODEL_APPROVED, OnboardingStage.INTELLIGENCE_MODEL_PROPOSED): (
         OnboardingTransitionAuthority.AGENT_PROPOSAL
     ),
+    (OnboardingStage.INTELLIGENCE_MODEL_PROPOSED, OnboardingStage.INTELLIGENCE_MODEL_PROPOSED): (
+        OnboardingTransitionAuthority.AGENT_PROPOSAL
+    ),
     (OnboardingStage.INTELLIGENCE_MODEL_PROPOSED, OnboardingStage.INTELLIGENCE_MODEL_APPROVED): (
         OnboardingTransitionAuthority.HUMAN_CORE_DISPOSITION
     ),
@@ -158,9 +173,7 @@ _PRIMARY_TRANSITIONS: dict[
     (OnboardingStage.FIRST_BRIEFING_READY, OnboardingStage.ACTIVATION_PENDING): (
         OnboardingTransitionAuthority.AGENT_PROPOSAL
     ),
-    (OnboardingStage.ACTIVATION_PENDING, OnboardingStage.ACTIVE): (
-        OnboardingTransitionAuthority.CORE_ACTIVATION
-    ),
+    (OnboardingStage.ACTIVATION_PENDING, OnboardingStage.ACTIVE): (OnboardingTransitionAuthority.CORE_ACTIVATION),
 }
 
 
@@ -195,6 +208,14 @@ def _artifact_material(artifact: OnboardingArtifact) -> tuple[str, str, datetime
         return str(artifact.proposal_id), str(artifact.proposal_digest), artifact.created_at
     if isinstance(artifact, ConceptModelDispositionV1):
         return str(artifact.disposition_id), str(artifact.disposition_digest), artifact.approved_at
+    if isinstance(artifact, AuthorizedObservationSetV1):
+        return str(artifact.observation_set_id), str(artifact.observation_set_digest), artifact.admitted_at
+    if isinstance(artifact, IntelligenceModelProposalV1):
+        return str(artifact.proposal_id), str(artifact.proposal_digest), artifact.created_at
+    if isinstance(artifact, IntelligenceModelDispositionV1):
+        return str(artifact.disposition_id), str(artifact.disposition_digest), artifact.approved_at
+    if isinstance(artifact, FirstBriefingPreviewV1):
+        return str(artifact.brief_id), str(artifact.brief_digest), artifact.generated_at
     raise TypeError("unsupported onboarding artifact contract")
 
 
@@ -207,6 +228,14 @@ def _artifact_kind(artifact: OnboardingArtifact) -> OnboardingArtifactKind:
         return OnboardingArtifactKind.CONCEPT_MODEL_PROPOSAL
     if isinstance(artifact, ConceptModelDispositionV1):
         return OnboardingArtifactKind.CONCEPT_MODEL_DISPOSITION
+    if isinstance(artifact, AuthorizedObservationSetV1):
+        return OnboardingArtifactKind.AUTHORIZED_OBSERVATION_SET
+    if isinstance(artifact, IntelligenceModelProposalV1):
+        return OnboardingArtifactKind.INTELLIGENCE_MODEL_PROPOSAL
+    if isinstance(artifact, IntelligenceModelDispositionV1):
+        return OnboardingArtifactKind.INTELLIGENCE_MODEL_DISPOSITION
+    if isinstance(artifact, FirstBriefingPreviewV1):
+        return OnboardingArtifactKind.FIRST_BRIEFING_PREVIEW
     raise TypeError("unsupported onboarding artifact contract")
 
 
@@ -268,6 +297,14 @@ class IntelligenceBuilderSessionService:
             exact = ConceptModelProposalV1.model_validate(artifact.model_dump(mode="python"))
         elif isinstance(artifact, ConceptModelDispositionV1):
             exact = ConceptModelDispositionV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, AuthorizedObservationSetV1):
+            exact = AuthorizedObservationSetV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, IntelligenceModelProposalV1):
+            exact = IntelligenceModelProposalV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, IntelligenceModelDispositionV1):
+            exact = IntelligenceModelDispositionV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, FirstBriefingPreviewV1):
+            exact = FirstBriefingPreviewV1.model_validate(artifact.model_dump(mode="python"))
         else:
             raise IntelligenceBuilderSessionError("unsupported onboarding artifact failed closed")
         artifact_id, artifact_digest, occurred_at = _artifact_material(exact)
@@ -290,9 +327,7 @@ class IntelligenceBuilderSessionService:
                     transaction_key=request.transaction_key,
                 )
             except Exception:
-                raise IntelligenceBuilderSessionError(
-                    "onboarding artifact replay failed closed"
-                ) from None
+                raise IntelligenceBuilderSessionError("onboarding artifact replay failed closed") from None
             replayed = True
         except Exception:
             raise IntelligenceBuilderSessionError("onboarding artifact failed atomic persistence") from None
@@ -538,7 +573,9 @@ class IntelligenceBuilderSessionService:
             available_at=occurred_at,
         )
         if latest is None or latest.revision_id != validated.revision_id:
-            raise IntelligenceBuilderSessionReplayConflict("onboarding transition started from a stale session revision")
+            raise IntelligenceBuilderSessionReplayConflict(
+                "onboarding transition started from a stale session revision"
+            )
         required = _PRIMARY_TRANSITIONS.get((validated.stage, stage))
         if required is None or required is not authority:
             raise IntelligenceBuilderSessionError(
@@ -569,6 +606,7 @@ class IntelligenceBuilderSessionService:
         actor_ref: str,
         safe_diagnostic: str,
         occurred_at: datetime,
+        artifacts: tuple[OnboardingArtifactReferenceV1, ...] | None = None,
     ) -> IntelligenceBuilderSessionAdmission:
         validated = IntelligenceBuilderSessionRevisionV1.model_validate(current.model_dump(mode="python"))
         if validated.stage in {OnboardingStage.BLOCKED, OnboardingStage.RETRYING, OnboardingStage.ACTIVE}:
@@ -591,7 +629,7 @@ class IntelligenceBuilderSessionService:
             prior_revision_digest=validated.revision_digest,
             transition_authority=OnboardingTransitionAuthority.AGENT_PROPOSAL,
             transition_actor_ref=actor_ref,
-            artifacts=validated.artifacts,
+            artifacts=validated.artifacts if artifacts is None else artifacts,
             block_reason=reason,
             resume_stage=validated.stage,
             safe_diagnostic=safe_diagnostic,
@@ -776,11 +814,7 @@ class ConnectionAgent:
         session: IntelligenceBuilderSessionRevisionV1,
     ) -> OnboardingArtifactReferenceV1 | None:
         return next(
-            (
-                item
-                for item in session.artifacts
-                if item.artifact_kind is OnboardingArtifactKind.SOURCE_SCOPE_PROPOSAL
-            ),
+            (item for item in session.artifacts if item.artifact_kind is OnboardingArtifactKind.SOURCE_SCOPE_PROPOSAL),
             None,
         )
 
@@ -813,7 +847,9 @@ class ConnectionAgent:
         try:
             exact = tuple(SourceSampleV1.model_validate(item.model_dump(mode="python")) for item in samples)
         except Exception:
-            raise ConnectionAgentScopeViolation("source provider returned invalid or forbidden sample material") from None
+            raise ConnectionAgentScopeViolation(
+                "source provider returned invalid or forbidden sample material"
+            ) from None
         selections = {item.option_id: item for item in proposal.selections}
         options = {item.option_id: item for item in catalog.options}
         if set(item.option_id for item in exact) != set(selections) or len(exact) != len(selections):

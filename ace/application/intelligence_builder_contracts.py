@@ -113,7 +113,12 @@ class OnboardingBlockReason(StrEnum):
     INSUFFICIENT_PERMISSION = "insufficient_permission"
     LOW_CONFIDENCE_MAPPING = "low_confidence_mapping"
     CONFLICTING_SOURCES = "conflicting_sources"
+    LOW_CONFIDENCE_INTELLIGENCE_MODEL = "low_confidence_intelligence_model"
+    CONFLICTING_EVIDENCE = "conflicting_evidence"
     NO_MATERIAL_SHIFTS = "no_material_shifts"
+    INSUFFICIENT_EVIDENCE_CLOSURE = "insufficient_evidence_closure"
+    STALE_INTELLIGENCE_INPUT = "stale_intelligence_input"
+    SYNTHESIS_FAILURE = "synthesis_failure"
 
 
 class OnboardingTransitionAuthority(StrEnum):
@@ -128,7 +133,9 @@ class OnboardingArtifactKind(StrEnum):
     SOURCE_PROFILE_PROPOSAL = "source_profile_proposal"
     CONCEPT_MODEL_PROPOSAL = "concept_model_proposal"
     CONCEPT_MODEL_DISPOSITION = "concept_model_disposition"
+    AUTHORIZED_OBSERVATION_SET = "authorized_observation_set"
     INTELLIGENCE_MODEL_PROPOSAL = "intelligence_model_proposal"
+    INTELLIGENCE_MODEL_DISPOSITION = "intelligence_model_disposition"
     FIRST_BRIEFING_PREVIEW = "first_briefing_preview"
     ACTIVATION_PLAN = "activation_plan"
     ACTIVATION_RECEIPT = "activation_receipt"
@@ -266,9 +273,7 @@ class SourceScopeProposalV1(IntelligenceBuilderContract):
 
     @field_validator("selections")
     @classmethod
-    def normalize_selections(
-        cls, value: tuple[SourceScopeSelectionV1, ...]
-    ) -> tuple[SourceScopeSelectionV1, ...]:
+    def normalize_selections(cls, value: tuple[SourceScopeSelectionV1, ...]) -> tuple[SourceScopeSelectionV1, ...]:
         return sorted_unique(value, key=lambda item: item.option_id, label="source scope selections", maximum=32)
 
     @field_validator("created_at")
@@ -375,9 +380,7 @@ class SourceSampleV1(IntelligenceBuilderContract):
 
 
 class SourceProfileProposalV1(IntelligenceBuilderContract):
-    contract: Literal["ace.application.source-profile-proposal/v1alpha1"] = (
-        SOURCE_PROFILE_PROPOSAL_VERSION
-    )
+    contract: Literal["ace.application.source-profile-proposal/v1alpha1"] = SOURCE_PROFILE_PROPOSAL_VERSION
     session_id: str
     scope_proposal_id: str
     scope_proposal_digest: str
@@ -431,9 +434,7 @@ class SourceProfileProposalV1(IntelligenceBuilderContract):
 
 
 class OnboardingArtifactReferenceV1(IntelligenceBuilderContract):
-    contract: Literal["ace.application.onboarding-artifact-reference/v1alpha1"] = (
-        ONBOARDING_ARTIFACT_REFERENCE_VERSION
-    )
+    contract: Literal["ace.application.onboarding-artifact-reference/v1alpha1"] = ONBOARDING_ARTIFACT_REFERENCE_VERSION
     artifact_kind: OnboardingArtifactKind
     artifact_id: str
     artifact_digest: str

@@ -448,7 +448,9 @@ connectors, and trusted extensions underneath that experience.
   [0.7C Map work packet](docs/design/intelligence-builder-map-v0.7.0-work-packet-v1.md).
 - **0.7D — Watch + Brief:** the Intelligence Agent proposes monitors, materiality, audiences,
   routing, and cadence; the Briefing Agent produces the cited first briefing with uncertainty,
-  disagreement, omissions, and why each item matters.
+  disagreement, omissions, and why each item matters. Its bounded candidate contract and evidence
+  gates are frozen in the
+  [0.7D Watch + Brief work packet](docs/design/intelligence-builder-watch-brief-v0.7.0-work-packet-v1.md).
 - **0.7E — Activate + prove:** the Activation Agent compiles approved proposals through 0.7A,
   shows exact permission/effect scope, obtains approval, activates with exact receipts, proves
   restart/update/feedback behavior, and reproduces unchanged public APIs across independent World

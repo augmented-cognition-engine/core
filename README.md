@@ -76,7 +76,8 @@ and activation boundaries as an expert-built pack.
 and durable receipt substrates through developer-facing contracts. The stacked 0.7A and 0.7B
 candidates stabilize generated Domain Pack compilation/conformance and the provider-free Connect
 handoff. The 0.7C candidate adds the cited, editable Map proposal and exact human approval. The
-active roadmap continues cumulatively through Watch + Brief (0.7D) and Activate + prove (0.7E).
+0.7D candidate adds separately versioned Watch proposals and a provider-free cited first-Brief
+preview with exact approval and restart. Activate + prove (0.7E) remains next.
 The complete five-stage journey is the acceptance target, not a claim about the current released
 UI.
 

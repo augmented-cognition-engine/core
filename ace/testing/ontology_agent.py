@@ -6,7 +6,11 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from ace.application.intelligence_builder import IntelligenceBuilderSessionService
-from ace.application.intelligence_builder_contracts import OnboardingArtifactKind, OnboardingStage
+from ace.application.intelligence_builder_contracts import (
+    OnboardingArtifactKind,
+    OnboardingStage,
+    SourceProfileProposalV1,
+)
 from ace.application.ontology_agent import (
     ConceptModelApprovalAdmission,
     ConceptModelProposalAdmission,
@@ -23,6 +27,7 @@ from ace.application.ontology_agent_contracts import (
     ConceptValueKind,
     OrganizationTerminologyV1,
 )
+from ace.core.records import ImmutableRecordStore
 from ace.testing.intelligence_builder import FixtureCoreAuthorityResolver, exercise_connection_agent_restart
 
 
@@ -127,12 +132,8 @@ class FixtureConceptModelStrategy:
                 ),
             ),
             terminology=terms,
-            exclusions=(
-                "No source credentials, connector configuration, monitoring policy, or activation authority.",
-            ),
-            unknowns=(
-                "The fixture source profiles describe shape, not record identity or relationship semantics.",
-            ),
+            exclusions=("No source credentials, connector configuration, monitoring policy, or activation authority.",),
+            unknowns=("The fixture source profiles describe shape, not record identity or relationship semantics.",),
             confidence=self.confidence,
             created_at=created_at,
         )
@@ -146,6 +147,8 @@ class OntologyAgentReferenceResult:
     restarted_session_id: str
     restarted_proposal: ConceptModelProposalV1
     restarted_disposition: ConceptModelDispositionV1
+    source_profile: SourceProfileProposalV1
+    store: ImmutableRecordStore
 
 
 def edited_fixture_proposal(
@@ -238,7 +241,9 @@ async def exercise_ontology_agent_restart() -> OntologyAgentReferenceResult:
     if reopened_session is None or reopened_session.stage is not OnboardingStage.CONCEPT_MODEL_APPROVED:
         raise AssertionError("fresh service did not reopen approved concept-model state")
     proposal_ref = next(
-        item for item in reopened_session.artifacts if item.artifact_kind is OnboardingArtifactKind.CONCEPT_MODEL_PROPOSAL
+        item
+        for item in reopened_session.artifacts
+        if item.artifact_kind is OnboardingArtifactKind.CONCEPT_MODEL_PROPOSAL
     )
     disposition_ref = next(
         item
@@ -266,6 +271,8 @@ async def exercise_ontology_agent_restart() -> OntologyAgentReferenceResult:
         restarted_session_id=reopened_session.revision_id,
         restarted_proposal=reopened_proposal,
         restarted_disposition=reopened_disposition,
+        source_profile=connected.restarted_profile,
+        store=connected.store,
     )
 
 

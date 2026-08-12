@@ -2,8 +2,9 @@
 
 **Status:** cumulative product contract and dispatch plan. 0.7A is the stable
 compiler/conformance candidate in draft PR #100. 0.7B Connect is the candidate in draft PR #102.
-0.7C Map is the active stacked candidate packet. 0.7D–0.7E remain planned until their own code and
-evidence pass. This document does not claim the full onboarding journey is built.
+0.7C Map is the candidate in draft PR #103. 0.7D Watch + Brief is the active stacked candidate;
+0.7E remains planned until its own code and evidence pass. This document does not claim the full
+onboarding journey is built.
 
 ## Product promise
 
@@ -63,7 +64,12 @@ Any nonterminal step may enter `blocked` with exactly one resumable reason:
 - `insufficient_permission`;
 - `low_confidence_mapping`;
 - `conflicting_sources`; or
-- `no_material_shifts`.
+- `low_confidence_intelligence_model`;
+- `conflicting_evidence`;
+- `insufficient_evidence_closure`;
+- `stale_intelligence_input`;
+- `no_material_shifts`; or
+- `synthesis_failure`.
 
 A blocked session records the exact prior stage, failed proposal/handoff identity, safe diagnostic,
 and retry eligibility. `blocked → retrying → prior stage` creates new append-only revisions; it never
@@ -184,9 +190,11 @@ the shared opaque Core record seam.
 
 ### 3. Intelligence Agent — Watch
 
-**0.7D dispatch contract:** a separate `IntelligenceAgent` service owns the planned
-`ace.application.intelligence-model-proposal/v1alpha1` output and consumes the exact approved
-concept-model handoff. It does not share the Briefing Agent output contract.
+**0.7D versioned boundary:** a separate `IntelligenceAgent` service owns
+`ace.application.authorized-observation-set/v1alpha1`,
+`ace.application.intelligence-model-proposal/v1alpha1`, and
+`ace.application.intelligence-model-disposition/v1alpha1`. It consumes the exact approved
+concept-model handoff and does not share the Briefing Agent output contract.
 
 **Inputs**
 
@@ -218,19 +226,21 @@ concept-model handoff. It does not share the Briefing Agent output contract.
 
 **Failure/retry and handoff**
 
-- no qualifying change is `no_material_shifts`, not fabricated alert content;
-- conflicting baselines or evidence block as `conflicting_sources`;
-- edits produce new identities; and
-- successful handoff is the exact approved intelligence-model proposal consumed by the Briefing
-  Agent.
+- low confidence, blocking evidence conflict, incomplete closure, and stale inputs use distinct
+  resumable reasons;
+- edits produce new identities with a computed semantic diff;
+- no scheduler, monitor, subscription, or authoritative runtime object is created; and
+- successful handoff is the exact approved intelligence-model proposal and disposition consumed
+  by the Briefing Agent.
 
 0.7D owns this service.
 
 ### 4. Briefing Agent — Brief
 
-**0.7D dispatch contract:** a separate `BriefingAgent` service owns the planned
-`ace.application.first-briefing-preview/v1alpha1` output and delegates canonical Brief assembly to
-the existing synthesis boundary. It consumes, but does not mutate, the Intelligence Agent handoff.
+**0.7D versioned boundary:** a separate `BriefingAgent` service owns
+`ace.application.briefing-derivation/v1alpha1` and
+`ace.application.first-briefing-preview/v1alpha1`. It reuses canonical Brief grounding patterns
+and consumes, but does not mutate, the Intelligence Agent handoff.
 
 **Inputs**
 
@@ -260,8 +270,9 @@ the existing synthesis boundary. It consumes, but does not mutate, the Intellige
 
 **Failure/retry and handoff**
 
-- no material shifts produces an explicit cited/sourced silence result;
-- missing supports or policy mismatch fails closed through existing synthesis diagnostics; and
+- no material shifts blocks resumably instead of fabricating an alert;
+- missing supports, fabricated claims, citation gaps, hidden disagreement, or policy mismatch fail
+  closed; synthesis failure has its own resumable state; and
 - successful handoff binds the exact first-Brief preview consumed by the Activation Agent.
 
 0.7D owns this separate service; it is not part of the Intelligence Agent.

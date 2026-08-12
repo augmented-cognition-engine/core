@@ -77,3 +77,6 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [Intelligence Builder Map work packet](design/intelligence-builder-map-v0.7.0-work-packet-v1.md)
   — the bounded 0.7C Ontology Agent proposal, immutable edit, exact approval, restart, and evidence
   plan.
+- [Intelligence Builder Watch + Brief work packet](design/intelligence-builder-watch-brief-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7D Intelligence Agent and Briefing Agent proposals, exact approval, first-Brief,
+  restart, failure controls, and downstream handoff.
