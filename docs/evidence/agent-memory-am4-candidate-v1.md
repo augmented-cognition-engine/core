@@ -2,13 +2,22 @@
 
 ## Candidate coordinates
 
-- Exact cumulative integration base: `f761a682164d10e2ff81ba38cd2d0c987b4f8efd`
-- Base branch: `codex/v0.7-cumulative-integration-acceptance`
-- Cumulative review-only PR: #122
+- Original cumulative integration base: `f761a682164d10e2ff81ba38cd2d0c987b4f8efd`
+- Original verified AM4 source head: `64152cd2a92381bba32b4f7436e416682e4b79f0`
+- Original AM4 implementation artifact: `769f5a89e6ab3fe39968cd0e493da67dc2dfc94b`
+- Released-main convergence parent: `9e0a9d248c073b6a7883451cb1d219eb7c15999b`
+- Release-source tree: `1c545b6ce5499dcca652fbeff7207551a515bc07`
+- Exact two-parent convergence commit: `b1c8dddf6bc20c9241c0b2194881eacb3e016e67`
+- Verified post-convergence implementation head: `7cb74ad07444752a87f9ff447f0373889ad78ba4`
 - Candidate branch: `codex/v0.7-agent-memory-am4`
-- Exact implementation artifact: `769f5a89e6ab3fe39968cd0e493da67dc2dfc94b`
-- Draft PR: publication blocked only by invalid local GitHub CLI credentials
-- Status: isolated stacked draft candidate; not accepted, merged, released, or supported
+- Draft PR: pending publication against `main`
+- Status: reconciled 0.7.0 draft candidate; not accepted, merged, tagged, or separately released
+
+The convergence commit has first parent `64152cd2a92381bba32b4f7436e416682e4b79f0`
+and second parent `9e0a9d248c073b6a7883451cb1d219eb7c15999b`. The latter is the exact
+released-main coordinate frozen by the control-tower dispatch. The remote `main` ref was observed
+later at descendant `11b44e84d92e0674fa433103779f4050eeca2725`; that later documentation-only
+advance was not silently substituted for the frozen convergence parent.
 
 ## Bounded claim
 
@@ -32,11 +41,23 @@ provider, vector store, database, external repository, or AM5+ behavior is added
 | Atomic hard erasure and content-free proof | Passed in memory and real Surreal injected-failure/restart tests |
 | Export/import round trip, replay/collision/missing-body/policy/erased-artifact refusal | Passed in memory and real Surreal; no second receipt table was added |
 | Real Surreal restart, fresh process, graph rebuild, non-reappearance | Passed; the same journey also covers principal privacy and a second clean import database |
-| Focused AM0-AM4 | 156 passed, 2 skipped, plus both real AM3/AM4 Surreal restart tests passed |
-| Relevant Core/Intelligence/time/graph/schema/package | 757 passed, 21 skipped; focused package/schema/port matrix 100 passed |
-| Full supported non-E2E/non-extension Core gate | Effective 7,630 passed, 245 skipped, 261 deselected; the sandbox run passed 7,624 with six localhost-only denials, and all six passed unchanged with localhost access |
-| Ruff/format/lock/diff/secret/authority/privacy/domain/public-surface scans | Whole repository Ruff and 2,145-file format check passed; lock resolved 243 packages offline; diff, secret, provider/domain and boundary scans passed; AC6/AC7 provider-free verifiers passed with AC7 reporting eleven tools |
-| Two checkout-free installed-wheel reproductions with exactly eleven tools | Passed from `/tmp/ace-am4-target-a-final2.Ay4n0G` and `/tmp/ace-am4-target-b-final2.OoOBr9`; wheel SHA-256 `c9eda5a81ec8c10972036f3bfd96e70d80e5a49392b3568b4ed403a523c87334` |
+| Exact convergence and conflict audit | Passed; the normal merge had no conflicts, retained released 0.7.0 identity, and changed no AM4 runtime file relative to the verified source head |
+| Focused AM0-AM4 after convergence | 160 passed, including real AM3/AM4 Surreal restart and fresh-process journeys |
+| Package/version/schema/port/public surface | 125 passed; the separately isolated reference adapter passed 9 tests against its `ace-core>=0.7.0,<0.8` line |
+| Full supported non-E2E/non-extension Core gate | 7,825 passed, 50 skipped, 261 deselected with localhost available |
+| Ruff/format/lock/diff/secret/authority/privacy/domain/public-surface scans | Whole repository Ruff and 2,145-file format check passed; lock resolved 243 packages; diff and secret scans passed; AC6/AC7 provider-free verifiers passed; installed probes reported exactly eleven tools |
+| Two checkout-free installed 0.7.0 wheel reproductions | Passed from `/tmp/ace-am4-target-a.xrgkij` and `/tmp/ace-am4-target-b.1ETp5E`; both loaded their isolated installed `ace` package and reported the same exact eleven tools |
+| Fresh reconciled wheel | `ace_core-0.7.0-py3-none-any.whl`, SHA-256 `a934653ca9871276e8b2c43c1ed8f4fe8d0f65be10b0f3ee151e03904bf093b8` |
+
+## Convergence note
+
+The released-main merge was additive and conflict-free. It brought the 0.7.0 package, release
+workflow, Docker, changelog, roadmap, and reference-adapter compatibility coordinates. AM4 Core and
+application runtime files were byte-identical to the verified source head after the merge. One
+fresh-process test helper was then made self-contained because the released package environment no
+longer made the repository `tests` package importable from the child process; the helper now defines
+its inert current-authority fixture locally and the real restart/rebuild/non-reappearance journey
+passes in both the focused and full gates.
 
 ## Backup and recovery limitation
 
