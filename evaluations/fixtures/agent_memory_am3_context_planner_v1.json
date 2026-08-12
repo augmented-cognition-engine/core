@@ -1,0 +1,49 @@
+{
+  "contract": "ace.evaluation.agent-memory-am3-context-planner/v1",
+  "synthetic_only": true,
+  "provider_required": false,
+  "policy_ref": "policy:memory-fused-rank-v1",
+  "policy_version": "1.0.0",
+  "signals": [
+    "lexical",
+    "vector",
+    "exact_entity",
+    "temporal",
+    "graph",
+    "source_diversity",
+    "governed_reliability",
+    "lifecycle_priority"
+  ],
+  "ablations": [
+    "all_existing_fixture_signals",
+    "lexical_unavailable",
+    "vector_unavailable",
+    "lexical_provider_failure",
+    "all_provider_signals_unavailable"
+  ],
+  "matched_control": {
+    "conditions": ["memory", "no_memory"],
+    "held_constants": [
+      "task_digest",
+      "prompt_contract_digest",
+      "provider_ref",
+      "model_ref",
+      "configuration_digest",
+      "decision_schema_ref",
+      "toolset_digest"
+    ],
+    "allowed_claim": "material_influence",
+    "benefit": "unknown"
+  },
+  "required_fail_closed_cases": [
+    "authorization_before_signal_and_body",
+    "instruction_policy_channel_isolation",
+    "independent_ledger_knowledge_world_time",
+    "stale_policy_index_projection_head_cache_refusal",
+    "deterministic_tie_and_truncation",
+    "provider_failure_and_unknown_telemetry",
+    "exact_replay_divergent_conflict_atomic_append",
+    "real_database_restart_fresh_process_rebuild",
+    "later_invocation_material_use_without_benefit_claim"
+  ]
+}

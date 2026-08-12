@@ -92,3 +92,8 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [AC7 composition-policy admission candidate evidence](evidence/composition-policy-admission-ac7-candidate-v1.md)
   — frozen provider-free coordinates, positive lifecycle, seventeen fail-closed cases, wheel proof,
   and release/integration entry gate.
+- [Agent Memory roadmap](design/agent-memory-roadmap.md) — bounded AM0–AM8 sequence for durable,
+  authorized, source-grounded agent memory.
+- [Agent Memory AM3 work packet](design/agent-memory-am3-work-packet-v1.md) — authorized recall,
+  frozen provider-neutral ranking, Context Planner and Manifest, composition/I3 lineage, matched
+  materiality, durability, privacy, and AM4 stop boundary.

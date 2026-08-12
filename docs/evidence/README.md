@@ -124,6 +124,12 @@ Two earlier local checkpoints predate the P1/P2 sequence and are superseded by i
 - [Context manifest and code-context checkpoint](context-manifest-code-context-v1.md) — historical, local, superseded
 - [Productized State golden-journey checkpoint](productized-state-golden-journey-v1.md) — historical, local, superseded
 
+## Agent Memory
+
+- [AM3 authorized recall and Context Planner candidate](agent-memory-am3-candidate-v1.md) — stacked
+  candidate; provider-free selection, Context Manifest/I3 lineage, matched material influence,
+  privacy, restart/rebuild, and installed-wheel evidence
+
 ## Extension invocation
 
 The [ACE 0.5.0 Reasoning into Action release evidence](reasoning-into-action-v0.5.0-release-readiness.md)
