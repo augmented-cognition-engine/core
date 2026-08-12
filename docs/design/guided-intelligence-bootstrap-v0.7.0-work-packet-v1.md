@@ -280,9 +280,16 @@ and consumes, but does not mutate, the Intelligence Agent handoff.
 ### 5. Activation Agent — Activate
 
 **0.7E dispatch contract:** a separate `ActivationAgent` service owns the planned
-`ace.application.intelligence-activation-plan/v1alpha1` proposal and consumes the exact approved
+`ace.application.intelligence-activation-plan/v1alpha2` proposal and consumes the exact approved
 handoffs from the other four agents. Existing 0.7A conformance and activation receipts remain the
 authoritative terminal evidence; this service does not define replacement receipts.
+
+The additive v1alpha2 plan/revision admission seam is frozen in the
+[0.7E Domain Packs + Activation packet](domain-packs-activation-v0.7.0-work-packet-v1.md). It leaves
+the existing v1alpha1 `DomainActivationSpecV1`, `DomainActivationRevisionV1`, admission semantics,
+identities, and receipts unchanged. Core approval for the new path resolves against the exact plan
+identity, and mixed v1alpha1/v1alpha2 persisted history fails closed pending a separate migration.
+The 0.7D runtime handoff integration remains gated on its exact completed branch and commit.
 
 **Inputs**
 

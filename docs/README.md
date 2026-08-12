@@ -80,3 +80,6 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [Intelligence Builder Watch + Brief work packet](design/intelligence-builder-watch-brief-v0.7.0-work-packet-v1.md)
   — the bounded 0.7D Intelligence Agent and Briefing Agent proposals, exact approval, first-Brief,
   restart, failure controls, and downstream handoff.
+- [Domain Packs + Activation work packet](design/domain-packs-activation-v0.7.0-work-packet-v1.md)
+  — the bounded 0.7E two-phase audit, additive exact-plan authority seam, compatibility and
+  rollback threat model, external consumer fixtures, and 0.7D integration plan.
