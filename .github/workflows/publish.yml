@@ -8,7 +8,7 @@ on:
       tag:
         description: Git tag to publish
         required: true
-        default: v0.6.0
+        default: v0.7.0
 
 permissions:
   contents: read
@@ -46,8 +46,8 @@ jobs:
             exit 1
           fi
           adapter_version="$(python -c 'import pathlib, tomllib; print(tomllib.loads(pathlib.Path("adapters/reference_workspace_action/pyproject.toml").read_text())["project"]["version"])')"
-          if [ "$adapter_version" != "0.2.0" ]; then
-            echo "Reference workspace adapter version must be 0.2.0; found $adapter_version" >&2
+          if [ "$adapter_version" != "0.3.0" ]; then
+            echo "Reference workspace adapter version must be 0.3.0; found $adapter_version" >&2
             exit 1
           fi
 
@@ -61,7 +61,7 @@ jobs:
               pathlib.Path("adapters/reference_workspace_action/pyproject.toml").read_text()
           )["project"]
           assert project["name"] == "ace-reference-workspace-action"
-          assert project["dependencies"] == ["ace-core>=0.6.0,<0.7"]
+          assert project["dependencies"] == ["ace-core>=0.7.0,<0.8"]
           PY
 
       - name: Install build tooling
