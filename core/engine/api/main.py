@@ -14,6 +14,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from core.engine.api.legacy_product_intelligence import register_legacy_product_intelligence_engines
 from core.engine.core.config import settings
 from core.engine.core.db import pool
 from core.engine.version import VERSION
@@ -283,12 +284,13 @@ async def lifespan(app: FastAPI):
     # Phase 7a calibration engine
     import core.engine.sentinel.engines.calibration_engine  # noqa: F401
 
-    # S1 competitive intelligence watchers + community summarizer (Sat 3am Louvain clusters over
-    # cognify edges → LLM theme summaries the briefing surfaces; MUST be imported here to register,
-    # explicit-imports-only per the note above).
-    import core.engine.sentinel.engines.community_scanner  # noqa: F401  (S1 competitive intelligence watcher)
+    # The knowledge-graph community summarizer remains domain-neutral. The older competitor,
+    # community-source, release-watcher, and whitespace engines are an explicit compatibility
+    # surface; the default 0.8 runtime receives equivalent meaning from Domain Packs and authorized
+    # connectors rather than embedding a market-intelligence branch in Core.
     import core.engine.sentinel.engines.community_summarizer  # noqa: F401  (Sat 3am summarizer — MUST import here)
-    import core.engine.sentinel.engines.competitive_observer  # noqa: F401  (S1 competitive intelligence watcher)
+
+    register_legacy_product_intelligence_engines(enabled=settings.enable_legacy_product_intelligence)
 
     # Phase 8 product awareness engines
     import core.engine.sentinel.engines.correlation_engine  # noqa: F401
@@ -304,7 +306,6 @@ async def lifespan(app: FastAPI):
     import core.engine.sentinel.engines.failure_analysis  # noqa: F401
     import core.engine.sentinel.engines.gap_analyzer  # noqa: F401
     import core.engine.sentinel.engines.gap_researcher  # noqa: F401
-    import core.engine.sentinel.engines.github_release_watcher  # noqa: F401
 
     # Phase 5b idea + template engines
     import core.engine.sentinel.engines.idea_incubator  # noqa: F401
@@ -332,9 +333,6 @@ async def lifespan(app: FastAPI):
 
     # Voice audit sweeper (every 30 minutes)
     import core.engine.sentinel.engines.voice_audit_sweeper  # noqa: F401
-
-    # S2 whitespace engine
-    import core.engine.sentinel.engines.whitespace_engine  # noqa: F401
     from core.engine.api.sentinel import set_scheduler
 
     # Start sentinel scheduler

@@ -133,6 +133,13 @@ class Settings(BaseSettings):
     # Default True — once landed, this should be on for every session.
     enable_ai_briefing: bool = True
 
+    # 0.8 compatibility boundary. The older sentinel engines encode ACE-product
+    # competitors, community sources, and whitespace scoring directly in the host.
+    # They remain callable for migration evidence, but are not part of the default
+    # domain-neutral Intelligence OS runtime. Domains now supply declarative Packs
+    # and separately authorized connectors instead.
+    enable_legacy_product_intelligence: bool = False
+
     # In-process TTL for the AI briefing payload (seconds). The briefing
     # changes slowly (decisions/capabilities updates), so caching reduces
     # substrate read load. Set to 0 to disable caching.
