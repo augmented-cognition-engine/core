@@ -5,15 +5,14 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The current-release assertions preserve published 0.8.1 while admitting the bounded 0.8.2
-# candidate. Historical 0.4.1 GI2,
+# The current-release assertions preserve the bounded published 0.8.2 patch. Historical 0.4.1 GI2,
 # 0.4.2 builder-surface, 0.4.4 GC1, 0.5.0 T1/B1, and P1/P2 identities remain exact point-in-time
 # evidence. Keep these aligned with test_evidence_index_integrity.py.
 
 
 def test_current_release_and_passed_milestone_are_not_conflated() -> None:
-    assert "latest published release is `ace-core` 0.8.1 on PyPI and GitHub" in ROADMAP
-    assert "current 0.8.2 release candidate" in ROADMAP
+    assert "latest published release is [`ace-core` 0.8.2]" in ROADMAP
+    assert "passed 0.8.2 patch adds the Atrium Intelligence Catalog" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
     assert "| 0.4.0 | Governed Cognition | **Delivered** |" not in ROADMAP
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
@@ -21,7 +20,7 @@ def test_current_release_and_passed_milestone_are_not_conflated() -> None:
     assert "| 0.6.0 | Measured Intelligence | **Passed** |" in ROADMAP
     assert "| 0.7.0 | Intelligence Builder Foundation | **Passed** |" in ROADMAP
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
-    assert "0.8.2 is a release candidate over the published 0.8.1 developer preview" in " ".join(readme.split())
+    assert "0.8.2 is the current published developer preview" in " ".join(readme.split())
     assert "| 0.8.0 | Intelligence OS Realignment | **Passed** |" in ROADMAP
     assert "| 0.9.0 | Collaborative Intelligence | **Now** |" in ROADMAP
     assert "| 1.0.0 | Intelligence Operating System | **Later** |" in ROADMAP

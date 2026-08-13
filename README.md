@@ -11,7 +11,7 @@ monitors, and an intelligence system that improves with governed feedback. ACE i
 provenance, authority, durable state, and exact receipts stay built into the result instead of
 becoming infrastructure every product team must recreate.
 
-![version 0.8.2 candidate](https://img.shields.io/badge/version-0.8.2--candidate-blue)
+![version 0.8.2](https://img.shields.io/badge/version-0.8.2-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -858,7 +858,7 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.8.2 is a release candidate over the published 0.8.1 developer preview.** Its Intelligence OS
+**0.8.2 is the current published developer preview.** Its Intelligence OS
 claim is bounded to
 the provider-free and installed-artifact journeys recorded in the evidence archive and the
 single-node topology below. Read this section before you build on it.
