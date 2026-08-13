@@ -350,6 +350,7 @@ from ace.application.intelligence_resource_projection import (
     IntelligenceLedgerProjectionError,
     IntelligenceLedgerResourceProjectionReader,
     IntelligenceResourceProjectionContributor,
+    LiveSourceResourceProjectionReader,
     MonitoringResourceProjectionReader,
 )
 from ace.application.live_intelligence_bridge import (
@@ -461,6 +462,7 @@ __all__ = [
     "IntelligenceLedgerProjectionError",
     "IntelligenceLedgerResourceProjectionReader",
     "IntelligenceResourceProjectionContributor",
+    "LiveSourceResourceProjectionReader",
     "CompositeIntelligenceResourceProjectionReader",
     "DecisionOutcomeFeedbackResourceProjectionReader",
     "MonitoringResourceProjectionReader",
