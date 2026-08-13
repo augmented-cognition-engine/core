@@ -450,6 +450,16 @@ from ace.application.ontology_agent_contracts import (
     OrganizationTerminologyV1,
     concept_model_semantic_diff,
 )
+from ace.application.personal_intelligence_ownership import (
+    PERSONAL_INTELLIGENCE_DELETION_PROOF_RECORD_KIND,
+    PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE,
+    PersonalIntelligenceDeletePreviewStale,
+    PersonalIntelligenceDeletionResult,
+    PersonalIntelligenceOwnershipAuthorizationPort,
+    PersonalIntelligenceOwnershipError,
+    PersonalIntelligenceOwnershipService,
+    PersonalIntelligenceOwnershipStore,
+)
 from ace.application.supersession_impact import (
     SupersessionImpactAdmission,
     SupersessionImpactAdmissionError,
@@ -459,6 +469,14 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "PERSONAL_INTELLIGENCE_DELETION_PROOF_RECORD_KIND",
+    "PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE",
+    "PersonalIntelligenceDeletePreviewStale",
+    "PersonalIntelligenceDeletionResult",
+    "PersonalIntelligenceOwnershipError",
+    "PersonalIntelligenceOwnershipAuthorizationPort",
+    "PersonalIntelligenceOwnershipService",
+    "PersonalIntelligenceOwnershipStore",
     "INTELLIGENCE_BUILDER_PRESENTATION_RECORD_SPACE",
     "INTELLIGENCE_BUILDER_RESOURCE_KINDS",
     "INTELLIGENCE_ONBOARDING_PROFILE_RECORD_KIND",

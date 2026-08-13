@@ -195,6 +195,22 @@ from ace.core.external_operations import (
     PortabilityReceiptV1Alpha1,
     exact_external_reference,
 )
+from ace.core.personal_intelligence_ownership import (
+    BACKUP_NON_REAPPEARANCE_LIMITATION,
+    PERSONAL_INTELLIGENCE_DELETE_CONFIRMATION_VERSION,
+    PERSONAL_INTELLIGENCE_DELETE_PREVIEW_REQUEST_VERSION,
+    PERSONAL_INTELLIGENCE_DELETE_PREVIEW_VERSION,
+    PERSONAL_INTELLIGENCE_DELETION_PROOF_VERSION,
+    PERSONAL_INTELLIGENCE_EXPORT_ARTIFACT_VERSION,
+    PERSONAL_INTELLIGENCE_EXPORT_REQUEST_VERSION,
+    PORTABILITY_SCOPE,
+    PersonalIntelligenceDeleteConfirmationV1Alpha1,
+    PersonalIntelligenceDeletePreviewRequestV1Alpha1,
+    PersonalIntelligenceDeletePreviewV1Alpha1,
+    PersonalIntelligenceDeletionProofV1Alpha1,
+    PersonalIntelligenceExportArtifactV1Alpha1,
+    PersonalIntelligenceExportRequestV1Alpha1,
+)
 from ace.core.reasoning import (
     GOVERNED_OPERATION_BINDING_VERSION,
     GOVERNED_OPERATION_CONFIGURATION_STATE_KIND,
@@ -267,6 +283,20 @@ from ace.core.state import (
 )
 
 __all__ = [
+    "BACKUP_NON_REAPPEARANCE_LIMITATION",
+    "PERSONAL_INTELLIGENCE_DELETE_CONFIRMATION_VERSION",
+    "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_REQUEST_VERSION",
+    "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_VERSION",
+    "PERSONAL_INTELLIGENCE_DELETION_PROOF_VERSION",
+    "PERSONAL_INTELLIGENCE_EXPORT_ARTIFACT_VERSION",
+    "PERSONAL_INTELLIGENCE_EXPORT_REQUEST_VERSION",
+    "PORTABILITY_SCOPE",
+    "PersonalIntelligenceDeleteConfirmationV1Alpha1",
+    "PersonalIntelligenceDeletePreviewRequestV1Alpha1",
+    "PersonalIntelligenceDeletePreviewV1Alpha1",
+    "PersonalIntelligenceDeletionProofV1Alpha1",
+    "PersonalIntelligenceExportArtifactV1Alpha1",
+    "PersonalIntelligenceExportRequestV1Alpha1",
     "AGENT_GOVERNANCE_COORDINATE_VERSION",
     "DOMAIN_ACTIVATION_LINEAGE_VERSION",
     "AGENT_PRINCIPAL_VERSION",
