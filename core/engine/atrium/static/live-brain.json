@@ -1,0 +1,28 @@
+{
+  "beliefs": [
+    {
+      "belief": "Pricing is the #1 objection for enterprise buyers",
+      "prior_confidence": 0.82,
+      "proposed_confidence": 0.15,
+      "still_supported": false,
+      "rationale": "The evidence directly contradicts the belief by showing pricing was never raised in fresh buyer interviews, while security compliance and integration risk were identified as the actual blockers.",
+      "ground": "Fresh buyer interviews: pricing was never raised; security compliance and integration risk were the real blockers."
+    },
+    {
+      "belief": "The homepage hero should lead with outcomes, not price",
+      "prior_confidence": 0.58,
+      "proposed_confidence": 0.82,
+      "still_supported": true,
+      "rationale": "Q2 A/B test data directly shows outcomes-led hero outperformed price-led hero by 34% on qualified-demo conversion, providing strong empirical validation of the belief.",
+      "ground": "Q2 A/B test: the outcomes-led hero beat the price-led hero on qualified-demo conversion by 34%."
+    },
+    {
+      "belief": "A Q3 launch window is optimal for the repositioning",
+      "prior_confidence": 0.7,
+      "proposed_confidence": 0.25,
+      "still_supported": false,
+      "rationale": "Launching simultaneously with a primary competitor's directly-overlapping repositioning significantly undermines optimality by creating market saturation and reducing differentiation.",
+      "ground": "Competitive intel: the primary competitor is announcing a directly-overlapping repositioning the same week in Q3."
+    }
+  ]
+}

@@ -219,7 +219,7 @@ push-check:
 # proxies the extension's data routes; a production build has no vite, so a canvas that has
 # only ever been driven under `npm run dev` has never been driven at all.
 canvas-build:
-	cd core/ui/canvas && npx vite build
+	cd core/ui/canvas && npm run build:package
 
 canvas-host: canvas-build
 	uv run uvicorn core.engine.api.canvas_host:app --host 127.0.0.1 --port 5173

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:package": "tsc && vite build --outDir ../../engine/atrium/static --emptyOutDir",
     "build:naked": "node scripts/build-naked.mjs",
     "preview": "vite preview",
     "test": "vitest run",

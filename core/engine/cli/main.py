@@ -18,6 +18,7 @@ def cli(ctx, url):
 
 # Import and register command groups
 from core.engine.cli.commands.assertions import assertion
+from core.engine.cli.commands.atrium import atrium
 from core.engine.cli.commands.briefing import briefing
 from core.engine.cli.commands.cognition import cognition
 from core.engine.cli.commands.conflicts import conflicts
@@ -43,6 +44,7 @@ from core.engine.cli.commands.status import status
 from core.engine.cli.commands.templates import templates
 
 cli.add_command(login)
+cli.add_command(atrium)
 cli.add_command(assertion)
 cli.add_command(run)
 cli.add_command(quick)

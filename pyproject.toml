@@ -149,6 +149,7 @@ include = ["ace", "ace.*", "ace_mcp_client*", "core*", "extensions*", "scripts*"
 "core.engine.cognition.recipes" = ["*.yaml"]
 "core.engine.generation" = ["templates/*.j2"]
 "core.engine.reports" = ["templates/*.html", "templates/*.css", "static/*.js"]
+"core.engine.atrium" = ["static/index.html", "static/*.json", "static/assets/*", "static/brand/*"]
 "evaluations" = ["*.md", "fixtures/*.json", "results/*.json", "results/*.md"]
 
 [tool.setuptools.data-files]
