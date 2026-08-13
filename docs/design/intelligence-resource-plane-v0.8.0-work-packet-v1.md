@@ -1,8 +1,9 @@
 # ACE 0.8.0 unified Intelligence resource plane work packet
 
-Status: **active 0.8C packet; C1 facade, C2 ledger projection, and C3 governed HTTP query implemented**
+Status: **active 0.8C packet; facade, ledger/monitoring projections, and governed HTTP query implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@6b4d6b2` (0.8A architecture, AM4 lifecycle, completed 0.8B, C1 facade, and C2 projection)
+Accepted base: `main@794183b` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
+ledger projection, and governed HTTP query)
 
 ## Outcome
 
@@ -80,8 +81,15 @@ public page contract. Historical data cutoffs are independent from login time; e
 reauthenticated and reauthorized, while query identity remains stable across authentication receipt
 refreshes for the same actor and exact selector.
 
-C3 must still add governed-state projections for the remaining canonical families and complete
-packaged schema/import integrity. C4 must prove Atrium consumes this interface rather than
+The next additive projection contributor exposes the current Monitor and Subscription lifecycle
+revision from the existing append-only monitoring ledger. It validates the complete contiguous
+receipt chain, projects revoke as a payload-free tombstone, preserves immediate supersession,
+declares incomplete or divergent chains as degraded, and composes with ledger resources through
+disjoint family ownership. The host—not FastAPI—binds this composite reader to the same governed
+query service.
+
+0.8C must still add governed-state projections for the remaining canonical families and complete
+packaged schema/import integrity. 0.8D must prove Atrium consumes this interface rather than
 privileged internal state.
 
 The 0.8C exit gate is one authorized query path that can reproduce the evidence-to-outcome resource

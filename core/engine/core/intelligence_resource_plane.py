@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ace.application import (
     RESOURCE_QUERY_AUTHORITY,
+    CompositeIntelligenceResourceProjectionReader,
     IntelligenceLedgerResourceProjectionReader,
     IntelligenceResourceCursorV1Alpha1,
     IntelligenceResourceKind,
@@ -22,6 +23,7 @@ from ace.application import (
     IntelligenceResourcePlaneError,
     IntelligenceResourcePlaneService,
     IntelligenceResourceQueryV1Alpha1,
+    MonitoringResourceProjectionReader,
 )
 from ace.core import ImmutableRecordPersistenceError, ImmutableRecordStore
 from core.engine.core.agent_composition_runtime import (
@@ -119,7 +121,16 @@ async def query_intelligence_resource_page(
             cursor=selector.cursor,
         )
         return await IntelligenceResourcePlaneService(
-            reader=IntelligenceLedgerResourceProjectionReader(store=runtime.records),
+            reader=CompositeIntelligenceResourceProjectionReader(
+                IntelligenceLedgerResourceProjectionReader(
+                    store=runtime.records,
+                    degrade_unsupported=False,
+                ),
+                MonitoringResourceProjectionReader(
+                    store=runtime.records,
+                    degrade_unsupported=False,
+                ),
+            ),
             authority=runtime.authority,
         ).query(request, evaluated_at=evaluated_at)
     except GovernedCompositionAuthorityError as exc:
