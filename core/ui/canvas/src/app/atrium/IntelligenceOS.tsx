@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
+import { startIntelligenceBuild, type IntelligenceBuildStartInput } from '@/api/intelligenceBuildsApi'
 import { Alert, AlertDescription, AlertTitle } from '@/design/shadcn/ui/alert'
 import { Badge } from '@/design/shadcn/ui/badge'
 import { Button } from '@/design/shadcn/ui/button'
@@ -420,7 +421,7 @@ export function IntelligenceOS() {
   const { pathname } = useLocation()
   const surface = activeSurface(pathname)
   const copy = SURFACE_COPY[surface]
-  const { page, loading, error, refresh } = useIntelligenceResources()
+  const { page, loading, error, refresh, adoptPage } = useIntelligenceResources()
   const groups = useMemo(() => groupResources(page?.items ?? []), [page?.items])
   const productName = productDisplayName(page?.product_id)
   const freshness = pageFreshness(page)
@@ -430,6 +431,11 @@ export function IntelligenceOS() {
 
   function openFirstBrief() {
     requestAnimationFrame(() => document.getElementById('latest-brief')?.scrollIntoView({ behavior: 'smooth' }))
+  }
+
+  async function buildIntelligence(request: IntelligenceBuildStartInput) {
+    const result = await startIntelligenceBuild(request)
+    adoptPage(result.resource_page)
   }
 
   return (
@@ -510,6 +516,7 @@ export function IntelligenceOS() {
           onOpenChange={setOnboardingOpen}
           profiles={onboardingProfiles}
           session={onboardingSession}
+          onStartBuild={buildIntelligence}
           onOpenBrief={openFirstBrief}
         />
         </SidebarInset>
