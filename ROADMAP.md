@@ -77,11 +77,10 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-The latest published release is `ace-core` 0.8.1 on PyPI and GitHub.
-
-The current 0.8.2 release candidate packages the Atrium Intelligence Catalog as backward-compatible
-hardening of that published promise. It does not advance or rename the 0.9 Collaborative
-Intelligence milestone.
+The latest published release is [`ace-core` 0.8.2](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.2)
+on PyPI and GitHub. It packages the Atrium Intelligence Catalog as backward-compatible hardening
+of the released 0.8 promise. It does not advance or rename the 0.9 Collaborative Intelligence
+milestone.
 
 The 0.8 release makes the existing Builder, composition, memory, authority, action, and outcome
 capabilities coherent as one **Intelligence Operating System**. One governed point-in-time resource
@@ -92,9 +91,9 @@ thin MCP surface remains exactly eleven tools. The exact pre-publication source,
 proof, verification, and limitations are bound by the
 [Intelligence OS release closeout](docs/evidence/intelligence-os-v0.8.0-release-closeout-v1.md).
 
-The [0.8.1 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.1)
-and public [`ace-core==0.8.1`](https://pypi.org/project/ace-core/0.8.1/) package are the current
-developer-preview release line. The patch binds live onboarding state into Atrium, defines
+The [0.8.2 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.2)
+and public [`ace-core==0.8.2`](https://pypi.org/project/ace-core/0.8.2/) package are the current
+developer-preview release line. The 0.8.1 foundation binds live onboarding state into Atrium, defines
 Opportunities as evidence-backed decision openings, establishes the ACE design system, and adds a
 reproducible World AI resource replay. Atrium remains a repository-delivered optional workspace
 rather than a second state or authority path.
@@ -114,7 +113,7 @@ defines the Opportunity experience, introduces the ACE-owned design system, and 
 visual What / Why / How / When grammar across Briefs and decision-facing intelligence. It does not change the 0.9
 Collaborative Intelligence promise.
 
-The 0.8.2 candidate adds the Atrium Intelligence Catalog as an experience entry
+The passed 0.8.2 patch adds the Atrium Intelligence Catalog as an experience entry
 slice: the generic resource consumer enumerates all admitted onboarding profiles in product scope,
 deduplicates them by profile identity, and always offers the Core-owned Custom Intelligence path.
 World and Marketing contribute their own declarative profiles from their independent repositories;
