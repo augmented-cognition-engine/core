@@ -19,6 +19,7 @@ from ace.intelligence import (
     IntelligenceOnboardingGuardrailsV1Alpha1,
     IntelligenceOnboardingOutcomeV1Alpha1,
     IntelligenceOnboardingProfileV1Alpha1,
+    IntelligenceOnboardingSourceGroupV1Alpha1,
     IntelligenceResourceAvailability,
     IntelligenceResourceKind,
     IntelligenceResourcePageState,
@@ -36,9 +37,12 @@ def _profile() -> IntelligenceOnboardingProfileV1Alpha1:
     return IntelligenceOnboardingProfileV1Alpha1(
         profile_id="onboarding_profile:ai-command-center",
         topic_id="artificial-intelligence",
+        domain_label="World Intelligence",
+        topic_label="Artificial intelligence",
         display_name="AI Command Center",
         prompt="What should your AI command center help you understand?",
         description="Connect authoritative AI sources and receive a grounded first briefing.",
+        starter_prompts=("Keep me ahead of meaningful AI capability, cost, and policy shifts.",),
         outcomes=(
             IntelligenceOnboardingOutcomeV1Alpha1(
                 outcome_id="track-model-economics",
@@ -49,6 +53,18 @@ def _profile() -> IntelligenceOnboardingProfileV1Alpha1:
                 recommended_intelligence_ids=("market-shifts",),
                 recommended_topic_labels=("Model economics",),
                 recommended_intelligence_labels=("Market shifts",),
+            ),
+        ),
+        source_groups=(
+            IntelligenceOnboardingSourceGroupV1Alpha1(
+                source_group_id="independent-evidence",
+                label="Independent evidence",
+                description="Reviewed measurements that test first-party claims.",
+                evidence_role="independent-measurement",
+                source_ids=("stanford-helm", "metr"),
+                source_labels=("Stanford HELM", "METR"),
+                access_label="Public · no credentials",
+                default_selected=True,
             ),
         ),
         cadences=(
@@ -83,6 +99,43 @@ def _query(*kinds: IntelligenceResourceKind) -> IntelligenceResourceQueryV1Alpha
         available_at=BASE + timedelta(minutes=10),
         page_size=30,
     )
+
+
+@pytest.mark.asyncio
+async def test_multiple_domain_profiles_form_one_product_scoped_catalog() -> None:
+    store = InMemoryImmutableRecordStore()
+    service = IntelligenceBuilderPresentationService(store=store)
+    world = _profile()
+    market_payload = world.model_dump(mode="python")
+    market_payload.update(
+        {
+            "profile_id": "onboarding_profile:market-intelligence",
+            "profile_digest": None,
+            "topic_id": "market-intelligence",
+            "domain_label": "Marketing Intelligence",
+            "topic_label": "Your market and competitors",
+            "display_name": "Marketing Intelligence Command Center",
+        }
+    )
+    market = IntelligenceOnboardingProfileV1Alpha1.model_validate(market_payload)
+
+    await service.admit_profile(product_id=PRODUCT, profile=world, admitted_at=BASE)
+    await service.admit_profile(product_id=PRODUCT, profile=market, admitted_at=BASE + timedelta(seconds=1))
+
+    batch = await IntelligenceBuilderResourceProjectionReader(store=store).read(
+        query=_query(IntelligenceResourceKind.BUILDER_PROFILE),
+        after=None,
+        limit=30,
+    )
+
+    assert [record.reference.resource_id for record in batch.records] == [
+        "onboarding_profile:ai-command-center",
+        "onboarding_profile:market-intelligence",
+    ]
+    assert [record.payload.parsed_value()["domain_label"] for record in batch.records if record.payload] == [
+        "World Intelligence",
+        "Marketing Intelligence",
+    ]
 
 
 @pytest.mark.asyncio
@@ -136,6 +189,23 @@ async def test_profile_and_session_revisions_project_through_one_rebuildable_rea
     profile_record, first_session, second_session = batch.records
     assert profile_record.payload is not None
     assert profile_record.payload.parsed_value()["guardrails"]["authorizes_connections"] is False
+    assert profile_record.payload.parsed_value()["domain_label"] == "World Intelligence"
+    assert profile_record.payload.parsed_value()["topic_label"] == "Artificial intelligence"
+    assert profile_record.payload.parsed_value()["starter_prompts"] == [
+        "Keep me ahead of meaningful AI capability, cost, and policy shifts."
+    ]
+    assert profile_record.payload.parsed_value()["source_groups"] == [
+        {
+            "access_label": "Public · no credentials",
+            "default_selected": True,
+            "description": "Reviewed measurements that test first-party claims.",
+            "evidence_role": "independent-measurement",
+            "label": "Independent evidence",
+            "source_group_id": "independent-evidence",
+            "source_ids": ["metr", "stanford-helm"],
+            "source_labels": ["METR", "Stanford HELM"],
+        }
+    ]
     assert first_session.reference.revision == 1
     assert second_session.reference.revision == 2
     assert second_session.supersedes == first_session.reference

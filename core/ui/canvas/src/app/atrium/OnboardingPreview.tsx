@@ -1,14 +1,23 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ArrowLeft,
   ArrowRight,
   BarChart3,
+  BookOpenCheck,
   Check,
   CircleDot,
   Compass,
+  Database,
+  FileCheck2,
   FlaskConical,
   Gauge,
+  GitFork,
+  Landmark,
+  LineChart,
   LoaderCircle,
+  LockKeyhole,
+  Megaphone,
+  PlugZap,
   Radar,
   Scale,
   ShieldAlert,
@@ -20,11 +29,13 @@ import { Badge } from '@/design/shadcn/ui/badge'
 import { Button } from '@/design/shadcn/ui/button'
 import { Card, CardContent } from '@/design/shadcn/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/design/shadcn/ui/dialog'
+import { Textarea } from '@/design/shadcn/ui/textarea'
 import type {
   IntelligenceBuilderSession,
   IntelligenceBuilderStage,
   IntelligenceOnboardingOutcome,
   IntelligenceOnboardingProfile,
+  IntelligenceOnboardingSourceGroup,
 } from './onboardingModel'
 
 const ICONS: Record<string, typeof Compass> = {
@@ -35,6 +46,17 @@ const ICONS: Record<string, typeof Compass> = {
   competition: Radar,
   custom: Compass,
 }
+
+const SOURCE_ICONS: Record<string, typeof Database> = {
+  authoritative_record: Landmark,
+  first_party_claim: Megaphone,
+  independent_measurement: LineChart,
+  operational_telemetry: Database,
+  leading_indicator: GitFork,
+  private_organizational: LockKeyhole,
+}
+
+const STEP_LABELS = ['Intent', 'Evidence', 'Focus', 'Review', 'Build'] as const
 
 type BuildState = 'complete' | 'active' | 'blocked' | 'waiting' | 'proposed'
 
@@ -61,6 +83,11 @@ const STAGE_RANK: Record<IntelligenceBuilderStage, number> = {
 
 function OutcomeIcon({ outcome }: { readonly outcome: IntelligenceOnboardingOutcome }) {
   const Icon = ICONS[outcome.icon_hint] ?? Compass
+  return <Icon className="size-4" />
+}
+
+function SourceIcon({ group }: { readonly group: IntelligenceOnboardingSourceGroup }) {
+  const Icon = SOURCE_ICONS[group.evidence_role] ?? FileCheck2
   return <Icon className="size-4" />
 }
 
@@ -120,22 +147,64 @@ function buildLanes(session: IntelligenceBuilderSession | null, watchCount: numb
 export function OnboardingPreview({
   open,
   onOpenChange,
-  profile,
+  profiles,
   session,
   onOpenBrief,
 }: {
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
-  readonly profile: IntelligenceOnboardingProfile
+  readonly profiles: readonly IntelligenceOnboardingProfile[]
   readonly session: IntelligenceBuilderSession | null
   readonly onOpenBrief: () => void
 }) {
+  const [profileId, setProfileId] = useState(profiles[0].profile_id)
+  const profile = useMemo(
+    () => profiles.find((item) => item.profile_id === profileId) ?? profiles[0],
+    [profileId, profiles],
+  )
   const [step, setStep] = useState(0)
+  const [subject, setSubject] = useState(profile.starter_prompts[0] ?? '')
   const [outcomeId, setOutcomeId] = useState(profile.outcomes[0]?.outcome_id ?? '')
   const [cadenceId, setCadenceId] = useState(profile.default_cadence_id)
+  const [sourceGroupIds, setSourceGroupIds] = useState<readonly string[]>(() =>
+    profile.source_groups.filter((group) => group.default_selected).map((group) => group.source_group_id),
+  )
   const outcome = useMemo(() => profile.outcomes.find((item) => item.outcome_id === outcomeId) ?? profile.outcomes[0], [outcomeId, profile.outcomes])
-  const firstBriefReady = session !== null && STAGE_RANK[session.stage] >= STAGE_RANK.first_briefing_ready
-  const lanes = buildLanes(session, outcome.recommended_topic_labels.length || 'Custom')
+  const selectedSourceGroups = useMemo(
+    () => profile.source_groups.filter((group) => sourceGroupIds.includes(group.source_group_id)),
+    [profile.source_groups, sourceGroupIds],
+  )
+  const proposedSourceCount = selectedSourceGroups.reduce((total, group) => total + group.source_ids.length, 0)
+  const activeSession = profile.profile_id === profiles[0]?.profile_id ? session : null
+  const firstBriefReady = activeSession !== null && STAGE_RANK[activeSession.stage] >= STAGE_RANK.first_briefing_ready
+  const lanes = buildLanes(activeSession, outcome.recommended_topic_labels.length || 'Custom')
+  const evidenceRequired = profile.source_groups.length > 0
+  const canContinue = step === 0
+    ? subject.trim().length >= 8
+    : step !== 1 || !evidenceRequired || selectedSourceGroups.length > 0
+
+  useEffect(() => {
+    if (!profiles.some((item) => item.profile_id === profileId)) setProfileId(profiles[0].profile_id)
+  }, [profileId, profiles])
+
+  useEffect(() => {
+    if (open) setProfileId(profiles[0].profile_id)
+  }, [open, profiles])
+
+  useEffect(() => {
+    setOutcomeId(profile.outcomes[0]?.outcome_id ?? '')
+    setCadenceId(profile.default_cadence_id)
+    setSubject(profile.starter_prompts[0] ?? '')
+    setSourceGroupIds(
+      profile.source_groups.filter((group) => group.default_selected).map((group) => group.source_group_id),
+    )
+  }, [profile])
+
+  function toggleSourceGroup(sourceGroupId: string) {
+    setSourceGroupIds((current) => current.includes(sourceGroupId)
+      ? current.filter((item) => item !== sourceGroupId)
+      : [...current, sourceGroupId])
+  }
 
   function close(next: boolean) {
     onOpenChange(next)
@@ -156,11 +225,16 @@ export function OnboardingPreview({
               <Sparkles className="size-3.5" /> Build your intelligence
             </div>
             <Badge variant="outline" className="mr-6 rounded-sm font-mono text-[9px]">
-              {session === null ? 'Proposal only' : `Live · step ${session.sequence}`}
+              {activeSession === null ? 'Proposal only' : `Live · step ${activeSession.sequence}`}
             </Badge>
           </div>
-          <div className="mt-3 flex gap-1.5" aria-label={`Step ${step + 1} of 4`}>
-            {[0, 1, 2, 3].map((item) => <div key={item} className={`h-1 flex-1 rounded-full ${item <= step ? 'bg-brand' : 'bg-border'}`} />)}
+          <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`Step ${step + 1} of 5: ${STEP_LABELS[step]}`}>
+            {STEP_LABELS.map((label, index) => (
+              <div key={label} className="min-w-0">
+                <div className={`h-1 rounded-full ${index <= step ? 'bg-brand' : 'bg-border'}`} />
+                <div className={`mt-1.5 hidden truncate font-mono text-[8px] uppercase tracking-[0.12em] sm:block ${index === step ? 'text-brand' : 'text-muted-foreground'}`}>{label}</div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -168,9 +242,63 @@ export function OnboardingPreview({
           {step === 0 && (
             <>
               <DialogHeader className="max-w-2xl">
-                <DialogTitle className="text-2xl tracking-tight">{profile.prompt}</DialogTitle>
-                <DialogDescription className="text-sm leading-relaxed">{profile.description}</DialogDescription>
+                <DialogTitle className="text-2xl tracking-tight">What do you want intelligence about?</DialogTitle>
+                <DialogDescription className="text-sm leading-relaxed">
+                  Describe the subject or decision in plain language. ACE will choose the strongest available intelligence starting point and specialize it around your job.
+                </DialogDescription>
               </DialogHeader>
+              <div className="mt-5">
+                <Textarea
+                  aria-label="Describe the intelligence you want"
+                  value={subject}
+                  onChange={(event) => setSubject(event.target.value)}
+                  placeholder="For example: Keep me ahead of meaningful AI capability, cost, policy, and adoption shifts."
+                  className="min-h-24 rounded-lg border-border bg-card px-4 py-3 text-sm leading-relaxed"
+                />
+                {profile.starter_prompts.length > 1 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {profile.starter_prompts.slice(1).map((prompt) => (
+                      <Button key={prompt} type="button" variant="outline" size="sm" className="h-auto whitespace-normal rounded-md py-1.5 text-left text-[10px] text-muted-foreground" onClick={() => setSubject(prompt)}>{prompt}</Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="mt-4 grid gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4 md:grid-cols-[auto_1fr_auto] md:items-center">
+                <div className="flex size-9 items-center justify-center rounded-md border border-brand/40 bg-brand/10 text-brand"><Sparkles className="size-4" /></div>
+                <div className="min-w-0">
+                  <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-brand">Selected intelligence</div>
+                  <div className="mt-1 text-sm font-semibold">{profile.domain_label} <span className="text-muted-foreground">→</span> {profile.topic_label}</div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{profile.display_name} gives ACE the starting vocabulary, evidence roles, and quality policy. Your request determines the actual picture.</p>
+                </div>
+                <Badge variant="outline" className="w-fit rounded-sm font-mono text-[9px]">Selected</Badge>
+              </div>
+              <div className="mt-5">
+                <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Choose a starting point</div>
+                <div className="mt-3 grid gap-3 md:grid-cols-3">
+                  {profiles.map((item) => {
+                    const selected = item.profile_id === profile.profile_id
+                    return (
+                      <Button
+                        key={item.profile_id}
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setProfileId(item.profile_id)}
+                        className={`h-auto min-h-28 w-full flex-col items-start justify-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
+                      >
+                        <div className="flex w-full items-start justify-between gap-3">
+                          <div className="text-sm font-semibold">{item.domain_label}</div>
+                          {selected && <Check className="size-3.5 shrink-0 text-brand" />}
+                        </div>
+                        <div className="mt-1 text-xs font-medium text-foreground/85">{item.topic_label}</div>
+                        <p className="mt-2 line-clamp-2 text-[10px] font-normal leading-relaxed text-muted-foreground">{item.description}</p>
+                      </Button>
+                    )
+                  })}
+                </div>
+              </div>
+              <div className="mt-6">
+                <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">{profile.prompt}</div>
+              </div>
               <div className="mt-6 grid gap-3 md:grid-cols-2">
                 {profile.outcomes.map((item) => {
                   const selected = item.outcome_id === outcomeId
@@ -191,7 +319,58 @@ export function OnboardingPreview({
           {step === 1 && (
             <>
               <DialogHeader className="max-w-2xl">
-                <DialogTitle className="text-2xl tracking-tight">Tune the picture</DialogTitle>
+                <DialogTitle className="text-2xl tracking-tight">Choose the evidence ACE can use</DialogTitle>
+                <DialogDescription>
+                  Start with a balanced public picture. These are proposed source groups—not silent connections—and every record keeps its publisher and evidence role.
+                </DialogDescription>
+              </DialogHeader>
+              {profile.source_groups.length > 0 ? (
+                <>
+                  <div className="mt-6 grid gap-3 md:grid-cols-2">
+                    {profile.source_groups.map((group) => {
+                      const selected = sourceGroupIds.includes(group.source_group_id)
+                      return (
+                        <Button
+                          key={group.source_group_id}
+                          type="button"
+                          variant="ghost"
+                          onClick={() => toggleSourceGroup(group.source_group_id)}
+                          className={`h-auto min-h-40 w-full flex-col items-stretch justify-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}><SourceIcon group={group} /></div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 text-sm font-semibold">{group.label}{selected && <Check className="size-3.5 text-brand" />}</div>
+                              <p className="mt-1 text-xs font-normal leading-relaxed text-muted-foreground">{group.description}</p>
+                            </div>
+                          </div>
+                          <div className="mt-auto flex flex-wrap items-center gap-1.5 border-t pt-3">
+                            {group.source_labels.slice(0, 4).map((label) => <Badge key={label} variant="secondary" className="rounded-sm font-normal">{label}</Badge>)}
+                            {group.source_labels.length > 4 && <Badge variant="outline" className="rounded-sm font-mono text-[9px]">+{group.source_labels.length - 4}</Badge>}
+                          </div>
+                          <div className="mt-2 flex items-center justify-between gap-3 font-mono text-[8px] uppercase tracking-[0.1em] text-muted-foreground">
+                            <span>{group.source_ids.length} sources</span><span>{group.access_label}</span>
+                          </div>
+                        </Button>
+                      )
+                    })}
+                  </div>
+                  <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                    <PlugZap className="size-3.5 text-brand" /> {selectedSourceGroups.length} groups · {proposedSourceCount} sources proposed
+                  </div>
+                </>
+              ) : (
+                <div className="mt-6 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">
+                  ACE will propose a balanced mix of primary records, first-party claims, independent evidence, telemetry, and leading indicators for review.
+                </div>
+              )}
+            </>
+          )}
+
+          {step === 2 && (
+            <>
+              <DialogHeader className="max-w-2xl">
+                <DialogTitle className="text-2xl tracking-tight">Shape the intelligence picture</DialogTitle>
                 <DialogDescription>ACE recommends a complete starting view for <span className="text-foreground">{outcome.label.toLowerCase()}</span>. You can refine it later.</DialogDescription>
               </DialogHeader>
               <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
@@ -201,29 +380,32 @@ export function OnboardingPreview({
             </>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <>
               <DialogHeader className="max-w-2xl"><DialogTitle className="text-2xl tracking-tight">Review what ACE will build</DialogTitle><DialogDescription>Public evidence creates the first picture. Private sources remain optional and require explicit permission.</DialogDescription></DialogHeader>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <PlanCard label="Evidence" value="Recommended public mix" detail="Primary records, first-party claims, independent measurement, operational telemetry, and leading indicators." />
-                <PlanCard label="Concept map" value="Proposed for review" detail="Entities, aliases, attributes, relationships, claims, events, and outcomes." />
+                <PlanCard label="Evidence" value={profile.source_groups.length > 0 ? `${proposedSourceCount} proposed sources` : 'Recommended public mix'} detail={selectedSourceGroups.length > 0 ? selectedSourceGroups.map((group) => group.label).join(' · ') : 'Primary records, first-party claims, independent measurement, operational telemetry, and leading indicators.'} />
+                <PlanCard label="Concept map" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting concepts`} detail={outcome.recommended_topic_labels.length > 0 ? outcome.recommended_topic_labels.join(' · ') : 'Entities, aliases, attributes, relationships, claims, events, and outcomes.'} />
                 <PlanCard label="Watches" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting areas`} detail="Material changes, contradictions, catalysts, and weak signals—scoped to your selected job." />
-                <PlanCard label="Intelligence" value={`${outcome.recommended_intelligence_labels.length || 'Custom'} starting products`} detail={outcome.recommended_intelligence_labels.length > 0 ? outcome.recommended_intelligence_labels.join(' · ') : 'ACE will propose intelligence products from your custom questions.'} />
+                <PlanCard label="Briefing" value={profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'} detail={outcome.recommended_intelligence_labels.length > 0 ? outcome.recommended_intelligence_labels.join(' · ') : 'ACE will propose intelligence products from your custom questions.'} />
               </div>
-              <div className="mt-4 flex items-start gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4"><Scale className="mt-0.5 size-4 shrink-0 text-brand" /><p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Nothing is connected or activated silently.</span> You will see every requested permission, every proposed source that remains unconnected, and every watch before it receives authority.</p></div>
+              <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
+                <div className="flex items-start gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4"><Scale className="mt-0.5 size-4 shrink-0 text-brand" /><p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Nothing is connected or activated silently.</span> You will see every requested permission, every proposed source that remains unconnected, and every watch before it receives authority.</p></div>
+                <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3"><BookOpenCheck className="size-4 text-brand" /><div><div className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">First value</div><div className="mt-0.5 text-xs font-medium">One cited Brief</div></div></div>
+              </div>
             </>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <>
               <DialogHeader className="max-w-2xl">
-                <DialogTitle className="text-2xl tracking-tight">{firstBriefReady ? 'Your first picture is ready' : session?.stage === 'blocked' ? 'ACE needs your attention' : session === null ? 'Your governed plan is ready' : 'Your first picture is assembling'}</DialogTitle>
+                <DialogTitle className="text-2xl tracking-tight">{firstBriefReady ? 'Your first picture is ready' : activeSession?.stage === 'blocked' ? 'ACE needs your attention' : activeSession === null ? 'Your governed plan is ready' : 'Your first picture is assembling'}</DialogTitle>
                 <DialogDescription>
-                  {session === null
+                  {activeSession === null
                     ? 'Review the plan before ACE connects sources or starts watching.'
                     : firstBriefReady
                       ? 'ACE built this picture from the sources and watch settings you approved.'
-                      : session.stage === 'blocked'
+                      : activeSession.stage === 'blocked'
                         ? 'ACE paused safely before changing your intelligence picture.'
                         : 'ACE is assembling the picture from the sources and watch settings you approved.'}
                 </DialogDescription>
@@ -232,11 +414,11 @@ export function OnboardingPreview({
                 {lanes.map((lane) => <BuildStep key={lane.label} {...lane} />)}
               </div>
               <div className="mt-5 rounded-lg border bg-card p-4 text-xs text-muted-foreground">
-                {session === null
+                {activeSession === null
                   ? 'Reviewing this plan changes nothing until you approve it.'
                   : firstBriefReady
                     ? 'First cited Brief ready · Setup saved'
-                    : `Setup saved · Step ${session.sequence}`}
+                    : `Setup saved · Step ${activeSession.sequence}`}
               </div>
             </>
           )}
@@ -244,8 +426,8 @@ export function OnboardingPreview({
 
         <div className="flex items-center justify-between border-t px-6 py-4 sm:px-8">
           <Button type="button" variant="ghost" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}><ArrowLeft className="size-4" /> Back</Button>
-          {step < 3
-            ? <Button type="button" onClick={() => setStep((value) => Math.min(3, value + 1))}>{step === 2 ? session === null ? 'Review proposed build' : 'View live build' : 'Continue'} <ArrowRight className="size-4" /></Button>
+          {step < 4
+            ? <Button type="button" disabled={!canContinue} onClick={() => setStep((value) => Math.min(4, value + 1))}>{step === 0 ? 'Use this starting point' : step === 1 ? 'Use these sources' : step === 2 ? 'Review the plan' : activeSession === null ? 'Review proposed build' : 'View live build'} <ArrowRight className="size-4" /></Button>
             : <Button type="button" onClick={finish}>{firstBriefReady ? profile.completion_label : 'Return to Atrium'} <ArrowRight className="size-4" /></Button>}
         </div>
       </DialogContent>

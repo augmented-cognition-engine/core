@@ -110,6 +110,15 @@ defines the Opportunity experience, introduces the ACE-owned design system, and 
 visual What / Why / How / When grammar across Briefs and decision-facing intelligence. It does not change the 0.9
 Collaborative Intelligence promise.
 
+Current post-0.8.1 candidate work adds the Atrium Intelligence Catalog as an experience entry
+slice: the generic resource consumer enumerates all admitted onboarding profiles in product scope,
+deduplicates them by profile identity, and always offers the Core-owned Custom Intelligence path.
+World and Marketing contribute their own declarative profiles from their independent repositories;
+Core names neither domain and grants no installation, connection, monitor, or activation authority.
+This makes first use outcome-led across domains while leaving live selection/session binding and
+activation on the existing governed Builder boundaries. It is preparatory product work, not a
+claim that the 0.9 collaboration release gate has passed.
+
 The prior [0.7.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.7.0)
 and [`ace-core==0.7.0`](https://pypi.org/project/ace-core/0.7.0/) package remain the passed
 Intelligence Builder Foundation boundary, recorded by the

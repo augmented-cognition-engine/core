@@ -30,15 +30,38 @@ serve it.
 | Decide | What opportunity, risk, or investigation follows? | A bounded next step into Opportunities, Strategy, or downstream investigation. |
 | Learn | Can this become more useful without silently changing truth or authority? | Useful/not-useful feedback reweights relevance; authority, evidence, and policy do not self-widen. |
 
+## Intelligence Catalog
+
+Atrium opens by asking **What do you want intelligence about?** It then presents the admitted
+starting points available in the current product scope. The initial public catalog is:
+
+- **World Intelligence** — topic-centric orientation over public-world change; the flagship topic
+  is artificial intelligence.
+- **Marketing Intelligence** — commercial orientation over markets, competitors, products,
+  customers, narratives, go-to-market movement, and marketing performance.
+- **Custom Intelligence** — the Core-owned generic Builder path for a subject that does not match
+  an admitted domain profile.
+
+World and Marketing are not constants in the Core kernel or conditional UI branches. Their owning
+repositories contribute inert `builder_profile` resources through the existing resource plane.
+Atrium deduplicates profiles by stable identity and appends Custom Intelligence as its sole built-in
+starting point. A missing or uninstalled domain is not advertised as available.
+
+The catalog is presentation and discovery, not installation or authority. Selecting a card changes
+the proposed vocabulary, evidence roles, outcomes, and cadence; it does not connect a source, create
+a monitor, activate a pack, or bind a session. A product host begins live work only through the
+public Builder and approval boundaries.
+
 ## First-run journey
 
 The magic moment is `choose a job -> accept a recommended watch system -> see the first cited
 briefing`. Public evidence can produce first value before the user connects private data.
 
-### 1. Choose the outcome
+### 1. State the job and choose the starting point
 
-The first screen asks one question: **What do you need to stay ahead of?** A Domain Pack supplies a
-small set of outcome choices. The World AI pack starts with:
+The first screen accepts the user's subject or decision in plain language, recommends an admitted
+starting point, and lets the user choose another. The selected profile then supplies a small set of
+outcome choices. The World AI pack starts with:
 
 - choose or buy AI;
 - set strategy or evaluate investments;
@@ -182,6 +205,12 @@ The design direction was researched before implementation:
   than decorative agent animation.
 - Reclaim contributes the sequence `connect -> confirm -> personalize -> provision`, with setup
   status retained after the user leaves the first-run flow.
+- Cycle contributes a compact source-selection grid with enough publisher detail to make a choice
+  without becoming an integration wall.
+- Sana contributes the explicit connect/continue boundary: a source remains visibly proposed until
+  access succeeds and the user continues.
+- Dovetail contributes a dark, information-dense research workspace that keeps evidence and the
+  user's question visually primary.
 - Macaw contributes the immediate handoff from inspected source understanding to a populated
   generated result rather than a blank success screen.
 - Gemini contributes the centered readable answer with a dedicated source panel one interaction
@@ -215,14 +244,16 @@ states; the interface must not average them into a single optimistic progress tr
 ## Acceptance journey
 
 1. A clean install opens with no live intelligence and offers one outcome-led start action.
-2. A user selects an AI decision context, accepts recommended topics and cadence, and sees proposed
+2. Atrium lists every admitted domain starting point plus Custom Intelligence without naming an
+   unavailable domain or granting installation authority.
+3. A user states the job, selects an AI decision context, accepts recommended topics and cadence, and sees proposed
    public evidence before granting authority.
-3. ACE explains every requested permission and keeps failed or skipped connections resumable.
-4. The governed agents produce an inspectable Connect -> Map -> Watch -> Brief -> Activate trace.
-5. The first cited Brief appears without hand-authored ontology work or knowledge of ACE internals.
-6. The user can ask a grounded question, inspect exact evidence, mark relevance, and see that
+4. ACE explains every requested permission and keeps failed or skipped connections resumable.
+5. The governed agents produce an inspectable Connect -> Map -> Watch -> Brief -> Activate trace.
+6. The first cited Brief appears without hand-authored ontology work or knowledge of ACE internals.
+7. The user can ask a grounded question, inspect exact evidence, mark relevance, and see that
    feedback changes ranking without changing evidence or authority.
-7. Restart/reopen returns to the same active watches, latest Brief, onboarding history, and user
+8. Restart/reopen returns to the same active watches, latest Brief, onboarding history, and user
    preferences.
-8. The same Core shell reproduces a materially different Market Intelligence profile without code
+9. The same Core shell reproduces a materially different Market Intelligence profile without code
    changes.
