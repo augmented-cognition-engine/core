@@ -76,7 +76,7 @@ const RECENT_SESSIONS: readonly RecentSession[] = [
   },
 ]
 
-// Outcome -> dot color. State semantics: in motion = live (brand green),
+// Outcome -> dot color. State semantics: in motion = live (spectral cyan),
 // decided = success, shelved/archived = neutral (a category, not an alarm).
 const OUTCOME_DOT: Record<SessionOutcome, string> = {
   'in motion': 'bg-live animate-pulse',

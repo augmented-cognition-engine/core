@@ -24,23 +24,25 @@ command-center visual direction.
 
 The visual system is anchored in three researched patterns:
 
-- Dovetail's "Midnight Command Center": deep charcoal surface hierarchy,
-  compact information density, thin borders, restrained radii, and no decorative
-  shadow stack.
-- Paradigm's strategic-intelligence surfaces: rigorous status treatment,
-  evidence-forward rows, and high-contrast reading panels.
-- Perplexity's answer experience: one calm question entry point, a sourced answer,
-  and explicit refusal to invent an answer when evidence is insufficient.
+- Linear's changelog: a midnight command center built with subtle surface steps,
+  graphite borders, compact typography, and almost no decorative shadow.
+- Warp's precision workbench: electric blue reserved for focus, active state, and
+  the product in action rather than spread across every surface.
+- Parallel's research workspace: evidence-forward hierarchy, durable source context,
+  and a clear separation between the narrative answer and its supporting record.
 
-ACE retains its mint brand identity for confirmed/live state. It is not expanded
-into a rainbow category system. Monospace typography is reserved for receipts,
-timestamps, counts, and provenance.
+The ACE mark supplies the identity: cognitive blue is the primary/action color,
+spectral cyan means live evidence, and semantic green means verified success only.
+The blue-cyan-violet logo gradient stays inside the mark and rare brand moments; it
+does not become a rainbow component system. Monospace typography is reserved for
+receipts, timestamps, counts, and provenance.
 
 ## Decisions
 
 | Area | Decision | Reason |
 |---|---|---|
 | Theme | Dark, dense, evidence-first | Atrium should read as an always-on operating surface, not a marketing dashboard. |
+| Brand | ACE cognitive blue on cool blue-black neutrals | Core must be recognizable without inheriting a customer's palette. |
 | Home | Briefing plus attention plus stream | One current narrative is primary; changes and open cases remain visible around it. |
 | Domain identity | Derive the display name from the governed page `product_id` | Core stays domain-neutral while every deployment is oriented. |
 | Status | One compact coverage strip | Avoid a wall of KPI cards; show operational context in one scan. |
@@ -56,6 +58,7 @@ timestamps, counts, and provenance.
 - command-line cosplay;
 - a World-specific route or hard-coded World vocabulary inside Core;
 - a separate World dashboard that forks the Atrium experience.
+- a public domain pack that silently replaces ACE identity with a customer's brand;
 - a source-catalog wall or agent-by-agent configuration wizard during first use;
 - a blank dashboard or a second guided tour after the first Brief is ready.
 

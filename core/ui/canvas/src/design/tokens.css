@@ -2,13 +2,13 @@
  *
  * The ACE design system — canonical token sheet.
  *
- * Visual direction: ENGINEERED LIGHT. Bright neutral canvas, single
- * electric-blue accent, hairline-shadow-as-border for elevation, 8px
- * engineered buttons (not pills), 12px cards. The vocabulary of Vercel +
- * v0 + OpenAI Devs — a working surface that instills trust through
- * clarity, not warmth. Whiteboard, not parchment.
+ * Visual direction: ACE PRECISION. Bright neutral canvas outside the
+ * command center, a single cognitive-blue accent derived from the ACE mark,
+ * hairline-shadow-as-border for elevation, 8px engineered buttons (not
+ * pills), and 12px cards. The vocabulary is ACE's own: calm, exact,
+ * evidence-forward, and recognizable without borrowing a customer's brand.
  *
- * See docs/design-system.md for the principles and layer model.
+ * See docs/design/ace-design-system-v1.md for the principles and layer model.
  * Every UI component composes from these tokens. No inline color/font/
  * spacing in component code; if a value isn't expressible in tokens, the
  * design system gets a new token first.
@@ -271,15 +271,15 @@
    * reference these exclusively. Engineered-light IS the base — there is
    * no dark default to override from.
    *
-   * Color values draw from the Vercel/v0/OpenAI-Devs/Amie consensus:
+   * Color values use ACE's neutral working surfaces:
    *   canvas #FAFAFA, raised #FFFFFF, line #EAEAEA, ink #171717
-   * Single chromatic accent: Vercel electric blue #0070F3.
+   * Single chromatic accent: ACE cognitive blue #315DDE.
    */
 
   --ace-surface-canvas:   #FAFAFA;   /* page / canvas ground */
   --ace-surface-raised:   #FFFFFF;   /* cards, popovers, the lifted surface */
   --ace-surface-recessed: #F4F4F4;   /* highlight bands, captured-this-turn chips */
-  --ace-surface-tint:     #E8F2FF;   /* accent-tinted background (convergence beat, banner) */
+  --ace-surface-tint:     #E9EEFF;   /* accent-tinted background (convergence beat, banner) */
 
   /* Legacy card surface aliases — keep so existing components don't break.
      Map them all to the new role tokens. */
@@ -322,13 +322,13 @@
   --ace-focus-ring:       0 0 0 3px var(--ace-accent-soft);
   --ace-focus-ring-strong: 0 0 0 1px var(--ace-accent), 0 0 0 4px var(--ace-accent-soft);
 
-  /* Single chromatic accent — Vercel electric blue. Used for CTAs,
+  /* Single chromatic accent — ACE cognitive blue. Used for CTAs,
      active states, focus rings, the "next voice" arrow, the
      reconciliation banner edge, the convergence beat tint. Nowhere else. */
-  --ace-accent:        #0070F3;
-  --ace-accent-hover:  #0061D5;
-  --ace-accent-soft:   #E8F2FF;
-  --ace-accent-tint:   rgba(0, 112, 243, 0.10);
+  --ace-accent:        #315DDE;
+  --ace-accent-hover:  #274CB8;
+  --ace-accent-soft:   #E9EEFF;
+  --ace-accent-tint:   rgba(49, 93, 222, 0.11);
   --ace-accent-ink:    #FFFFFF;
 
   /* ============================================================================
@@ -345,14 +345,14 @@
      A branded theme overrides --ace-voice-accent to retint everything in
      one move. */
   --ace-north-star-bg:    var(--ace-accent-soft);
-  --ace-north-star-line:  rgba(0, 112, 243, 0.24);
+  --ace-north-star-line:  rgba(49, 93, 222, 0.24);
   --ace-north-star-label: var(--ace-accent);
 
   /* Synthesis surface — the convergence-beat lock-in card. Same accent
      tint as the north star to signal "this is the system's verdict
      about itself." */
   --ace-synthesis-paper:   var(--ace-surface-tint);
-  --ace-synthesis-divider: rgba(0, 112, 243, 0.18);
+  --ace-synthesis-divider: rgba(49, 93, 222, 0.18);
 
   /* Sketch-chalk — the inked annotation strokes inside cards
      (calibration sparkline, contribution arrows). Dark-ink on light
@@ -363,7 +363,7 @@
   --ace-discipline-accent-fallback: var(--ace-ink-muted);
 
   /* Voice accent — the color that names ACE's voice in the room.
-     Engineered-light base = Vercel electric blue. Components rendering
+     ACE base = cognitive blue. Components rendering
      ACE's chrome (AceCard, ComposingIndicator, VisionAnchor, ShellNav
      mark, Briefing tile) consume this token rather than hardcoding the
      hex — so a branded extension theme can retint the voice globally
@@ -374,7 +374,7 @@
   --ace-voice-accent:        var(--ace-accent);
   --ace-voice-accent-hover:  var(--ace-accent-hover);
   --ace-voice-accent-soft:   var(--ace-accent-soft);
-  --ace-voice-accent-strong: rgba(0, 112, 243, 0.50);
+  --ace-voice-accent-strong: rgba(49, 93, 222, 0.50);
   --ace-voice-accent-ink:    var(--ace-accent-ink);
 
   /* Semantic status — used sparingly on sentinel pips, calibration

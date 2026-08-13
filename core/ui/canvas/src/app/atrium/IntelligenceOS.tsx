@@ -7,13 +7,16 @@ import {
   BrainCircuit,
   CircleAlert,
   Clock3,
+  Crosshair,
   Layers3,
   Network,
   Radio,
   RefreshCw,
   Route,
+  SearchCheck,
   ShieldCheck,
   Sparkles,
+  TimerReset,
 } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
@@ -49,7 +52,7 @@ const SURFACE_COPY: Record<Surface, { title: string; subtitle: string }> = {
   },
   opportunities: {
     title: 'Opportunities',
-    subtitle: 'Cases and material shifts worth investigating or acting on.',
+    subtitle: 'Evidence-backed openings that may warrant a decision, response, or new watch.',
   },
   agents: {
     title: 'Agents',
@@ -210,7 +213,7 @@ function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups;
   const entries = [
     { icon: Radio, label: 'Sources', value: `${sources} admitted` },
     { icon: Activity, label: 'Watches', value: `${monitors} active` },
-    { icon: Layers3, label: 'Open cases', value: `${openCases} material` },
+    { icon: Layers3, label: 'Decision openings', value: `${openCases} ready` },
     { icon: Clock3, label: 'Freshness', value: freshness },
   ]
 
@@ -261,6 +264,107 @@ function AgentsView({ groups }: { readonly groups: ResourceGroups }) {
   )
 }
 
+function OpportunityStage({
+  icon: Icon,
+  title,
+  detail,
+}: {
+  readonly icon: typeof Crosshair
+  readonly title: string
+  readonly detail: string
+}) {
+  return (
+    <div className="flex gap-3 rounded-lg border bg-background p-4">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10 text-brand">
+        <Icon className="size-4" />
+      </div>
+      <div>
+        <div className="text-sm font-semibold">{title}</div>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{detail}</p>
+      </div>
+    </div>
+  )
+}
+
+function OpportunitySection({
+  eyebrow,
+  title,
+  detail,
+  items,
+  empty,
+}: {
+  readonly eyebrow: string
+  readonly title: string
+  readonly detail: string
+  readonly items: readonly IntelligenceResourceRecord[]
+  readonly empty: string
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">{eyebrow}</div>
+          <h2 className="mt-1 text-lg font-semibold tracking-tight">{title}</h2>
+          <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">{detail}</p>
+        </div>
+        <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{items.length} current</Badge>
+      </div>
+      <ResourceGrid items={items} empty={empty} compact />
+    </section>
+  )
+}
+
+function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
+  const decisionOpenings = groups.opportunities.filter((item) => item.reference.resource_kind === 'case')
+  const emergingOpenings = groups.opportunities.filter((item) => item.reference.resource_kind === 'shift')
+  const earlySignals = groups.opportunities.filter((item) => item.reference.resource_kind === 'signal')
+
+  return (
+    <div className="space-y-7">
+      <Card className="border-brand/20 bg-brand/[0.04]">
+        <CardContent className="p-5 md:p-6">
+          <div className="max-w-3xl">
+            <Badge variant="secondary" className="mb-3 border border-brand/15 bg-brand/10 text-brand">Decision openings</Badge>
+            <h2 className="text-xl font-semibold tracking-tight">An Opportunity is intelligence awaiting a decision.</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              ACE promotes a signal or shift when the evidence suggests a favorable or avoidable window. It is not a lead, a task, or autonomous Work; it remains a proposal until a person investigates, accepts, dismisses, or turns it into Strategy.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <OpportunityStage icon={Radio} title="Signal" detail="A relevant observation worth tracking, but not yet a decision opening." />
+            <OpportunityStage icon={TimerReset} title="Shift" detail="A material delta from the baseline that may create a time-sensitive opening." />
+            <OpportunityStage icon={SearchCheck} title="Case" detail="A bounded, evidence-backed question ready for investigation or decision." />
+          </div>
+        </CardContent>
+      </Card>
+
+      <OpportunitySection
+        eyebrow="Ready to investigate"
+        title="Decision openings"
+        detail="Cases have a bounded question and preserved evidence. Review the record before turning one into Strategy or downstream Work."
+        items={decisionOpenings}
+        empty="No evidence-backed decision openings are ready yet."
+      />
+      <OpportunitySection
+        eyebrow="Developing"
+        title="Emerging openings"
+        detail="Material shifts may become Opportunities once their decision window, impact, and evidence are clear."
+        items={emergingOpenings}
+        empty="No material shifts are currently developing into Opportunities."
+      />
+      {earlySignals.length > 0 && (
+        <OpportunitySection
+          eyebrow="Watchlist"
+          title="Early signals"
+          detail="These observations are relevant, but ACE has not yet established a material shift or bounded decision question."
+          items={earlySignals}
+          empty="No early signals are being watched."
+        />
+      )}
+    </div>
+  )
+}
+
 function Metric({ label, value, detail, warning = false }: { readonly label: string; readonly value: number | string; readonly detail: string; readonly warning?: boolean }) {
   return (
     <Card>
@@ -297,9 +401,7 @@ function PageContent({ surface, groups, all, onStart }: { readonly surface: Surf
   if (surface === 'intelligence') return <BriefingHome groups={groups} all={all} onStart={onStart} />
   if (surface === 'connections') return <ConnectionsView groups={groups} />
   if (surface === 'agents') return <AgentsView groups={groups} />
-  if (surface === 'opportunities') {
-    return <ResourceGrid items={groups.opportunities} empty="No material opportunities have been opened yet." />
-  }
+  if (surface === 'opportunities') return <OpportunitiesView groups={groups} />
   return <ResourceGrid items={groups.strategy} empty="No decisions or outcomes have entered the strategy loop yet." />
 }
 
