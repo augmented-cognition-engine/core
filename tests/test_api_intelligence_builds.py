@@ -9,7 +9,7 @@ from httpx import ASGITransport, AsyncClient
 from ace.core import GovernedStateHeadPreconditionV1Alpha1
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
 from ace.intelligence.contracts.resource_plane import (
-    IntelligenceResourcePageState,
+    IntelligenceResourceKind,
     IntelligenceResourcePageV1Alpha1,
 )
 from ace.testing import InMemoryImmutableRecordStore
@@ -86,22 +86,19 @@ class _Authority:
 class _Executor:
     def __init__(self) -> None:
         self.builds: list[AuthorizedIntelligenceBuild] = []
+        self.host_services = []
 
-    async def start(self, build: AuthorizedIntelligenceBuild) -> IntelligenceResourcePageV1Alpha1:
+    async def start(self, build: AuthorizedIntelligenceBuild, host_services) -> IntelligenceResourcePageV1Alpha1:
         self.builds.append(build)
-        read_authority = _receipt(build=build, kwargs={})
-        evaluated_at = read_authority.evaluated_at
-        return IntelligenceResourcePageV1Alpha1(
-            query_id=read_authority.use_subject_ref,
-            query_digest=read_authority.use_subject_digest,
-            product_id=PRODUCT,
-            actor_ref=ACTOR,
+        self.host_services.append(host_services)
+
+        evaluated_at = build.authority_use.evaluated_at
+        return await host_services.resources.query(
+            resource_kinds=(IntelligenceResourceKind.BRIEF,),
+            subject_refs=(),
             as_of=evaluated_at,
             available_at=evaluated_at,
             evaluated_at=evaluated_at,
-            state=IntelligenceResourcePageState.COMPLETE,
-            items=(),
-            authority_use=read_authority,
         )
 
 
@@ -109,7 +106,7 @@ def _claims(*, authorities: list[str] | None = None) -> dict:
     return {
         "sub": ACTOR,
         "product": PRODUCT,
-        "authorities": ["intelligence_build"] if authorities is None else authorities,
+        "authorities": ["intelligence_build", "observe_read"] if authorities is None else authorities,
         "exp": (NOW + timedelta(hours=1)).timestamp(),
     }
 
@@ -117,12 +114,19 @@ def _claims(*, authorities: list[str] | None = None) -> dict:
 def _body() -> dict:
     return {
         "authority_grant_ref": GRANT,
+        "resource_authority_grant_ref": "authority_grant:personal-intelligence-read",
         "client_request_id": "atrium-request:first-picture",
         "profile_id": "profile:world-ai",
         "subject": "Keep me ahead of meaningful changes in artificial intelligence.",
         "outcome_id": "outcome:decision-readiness",
         "source_group_ids": ["sources:official", "sources:independent"],
         "cadence_id": "cadence:daily",
+        "approved_effects": [
+            "connect_sources",
+            "map_concepts",
+            "activate_watch",
+            "create_first_brief",
+        ],
         "requested_at": NOW.isoformat(),
     }
 
@@ -158,6 +162,9 @@ async def test_start_build_authorizes_exact_reviewed_plan_and_returns_resource_p
     assert executor.builds[0].request.source_group_ids == ("sources:official", "sources:independent")
     assert authority.calls[0]["authority"] == "intelligence_build"
     assert authority.calls[0]["operation"] == "start_intelligence_build"
+    assert authority.calls[1]["authority"] == "observe_read"
+    assert authority.calls[1]["grant_ref"] == _body()["resource_authority_grant_ref"]
+    assert executor.host_services[0].records.product_id == PRODUCT
     assert any(record.record_kind == "task_authentication" for record in records.records.values())
 
 
