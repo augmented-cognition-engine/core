@@ -452,6 +452,10 @@ class ImmutableRecordStore(Protocol):
         available_at: datetime,
     ) -> int: ...
 
+    async def scan_product_records(self, *, product_id: str) -> tuple[ImmutableRecordV1, ...]:
+        """Return exact records inside one product fence for rebuildable projections and lifecycle work."""
+        ...
+
 
 __all__ = [
     "APPEND_ONLY_TRANSACTION_RECEIPT_VERSION",

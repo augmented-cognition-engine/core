@@ -2,11 +2,12 @@
 
 Status: **active 0.8C packet; facade, intelligence/monitoring projections, governed HTTP query,
 Decision → Outcome → Feedback closure, live Connection/Source projections, and governed Agent
-projection implemented**
+projection implemented; Context Manifest, Memory Use, and memory Evidence Lineage projection in
+review**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@3f4157e` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
+Accepted base: `main@8f54d89` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
 ledger/monitoring projection, governed HTTP query, Decision → Outcome → Feedback closure,
-and live Connection/Source projection)
+live Connection/Source projection, and governed Agent projection)
 
 ## Outcome
 
@@ -117,6 +118,16 @@ revocation or retirement becomes a payload-free tombstone. The public payload ex
 registration, purpose, role, and state metadata without resolved-grant material. Unactivated or
 incomplete governance never looks like a live agent, and reconstruction from the same immutable
 audit records reproduces the same current revision.
+
+The memory contributor uses Core's existing product-fenced immutable-record scan to discover AM3
+scope partitions without teaching the resource plane their storage identities. It projects bounded
+Context Manifests, actual Memory Use, and assertion-to-manifest Evidence Lineage. Context bodies do
+not enter these records. Selected, injected, reflected, and decision-material candidates remain
+distinct; matched influence never becomes a benefit claim, and `benefit` remains `unknown`.
+Manifest retrieval degradation is visible on the public record and page. A missing or invalid
+manifest suppresses dependent use and lineage rather than returning orphaned provenance. The scan
+widens neither product nor temporal scope, and reconstruction over the same product-fenced records
+is deterministic.
 
 0.8C must still add governed-state projections for the remaining canonical families and complete
 packaged schema/import integrity. 0.8D must prove Atrium consumes this interface rather than
