@@ -15,6 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from ace.application import (
     RESOURCE_QUERY_AUTHORITY,
     CompositeIntelligenceResourceProjectionReader,
+    DecisionOutcomeFeedbackResourceProjectionReader,
     IntelligenceLedgerResourceProjectionReader,
     IntelligenceResourceCursorV1Alpha1,
     IntelligenceResourceKind,
@@ -22,6 +23,7 @@ from ace.application import (
     IntelligenceResourcePlaneAuthorizationPort,
     IntelligenceResourcePlaneError,
     IntelligenceResourcePlaneService,
+    IntelligenceResourceProjectionReader,
     IntelligenceResourceQueryV1Alpha1,
     MonitoringResourceProjectionReader,
 )
@@ -81,6 +83,25 @@ def intelligence_resource_runtime() -> IntelligenceResourceHttpRuntime:
     )
 
 
+def intelligence_resource_projection_reader(records: ImmutableRecordStore) -> IntelligenceResourceProjectionReader:
+    """Compose all disjoint rebuildable public projection contributors."""
+
+    return CompositeIntelligenceResourceProjectionReader(
+        IntelligenceLedgerResourceProjectionReader(
+            store=records,
+            degrade_unsupported=False,
+        ),
+        MonitoringResourceProjectionReader(
+            store=records,
+            degrade_unsupported=False,
+        ),
+        DecisionOutcomeFeedbackResourceProjectionReader(
+            store=records,
+            degrade_unsupported=False,
+        ),
+    )
+
+
 def _verified_claims(user: dict) -> tuple[str, str]:
     actor_ref = user.get("sub")
     product_id = user.get("product")
@@ -121,16 +142,7 @@ async def query_intelligence_resource_page(
             cursor=selector.cursor,
         )
         return await IntelligenceResourcePlaneService(
-            reader=CompositeIntelligenceResourceProjectionReader(
-                IntelligenceLedgerResourceProjectionReader(
-                    store=runtime.records,
-                    degrade_unsupported=False,
-                ),
-                MonitoringResourceProjectionReader(
-                    store=runtime.records,
-                    degrade_unsupported=False,
-                ),
-            ),
+            reader=intelligence_resource_projection_reader(runtime.records),
             authority=runtime.authority,
         ).query(request, evaluated_at=evaluated_at)
     except GovernedCompositionAuthorityError as exc:
@@ -149,6 +161,7 @@ __all__ = [
     "IntelligenceResourceHttpUnauthenticated",
     "IntelligenceResourceHttpUnavailable",
     "IntelligenceResourcePageV1Alpha1",
+    "intelligence_resource_projection_reader",
     "intelligence_resource_runtime",
     "query_intelligence_resource_page",
 ]
