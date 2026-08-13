@@ -6,9 +6,13 @@ import {
   Bot,
   BrainCircuit,
   CircleAlert,
+  Clock3,
+  Layers3,
   Network,
+  Radio,
   RefreshCw,
   Route,
+  ShieldCheck,
 } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
@@ -21,6 +25,7 @@ import { Skeleton } from '@/design/shadcn/ui/skeleton'
 
 import { KernelNav } from '../ext/defaults/KernelNav'
 import { AskAce } from './AskAce'
+import { pageFreshness, productDisplayName } from './experienceModel'
 import {
   EXPLICITLY_DEGRADED_RESOURCE_KINDS,
   groupResources,
@@ -123,10 +128,12 @@ function ResourceGrid({
   items,
   empty,
   single = false,
+  compact = false,
 }: {
   readonly items: readonly IntelligenceResourceRecord[]
   readonly empty: string
   readonly single?: boolean
+  readonly compact?: boolean
 }) {
   if (items.length === 0) {
     return (
@@ -138,7 +145,7 @@ function ResourceGrid({
   return (
     <div className={single ? 'grid gap-3' : 'grid gap-3 xl:grid-cols-2'}>
       {items.map((item) => (
-        <ResourceCard key={`${item.reference.resource_id}:${item.reference.revision}`} record={item} />
+        <ResourceCard key={`${item.reference.resource_id}:${item.reference.revision}`} record={item} compact={compact} />
       ))}
     </div>
   )
@@ -147,19 +154,22 @@ function ResourceGrid({
 function BriefingHome({ groups, all }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[] }) {
   const briefs = groups.intelligence.filter((item) => item.reference.resource_kind === 'brief')
   const latestBrief = briefs[0]
+  const stream = groups.intelligence
+    .filter((item) => item !== latestBrief && ['signal', 'shift', 'brief'].includes(item.reference.resource_kind))
+    .slice(0, 6)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <AskAce items={all} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.55fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.45fr)]">
         <section className="space-y-3">
           <div className="flex items-end justify-between gap-3">
             <div>
-              <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">Latest briefing</div>
+              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Latest briefing</div>
               <h2 className="mt-1 text-lg font-semibold tracking-tight">The situation now</h2>
             </div>
-            <Badge variant="outline">{briefs.length} brief{briefs.length === 1 ? '' : 's'}</Badge>
+            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{briefs.length} current</Badge>
           </div>
           {latestBrief === undefined ? (
             <EmptyBuilder />
@@ -170,12 +180,49 @@ function BriefingHome({ groups, all }: { readonly groups: ResourceGroups; readon
 
         <aside className="space-y-3">
           <div>
-            <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Attention</div>
+            <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Attention</div>
             <h2 className="mt-1 text-lg font-semibold tracking-tight">What needs a look</h2>
           </div>
-          <ResourceGrid items={groups.attention.slice(0, 4)} empty="Nothing needs attention right now." single />
+          <ResourceGrid items={groups.attention.slice(0, 4)} empty="Nothing needs attention right now." single compact />
         </aside>
       </div>
+
+      <section className="space-y-3 border-t pt-6">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Live intelligence</div>
+            <h2 className="mt-1 text-lg font-semibold tracking-tight">What is moving</h2>
+          </div>
+          <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{stream.length} updates</Badge>
+        </div>
+        <ResourceGrid items={stream} empty="No additional signals or shifts have arrived yet." compact />
+      </section>
+    </div>
+  )
+}
+
+function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups; readonly freshness: string }) {
+  const sources = groups.connections.filter((item) => item.reference.resource_kind === 'source').length
+  const monitors = groups.agents.filter((item) => item.reference.resource_kind === 'monitor').length
+  const openCases = groups.opportunities.filter((item) => item.reference.resource_kind === 'case').length
+  const entries = [
+    { icon: Radio, label: 'Sources', value: `${sources} admitted` },
+    { icon: Activity, label: 'Watches', value: `${monitors} active` },
+    { icon: Layers3, label: 'Open cases', value: `${openCases} material` },
+    { icon: Clock3, label: 'Freshness', value: freshness },
+  ]
+
+  return (
+    <div className="mb-7 grid overflow-hidden rounded-lg border bg-card md:grid-cols-4" aria-label="Intelligence coverage">
+      {entries.map((entry, index) => (
+        <div key={entry.label} className={index === 0 ? 'flex items-center gap-3 px-4 py-3.5' : 'flex items-center gap-3 border-t px-4 py-3.5 md:border-l md:border-t-0'}>
+          <entry.icon className="size-3.5 shrink-0 text-brand" />
+          <div className="min-w-0">
+            <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">{entry.label}</div>
+            <div className="mt-0.5 truncate text-xs font-medium text-foreground/90">{entry.value}</div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -272,21 +319,30 @@ export function IntelligenceOS() {
   const copy = SURFACE_COPY[surface]
   const { page, loading, error, refresh } = useIntelligenceResources()
   const groups = useMemo(() => groupResources(page?.items ?? []), [page?.items])
+  const productName = productDisplayName(page?.product_id)
+  const freshness = pageFreshness(page)
 
   return (
-    <SidebarProvider>
-      <KernelNav />
-      <SidebarInset className="min-h-svh bg-muted/30">
-        <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background/95 px-5 backdrop-blur md:px-8">
+    <div className="atrium-command-center dark min-h-svh bg-background text-foreground">
+      <SidebarProvider>
+        <KernelNav />
+        <SidebarInset className="min-h-svh bg-background">
+        <header className="sticky top-0 z-20 flex min-h-[72px] items-center gap-4 border-b bg-background/95 px-5 backdrop-blur md:px-8">
           <SidebarTrigger className="md:hidden" />
           <div className="min-w-0">
-            <h1 className="truncate text-base font-semibold tracking-tight">{copy.title}</h1>
-            <p className="truncate text-[11px] text-muted-foreground">{copy.subtitle}</p>
+            <div className="truncate font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-brand">
+              ACE / {productName}
+            </div>
+            <div className="mt-1 flex min-w-0 items-baseline gap-3">
+              <h1 className="truncate text-base font-semibold tracking-tight">{copy.title}</h1>
+              <p className="hidden truncate text-[11px] text-muted-foreground lg:block">{copy.subtitle}</p>
+            </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
             {page !== null && (
-              <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden sm:inline-flex">
-                {page.state === 'degraded' ? 'Partial intelligence' : 'Intelligence current'}
+              <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden rounded-sm border border-border/70 bg-card font-mono text-[9px] sm:inline-flex">
+                {page.state === 'degraded' ? <CircleAlert className="mr-1 size-3 text-warning" /> : <ShieldCheck className="mr-1 size-3 text-brand" />}
+                {page.state === 'degraded' ? 'Partial picture' : 'Picture current'}
               </Badge>
             )}
             <Button type="button" variant="ghost" size="icon" onClick={refresh} aria-label="Refresh intelligence">
@@ -320,7 +376,10 @@ export function IntelligenceOS() {
           {loading && page === null ? (
             <LoadingState />
           ) : (
-            <PageContent surface={surface} groups={groups} all={page?.items ?? []} />
+            <>
+              <CoverageStrip groups={groups} freshness={freshness} />
+              <PageContent surface={surface} groups={groups} all={page?.items ?? []} />
+            </>
           )}
         </main>
 
@@ -332,7 +391,8 @@ export function IntelligenceOS() {
           <span>·</span>
           <span>exact provenance retained</span>
         </footer>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   )
 }

@@ -67,6 +67,13 @@ export function KernelNav() {
         </Link>
       </SidebarHeader>
 
+      <div className="mx-3 mb-2 rounded-md border border-brand/15 bg-brand/5 px-3 py-2.5 group-data-[collapsible=icon]:hidden">
+        <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.16em] text-brand">Command center</div>
+        <p className="mt-1 text-[10px] leading-4 text-muted-foreground">
+          One live picture from governed sources.
+        </p>
+      </div>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Surfaces</SidebarGroupLabel>

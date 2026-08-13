@@ -234,6 +234,38 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Atrium is ACE's always-on command center. It uses a tighter midnight
+ * surface ladder than the deliberation and canvas routes while preserving
+ * the shared ACE semantic tokens. Keeping this scoped prevents a domain or
+ * command-center preference from becoming a kernel-wide theme decision. */
+.atrium-command-center.dark {
+    --background: #0A0C0C;
+    --foreground: #F3F6F4;
+    --card: #131616;
+    --card-foreground: #F3F6F4;
+    --popover: #161A19;
+    --popover-foreground: #F3F6F4;
+    --primary: #F3F6F4;
+    --primary-foreground: #0A0C0C;
+    --secondary: #1B201E;
+    --secondary-foreground: #F3F6F4;
+    --muted: #151918;
+    --muted-foreground: #9AA5A0;
+    --accent: #202624;
+    --accent-foreground: #F3F6F4;
+    --border: #29312E;
+    --input: #343D39;
+    --ring: #71E3B4;
+    --anchor: #101916;
+    --anchor-foreground: #F3F6F4;
+    --sidebar: #0D1010;
+    --sidebar-foreground: #E9EEEB;
+    --sidebar-accent: #191E1C;
+    --sidebar-accent-foreground: #F3F6F4;
+    --sidebar-border: #252C29;
+    --sidebar-ring: #71E3B4;
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;
