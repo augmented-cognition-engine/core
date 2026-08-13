@@ -1,5 +1,6 @@
 """Application services composing ACE Core and Intelligence bounded contexts."""
 
+from ace.application.action_resource_projection import ActionResourceProjectionReader
 from ace.application.agent_composition import (
     AgentCompositionError,
     CompositionPlanningPort,
@@ -450,6 +451,7 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "ActionResourceProjectionReader",
     "RESOURCE_QUERY_AUTHORITY",
     "RESOURCE_QUERY_OPERATION",
     "IntelligenceResourceCursorV1Alpha1",
