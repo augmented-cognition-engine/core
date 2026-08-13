@@ -30,6 +30,7 @@ import { Button } from '@/design/shadcn/ui/button'
 import { Card, CardContent } from '@/design/shadcn/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/design/shadcn/ui/dialog'
 import { Textarea } from '@/design/shadcn/ui/textarea'
+import type { IntelligenceBuildStartInput } from '@/api/intelligenceBuildsApi'
 import type {
   IntelligenceBuilderSession,
   IntelligenceBuilderStage,
@@ -149,12 +150,14 @@ export function OnboardingPreview({
   onOpenChange,
   profiles,
   session,
+  onStartBuild,
   onOpenBrief,
 }: {
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
   readonly profiles: readonly IntelligenceOnboardingProfile[]
   readonly session: IntelligenceBuilderSession | null
+  readonly onStartBuild: (request: IntelligenceBuildStartInput) => Promise<void>
   readonly onOpenBrief: () => void
 }) {
   const [profileId, setProfileId] = useState(profiles[0].profile_id)
@@ -169,6 +172,8 @@ export function OnboardingPreview({
   const [sourceGroupIds, setSourceGroupIds] = useState<readonly string[]>(() =>
     profile.source_groups.filter((group) => group.default_selected).map((group) => group.source_group_id),
   )
+  const [buildPending, setBuildPending] = useState(false)
+  const [buildError, setBuildError] = useState<string | null>(null)
   const outcome = useMemo(() => profile.outcomes.find((item) => item.outcome_id === outcomeId) ?? profile.outcomes[0], [outcomeId, profile.outcomes])
   const selectedSourceGroups = useMemo(
     () => profile.source_groups.filter((group) => sourceGroupIds.includes(group.source_group_id)),
@@ -209,6 +214,26 @@ export function OnboardingPreview({
   function close(next: boolean) {
     onOpenChange(next)
     if (!next) setStep(0)
+    if (!next) setBuildError(null)
+  }
+
+  async function build() {
+    setBuildPending(true)
+    setBuildError(null)
+    try {
+      await onStartBuild({
+        profile_id: profile.profile_id,
+        subject: subject.trim(),
+        outcome_id: outcome.outcome_id,
+        source_group_ids: sourceGroupIds,
+        cadence_id: cadenceId,
+      })
+      setStep(4)
+    } catch (reason: unknown) {
+      setBuildError(reason instanceof Error ? reason.message : 'ACE could not start this Intelligence build.')
+    } finally {
+      setBuildPending(false)
+    }
   }
 
   function finish() {
@@ -225,7 +250,7 @@ export function OnboardingPreview({
               <Sparkles className="size-3.5" /> Build your intelligence
             </div>
             <Badge variant="outline" className="mr-6 rounded-sm font-mono text-[9px]">
-              {activeSession === null ? 'Proposal only' : `Live · step ${activeSession.sequence}`}
+              {buildPending ? 'Building' : step < 4 ? 'Plan review' : activeSession === null ? 'Plan ready' : `Live · step ${activeSession.sequence}`}
             </Badge>
           </div>
           <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`Step ${step + 1} of 5: ${STEP_LABELS[step]}`}>
@@ -422,12 +447,18 @@ export function OnboardingPreview({
               </div>
             </>
           )}
+          {buildError !== null && (
+            <div role="alert" className="mt-5 flex items-start gap-3 rounded-lg border border-destructive/45 bg-destructive/5 p-4 text-xs text-destructive">
+              <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+              <div><div className="font-semibold">ACE paused before changing your intelligence.</div><div className="mt-1 text-destructive/85">{buildError}</div></div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between border-t px-6 py-4 sm:px-8">
           <Button type="button" variant="ghost" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}><ArrowLeft className="size-4" /> Back</Button>
           {step < 4
-            ? <Button type="button" disabled={!canContinue} onClick={() => setStep((value) => Math.min(4, value + 1))}>{step === 0 ? 'Use this starting point' : step === 1 ? 'Use these sources' : step === 2 ? 'Review the plan' : activeSession === null ? 'Review proposed build' : 'View live build'} <ArrowRight className="size-4" /></Button>
+            ? <Button type="button" disabled={!canContinue || buildPending} onClick={() => step === 3 ? void build() : setStep((value) => Math.min(3, value + 1))}>{buildPending ? <><LoaderCircle className="size-4 animate-spin" /> Building your first picture</> : <>{step === 0 ? 'Use this starting point' : step === 1 ? 'Use these sources' : step === 2 ? 'Review the plan' : 'Build my intelligence'} <ArrowRight className="size-4" /></>}</Button>
             : <Button type="button" onClick={finish}>{firstBriefReady ? profile.completion_label : 'Return to Atrium'} <ArrowRight className="size-4" /></Button>}
         </div>
       </DialogContent>
