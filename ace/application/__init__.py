@@ -162,6 +162,7 @@ from ace.application.agent_memory_recall import (
     StaticRetrievalStateOwner,
     compare_matched_conditions,
 )
+from ace.application.agent_memory_resource_projection import AgentMemoryResourceProjectionReader
 from ace.application.agent_resource_projection import AgentResourceProjectionReader
 from ace.application.brief_synthesis import (
     BriefSynthesisError,
@@ -534,6 +535,7 @@ __all__ = [
     "AgentMemoryAuthorizationDenied",
     "AgentMemoryAuthorizationResolver",
     "AgentMemoryReplayConflict",
+    "AgentMemoryResourceProjectionReader",
     "AgentResourceProjectionReader",
     "AuthorizedAgentMemoryUse",
     "AuthorizedEventListing",
