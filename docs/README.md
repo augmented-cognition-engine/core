@@ -82,6 +82,9 @@ support the public roadmap but do not compete with it for outcome state or dispa
   — the active 0.8C contract for domain-neutral resources, authorized point-in-time queries,
   exact provenance, degradation, revision lineage, and rebuildable projections shared by Atrium,
   World Intelligence, and Market Intelligence.
+- [Intelligence OS cross-domain resource closure](evidence/intelligence-os-cross-domain-resource-closure-v0.8.0-candidate-v1.md)
+  — the 0.8E Core correction and public World evidence-to-outcome candidate; Market and final
+  installed-artifact release acceptance remain open.
 - [Legacy host compatibility disposition](design/core-engine-compatibility-disposition-v0.8.0.json)
   — the machine-checked 0.8 owner and migration treatment for every top-level `core.engine`
   package; the canonical public roots remain `ace.core`, `ace.intelligence`, and `ace.application`.
