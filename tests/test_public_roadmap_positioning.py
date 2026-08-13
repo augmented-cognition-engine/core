@@ -22,8 +22,17 @@ def test_current_release_and_passed_milestone_are_not_conflated() -> None:
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
     assert "0.8.2 is the current published developer preview" in " ".join(readme.split())
     assert "| 0.8.0 | Intelligence OS Realignment | **Passed** |" in ROADMAP
-    assert "| 0.9.0 | Collaborative Intelligence | **Now** |" in ROADMAP
-    assert "| 1.0.0 | Intelligence Operating System | **Later** |" in ROADMAP
+    assert "| 0.9.0 | Single-user Intelligence Builder | **Now** |" in ROADMAP
+    assert "| 1.0.0 | Personal Intelligence Operating System | **Next** |" in ROADMAP
+
+
+def test_090_and_100_are_complete_single_user_products() -> None:
+    assert "### 0.9.0 — Single-user Intelligence Builder" in ROADMAP
+    assert "install ACE, choose World, Market, or Custom Intelligence" in ROADMAP_ONE_LINE
+    assert "### 1.0.0 — Personal Intelligence Operating System" in ROADMAP
+    assert "Multi-user collaboration" in ROADMAP
+    assert "post-1.0 work" in ROADMAP_ONE_LINE
+    assert "do not gate the first stable personal Intelligence OS" in ROADMAP_ONE_LINE
 
 
 def test_080_is_a_bounded_intelligence_os_realignment_not_a_rename() -> None:

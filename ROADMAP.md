@@ -79,8 +79,8 @@ Roadmap outcome states are used strictly:
 
 The latest published release is [`ace-core` 0.8.2](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.2)
 on PyPI and GitHub. It packages the Atrium Intelligence Catalog as backward-compatible hardening
-of the released 0.8 promise. It does not advance or rename the 0.9 Collaborative Intelligence
-milestone.
+of the released 0.8 promise. It is the entry foundation for—but does not complete—the 0.9
+Single-user Intelligence Builder milestone.
 
 The 0.8 release makes the existing Builder, composition, memory, authority, action, and outcome
 capabilities coherent as one **Intelligence Operating System**. One governed point-in-time resource
@@ -110,8 +110,8 @@ evidence. Core PR #145 and World PR #24 landed after repository, installed-artif
 naked-kernel, and package checks passed. Follow-on work adds a local-only replay of an immutable
 domain resource page, replaces internal persistence language with user-facing setup status,
 defines the Opportunity experience, introduces the ACE-owned design system, and applies a truthful
-visual What / Why / How / When grammar across Briefs and decision-facing intelligence. It does not change the 0.9
-Collaborative Intelligence promise.
+visual What / Why / How / When grammar across Briefs and decision-facing intelligence. It does not
+by itself complete the 0.9 Single-user Intelligence Builder promise.
 
 The passed 0.8.2 patch adds the Atrium Intelligence Catalog as an experience entry
 slice: the generic resource consumer enumerates all admitted onboarding profiles in product scope,
@@ -120,7 +120,7 @@ World and Marketing contribute their own declarative profiles from their indepen
 Core names neither domain and grants no installation, connection, monitor, or activation authority.
 This makes first use outcome-led across domains while leaving live selection/session binding and
 activation on the existing governed Builder boundaries. It is preparatory product work, not a
-claim that the 0.9 collaboration release gate has passed.
+claim that the complete 0.9 single-user journey has passed.
 
 The prior [0.7.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.7.0)
 and [`ace-core==0.7.0`](https://pypi.org/project/ace-core/0.7.0/) package remain the passed
@@ -213,8 +213,8 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.6.0 | Measured Intelligence | **Passed** | Public Core 0.6.0 and World 0.10.0 artifacts reproduce exact useful/harmful/unproven classification, matched leakage-bounded controls, durable replay, and proposal-only governance under product-owned criteria; SI4 remains a broader future outcome | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
 | 0.7.0 | Intelligence Builder Foundation | **Passed** | Public Core 0.7.0 composes 0.7A–0.7E, AC1–AC7, and AM0–AM3; all release checks, trusted publication, public clean-install reproduction, and independent World/Market consumer gates passed | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Intelligence OS Realignment | **Passed** | Public Core 0.8.0 unifies the governed resource plane and Atrium experience over the released Builder, composition, memory, action, and outcome foundations; independent World/Market proofs reproduce the same contract without domain branches | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
-| 0.9.0 | Collaborative Intelligence | **Now** | Advances H1, SI3 sensitive-source governance, and the remaining T1/E2 operational guarantees across tenancy, shared authority, privacy, portability, recovery, and managed operation | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
-| 1.0.0 | Intelligence Operating System | **Later** | Stabilizes the complete supported loop and all milestone-critical contracts across Core, Intelligence, Domain Packs, connectors, product surfaces, governance, action, outcomes, operation, and portability | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
+| 0.9.0 | Single-user Intelligence Builder | **Now** | Completes the personal install → choose → connect → map → watch → first cited Brief → continuous update journey through Atrium, with local ownership, recovery, and World/Market proof | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
+| 1.0.0 | Personal Intelligence Operating System | **Next** | Freezes and hardens the complete supported single-user loop, public contracts, packaging, upgrades, security, recovery, and reproducible domain experiences without requiring collaboration or managed infrastructure | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
 
 ### Parallel domain validation
 
@@ -567,48 +567,74 @@ durable intelligence; supported compatibility and migrations are tested; and acc
 authority, entitlement, restart, failure, and degraded behavior pass. Atrium remains optional and
 does not become a second source of truth.
 
-### 0.9.0 — Collaborative Intelligence
+### 0.9.0 — Single-user Intelligence Builder
 
-Public promise: teams can operate shared intelligence systems with explicit tenancy, authority,
-portability, and recovery guarantees.
+Public promise: one person can install ACE, choose World, Market, or Custom Intelligence, connect a
+few authorized sources, describe what they need to understand, and receive a useful cited first
+Brief that keeps updating—without learning ACE architecture or hand-authoring a Domain Pack.
 
-- Establish isolation between products, teams, and tenants plus attributable roles, approvals,
-  concurrent changes, and shared audit history.
-- Enforce consent, access, redaction, retention, deletion, export, and source-entitlement policy for
-  personal, organizational, licensed, or otherwise sensitive situational evidence.
-- Complete backup, export, import, migration, restore, interruption recovery, and disaster-recovery
-  journeys.
-- Publish supported deployment modes, operational guarantees, resource expectations, and degraded
-  behavior.
-- Support managed operation without requiring ACE or another hosted organization to own a user's
-  durable intelligence.
+- Make Atrium the coherent local command center for choosing intelligence, connecting sources,
+  approving the proposed concept model and watches, reviewing the first Brief, asking grounded
+  follow-up questions, and correcting relevance.
+- Compose the released Connect, Map, Watch, Brief, Activate, Agent Composition, and Agent Memory
+  foundations into one resumable product journey with honest progress, blocked, retry, partial, and
+  degraded states.
+- Keep source permissions and credential scope visible before use. Store secrets outside Domain
+  Packs and never let onboarding silently grant source, delivery, or effect authority.
+- Turn admitted evidence into decision-readable intelligence: what changed, why it matters, how the
+  conclusion was derived, when it happened, what remains unknown, and which citations support each
+  material claim.
+- Keep the personal intelligence system useful after the first Brief through Signals, Shifts,
+  Opportunities, Briefs, monitors, Ask ACE, and governed feedback that can improve relevance without
+  silently changing authority.
+- Prove local ownership through restart continuity plus documented export, deletion, backup, and
+  restore for the supported single-node deployment.
+- Reproduce the same public journey through the World AI Command Center and Market Intelligence,
+  while Custom Intelligence remains a generic onboarding path rather than a hidden third ontology.
 
-Release gate: isolation and authorization boundaries are reproducibly tested; shared changes remain
-attributable and recoverable; and portability preserves required public records across supported
-deployment modes.
+Release gate: from clean public artifacts, one documented local launch reaches a cited first Brief
+through the guided Atrium flow, resumes safely across restart, admits a later source change as an
+append-only update, answers a grounded follow-up through the same resources, and preserves exact
+source, permission, lineage, uncertainty, and feedback receipts. World and Market pass without a
+domain branch in Core or Intelligence. Failure, recovery, export, deletion, accessibility, package,
+schema, security, and upgrade checks pass for the documented single-user topology.
 
-### 1.0.0 — Intelligence Operating System
+The bounded contract and acceptance matrix are frozen in the
+[0.9 work packet](docs/design/single-user-intelligence-builder-v0.9.0-work-packet-v1.md).
 
-Public promise: ACE is a stable, open, provider-neutral Intelligence Operating System that lets any
-product build living, source-grounded, inspectable, governable, and adaptive intelligence without
+### 1.0.0 — Personal Intelligence Operating System
+
+Public promise: ACE is a stable, open, provider-neutral Intelligence Operating System that lets one
+person build living, source-grounded, inspectable, governable, and adaptive intelligence without
 rebuilding the infrastructure underneath it.
 
-- Stabilize the public contracts for context, state, evidence, deliberation, decisions, correction,
-  cognition, authority, action, outcomes, standing investigations, versioned orientations,
-  attention policy, Intelligence resources, Domain Packs, connectors, extensions, and operation.
-- Preserve domain-neutral Core and Intelligence layers, product-owned packs and connectors,
-  optional product surfaces, portable durable intelligence, and explicit human authority.
-- Publish compatibility, migration, recovery, security, governance, deprecation, and breaking-change
-  policies.
-- Demonstrate the complete loop through multiple independent product and extension journeys across
-  supported providers and deployment modes.
-- Complete the open-platform trajectory from connectors and operational ontology through
-  continuous intelligence, the decision/action/outcome loop, workspace, collaboration and tenancy,
-  and a versioned ecosystem of SDKs, marketplace distributions, and optional managed operation.
+- Stabilize the public contracts required by the single-user lifecycle: source connections,
+  identity and time, observations, entity state, Signals, Shifts, Opportunities, Cases, Briefs,
+  monitors, Ask ACE context, feedback, memory, decisions, optional reviewed actions, outcomes,
+  Domain Packs, connector boundaries, authority, provenance, and receipts.
+- Preserve domain-neutral Core and Intelligence layers, separately versioned product-owned Domain
+  Packs and connectors, optional Atrium and machine surfaces, portable durable intelligence, and
+  explicit human authority.
+- Publish and reproduce clean installation, supported upgrade, compatibility, migration, backup,
+  restore, export, deletion, security, governance, deprecation, degraded-state, and
+  breaking-change policies for the documented local deployment.
+- Demonstrate the complete continuously updating loop through public World and Market products,
+  plus the generic Custom Intelligence onboarding path, using released artifacts rather than source
+  checkouts or prepared UI-only data.
+- Freeze a reproducible install-to-first-Brief demonstration and an operator-readable limitations
+  statement suitable for independent users and downstream builders.
 
-Release gate: every milestone-critical contract is supported and reproducible from public artifacts
-and evidence, with no hidden mutation, implicit execution authority, provider lock-in, deployment
-lock-in, or organizational ownership requirement.
+Release gate: every contract needed by the supported single-user journey is reproducible from
+public artifacts; a clean user can install ACE and a Domain Pack, launch Atrium, reach and reopen a
+cited first Brief, observe a later update, inspect why it changed, ask a grounded question, correct
+relevance, and recover owned state. The release has no hidden mutation, implicit execution
+authority, provider lock-in, domain ontology in Core, or organizational ownership requirement.
+
+Multi-user collaboration, organizations and teams, tenant isolation, shared workspaces, delegated
+administration, multiplayer approvals, managed hosting, marketplace operation, hostile-extension
+sandboxing, and distributed execution are explicit
+[post-1.0 work](https://github.com/augmented-cognition-engine/core/issues/152). They do not gate the
+first stable personal Intelligence OS.
 
 ## Continuous situational intelligence sequence
 
@@ -624,8 +650,8 @@ observe → detect material change → update bounded state → compare claims, 
 This is a cross-cutting product outcome, not a new domain in Core or Intelligence and not an
 additional promise silently added to an earlier minor release. It uses the passed GI1, K1–K3, and
 I1–I3 foundations and is delivered incrementally through governed cognition, measured
-intelligence, the Intelligence Builder Foundation, the Intelligence Workspace, and Collaborative
-Intelligence. The public SI1–SI4 outcome and acceptance work are tracked in
+intelligence, the Intelligence Builder Foundation, the Intelligence OS experience, and the
+single-user Intelligence Builder. The public SI1–SI4 outcome and acceptance work are tracked in
 [issue #47](https://github.com/augmented-cognition-engine/core/issues/47).
 
 ### SI1. Reproducible situational orientation
@@ -735,9 +761,9 @@ flowchart LR
 | 3. Governed cognition and intelligence | Can a builder run domain-neutral Intelligence and teach the product how to reason without silent self-modification? | **Passed** | GI1 passed in 0.4.0; GC1 passed against public 0.4.4 and an independent Market consumer | 0.4.x |
 | 4. Reasoning into action | Can an approved decision safely produce attributable work? | **Passed** | T1 and B1 passed in 0.5.0 for the bounded single-host, trusted-adapter topology | 0.5.0 |
 | 5. Measured intelligence | Can ACE prove when retained intelligence or a capability helped, hurt, or remains unproven? | **Passed for the public 0.6.0 boundary** | Product-owned matched evaluation, exact attribution, durable replay, and proposal-only governance are public; F2 and general benefit remain not ready | 0.6.0 |
-| 6. Intelligence Builder foundation | Can any product connect sources, specialize, operate, and retain ownership of ACE intelligence? | **Passed for the bounded public 0.7.0 contract** | 0.7A–0.7E, AC1–AC7, and AM0–AM3 compose in the public artifact; independent World/Market activation gates passed, while H1 remains later | 0.7.0 and 0.9.0 |
+| 6. Intelligence Builder foundation | Can any product connect sources, specialize, operate, and retain ownership of ACE intelligence? | **Passed for the bounded public 0.7.0 contract** | 0.7A–0.7E, AC1–AC7, and AM0–AM3 compose in the public artifact; 0.9 completes the coherent single-user product journey | 0.7.0 and 0.9.0 |
 | 7. Intelligence OS experience | Can people and machines consume and govern one coherent intelligence loop without learning ACE internals? | **Passed for the bounded public 0.8.0 contract** | One authorized resource plane and Atrium consume the Builder, AC7, AM4, action, outcome, and feedback foundations; World and Market reproduce the same domain-neutral contract | 0.8.0 |
-| 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the workspace and collaboration slices of H1 | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
+| 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the single-user workspace, recovery, and ownership slices required by the 1.0 gate | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
 
 ## Immediate dispatch
 
@@ -770,7 +796,7 @@ boundary.
 Exit condition: **passed.** Its successor, 0.8.0 Intelligence OS Realignment, is now passed below.
 The bounded A–F sequence is recorded in the
 [0.8 work packet](docs/design/intelligence-os-realignment-v0.8.0-work-packet-v1.md). 0.7 did not
-silently claim 0.9 collaboration or the stable complete 1.0 contract.
+silently claim the complete 0.9 single-user experience or the stable 1.0 contract.
 
 ### Completed milestone: 0.8.0 Intelligence OS Realignment
 
@@ -784,8 +810,8 @@ unchanged Core + Intelligence APIs.
 
 Exit condition: **passed.** The release preserves schema head v177, exactly eleven MCP tools,
 inert Domain Packs, proposal-only feedback, explicit read/effect authority, and the bounded
-single-node trusted-adapter topology. The next release milestone is 0.9.0 Collaborative
-Intelligence; 1.0 remains the stable complete-contract target.
+single-node trusted-adapter topology. The next release milestone is 0.9.0 Single-user Intelligence
+Builder; 1.0 remains the stable personal Intelligence Operating System target.
 
 ### Completed technical prerequisite: bounded Product State outcomes
 
