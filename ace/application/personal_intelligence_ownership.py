@@ -70,7 +70,7 @@ class PersonalIntelligenceDeletionResult:
 
 
 def _owned_records(records: tuple[ImmutableRecordV1, ...]) -> tuple[ImmutableRecordV1, ...]:
-    """Exclude content-free ownership proofs from content export and later deletion."""
+    """Exclude ownership proof/control evidence from content export and deletion."""
 
     selected = tuple(item for item in records if item.record_space != PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE)
     return tuple(sorted(selected, key=lambda item: str(item.storage_id)))

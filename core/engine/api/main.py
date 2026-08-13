@@ -668,6 +668,7 @@ from core.engine.api.intelligence_builds import router as intelligence_builds_ro
 from core.engine.api.intelligence_catalog import router as intelligence_catalog_router
 from core.engine.api.intelligence_resources import router as intelligence_resources_router
 from core.engine.api.landscape import router as landscape_router
+from core.engine.api.personal_intelligence_ownership import router as personal_ownership_router
 from core.engine.api.product_state import router as product_state_router
 from core.engine.api.sentinels import router as sentinels_router
 from core.engine.api.tasks import router as tasks_router
@@ -679,6 +680,7 @@ app.include_router(intel_router)
 app.include_router(intelligence_builds_router)
 app.include_router(intelligence_catalog_router)
 app.include_router(intelligence_resources_router)
+app.include_router(personal_ownership_router)
 app.include_router(landscape_router)
 app.include_router(product_state_router)
 app.include_router(foresight_router)
