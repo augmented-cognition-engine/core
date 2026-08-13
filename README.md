@@ -11,7 +11,7 @@ monitors, and an intelligence system that improves with governed feedback. ACE i
 provenance, authority, durable state, and exact receipts stay built into the result instead of
 becoming infrastructure every product team must recreate.
 
-![version 0.8.1](https://img.shields.io/badge/version-0.8.1-blue)
+![version 0.8.2 candidate](https://img.shields.io/badge/version-0.8.2--candidate-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -386,7 +386,20 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.8.1 adds
+## What 0.8.2 adds
+
+0.8.2 makes first use start with the outcome a person wants rather than ACE's internal
+architecture. Atrium discovers every admitted onboarding profile from the governed Intelligence
+resource plane, presents each domain as a selectable Intelligence experience, and always offers a
+Core-owned Custom Intelligence path. Domain labels, starter questions, and source groups remain
+declarative pack metadata; selection grants no source, monitoring, or activation authority.
+
+World and Market supply their own profiles from independent repositories. Core remains
+domain-neutral and names neither vertical. This is backward-compatible product-experience
+hardening of the 0.8 Intelligence OS promise, not completion of the 0.9 Collaborative Intelligence
+gate.
+
+### What 0.8.1 added
 
 0.8.1 turns the Intelligence OS foundation into a clearer first-run product experience without
 changing the 0.8 public architecture or widening authority.
@@ -845,7 +858,8 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.8.1 is a published developer-preview release.** Its Intelligence OS claim is bounded to
+**0.8.2 is a release candidate over the published 0.8.1 developer preview.** Its Intelligence OS
+claim is bounded to
 the provider-free and installed-artifact journeys recorded in the evidence archive and the
 single-node topology below. Read this section before you build on it.
 

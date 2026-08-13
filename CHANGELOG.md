@@ -2,6 +2,19 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 0.8.2
+
+### Intelligence Catalog and outcome-led onboarding
+
+- Discover all admitted Intelligence onboarding profiles through the existing authenticated
+  resource plane and deduplicate them by durable profile identity.
+- Open Atrium by asking what intelligence the user wants, with domain-provided starter questions
+  and source groups plus a Core-owned Custom Intelligence path.
+- Keep domain vocabulary and selection metadata in inert Domain Packs; catalog discovery grants no
+  source, monitor, installation, or activation authority.
+- Preserve schema head v177, the 24-kind resource plane, exactly eleven MCP tools, and the 0.8
+  compatibility line.
+
 ## 0.8.1
 
 ### Intelligence Builder product experience
