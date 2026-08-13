@@ -2,12 +2,12 @@
 
 Status: **active 0.8C packet; facade, intelligence/monitoring projections, governed HTTP query,
 Decision → Outcome → Feedback closure, live Connection/Source projections, and governed Agent
-projection implemented; Context Manifest, Memory Use, and memory Evidence Lineage projection in
-review**
+projection implemented; Context Manifest, Memory Use, memory Evidence Lineage, and governed Action
+projection implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@8f54d89` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
+Accepted base: `main@8e155e0` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
 ledger/monitoring projection, governed HTTP query, Decision → Outcome → Feedback closure,
-live Connection/Source projection, and governed Agent projection)
+live Connection/Source projection, governed Agent projection, and governed memory projection)
 
 ## Outcome
 
@@ -129,9 +129,22 @@ manifest suppresses dependent use and lineage rather than returning orphaned pro
 widens neither product nor temporal scope, and reconstruction over the same product-fenced records
 is deterministic.
 
-0.8C must still add governed-state projections for the remaining canonical families and complete
-packaged schema/import integrity. 0.8D must prove Atrium consumes this interface rather than
-privileged internal state.
+The Action contributor joins Core's exact admission and terminal records to the immutable Decision
+that authorized the effect. A durably admitted Action without a terminal is visible only as a
+degraded first revision. The terminal becomes the second revision and exactly supersedes admission;
+success, failure, partial, cancellation, and unknown effect state remain terminal truth rather than
+being collapsed into a success metric. Missing Decision lineage suppresses the Action and degrades
+the page. The public projection does not execute, retry, authorize, or reinterpret effects.
+
+The 0.8C public contract therefore has 18 governed projections and four intentionally explicit
+degraded families. Source Health remains unavailable until failure/health telemetry exists.
+Uncertainty and Conflict remain attached to their owning Intelligence or memory records rather than
+being duplicated into top-level resources. Semantic Revision remains available through the
+onboarding/ontology lifecycle but is not yet projected into this plane. The API represents all four
+kinds and returns deterministic unsupported degradation; it never fabricates standalone truth.
+Promoting any of them later is additive and does not change the 0.8 resource contract. Packaged
+schema/import integrity and the combined restart journey close 0.8C. 0.8D must prove Atrium consumes
+this interface rather than privileged internal state.
 
 The 0.8C exit gate is one authorized query path that can reproduce the evidence-to-outcome resource
 chain after restart, report partial truth honestly, and remain identical for World and Market
