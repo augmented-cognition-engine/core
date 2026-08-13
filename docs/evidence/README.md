@@ -27,8 +27,10 @@ superseded by later work and is kept for audit trail only.
 - [ace-core 0.5.0 Reasoning into Action release evidence](reasoning-into-action-v0.5.0-release-readiness.md) — public, passed
 - [ace-core 0.6.0 Measured Intelligence release closeout](measured-intelligence-v0.6.0-release-closeout-v1.md) — public, passed
 - [ace-core 0.7.0 Intelligence Builder Foundation release closeout](intelligence-builder-foundation-v0.7.0-release-closeout-v1.md) — public, passed
+- [ace-core 0.8.0 Intelligence OS release closeout](intelligence-os-v0.8.0-release-closeout-v1.md)
+  — public, passed; exact tag, trusted publication, hashes, and checkout-free install
 - [ace-core 0.8.0 Intelligence OS release candidate](intelligence-os-v0.8.0-release-candidate-v1.md)
-  — candidate; cumulative Core, Atrium, World, Market, package, and clean-install acceptance
+  — historical pre-publication candidate; cumulative Core, Atrium, World, Market, and package gate
 
 ## Product outcomes
 

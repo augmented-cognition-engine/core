@@ -875,7 +875,7 @@ journey to later product-owned outcomes. Public 0.7.0 established the Intelligen
 Foundation. Public 0.8.0 turns that foundation into one coherent Intelligence Operating System:
 the unified resource plane, Atrium, builder agents, governed composition and memory, and World /
 Market product proof. Exact release evidence is recorded in the
-[0.8 release packet](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/intelligence-os-v0.8.0-release-candidate-v1.md).
+[0.8 release closeout](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/intelligence-os-v0.8.0-release-closeout-v1.md).
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries

@@ -86,7 +86,7 @@ machines and to Atrium. Independent public World and Market repositories reprodu
 contract with materially different ontologies and dispositions. Schema head remains v177 and the
 thin MCP surface remains exactly eleven tools. The exact pre-publication source, cross-domain
 proof, verification, and limitations are bound by the
-[Intelligence OS release packet](docs/evidence/intelligence-os-v0.8.0-release-candidate-v1.md).
+[Intelligence OS release closeout](docs/evidence/intelligence-os-v0.8.0-release-closeout-v1.md).
 
 The [0.8.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.0)
 and public [`ace-core==0.8.0`](https://pypi.org/project/ace-core/0.8.0/) package are the current
