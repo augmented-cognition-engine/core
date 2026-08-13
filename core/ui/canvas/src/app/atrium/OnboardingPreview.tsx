@@ -68,13 +68,13 @@ export function OnboardingPreview({ open, onOpenChange, profile }: { readonly op
                 {profile.outcomes.map((item) => {
                   const selected = item.outcome_id === outcomeId
                   return (
-                    <button key={item.outcome_id} type="button" onClick={() => setOutcomeId(item.outcome_id)} className={`group flex gap-4 rounded-lg border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25'}`}>
+                    <Button key={item.outcome_id} type="button" variant="ghost" onClick={() => setOutcomeId(item.outcome_id)} className={`h-auto w-full justify-start gap-4 whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}>
                       <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}><OutcomeIcon outcome={item} /></div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 text-sm font-semibold">{item.label}{selected && <Check className="size-3.5 text-brand" />}</div>
                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
                       </div>
-                    </button>
+                    </Button>
                   )
                 })}
               </div>
@@ -89,7 +89,7 @@ export function OnboardingPreview({ open, onOpenChange, profile }: { readonly op
               </DialogHeader>
               <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
                 <Card><CardContent className="p-5"><div className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Recommended coverage</div><div className="mt-4 flex flex-wrap gap-2">{outcome.recommended_topic_labels.length > 0 ? outcome.recommended_topic_labels.map((topic) => <Badge key={topic} variant="secondary" className="rounded-sm py-1 font-normal">{topic}</Badge>) : <span className="text-sm text-muted-foreground">Choose topics after continuing.</span>}</div><div className="mt-6 border-t pt-4"><div className="text-xs font-medium">You can add specific entities, organizations, products, policies, or technologies next.</div><p className="mt-1 text-xs text-muted-foreground">ACE asks only for details it cannot safely infer.</p></div></CardContent></Card>
-                <div><div className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">How often should ACE orient you?</div><div className="mt-3 space-y-2">{profile.cadences.map((cadence) => { const selected = cadence.cadence_id === cadenceId; return <button key={cadence.cadence_id} type="button" onClick={() => setCadenceId(cadence.cadence_id)} className={`w-full rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-brand' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs text-muted-foreground">{cadence.description}</p></button>})}</div></div>
+                <div><div className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">How often should ACE orient you?</div><div className="mt-3 space-y-2">{profile.cadences.map((cadence) => { const selected = cadence.cadence_id === cadenceId; return <Button key={cadence.cadence_id} type="button" variant="ghost" onClick={() => setCadenceId(cadence.cadence_id)} className={`h-auto w-full flex-col items-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-brand' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs font-normal text-muted-foreground">{cadence.description}</p></Button>})}</div></div>
               </div>
             </>
           )}
