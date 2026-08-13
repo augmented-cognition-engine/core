@@ -40,7 +40,7 @@ services:
       context: ..
       dockerfile: Dockerfile
       args:
-        ACE_VERSION: "0.8.0"
+        ACE_VERSION: "0.8.1"
     depends_on:
       surrealdb:
         condition: service_healthy
@@ -61,9 +61,9 @@ services:
       context: ..
       dockerfile: Dockerfile
       args:
-        ACE_VERSION: "0.8.0"
+        ACE_VERSION: "0.8.1"
     labels:
-      org.opencontainers.image.version: "0.8.0"
+      org.opencontainers.image.version: "0.8.1"
     depends_on:
       surrealdb:
         condition: service_healthy
@@ -98,9 +98,9 @@ services:
       context: ..
       dockerfile: Dockerfile
       args:
-        ACE_VERSION: "0.8.0"
+        ACE_VERSION: "0.8.1"
     labels:
-      org.opencontainers.image.version: "0.8.0"
+      org.opencontainers.image.version: "0.8.1"
     depends_on:
       surrealdb:
         condition: service_healthy

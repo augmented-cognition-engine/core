@@ -11,7 +11,7 @@ monitors, and an intelligence system that improves with governed feedback. ACE i
 provenance, authority, durable state, and exact receipts stay built into the result instead of
 becoming infrastructure every product team must recreate.
 
-![version 0.8.0](https://img.shields.io/badge/version-0.8.0-blue)
+![version 0.8.1](https://img.shields.io/badge/version-0.8.1-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -386,7 +386,28 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.8.0 adds
+## What 0.8.1 adds
+
+0.8.1 turns the Intelligence OS foundation into a clearer first-run product experience without
+changing the 0.8 public architecture or widening authority.
+
+- **Live onboarding state.** Atrium projects the exact append-only Intelligence Builder session
+  and shows proposal, working, blocked, retrying, and complete states from durable records.
+- **A decision-oriented command center.** Intelligence, Opportunities, Agents, Connections, and
+  Strategy are first-class destinations. An Opportunity is intelligence awaiting a decision: a
+  Case, material Shift, or early Signal with evidence and a next decision window.
+- **Decision-readable intelligence.** Briefs and every decision-facing Signal, Shift, Case,
+  Decision, Action, Outcome, and Feedback record use a visual What / Why / How / When grammar.
+  Missing materiality or event time stays visibly missing, while evidence, unknowns, limits,
+  receipts, and lineage remain inspectable rather than overwhelming the answer.
+- **An ACE-owned visual identity.** Cognitive blue leads the shared product, cyan marks live
+  intelligence, violet is reserved for agent and memory composition, and green means verified
+  success. Customer branding remains a replaceable deployment overlay.
+- **A reproducible World AI demonstration.** The paired World release supplies the guided
+  Connect → Map → Watch → Brief journey and an immutable local replay through the same governed
+  resource plane.
+
+### What 0.8.0 added
 
 0.8.0 makes the **Intelligence Operating System** the coherent product experience rather than an
 architecture users have to assemble themselves.
@@ -824,7 +845,7 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.8.0 is a published developer-preview release.** Its Intelligence OS claim is bounded to
+**0.8.1 is a published developer-preview release.** Its Intelligence OS claim is bounded to
 the provider-free and installed-artifact journeys recorded in the evidence archive and the
 single-node topology below. Read this section before you build on it.
 

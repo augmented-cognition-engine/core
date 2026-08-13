@@ -15,7 +15,11 @@ import {
 import { Separator } from '@/design/shadcn/ui/separator'
 
 import { compactReference, kindLabel } from './intelligenceModel'
-import { payloadNumber, payloadText } from './experienceModel'
+import {
+  intelligenceStoryForRecord,
+  payloadNumber,
+  payloadText,
+} from './experienceModel'
 
 function availabilityLabel(record: IntelligenceResourceRecord): string {
   if (record.availability === 'degraded') return 'Needs context'
@@ -42,6 +46,8 @@ export function ResourceCard({
   readonly compact?: boolean
 }) {
   const whyItMatters = payloadText(record.payload, 'why_it_matters')
+  const storySections = intelligenceStoryForRecord(record)
+  const whatChanged = storySections.find((section) => section.id === 'what_changed')
   const confidence = payloadNumber(record.payload, 'confidence')
   const confidencePercent = confidence !== null && confidence >= 0 && confidence <= 1
     ? Math.round(confidence * 100)
@@ -90,7 +96,7 @@ export function ResourceCard({
                   >
                     {record.title}
                   </h3>
-                  {record.summary !== null && (
+                  {record.summary !== null && storySections.length === 0 && (
                     <p
                       className={
                         featured
@@ -101,7 +107,27 @@ export function ResourceCard({
                       {record.summary}
                     </p>
                   )}
-                  {featured && whyItMatters !== null && (
+                  {storySections.length > 0 && (
+                    <div className={featured
+                      ? 'mt-5 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2'
+                      : 'mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border'}>
+                      {storySections.map((section) => (
+                        <div key={section.id} className={featured ? 'bg-card p-4' : 'min-w-0 bg-card p-2.5'}>
+                          <div className={featured
+                            ? 'font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand'
+                            : 'font-mono text-[8px] font-semibold uppercase tracking-[0.14em] text-brand'}>
+                            {section.label}
+                          </div>
+                          <p className={featured
+                            ? 'mt-1.5 text-xs leading-5 text-foreground/85'
+                            : 'mt-1 line-clamp-2 text-[10px] leading-4 text-foreground/80'}>
+                            {section.body}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {featured && storySections.length === 0 && whyItMatters !== null && (
                     <div className="mt-5 border-l-2 border-brand/70 pl-3">
                       <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">Why it matters</div>
                       <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground/85">{whyItMatters}</p>
@@ -127,13 +153,26 @@ export function ResourceCard({
             </Badge>
           </div>
           <SheetTitle className="text-xl leading-tight">{record.title}</SheetTitle>
-          <SheetDescription className="leading-relaxed">
-            {record.summary ?? 'This resource does not include a narrative summary.'}
+          <SheetDescription className={storySections.length > 0 ? 'sr-only' : 'leading-relaxed'}>
+            {whatChanged?.body ?? record.summary ?? 'This resource does not include a narrative summary.'}
           </SheetDescription>
         </SheetHeader>
 
         <div className="space-y-6 p-6">
-          {whyItMatters !== null && (
+          {storySections.length > 0 && (
+            <section className="grid gap-3 sm:grid-cols-2">
+              {storySections.map((section) => (
+                <div key={section.id} className="rounded-lg border border-brand/15 bg-brand/[0.035] p-4">
+                  <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">
+                    {section.label}
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground/90">{section.body}</p>
+                </div>
+              ))}
+            </section>
+          )}
+
+          {storySections.length === 0 && whyItMatters !== null && (
             <section className="rounded-lg border border-brand/20 bg-brand/5 p-4">
               <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">
                 Why it matters
