@@ -4,7 +4,7 @@ This FAQ answers the operational questions that tend to appear after the archite
 what happens when part of a committee fails, how conflicting claims are handled, what confidence
 means, and how multiple products share SurrealDB without becoming one undifferentiated memory.
 
-ACE 0.1.x is a developer preview. Answers below distinguish the supported CLI and thin-MCP path
+ACE 0.8.0 is a developer preview. Answers below distinguish the supported Intelligence OS contract
 from broader engine capabilities whose APIs and end-to-end journeys remain experimental. See
 [capability maturity](capability-maturity.md) for the authoritative boundary and
 [architecture](architecture.md) for the as-built system map.
@@ -149,7 +149,7 @@ returns both claims, confidence, provenance, quarantine state, allowed resolutio
 resolution endpoint; portal attention and briefings can surface the same conflict.
 
 The important maturity boundary is that automatic, immediate delivery of every conflict through
-every external notification channel is not a stable 0.1.x guarantee. Conflict persistence,
+every external notification channel is not a stable 0.8 guarantee. Conflict persistence,
 quarantine, and durable attention are the load-bearing behavior; Sentinel scheduling,
 notifications, and broad graph UI/API journeys remain experimental.
 
@@ -252,7 +252,7 @@ The product is the key isolation unit for ordinary task and memory retrieval.
 The broad HTTP host can reissue a JWT scoped to a target product after verifying that the current
 and target products belong to the same tenant. Task ownership checks compare the authenticated
 product with the task record and return not-found behavior for mismatches. These portfolio and
-product-switching APIs are implemented but outside the narrow 0.1.x CLI/thin-MCP compatibility
+product-switching APIs are implemented but outside the bounded 0.8 compatibility
 surface.
 
 ### Are product names or IDs tenant-local?
@@ -260,7 +260,7 @@ surface.
 Not currently. Product creation derives a canonical `product:<slug>` record ID and rejects an
 existing ID across the shared database. Operators should therefore choose deployment-wide unique
 product slugs. Tenant-qualified product IDs would be a future schema/API decision, not something
-to assume in 0.1.x.
+to assume in the current developer preview.
 
 ### Can one product accidentally retrieve another product's memory?
 
@@ -339,7 +339,7 @@ copies remain operator responsibilities in the self-hosted preview.
 
 ### Can I delete or export a whole product through the stable public API?
 
-Not as a stable 0.1.x compatibility contract. Product-scoped export helpers and broader management
+Not as a stable 0.8 compatibility contract. Product-scoped export helpers and broader management
 APIs exist, but complete product portability and cascading deletion require an explicit, tested
 operator journey. Until that is promoted, use deployment-level backups and carefully reviewed
 administrative procedures rather than assuming that deleting one product record deletes every
@@ -365,7 +365,7 @@ does not replace normal secret-management practice.
 
 No. They depend on the host, configuration, feature registration, schedules, and provider access.
 Sentinel engines can run on registered schedules or explicit triggers. Their broad APIs and
-end-to-end operating journeys remain experimental in 0.1.x.
+end-to-end operating journeys remain experimental in 0.8.
 
 ### What is the stable public contract today?
 

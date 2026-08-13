@@ -1,6 +1,6 @@
-# ACE 0.6.0 capability maturity
+# ACE 0.8.0 capability maturity
 
-ACE 0.6.0 is a developer preview. This page distinguishes the public contract from implemented
+ACE 0.8.0 is a developer preview. This page distinguishes the public contract from implemented
 surfaces that remain experimental.
 
 ## Preview contract
@@ -8,17 +8,17 @@ surfaces that remain experimental.
 The supported self-hosted path is:
 
 ```text
-install ace-core → configure a provider and SurrealDB → start ACE → authenticate
-→ ace doctor → reason and capture → load retained intelligence → stop cleanly
+install ace-core → configure SurrealDB and an optional provider → start ACE → authenticate
+→ connect → map → watch → receive a cited brief → activate → inspect resources → stop cleanly
 ```
 
-The 0.6.0 public identities are:
+The 0.8.0 public identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.6.0`
+- version: `0.8.0`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -36,9 +36,11 @@ The thin MCP surface contains exactly eleven tools:
 | `ace_history` | Inspect file or symbol history |
 | `ace_related` | Find related code and knowledge |
 
-The CLI, thin MCP adapter, persistence migrations, reference extension mechanism, and documented
-provider routes are the compatibility focus for the current developer preview. Changes to these
-surfaces receive migration notes when needed.
+The CLI, thin MCP adapter, public Core/Intelligence/Application packages, authorized Intelligence
+resource plane, inert Domain Pack boundary, persistence migrations, reference extension mechanism,
+and documented provider routes are the compatibility focus for the current developer preview.
+Atrium is a supported optional repository-delivered preview over the same resource plane. Changes
+to these surfaces receive migration notes when needed.
 
 The supported CLI also includes `ace landscape`, a versioned, authenticated, strictly read-only
 Living Product Graph snapshot. It exposes stable object identity, canonical and non-operational
