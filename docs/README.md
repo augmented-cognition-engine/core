@@ -83,8 +83,9 @@ support the public roadmap but do not compete with it for outcome state or dispa
   exact provenance, degradation, revision lineage, and rebuildable projections shared by Atrium,
   World Intelligence, and Market Intelligence.
 - [Intelligence OS cross-domain resource closure](evidence/intelligence-os-cross-domain-resource-closure-v0.8.0-candidate-v1.md)
-  — the 0.8E Core correction and public World evidence-to-outcome candidate; Market and final
-  installed-artifact release acceptance remain open.
+  — the 0.8E Core correction and public World evidence-to-outcome candidate.
+- [Intelligence OS 0.8.0 release candidate](evidence/intelligence-os-v0.8.0-release-candidate-v1.md)
+  — the cumulative 0.8A–0.8F source, Atrium, World, Market, package, and clean-install gate.
 - [Legacy host compatibility disposition](design/core-engine-compatibility-disposition-v0.8.0.json)
   — the machine-checked 0.8 owner and migration treatment for every top-level `core.engine`
   package; the canonical public roots remain `ace.core`, `ace.intelligence`, and `ace.application`.

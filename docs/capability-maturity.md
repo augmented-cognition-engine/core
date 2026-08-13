@@ -256,8 +256,10 @@ all-controls interval rule. L1 is therefore passed for the frozen executable-wor
 human, customer, external-product, provider, and general real-world benefit remain unsupported. See the
 [L1 evidence gate](evidence/l1-foresight-impact-evidence.md).
 
-Atrium is repository beta source and is not included in the Python wheel or sdist. It is a
-research surface, not a required installation or interaction path.
+Atrium is a supported repository-delivered developer-preview workspace. It consumes the same
+authorized Intelligence resource plane as machine clients and is covered by repository tests and
+production-build acceptance. It remains optional, is not included in the Python wheel or sdist,
+and is never an authoritative state, policy, or effect path.
 
 ## Promotion rule
 

@@ -4,6 +4,42 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+## 0.8.0
+
+### Intelligence Operating System
+
+- Add one authorized, point-in-time Intelligence resource plane over Sources, Connections,
+  Observations, Entity state, Signals, Shifts, Cases, Briefs, Monitors, Subscriptions, Agents,
+  Decisions, Actions, Outcomes, Feedback, governed memory, and provenance. Exact revision identity,
+  product scope, cursoring, restart reconstruction, and explicit partial/degraded state are shared
+  by machine consumers and Atrium.
+- Realign runtime ownership around the public `ace.core`, `ace.intelligence`, and
+  `ace.application` boundaries. Core owns durable cognition, identity, state, authority, and
+  outcomes; Intelligence owns domain-neutral sensing and orientation; Domain Packs remain inert
+  vocabulary and policy; separately reviewed connectors/adapters own I/O and effects.
+- Add rebuildable projections for live sources, monitored owner lifecycles, governed Agents,
+  Decisions, Actions, Outcomes, non-effective Feedback proposals, authorized memory use, and
+  evidence lineage without creating a second persistence or authority path.
+- Complete authorized Agent Memory through AM4 retention and erasure while preserving explicit
+  recall authority, material-use attribution, reconstruction, non-reappearance, and the eleven-
+  tool MCP boundary.
+
+### Atrium and cross-domain proof
+
+- Rebuild Atrium as a briefing-first Intelligence OS workspace with first-class Intelligence,
+  Opportunities, Agents, Connections, and Strategy; keep Work downstream. Ask ACE ranks only
+  authorized resource records and cites exact revisions. Empty, partial, degraded, desktop, mobile,
+  keyboard, and screen-reader states are covered in the repository-delivered preview.
+- Reproduce the complete public resource contract through independent World and Market
+  Intelligence repositories. World proves a recorded official-source path through reviewed Action
+  and measured Feedback; Market proves a competitive-price path with explicit `no_action` and
+  non-live Feedback. No domain noun or policy branch enters Core.
+- Preserve proposal-only learning, inert Domain Packs, explicit source/effect authority, schema
+  head v177, the single-node trusted-adapter topology, and exactly eleven public MCP tools.
+- Version the Core distribution at 0.8.0 and the separately packaged reference action adapter at
+  0.4.0 with an `ace-core>=0.8.0,<0.9` dependency. Its unchanged executable implementation retains
+  capability artifact identity 0.1.0.
+
 ## 0.7.0
 
 ### Intelligence Builder Foundation

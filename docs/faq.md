@@ -369,10 +369,12 @@ end-to-end operating journeys remain experimental in 0.1.x.
 
 ### What is the stable public contract today?
 
-The compatibility focus is the self-hosted CLI, exactly eleven thin MCP tools, the documented
-provider routes, migrations, and reference extension boundary. The broad HTTP APIs, Atrium,
-Sentinel scheduling, MAKE/SHIP execution, worker automation, foresight, calibration, and continuous
-learning are implemented but not compatibility-stable 0.1.x contracts.
+ACE 0.8.0 is a developer-preview contract: the self-hosted CLI, exactly eleven thin MCP tools,
+documented provider routes, schema migrations, public Core/Intelligence/Application packages,
+inert Domain Pack boundary, and authorized Intelligence resource plane. Atrium is a supported,
+optional repository-delivered preview over that same plane; it is not included in the Python
+artifact. Sentinel scheduling, arbitrary effect execution, managed operation, and autonomous
+learning remain outside the stable contract.
 
 ### What should operators test before trusting ACE with important work?
 
