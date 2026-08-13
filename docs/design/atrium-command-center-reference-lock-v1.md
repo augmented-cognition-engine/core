@@ -15,6 +15,11 @@ The primary user is an executive or analyst who needs to answer four questions:
 
 The golden path is `connect -> orient -> watch -> brief -> inspect -> decide`.
 
+The outcome-led first-run journey and the AI command-center jobs are frozen separately in
+[Atrium JTBD onboarding and AI command-center reference lock](atrium-jtbd-onboarding-reference-lock-v1.md).
+That document supersedes agent-led or connector-grid onboarding concepts while preserving this
+command-center visual direction.
+
 ## Reference lock
 
 The visual system is anchored in three researched patterns:
@@ -51,6 +56,8 @@ timestamps, counts, and provenance.
 - command-line cosplay;
 - a World-specific route or hard-coded World vocabulary inside Core;
 - a separate World dashboard that forks the Atrium experience.
+- a source-catalog wall or agent-by-agent configuration wizard during first use;
+- a blank dashboard or a second guided tour after the first Brief is ready.
 
 ## Media strategy
 

@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   Activity,
   ArrowRight,
@@ -25,6 +25,8 @@ import { Skeleton } from '@/design/shadcn/ui/skeleton'
 
 import { KernelNav } from '../ext/defaults/KernelNav'
 import { AskAce } from './AskAce'
+import { OnboardingPreview } from './OnboardingPreview'
+import { onboardingProfileFromResources } from './onboardingModel'
 import { pageFreshness, productDisplayName } from './experienceModel'
 import {
   EXPLICITLY_DEGRADED_RESOURCE_KINDS,
@@ -68,25 +70,22 @@ function activeSurface(pathname: string): Surface {
   return 'intelligence'
 }
 
-function EmptyBuilder() {
+function EmptyBuilder({ onStart }: { readonly onStart: () => void }) {
   const steps = [
     {
-      title: 'Connect your sources',
-      detail: 'Add the systems, feeds, and repositories ACE is allowed to observe.',
+      title: 'Tell ACE what matters',
+      detail: 'Choose the decision or landscape you need to stay ahead of.',
       icon: Network,
-      href: '/atrium/connections',
     },
     {
-      title: 'Map what matters',
-      detail: 'ACE proposes entities, relationships, and monitored concepts for review.',
+      title: 'Review the recommendation',
+      detail: 'ACE proposes evidence, concepts, watches, and cadence for review.',
       icon: BrainCircuit,
-      href: '/atrium/agents',
     },
     {
-      title: 'Start watching',
-      detail: 'Activate monitors and let the first cited briefing assemble itself.',
+      title: 'Open the first Brief',
+      detail: 'Watch the system assemble, then land in a populated command center.',
       icon: Activity,
-      href: '/atrium/agents',
     },
   ]
 
@@ -95,30 +94,30 @@ function EmptyBuilder() {
       <CardContent className="p-6 md:p-8">
         <div className="max-w-xl">
           <Badge variant="secondary" className="mb-3">Start here</Badge>
-          <h2 className="text-xl font-semibold tracking-tight">Point ACE at your world.</h2>
+          <h2 className="text-xl font-semibold tracking-tight">What do you need to stay ahead of?</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Connect a few sources and ACE&apos;s onboarding agents build the first intelligence system with you. No infrastructure or hand-authored ontology required.
+            Tell ACE the outcome. It recommends the sources, concepts, watches, and briefing system; you review the plan and the first cited Brief assembles itself.
           </p>
         </div>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           {steps.map((step, index) => (
-            <Link
+            <div
               key={step.title}
-              to={step.href}
-              className="group rounded-xl border bg-card p-4 transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className="rounded-xl border bg-card p-4"
             >
               <div className="flex items-center gap-2">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
                   <step.icon className="size-4" />
                 </div>
                 <span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span>
-                <ArrowRight className="ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+                {index < 2 ? <ArrowRight className="ml-auto size-3.5 text-muted-foreground" /> : <ShieldCheck className="ml-auto size-3.5 text-brand" />}
               </div>
               <div className="mt-4 text-sm font-semibold">{step.title}</div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
-            </Link>
+            </div>
           ))}
         </div>
+        <Button type="button" className="mt-5" onClick={onStart}>Build my intelligence <ArrowRight className="size-4" /></Button>
       </CardContent>
     </Card>
   )
@@ -151,7 +150,7 @@ function ResourceGrid({
   )
 }
 
-function BriefingHome({ groups, all }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[] }) {
+function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
   const briefs = groups.intelligence.filter((item) => item.reference.resource_kind === 'brief')
   const latestBrief = briefs[0]
   const stream = groups.intelligence
@@ -172,7 +171,7 @@ function BriefingHome({ groups, all }: { readonly groups: ResourceGroups; readon
             <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{briefs.length} current</Badge>
           </div>
           {latestBrief === undefined ? (
-            <EmptyBuilder />
+            <EmptyBuilder onStart={onStart} />
           ) : (
             <ResourceCard record={latestBrief} featured />
           )}
@@ -291,8 +290,8 @@ function AgentRole({ title, detail, state }: { readonly title: string; readonly 
   )
 }
 
-function PageContent({ surface, groups, all }: { readonly surface: Surface; readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[] }) {
-  if (surface === 'intelligence') return <BriefingHome groups={groups} all={all} />
+function PageContent({ surface, groups, all, onStart }: { readonly surface: Surface; readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
+  if (surface === 'intelligence') return <BriefingHome groups={groups} all={all} onStart={onStart} />
   if (surface === 'connections') return <ConnectionsView groups={groups} />
   if (surface === 'agents') return <AgentsView groups={groups} />
   if (surface === 'opportunities') {
@@ -321,6 +320,8 @@ export function IntelligenceOS() {
   const groups = useMemo(() => groupResources(page?.items ?? []), [page?.items])
   const productName = productDisplayName(page?.product_id)
   const freshness = pageFreshness(page)
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const onboardingProfile = useMemo(() => onboardingProfileFromResources(page?.items ?? []), [page?.items])
 
   return (
     <div className="atrium-command-center dark min-h-svh bg-background text-foreground">
@@ -378,7 +379,7 @@ export function IntelligenceOS() {
           ) : (
             <>
               <CoverageStrip groups={groups} freshness={freshness} />
-              <PageContent surface={surface} groups={groups} all={page?.items ?? []} />
+              <PageContent surface={surface} groups={groups} all={page?.items ?? []} onStart={() => setOnboardingOpen(true)} />
             </>
           )}
         </main>
@@ -391,6 +392,7 @@ export function IntelligenceOS() {
           <span>·</span>
           <span>exact provenance retained</span>
         </footer>
+        <OnboardingPreview open={onboardingOpen} onOpenChange={setOnboardingOpen} profile={onboardingProfile} />
         </SidebarInset>
       </SidebarProvider>
     </div>

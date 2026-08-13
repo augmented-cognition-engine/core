@@ -54,6 +54,10 @@ Research was intentionally locked before implementation:
    Connect → Map → Watch path. It never substitutes prepared intelligence for an empty live system.
 7. **Investigation remains downstream.** The existing deliberation and board experiences remain
    reachable as investigation tools; neither becomes another intelligence source of truth.
+8. **Jobs before agents.** First use asks what decision or landscape the user needs to stay ahead
+   of. A Domain Pack proposes sources, concepts, watches, and cadence; agent work appears as one
+   inspectable assembly story. The full reference is the
+   [Atrium JTBD onboarding and AI command-center lock](atrium-jtbd-onboarding-reference-lock-v1.md).
 
 ## Implemented slice
 

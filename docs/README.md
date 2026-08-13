@@ -69,6 +69,9 @@ support the public roadmap but do not compete with it for outcome state or dispa
 - [State Engine Core-boundary readiness addendum](design/state-engine-core-boundary-readiness-v1.md)
   — K2/K3 bounded readiness delta while preserving the frozen TP8 boundary input.
 - [Intelligence Builder onboarding sequence](design/guided-intelligence-bootstrap-v0.7.0-work-packet-v1.md)
+- [Atrium JTBD onboarding and AI command-center reference lock](design/atrium-jtbd-onboarding-reference-lock-v1.md)
+  — outcome-led first use, AI command-center jobs, domain onboarding-profile boundary, researched
+  UI references, and the clean-install-to-first-Brief acceptance journey.
   — the cumulative 0.7A–0.7E Connect → Map → Watch → Brief → Activate contracts, authority
   boundaries, state machine, and full-demo acceptance.
 - [Intelligence OS Realignment](design/intelligence-os-realignment-v0.8.0-work-packet-v1.md) — the
