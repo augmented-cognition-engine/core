@@ -32,6 +32,23 @@ managed hosting, native database backup, or a runnable restore workflow.
 - Successful replay returns the same proof and transaction receipt identity.
 - Ownership proof records are excluded from later content exports and deletes.
 
+## Authenticated API and CLI exposure
+
+The host exposes three authenticated `POST` operations under
+`/v1/intelligence/ownership`: export, deletion preview, and deletion confirm.
+There is deliberately no one-step HTTP `DELETE`. Every request derives product
+and actor scope only from verified token claims, persists credential-free
+authentication evidence in the excluded ownership control space, checks token
+authority attenuation, and resolves the named current Core authority grant.
+Export requires `deliver_export`; preview and confirm require
+`administer_lifecycle`.
+
+The CLI mirrors those operations under `ace ownership`. Export and preview are
+written as canonical JSON files created with mode `0600`. Confirmation requires
+the preview file plus the exact digest shown after review. The CLI repeats that
+exports are not runnable restore artifacts and that deletion does not purge
+backups or external copies.
+
 ## Acceptance evidence
 
 Focused in-memory tests cover:
@@ -42,6 +59,11 @@ Focused in-memory tests cover:
 4. stale-preview refusal without deletion;
 5. content removal, foreign-product isolation, content-free proof, and replay;
 6. atomic failure preserving every original record and appending no proof.
+
+Focused transport tests additionally cover verified product scope, token and
+current-grant denial, fresh authentication between preview and confirmation,
+stale-preview HTTP conflict, POST-only OpenAPI shape, private canonical CLI
+files, explicit digest confirmation, and server-error preservation.
 
 ## Exact limitations
 

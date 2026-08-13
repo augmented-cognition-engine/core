@@ -31,6 +31,7 @@ from core.engine.cli.commands.intel import intel, search
 from core.engine.cli.commands.landscape import landscape
 from core.engine.cli.commands.login import login
 from core.engine.cli.commands.model_policy import model_policy
+from core.engine.cli.commands.ownership import ownership
 from core.engine.cli.commands.product_state import state
 from core.engine.cli.commands.proposals import proposals
 from core.engine.cli.commands.reasoning import frameworks
@@ -50,6 +51,7 @@ cli.add_command(search)
 cli.add_command(status)
 cli.add_command(doctor)
 cli.add_command(model_policy)
+cli.add_command(ownership)
 cli.add_command(landscape)
 cli.add_command(state)
 cli.add_command(graph)
