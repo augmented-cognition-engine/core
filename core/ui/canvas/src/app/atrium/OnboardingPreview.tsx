@@ -8,17 +8,24 @@ import {
   Compass,
   FlaskConical,
   Gauge,
+  LoaderCircle,
   Radar,
   Scale,
   ShieldAlert,
   Sparkles,
+  TriangleAlert,
 } from 'lucide-react'
 
 import { Badge } from '@/design/shadcn/ui/badge'
 import { Button } from '@/design/shadcn/ui/button'
 import { Card, CardContent } from '@/design/shadcn/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/design/shadcn/ui/dialog'
-import type { IntelligenceOnboardingOutcome, IntelligenceOnboardingProfile } from './onboardingModel'
+import type {
+  IntelligenceBuilderSession,
+  IntelligenceBuilderStage,
+  IntelligenceOnboardingOutcome,
+  IntelligenceOnboardingProfile,
+} from './onboardingModel'
 
 const ICONS: Record<string, typeof Compass> = {
   choice: Gauge,
@@ -29,28 +36,128 @@ const ICONS: Record<string, typeof Compass> = {
   custom: Compass,
 }
 
+type BuildState = 'complete' | 'active' | 'blocked' | 'waiting' | 'proposed'
+
+interface BuildLane {
+  readonly label: string
+  readonly result: string
+  readonly state: BuildState
+}
+
+const STAGE_RANK: Record<IntelligenceBuilderStage, number> = {
+  goal_selected: 0,
+  sources_connecting: 1,
+  sources_ready: 2,
+  concept_model_proposed: 3,
+  concept_model_approved: 4,
+  intelligence_model_proposed: 5,
+  intelligence_model_approved: 6,
+  first_briefing_ready: 7,
+  activation_pending: 8,
+  active: 9,
+  blocked: -1,
+  retrying: -1,
+}
+
 function OutcomeIcon({ outcome }: { readonly outcome: IntelligenceOnboardingOutcome }) {
   const Icon = ICONS[outcome.icon_hint] ?? Compass
   return <Icon className="size-4" />
 }
 
-export function OnboardingPreview({ open, onOpenChange, profile }: { readonly open: boolean; readonly onOpenChange: (open: boolean) => void; readonly profile: IntelligenceOnboardingProfile }) {
+function laneState(rank: number, activeAt: number, completeAt: number): BuildState {
+  if (rank >= completeAt) return 'complete'
+  if (rank >= activeAt) return 'active'
+  return 'waiting'
+}
+
+function blockedLane(stage: IntelligenceBuilderStage | null): number {
+  const rank = stage === null ? 0 : STAGE_RANK[stage]
+  if (rank <= 1) return 0
+  if (rank <= 3) return 1
+  if (rank <= 5) return 2
+  return 3
+}
+
+function buildLanes(session: IntelligenceBuilderSession | null, watchCount: number | 'Custom'): readonly BuildLane[] {
+  if (session === null) {
+    return [
+      { label: 'Connect and validate evidence', result: 'Source plan proposed for review', state: 'proposed' },
+      { label: 'Map entities and concepts', result: 'Concept model will follow admitted evidence', state: 'proposed' },
+      { label: 'Configure governed watches', result: `${watchCount} starting areas proposed`, state: 'proposed' },
+      { label: 'Assemble the first cited Brief', result: 'Begins only after the governed inputs are ready', state: 'proposed' },
+    ]
+  }
+
+  const effectiveStage = session.stage === 'blocked' || session.stage === 'retrying'
+    ? session.resume_stage ?? 'goal_selected'
+    : session.stage
+  const rank = STAGE_RANK[effectiveStage]
+  const evidenceState = laneState(rank, 1, 2)
+  const conceptState = laneState(rank, 3, 4)
+  const watchState = laneState(rank, 5, 6)
+  const briefingState = laneState(rank, 6, 7)
+  const lanes: BuildLane[] = [
+    { label: 'Connect and validate evidence', result: evidenceState === 'complete' ? 'Approved source profile retained' : 'Connection Agent is validating permitted sources', state: evidenceState },
+    { label: 'Map entities and concepts', result: conceptState === 'complete' ? 'Approved concept model retained' : 'Ontology Agent is grounding the concept map', state: conceptState },
+    { label: 'Configure governed watches', result: watchState === 'complete' ? 'Approved watch model retained' : `Intelligence Agent is evaluating ${watchCount} starting areas`, state: watchState },
+    { label: 'Assemble the first cited Brief', result: briefingState === 'complete' ? 'First cited Brief preview retained' : 'Briefing Agent is preserving claims and citations', state: briefingState },
+  ]
+
+  if (session.stage === 'blocked') {
+    const lane = blockedLane(session.resume_stage)
+    lanes[lane] = {
+      ...lanes[lane],
+      result: session.safe_diagnostic ?? `ACE stopped safely: ${session.block_reason ?? 'review required'}.`,
+      state: 'blocked',
+    }
+  } else if (session.stage === 'retrying') {
+    const lane = blockedLane(session.resume_stage)
+    lanes[lane] = { ...lanes[lane], result: 'ACE is retrying the governed step.', state: 'active' }
+  }
+  return lanes
+}
+
+export function OnboardingPreview({
+  open,
+  onOpenChange,
+  profile,
+  session,
+  onOpenBrief,
+}: {
+  readonly open: boolean
+  readonly onOpenChange: (open: boolean) => void
+  readonly profile: IntelligenceOnboardingProfile
+  readonly session: IntelligenceBuilderSession | null
+  readonly onOpenBrief: () => void
+}) {
   const [step, setStep] = useState(0)
   const [outcomeId, setOutcomeId] = useState(profile.outcomes[0]?.outcome_id ?? '')
   const [cadenceId, setCadenceId] = useState(profile.default_cadence_id)
   const outcome = useMemo(() => profile.outcomes.find((item) => item.outcome_id === outcomeId) ?? profile.outcomes[0], [outcomeId, profile.outcomes])
+  const firstBriefReady = session !== null && STAGE_RANK[session.stage] >= STAGE_RANK.first_briefing_ready
+  const lanes = buildLanes(session, outcome.recommended_topic_labels.length || 'Custom')
 
   function close(next: boolean) {
     onOpenChange(next)
     if (!next) setStep(0)
   }
 
+  function finish() {
+    close(false)
+    if (firstBriefReady) onOpenBrief()
+  }
+
   return (
     <Dialog open={open} onOpenChange={close}>
       <DialogContent className="atrium-command-center dark max-h-[calc(100svh-2rem)] overflow-y-auto rounded-lg border-border bg-popover p-0 sm:max-w-4xl">
         <div className="border-b px-6 py-4 sm:px-8">
-          <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">
-            <Sparkles className="size-3.5" /> Build your intelligence
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">
+              <Sparkles className="size-3.5" /> Build your intelligence
+            </div>
+            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">
+              {session === null ? 'Proposal only' : `Live session · r${session.sequence}`}
+            </Badge>
           </div>
           <div className="mt-3 flex gap-1.5" aria-label={`Step ${step + 1} of 4`}>
             {[0, 1, 2, 3].map((item) => <div key={item} className={`h-1 flex-1 rounded-full ${item <= step ? 'bg-brand' : 'bg-border'}`} />)}
@@ -109,22 +216,25 @@ export function OnboardingPreview({ open, onOpenChange, profile }: { readonly op
 
           {step === 3 && (
             <>
-              <DialogHeader className="max-w-2xl"><DialogTitle className="text-2xl tracking-tight">Your first picture is assembling</DialogTitle><DialogDescription>ACE's governed agents work as one team. Inspect them when you need to; otherwise, follow the outcomes.</DialogDescription></DialogHeader>
+              <DialogHeader className="max-w-2xl">
+                <DialogTitle className="text-2xl tracking-tight">{firstBriefReady ? 'Your first picture is ready' : session?.stage === 'blocked' ? 'ACE needs your attention' : session === null ? 'Your governed plan is ready' : 'Your first picture is assembling'}</DialogTitle>
+                <DialogDescription>{session === null ? 'These are proposed steps. No agent action is represented as complete until Core admits its durable session record.' : 'This status comes from the governed, append-only Intelligence Builder session—not UI animation.'}</DialogDescription>
+              </DialogHeader>
               <div className="mt-7 space-y-2">
-                <BuildStep label="Find and validate evidence" result="Recommended source plan ready" />
-                <BuildStep label="Map entities and concepts" result="Concept proposal ready for review" />
-                <BuildStep label="Build and validate watches" result={`${outcome.recommended_topic_labels.length || 'Custom'} watches proposed`} />
-                <BuildStep label="Challenge coverage and contradictions" result="Coverage gaps will remain visible" />
-                <BuildStep label="Assemble the first cited Brief" result="Ready to open" featured />
+                {lanes.map((lane) => <BuildStep key={lane.label} {...lane} />)}
               </div>
-              <div className="mt-5 rounded-lg border bg-card p-4 text-xs text-muted-foreground">This preview demonstrates the experience contract. Live activation still follows ACE's governed Connect → Map → Watch → Brief → Activate lifecycle.</div>
+              <div className="mt-5 rounded-lg border bg-card p-4 text-xs text-muted-foreground">
+                {session === null ? 'Reviewing this plan grants no source, monitor, or activation authority.' : `${session.artifacts.length} exact builder artifact${session.artifacts.length === 1 ? '' : 's'} retained · session revision ${session.sequence}`}
+              </div>
             </>
           )}
         </div>
 
         <div className="flex items-center justify-between border-t px-6 py-4 sm:px-8">
           <Button type="button" variant="ghost" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}><ArrowLeft className="size-4" /> Back</Button>
-          {step < 3 ? <Button type="button" onClick={() => setStep((value) => Math.min(3, value + 1))}>{step === 2 ? 'Start watching' : 'Continue'} <ArrowRight className="size-4" /></Button> : <Button type="button" onClick={() => close(false)}>{profile.completion_label} <ArrowRight className="size-4" /></Button>}
+          {step < 3
+            ? <Button type="button" onClick={() => setStep((value) => Math.min(3, value + 1))}>{step === 2 ? session === null ? 'Review proposed build' : 'View live build' : 'Continue'} <ArrowRight className="size-4" /></Button>
+            : <Button type="button" onClick={finish}>{firstBriefReady ? profile.completion_label : 'Return to Atrium'} <ArrowRight className="size-4" /></Button>}
         </div>
       </DialogContent>
     </Dialog>
@@ -135,6 +245,16 @@ function PlanCard({ label, value, detail }: { readonly label: string; readonly v
   return <Card><CardContent className="p-5"><div className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">{label}</div><div className="mt-2 text-sm font-semibold">{value}</div><p className="mt-2 text-xs leading-relaxed text-muted-foreground">{detail}</p></CardContent></Card>
 }
 
-function BuildStep({ label, result, featured = false }: { readonly label: string; readonly result: string; readonly featured?: boolean }) {
-  return <div className={`flex items-center gap-3 rounded-lg border p-4 ${featured ? 'border-brand/40 bg-brand/7' : 'bg-card'}`}><div className="flex size-7 items-center justify-center rounded-full bg-brand/10 text-brand"><Check className="size-3.5" /></div><div className="min-w-0 flex-1"><div className="text-sm font-medium">{label}</div><div className="mt-0.5 text-xs text-muted-foreground">{result}</div></div>{featured && <Badge variant="secondary" className="rounded-sm font-mono text-[9px] text-brand">First value</Badge>}</div>
+function BuildStep({ label, result, state }: BuildLane) {
+  const Icon = state === 'complete' ? Check : state === 'blocked' ? TriangleAlert : state === 'active' ? LoaderCircle : CircleDot
+  const stateLabel = state === 'complete' ? 'Complete' : state === 'blocked' ? 'Needs attention' : state === 'active' ? 'Working' : state === 'waiting' ? 'Waiting' : 'Proposed'
+  return (
+    <div className={`flex items-center gap-3 rounded-lg border p-4 ${state === 'active' ? 'border-brand/40 bg-brand/7' : state === 'blocked' ? 'border-warning/45 bg-warning/5' : 'bg-card'}`}>
+      <div className={`flex size-7 items-center justify-center rounded-full ${state === 'blocked' ? 'bg-warning/15 text-warning' : state === 'complete' || state === 'active' ? 'bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}>
+        <Icon className={`size-3.5 ${state === 'active' ? 'animate-spin' : ''}`} />
+      </div>
+      <div className="min-w-0 flex-1"><div className="text-sm font-medium">{label}</div><div className="mt-0.5 text-xs text-muted-foreground">{result}</div></div>
+      <Badge variant="secondary" className="rounded-sm font-mono text-[9px]">{stateLabel}</Badge>
+    </div>
+  )
 }

@@ -19,6 +19,7 @@ from ace.application import (
     AgentResourceProjectionReader,
     CompositeIntelligenceResourceProjectionReader,
     DecisionOutcomeFeedbackResourceProjectionReader,
+    IntelligenceBuilderResourceProjectionReader,
     IntelligenceLedgerResourceProjectionReader,
     IntelligenceResourceCursorV1Alpha1,
     IntelligenceResourceKind,
@@ -91,6 +92,10 @@ def intelligence_resource_projection_reader(records: ImmutableRecordStore) -> In
     """Compose all disjoint rebuildable public projection contributors."""
 
     return CompositeIntelligenceResourceProjectionReader(
+        IntelligenceBuilderResourceProjectionReader(
+            store=records,
+            degrade_unsupported=False,
+        ),
         ActionResourceProjectionReader(
             store=records,
             degrade_unsupported=False,

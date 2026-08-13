@@ -175,9 +175,124 @@ test('Atrium empty state starts with the user job and previews a complete first-
   await page.getByRole('button', { name: 'Continue' }).click()
   await expect(page.getByRole('heading', { name: 'Review what ACE will build' })).toBeVisible()
   await expect(page.getByText('Nothing is connected or activated silently.')).toBeVisible()
-  await page.getByRole('button', { name: 'Start watching' }).click()
-  await expect(page.getByRole('heading', { name: 'Your first picture is assembling' })).toBeVisible()
-  await expect(page.getByText('First value')).toBeVisible()
+  await page.getByRole('button', { name: 'Review proposed build' }).click()
+  await expect(page.getByRole('heading', { name: 'Your governed plan is ready' })).toBeVisible()
+  await expect(page.getByText('Proposed', { exact: true })).toHaveCount(4)
+  await page.getByRole('button', { name: 'Return to Atrium' }).click()
+  await expect(page.getByRole('dialog')).not.toBeVisible()
+})
+
+test('Atrium renders a durable first-brief-ready Builder session instead of simulated progress', async ({ page }, testInfo) => {
+  const onboardingProfile = {
+    contract: 'ace.intelligence.onboarding-profile/v1alpha1',
+    profile_id: 'intelligence_onboarding_profile:world-ai-command-center',
+    topic_id: 'artificial_intelligence',
+    display_name: 'AI Command Center',
+    prompt: 'What do you need to stay ahead of?',
+    description: 'Build an evidence-grounded picture of the AI landscape.',
+    outcomes: [{
+      outcome_id: 'strategy',
+      label: 'Set strategy or evaluate investments',
+      description: 'Track material AI movement.',
+      icon_hint: 'strategy',
+      recommended_topic_labels: ['Policy', 'Models'],
+      recommended_intelligence_labels: ['Policy progression'],
+    }],
+    cadences: [{ cadence_id: 'daily', label: 'Daily pulse', description: 'A concise daily orientation.' }],
+    default_cadence_id: 'daily',
+    first_value: { completion_label: 'Open my first briefing' },
+  }
+  const profileResource = {
+    ...resource('builder_profile', 'world-ai-command-center', 'AI Command Center', 'The admitted starting profile.'),
+    payload: {
+      contract: 'ace.intelligence.canonical-json-value/v1alpha1',
+      value_json: JSON.stringify(onboardingProfile),
+    },
+  }
+  const sessionStages = [
+    'goal_selected',
+    'sources_connecting',
+    'sources_ready',
+    'concept_model_proposed',
+    'concept_model_approved',
+    'intelligence_model_proposed',
+    'intelligence_model_approved',
+    'first_briefing_ready',
+  ]
+  const sessions = sessionStages.map((stage, index) => {
+    const item = resource('builder_session', `world-ai-${index + 1}`, `Builder stage ${index + 1}`, stage)
+    return {
+      ...item,
+      reference: {
+        ...item.reference,
+        resource_id: 'intelligence_builder_session:world-ai',
+        revision: index + 1,
+        available_at: `2026-08-12T18:00:0${index + 1}.000Z`,
+      },
+      payload: {
+        contract: 'ace.intelligence.canonical-json-value/v1alpha1',
+        value_json: JSON.stringify({
+          contract: 'ace.application.intelligence-builder-session-revision/v1alpha1',
+          session_id: 'intelligence_builder_session:world-ai',
+          goal_ref: 'goal:track-ai-change',
+          sequence: index + 1,
+          stage,
+          artifacts: stage === 'first_briefing_ready' ? [{
+            artifact_kind: 'first_briefing_preview',
+            artifact_id: 'first_briefing_preview:world-ai',
+            artifact_digest: `sha256:${'f'.repeat(64)}`,
+          }] : [],
+          block_reason: null,
+          resume_stage: null,
+          safe_diagnostic: null,
+        }),
+      },
+    }
+  })
+  const brief = resource(
+    'brief',
+    'world-ai-first',
+    'AI policy moved from directive to reported implementation',
+    'Two admitted official lineages show a material policy progression.',
+  )
+
+  await page.route('**/auth/token', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ token: 'test-token' }) }),
+  )
+  await page.route('**/v1/intelligence/resources/query', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        contract: 'ace.intelligence.resource-plane-page/v1alpha1',
+        query_id: 'resource_query:live-builder',
+        query_digest: `sha256:${'1'.repeat(64)}`,
+        product_id: 'product:world-ai-command-center',
+        actor_ref: 'principal:demo-analyst',
+        as_of: availableAt,
+        available_at: availableAt,
+        evaluated_at: availableAt,
+        state: 'complete',
+        items: [profileResource, ...sessions, brief],
+        next_cursor: null,
+        degraded_reason_refs: [],
+        page_id: 'resource_page:live-builder',
+        page_digest: `sha256:${'2'.repeat(64)}`,
+      }),
+    }),
+  )
+
+  await page.goto('/atrium')
+  await page.getByRole('button', { name: 'View build' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'View live build' }).click()
+  await expect(page.getByRole('heading', { name: 'Your first picture is ready' })).toBeVisible()
+  await expect(page.getByText('Complete', { exact: true })).toHaveCount(4)
+  if (process.env.ACE_CAPTURE_ATRIUM === '1') {
+    await page.screenshot({ path: testInfo.outputPath('atrium-live-builder-ready.png'), fullPage: true })
+  }
   await page.getByRole('button', { name: 'Open my first briefing' }).click()
   await expect(page.getByRole('dialog')).not.toBeVisible()
+  await expect(page.getByRole('button', { name: `Open ${brief.title}` })).toBeVisible()
 })

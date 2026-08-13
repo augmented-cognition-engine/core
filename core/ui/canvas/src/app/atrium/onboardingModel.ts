@@ -1,5 +1,8 @@
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 
+const PROFILE_CONTRACT = 'ace.intelligence.onboarding-profile/v1alpha1' as const
+const LEGACY_PROFILE_CONTRACT = 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1' as const
+
 export interface IntelligenceOnboardingOutcome {
   readonly outcome_id: string
   readonly label: string
@@ -16,7 +19,7 @@ export interface IntelligenceOnboardingCadence {
 }
 
 export interface IntelligenceOnboardingProfile {
-  readonly contract: 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1'
+  readonly contract: typeof PROFILE_CONTRACT | typeof LEGACY_PROFILE_CONTRACT
   readonly display_name: string
   readonly prompt: string
   readonly description: string
@@ -26,8 +29,39 @@ export interface IntelligenceOnboardingProfile {
   readonly completion_label: string
 }
 
+export type IntelligenceBuilderStage =
+  | 'goal_selected'
+  | 'sources_connecting'
+  | 'sources_ready'
+  | 'concept_model_proposed'
+  | 'concept_model_approved'
+  | 'intelligence_model_proposed'
+  | 'intelligence_model_approved'
+  | 'first_briefing_ready'
+  | 'activation_pending'
+  | 'active'
+  | 'blocked'
+  | 'retrying'
+
+export interface IntelligenceBuilderArtifact {
+  readonly artifact_kind: string
+  readonly artifact_id: string
+  readonly artifact_digest: string
+}
+
+export interface IntelligenceBuilderSession {
+  readonly session_id: string
+  readonly goal_ref: string
+  readonly sequence: number
+  readonly stage: IntelligenceBuilderStage
+  readonly artifacts: readonly IntelligenceBuilderArtifact[]
+  readonly block_reason: string | null
+  readonly resume_stage: IntelligenceBuilderStage | null
+  readonly safe_diagnostic: string | null
+}
+
 const FALLBACK_PROFILE: IntelligenceOnboardingProfile = {
-  contract: 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1',
+  contract: PROFILE_CONTRACT,
   display_name: 'Your Intelligence',
   prompt: 'What do you need to stay ahead of?',
   description: 'Choose the decision context. ACE will recommend the evidence, concepts, watches, and briefing system.',
@@ -90,8 +124,32 @@ const FALLBACK_PROFILE: IntelligenceOnboardingProfile = {
   completion_label: 'Open my first briefing',
 }
 
+const BUILDER_STAGES = new Set<IntelligenceBuilderStage>([
+  'goal_selected',
+  'sources_connecting',
+  'sources_ready',
+  'concept_model_proposed',
+  'concept_model_approved',
+  'intelligence_model_proposed',
+  'intelligence_model_approved',
+  'first_briefing_ready',
+  'activation_pending',
+  'active',
+  'blocked',
+  'retrying',
+])
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function canonicalPayload(value: unknown): unknown {
+  if (!isRecord(value) || typeof value.value_json !== 'string') return value
+  try {
+    return JSON.parse(value.value_json) as unknown
+  } catch {
+    return null
+  }
 }
 
 function strings(value: unknown): readonly string[] | null {
@@ -124,7 +182,7 @@ function parseCadence(value: unknown): IntelligenceOnboardingCadence | null {
 }
 
 export function parseOnboardingProfile(value: unknown): IntelligenceOnboardingProfile | null {
-  if (!isRecord(value) || value.contract !== 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1') return null
+  if (!isRecord(value) || (value.contract !== PROFILE_CONTRACT && value.contract !== LEGACY_PROFILE_CONTRACT)) return null
   if (
     typeof value.display_name !== 'string' || typeof value.prompt !== 'string' ||
     typeof value.description !== 'string' || typeof value.default_cadence_id !== 'string'
@@ -148,11 +206,72 @@ export function parseOnboardingProfile(value: unknown): IntelligenceOnboardingPr
   }
 }
 
+function parseBuilderArtifact(value: unknown): IntelligenceBuilderArtifact | null {
+  if (!isRecord(value)) return null
+  if (typeof value.artifact_kind !== 'string' || typeof value.artifact_id !== 'string' || typeof value.artifact_digest !== 'string') return null
+  return {
+    artifact_kind: value.artifact_kind,
+    artifact_id: value.artifact_id,
+    artifact_digest: value.artifact_digest,
+  }
+}
+
+export function parseBuilderSession(value: unknown): IntelligenceBuilderSession | null {
+  if (!isRecord(value) || value.contract !== 'ace.application.intelligence-builder-session-revision/v1alpha1') return null
+  if (
+    typeof value.session_id !== 'string' || typeof value.goal_ref !== 'string' ||
+    typeof value.sequence !== 'number' || typeof value.stage !== 'string' ||
+    !BUILDER_STAGES.has(value.stage as IntelligenceBuilderStage)
+  ) return null
+  const artifacts = Array.isArray(value.artifacts) ? value.artifacts.map(parseBuilderArtifact) : []
+  if (artifacts.some((item) => item === null)) return null
+  const blockReason = value.block_reason === null || typeof value.block_reason === 'string' ? value.block_reason : null
+  const resumeStage = value.resume_stage === null || value.resume_stage === undefined
+    ? null
+    : typeof value.resume_stage === 'string' && BUILDER_STAGES.has(value.resume_stage as IntelligenceBuilderStage)
+      ? value.resume_stage as IntelligenceBuilderStage
+      : null
+  const diagnostic = value.safe_diagnostic === null || typeof value.safe_diagnostic === 'string' ? value.safe_diagnostic : null
+  return {
+    session_id: value.session_id,
+    goal_ref: value.goal_ref,
+    sequence: value.sequence,
+    stage: value.stage as IntelligenceBuilderStage,
+    artifacts: artifacts as IntelligenceBuilderArtifact[],
+    block_reason: blockReason ?? null,
+    resume_stage: resumeStage,
+    safe_diagnostic: diagnostic ?? null,
+  }
+}
+
 export function onboardingProfileFromResources(items: readonly IntelligenceResourceRecord[]): IntelligenceOnboardingProfile {
   for (const item of items) {
-    if (item.reference.resource_kind !== 'context_manifest' || !isRecord(item.payload)) continue
-    const profile = parseOnboardingProfile(item.payload.onboarding_profile)
-    if (profile !== null) return profile
+    const payload = canonicalPayload(item.payload)
+    if (item.reference.resource_kind === 'builder_profile') {
+      const profile = parseOnboardingProfile(payload)
+      if (profile !== null) return profile
+    }
+    if (item.reference.resource_kind === 'context_manifest' && isRecord(payload)) {
+      const profile = parseOnboardingProfile(payload.onboarding_profile)
+      if (profile !== null) return profile
+    }
   }
   return FALLBACK_PROFILE
+}
+
+export function onboardingSessionFromResources(items: readonly IntelligenceResourceRecord[]): IntelligenceBuilderSession | null {
+  return items
+    .filter((item) => item.reference.resource_kind === 'builder_session')
+    .map((item) => ({ item, session: parseBuilderSession(canonicalPayload(item.payload)) }))
+    .filter((entry): entry is { item: IntelligenceResourceRecord; session: IntelligenceBuilderSession } => entry.session !== null)
+    .sort((left, right) => right.session.sequence - left.session.sequence || Date.parse(right.item.reference.available_at) - Date.parse(left.item.reference.available_at))[0]
+    ?.session ?? null
+}
+
+export function hasOnboardingProfileResource(items: readonly IntelligenceResourceRecord[]): boolean {
+  return items.some((item) => {
+    const payload = canonicalPayload(item.payload)
+    if (item.reference.resource_kind === 'builder_profile') return parseOnboardingProfile(payload) !== null
+    return item.reference.resource_kind === 'context_manifest' && isRecord(payload) && parseOnboardingProfile(payload.onboarding_profile) !== null
+  })
 }

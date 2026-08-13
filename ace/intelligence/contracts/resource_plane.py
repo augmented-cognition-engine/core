@@ -97,6 +97,8 @@ class IntelligenceResourceKind(StrEnum):
     SEMANTIC_REVISION = "semantic_revision"
     CONTEXT_MANIFEST = "context_manifest"
     MEMORY_USE = "memory_use"
+    BUILDER_PROFILE = "builder_profile"
+    BUILDER_SESSION = "builder_session"
 
 
 class IntelligenceResourceAvailability(StrEnum):

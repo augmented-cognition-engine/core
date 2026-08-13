@@ -258,6 +258,14 @@ from ace.intelligence.contracts.impact import (
     ImpactOutcomeMeasuresV1Alpha1,
     ImpactTargetKind,
 )
+from ace.intelligence.contracts.intelligence_builder_presentation import (
+    INTELLIGENCE_ONBOARDING_PROFILE_VERSION,
+    IntelligenceOnboardingCadenceV1Alpha1,
+    IntelligenceOnboardingFirstValueV1Alpha1,
+    IntelligenceOnboardingGuardrailsV1Alpha1,
+    IntelligenceOnboardingOutcomeV1Alpha1,
+    IntelligenceOnboardingProfileV1Alpha1,
+)
 from ace.intelligence.contracts.ledger import (
     AttentionDisposition,
     AttentionDispositionReceiptV1Alpha1,
@@ -467,6 +475,12 @@ from ace.intelligence.contracts.synthesis import (
 )
 
 __all__ = [
+    "INTELLIGENCE_ONBOARDING_PROFILE_VERSION",
+    "IntelligenceOnboardingCadenceV1Alpha1",
+    "IntelligenceOnboardingFirstValueV1Alpha1",
+    "IntelligenceOnboardingGuardrailsV1Alpha1",
+    "IntelligenceOnboardingOutcomeV1Alpha1",
+    "IntelligenceOnboardingProfileV1Alpha1",
     "MAX_RESOURCE_PLANE_PAGE_SIZE",
     "RESOURCE_PLANE_CURSOR_VERSION",
     "RESOURCE_PLANE_PAGE_VERSION",

@@ -4,6 +4,18 @@ Notable user- and contributor-visible changes are recorded here.
 
 ## Unreleased
 
+### Atrium live onboarding binding
+
+- Project declarative, non-authorizing onboarding profiles and every append-only Intelligence
+  Builder session revision through the existing authenticated resource plane. The projection adds
+  no second store, grants no source or monitor authority, and exposes blocked/retrying state as
+  explicit degradation.
+- Bind Atrium's onboarding progress to durable Builder state instead of presentation animation.
+  Proposal-only plans remain visibly proposed; completion and first-Brief navigation appear only
+  when the exact session reaches `first_briefing_ready`.
+- Add the paired World AI Command Center acceptance journey over four real builder agent roles and
+  two already-admitted recorded official-source lineages.
+
 ## 0.8.0
 
 ### Intelligence Operating System

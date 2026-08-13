@@ -30,6 +30,8 @@ export const INTELLIGENCE_RESOURCE_KINDS = [
   'semantic_revision',
   'context_manifest',
   'memory_use',
+  'builder_profile',
+  'builder_session',
 ] as const
 
 export type IntelligenceResourceKind = (typeof INTELLIGENCE_RESOURCE_KINDS)[number]
@@ -138,7 +140,7 @@ export async function queryIntelligenceResources(
   kinds: readonly IntelligenceResourceKind[] = INTELLIGENCE_RESOURCE_KINDS,
 ): Promise<IntelligenceResourcePage> {
   const availableAt = new Date().toISOString()
-  const asOf = '2000-01-01T00:00:00.000Z'
+  const asOf = availableAt
   let cursor: IntelligenceResourceCursor | null = null
   let token = await getToken()
   let firstPage: IntelligenceResourcePage | null = null

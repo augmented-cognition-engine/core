@@ -22,6 +22,8 @@ export const SUPPORTED_RESOURCE_KINDS = [
   'evidence_lineage',
   'context_manifest',
   'memory_use',
+  'builder_profile',
+  'builder_session',
 ] as const satisfies readonly IntelligenceResourceKind[]
 
 export const EXPLICITLY_DEGRADED_RESOURCE_KINDS = [

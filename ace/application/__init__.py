@@ -328,6 +328,14 @@ from ace.application.intelligence_builder_contracts import (
     SourceScopeSelectionV1,
     SourceValueKind,
 )
+from ace.application.intelligence_builder_resource_projection import (
+    INTELLIGENCE_BUILDER_PRESENTATION_RECORD_SPACE,
+    INTELLIGENCE_BUILDER_RESOURCE_KINDS,
+    INTELLIGENCE_ONBOARDING_PROFILE_RECORD_KIND,
+    IntelligenceBuilderPresentationService,
+    IntelligenceBuilderResourceProjectionReader,
+    IntelligenceOnboardingProfileAdmission,
+)
 from ace.application.intelligence_ledger import (
     PreparedIntelligenceAdmission,
     PreparedIntelligenceAdmissionError,
@@ -451,6 +459,12 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "INTELLIGENCE_BUILDER_PRESENTATION_RECORD_SPACE",
+    "INTELLIGENCE_BUILDER_RESOURCE_KINDS",
+    "INTELLIGENCE_ONBOARDING_PROFILE_RECORD_KIND",
+    "IntelligenceBuilderPresentationService",
+    "IntelligenceBuilderResourceProjectionReader",
+    "IntelligenceOnboardingProfileAdmission",
     "ActionResourceProjectionReader",
     "RESOURCE_QUERY_AUTHORITY",
     "RESOURCE_QUERY_OPERATION",

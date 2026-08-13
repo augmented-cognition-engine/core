@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Route,
   ShieldCheck,
+  Sparkles,
 } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
@@ -26,7 +27,11 @@ import { Skeleton } from '@/design/shadcn/ui/skeleton'
 import { KernelNav } from '../ext/defaults/KernelNav'
 import { AskAce } from './AskAce'
 import { OnboardingPreview } from './OnboardingPreview'
-import { onboardingProfileFromResources } from './onboardingModel'
+import {
+  hasOnboardingProfileResource,
+  onboardingProfileFromResources,
+  onboardingSessionFromResources,
+} from './onboardingModel'
 import { pageFreshness, productDisplayName } from './experienceModel'
 import {
   EXPLICITLY_DEGRADED_RESOURCE_KINDS,
@@ -162,7 +167,7 @@ function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroup
       <AskAce items={all} />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.45fr)]">
-        <section className="space-y-3">
+        <section id="latest-brief" className="scroll-mt-24 space-y-3">
           <div className="flex items-end justify-between gap-3">
             <div>
               <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Latest briefing</div>
@@ -322,6 +327,12 @@ export function IntelligenceOS() {
   const freshness = pageFreshness(page)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
   const onboardingProfile = useMemo(() => onboardingProfileFromResources(page?.items ?? []), [page?.items])
+  const onboardingSession = useMemo(() => onboardingSessionFromResources(page?.items ?? []), [page?.items])
+  const hasOnboarding = useMemo(() => hasOnboardingProfileResource(page?.items ?? []), [page?.items])
+
+  function openFirstBrief() {
+    requestAnimationFrame(() => document.getElementById('latest-brief')?.scrollIntoView({ behavior: 'smooth' }))
+  }
 
   return (
     <div className="atrium-command-center dark min-h-svh bg-background text-foreground">
@@ -340,6 +351,12 @@ export function IntelligenceOS() {
             </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
+            {hasOnboarding && (
+              <Button type="button" variant="outline" size="sm" onClick={() => setOnboardingOpen(true)}>
+                <Sparkles className="size-3.5" />
+                <span className="hidden sm:inline">{onboardingSession === null ? 'Build intelligence' : 'View build'}</span>
+              </Button>
+            )}
             {page !== null && (
               <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden rounded-sm border border-border/70 bg-card font-mono text-[9px] sm:inline-flex">
                 {page.state === 'degraded' ? <CircleAlert className="mr-1 size-3 text-warning" /> : <ShieldCheck className="mr-1 size-3 text-brand" />}
@@ -392,7 +409,13 @@ export function IntelligenceOS() {
           <span>·</span>
           <span>exact provenance retained</span>
         </footer>
-        <OnboardingPreview open={onboardingOpen} onOpenChange={setOnboardingOpen} profile={onboardingProfile} />
+        <OnboardingPreview
+          open={onboardingOpen}
+          onOpenChange={setOnboardingOpen}
+          profile={onboardingProfile}
+          session={onboardingSession}
+          onOpenBrief={openFirstBrief}
+        />
         </SidebarInset>
       </SidebarProvider>
     </div>
