@@ -97,10 +97,10 @@ function buildLanes(session: IntelligenceBuilderSession | null, watchCount: numb
   const watchState = laneState(rank, 5, 6)
   const briefingState = laneState(rank, 6, 7)
   const lanes: BuildLane[] = [
-    { label: 'Connect and validate evidence', result: evidenceState === 'complete' ? 'Approved source profile retained' : 'Connection Agent is validating permitted sources', state: evidenceState },
-    { label: 'Map entities and concepts', result: conceptState === 'complete' ? 'Approved concept model retained' : 'Ontology Agent is grounding the concept map', state: conceptState },
-    { label: 'Configure governed watches', result: watchState === 'complete' ? 'Approved watch model retained' : `Intelligence Agent is evaluating ${watchCount} starting areas`, state: watchState },
-    { label: 'Assemble the first cited Brief', result: briefingState === 'complete' ? 'First cited Brief preview retained' : 'Briefing Agent is preserving claims and citations', state: briefingState },
+    { label: 'Connect and validate evidence', result: evidenceState === 'complete' ? 'Approved evidence connected' : 'Connection Agent is validating permitted sources', state: evidenceState },
+    { label: 'Map entities and concepts', result: conceptState === 'complete' ? 'Entities and concepts mapped' : 'Ontology Agent is grounding the concept map', state: conceptState },
+    { label: 'Configure governed watches', result: watchState === 'complete' ? 'Watch plan approved' : `Intelligence Agent is evaluating ${watchCount} starting areas`, state: watchState },
+    { label: 'Assemble the first cited Brief', result: briefingState === 'complete' ? 'First cited Brief ready' : 'Briefing Agent is preserving claims and citations', state: briefingState },
   ]
 
   if (session.stage === 'blocked') {
@@ -155,8 +155,8 @@ export function OnboardingPreview({
             <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">
               <Sparkles className="size-3.5" /> Build your intelligence
             </div>
-            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">
-              {session === null ? 'Proposal only' : `Live session · r${session.sequence}`}
+            <Badge variant="outline" className="mr-6 rounded-sm font-mono text-[9px]">
+              {session === null ? 'Proposal only' : `Live · step ${session.sequence}`}
             </Badge>
           </div>
           <div className="mt-3 flex gap-1.5" aria-label={`Step ${step + 1} of 4`}>
@@ -218,13 +218,25 @@ export function OnboardingPreview({
             <>
               <DialogHeader className="max-w-2xl">
                 <DialogTitle className="text-2xl tracking-tight">{firstBriefReady ? 'Your first picture is ready' : session?.stage === 'blocked' ? 'ACE needs your attention' : session === null ? 'Your governed plan is ready' : 'Your first picture is assembling'}</DialogTitle>
-                <DialogDescription>{session === null ? 'These are proposed steps. No agent action is represented as complete until Core admits its durable session record.' : 'This status comes from the governed, append-only Intelligence Builder session—not UI animation.'}</DialogDescription>
+                <DialogDescription>
+                  {session === null
+                    ? 'Review the plan before ACE connects sources or starts watching.'
+                    : firstBriefReady
+                      ? 'ACE built this picture from the sources and watch settings you approved.'
+                      : session.stage === 'blocked'
+                        ? 'ACE paused safely before changing your intelligence picture.'
+                        : 'ACE is assembling the picture from the sources and watch settings you approved.'}
+                </DialogDescription>
               </DialogHeader>
               <div className="mt-7 space-y-2">
                 {lanes.map((lane) => <BuildStep key={lane.label} {...lane} />)}
               </div>
               <div className="mt-5 rounded-lg border bg-card p-4 text-xs text-muted-foreground">
-                {session === null ? 'Reviewing this plan grants no source, monitor, or activation authority.' : `${session.artifacts.length} exact builder artifact${session.artifacts.length === 1 ? '' : 's'} retained · session revision ${session.sequence}`}
+                {session === null
+                  ? 'Reviewing this plan changes nothing until you approve it.'
+                  : firstBriefReady
+                    ? 'First cited Brief ready · Setup saved'
+                    : `Setup saved · Step ${session.sequence}`}
               </div>
             </>
           )}
