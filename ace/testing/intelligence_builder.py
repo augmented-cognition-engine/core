@@ -25,6 +25,7 @@ from ace.application.intelligence_builder_contracts import (
     SourceValueKind,
 )
 from ace.core.contracts import canonical_hash
+from ace.core.records import ImmutableRecordStore
 from ace.core.state import ResolvedApprovalReceiptV1
 from ace.testing.immutable_records import InMemoryImmutableRecordStore
 
@@ -125,7 +126,7 @@ class ConnectionAgentReferenceResult:
     restarted_scope: SourceScopeProposalV1
     restarted_profile: SourceProfileProposalV1
     provider: FixtureRegisteredSourceOptionProvider
-    store: InMemoryImmutableRecordStore
+    store: ImmutableRecordStore
 
 
 def provider_free_source_catalog() -> tuple[SourceOptionCatalogV1, tuple[FixtureSourceProfile, ...]]:
@@ -196,10 +197,12 @@ def provider_free_source_catalog() -> tuple[SourceOptionCatalogV1, tuple[Fixture
     return catalog, profiles
 
 
-async def exercise_connection_agent_restart() -> ConnectionAgentReferenceResult:
+async def exercise_connection_agent_restart(
+    *, store: ImmutableRecordStore | None = None
+) -> ConnectionAgentReferenceResult:
     """Run Connect over two fixture sources and reopen the exact durable session."""
 
-    store = InMemoryImmutableRecordStore()
+    store = store or InMemoryImmutableRecordStore()
     catalog, profiles = provider_free_source_catalog()
     provider = FixtureRegisteredSourceOptionProvider(catalog=catalog, profiles=profiles)
     approval_ref = "approval:fixture-source-scope"

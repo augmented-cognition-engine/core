@@ -189,10 +189,10 @@ def edited_fixture_proposal(
     )
 
 
-async def exercise_ontology_agent_restart() -> OntologyAgentReferenceResult:
+async def exercise_ontology_agent_restart(*, store: ImmutableRecordStore | None = None) -> OntologyAgentReferenceResult:
     """Connect, Map, edit, approve, and reopen exact proposal/disposition material."""
 
-    connected = await exercise_connection_agent_restart()
+    connected = await exercise_connection_agent_restart(store=store)
     sessions = IntelligenceBuilderSessionService(store=connected.store)
     approval_ref = "approval:fixture-concept-model"
     authority = FixtureCoreAuthorityResolver(approved_receipt_refs=(approval_ref,))

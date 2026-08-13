@@ -96,9 +96,35 @@ not weaken legacy error handling or skip statements manually.
 
 ## Backup and restore
 
-Export the database using the supported SurrealDB export path and record file size, duration,
-database version, namespace/database, schema head, and a digest. Restore into a clean disposable
-store first. Then verify:
+For the supported single-user recovery path, use ACE's packaged wrapper rather than replaying a raw
+SurrealDB full export directly:
+
+```bash
+python -m core.engine.cli.commands.recovery backup ./ace-backup.surql
+python -m core.engine.cli.commands.recovery restore ./ace-backup.surql \
+  --target-namespace ace_restore \
+  --target-database ace_restore
+```
+
+`backup` refuses to overwrite either output, serializes every SurrealDB table record with the native
+CLI, and writes `ace-backup.surql.manifest.json` with the ACE version, Surreal CLI version, schema
+head, byte count, and SHA-256 digest. `restore` verifies that manifest and checksum, requires an
+explicit database with no definitions, rebuilds the exact recorded packaged ACE schema, removes
+migration seed rows, imports the native record snapshot, and checks the restored schema head.
+Pause ACE ingestion and other writers while `backup` runs so the recovery point has one explicit
+operational boundary.
+
+The packaged schema is deliberately authoritative. Historical migrations can leave valid runtime
+indexes that reference retired fields; SurrealDB can export those generated definitions but then
+reject the same definitions during a clean import. ACE therefore retains SurrealDB's native record
+serialization while rebuilding definitions from the exact matching package. A schema-version
+mismatch fails before the destination is changed. Any failure after schema preparation makes the
+destination partial; discard that destination and retry with a new empty database.
+
+This is runnable database recovery, not data portability. It does **not** include `.env`, provider or
+connector credentials, external secret stores, or external source bodies that were never persisted
+in SurrealDB. Back those up through their owning systems. Restore into a clean disposable store
+first. Then verify:
 
 - exact semantic-family, item, batch, and lineage counts;
 - lifecycle and authoritative promotion states;
