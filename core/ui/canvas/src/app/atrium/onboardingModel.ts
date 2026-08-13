@@ -18,12 +18,29 @@ export interface IntelligenceOnboardingCadence {
   readonly description: string
 }
 
+export interface IntelligenceOnboardingSourceGroup {
+  readonly source_group_id: string
+  readonly label: string
+  readonly description: string
+  readonly evidence_role: string
+  readonly source_ids: readonly string[]
+  readonly source_labels: readonly string[]
+  readonly access_label: string
+  readonly default_selected: boolean
+}
+
 export interface IntelligenceOnboardingProfile {
   readonly contract: typeof PROFILE_CONTRACT | typeof LEGACY_PROFILE_CONTRACT
+  readonly profile_id: string
+  readonly topic_id: string
+  readonly domain_label: string
+  readonly topic_label: string
   readonly display_name: string
   readonly prompt: string
   readonly description: string
+  readonly starter_prompts: readonly string[]
   readonly outcomes: readonly IntelligenceOnboardingOutcome[]
+  readonly source_groups: readonly IntelligenceOnboardingSourceGroup[]
   readonly cadences: readonly IntelligenceOnboardingCadence[]
   readonly default_cadence_id: string
   readonly completion_label: string
@@ -62,9 +79,16 @@ export interface IntelligenceBuilderSession {
 
 const FALLBACK_PROFILE: IntelligenceOnboardingProfile = {
   contract: PROFILE_CONTRACT,
-  display_name: 'Your Intelligence',
+  profile_id: 'onboarding_profile:custom-intelligence',
+  topic_id: 'custom_intelligence',
+  domain_label: 'Custom Intelligence',
+  topic_label: 'Built around your question',
+  display_name: 'Custom Intelligence',
   prompt: 'What do you need to stay ahead of?',
   description: 'Choose the decision context. ACE will recommend the evidence, concepts, watches, and briefing system.',
+  starter_prompts: [
+    'Help me stay ahead of the changes that could materially affect my decisions.',
+  ],
   outcomes: [
     {
       outcome_id: 'choice',
@@ -115,6 +139,7 @@ const FALLBACK_PROFILE: IntelligenceOnboardingProfile = {
       recommended_intelligence_labels: [],
     },
   ],
+  source_groups: [],
   cadences: [
     { cadence_id: 'urgent', label: 'Urgent only', description: 'Only material thresholds, contradictions, and incidents.' },
     { cadence_id: 'daily', label: 'Daily pulse', description: 'A concise daily orientation plus urgent alerts.' },
@@ -181,6 +206,28 @@ function parseCadence(value: unknown): IntelligenceOnboardingCadence | null {
   return { cadence_id: value.cadence_id, label: value.label, description: value.description }
 }
 
+function parseSourceGroup(value: unknown): IntelligenceOnboardingSourceGroup | null {
+  if (!isRecord(value)) return null
+  const sourceIds = strings(value.source_ids)
+  const sourceLabels = strings(value.source_labels)
+  if (
+    typeof value.source_group_id !== 'string' || typeof value.label !== 'string' ||
+    typeof value.description !== 'string' || typeof value.evidence_role !== 'string' ||
+    sourceIds === null || sourceIds.length === 0 || sourceLabels === null || sourceLabels.length === 0 ||
+    typeof value.access_label !== 'string' || typeof value.default_selected !== 'boolean'
+  ) return null
+  return {
+    source_group_id: value.source_group_id,
+    label: value.label,
+    description: value.description,
+    evidence_role: value.evidence_role,
+    source_ids: sourceIds,
+    source_labels: sourceLabels,
+    access_label: value.access_label,
+    default_selected: value.default_selected,
+  }
+}
+
 export function parseOnboardingProfile(value: unknown): IntelligenceOnboardingProfile | null {
   if (!isRecord(value) || (value.contract !== PROFILE_CONTRACT && value.contract !== LEGACY_PROFILE_CONTRACT)) return null
   if (
@@ -188,22 +235,59 @@ export function parseOnboardingProfile(value: unknown): IntelligenceOnboardingPr
     typeof value.description !== 'string' || typeof value.default_cadence_id !== 'string'
   ) return null
   const outcomes = Array.isArray(value.outcomes) ? value.outcomes.map(parseOutcome) : []
+  const sourceGroups = Array.isArray(value.source_groups) ? value.source_groups.map(parseSourceGroup) : []
   const cadences = Array.isArray(value.cadences) ? value.cadences.map(parseCadence) : []
-  if (outcomes.length === 0 || outcomes.some((item) => item === null) || cadences.length === 0 || cadences.some((item) => item === null)) return null
+  if (
+    outcomes.length === 0 || outcomes.some((item) => item === null) ||
+    sourceGroups.some((item) => item === null) ||
+    cadences.length === 0 || cadences.some((item) => item === null)
+  ) return null
   const firstValue = isRecord(value.first_value) ? value.first_value : null
+  const starterPrompts = value.starter_prompts === undefined ? [] : strings(value.starter_prompts)
+  if (starterPrompts === null) return null
   const completionLabel = firstValue !== null && typeof firstValue.completion_label === 'string'
     ? firstValue.completion_label
     : 'Open my first briefing'
   return {
     contract: value.contract,
+    profile_id: typeof value.profile_id === 'string' ? value.profile_id : `onboarding_profile:${value.display_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    topic_id: typeof value.topic_id === 'string' ? value.topic_id : value.display_name.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
+    domain_label: typeof value.domain_label === 'string' ? value.domain_label : 'Installed intelligence',
+    topic_label: typeof value.topic_label === 'string' ? value.topic_label : value.display_name,
     display_name: value.display_name,
     prompt: value.prompt,
     description: value.description,
+    starter_prompts: starterPrompts,
     outcomes: outcomes as IntelligenceOnboardingOutcome[],
+    source_groups: sourceGroups as IntelligenceOnboardingSourceGroup[],
     cadences: cadences as IntelligenceOnboardingCadence[],
     default_cadence_id: value.default_cadence_id,
     completion_label: completionLabel,
   }
+}
+
+/** All admitted starting points visible in the current product scope.
+ *
+ * Domain profiles are contributed through Builder profile resources. Custom
+ * Intelligence is the one Core-owned starting point because it invokes the
+ * generic discovery agents rather than naming a domain. Exact duplicates are
+ * collapsed by profile identity; no domain name is hard-coded here.
+ */
+export function onboardingProfilesFromResources(items: readonly IntelligenceResourceRecord[]): readonly IntelligenceOnboardingProfile[] {
+  const profiles = new Map<string, IntelligenceOnboardingProfile>()
+  for (const item of items) {
+    const payload = canonicalPayload(item.payload)
+    const candidates = item.reference.resource_kind === 'builder_profile'
+      ? [parseOnboardingProfile(payload)]
+      : item.reference.resource_kind === 'context_manifest' && isRecord(payload)
+        ? [parseOnboardingProfile(payload.onboarding_profile)]
+        : []
+    for (const profile of candidates) {
+      if (profile !== null && !profiles.has(profile.profile_id)) profiles.set(profile.profile_id, profile)
+    }
+  }
+  profiles.set(FALLBACK_PROFILE.profile_id, FALLBACK_PROFILE)
+  return [...profiles.values()]
 }
 
 function parseBuilderArtifact(value: unknown): IntelligenceBuilderArtifact | null {
@@ -245,18 +329,7 @@ export function parseBuilderSession(value: unknown): IntelligenceBuilderSession 
 }
 
 export function onboardingProfileFromResources(items: readonly IntelligenceResourceRecord[]): IntelligenceOnboardingProfile {
-  for (const item of items) {
-    const payload = canonicalPayload(item.payload)
-    if (item.reference.resource_kind === 'builder_profile') {
-      const profile = parseOnboardingProfile(payload)
-      if (profile !== null) return profile
-    }
-    if (item.reference.resource_kind === 'context_manifest' && isRecord(payload)) {
-      const profile = parseOnboardingProfile(payload.onboarding_profile)
-      if (profile !== null) return profile
-    }
-  }
-  return FALLBACK_PROFILE
+  return onboardingProfilesFromResources(items).find((profile) => profile.profile_id !== FALLBACK_PROFILE.profile_id) ?? FALLBACK_PROFILE
 }
 
 export function onboardingSessionFromResources(items: readonly IntelligenceResourceRecord[]): IntelligenceBuilderSession | null {

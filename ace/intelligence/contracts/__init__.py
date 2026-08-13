@@ -265,6 +265,7 @@ from ace.intelligence.contracts.intelligence_builder_presentation import (
     IntelligenceOnboardingGuardrailsV1Alpha1,
     IntelligenceOnboardingOutcomeV1Alpha1,
     IntelligenceOnboardingProfileV1Alpha1,
+    IntelligenceOnboardingSourceGroupV1Alpha1,
 )
 from ace.intelligence.contracts.ledger import (
     AttentionDisposition,
@@ -481,6 +482,7 @@ __all__ = [
     "IntelligenceOnboardingGuardrailsV1Alpha1",
     "IntelligenceOnboardingOutcomeV1Alpha1",
     "IntelligenceOnboardingProfileV1Alpha1",
+    "IntelligenceOnboardingSourceGroupV1Alpha1",
     "MAX_RESOURCE_PLANE_PAGE_SIZE",
     "RESOURCE_PLANE_CURSOR_VERSION",
     "RESOURCE_PLANE_PAGE_VERSION",

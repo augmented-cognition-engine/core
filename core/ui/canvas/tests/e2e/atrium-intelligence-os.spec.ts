@@ -96,7 +96,7 @@ test('Atrium is a briefing-first Intelligence OS over governed resources', async
   await page.getByLabel('Ask ACE about current intelligence').fill('What changed in token economics?')
   await page.getByLabel('Ask ACE', { exact: true }).click()
   await expect(page.getByText('Frontier inference costs moved down again').first()).toBeVisible()
-  await expect(page.getByText(/cited record/)).toBeVisible()
+  await expect(page.getByText(/cited record/).first()).toBeVisible()
 
   await page.getByText('Opportunities', { exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Opportunities' })).toBeVisible()
@@ -116,12 +116,19 @@ test('Atrium is a briefing-first Intelligence OS over governed resources', async
 test('Atrium empty state starts with the user job and previews a complete first-Brief journey', async ({ page }, testInfo) => {
   const onboardingProfile = {
     contract: 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1',
+    domain_label: 'World Intelligence',
+    topic_label: 'Artificial intelligence',
     display_name: 'AI Command Center',
     prompt: 'What do you need to stay ahead of?',
     description: 'Choose the AI decision context. ACE recommends the sources, concepts, watches, and briefing system.',
+    starter_prompts: ['Keep me ahead of meaningful AI capability, cost, policy, and adoption shifts.'],
     outcomes: [
       { outcome_id: 'strategy', label: 'Set strategy or evaluate investments', description: 'See which capital and capability moves are becoming durable advantage.', icon_hint: 'strategy', recommended_topic_labels: ['Capital', 'Capabilities'], recommended_intelligence_labels: ['Capital-to-capability'] },
       { outcome_id: 'frontier', label: 'Track frontier research and products', description: 'Follow advances into evaluated products.', icon_hint: 'research', recommended_topic_labels: ['Open research', 'Models & capabilities'], recommended_intelligence_labels: ['Research-to-product diffusion'] },
+    ],
+    source_groups: [
+      { source_group_id: 'official_records', label: 'Official records', description: 'Policy, filings, and authoritative publications.', evidence_role: 'authoritative_record', source_ids: ['federal_register', 'sec_edgar'], source_labels: ['Federal Register', 'SEC EDGAR'], access_label: 'Public · no credentials', default_selected: true },
+      { source_group_id: 'open_ecosystem', label: 'Open ecosystem', description: 'Research and repository movement.', evidence_role: 'leading_indicator', source_ids: ['arxiv', 'github'], source_labels: ['arXiv', 'GitHub'], access_label: 'Public · optional token', default_selected: true },
     ],
     cadences: [
       { cadence_id: 'daily', label: 'Daily pulse', description: 'A concise daily orientation.' },
@@ -133,6 +140,24 @@ test('Atrium empty state starts with the user job and previews a complete first-
   const contextManifest = {
     ...resource('context_manifest', 'world-ai-onboarding', 'AI intelligence setup', 'The reviewed first-run profile.'),
     payload: { onboarding_profile: onboardingProfile },
+  }
+  const marketProfile = {
+    ...onboardingProfile,
+    contract: 'ace.intelligence.onboarding-profile/v1alpha1',
+    profile_id: 'onboarding_profile:market-intelligence',
+    topic_id: 'market_intelligence',
+    domain_label: 'Marketing Intelligence',
+    topic_label: 'Your market and competitors',
+    display_name: 'Marketing Intelligence Command Center',
+    description: 'Understand markets, competitors, customers, products, and go-to-market movement.',
+    starter_prompts: ['Keep me ahead of competitor, customer, product, and market shifts.'],
+  }
+  const marketProfileResource = {
+    ...resource('builder_profile', 'market-intelligence', 'Marketing Intelligence', 'A governed commercial starting point.'),
+    payload: {
+      contract: 'ace.intelligence.canonical-json-value/v1alpha1',
+      value_json: JSON.stringify(marketProfile),
+    },
   }
   await page.route('**/auth/token', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ token: 'test-token' }) }),
@@ -151,7 +176,7 @@ test('Atrium empty state starts with the user job and previews a complete first-
         available_at: availableAt,
         evaluated_at: availableAt,
         state: 'complete',
-        items: [contextManifest],
+        items: [contextManifest, marketProfileResource],
         next_cursor: null,
         degraded_reason_refs: [],
         page_id: 'resource_page:empty',
@@ -164,17 +189,30 @@ test('Atrium empty state starts with the user job and previews a complete first-
   await expect(page.getByRole('heading', { name: 'What do you need to stay ahead of?' })).toBeVisible()
   await page.getByRole('button', { name: 'Build my intelligence' }).click()
 
-  await expect(page.getByRole('heading', { name: 'What do you need to stay ahead of?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'What do you want intelligence about?' })).toBeVisible()
+  await expect(page.getByRole('button', { name: /World Intelligence/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Marketing Intelligence/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Custom Intelligence/ })).toBeVisible()
+  await page.getByRole('button', { name: /World Intelligence/ }).click()
   if (process.env.ACE_CAPTURE_ATRIUM === '1') {
     await page.screenshot({ path: testInfo.outputPath('atrium-onboarding-outcome.png'), fullPage: true })
   }
   await page.getByRole('button', { name: /Track frontier research and products/ }).click()
-  await page.getByRole('button', { name: 'Continue' }).click()
-  await expect(page.getByRole('heading', { name: 'Tune the picture' })).toBeVisible()
+  await page.getByRole('button', { name: 'Use this starting point' }).click()
+  await expect(page.getByRole('heading', { name: 'Choose the evidence ACE can use' })).toBeVisible()
+  await expect(page.getByText('2 groups · 4 sources proposed')).toBeVisible()
+  if (process.env.ACE_CAPTURE_ATRIUM === '1') {
+    await page.screenshot({ path: testInfo.outputPath('atrium-onboarding-evidence.png'), fullPage: true })
+  }
+  await page.getByRole('button', { name: 'Use these sources' }).click()
+  await expect(page.getByRole('heading', { name: 'Shape the intelligence picture' })).toBeVisible()
   await page.getByRole('button', { name: 'Daily pulse' }).click()
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Review the plan' }).click()
   await expect(page.getByRole('heading', { name: 'Review what ACE will build' })).toBeVisible()
   await expect(page.getByText('Nothing is connected or activated silently.')).toBeVisible()
+  if (process.env.ACE_CAPTURE_ATRIUM === '1') {
+    await page.screenshot({ path: testInfo.outputPath('atrium-onboarding-review.png'), fullPage: true })
+  }
   await page.getByRole('button', { name: 'Review proposed build' }).click()
   await expect(page.getByRole('heading', { name: 'Your governed plan is ready' })).toBeVisible()
   await expect(page.getByText('Proposed', { exact: true })).toHaveCount(4)
@@ -187,9 +225,12 @@ test('Atrium renders a durable first-brief-ready Builder session instead of simu
     contract: 'ace.intelligence.onboarding-profile/v1alpha1',
     profile_id: 'intelligence_onboarding_profile:world-ai-command-center',
     topic_id: 'artificial_intelligence',
+    domain_label: 'World Intelligence',
+    topic_label: 'Artificial intelligence',
     display_name: 'AI Command Center',
     prompt: 'What do you need to stay ahead of?',
     description: 'Build an evidence-grounded picture of the AI landscape.',
+    starter_prompts: ['Keep me ahead of material AI policy, capability, and adoption changes.'],
     outcomes: [{
       outcome_id: 'strategy',
       label: 'Set strategy or evaluate investments',
@@ -197,6 +238,16 @@ test('Atrium renders a durable first-brief-ready Builder session instead of simu
       icon_hint: 'strategy',
       recommended_topic_labels: ['Policy', 'Models'],
       recommended_intelligence_labels: ['Policy progression'],
+    }],
+    source_groups: [{
+      source_group_id: 'official_records',
+      label: 'Official records',
+      description: 'Primary policy evidence.',
+      evidence_role: 'authoritative_record',
+      source_ids: ['federal_register', 'white_house'],
+      source_labels: ['Federal Register', 'White House'],
+      access_label: 'Public · no credentials',
+      default_selected: true,
     }],
     cadences: [{ cadence_id: 'daily', label: 'Daily pulse', description: 'A concise daily orientation.' }],
     default_cadence_id: 'daily',
@@ -284,8 +335,9 @@ test('Atrium renders a durable first-brief-ready Builder session instead of simu
 
   await page.goto('/atrium')
   await page.getByRole('button', { name: 'View build' }).click()
-  await page.getByRole('button', { name: 'Continue' }).click()
-  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Use this starting point' }).click()
+  await page.getByRole('button', { name: 'Use these sources' }).click()
+  await page.getByRole('button', { name: 'Review the plan' }).click()
   await page.getByRole('button', { name: 'View live build' }).click()
   await expect(page.getByRole('heading', { name: 'Your first picture is ready' })).toBeVisible()
   await expect(page.getByText('Complete', { exact: true })).toHaveCount(4)

@@ -78,6 +78,40 @@ class IntelligenceOnboardingCadenceV1Alpha1(_BuilderPresentationContract):
         return validate_slug(value, name="cadence_id")
 
 
+class IntelligenceOnboardingSourceGroupV1Alpha1(_BuilderPresentationContract):
+    """One inert, reviewable group of evidence sources proposed during onboarding."""
+
+    source_group_id: str
+    label: str = Field(min_length=1, max_length=160)
+    description: str = Field(min_length=1, max_length=1_000)
+    evidence_role: str
+    source_ids: tuple[str, ...] = Field(min_length=1, max_length=32)
+    source_labels: tuple[str, ...] = Field(min_length=1, max_length=8)
+    access_label: str = Field(min_length=1, max_length=160)
+    default_selected: StrictBool = True
+
+    @field_validator("source_group_id", "evidence_role")
+    @classmethod
+    def slugs(cls, value: str, info) -> str:
+        return validate_slug(value, name=info.field_name)
+
+    @field_validator("source_ids", mode="before")
+    @classmethod
+    def ids(cls, value: Any) -> tuple[str, ...]:
+        return tuple(
+            validate_slug(item, name="source_ids")
+            for item in normalized_strings(value, label="source_ids", maximum=32)
+        )
+
+    @field_validator("source_labels", mode="before")
+    @classmethod
+    def labels(cls, value: Any) -> tuple[str, ...]:
+        return tuple(
+            _text(item, name="source_labels", maximum=160)
+            for item in normalized_strings(value, label="source_labels", maximum=8)
+        )
+
+
 class IntelligenceOnboardingFirstValueV1Alpha1(_BuilderPresentationContract):
     public_sources_first: StrictBool = True
     private_sources_optional: StrictBool = True
@@ -99,10 +133,16 @@ class IntelligenceOnboardingProfileV1Alpha1(_BuilderPresentationContract):
     profile_id: str
     profile_digest: str | None = None
     topic_id: str
+    domain_label: str | None = Field(default=None, min_length=1, max_length=160)
+    topic_label: str | None = Field(default=None, min_length=1, max_length=160)
     display_name: str = Field(min_length=1, max_length=160)
     prompt: str = Field(min_length=1, max_length=300)
     description: str = Field(min_length=1, max_length=2_000)
+    starter_prompts: tuple[str, ...] = Field(default_factory=tuple, max_length=8)
     outcomes: tuple[IntelligenceOnboardingOutcomeV1Alpha1, ...] = Field(min_length=1, max_length=16)
+    source_groups: tuple[IntelligenceOnboardingSourceGroupV1Alpha1, ...] = Field(
+        default_factory=tuple, max_length=16
+    )
     cadences: tuple[IntelligenceOnboardingCadenceV1Alpha1, ...] = Field(min_length=1, max_length=16)
     default_cadence_id: str
     first_value: IntelligenceOnboardingFirstValueV1Alpha1
@@ -123,6 +163,14 @@ class IntelligenceOnboardingProfileV1Alpha1(_BuilderPresentationContract):
     def profile_slugs(cls, value: str, info) -> str:
         return validate_slug(value, name=info.field_name)
 
+    @field_validator("starter_prompts", mode="before")
+    @classmethod
+    def prompts(cls, value: Any) -> tuple[str, ...]:
+        return tuple(
+            _text(item, name="starter_prompts", maximum=300)
+            for item in normalized_strings(value, label="starter_prompts", maximum=8)
+        )
+
     @field_validator("outcomes")
     @classmethod
     def unique_outcomes(
@@ -136,6 +184,18 @@ class IntelligenceOnboardingProfileV1Alpha1(_BuilderPresentationContract):
         cls, value: tuple[IntelligenceOnboardingCadenceV1Alpha1, ...]
     ) -> tuple[IntelligenceOnboardingCadenceV1Alpha1, ...]:
         return sorted_unique(value, key=lambda item: item.cadence_id, label="onboarding cadences", maximum=16)
+
+    @field_validator("source_groups")
+    @classmethod
+    def unique_source_groups(
+        cls, value: tuple[IntelligenceOnboardingSourceGroupV1Alpha1, ...]
+    ) -> tuple[IntelligenceOnboardingSourceGroupV1Alpha1, ...]:
+        return sorted_unique(
+            value,
+            key=lambda item: item.source_group_id,
+            label="onboarding source groups",
+            maximum=16,
+        )
 
     @model_validator(mode="after")
     def bind_profile(self) -> Self:
@@ -156,4 +216,5 @@ __all__ = [
     "IntelligenceOnboardingGuardrailsV1Alpha1",
     "IntelligenceOnboardingOutcomeV1Alpha1",
     "IntelligenceOnboardingProfileV1Alpha1",
+    "IntelligenceOnboardingSourceGroupV1Alpha1",
 ]

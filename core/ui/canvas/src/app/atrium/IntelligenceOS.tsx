@@ -31,8 +31,7 @@ import { KernelNav } from '../ext/defaults/KernelNav'
 import { AskAce } from './AskAce'
 import { OnboardingPreview } from './OnboardingPreview'
 import {
-  hasOnboardingProfileResource,
-  onboardingProfileFromResources,
+  onboardingProfilesFromResources,
   onboardingSessionFromResources,
 } from './onboardingModel'
 import { pageFreshness, productDisplayName } from './experienceModel'
@@ -426,9 +425,8 @@ export function IntelligenceOS() {
   const productName = productDisplayName(page?.product_id)
   const freshness = pageFreshness(page)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
-  const onboardingProfile = useMemo(() => onboardingProfileFromResources(page?.items ?? []), [page?.items])
+  const onboardingProfiles = useMemo(() => onboardingProfilesFromResources(page?.items ?? []), [page?.items])
   const onboardingSession = useMemo(() => onboardingSessionFromResources(page?.items ?? []), [page?.items])
-  const hasOnboarding = useMemo(() => hasOnboardingProfileResource(page?.items ?? []), [page?.items])
 
   function openFirstBrief() {
     requestAnimationFrame(() => document.getElementById('latest-brief')?.scrollIntoView({ behavior: 'smooth' }))
@@ -451,12 +449,10 @@ export function IntelligenceOS() {
             </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
-            {hasOnboarding && (
-              <Button type="button" variant="outline" size="sm" onClick={() => setOnboardingOpen(true)}>
-                <Sparkles className="size-3.5" />
-                <span className="hidden sm:inline">{onboardingSession === null ? 'Build intelligence' : 'View build'}</span>
-              </Button>
-            )}
+            <Button type="button" variant="outline" size="sm" onClick={() => setOnboardingOpen(true)}>
+              <Sparkles className="size-3.5" />
+              <span className="hidden sm:inline">{onboardingSession === null ? 'Build intelligence' : 'View build'}</span>
+            </Button>
             {page !== null && (
               <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden rounded-sm border border-border/70 bg-card font-mono text-[9px] sm:inline-flex">
                 {page.state === 'degraded' ? <CircleAlert className="mr-1 size-3 text-warning" /> : <ShieldCheck className="mr-1 size-3 text-brand" />}
@@ -512,7 +508,7 @@ export function IntelligenceOS() {
         <OnboardingPreview
           open={onboardingOpen}
           onOpenChange={setOnboardingOpen}
-          profile={onboardingProfile}
+          profiles={onboardingProfiles}
           session={onboardingSession}
           onOpenBrief={openFirstBrief}
         />
