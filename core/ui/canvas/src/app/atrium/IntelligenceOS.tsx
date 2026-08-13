@@ -1,14 +1,18 @@
-import { useMemo } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   Activity,
   ArrowRight,
   Bot,
   BrainCircuit,
   CircleAlert,
+  Clock3,
+  Layers3,
   Network,
+  Radio,
   RefreshCw,
   Route,
+  ShieldCheck,
 } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
@@ -21,6 +25,9 @@ import { Skeleton } from '@/design/shadcn/ui/skeleton'
 
 import { KernelNav } from '../ext/defaults/KernelNav'
 import { AskAce } from './AskAce'
+import { OnboardingPreview } from './OnboardingPreview'
+import { onboardingProfileFromResources } from './onboardingModel'
+import { pageFreshness, productDisplayName } from './experienceModel'
 import {
   EXPLICITLY_DEGRADED_RESOURCE_KINDS,
   groupResources,
@@ -63,25 +70,22 @@ function activeSurface(pathname: string): Surface {
   return 'intelligence'
 }
 
-function EmptyBuilder() {
+function EmptyBuilder({ onStart }: { readonly onStart: () => void }) {
   const steps = [
     {
-      title: 'Connect your sources',
-      detail: 'Add the systems, feeds, and repositories ACE is allowed to observe.',
+      title: 'Tell ACE what matters',
+      detail: 'Choose the decision or landscape you need to stay ahead of.',
       icon: Network,
-      href: '/atrium/connections',
     },
     {
-      title: 'Map what matters',
-      detail: 'ACE proposes entities, relationships, and monitored concepts for review.',
+      title: 'Review the recommendation',
+      detail: 'ACE proposes evidence, concepts, watches, and cadence for review.',
       icon: BrainCircuit,
-      href: '/atrium/agents',
     },
     {
-      title: 'Start watching',
-      detail: 'Activate monitors and let the first cited briefing assemble itself.',
+      title: 'Open the first Brief',
+      detail: 'Watch the system assemble, then land in a populated command center.',
       icon: Activity,
-      href: '/atrium/agents',
     },
   ]
 
@@ -90,30 +94,30 @@ function EmptyBuilder() {
       <CardContent className="p-6 md:p-8">
         <div className="max-w-xl">
           <Badge variant="secondary" className="mb-3">Start here</Badge>
-          <h2 className="text-xl font-semibold tracking-tight">Point ACE at your world.</h2>
+          <h2 className="text-xl font-semibold tracking-tight">What do you need to stay ahead of?</h2>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Connect a few sources and ACE&apos;s onboarding agents build the first intelligence system with you. No infrastructure or hand-authored ontology required.
+            Tell ACE the outcome. It recommends the sources, concepts, watches, and briefing system; you review the plan and the first cited Brief assembles itself.
           </p>
         </div>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           {steps.map((step, index) => (
-            <Link
+            <div
               key={step.title}
-              to={step.href}
-              className="group rounded-xl border bg-card p-4 transition-colors hover:border-foreground/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              className="rounded-xl border bg-card p-4"
             >
               <div className="flex items-center gap-2">
                 <div className="flex size-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
                   <step.icon className="size-4" />
                 </div>
                 <span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span>
-                <ArrowRight className="ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+                {index < 2 ? <ArrowRight className="ml-auto size-3.5 text-muted-foreground" /> : <ShieldCheck className="ml-auto size-3.5 text-brand" />}
               </div>
               <div className="mt-4 text-sm font-semibold">{step.title}</div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
-            </Link>
+            </div>
           ))}
         </div>
+        <Button type="button" className="mt-5" onClick={onStart}>Build my intelligence <ArrowRight className="size-4" /></Button>
       </CardContent>
     </Card>
   )
@@ -123,10 +127,12 @@ function ResourceGrid({
   items,
   empty,
   single = false,
+  compact = false,
 }: {
   readonly items: readonly IntelligenceResourceRecord[]
   readonly empty: string
   readonly single?: boolean
+  readonly compact?: boolean
 }) {
   if (items.length === 0) {
     return (
@@ -138,31 +144,34 @@ function ResourceGrid({
   return (
     <div className={single ? 'grid gap-3' : 'grid gap-3 xl:grid-cols-2'}>
       {items.map((item) => (
-        <ResourceCard key={`${item.reference.resource_id}:${item.reference.revision}`} record={item} />
+        <ResourceCard key={`${item.reference.resource_id}:${item.reference.revision}`} record={item} compact={compact} />
       ))}
     </div>
   )
 }
 
-function BriefingHome({ groups, all }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[] }) {
+function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
   const briefs = groups.intelligence.filter((item) => item.reference.resource_kind === 'brief')
   const latestBrief = briefs[0]
+  const stream = groups.intelligence
+    .filter((item) => item !== latestBrief && ['signal', 'shift', 'brief'].includes(item.reference.resource_kind))
+    .slice(0, 6)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       <AskAce items={all} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(19rem,0.55fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.45fr)]">
         <section className="space-y-3">
           <div className="flex items-end justify-between gap-3">
             <div>
-              <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">Latest briefing</div>
+              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Latest briefing</div>
               <h2 className="mt-1 text-lg font-semibold tracking-tight">The situation now</h2>
             </div>
-            <Badge variant="outline">{briefs.length} brief{briefs.length === 1 ? '' : 's'}</Badge>
+            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{briefs.length} current</Badge>
           </div>
           {latestBrief === undefined ? (
-            <EmptyBuilder />
+            <EmptyBuilder onStart={onStart} />
           ) : (
             <ResourceCard record={latestBrief} featured />
           )}
@@ -170,12 +179,49 @@ function BriefingHome({ groups, all }: { readonly groups: ResourceGroups; readon
 
         <aside className="space-y-3">
           <div>
-            <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Attention</div>
+            <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Attention</div>
             <h2 className="mt-1 text-lg font-semibold tracking-tight">What needs a look</h2>
           </div>
-          <ResourceGrid items={groups.attention.slice(0, 4)} empty="Nothing needs attention right now." single />
+          <ResourceGrid items={groups.attention.slice(0, 4)} empty="Nothing needs attention right now." single compact />
         </aside>
       </div>
+
+      <section className="space-y-3 border-t pt-6">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Live intelligence</div>
+            <h2 className="mt-1 text-lg font-semibold tracking-tight">What is moving</h2>
+          </div>
+          <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{stream.length} updates</Badge>
+        </div>
+        <ResourceGrid items={stream} empty="No additional signals or shifts have arrived yet." compact />
+      </section>
+    </div>
+  )
+}
+
+function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups; readonly freshness: string }) {
+  const sources = groups.connections.filter((item) => item.reference.resource_kind === 'source').length
+  const monitors = groups.agents.filter((item) => item.reference.resource_kind === 'monitor').length
+  const openCases = groups.opportunities.filter((item) => item.reference.resource_kind === 'case').length
+  const entries = [
+    { icon: Radio, label: 'Sources', value: `${sources} admitted` },
+    { icon: Activity, label: 'Watches', value: `${monitors} active` },
+    { icon: Layers3, label: 'Open cases', value: `${openCases} material` },
+    { icon: Clock3, label: 'Freshness', value: freshness },
+  ]
+
+  return (
+    <div className="mb-7 grid overflow-hidden rounded-lg border bg-card md:grid-cols-4" aria-label="Intelligence coverage">
+      {entries.map((entry, index) => (
+        <div key={entry.label} className={index === 0 ? 'flex items-center gap-3 px-4 py-3.5' : 'flex items-center gap-3 border-t px-4 py-3.5 md:border-l md:border-t-0'}>
+          <entry.icon className="size-3.5 shrink-0 text-brand" />
+          <div className="min-w-0">
+            <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">{entry.label}</div>
+            <div className="mt-0.5 truncate text-xs font-medium text-foreground/90">{entry.value}</div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
@@ -244,8 +290,8 @@ function AgentRole({ title, detail, state }: { readonly title: string; readonly 
   )
 }
 
-function PageContent({ surface, groups, all }: { readonly surface: Surface; readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[] }) {
-  if (surface === 'intelligence') return <BriefingHome groups={groups} all={all} />
+function PageContent({ surface, groups, all, onStart }: { readonly surface: Surface; readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
+  if (surface === 'intelligence') return <BriefingHome groups={groups} all={all} onStart={onStart} />
   if (surface === 'connections') return <ConnectionsView groups={groups} />
   if (surface === 'agents') return <AgentsView groups={groups} />
   if (surface === 'opportunities') {
@@ -272,21 +318,32 @@ export function IntelligenceOS() {
   const copy = SURFACE_COPY[surface]
   const { page, loading, error, refresh } = useIntelligenceResources()
   const groups = useMemo(() => groupResources(page?.items ?? []), [page?.items])
+  const productName = productDisplayName(page?.product_id)
+  const freshness = pageFreshness(page)
+  const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const onboardingProfile = useMemo(() => onboardingProfileFromResources(page?.items ?? []), [page?.items])
 
   return (
-    <SidebarProvider>
-      <KernelNav />
-      <SidebarInset className="min-h-svh bg-muted/30">
-        <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background/95 px-5 backdrop-blur md:px-8">
+    <div className="atrium-command-center dark min-h-svh bg-background text-foreground">
+      <SidebarProvider>
+        <KernelNav />
+        <SidebarInset className="min-h-svh bg-background">
+        <header className="sticky top-0 z-20 flex min-h-[72px] items-center gap-4 border-b bg-background/95 px-5 backdrop-blur md:px-8">
           <SidebarTrigger className="md:hidden" />
           <div className="min-w-0">
-            <h1 className="truncate text-base font-semibold tracking-tight">{copy.title}</h1>
-            <p className="truncate text-[11px] text-muted-foreground">{copy.subtitle}</p>
+            <div className="truncate font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-brand">
+              ACE / {productName}
+            </div>
+            <div className="mt-1 flex min-w-0 items-baseline gap-3">
+              <h1 className="truncate text-base font-semibold tracking-tight">{copy.title}</h1>
+              <p className="hidden truncate text-[11px] text-muted-foreground lg:block">{copy.subtitle}</p>
+            </div>
           </div>
           <div className="ml-auto flex items-center gap-2">
             {page !== null && (
-              <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden sm:inline-flex">
-                {page.state === 'degraded' ? 'Partial intelligence' : 'Intelligence current'}
+              <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden rounded-sm border border-border/70 bg-card font-mono text-[9px] sm:inline-flex">
+                {page.state === 'degraded' ? <CircleAlert className="mr-1 size-3 text-warning" /> : <ShieldCheck className="mr-1 size-3 text-brand" />}
+                {page.state === 'degraded' ? 'Partial picture' : 'Picture current'}
               </Badge>
             )}
             <Button type="button" variant="ghost" size="icon" onClick={refresh} aria-label="Refresh intelligence">
@@ -320,7 +377,10 @@ export function IntelligenceOS() {
           {loading && page === null ? (
             <LoadingState />
           ) : (
-            <PageContent surface={surface} groups={groups} all={page?.items ?? []} />
+            <>
+              <CoverageStrip groups={groups} freshness={freshness} />
+              <PageContent surface={surface} groups={groups} all={page?.items ?? []} onStart={() => setOnboardingOpen(true)} />
+            </>
           )}
         </main>
 
@@ -332,7 +392,9 @@ export function IntelligenceOS() {
           <span>·</span>
           <span>exact provenance retained</span>
         </footer>
-      </SidebarInset>
-    </SidebarProvider>
+        <OnboardingPreview open={onboardingOpen} onOpenChange={setOnboardingOpen} profile={onboardingProfile} />
+        </SidebarInset>
+      </SidebarProvider>
+    </div>
   )
 }

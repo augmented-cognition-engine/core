@@ -15,6 +15,7 @@ import {
 import { Separator } from '@/design/shadcn/ui/separator'
 
 import { compactReference, kindLabel } from './intelligenceModel'
+import { payloadNumber, payloadText } from './experienceModel'
 
 function availabilityLabel(record: IntelligenceResourceRecord): string {
   if (record.availability === 'degraded') return 'Needs context'
@@ -34,47 +35,56 @@ function relativeTime(value: string): string {
 export function ResourceCard({
   record,
   featured = false,
+  compact = false,
 }: {
   readonly record: IntelligenceResourceRecord
   readonly featured?: boolean
+  readonly compact?: boolean
 }) {
+  const whyItMatters = payloadText(record.payload, 'why_it_matters')
+  const confidence = payloadNumber(record.payload, 'confidence')
+  const confidencePercent = confidence !== null && confidence >= 0 && confidence <= 1
+    ? Math.round(confidence * 100)
+    : null
+
   return (
     <Sheet>
       <SheetTrigger asChild>
         <button
           type="button"
-          className="group w-full rounded-xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="group w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           aria-label={`Open ${record.title}`}
         >
-          <Card className="transition-colors duration-200 group-hover:border-foreground/25">
-            <CardContent className={featured ? 'p-6 md:p-7' : 'p-4'}>
+          <Card className={featured ? 'border-brand/25 bg-card transition-colors duration-200 group-hover:border-brand/45' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
+            <CardContent className={featured ? 'p-6 md:p-7' : compact ? 'p-3.5' : 'p-4'}>
               <div className="flex items-start gap-3">
                 <div
                   className={
                     record.availability === 'degraded'
-                      ? 'mt-1 flex size-8 shrink-0 items-center justify-center rounded-lg bg-warning/15 text-warning-foreground'
-                      : 'mt-1 flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand'
+                      ? 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-warning/15 text-warning'
+                      : 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border border-brand/20 bg-brand/10 text-brand'
                   }
                 >
-                  {record.availability === 'degraded' ? (
-                    <CircleAlert className="size-4" />
-                  ) : (
-                    <ShieldCheck className="size-4" />
-                  )}
+                  {record.availability === 'degraded' ? <CircleAlert className="size-3.5" /> : <ShieldCheck className="size-3.5" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <Badge variant="secondary" className="font-mono text-[10px]">
+                  <div className={compact ? 'mb-1.5 flex flex-wrap items-center gap-2' : 'mb-2 flex flex-wrap items-center gap-2'}>
+                    <Badge variant="secondary" className="h-5 rounded-sm border border-border/70 bg-muted px-1.5 font-mono text-[9px] uppercase tracking-wide">
                       {kindLabel(record.reference.resource_kind)}
                     </Badge>
                     <span className="font-mono text-[10px] text-muted-foreground">
                       {availabilityLabel(record)} · {relativeTime(record.reference.available_at)}
                     </span>
+                    {confidencePercent !== null && (
+                      <span className="font-mono text-[10px] text-muted-foreground">
+                        · {confidencePercent}% confidence
+                      </span>
+                    )}
                   </div>
                   <h3
                     className={
                       featured
-                        ? 'text-xl font-semibold leading-tight tracking-tight'
+                        ? 'max-w-3xl text-2xl font-semibold leading-[1.12] tracking-[-0.025em]'
                         : 'text-sm font-semibold leading-snug tracking-tight'
                     }
                   >
@@ -84,14 +94,20 @@ export function ResourceCard({
                     <p
                       className={
                         featured
-                          ? 'mt-3 max-w-3xl text-sm leading-relaxed text-muted-foreground'
+                          ? 'mt-3 line-clamp-6 max-w-3xl text-sm leading-6 text-muted-foreground md:line-clamp-none'
                           : 'mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground'
                       }
                     >
                       {record.summary}
                     </p>
                   )}
-                  <div className="mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  {featured && whyItMatters !== null && (
+                    <div className="mt-5 border-l-2 border-brand/70 pl-3">
+                      <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">Why it matters</div>
+                      <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground/85">{whyItMatters}</p>
+                    </div>
+                  )}
+                  <div className={compact ? 'mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground' : 'mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground'}>
                     <GitBranch className="size-3" />
                     <span>{record.provenance.length} evidence link{record.provenance.length === 1 ? '' : 's'}</span>
                     <ArrowUpRight className="ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -117,6 +133,15 @@ export function ResourceCard({
         </SheetHeader>
 
         <div className="space-y-6 p-6">
+          {whyItMatters !== null && (
+            <section className="rounded-lg border border-brand/20 bg-brand/5 p-4">
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">
+                Why it matters
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/90">{whyItMatters}</p>
+            </section>
+          )}
+
           <section>
             <div className="mb-3 font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Resource receipt
@@ -130,6 +155,12 @@ export function ResourceCard({
               <dd className="truncate font-mono" title={record.reference.resource_id}>
                 {compactReference(record.reference.resource_id)}
               </dd>
+              {confidencePercent !== null && (
+                <>
+                  <dt className="text-muted-foreground">Confidence</dt>
+                  <dd className="font-mono">{confidencePercent}%</dd>
+                </>
+              )}
             </dl>
           </section>
 

@@ -112,3 +112,72 @@ test('Atrium is a briefing-first Intelligence OS over governed resources', async
   await page.getByRole('button', { name: 'Toggle Sidebar' }).click()
   await expect(page.getByText('Connections', { exact: true })).toBeVisible()
 })
+
+test('Atrium empty state starts with the user job and previews a complete first-Brief journey', async ({ page }, testInfo) => {
+  const onboardingProfile = {
+    contract: 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1',
+    display_name: 'AI Command Center',
+    prompt: 'What do you need to stay ahead of?',
+    description: 'Choose the AI decision context. ACE recommends the sources, concepts, watches, and briefing system.',
+    outcomes: [
+      { outcome_id: 'strategy', label: 'Set strategy or evaluate investments', description: 'See which capital and capability moves are becoming durable advantage.', icon_hint: 'strategy', recommended_topic_labels: ['Capital', 'Capabilities'], recommended_intelligence_labels: ['Capital-to-capability'] },
+      { outcome_id: 'frontier', label: 'Track frontier research and products', description: 'Follow advances into evaluated products.', icon_hint: 'research', recommended_topic_labels: ['Open research', 'Models & capabilities'], recommended_intelligence_labels: ['Research-to-product diffusion'] },
+    ],
+    cadences: [
+      { cadence_id: 'daily', label: 'Daily pulse', description: 'A concise daily orientation.' },
+      { cadence_id: 'weekly', label: 'Weekly briefing', description: "The week's movement." },
+    ],
+    default_cadence_id: 'weekly',
+    first_value: { completion_label: 'Open my first briefing' },
+  }
+  const contextManifest = {
+    ...resource('context_manifest', 'world-ai-onboarding', 'AI intelligence setup', 'The reviewed first-run profile.'),
+    payload: { onboarding_profile: onboardingProfile },
+  }
+  await page.route('**/auth/token', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ token: 'test-token' }) }),
+  )
+  await page.route('**/v1/intelligence/resources/query', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        contract: 'ace.intelligence.resource-plane-page/v1alpha1',
+        query_id: 'resource_query:empty',
+        query_digest: `sha256:${'d'.repeat(64)}`,
+        product_id: 'product:world-ai-command-center',
+        actor_ref: 'principal:demo-analyst',
+        as_of: availableAt,
+        available_at: availableAt,
+        evaluated_at: availableAt,
+        state: 'complete',
+        items: [contextManifest],
+        next_cursor: null,
+        degraded_reason_refs: [],
+        page_id: 'resource_page:empty',
+        page_digest: `sha256:${'e'.repeat(64)}`,
+      }),
+    }),
+  )
+
+  await page.goto('/atrium')
+  await expect(page.getByRole('heading', { name: 'What do you need to stay ahead of?' })).toBeVisible()
+  await page.getByRole('button', { name: 'Build my intelligence' }).click()
+
+  await expect(page.getByRole('heading', { name: 'What do you need to stay ahead of?' })).toBeVisible()
+  if (process.env.ACE_CAPTURE_ATRIUM === '1') {
+    await page.screenshot({ path: testInfo.outputPath('atrium-onboarding-outcome.png'), fullPage: true })
+  }
+  await page.getByRole('button', { name: /Track frontier research and products/ }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await expect(page.getByRole('heading', { name: 'Tune the picture' })).toBeVisible()
+  await page.getByRole('button', { name: 'Daily pulse' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await expect(page.getByRole('heading', { name: 'Review what ACE will build' })).toBeVisible()
+  await expect(page.getByText('Nothing is connected or activated silently.')).toBeVisible()
+  await page.getByRole('button', { name: 'Start watching' }).click()
+  await expect(page.getByRole('heading', { name: 'Your first picture is assembling' })).toBeVisible()
+  await expect(page.getByText('First value')).toBeVisible()
+  await page.getByRole('button', { name: 'Open my first briefing' }).click()
+  await expect(page.getByRole('dialog')).not.toBeVisible()
+})
