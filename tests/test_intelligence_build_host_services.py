@@ -23,6 +23,8 @@ def _request(**changes) -> IntelligenceBuildStartV1:
     material = {
         "authority_grant_ref": "authority_grant:atrium-intelligence-build",
         "resource_authority_grant_ref": "authority_grant:atrium-observe-read",
+        "activation_approval_receipt_ref": "approval:atrium-activation-spec",
+        "activation_approval_subject_ref": "activation_spec:reviewed",
         "client_request_id": "atrium-request:host-services",
         "profile_id": "intelligence_onboarding_profile:fixture",
         "subject": "Track the reviewed subject for meaningful material change.",

@@ -25,6 +25,7 @@ from ace.core.records import (
     ImmutableRecordV1,
 )
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
+from ace.core.state import CoreAuthorityResolver, ResolvedApprovalReceiptV1
 
 IntelligenceBuildEffect = Literal[
     "connect_sources",
@@ -47,6 +48,8 @@ class IntelligenceBuildStartV1(BaseModel):
 
     authority_grant_ref: str = Field(min_length=1, max_length=240)
     resource_authority_grant_ref: str = Field(min_length=1, max_length=240)
+    activation_approval_receipt_ref: str = Field(min_length=1, max_length=240)
+    activation_approval_subject_ref: str = Field(min_length=1, max_length=240)
     client_request_id: str = Field(min_length=1, max_length=240)
     profile_id: str = Field(min_length=1, max_length=240)
     subject: str = Field(min_length=8, max_length=2_000)
@@ -81,6 +84,7 @@ class AuthorizedIntelligenceBuild:
     actor_ref: str
     request: IntelligenceBuildStartV1
     authority_use: AuthorityUseReceiptV1Alpha1
+    activation_approval: ResolvedApprovalReceiptV1
 
 
 class ProductScopedImmutableRecordStore:
@@ -161,6 +165,7 @@ class IntelligenceBuildHostServices:
 
     records: ImmutableRecordStore
     resources: IntelligenceBuildResourcePagePort
+    activation_authority: CoreAuthorityResolver
 
 
 class IntelligenceBuildExecutor(Protocol):

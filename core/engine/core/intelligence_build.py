@@ -21,7 +21,7 @@ from ace.application.intelligence_build_execution import (
     IntelligenceBuildStartV1,
     ProductScopedImmutableRecordStore,
 )
-from ace.core import ImmutableRecordStore
+from ace.core import CoreAuthorityResolver, ImmutableRecordStore, ResolvedApprovalReceiptV1
 from ace.core.contracts import canonical_hash
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
 from core.engine.core.agent_composition_runtime import (
@@ -76,6 +76,7 @@ class IntelligenceBuildAuthorizationPort(Protocol):
 class IntelligenceBuildHttpRuntime:
     records: ImmutableRecordStore
     authority: IntelligenceBuildAuthorizationPort
+    activation_authority: CoreAuthorityResolver
     executor: IntelligenceBuildExecutor
 
 
@@ -99,6 +100,14 @@ class IntelligenceBuildContractConflict(IntelligenceBuildError):
     """A host result did not preserve the authorized request."""
 
 
+class _UnavailableActivationAuthority:
+    async def resolve_approval(self, **_request):
+        raise IntelligenceBuildUnavailable("no reviewed activation approval resolver is registered")
+
+    async def resolve_grant(self, **_request):
+        raise IntelligenceBuildUnavailable("no reviewed activation approval resolver is registered")
+
+
 class _InstalledIntelligenceBuildExecutor:
     async def start(
         self, build: AuthorizedIntelligenceBuild, host_services: IntelligenceBuildHostServices
@@ -120,6 +129,7 @@ def intelligence_build_runtime() -> IntelligenceBuildHttpRuntime:
     return IntelligenceBuildHttpRuntime(
         records=records,
         authority=GovernedStateRuntimeUseResolver(governed_state=governed_state),
+        activation_authority=_UnavailableActivationAuthority(),
         executor=_InstalledIntelligenceBuildExecutor(),
     )
 
@@ -139,7 +149,14 @@ def _verified_claims(user: dict) -> tuple[str, str]:
 
 
 def _request_identity(*, request: IntelligenceBuildStartV1, product_id: str, actor_ref: str) -> tuple[str, str]:
-    material = request.model_dump(mode="json", exclude={"authority_grant_ref", "resource_authority_grant_ref"})
+    material = request.model_dump(
+        mode="json",
+        exclude={
+            "authority_grant_ref",
+            "resource_authority_grant_ref",
+            "activation_approval_receipt_ref",
+        },
+    )
     raw_digest = canonical_hash([product_id, actor_ref, material])
     return f"intelligence_build:{raw_digest[:32]}", f"sha256:{raw_digest}"
 
@@ -192,6 +209,28 @@ async def start_intelligence_build(
         ):
             raise IntelligenceBuildContractConflict("authority resolver changed the Intelligence build request")
 
+        activation_approval = ResolvedApprovalReceiptV1.model_validate(
+            (
+                await runtime.activation_authority.resolve_approval(
+                    receipt_ref=request.activation_approval_receipt_ref,
+                    product_id=product_id,
+                    subject_ref=request.activation_approval_subject_ref,
+                    actor_ref=actor_ref,
+                    effective_at=evaluated_at,
+                )
+            ).model_dump(mode="python")
+        )
+        if (
+            activation_approval.receipt_ref != request.activation_approval_receipt_ref
+            or activation_approval.product_id != product_id
+            or activation_approval.subject_ref != request.activation_approval_subject_ref
+            or activation_approval.actor_ref != actor_ref
+            or activation_approval.approved_at > evaluated_at
+        ):
+            raise IntelligenceBuildContractConflict(
+                "activation approval resolver changed the reviewed activation subject"
+            )
+
         authorized_build = AuthorizedIntelligenceBuild(
             build_id=build_id,
             request_digest=request_digest,
@@ -199,6 +238,7 @@ async def start_intelligence_build(
             actor_ref=actor_ref,
             request=request,
             authority_use=exact_authority,
+            activation_approval=activation_approval,
         )
         scoped_records = ProductScopedImmutableRecordStore(product_id=product_id, store=runtime.records)
         host_services = IntelligenceBuildHostServices(
@@ -208,6 +248,7 @@ async def start_intelligence_build(
                 records=scoped_records,
                 authority=runtime.authority,
             ),
+            activation_authority=runtime.activation_authority,
         )
         page = IntelligenceResourcePageV1Alpha1.model_validate(
             (await runtime.executor.start(authorized_build, host_services)).model_dump(mode="python")

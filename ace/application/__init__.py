@@ -231,6 +231,13 @@ from ace.application.domain_activation import (
     DomainActivationAdmissionService,
     bind_committed_activation,
 )
+from ace.application.domain_activation_compatibility import (
+    DOMAIN_ACTIVATION_V1ALPHA2_TO_V1ALPHA1_VERSION,
+    CanonicalInitialActivationV1Alpha1,
+    DomainActivationCompatibilityError,
+    DomainActivationCompatibilityService,
+    adapt_initial_activation_to_canonical_v1alpha1,
+)
 from ace.application.domain_activation_plan import (
     CommittedDomainActivationPlan,
     DomainActivationPlanAdmissionError,
@@ -753,6 +760,10 @@ __all__ = [
     "DomainActivationPlanAdmissionError",
     "DomainActivationPlanAdmissionService",
     "DomainActivationRevisionV1Alpha2",
+    "DOMAIN_ACTIVATION_V1ALPHA2_TO_V1ALPHA1_VERSION",
+    "CanonicalInitialActivationV1Alpha1",
+    "DomainActivationCompatibilityError",
+    "DomainActivationCompatibilityService",
     "EffectivePreparedFeedback",
     "EpistemicClassification",
     "EpistemicStatementV1",
@@ -869,6 +880,7 @@ __all__ = [
     "SupersessionImpactService",
     "bind_committed_activation",
     "activation_commit_reference",
+    "adapt_initial_activation_to_canonical_v1alpha1",
     "prepare_activation_onboarding_handoff",
     "validate_activation_commit_reference",
     "concept_model_semantic_diff",
