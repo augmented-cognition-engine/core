@@ -4,12 +4,10 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ace.core import (
-    PersonalIntelligenceDeletePreviewV1Alpha1,
-    PersonalIntelligenceExportArtifactV1Alpha1,
-)
 from core.engine.core.auth import get_current_user
 from core.engine.core.personal_intelligence_ownership import (
+    PersonalIntelligenceDeletePreviewV1Alpha1,
+    PersonalIntelligenceExportArtifactV1Alpha1,
     PersonalOwnershipHttpConflict,
     PersonalOwnershipHttpDeleteConfirmationV1,
     PersonalOwnershipHttpDeletePreviewV1,

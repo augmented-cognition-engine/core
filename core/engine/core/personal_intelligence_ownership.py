@@ -357,6 +357,8 @@ __all__ = [
     "EXPORT_OPERATION",
     "OWNERSHIP_AUTHENTICATION_RECORD_KIND",
     "PREVIEW_DELETE_OPERATION",
+    "PersonalIntelligenceDeletePreviewV1Alpha1",
+    "PersonalIntelligenceExportArtifactV1Alpha1",
     "PersonalOwnershipHttpConflict",
     "PersonalOwnershipHttpDeleteConfirmationV1",
     "PersonalOwnershipHttpDeletePreviewV1",
