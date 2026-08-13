@@ -1,6 +1,7 @@
-# ACE 0.8.1 capability maturity
+# ACE 0.8.2 candidate capability maturity
 
-ACE 0.8.1 is a developer preview. This page distinguishes the public contract from implemented
+ACE 0.8.2 is a release candidate over the published 0.8.1 developer preview. This page
+distinguishes the public contract from implemented
 surfaces that remain experimental.
 
 ## Preview contract
@@ -12,13 +13,13 @@ install ace-core → configure SurrealDB and an optional provider → start ACE 
 → connect → map → watch → receive a cited brief → activate → inspect resources → stop cleanly
 ```
 
-The 0.8.1 public identities are:
+The 0.8.2 candidate identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.8.1`
+- version: `0.8.2`
 
 The thin MCP surface contains exactly eleven tools:
 

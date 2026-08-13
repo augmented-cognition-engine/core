@@ -79,6 +79,10 @@ Roadmap outcome states are used strictly:
 
 The latest published release is `ace-core` 0.8.1 on PyPI and GitHub.
 
+The current 0.8.2 release candidate packages the Atrium Intelligence Catalog as backward-compatible
+hardening of that published promise. It does not advance or rename the 0.9 Collaborative
+Intelligence milestone.
+
 The 0.8 release makes the existing Builder, composition, memory, authority, action, and outcome
 capabilities coherent as one **Intelligence Operating System**. One governed point-in-time resource
 plane exposes the complete evidence → orientation → decision/action → outcome → feedback loop to
@@ -110,7 +114,7 @@ defines the Opportunity experience, introduces the ACE-owned design system, and 
 visual What / Why / How / When grammar across Briefs and decision-facing intelligence. It does not change the 0.9
 Collaborative Intelligence promise.
 
-Current post-0.8.1 candidate work adds the Atrium Intelligence Catalog as an experience entry
+The 0.8.2 candidate adds the Atrium Intelligence Catalog as an experience entry
 slice: the generic resource consumer enumerates all admitted onboarding profiles in product scope,
 deduplicates them by profile identity, and always offers the Core-owned Custom Intelligence path.
 World and Marketing contribute their own declarative profiles from their independent repositories;
