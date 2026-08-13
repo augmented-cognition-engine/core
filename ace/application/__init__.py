@@ -334,11 +334,15 @@ from ace.application.intelligence_ledger import (
 from ace.application.intelligence_resource_plane import (
     RESOURCE_QUERY_AUTHORITY,
     RESOURCE_QUERY_OPERATION,
+    IntelligenceResourceCursorV1Alpha1,
+    IntelligenceResourceKind,
+    IntelligenceResourcePageV1Alpha1,
     IntelligenceResourcePlaneAuthorizationPort,
     IntelligenceResourcePlaneError,
     IntelligenceResourcePlaneService,
     IntelligenceResourceProjectionBatch,
     IntelligenceResourceProjectionReader,
+    IntelligenceResourceQueryV1Alpha1,
 )
 from ace.application.intelligence_resource_projection import (
     IntelligenceLedgerProjectionError,
@@ -441,11 +445,15 @@ from ace.application.supersession_impact import (
 __all__ = [
     "RESOURCE_QUERY_AUTHORITY",
     "RESOURCE_QUERY_OPERATION",
+    "IntelligenceResourceCursorV1Alpha1",
+    "IntelligenceResourceKind",
+    "IntelligenceResourcePageV1Alpha1",
     "IntelligenceResourcePlaneAuthorizationPort",
     "IntelligenceResourcePlaneError",
     "IntelligenceResourcePlaneService",
     "IntelligenceResourceProjectionBatch",
     "IntelligenceResourceProjectionReader",
+    "IntelligenceResourceQueryV1Alpha1",
     "IntelligenceLedgerProjectionError",
     "IntelligenceLedgerResourceProjectionReader",
     "ASSERTION_DECISION_RECORD_KIND",

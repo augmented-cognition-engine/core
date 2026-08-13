@@ -125,6 +125,15 @@ async def test_http_resource_query_requires_token_and_current_grant_authority() 
 
 
 @pytest.mark.asyncio
+async def test_http_resource_query_rejects_verified_claims_without_product_scope() -> None:
+    claims = _claims()
+    claims.pop("product")
+    response, records = await _request(claims=claims, authority=_Authority())
+    assert response.status_code == 401
+    assert records.records == {}
+
+
+@pytest.mark.asyncio
 async def test_http_resource_query_reports_authentication_evidence_outage() -> None:
     response, _ = await _request(
         claims=_claims(),
