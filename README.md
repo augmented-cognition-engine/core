@@ -396,8 +396,8 @@ declarative pack metadata; selection grants no source, monitoring, or activation
 
 World and Market supply their own profiles from independent repositories. Core remains
 domain-neutral and names neither vertical. This is backward-compatible product-experience
-hardening of the 0.8 Intelligence OS promise, not completion of the 0.9 Collaborative Intelligence
-gate.
+hardening of the 0.8 Intelligence OS promise and the entry foundation for—not completion of—the 0.9
+Single-user Intelligence Builder gate.
 
 ### What 0.8.1 added
 

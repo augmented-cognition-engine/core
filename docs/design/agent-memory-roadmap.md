@@ -243,7 +243,7 @@ Agent Memory advances the existing release promises rather than competing with t
 | 0.6.0 Measured Intelligence | Evaluate retrieval, correction recall, instruction adherence, latency, cost, material use, and outcome effects with matched controls | Material influence is not benefit |
 | 0.7.0 Extension Platform | Publish Agent Memory adapter/conformance contracts; add document, prior-session, tool-trace, and optional multimodal ingress; generate supported client bindings | Extensions propose source material but never own Core identity or authority |
 | 0.8.0 Intelligence Workspace | Add session, memory, uncertainty, lineage, profile-policy, context-manifest, review, retention, and erasure views | UI is not a second source of truth |
-| 0.9.0 Collaborative Runtime | Add principals, tenant/team/private scopes, delegation, retention, export/import, disaster recovery, horizontal operation, and supported backend portability | Shared administration does not imply read or use authority |
+| Post-1.0 Collaborative Intelligence | Add principals, tenant/team/private scopes, delegation, shared retention and export/import, disaster recovery, horizontal operation, and supported backend portability | Shared administration does not imply read or use authority |
 | 1.0.0 Intelligence Operating System | Stabilize Agent Memory as one complete public Core/Intelligence capability | Compatibility, recovery, governance, and portability evidence required |
 
 ## Work packets

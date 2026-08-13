@@ -78,6 +78,9 @@ support the public roadmap but do not compete with it for outcome state or dispa
   0.8A–0.8F canonical lifecycle, ownership and compatibility map, Atrium and public-resource
   sequence, World AI Command Center demonstration, Market falsifier, release gates, and stop
   conditions.
+- [Single-user Intelligence Builder](design/single-user-intelligence-builder-v0.9.0-work-packet-v1.md)
+  — the 0.9 install-to-first-Brief product contract, World and Market signature demonstrations,
+  personal ownership gates, and explicit post-1.0 collaboration boundary.
 - [Intelligence OS runtime-boundary realignment](design/intelligence-os-runtime-boundary-v0.8.0-work-packet-v1.md)
   — the active 0.8B packet, accepted AM4 input, default isolation of embedded product-intelligence
   engines, compatibility switch, remaining runtime convergence, and rollback.
