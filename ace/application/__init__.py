@@ -346,6 +346,7 @@ from ace.application.intelligence_resource_plane import (
 )
 from ace.application.intelligence_resource_projection import (
     CompositeIntelligenceResourceProjectionReader,
+    DecisionOutcomeFeedbackResourceProjectionReader,
     IntelligenceLedgerProjectionError,
     IntelligenceLedgerResourceProjectionReader,
     IntelligenceResourceProjectionContributor,
@@ -461,6 +462,7 @@ __all__ = [
     "IntelligenceLedgerResourceProjectionReader",
     "IntelligenceResourceProjectionContributor",
     "CompositeIntelligenceResourceProjectionReader",
+    "DecisionOutcomeFeedbackResourceProjectionReader",
     "MonitoringResourceProjectionReader",
     "ASSERTION_DECISION_RECORD_KIND",
     "EXTRACTION_RECEIPT_RECORD_KIND",

@@ -15,7 +15,9 @@ from ace.application.intelligence_resource_plane import (
 )
 from ace.application.monitoring import LIVE_MONITORING_RECORD_SPACE
 from ace.core.contracts import canonical_json
+from ace.core.decisions import DecisionV1Alpha1, OutcomeV1Alpha1
 from ace.core.records import ImmutableRecordStore, ImmutableRecordV1
+from ace.intelligence.contracts.feedback import FeedbackProposalV1Alpha1
 from ace.intelligence.contracts.ledger import IntelligenceRecordKind
 from ace.intelligence.contracts.monitoring import (
     MONITORING_LIFECYCLE_RECORD_KIND,
@@ -66,6 +68,13 @@ _PUBLIC_TO_LEDGER: dict[IntelligenceResourceKind, IntelligenceRecordKind] = {
 _LEDGER_TO_PUBLIC = {value: key for key, value in _PUBLIC_TO_LEDGER.items()}
 LEDGER_RESOURCE_KINDS = frozenset(_PUBLIC_TO_LEDGER)
 MONITORING_RESOURCE_KINDS = frozenset({IntelligenceResourceKind.MONITOR, IntelligenceResourceKind.SUBSCRIPTION})
+DECISION_OUTCOME_FEEDBACK_RESOURCE_KINDS = frozenset(
+    {
+        IntelligenceResourceKind.DECISION,
+        IntelligenceResourceKind.OUTCOME,
+        IntelligenceResourceKind.FEEDBACK,
+    }
+)
 _LINEAGE_TO_PUBLIC: dict[LineageResourceKind, IntelligenceResourceKind] = {
     LineageResourceKind.OBSERVATION: IntelligenceResourceKind.OBSERVATION,
     LineageResourceKind.ENTITY_SNAPSHOT: IntelligenceResourceKind.ENTITY,
@@ -476,6 +485,250 @@ class MonitoringResourceProjectionReader(IntelligenceResourceProjectionReader):
         )
 
 
+_PREPARED_DECISION_MODELS: dict[
+    IntelligenceResourceKind,
+    tuple[str, type[DecisionV1Alpha1] | type[OutcomeV1Alpha1] | type[FeedbackProposalV1Alpha1]],
+] = {
+    IntelligenceResourceKind.DECISION: ("decision", DecisionV1Alpha1),
+    IntelligenceResourceKind.OUTCOME: ("outcome", OutcomeV1Alpha1),
+    IntelligenceResourceKind.FEEDBACK: ("feedback_proposal", FeedbackProposalV1Alpha1),
+}
+
+
+def _immutable_reference(
+    record,
+    *,
+    kind: IntelligenceResourceKind,
+) -> IntelligenceResourceReferenceV1Alpha1:
+    return IntelligenceResourceReferenceV1Alpha1(
+        product_id=record.product_id,
+        resource_kind=kind,
+        resource_id=record.record_key,
+        resource_digest=record.material_hash,
+        resource_contract=record.payload_contract,
+        revision=1,
+        as_of=record.as_of,
+        available_at=record.available_at,
+    )
+
+
+def _record_reference(
+    reference,
+    *,
+    kind: IntelligenceResourceKind,
+) -> IntelligenceResourceReferenceV1Alpha1:
+    return IntelligenceResourceReferenceV1Alpha1(
+        product_id=reference.product_id,
+        resource_kind=kind,
+        resource_id=reference.record_key,
+        resource_digest=reference.material_hash,
+        resource_contract=reference.payload_contract,
+        revision=1,
+        as_of=reference.as_of,
+        available_at=reference.available_at,
+    )
+
+
+def _prepared_decision_projection(
+    record: ImmutableRecordV1,
+    *,
+    kind: IntelligenceResourceKind,
+    value: DecisionV1Alpha1 | OutcomeV1Alpha1 | FeedbackProposalV1Alpha1,
+    decision_subject: IntelligenceResourceReferenceV1Alpha1 | None = None,
+) -> IntelligenceResourceRecordV1Alpha1:
+    payload = CanonicalJsonValueV1Alpha1(value_json=canonical_json(value.model_dump(mode="json")))
+    availability = IntelligenceResourceAvailability.AVAILABLE
+    degraded_reason_refs: tuple[str, ...] = ()
+    if isinstance(value, DecisionV1Alpha1):
+        subject = value.intent.subject
+        if decision_subject is not None:
+            provenance = (decision_subject,)
+        elif subject.record_kind == "brief":
+            provenance = ()
+            availability = IntelligenceResourceAvailability.DEGRADED
+            degraded_reason_refs = ("degraded_reason:unresolved-decision-subject",)
+        else:
+            provenance = ()
+            availability = IntelligenceResourceAvailability.DEGRADED
+            degraded_reason_refs = ("degraded_reason:unsupported-decision-subject",)
+        title = f"Decision: {value.intent.decision_type}"
+        summary = (
+            f"Disposition is {value.intent.disposition.value}; "
+            f"action disposition is {value.intent.action_disposition.value}."
+        )
+        subject_refs = (
+            value.intent.authenticated_context.actor_ref,
+            value.intent.actor_role_ref,
+            subject.record_key,
+        )
+    elif isinstance(value, OutcomeV1Alpha1):
+        provenance = (_record_reference(value.intent.decision, kind=IntelligenceResourceKind.DECISION),)
+        title = f"Outcome: {value.intent.outcome_type}"
+        summary = f"Observed measure {value.intent.measure_id}."
+        subject_refs = (
+            value.intent.authenticated_context.actor_ref,
+            value.intent.decision.record_key,
+            value.intent.measure_id,
+        )
+    else:
+        provenance = (
+            _record_reference(value.intent.decision, kind=IntelligenceResourceKind.DECISION),
+            _record_reference(value.intent.outcome, kind=IntelligenceResourceKind.OUTCOME),
+        )
+        title = f"Feedback proposal: {value.intent.policy_id}"
+        summary = f"Proposes policy value {value.intent.prior_value} → {value.intent.proposed_value}."
+        subject_refs = (
+            value.intent.decision.record_key,
+            value.intent.outcome.record_key,
+            value.intent.policy_id,
+        )
+    return IntelligenceResourceRecordV1Alpha1(
+        reference=_immutable_reference(record, kind=kind),
+        availability=availability,
+        title=title,
+        summary=summary,
+        subject_refs=tuple(sorted(set(subject_refs))),
+        provenance=provenance,
+        payload=payload,
+        degraded_reason_refs=degraded_reason_refs,
+    )
+
+
+def _prepared_decision_envelope_is_exact(
+    record: ImmutableRecordV1,
+    *,
+    kind: IntelligenceResourceKind,
+    value: DecisionV1Alpha1 | OutcomeV1Alpha1 | FeedbackProposalV1Alpha1,
+) -> bool:
+    if (
+        record.product_id != value.intent.product_id
+        or record.record_space != "prepared"
+        or record.payload_contract != value.contract
+        or record.available_at != value.authorization.authorized_at
+    ):
+        return False
+    if isinstance(value, DecisionV1Alpha1):
+        return (
+            kind is IntelligenceResourceKind.DECISION
+            and record.record_kind == "decision"
+            and record.record_key == value.decision_id
+            and record.as_of == value.intent.decided_at
+        )
+    if isinstance(value, OutcomeV1Alpha1):
+        return (
+            kind is IntelligenceResourceKind.OUTCOME
+            and record.record_kind == "outcome"
+            and record.record_key == value.outcome_id
+            and record.as_of == value.intent.observed_at
+        )
+    return (
+        kind is IntelligenceResourceKind.FEEDBACK
+        and record.record_kind == "feedback_proposal"
+        and record.record_key == value.proposal_id
+        and record.as_of == value.intent.outcome.as_of
+    )
+
+
+async def _decision_subject_reference(
+    store: ImmutableRecordStore,
+    value: DecisionV1Alpha1,
+) -> IntelligenceResourceReferenceV1Alpha1 | None:
+    subject = value.intent.subject
+    if subject.record_kind != "brief" or subject.record_space not in {
+        IntelligenceResourceMode.PREPARED.value,
+        IntelligenceResourceMode.LIVE.value,
+    }:
+        return None
+    try:
+        stored = await store.load_record(
+            subject.storage_id,
+            product_id=subject.product_id,
+            record_space=subject.record_space,
+            record_kind=subject.record_kind,
+        )
+        if stored is None or stored.reference() != subject:
+            return None
+        mode = IntelligenceResourceMode(subject.record_space)
+        return _project_record(
+            stored,
+            mode=mode,
+            ledger_kind=IntelligenceRecordKind.BRIEF,
+        ).reference
+    except Exception:
+        return None
+
+
+class DecisionOutcomeFeedbackResourceProjectionReader(IntelligenceResourceProjectionReader):
+    """Project the immutable Decision → Outcome → governed-feedback proposal loop."""
+
+    def __init__(self, *, store: ImmutableRecordStore, degrade_unsupported: bool = True) -> None:
+        self.store = store
+        self.degrade_unsupported = degrade_unsupported
+
+    @property
+    def supported_kinds(self) -> frozenset[IntelligenceResourceKind]:
+        return DECISION_OUTCOME_FEEDBACK_RESOURCE_KINDS
+
+    async def read(
+        self,
+        *,
+        query: IntelligenceResourceQueryV1Alpha1,
+        after: IntelligenceResourceCursorV1Alpha1 | None,
+        limit: int,
+    ) -> IntelligenceResourceProjectionBatch:
+        requested = set(query.resource_kinds)
+        relevant = requested & DECISION_OUTCOME_FEEDBACK_RESOURCE_KINDS
+        degraded = {
+            f"degraded_reason:unsupported-{kind.value}"
+            for kind in requested - DECISION_OUTCOME_FEEDBACK_RESOURCE_KINDS
+            if self.degrade_unsupported
+        }
+        projected: list[IntelligenceResourceRecordV1Alpha1] = []
+        for kind in sorted(relevant, key=lambda item: item.value):
+            record_kind, model = _PREPARED_DECISION_MODELS[kind]
+            try:
+                records = await self.store.read_as_of(
+                    product_id=query.product_id,
+                    record_space="prepared",
+                    record_kind=record_kind,
+                    available_at=query.available_at,
+                )
+            except Exception:
+                degraded.add(f"degraded_reason:read-prepared-{record_kind}")
+                continue
+            for record in records:
+                try:
+                    value = model.model_validate(record.payload)
+                    if not _prepared_decision_envelope_is_exact(record, kind=kind, value=value):
+                        raise ValueError("prepared decision-loop envelope mismatch")
+                    if record.as_of > query.as_of:
+                        continue
+                    decision_subject = (
+                        await _decision_subject_reference(self.store, value)
+                        if isinstance(value, DecisionV1Alpha1)
+                        else None
+                    )
+                    item = _prepared_decision_projection(
+                        record,
+                        kind=kind,
+                        value=value,
+                        decision_subject=decision_subject,
+                    )
+                    if query.subject_refs and set(query.subject_refs).isdisjoint(item.subject_refs):
+                        continue
+                    degraded.update(item.degraded_reason_refs)
+                    projected.append(item)
+                except Exception:
+                    degraded.add(f"degraded_reason:invalid-prepared-{record_kind}")
+        visible = _after_cursor(projected, after)[:limit]
+        reasons = tuple(sorted(degraded))
+        return IntelligenceResourceProjectionBatch(
+            records=tuple(visible),
+            state=(IntelligenceResourcePageState.DEGRADED if reasons else IntelligenceResourcePageState.COMPLETE),
+            degraded_reason_refs=reasons,
+        )
+
+
 class CompositeIntelligenceResourceProjectionReader(IntelligenceResourceProjectionReader):
     """Merge disjoint rebuildable projection contributors into one stable page."""
 
@@ -529,6 +782,7 @@ class CompositeIntelligenceResourceProjectionReader(IntelligenceResourceProjecti
 
 __all__ = [
     "CompositeIntelligenceResourceProjectionReader",
+    "DecisionOutcomeFeedbackResourceProjectionReader",
     "IntelligenceLedgerProjectionError",
     "IntelligenceLedgerResourceProjectionReader",
     "IntelligenceResourceProjectionContributor",

@@ -1,9 +1,10 @@
 # ACE 0.8.0 unified Intelligence resource plane work packet
 
-Status: **active 0.8C packet; facade, ledger/monitoring projections, and governed HTTP query implemented**
+Status: **active 0.8C packet; facade, intelligence/monitoring projections, governed HTTP query,
+and Decision → Outcome → Feedback closure implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@794183b` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
-ledger projection, and governed HTTP query)
+Accepted base: `main@cf53360` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
+ledger/monitoring projection, and governed HTTP query)
 
 ## Outcome
 
@@ -87,6 +88,14 @@ receipt chain, projects revoke as a payload-free tombstone, preserves immediate 
 declares incomplete or divergent chains as degraded, and composes with ledger resources through
 disjoint family ownership. The host—not FastAPI—binds this composite reader to the same governed
 query service.
+
+The next contributor projects immutable Decisions, Outcomes, and governed Feedback proposals from
+the existing PREPARED loop. Public provenance resolves a Decision's exact Brief to the Brief's
+content identity rather than substituting Core's storage-envelope hash; Outcomes point to their
+exact Decision, and Feedback points to both exact Decision and Outcome. Unknown Decision subject
+types remain visible only as explicitly degraded truth. The supported host composes all current
+contributors through one named factory so future resource families cannot silently bypass the
+same API path.
 
 0.8C must still add governed-state projections for the remaining canonical families and complete
 packaged schema/import integrity. 0.8D must prove Atrium consumes this interface rather than
