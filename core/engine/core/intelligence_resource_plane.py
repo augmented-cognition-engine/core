@@ -14,6 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ace.application import (
     RESOURCE_QUERY_AUTHORITY,
+    AgentResourceProjectionReader,
     CompositeIntelligenceResourceProjectionReader,
     DecisionOutcomeFeedbackResourceProjectionReader,
     IntelligenceLedgerResourceProjectionReader,
@@ -88,6 +89,10 @@ def intelligence_resource_projection_reader(records: ImmutableRecordStore) -> In
     """Compose all disjoint rebuildable public projection contributors."""
 
     return CompositeIntelligenceResourceProjectionReader(
+        AgentResourceProjectionReader(
+            store=records,
+            degrade_unsupported=False,
+        ),
         IntelligenceLedgerResourceProjectionReader(
             store=records,
             degrade_unsupported=False,
