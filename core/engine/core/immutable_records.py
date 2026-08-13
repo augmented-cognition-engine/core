@@ -197,6 +197,7 @@ class SurrealImmutableRecordStore:
             rows = parse_rows(
                 await db.query(
                     "SELECT payload_json, available_at, stable_id FROM immutable_record "
+                    "WITH INDEX immutable_record_scope_key "
                     "WHERE product = $product "
                     "AND record_space = $record_space AND record_kind = $record_kind "
                     "AND available_at <= $available_at ORDER BY available_at, stable_id",
@@ -244,7 +245,8 @@ class SurrealImmutableRecordStore:
         async with self.pool.connection() as db:
             row = parse_one(
                 await db.query(
-                    "SELECT count() AS total FROM immutable_record WHERE product = $product "
+                    "SELECT count() AS total FROM immutable_record "
+                    "WITH INDEX immutable_record_scope_key WHERE product = $product "
                     "AND record_space = $record_space AND record_kind = $record_kind "
                     "AND available_at <= $available_at GROUP ALL",
                     {

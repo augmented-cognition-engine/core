@@ -40,6 +40,7 @@ from ace.application.intelligence_agent_contracts import (
 )
 from ace.application.intelligence_builder import IntelligenceBuilderSessionService
 from ace.application.intelligence_builder_contracts import OnboardingArtifactKind, OnboardingStage
+from ace.core.records import ImmutableRecordStore
 from ace.intelligence.contracts.resources import CanonicalJsonValueV1Alpha1
 from ace.testing.intelligence_builder import FixtureCoreAuthorityResolver
 from ace.testing.ontology_agent import OntologyAgentReferenceResult, exercise_ontology_agent_restart
@@ -477,10 +478,10 @@ class WatchBriefReferenceResult:
     restarted_brief: FirstBriefingPreviewV1
 
 
-async def exercise_watch_brief_restart() -> WatchBriefReferenceResult:
+async def exercise_watch_brief_restart(*, store: ImmutableRecordStore | None = None) -> WatchBriefReferenceResult:
     """Run Connect -> Map -> Watch edit/approve -> Brief -> restart with exact identities."""
 
-    mapped = await exercise_ontology_agent_restart()
+    mapped = await exercise_ontology_agent_restart(store=store)
     sessions = IntelligenceBuilderSessionService(store=mapped.store)
     approval_ref = "approval:fixture-intelligence-model"
     authority = FixtureCoreAuthorityResolver(approved_receipt_refs=(approval_ref,))

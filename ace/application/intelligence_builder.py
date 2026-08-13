@@ -374,7 +374,11 @@ class IntelligenceBuilderSessionService:
             raise IntelligenceBuilderSessionError("onboarding artifact is missing or has conflicting records")
         record = matches[0]
         try:
-            artifact = artifact_type.model_validate(record.payload)
+            # ImmutableRecord payloads reopen from canonical JSON in the Surreal
+            # adapter, so strict contracts must first rehydrate tuple/datetime
+            # representations. Their own digest validators still enforce exact
+            # identity after this JSON-compatible coercion.
+            artifact = artifact_type.model_validate(record.payload, strict=False)
             artifact_id, artifact_digest, occurred_at = _artifact_material(artifact)
         except Exception:
             raise IntelligenceBuilderSessionError("persisted onboarding artifact failed revalidation") from None
@@ -413,7 +417,11 @@ class IntelligenceBuilderSessionService:
                 record_space=INTELLIGENCE_BUILDER_RECORD_SPACE,
                 record_kind=ONBOARDING_SESSION_REVISION_RECORD_KIND,
             )
-            persisted = None if record is None else IntelligenceBuilderSessionRevisionV1.model_validate(record.payload)
+            persisted = (
+                None
+                if record is None
+                else IntelligenceBuilderSessionRevisionV1.model_validate(record.payload, strict=False)
+            )
         except Exception:
             raise IntelligenceBuilderSessionError("onboarding replay failed exact record validation") from None
         if (
@@ -499,7 +507,7 @@ class IntelligenceBuilderSessionService:
         revisions: list[IntelligenceBuilderSessionRevisionV1] = []
         for record in records:
             try:
-                revision = IntelligenceBuilderSessionRevisionV1.model_validate(record.payload)
+                revision = IntelligenceBuilderSessionRevisionV1.model_validate(record.payload, strict=False)
             except Exception:
                 raise IntelligenceBuilderSessionError("persisted onboarding revision failed revalidation") from None
             if revision.session_id != session_id:
