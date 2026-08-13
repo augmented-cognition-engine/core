@@ -164,6 +164,9 @@ queries and commands.
 - Retain whiteboard investigation as a Case workspace, never a second source of truth.
 - Meet keyboard, screen-reader, contrast, responsive, loading, empty, error, and denied-state gates.
 
+The bounded implementation and reference lock are recorded in the
+[Atrium Intelligence experience work packet](atrium-intelligence-experience-v0.8.0-work-packet-v1.md).
+
 Exit: a user can understand, review, correct, approve, and trace the complete loop without learning
 ACE package boundaries or hand-authoring a Domain Pack.
 

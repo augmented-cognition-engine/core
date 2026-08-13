@@ -513,7 +513,8 @@ The bounded delivery sequence is:
   outcomes, feedback, provenance, uncertainty, revisions, Context Manifests, and memory lineage.
 - **0.8D — Atrium experience:** rebuild the optional dashboard and control plane around attention,
   intelligence review, investigation, semantic diffs, governed controls, and Ask ACE over the same
-  durable resources.
+  durable resources. The first briefing-first implementation is tracked in the
+  [Atrium Intelligence experience work packet](docs/design/atrium-intelligence-experience-v0.8.0-work-packet-v1.md).
 - **0.8E — cross-domain proof:** run a public World AI Command Center and the parallel Market
   Intelligence command center through unchanged Core + Intelligence APIs.
 - **0.8F — release acceptance:** pass compatibility, migration, restart, installed-artifact,

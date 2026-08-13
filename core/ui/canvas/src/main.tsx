@@ -2,7 +2,7 @@
 //
 // ACE core entry point. Kernel routes:
 //   /                          → redirect into Atrium
-//   /atrium                    → Atrium (the canonical partner Canvas)
+//   /atrium                    → Atrium (Intelligence OS dashboard)
 //   /room                      → legacy alias for Atrium
 //   /deliberation              → DeliberationCanvas (the live committee)
 //   /landscape                 → ProductMap (read-only Living Product Graph)
@@ -22,6 +22,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { Workroom } from './app/Workroom'
 import { DeliberationCanvas } from './app/DeliberationCanvas'
+import { IntelligenceOS } from './app/atrium/IntelligenceOS'
 import { LiveBrain } from './app/LiveBrain'
 import { ProductMap } from './app/ProductMap'
 import { extensionRoutes } from './app/ext/registry'
@@ -46,19 +47,14 @@ function Root() {
         <BrowserRouter>
           <AceContextProvider>
           <Routes>
-            {/* Atrium lives at a named URL so the address bar reflects
-                the surface; `/` just redirects in. */}
+            {/* Atrium is the product home; `/` just redirects in. */}
             <Route path="/" element={<Navigate to="/atrium" replace />} />
-            {/* Atrium — the one canonical partnership Canvas. DeliberationCanvas
-                renders warm when idle (the room is never cold on arrival) and goes
-                live when you pose a question (?topic → useOrchestrationSession →
-                POST /canvas/sessions → orchestration WS). The old separate
-                /deliberation surface is collapsed into Atrium. */}
-            <Route path="/atrium" element={<DeliberationCanvas />} />
-            {/* Legacy alias retained for existing extension and session links. */}
+            {/* Atrium — the Intelligence OS dashboard and human control plane.
+                Every surface consumes the same governed public resource API. */}
+            <Route path="/atrium/*" element={<IntelligenceOS />} />
+            {/* Durable deliberation remains available as an investigation surface,
+                not the product home or a second source of intelligence truth. */}
             <Route path="/room" element={<DeliberationCanvas />} />
-            {/* Legacy alias for existing ?topic / ?session deep-links — the same
-                canonical surface, so the committee never has two homes. */}
             <Route path="/deliberation" element={<DeliberationCanvas />} />
             {/* The multiplayer workroom — the 2D tldraw board with voices as
                 positioned shapes + the Yjs chat channel. Previously only

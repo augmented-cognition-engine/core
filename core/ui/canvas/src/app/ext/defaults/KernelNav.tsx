@@ -6,7 +6,14 @@
 // expected to link back to the room.
 import { type ComponentType } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { LayoutGrid, Map, StickyNote, Users } from 'lucide-react'
+import {
+  Bot,
+  BrainCircuit,
+  Compass,
+  Lightbulb,
+  Network,
+  StickyNote,
+} from 'lucide-react'
 
 import {
   Sidebar,
@@ -29,10 +36,15 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
-  { href: '/atrium', icon: Users, label: 'Atrium' },
-  { href: '/landscape', icon: Map, label: 'Product map' },
-  { href: '/board', icon: StickyNote, label: 'The Board' },
-  { href: '/showcase', icon: LayoutGrid, label: 'Showcase' },
+  { href: '/atrium', icon: BrainCircuit, label: 'Intelligence' },
+  { href: '/atrium/opportunities', icon: Lightbulb, label: 'Opportunities' },
+  { href: '/atrium/agents', icon: Bot, label: 'Agents' },
+  { href: '/atrium/connections', icon: Network, label: 'Connections' },
+  { href: '/atrium/strategy', icon: Compass, label: 'Strategy' },
+]
+
+const DOWNSTREAM_NAV: NavItem[] = [
+  { href: '/board', icon: StickyNote, label: 'Investigation board' },
 ]
 
 export function KernelNav() {
@@ -46,11 +58,11 @@ export function KernelNav() {
           className="flex items-center gap-2.5 pl-2.5 pr-2 py-1.5 overflow-hidden"
         >
           <ACEMark size={22} variant="iris" />
-          <span className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="text-base font-semibold tracking-tight">ACE</span>
-            <span className="text-[10px] text-muted-foreground">
-              the partnership canvas
-            </span>
+            <span className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
+              <span className="text-base font-semibold tracking-tight">ACE</span>
+              <span className="text-[10px] text-muted-foreground">
+              Intelligence OS
+              </span>
           </span>
         </Link>
       </SidebarHeader>
@@ -61,6 +73,32 @@ export function KernelNav() {
           <SidebarGroupContent>
             <SidebarMenu>
               {NAV.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                      item.href === '/atrium'
+                        ? pathname === '/atrium'
+                        : pathname.startsWith(item.href)
+                    }
+                    tooltip={item.label}
+                  >
+                    <Link to={item.href}>
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Downstream work</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {DOWNSTREAM_NAV.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
