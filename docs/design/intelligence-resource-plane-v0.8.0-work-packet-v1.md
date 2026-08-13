@@ -1,10 +1,12 @@
 # ACE 0.8.0 unified Intelligence resource plane work packet
 
 Status: **active 0.8C packet; facade, intelligence/monitoring projections, governed HTTP query,
-Decision → Outcome → Feedback closure, and live Connection/Source projections implemented**
+Decision → Outcome → Feedback closure, live Connection/Source projections, and governed Agent
+projection implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@5003cfb` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
-ledger/monitoring projection, governed HTTP query, and Decision → Outcome → Feedback closure)
+Accepted base: `main@3f4157e` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
+ledger/monitoring projection, governed HTTP query, Decision → Outcome → Feedback closure,
+and live Connection/Source projection)
 
 ## Outcome
 
@@ -106,6 +108,15 @@ Partial, orphaned, duplicate, or inconsistent chains degrade without exposing ma
 Health remains explicitly unsupported because the current immutable records prove successful
 admissions but do not yet provide failure and health telemetry; 0.8C will not infer health from
 success-only history.
+
+The Agent contributor projects only agents that reached exact governed activation over principal,
+definition, role binding, requested-grant, and runtime-health lifecycle heads. The activation
+receipt is eligibility evidence and never reusable authority. A later lifecycle change produces a
+new public revision: suspension or stale activation is explicitly degraded, while principal
+revocation or retirement becomes a payload-free tombstone. The public payload exposes bounded
+registration, purpose, role, and state metadata without resolved-grant material. Unactivated or
+incomplete governance never looks like a live agent, and reconstruction from the same immutable
+audit records reproduces the same current revision.
 
 0.8C must still add governed-state projections for the remaining canonical families and complete
 packaged schema/import integrity. 0.8D must prove Atrium consumes this interface rather than
