@@ -24,6 +24,8 @@ Notable user- and contributor-visible changes are recorded here.
   live intelligence, violet for agent/memory composition, and green for verified outcomes.
 - Add a local-only immutable resource replay for the World AI Command Center demo without adding a
   second persistence, authority, or domain state path.
+- Forward the shared resource-detail sheet overlay ref through its Radix boundary so opening cited
+  Brief details remains free of React runtime warnings on desktop and mobile.
 
 The patch preserves schema head v177, exactly eleven public MCP tools, the Core 0.8 compatibility
 line, and the existing reference action adapter 0.4.0 boundary.

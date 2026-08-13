@@ -33,6 +33,8 @@ and reproduce the paired World AI Command Center demonstration.
    overlay rather than the Core or public-domain identity.
 6. A local-only immutable resource replay supports the paired World AI Command Center demo without
    becoming a new durable store or authority path.
+7. The shared resource-detail sheet forwards its overlay ref through the Radix boundary, keeping
+   cited Brief inspection free of React runtime warnings at desktop and mobile breakpoints.
 
 ## Required acceptance before publication
 
