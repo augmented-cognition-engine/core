@@ -79,6 +79,11 @@
       "treatment": "explicitly enabled executable compatibility surface; never Domain Pack data or implicit authority",
       "packages": ["extensions", "generation", "github", "playbooks", "runner", "templates"]
     },
+    "installed_product_application": {
+      "owner": "application",
+      "treatment": "installed optional product surface over public ACE services; never a source of truth or authority",
+      "packages": ["atrium"]
+    },
     "legacy_product_application": {
       "owner": "application",
       "treatment": "frozen product-era compatibility surface; no new canonical callers or category language",

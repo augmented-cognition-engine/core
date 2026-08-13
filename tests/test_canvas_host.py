@@ -20,10 +20,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
 from core.engine.api.canvas_host import (
+    CORE_API_PREFIXES,
     ProxyCollisionError,
     create_app,
     discover_extension_proxies,
@@ -139,6 +141,62 @@ class TestTheHostServesTheCanvas:
         r = TestClient(self._app(tmp_path)).get("/__host_health")
         assert r.status_code == 200
         assert r.json()["ok"] is True
+
+
+class TestTheHostForwardsCoreSameOrigin:
+    def _app(self, tmp_path, requests):
+        async def upstream(request):
+            requests.append(request)
+            return httpx.Response(
+                200,
+                json={"state": "complete"},
+                headers={"content-type": "application/json"},
+            )
+
+        dist = tmp_path / "dist"
+        dist.mkdir()
+        (dist / "index.html").write_text("<html>atrium</html>")
+        return create_app(
+            dist=dist,
+            extensions_root=tmp_path / "none",
+            env={},
+            core_api_url="http://core.internal:3000/",
+            access_token="issued-cli-token",
+            transport=httpx.MockTransport(upstream),
+        )
+
+    def test_the_installed_host_supplies_the_cli_token_without_embedding_an_api_key(self, tmp_path):
+        app = self._app(tmp_path, [])
+        with TestClient(app) as client:
+            response = client.post("/auth/token", json={"api_key": ""})
+
+        assert response.status_code == 200
+        assert response.json() == {"token": "issued-cli-token"}
+
+    def test_v1_intelligence_requests_reach_the_configured_core_api(self, tmp_path):
+        requests = []
+        app = self._app(tmp_path, requests)
+        with TestClient(app) as client:
+            response = client.post(
+                "/v1/intelligence/resources/query?limit=20",
+                headers={"Authorization": "Bearer issued-cli-token"},
+                json={"resource_kinds": ["brief"]},
+            )
+
+        assert response.status_code == 200
+        assert response.json() == {"state": "complete"}
+        assert len(requests) == 1
+        assert str(requests[0].url) == "http://core.internal:3000/v1/intelligence/resources/query?limit=20"
+        assert requests[0].headers["authorization"] == "Bearer issued-cli-token"
+
+    def test_every_core_api_prefix_is_reserved_from_extensions(self, tmp_path):
+        for prefix in CORE_API_PREFIXES:
+            ext = tmp_path / prefix.strip("/").replace("/", "-") / "ui" / "canvas"
+            ext.mkdir(parents=True)
+            (ext / "canvas_proxy.json").write_text(json.dumps({prefix: {"target": "http://127.0.0.1:9999"}}))
+            with pytest.raises(ProxyCollisionError):
+                create_app(extensions_root=tmp_path, env={})
+            (ext / "canvas_proxy.json").unlink()
 
 
 class TestTheProxyForwards:

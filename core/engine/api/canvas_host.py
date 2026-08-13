@@ -56,13 +56,36 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
+from core.engine.atrium import static_dir as atrium_static_dir
+
 REPO = Path(__file__).resolve().parents[3]
-CANVAS_DIST = REPO / "core" / "ui" / "canvas" / "dist"
+CANVAS_DIST = atrium_static_dir()
 EXTENSIONS = REPO / "extensions"
 
-#: Prefixes the HOST itself routes. An extension may not shadow one.
-#: Deliberately tiny — this server exists to serve the canvas and forward, nothing else.
-KERNEL_PREFIXES: tuple[str, ...] = ("/__host_health",)
+#: Public Core API prefixes used by the production Atrium bundle.  The host
+#: forwards these server-side to the configured Core API so every browser call
+#: remains same-origin.  ``/v1`` is the Intelligence OS boundary; the remaining
+#: paths preserve the broader Canvas surface during the migration to Atrium.
+CORE_API_PREFIXES: tuple[str, ...] = (
+    "/v1",
+    "/auth",
+    "/health",
+    "/canvas",
+    "/proactive",
+    "/briefings",
+    "/portal",
+    "/product",
+    "/recommendations",
+    "/decisions",
+    "/foresight",
+    "/atc",
+    "/sentinels",
+    "/tasks",
+    "/extension-invocations",
+)
+
+#: Prefixes the host or Core itself routes. An extension may not shadow one.
+KERNEL_PREFIXES: tuple[str, ...] = ("/__host_health", *CORE_API_PREFIXES)
 
 
 class ProxyCollisionError(Exception):
@@ -178,6 +201,9 @@ def create_app(
     dist: Path = CANVAS_DIST,
     extensions_root: Path = EXTENSIONS,
     env: dict[str, str] | None = None,
+    core_api_url: str | None = None,
+    access_token: str | None = None,
+    transport: httpx.AsyncBaseTransport | None = None,
 ) -> FastAPI:
     env = dict(os.environ) if env is None else env
 
@@ -188,6 +214,7 @@ def create_app(
     app = FastAPI(title="ACE Canvas Host", docs_url=None, redoc_url=None)
     app.state.proxies = proxies
     app.state.dist = dist
+    app.state.core_api_url = core_api_url
 
     @app.get("/__host_health")
     async def host_health() -> dict[str, Any]:
@@ -197,22 +224,33 @@ def create_app(
         return {
             "ok": True,
             "canvas_built": dist.is_dir(),
+            "core_api_configured": core_api_url is not None,
             "proxies": proxies,
         }
 
-    client = httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=5.0), follow_redirects=False)
+    client = httpx.AsyncClient(
+        timeout=httpx.Timeout(30.0, connect=5.0),
+        follow_redirects=False,
+        transport=transport,
+    )
 
     @app.on_event("shutdown")
     async def _close() -> None:
         await client.aclose()
 
-    def _install(prefix: str, target: str) -> None:
+    def _install(prefix: str, target: str, *, unavailable: str = "data plane unreachable") -> None:
         @app.api_route(
             f"{prefix}/{{path:path}}",
             methods=["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
             include_in_schema=False,
         )
-        async def _proxy(request: Request, path: str, _t: str = target, _p: str = prefix) -> Response:
+        async def _proxy(
+            request: Request,
+            path: str,
+            _t: str = target,
+            _p: str = prefix,
+            _unavailable: str = unavailable,
+        ) -> Response:
             url = httpx.URL(f"{_t}{_p}/{path}").copy_with(query=request.url.query.encode())
             headers = {k: v for k, v in request.headers.items() if k.lower() not in _DROP}
             try:
@@ -222,7 +260,7 @@ def create_app(
                 # 500 — is how "the data plane is down" gets misdiagnosed as "the canvas is
                 # broken", which is the entire reason the proxy exists rather than CORS.
                 return Response(
-                    content=json.dumps({"error": "data plane unreachable", "target": _t, "detail": str(exc)}),
+                    content=json.dumps({"error": _unavailable, "target": _t, "detail": str(exc)}),
                     status_code=502,
                     media_type="application/json",
                 )
@@ -231,6 +269,21 @@ def create_app(
                 status_code=upstream.status_code,
                 headers={k: v for k, v in upstream.headers.items() if k.lower() not in _DROP},
             )
+
+    # A packaged browser bundle cannot embed a user's API key.  The local host
+    # instead returns the already-issued CLI bearer token to this same-origin
+    # page.  It is kept in memory by the page and never written to browser
+    # storage.  With no token configured, /auth is forwarded normally.
+    if access_token is not None:
+
+        @app.post("/auth/token", include_in_schema=False)
+        async def atrium_token() -> dict[str, str]:
+            return {"token": access_token}
+
+    if core_api_url is not None:
+        target = core_api_url.rstrip("/")
+        for prefix in CORE_API_PREFIXES:
+            _install(prefix, target, unavailable="Core API unreachable")
 
     for prefix, target in proxies.items():
         _install(prefix, target)
