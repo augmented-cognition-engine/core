@@ -32,7 +32,7 @@ Research was intentionally locked before implementation:
   can be visible without claiming an arbiter of truth. ACE preserves available evidence and names
   degraded or unsupported state instead of inventing certainty.
 - The existing ACE Canvas design system remains the visual source of truth: Spline Sans, paper and
-  cloud surfaces, restrained brand green, Midnight text, semantic status colors, canonical shadcn
+  cloud surfaces, restrained ACE cognitive blue, Midnight text, semantic status colors, canonical shadcn
   primitives, and the existing accessibility enforcement suite.
 
 ## Product decisions

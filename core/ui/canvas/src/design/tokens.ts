@@ -19,9 +19,9 @@
 //     updates in the same commit. The tokens.css file is the source of
 //     truth; this file is the JS-side mirror.
 //
-// VISUAL DIRECTION (current, not permanent): engineered-light. Bright
-// neutral canvas, single electric-blue accent (#0070F3), hairline-shadow
-// elevation, 8px buttons, 12px cards. See docs/design-system.md.
+// VISUAL DIRECTION: ACE precision. Bright neutral canvas outside Atrium,
+// single cognitive-blue accent (#315DDE), hairline-shadow elevation,
+// 8px buttons, and 12px cards.
 
 // ---------------------------------------------------------------------------
 // Layer 0 — Foundations
@@ -87,15 +87,15 @@ export const SEMANTIC = {
   toneMediumSoft: 'rgba(176, 119, 53, 0.10)',
 } as const
 
-// Single chromatic accent — Vercel electric blue. The only chromatic
+// Single chromatic accent — ACE cognitive blue. The only chromatic
 // chrome in the engineered-light direction; everything else is
 // neutral. Theme `voice-accent` defaults to this and is the override
 // surface for branded extension themes (each retints it to its own accent).
 export const ACCENT = {
-  base:   '#0070F3',
-  hover:  '#0061D5',
-  soft:   '#E8F2FF',
-  tint:   'rgba(0, 112, 243, 0.10)',
+  base:   '#315DDE',
+  hover:  '#274CB8',
+  soft:   '#E9EEFF',
+  tint:   'rgba(49, 93, 222, 0.11)',
   ink:    '#FFFFFF',
 } as const
 

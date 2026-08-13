@@ -77,18 +77,12 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
-    /* Landmark semantic-role tokens (engineered-neutral spec).
+    /* ACE semantic-role tokens.
      *
-     *   --primary  → CTAs only (buttons that initiate work). Per the
-     *                spec, primary buttons use dark neutral tones
-     *                (midnight #292D3A), NOT brand green. Green is brand
-     *                identity, not the CTA color.
-     *   --brand    → brand green #01A982. Used SPARINGLY for brand-
-     *                identity moments (logo accents, key eyebrow, the
-     *                rare brand-saturated emphasis).
-     *   --live     → in-motion signal (streaming pulse, partner-warm
-     *                indicator). Shares hue with --brand intentionally
-     *                — motion is alive, alive is brand.
+     *   --primary  → decisive actions, in ACE cognitive blue.
+     *   --brand    → ACE identity and selected intelligence, also blue.
+     *   --live     → in-motion evidence, in the logo's cyan register.
+     *   --success  → verified completion only, in semantic green.
      *
      * Selected/active state is NOT a token — it's a structural treatment
      * (ring-2 + shadow + bg-foreground at low opacity). Visual weight,
@@ -125,17 +119,17 @@
 }
 
 :root {
-    /* Landmark — light theme.
+    /* ACE — light theme.
      * Surfaces / text / borders use the cool-grey neutrals ladder
-     * (light cloud → cloud → slate → carbon → midnight). Primary is
-     * midnight, the dark CTA neutral. Brand green carries identity. */
+     * (light cloud → cloud → slate → carbon → midnight). ACE blue carries
+     * identity and action; status colors keep their literal meaning. */
     --background: #FFFFFF;                       /* paper white */
     --foreground: #292D3A;                       /* midnight */
     --card: #FFFFFF;
     --card-foreground: #292D3A;
     --popover: #FFFFFF;
     --popover-foreground: #292D3A;
-    --primary: #292D3A;                          /* midnight — CTAs */
+    --primary: #315DDE;                          /* ACE cognitive blue — CTAs */
     --primary-foreground: #FFFFFF;
     --secondary: #F7F7F7;                        /* light cloud */
     --secondary-foreground: #292D3A;
@@ -146,7 +140,7 @@
     --destructive: oklch(0.577 0.245 27.325);
     --border: #E6E8E9;                           /* cloud */
     --input: #E6E8E9;
-    --ring: #7D8A92;                             /* light carbon */
+    --ring: #315DDE;
     /* Decorative palette — secondary colors from the brand
      * guide. NEVER used for interactive state. Reserved for data viz
      * + dynamic-element graphic motifs. Mapped onto chart-1..5 so
@@ -157,25 +151,23 @@
     --chart-4: #0070F8;                          /* blue */
     --chart-5: #7764FC;                          /* purple */
     /* Semantic role tokens — see @theme comment above for the contract. */
-    --brand: #01A982;                            /* brand green — identity */
+    --brand: #315DDE;                            /* ACE cognitive blue — identity */
     --brand-foreground: #FFFFFF;
-    --live: #01A982;                             /* in-motion = brand green */
+    --live: #0F8294;                             /* in-motion evidence = spectral cyan */
     --live-foreground: #FFFFFF;
-    --success: #01A982;                          /* good = brand green */
+    --success: #178A4B;                          /* verified completion */
     --success-foreground: #FFFFFF;
     --warning: oklch(0.74 0.15 78);              /* watch = amber (state, NOT chart-3 cyan) */
     --warning-foreground: oklch(0.205 0 0);
-    /* --anchor → the marketing-hero surface. NOT graphite — hero cards
-     * are light. A pale green wash so heroes read as branded + crisp
-     * on white, with dark Midnight text. Green is the signature; the
-     * hero is where it gets a soft full-card presence. */
-    --anchor: oklch(0.965 0.028 165);            /* pale green wash */
+    /* --anchor → the editorial hero surface. A pale blue wash makes an
+     * ACE-owned intelligence moment visible without turning it into a CTA. */
+    --anchor: #EEF2FF;
     --anchor-foreground: #292D3A;                /* Midnight text */
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.511 0.262 276.966);
-    --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
+    --sidebar-primary: #315DDE;
+    --sidebar-primary-foreground: #FFFFFF;
     --sidebar-accent: oklch(0.97 0 0);
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
@@ -183,51 +175,45 @@
 }
 
 .dark {
-    /* Landmark — dark theme. Background = charcoal, surface cards
-     * use dark carbon, text + foreground use light cloud / cloud.
-     * Per the spec, dark-mode primary is also dark — but for visibility
-     * on charcoal we lift it slightly to carbon. */
-    --background: #111212;                       /* charcoal */
+    /* ACE — dark theme. A cool blue-black surface ladder reflects the
+     * logo without tinting every surface blue. */
+    --background: #080B12;
     --foreground: #F7F7F7;                       /* light cloud */
-    --card: #3E4550;                             /* dark carbon */
+    --card: #121824;
     --card-foreground: #F7F7F7;
-    --popover: #3E4550;
+    --popover: #151C29;
     --popover-foreground: #F7F7F7;
-    --primary: #F7F7F7;                          /* light CTA on dark bg */
-    --primary-foreground: #111212;
-    --secondary: #3E4550;
+    --primary: #7597FF;
+    --primary-foreground: #071020;
+    --secondary: #1B2332;
     --secondary-foreground: #F7F7F7;
-    --muted: #3E4550;                            /* dark carbon */
-    --muted-foreground: #B1B9BE;                 /* slate */
-    --accent: #3E4550;
+    --muted: #171E2A;
+    --muted-foreground: #A8B3C4;
+    --accent: #202A3A;
     --accent-foreground: #F7F7F7;
     --destructive: oklch(0.704 0.191 22.216);
-    --border: #535C66;                           /* carbon */
-    --input: #535C66;
-    --ring: #7D8A92;                             /* light carbon */
+    --border: #29354A;
+    --input: #35435B;
+    --ring: #7597FF;
     --chart-1: #05CC93;
     --chart-2: #00E0AF;
     --chart-3: #62E5F6;
     --chart-4: #0070F8;
     --chart-5: #7764FC;
-    /* Dark-mode brand + live — same hue, slightly lifted for contrast on
-     * charcoal background. */
-    --brand: #05CC93;                            /* jade green (brighter in dark) */
-    --brand-foreground: #111212;
-    --live: #05CC93;
-    --live-foreground: #111212;
-    --success: #05CC93;
-    --success-foreground: #111212;
+    --brand: #7597FF;
+    --brand-foreground: #071020;
+    --live: #55D6E6;
+    --live-foreground: #071020;
+    --success: #48C77A;
+    --success-foreground: #07140C;
     --warning: oklch(0.78 0.15 78);
     --warning-foreground: oklch(0.205 0 0);
-    /* Dark mode: a green-tinted dark surface (not flat carbon) so the
-     * hero still reads as branded against the Charcoal page. */
-    --anchor: oklch(0.30 0.03 165);              /* green-tinted dark carbon */
+    --anchor: #131E38;
     --anchor-foreground: #F7F7F7;
     --sidebar: oklch(0.205 0 0);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.585 0.233 277.117);
-    --sidebar-primary-foreground: oklch(0.962 0.018 272.314);
+    --sidebar-primary: #7597FF;
+    --sidebar-primary-foreground: #071020;
     --sidebar-accent: oklch(0.269 0 0);
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
@@ -239,31 +225,39 @@
  * the shared ACE semantic tokens. Keeping this scoped prevents a domain or
  * command-center preference from becoming a kernel-wide theme decision. */
 .atrium-command-center.dark {
-    --background: #0A0C0C;
-    --foreground: #F3F6F4;
-    --card: #131616;
-    --card-foreground: #F3F6F4;
-    --popover: #161A19;
-    --popover-foreground: #F3F6F4;
-    --primary: #F3F6F4;
-    --primary-foreground: #0A0C0C;
-    --secondary: #1B201E;
-    --secondary-foreground: #F3F6F4;
-    --muted: #151918;
-    --muted-foreground: #9AA5A0;
-    --accent: #202624;
-    --accent-foreground: #F3F6F4;
-    --border: #29312E;
-    --input: #343D39;
-    --ring: #71E3B4;
-    --anchor: #101916;
-    --anchor-foreground: #F3F6F4;
-    --sidebar: #0D1010;
-    --sidebar-foreground: #E9EEEB;
-    --sidebar-accent: #191E1C;
-    --sidebar-accent-foreground: #F3F6F4;
-    --sidebar-border: #252C29;
-    --sidebar-ring: #71E3B4;
+    --background: #070A10;
+    --foreground: #F2F5FA;
+    --card: #101620;
+    --card-foreground: #F2F5FA;
+    --popover: #141B27;
+    --popover-foreground: #F2F5FA;
+    --primary: #7597FF;
+    --primary-foreground: #071020;
+    --secondary: #1A2230;
+    --secondary-foreground: #F2F5FA;
+    --muted: #141B25;
+    --muted-foreground: #9CA9BC;
+    --accent: #1C2636;
+    --accent-foreground: #F2F5FA;
+    --border: #263248;
+    --input: #33425A;
+    --ring: #7597FF;
+    --brand: #7597FF;
+    --brand-foreground: #071020;
+    --live: #55D6E6;
+    --live-foreground: #071020;
+    --success: #48C77A;
+    --success-foreground: #07140C;
+    --anchor: #111B32;
+    --anchor-foreground: #F2F5FA;
+    --sidebar: #090D14;
+    --sidebar-foreground: #EAF0F8;
+    --sidebar-primary: #7597FF;
+    --sidebar-primary-foreground: #071020;
+    --sidebar-accent: #161E2B;
+    --sidebar-accent-foreground: #F2F5FA;
+    --sidebar-border: #222D40;
+    --sidebar-ring: #7597FF;
 }
 
 @layer base {
