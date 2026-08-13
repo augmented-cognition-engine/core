@@ -273,7 +273,10 @@ export function parseOnboardingProfile(value: unknown): IntelligenceOnboardingPr
  * generic discovery agents rather than naming a domain. Exact duplicates are
  * collapsed by profile identity; no domain name is hard-coded here.
  */
-export function onboardingProfilesFromResources(items: readonly IntelligenceResourceRecord[]): readonly IntelligenceOnboardingProfile[] {
+export function onboardingProfilesFromResources(
+  items: readonly IntelligenceResourceRecord[],
+  installedProfiles: readonly unknown[] = [],
+): readonly IntelligenceOnboardingProfile[] {
   const profiles = new Map<string, IntelligenceOnboardingProfile>()
   for (const item of items) {
     const payload = canonicalPayload(item.payload)
@@ -285,6 +288,10 @@ export function onboardingProfilesFromResources(items: readonly IntelligenceReso
     for (const profile of candidates) {
       if (profile !== null && !profiles.has(profile.profile_id)) profiles.set(profile.profile_id, profile)
     }
+  }
+  for (const value of installedProfiles) {
+    const profile = parseOnboardingProfile(value)
+    if (profile !== null && !profiles.has(profile.profile_id)) profiles.set(profile.profile_id, profile)
   }
   profiles.set(FALLBACK_PROFILE.profile_id, FALLBACK_PROFILE)
   return [...profiles.values()]

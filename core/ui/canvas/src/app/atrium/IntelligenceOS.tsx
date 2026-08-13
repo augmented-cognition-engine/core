@@ -42,6 +42,7 @@ import {
 } from './intelligenceModel'
 import { ResourceCard } from './ResourceCard'
 import { useIntelligenceResources } from './useIntelligenceResources'
+import { useInstalledIntelligenceCatalog } from './useInstalledIntelligenceCatalog'
 
 type Surface = 'intelligence' | 'opportunities' | 'agents' | 'connections' | 'strategy'
 
@@ -422,11 +423,18 @@ export function IntelligenceOS() {
   const surface = activeSurface(pathname)
   const copy = SURFACE_COPY[surface]
   const { page, loading, error, refresh, adoptPage } = useIntelligenceResources()
+  const installedCatalog = useInstalledIntelligenceCatalog()
   const groups = useMemo(() => groupResources(page?.items ?? []), [page?.items])
   const productName = productDisplayName(page?.product_id)
   const freshness = pageFreshness(page)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
-  const onboardingProfiles = useMemo(() => onboardingProfilesFromResources(page?.items ?? []), [page?.items])
+  const onboardingProfiles = useMemo(
+    () => onboardingProfilesFromResources(
+      page?.items ?? [],
+      installedCatalog.map((item) => item.profile),
+    ),
+    [installedCatalog, page?.items],
+  )
   const onboardingSession = useMemo(() => onboardingSessionFromResources(page?.items ?? []), [page?.items])
 
   function openFirstBrief() {

@@ -111,6 +111,19 @@ describe('Atrium onboarding resources', () => {
     expect(onboardingProfilesFromResources([]).map((item) => item.domain_label)).toEqual(['Custom Intelligence'])
   })
 
+  it('adds validated installed profiles without replacing admitted product profiles', () => {
+    const installedWorld = { ...profile, profile_id: 'onboarding_profile:world', domain_label: 'World Intelligence' }
+    const installedDuplicate = { ...profile, domain_label: 'Installed duplicate' }
+    expect(onboardingProfilesFromResources(
+      [resource('builder_profile', profile)],
+      [installedWorld, installedDuplicate],
+    ).map((item) => item.domain_label)).toEqual([
+      'Test domain',
+      'World Intelligence',
+      'Custom Intelligence',
+    ])
+  })
+
   it('uses the latest exact builder session revision', () => {
     const older = resource('builder_session', { ...session, sequence: 6, stage: 'intelligence_model_approved' }, 6)
     const latest = resource('builder_session', session, 7)
