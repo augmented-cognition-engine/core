@@ -75,6 +75,11 @@ The review is plain language:
 One primary action—**Start watching**—admits the reviewed plan through the existing governed
 onboarding and activation lifecycle.
 
+The current repository-delivered slice intentionally does not add a second mutable Atrium API.
+Atrium reads profiles and session revisions through the existing authenticated resource plane. A
+product host that accepts the reviewed plan must invoke the public Builder services and Core
+approval boundary; clicking through a proposal in Atrium alone grants nothing.
+
 ### 4. Watch the system assemble
 
 Agent work appears as one compact progress story, not as five configuration screens:
@@ -88,6 +93,10 @@ Agent work appears as one compact progress story, not as five configuration scre
 Progress is expressed as outcomes such as `18 sources ready`, `42 entities mapped`, `6 watches
 active`, and `first Brief ready`. Agent identity, receipts, permissions, and failures remain
 available in an inspection drawer.
+
+Atrium must never infer these outcomes from elapsed time or a client-only checklist. `Complete`
+requires the corresponding durable session stage; blocked and retrying revisions remain visible;
+and the first-Brief action appears only after `first_briefing_ready`.
 
 ### 5. Land in a populated Atrium
 
@@ -169,6 +178,12 @@ The design direction was researched before implementation:
 - Checkly contributes operational status language and dense monitoring panels that remain legible.
 - Rox contributes a connection checklist, recommended integrations, clear permission explanation,
   and visible connected/connecting state.
+- Fingerprint contributes grouped, expandable setup progress with durable status language rather
+  than decorative agent animation.
+- Reclaim contributes the sequence `connect -> confirm -> personalize -> provision`, with setup
+  status retained after the user leaves the first-run flow.
+- Macaw contributes the immediate handoff from inspected source understanding to a populated
+  generated result rather than a blank success screen.
 - Gemini contributes the centered readable answer with a dedicated source panel one interaction
   away.
 - Spyglass contributes one dominant orientation view with a narrow contextual rail instead of an
@@ -190,6 +205,12 @@ Explicit rejections:
 - rainbow category and severity systems;
 - unsourced AI answers; and
 - domain-specific UI branches inside Core.
+
+Implementation lock: the primary direction remains Linear's compact midnight shell. Rox owns the
+connection-card behavior, Fingerprint the progressive status disclosure, Reclaim the confirmed
+setup sequence, and Macaw the populated-result handoff. ACE retains its existing mint accent only
+for selected, live, or proven state. Proposal, working, blocked, retrying, and complete are semantic
+states; the interface must not average them into a single optimistic progress treatment.
 
 ## Acceptance journey
 

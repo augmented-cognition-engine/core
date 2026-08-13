@@ -93,6 +93,17 @@ and public [`ace-core==0.8.0`](https://pypi.org/project/ace-core/0.8.0/) package
 developer-preview release line. Atrium is a repository-delivered optional workspace rather than a
 second state or authority path.
 
+### Active hardening — Atrium live onboarding binding
+
+The post-0.8 candidate closes one experience gap without creating a new product layer. Core now
+projects one inert onboarding profile plus the exact append-only Intelligence Builder session
+history through the same authenticated resource plane Atrium already consumes. Atrium renders
+proposal, working, blocked, retrying, and complete states from those durable records and opens the
+first Brief only after `first_briefing_ready`. World AI supplies the paired domain profile and a
+four-agent `Connect -> Map -> Watch -> Brief` acceptance journey over admitted official-source
+evidence. The work remains candidate until both repositories pass review and installed-artifact
+reproduction; it does not change the 0.9 Collaborative Intelligence promise.
+
 The prior [0.7.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.7.0)
 and [`ace-core==0.7.0`](https://pypi.org/project/ace-core/0.7.0/) package remain the passed
 Intelligence Builder Foundation boundary, recorded by the

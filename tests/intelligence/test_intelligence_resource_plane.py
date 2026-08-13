@@ -166,7 +166,7 @@ class _Reader:
         )
 
 
-def test_resource_plane_covers_the_complete_0_8_public_family() -> None:
+def test_resource_plane_covers_the_complete_public_family() -> None:
     assert {item.value for item in IntelligenceResourceKind} == {
         "connection",
         "source",
@@ -190,6 +190,8 @@ def test_resource_plane_covers_the_complete_0_8_public_family() -> None:
         "semantic_revision",
         "context_manifest",
         "memory_use",
+        "builder_profile",
+        "builder_session",
     }
 
 
