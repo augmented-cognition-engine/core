@@ -1,6 +1,7 @@
 # ACE 0.8.0 unified Intelligence resource plane work packet
 
-Status: **active 0.8C packet; facade, intelligence/monitoring projections, governed HTTP query,
+Status: **implemented 0.8C resource contract; cumulative installed-artifact and cross-domain
+acceptance remains owned by 0.8F. Facade, intelligence/monitoring projections, governed HTTP query,
 Decision → Outcome → Feedback closure, live Connection/Source projections, and governed Agent
 projection implemented; Context Manifest, Memory Use, memory Evidence Lineage, and governed Action
 projection implemented**
@@ -143,8 +144,9 @@ being duplicated into top-level resources. Semantic Revision remains available t
 onboarding/ontology lifecycle but is not yet projected into this plane. The API represents all four
 kinds and returns deterministic unsupported degradation; it never fabricates standalone truth.
 Promoting any of them later is additive and does not change the 0.8 resource contract. Packaged
-schema/import integrity and the combined restart journey close 0.8C. 0.8D must prove Atrium consumes
-this interface rather than privileged internal state.
+schema/import integrity is enforced in the candidate. The combined restart and installed-artifact
+journey remains a 0.8F release gate. 0.8D must prove Atrium consumes this interface rather than
+privileged internal state.
 
 The 0.8C exit gate is one authorized query path that can reproduce the evidence-to-outcome resource
 chain after restart, report partial truth honestly, and remain identical for World and Market
