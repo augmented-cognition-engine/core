@@ -11,6 +11,7 @@ from ace.intelligence import (
     ActivationRevisionReferenceV1Alpha1,
     CanonicalJsonValueV1Alpha1,
     EntitySnapshotV1Alpha1,
+    EvidenceAcquisitionMode,
     IntelligenceRecordKind,
     IntelligenceResourceCursorV1Alpha1,
     IntelligenceResourceKind,
@@ -20,6 +21,7 @@ from ace.intelligence import (
     LineageReferenceV1Alpha1,
     LineageRelation,
     LineageResourceKind,
+    ObservationV1Alpha1,
     SignalV1Alpha1,
 )
 from ace.testing import InMemoryImmutableRecordStore
@@ -56,6 +58,29 @@ def _entity(*, mode: IntelligenceResourceMode) -> EntitySnapshotV1Alpha1:
     )
 
 
+def _observation(*, mode: IntelligenceResourceMode) -> ObservationV1Alpha1:
+    return ObservationV1Alpha1(
+        product_id=PRODUCT,
+        mode=mode,
+        activation_revision=_activation(),
+        as_of=NOW,
+        source_ref="source:ace-release",
+        source_digest="sha256:" + "d" * 64,
+        acquisition_mode=(
+            EvidenceAcquisitionMode.LIVE
+            if mode is IntelligenceResourceMode.LIVE
+            else EvidenceAcquisitionMode.PREPARED_FIXTURE
+        ),
+        acquisition_receipt_ref="source_acquisition:ace-release",
+        acquisition_receipt_digest="sha256:" + "e" * 64,
+        observed_at=NOW,
+        ingested_at=NOW,
+        subject_refs=("entity:ace",),
+        payload=CanonicalJsonValueV1Alpha1(value_json='{"release":"0.8"}'),
+        confidence=0.95,
+    )
+
+
 def _signal(
     entity: EntitySnapshotV1Alpha1,
     *,
@@ -87,7 +112,9 @@ def _signal(
 
 
 def _record(resource, *, kind: IntelligenceRecordKind) -> ImmutableRecordV1:
-    if isinstance(resource, EntitySnapshotV1Alpha1):
+    if isinstance(resource, ObservationV1Alpha1):
+        available_at = resource.ingested_at
+    elif isinstance(resource, EntitySnapshotV1Alpha1):
         available_at = resource.projected_at
     else:
         available_at = resource.detected_at
@@ -102,6 +129,40 @@ def _record(resource, *, kind: IntelligenceRecordKind) -> ImmutableRecordV1:
         available_at=available_at,
         processing_order=0,
     )
+
+
+@pytest.mark.asyncio
+async def test_live_source_resources_project_at_immutable_admission_time() -> None:
+    observation = _observation(mode=IntelligenceResourceMode.LIVE)
+    entity = _entity(mode=IntelligenceResourceMode.LIVE)
+    admitted_at = NOW + timedelta(seconds=30)
+    records = []
+    for resource, kind in (
+        (observation, IntelligenceRecordKind.OBSERVATION),
+        (entity, IntelligenceRecordKind.ENTITY_SNAPSHOT),
+    ):
+        record = _record(resource, kind=kind)
+        records.append(
+            ImmutableRecordV1(
+                **record.model_dump(mode="python", exclude={"storage_id", "material_hash", "available_at"}),
+                available_at=admitted_at,
+            )
+        )
+    query = _query(kinds=(IntelligenceResourceKind.OBSERVATION, IntelligenceResourceKind.ENTITY))
+    query = query.model_copy(update={"available_at": admitted_at})
+
+    batch = await IntelligenceLedgerResourceProjectionReader(store=_store(*records)).read(
+        query=query,
+        after=None,
+        limit=10,
+    )
+
+    assert batch.state is IntelligenceResourcePageState.COMPLETE
+    assert {item.reference.resource_kind for item in batch.records} == {
+        IntelligenceResourceKind.OBSERVATION,
+        IntelligenceResourceKind.ENTITY,
+    }
+    assert {item.reference.available_at for item in batch.records} == {admitted_at}
 
 
 def _store(*records: ImmutableRecordV1) -> InMemoryImmutableRecordStore:

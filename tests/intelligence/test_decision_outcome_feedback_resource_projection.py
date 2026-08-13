@@ -28,6 +28,8 @@ from ace.intelligence import (
     FeedbackProposalIntentV1Alpha1,
     FeedbackProposalV1Alpha1,
     GroundedClaimV1Alpha1,
+    ImpactGovernanceAction,
+    ImpactGovernanceProposalV1Alpha1,
     IntelligenceResourceKind,
     IntelligenceResourceMode,
     IntelligenceResourcePageState,
@@ -295,6 +297,72 @@ async def test_projects_exact_decision_outcome_feedback_chain_with_public_proven
     assert feedback.payload.parsed_value()["intent"]["proposed_value"] == 0.55
 
 
+@pytest.mark.asyncio
+async def test_projects_domain_owned_decision_outcome_spaces() -> None:
+    _, decision_record = _decision()
+    _, outcome_record = _outcome()
+    domain_records = tuple(
+        ImmutableRecordV1(
+            **record.model_dump(mode="python", exclude={"storage_id", "material_hash", "record_space"}),
+            record_space="world_intelligence",
+        )
+        for record in (decision_record, outcome_record)
+    )
+
+    batch = await DecisionOutcomeFeedbackResourceProjectionReader(store=_store(_brief(), *domain_records)).read(
+        query=_query(IntelligenceResourceKind.DECISION, IntelligenceResourceKind.OUTCOME),
+        after=None,
+        limit=20,
+    )
+
+    assert batch.state is IntelligenceResourcePageState.COMPLETE
+    assert [item.reference.resource_kind for item in batch.records] == [
+        IntelligenceResourceKind.DECISION,
+        IntelligenceResourceKind.OUTCOME,
+    ]
+
+
+@pytest.mark.asyncio
+async def test_projects_non_effective_measured_impact_proposal_as_feedback() -> None:
+    brief_record = _brief()
+    value = ImpactGovernanceProposalV1Alpha1(
+        product_id=PRODUCT,
+        evaluation_id="impact_evaluation:executive-usefulness",
+        evaluation_digest="sha256:" + "8" * 64,
+        target=brief_record.reference(),
+        action=ImpactGovernanceAction.PROMOTE,
+        rationale="Matched evidence indicates the brief improved executive usefulness.",
+        proposed_at=NOW + timedelta(minutes=8),
+    )
+    record = ImmutableRecordV1(
+        product_id=PRODUCT,
+        record_space="measured_impact",
+        record_kind="impact_governance_proposal",
+        record_key=str(value.proposal_id),
+        payload_contract=value.contract,
+        payload=value.model_dump(mode="python"),
+        as_of=NOW + timedelta(minutes=6),
+        available_at=value.proposed_at,
+        processing_order=0,
+    )
+
+    batch = await DecisionOutcomeFeedbackResourceProjectionReader(store=_store(brief_record, record)).read(
+        query=_query(IntelligenceResourceKind.FEEDBACK),
+        after=None,
+        limit=20,
+    )
+
+    assert batch.state is IntelligenceResourcePageState.COMPLETE
+    assert len(batch.records) == 1
+    feedback = batch.records[0]
+    assert feedback.reference.resource_kind is IntelligenceResourceKind.FEEDBACK
+    assert feedback.provenance[0].resource_kind is IntelligenceResourceKind.BRIEF
+    assert feedback.provenance[0].resource_id == brief_record.record_key
+    assert feedback.payload is not None
+    assert feedback.payload.parsed_value()["live_effect"] is False
+    assert feedback.payload.parsed_value()["selectable"] is False
+
+
 def test_supported_host_composition_includes_the_complete_current_resource_plane() -> None:
     reader = intelligence_resource_projection_reader(InMemoryImmutableRecordStore())
     assert {
@@ -340,7 +408,7 @@ async def test_invalid_envelope_degrades_without_exposing_payload() -> None:
     assert value.decision_id != invalid.record_key
     assert batch.records == ()
     assert batch.state is IntelligenceResourcePageState.DEGRADED
-    assert batch.degraded_reason_refs == ("degraded_reason:invalid-prepared-decision",)
+    assert batch.degraded_reason_refs == ("degraded_reason:invalid-decision",)
 
 
 @pytest.mark.asyncio
