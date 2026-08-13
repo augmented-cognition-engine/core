@@ -11,7 +11,7 @@ monitors, and an intelligence system that improves with governed feedback. ACE i
 provenance, authority, durable state, and exact receipts stay built into the result instead of
 becoming infrastructure every product team must recreate.
 
-![version 0.7.0](https://img.shields.io/badge/version-0.7.0-blue)
+![version 0.8.0](https://img.shields.io/badge/version-0.8.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -75,12 +75,12 @@ Builders should not hand-author Domain Pack JSON or learn compiler mechanics to 
 Generated material still passes the same fail-closed schema, compatibility, conformance, authority,
 and activation boundaries as an expert-built pack.
 
-**Maturity:** ACE 0.7 is the released Intelligence Builder Foundation. It composes stable Domain
-Pack compilation and conformance with provider-free Connect, cited and editable Map, approved
-Watch, cited first Brief, and exact Activate/restart behavior. The same release composes governed
-Agent Composition through AC7 and authorized Agent Memory through AM3 without widening authority
-or changing the eleven-tool public MCP surface. Independent World and Market consumers reproduce
-the activation boundary. The guided graphical workspace remains a later product milestone.
+**Maturity:** ACE 0.8 is the released Intelligence OS Realignment. It retains the complete 0.7
+Builder foundation, governed Agent Composition through AC7, and authorized Agent Memory through
+AM4, then makes their outputs consumable through one authorized Intelligence resource plane and
+the repository-delivered Atrium workspace. Independent World and Market consumers reproduce the
+same public resource contract. The Python artifact remains usable without Atrium, and the public
+MCP surface remains exactly eleven tools.
 
 ### Two connected loops
 
@@ -386,7 +386,33 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.7.0 adds
+## What 0.8.0 adds
+
+0.8.0 makes the **Intelligence Operating System** the coherent product experience rather than an
+architecture users have to assemble themselves.
+
+- **One governed resource plane.** Sources, Connections, Observations, Entity state, Signals,
+  Shifts, Cases, Briefs, Monitors, Subscriptions, Agents, Decisions, Actions, Outcomes, Feedback,
+  memory, and provenance share one authorized point-in-time query contract with explicit partial
+  and degraded states.
+- **Atrium is intelligence-first.** The repository-delivered workspace opens on a briefing and
+  attention queue, makes Intelligence, Opportunities, Agents, Connections, and Strategy first-
+  class, and keeps downstream Work out of the product's center. Ask ACE answers only from
+  authorized resources and cites exact revisions.
+- **The complete builder stack.** Connect → Map → Watch → Brief → Activate, agent composition,
+  governed memory, and bounded action now feed the same public intelligence model rather than
+  appearing as separate subsystems.
+- **Runtime ownership is explicit.** Core owns cognition, durable state, authority, and outcomes;
+  Intelligence owns domain-neutral sensing and orientation; Domain Packs own vocabulary and
+  policy; connectors and trusted adapters own reviewed I/O and effects.
+- **Two-domain product proof.** World Intelligence reproduces a recorded official-source journey
+  through reviewed Action and measured Feedback. Market Intelligence reproduces an independent
+  competitive-price journey with an explicit `no_action` analyst disposition. Neither domain adds
+  nouns or branches to Core.
+- **Authority remains bounded.** Feedback proposals do not apply themselves, Domain Packs remain
+  inert, Atrium is not a second source of truth, and the MCP boundary remains exactly eleven tools.
+
+### What 0.7.0 added
 
 0.7.0 is the public **Intelligence Builder Foundation** release: the first coherent foundation for
 ACE as an Intelligence Operating System. The visible product journey is:
@@ -433,7 +459,7 @@ remains unproven under explicit product-owned criteria. No governance proposal a
 
 The bounded **Reasoning into Action** topology introduced in 0.5.0 remains unchanged: one ACE host,
 one durable store, and explicitly trusted in-process adapters. The separately packaged reference
-adapter is distribution 0.3.0 with `ace-core>=0.7.0,<0.8`; its unchanged executable
+adapter is distribution 0.4.0 with `ace-core>=0.8.0,<0.9`; its unchanged executable
 implementation keeps artifact identity 0.1.0.
 
 The governed Intelligence foundation introduced in 0.4.0 remains part of the same install:
@@ -779,8 +805,8 @@ Report vulnerabilities per
 │   └── testing/              ← packaged conformance seams for external packages
 ├── core/
 │   ├── engine/               ← the host runtime (private): API, CLI, orchestration, adapters
-│   ├── schema/               ← SurrealDB migrations (head: v176)
-│   └── ui/canvas/            ← Atrium, an experimental React research canvas (repository beta)
+│   ├── schema/               ← SurrealDB migrations (head: v177)
+│   └── ui/canvas/            ← Atrium, the repository-delivered Intelligence OS workspace
 ├── ace_mcp_client/           ← thin pure-HTTP MCP client (the eleven tools)
 ├── extensions/reference/     ← the worked extension example the kernel actually loads
 ├── examples/                 ← independent example packages
@@ -798,7 +824,7 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.7.0 is a published developer-preview release.** Its Intelligence Builder claim is bounded to
+**0.8.0 is a published developer-preview release.** Its Intelligence OS claim is bounded to
 the provider-free and installed-artifact journeys recorded in the evidence archive and the
 single-node topology below. Read this section before you build on it.
 
@@ -819,8 +845,8 @@ What is bounded:
 What ACE does not claim:
 
 - No hosted SaaS. ACE is self-hosted; you run the database and bring your own model credentials.
-- No supported graphical UI. Atrium is experimental repository-beta source, not part of the Python
-  artifact, the supported runtime, or the golden path.
+- Atrium is supported as repository-delivered preview source and remains optional. It is not
+  embedded in the Python wheel, and it never becomes a second persistence or authority path.
 - No automatic or arbitrary web access.
 - No real-world causal accuracy, calibrated forecasting, autonomous learning, general model of
   reality,
@@ -845,10 +871,11 @@ understand → reason → decide → act with authority → observe outcomes →
 ```
 
 0.5.0 delivers bounded Reasoning into Action. Public 0.6.0 (*Measured Intelligence*) connects that
-journey to later product-owned outcomes. Public 0.7.0 turns the underlying system into the
-Intelligence Builder Foundation: Connect → Map → Watch → Brief → Activate, backed by governed
-composition and authorized memory. Exact integration evidence is recorded in the
-[0.7 acceptance packet](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/cumulative-core-v0.7-integration-acceptance-v1.md).
+journey to later product-owned outcomes. Public 0.7.0 established the Intelligence Builder
+Foundation. Public 0.8.0 turns that foundation into one coherent Intelligence Operating System:
+the unified resource plane, Atrium, builder agents, governed composition and memory, and World /
+Market product proof. Exact release evidence is recorded in the
+[0.8 release packet](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/intelligence-os-v0.8.0-release-candidate-v1.md).
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries
