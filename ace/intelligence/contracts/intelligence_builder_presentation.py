@@ -99,8 +99,7 @@ class IntelligenceOnboardingSourceGroupV1Alpha1(_BuilderPresentationContract):
     @classmethod
     def ids(cls, value: Any) -> tuple[str, ...]:
         return tuple(
-            validate_slug(item, name="source_ids")
-            for item in normalized_strings(value, label="source_ids", maximum=32)
+            validate_slug(item, name="source_ids") for item in normalized_strings(value, label="source_ids", maximum=32)
         )
 
     @field_validator("source_labels", mode="before")
@@ -140,9 +139,7 @@ class IntelligenceOnboardingProfileV1Alpha1(_BuilderPresentationContract):
     description: str = Field(min_length=1, max_length=2_000)
     starter_prompts: tuple[str, ...] = Field(default_factory=tuple, max_length=8)
     outcomes: tuple[IntelligenceOnboardingOutcomeV1Alpha1, ...] = Field(min_length=1, max_length=16)
-    source_groups: tuple[IntelligenceOnboardingSourceGroupV1Alpha1, ...] = Field(
-        default_factory=tuple, max_length=16
-    )
+    source_groups: tuple[IntelligenceOnboardingSourceGroupV1Alpha1, ...] = Field(default_factory=tuple, max_length=16)
     cadences: tuple[IntelligenceOnboardingCadenceV1Alpha1, ...] = Field(min_length=1, max_length=16)
     default_cadence_id: str
     first_value: IntelligenceOnboardingFirstValueV1Alpha1

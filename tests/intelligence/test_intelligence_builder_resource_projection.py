@@ -42,9 +42,7 @@ def _profile() -> IntelligenceOnboardingProfileV1Alpha1:
         display_name="AI Command Center",
         prompt="What should your AI command center help you understand?",
         description="Connect authoritative AI sources and receive a grounded first briefing.",
-        starter_prompts=(
-            "Keep me ahead of meaningful AI capability, cost, and policy shifts.",
-        ),
+        starter_prompts=("Keep me ahead of meaningful AI capability, cost, and policy shifts.",),
         outcomes=(
             IntelligenceOnboardingOutcomeV1Alpha1(
                 outcome_id="track-model-economics",
