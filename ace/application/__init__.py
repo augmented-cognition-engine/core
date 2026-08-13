@@ -345,8 +345,11 @@ from ace.application.intelligence_resource_plane import (
     IntelligenceResourceQueryV1Alpha1,
 )
 from ace.application.intelligence_resource_projection import (
+    CompositeIntelligenceResourceProjectionReader,
     IntelligenceLedgerProjectionError,
     IntelligenceLedgerResourceProjectionReader,
+    IntelligenceResourceProjectionContributor,
+    MonitoringResourceProjectionReader,
 )
 from ace.application.live_intelligence_bridge import (
     LiveBriefAdmission,
@@ -456,6 +459,9 @@ __all__ = [
     "IntelligenceResourceQueryV1Alpha1",
     "IntelligenceLedgerProjectionError",
     "IntelligenceLedgerResourceProjectionReader",
+    "IntelligenceResourceProjectionContributor",
+    "CompositeIntelligenceResourceProjectionReader",
+    "MonitoringResourceProjectionReader",
     "ASSERTION_DECISION_RECORD_KIND",
     "EXTRACTION_RECEIPT_RECORD_KIND",
     "GRAPH_PROJECTION_RECORD_KIND",
