@@ -398,5 +398,6 @@ __all__ = [
     "INTELLIGENCE_ONBOARDING_PROFILE_RECORD_KIND",
     "IntelligenceBuilderPresentationService",
     "IntelligenceBuilderResourceProjectionReader",
+    "IntelligenceOnboardingProfileV1Alpha1",
     "IntelligenceOnboardingProfileAdmission",
 ]
