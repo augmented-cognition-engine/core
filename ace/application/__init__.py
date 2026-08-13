@@ -310,9 +310,11 @@ from ace.application.intelligence_build_execution import (
     IntelligenceBuildEffect,
     IntelligenceBuildExecutor,
     IntelligenceBuildHostServices,
+    IntelligenceBuildRecordedSourcePort,
     IntelligenceBuildResourcePagePort,
     IntelligenceBuildStartV1,
     ProductScopedImmutableRecordStore,
+    RecordedSourceReferenceV1,
 )
 from ace.application.intelligence_builder import (
     ConnectionAgent,
@@ -477,6 +479,13 @@ from ace.application.personal_intelligence_ownership import (
     PersonalIntelligenceOwnershipError,
     PersonalIntelligenceOwnershipService,
     PersonalIntelligenceOwnershipStore,
+)
+from ace.application.recorded_source_admission import (
+    CoreRecordedSourceAdmissionService,
+    RecordedSourceAcquisitionReceiptV1Alpha1,
+    RecordedSourceAdmission,
+    RecordedSourceAdmissionError,
+    RecordedSourceMaterialV1Alpha1,
 )
 from ace.application.supersession_impact import (
     SupersessionImpactAdmission,
@@ -785,10 +794,17 @@ __all__ = [
     "IntelligenceBuildExecutor",
     "IntelligenceBuildHostServices",
     "IntelligenceBuildResourcePagePort",
+    "IntelligenceBuildRecordedSourcePort",
     "IntelligenceBuildStartV1",
     "AuthorizedIntelligenceBuild",
     "ProductScopedImmutableRecordStore",
+    "CoreRecordedSourceAdmissionService",
     "REQUIRED_INTELLIGENCE_BUILD_EFFECTS",
+    "RecordedSourceAcquisitionReceiptV1Alpha1",
+    "RecordedSourceAdmission",
+    "RecordedSourceAdmissionError",
+    "RecordedSourceMaterialV1Alpha1",
+    "RecordedSourceReferenceV1",
     "IntelligenceActivationPlanV1Alpha2",
     "IntelligenceAgent",
     "IntelligenceAgentAttributionError",
