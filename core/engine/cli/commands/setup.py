@@ -21,6 +21,7 @@ import sys
 import time
 from collections import Counter
 from datetime import datetime, timezone
+from importlib import resources
 from pathlib import Path
 from typing import Mapping
 
@@ -49,14 +50,46 @@ _ASSIGNMENT = re.compile(r"^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)
 
 def _missing_runtime_assets_error() -> click.ClickException:
     return click.ClickException(
-        "ACE's pinned self-hosted runtime assets were not found. Follow the public quickstart at "
-        f"{_QUICKSTART_URL}, then run `uv run ace setup` from that checkout; or pass "
-        "`--project-dir /path/to/ace-core`."
+        "ACE's pinned local runtime assets were not found in this installation. "
+        "Reinstall ace-core and retry, or follow the public quickstart at "
+        f"{_QUICKSTART_URL} and pass `--project-dir /path/to/ace-core`."
     )
 
 
+def _materialize_packaged_runtime() -> Path:
+    """Install immutable runtime assets into ACE's private local state directory.
+
+    Compose needs filesystem paths, while package resources may not have stable
+    paths on every Python installer. Copy only the public runtime template and
+    pinned Compose definition. The generated ``.env`` containing credentials is
+    deliberately never copied or overwritten here.
+    """
+    config_dir = Path(os.environ.get("ACE_CONFIG_DIR", Path.home() / ".ace")).expanduser()
+    runtime_root = config_dir / "runtime"
+    targets = {
+        "local-compose.yml": runtime_root / "infra" / "docker-compose.yml",
+        "local.env.example": runtime_root / ".env.example",
+    }
+    try:
+        # Anchor at the lightweight parent package. Importing
+        # ``core.engine.runtime`` eagerly constructs the agent runtime and its
+        # settings, which is intentionally unavailable before first-run setup.
+        package = resources.files("core.engine").joinpath("runtime")
+        runtime_root.mkdir(parents=True, exist_ok=True)
+        runtime_root.chmod(0o700)
+        for resource_name, target in targets.items():
+            content = package.joinpath(resource_name).read_text(encoding="utf-8")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if not target.is_file() or target.read_text(encoding="utf-8") != content:
+                target.write_text(content, encoding="utf-8")
+                target.chmod(0o600)
+    except (FileNotFoundError, ModuleNotFoundError, OSError) as exc:
+        raise _missing_runtime_assets_error() from exc
+    return runtime_root
+
+
 def _find_project_root(explicit: Path | None = None) -> Path:
-    """Find a source checkout containing the local Compose assets."""
+    """Find source assets when present, otherwise prepare the installed runtime."""
     candidates: list[Path] = []
     if explicit is not None:
         candidates.append(explicit.expanduser().resolve())
@@ -71,7 +104,7 @@ def _find_project_root(explicit: Path | None = None) -> Path:
         seen.add(candidate)
         if (candidate / "infra" / "docker-compose.yml").is_file() and (candidate / ".env.example").is_file():
             return candidate
-    raise _missing_runtime_assets_error()
+    return _materialize_packaged_runtime()
 
 
 def _unquote(value: str) -> str:
@@ -503,7 +536,7 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
     console.print("Applying the ACE schema…")
     try:
         subprocess.run(
-            [sys.executable, str(root / "scripts" / "schema_apply.py")],
+            [sys.executable, "-m", "scripts.schema_apply"],
             cwd=root,
             env=runtime_env,
             check=True,
