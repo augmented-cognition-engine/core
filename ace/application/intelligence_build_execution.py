@@ -9,9 +9,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Literal, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from ace.application.intelligence_resource_plane import (
     IntelligenceResourceKind,
@@ -26,6 +26,10 @@ from ace.core.records import (
 )
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
 from ace.core.state import CoreAuthorityResolver, ResolvedApprovalReceiptV1
+from ace.intelligence.contracts.common import validate_digest, validate_reference, validate_slug
+
+if TYPE_CHECKING:
+    from ace.application.recorded_source_admission import RecordedSourceAdmission, RecordedSourceMaterialV1Alpha1
 
 IntelligenceBuildEffect = Literal[
     "connect_sources",
@@ -39,6 +43,31 @@ REQUIRED_INTELLIGENCE_BUILD_EFFECTS: tuple[IntelligenceBuildEffect, ...] = (
     "activate_watch",
     "create_first_brief",
 )
+
+
+class RecordedSourceReferenceV1(BaseModel):
+    """Exact recorded material selected in the reviewed Builder request."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True, revalidate_instances="always")
+
+    source_group_id: str
+    material_id: str
+    material_digest: str
+
+    @field_validator("source_group_id")
+    @classmethod
+    def _validate_group(cls, value: str) -> str:
+        return validate_slug(value, name="source_group_id")
+
+    @field_validator("material_id")
+    @classmethod
+    def _validate_id(cls, value: str) -> str:
+        return validate_reference(value, name="material_id")
+
+    @field_validator("material_digest")
+    @classmethod
+    def _validate_digest(cls, value: str) -> str:
+        return validate_digest(value)
 
 
 class IntelligenceBuildStartV1(BaseModel):
@@ -55,6 +84,7 @@ class IntelligenceBuildStartV1(BaseModel):
     subject: str = Field(min_length=8, max_length=2_000)
     outcome_id: str = Field(min_length=1, max_length=240)
     source_group_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=64)
+    recorded_source_refs: tuple[RecordedSourceReferenceV1, ...] = Field(default_factory=tuple, max_length=64)
     cadence_id: str = Field(min_length=1, max_length=240)
     approved_effects: tuple[IntelligenceBuildEffect, ...]
     requested_at: datetime
@@ -66,12 +96,30 @@ class IntelligenceBuildStartV1(BaseModel):
             raise ValueError("source_group_ids must be unique")
         return value
 
+    @field_validator("recorded_source_refs")
+    @classmethod
+    def _exact_recorded_sources(
+        cls,
+        value: tuple[RecordedSourceReferenceV1, ...],
+    ) -> tuple[RecordedSourceReferenceV1, ...]:
+        keys = [(item.source_group_id, item.material_id) for item in value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("recorded_source_refs must name each exact recorded material once")
+        return tuple(sorted(value, key=lambda item: (item.source_group_id, item.material_id)))
+
     @field_validator("approved_effects")
     @classmethod
     def _exact_bounded_effects(cls, value: tuple[IntelligenceBuildEffect, ...]) -> tuple[IntelligenceBuildEffect, ...]:
         if value != REQUIRED_INTELLIGENCE_BUILD_EFFECTS:
             raise ValueError("approved_effects must preserve the exact bounded onboarding effect sequence")
         return value
+
+    @model_validator(mode="after")
+    def _recorded_sources_are_in_reviewed_groups(self):
+        selected = set(self.source_group_ids)
+        if any(item.source_group_id not in selected for item in self.recorded_source_refs):
+            raise ValueError("every recorded source reference must belong to a reviewed source group")
+        return self
 
 
 @dataclass(frozen=True, slots=True)
@@ -159,6 +207,15 @@ class IntelligenceBuildResourcePagePort(Protocol):
     ) -> IntelligenceResourcePageV1Alpha1: ...
 
 
+class IntelligenceBuildRecordedSourcePort(Protocol):
+    """Narrow host capability for the exact recorded material set in one build."""
+
+    async def admit(
+        self,
+        materials: tuple["RecordedSourceMaterialV1Alpha1", ...],
+    ) -> "RecordedSourceAdmission": ...
+
+
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildHostServices:
     """Invocation-scoped capabilities Core grants to one trusted executor."""
@@ -166,6 +223,7 @@ class IntelligenceBuildHostServices:
     records: ImmutableRecordStore
     resources: IntelligenceBuildResourcePagePort
     activation_authority: CoreAuthorityResolver
+    recorded_sources: IntelligenceBuildRecordedSourcePort | None = None
 
 
 class IntelligenceBuildExecutor(Protocol):
@@ -182,7 +240,9 @@ __all__ = [
     "IntelligenceBuildExecutor",
     "IntelligenceBuildHostServices",
     "IntelligenceBuildResourcePagePort",
+    "IntelligenceBuildRecordedSourcePort",
     "IntelligenceBuildStartV1",
     "ProductScopedImmutableRecordStore",
+    "RecordedSourceReferenceV1",
     "REQUIRED_INTELLIGENCE_BUILD_EFFECTS",
 ]
