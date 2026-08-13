@@ -9,6 +9,7 @@ from typing import Protocol
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
 from ace.intelligence.contracts.resource_plane import (
     IntelligenceResourceCursorV1Alpha1,
+    IntelligenceResourceKind,
     IntelligenceResourcePageState,
     IntelligenceResourcePageV1Alpha1,
     IntelligenceResourceQueryV1Alpha1,
@@ -217,6 +218,10 @@ __all__ = [
     "IntelligenceResourcePlaneAuthorizationPort",
     "IntelligenceResourcePlaneError",
     "IntelligenceResourcePlaneService",
+    "IntelligenceResourceCursorV1Alpha1",
+    "IntelligenceResourceKind",
+    "IntelligenceResourcePageV1Alpha1",
+    "IntelligenceResourceQueryV1Alpha1",
     "IntelligenceResourceProjectionBatch",
     "IntelligenceResourceProjectionReader",
 ]
