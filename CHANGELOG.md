@@ -2,9 +2,9 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
-## Unreleased
+## 0.8.1
 
-### Atrium live onboarding binding
+### Intelligence Builder product experience
 
 - Project declarative, non-authorizing onboarding profiles and every append-only Intelligence
   Builder session revision through the existing authenticated resource plane. The projection adds
@@ -15,6 +15,18 @@ Notable user- and contributor-visible changes are recorded here.
   when the exact session reaches `first_briefing_ready`.
 - Add the paired World AI Command Center acceptance journey over four real builder agent roles and
   two already-admitted recorded official-source lineages.
+- Make Atrium the Intelligence OS command center with Intelligence, Opportunities, Agents,
+  Connections, and Strategy as first-class destinations while keeping downstream Work outside the
+  product center.
+- Define Opportunities as evidence-backed decision openings across Cases, material Shifts, and
+  early Signals rather than as leads or tasks.
+- Establish the ACE design system with cognitive blue as the primary identity, cyan reserved for
+  live intelligence, violet for agent/memory composition, and green for verified outcomes.
+- Add a local-only immutable resource replay for the World AI Command Center demo without adding a
+  second persistence, authority, or domain state path.
+
+The patch preserves schema head v177, exactly eleven public MCP tools, the Core 0.8 compatibility
+line, and the existing reference action adapter 0.4.0 boundary.
 
 ## 0.8.0
 
