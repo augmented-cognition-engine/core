@@ -1,0 +1,31 @@
+# Installed ACE local runtime. The API and schema migrator run from the
+# installed Python environment; Docker owns only the pinned SurrealDB service.
+services:
+  surrealdb-volume-init:
+    image: busybox:1.37
+    user: "0:0"
+    command: ["sh", "-c", "chown -R 65532:65532 /data"]
+    volumes:
+      - ace_surreal_data:/data
+    restart: "no"
+
+  surrealdb:
+    image: surrealdb/surrealdb:v3.2.3
+    depends_on:
+      surrealdb-volume-init:
+        condition: service_completed_successfully
+    command: start --username root --password root --bind 0.0.0.0:8000 surrealkv:///data/ace.db
+    volumes:
+      - ace_surreal_data:/data
+    ports:
+      - "127.0.0.1:${ACE_SURREAL_HOST_PORT:-8001}:8000"
+    healthcheck:
+      test: ["CMD", "/surreal", "is-ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  ace_surreal_data:

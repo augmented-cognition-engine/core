@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import stat
+from importlib import import_module, resources
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -12,6 +13,8 @@ import pytest
 from click.testing import CliRunner
 
 from core.engine.cli.commands.setup import (
+    _find_project_root,
+    _materialize_packaged_runtime,
     _missing_runtime_assets_error,
     _onboarding_summary,
     _parse_env,
@@ -122,7 +125,46 @@ def test_setup_noninteractive_requires_a_provider(tmp_path):
 def test_installed_setup_failure_points_to_public_quickstart():
     message = str(_missing_runtime_assets_error())
     assert "https://github.com/augmented-cognition-engine/core#start-here-get-a-product-recommendation" in message
-    assert "uv run ace setup" in message
+    assert "Reinstall ace-core" in message
+
+
+def test_installed_runtime_assets_materialize_without_a_checkout(tmp_path, monkeypatch, isolated_setup_state):
+    working_dir = tmp_path / "empty-working-directory"
+    working_dir.mkdir()
+    monkeypatch.chdir(working_dir)
+    setup_module = import_module("core.engine.cli.commands.setup")
+    monkeypatch.setattr(
+        setup_module,
+        "__file__",
+        str(tmp_path / "site-packages" / "core" / "engine" / "cli" / "commands" / "setup.py"),
+    )
+
+    root = _find_project_root()
+
+    assert root == isolated_setup_state / "runtime"
+    runtime_resources = resources.files("core.engine").joinpath("runtime")
+    assert (root / "infra" / "docker-compose.yml").read_text() == runtime_resources.joinpath(
+        "local-compose.yml"
+    ).read_text()
+    assert (root / ".env.example").read_text() == runtime_resources.joinpath("local.env.example").read_text()
+    assert stat.S_IMODE(root.stat().st_mode) == 0o700
+    assert stat.S_IMODE((root / "infra" / "docker-compose.yml").stat().st_mode) == 0o600
+
+
+def test_packaged_runtime_refresh_does_not_overwrite_private_environment(isolated_setup_state):
+    root = _materialize_packaged_runtime()
+    private_environment = "API_KEY=keep-this-private-value\n"
+    (root / ".env").write_text(private_environment)
+
+    assert _materialize_packaged_runtime() == root
+    assert (root / ".env").read_text() == private_environment
+
+
+def test_source_checkout_remains_the_preferred_runtime_root(tmp_path, monkeypatch):
+    root = _project(tmp_path)
+    monkeypatch.chdir(root)
+
+    assert _find_project_root() == root
 
 
 def test_setup_help_explains_provider_choices():
@@ -471,6 +513,8 @@ def test_runtime_start_passes_saved_isolation_to_compose(tmp_path):
     compose_call = run.call_args_list[0]
     assert compose_call.kwargs["env"]["COMPOSE_PROJECT_NAME"] == "ace_r4_clean_replay"
     assert compose_call.kwargs["env"]["ACE_SURREAL_HOST_PORT"] == "18041"
+    migration_call = run.call_args_list[1]
+    assert migration_call.args[0][1:] == ["-m", "scripts.schema_apply"]
 
 
 def test_runtime_timeout_points_to_supported_log_command(tmp_path):
