@@ -13,10 +13,10 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
+from ace.application import IntelligenceResourcePageV1Alpha1
 from ace.core import ImmutableRecordStore
 from ace.core.contracts import canonical_hash
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
-from ace.intelligence.contracts.resource_plane import IntelligenceResourcePageV1Alpha1
 from core.engine.core.agent_composition_runtime import (
     GovernedCompositionAuthorityError,
     GovernedStateRuntimeUseResolver,
