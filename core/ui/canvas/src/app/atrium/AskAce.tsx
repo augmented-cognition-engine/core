@@ -90,7 +90,11 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
             ))}
           </div>
         ) : (
-          <div className="mt-4 rounded-lg border border-brand/20 bg-background/75 p-4 text-foreground">
+          <div
+            role="region"
+            aria-label="Ask ACE answer"
+            className="mt-4 rounded-lg border border-brand/20 bg-background/75 p-4 text-foreground"
+          >
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               Intelligence answer · {answer?.evidence.length ?? 0} cited record{answer?.evidence.length === 1 ? '' : 's'}
             </div>

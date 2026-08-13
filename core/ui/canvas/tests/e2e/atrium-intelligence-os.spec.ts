@@ -41,6 +41,12 @@ test('Atrium is a briefing-first Intelligence OS over governed resources', async
     'Published token prices fell while long-context tiers expanded across two providers.',
     [source.reference],
   )
+  shift.payload = {
+    what_changed: 'Published token prices fell while long-context tiers expanded across two providers.',
+    why_it_matters: 'Capability and unit cost are moving independently, changing enterprise build-versus-buy assumptions.',
+    how_we_know: 'The admitted provider release feed and its governed shift record support this answer.',
+    when_it_changed: 'ACE detected the change in the current watch window.',
+  }
   const brief = resource(
     'brief',
     'ai-command-brief',
@@ -95,8 +101,12 @@ test('Atrium is a briefing-first Intelligence OS over governed resources', async
 
   await page.getByLabel('Ask ACE about current intelligence').fill('What changed in token economics?')
   await page.getByLabel('Ask ACE', { exact: true }).click()
-  await expect(page.getByText('Frontier inference costs moved down again').first()).toBeVisible()
-  await expect(page.getByText(/cited record/).first()).toBeVisible()
+  const askAceAnswer = page.getByRole('region', { name: 'Ask ACE answer' })
+  await expect(askAceAnswer.getByText('Published token prices fell while long-context tiers expanded across two providers.').first()).toBeVisible()
+  await expect(askAceAnswer.getByText('Why it matters', { exact: true })).toBeVisible()
+  await expect(askAceAnswer.getByText('Evidence trail', { exact: true })).toBeVisible()
+  await expect(askAceAnswer.getByText('Frontier inference costs moved down again')).toBeVisible()
+  await expect(askAceAnswer.getByText(/cited record/)).toBeVisible()
 
   await page.getByText('Opportunities', { exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Opportunities' })).toBeVisible()

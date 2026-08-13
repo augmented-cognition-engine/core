@@ -136,6 +136,17 @@ export function rankResourcesForQuestion(
 ): IntelligenceResourceRecord[] {
   const terms = queryTerms(query)
   if (terms.length === 0) return []
+  const normalizedQuery = query.toLocaleLowerCase()
+
+  function intentBoost(kind: IntelligenceResourceKind): number {
+    if (/\b(changed|change|shift|moved|movement|latest)\b/.test(normalizedQuery)) {
+      if (kind === 'shift') return 6
+      if (kind === 'signal') return 2
+    }
+    if (/\b(evidence|source|citation|brief)\b/.test(normalizedQuery) && kind === 'brief') return 4
+    if (/\b(opportunity|opportunities|opening)\b/.test(normalizedQuery) && kind === 'case') return 4
+    return 0
+  }
 
   return items
     .filter((item) => item.availability !== 'tombstoned')
@@ -151,7 +162,7 @@ export function rankResourcesForQuestion(
         : 0
       return {
         item,
-        score: matched === 0 ? 0 : matched * 2 + titleMatches * 3 + kindBoost,
+        score: matched === 0 ? 0 : matched * 2 + titleMatches * 3 + kindBoost + intentBoost(item.reference.resource_kind),
       }
     })
     .filter(({ score }) => score > 0)
