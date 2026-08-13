@@ -335,6 +335,7 @@ from ace.application.intelligence_builder_resource_projection import (
     IntelligenceBuilderPresentationService,
     IntelligenceBuilderResourceProjectionReader,
     IntelligenceOnboardingProfileAdmission,
+    IntelligenceOnboardingProfileV1Alpha1,
 )
 from ace.application.intelligence_ledger import (
     PreparedIntelligenceAdmission,
@@ -482,6 +483,7 @@ __all__ = [
     "INTELLIGENCE_ONBOARDING_PROFILE_RECORD_KIND",
     "IntelligenceBuilderPresentationService",
     "IntelligenceBuilderResourceProjectionReader",
+    "IntelligenceOnboardingProfileV1Alpha1",
     "IntelligenceOnboardingProfileAdmission",
     "ActionResourceProjectionReader",
     "RESOURCE_QUERY_AUTHORITY",

@@ -7,9 +7,11 @@ from typing import Literal
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict
 
-from ace.intelligence import IntelligenceOnboardingProfileV1Alpha1
 from core.engine.core.auth import get_current_user
-from core.engine.core.installed_intelligence_catalog import discover_installed_onboarding_profiles
+from core.engine.core.installed_intelligence_catalog import (
+    IntelligenceOnboardingProfileV1Alpha1,
+    discover_installed_onboarding_profiles,
+)
 
 router = APIRouter(prefix="/v1/intelligence/catalog", tags=["intelligence-catalog"])
 

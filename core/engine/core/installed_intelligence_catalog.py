@@ -14,7 +14,7 @@ from typing import Iterable, Protocol
 
 from pydantic import ValidationError
 
-from ace.intelligence import IntelligenceOnboardingProfileV1Alpha1
+from ace.application import IntelligenceOnboardingProfileV1Alpha1
 
 MAX_ONBOARDING_PROFILE_BYTES = 1_000_000
 ONBOARDING_PROFILE_FILENAME = "onboarding_profile.json"
@@ -121,5 +121,6 @@ def discover_installed_onboarding_profiles(
 __all__ = [
     "InstalledIntelligenceCatalogError",
     "InstalledOnboardingProfile",
+    "IntelligenceOnboardingProfileV1Alpha1",
     "discover_installed_onboarding_profiles",
 ]
