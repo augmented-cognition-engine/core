@@ -80,4 +80,11 @@ describe('Atrium intelligence model', () => {
     expect(matches[0]).toBe(price)
     expect(rankResourcesForQuestion('unrepresented topic', [security, price])).toEqual([])
   })
+
+  it('prefers a matching Shift for what-changed questions over a related Case', () => {
+    const shift = resource('shift', 'Token price movement', '2026-08-12T00:00:00Z')
+    const opportunity = resource('case', 'Token economics opportunity', '2026-08-12T01:00:00Z')
+
+    expect(rankResourcesForQuestion('What changed in token economics?', [opportunity, shift])[0]).toBe(shift)
+  })
 })

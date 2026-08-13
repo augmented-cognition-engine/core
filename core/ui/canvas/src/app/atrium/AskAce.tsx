@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowRight, Search, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowRight, CircleAlert, Clock3, GitBranch, Search, ShieldCheck, Sparkles } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 import { Badge } from '@/design/shadcn/ui/badge'
@@ -7,7 +7,8 @@ import { Button } from '@/design/shadcn/ui/button'
 import { Card, CardContent } from '@/design/shadcn/ui/card'
 import { Input } from '@/design/shadcn/ui/input'
 
-import { kindLabel, rankResourcesForQuestion } from './intelligenceModel'
+import { answerQuestionFromResources } from './askAceModel'
+import { kindLabel } from './intelligenceModel'
 
 const SUGGESTIONS = [
   'What changed most recently?',
@@ -18,8 +19,8 @@ const SUGGESTIONS = [
 export function AskAce({ items }: { readonly items: readonly IntelligenceResourceRecord[] }) {
   const [draft, setDraft] = useState('')
   const [question, setQuestion] = useState('')
-  const matches = useMemo(
-    () => rankResourcesForQuestion(question, items),
+  const answer = useMemo(
+    () => answerQuestionFromResources(question, items),
     [items, question],
   )
 
@@ -89,19 +90,51 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
             ))}
           </div>
         ) : (
-          <div className="mt-4 rounded-lg border border-brand/20 bg-background/75 p-4 text-foreground">
+          <div
+            role="region"
+            aria-label="Ask ACE answer"
+            className="mt-4 rounded-lg border border-brand/20 bg-background/75 p-4 text-foreground"
+          >
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              Intelligence answer · {matches.length} cited record{matches.length === 1 ? '' : 's'}
+              Intelligence answer · {answer?.evidence.length ?? 0} cited record{answer?.evidence.length === 1 ? '' : 's'}
             </div>
-            {matches.length === 0 ? (
+            {answer === null ? (
               <p className="mt-2 text-sm leading-relaxed">
                 I do not have enough governed evidence to answer that yet. Add a source or broaden a monitor; ACE will not fill the gap with an unsupported claim.
               </p>
             ) : (
-              <div className="mt-3 space-y-3">
-                {matches.slice(0, 3).map((match, index) => (
+              <div className="mt-3 space-y-4">
+                <p className="border-l-2 border-brand pl-3 text-[15px] font-medium leading-6 text-foreground">
+                  {answer.conclusion}
+                </p>
+
+                {(answer.whyItMatters !== null || answer.whenItChanged !== null) && (
+                  <div className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
+                    {answer.whyItMatters !== null && (
+                      <div className="bg-card p-3">
+                        <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Why it matters</div>
+                        <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whyItMatters}</p>
+                      </div>
+                    )}
+                    {answer.whenItChanged !== null && (
+                      <div className="bg-card p-3">
+                        <div className="flex items-center gap-1.5 font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">
+                          <Clock3 className="size-3" /> When
+                        </div>
+                        <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whenItChanged}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div>
+                  <div className="mb-2 flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                    <GitBranch className="size-3" /> Evidence trail
+                  </div>
+                  <div className="space-y-2">
+                  {answer.evidence.slice(0, 3).map((match, index) => (
                   <div key={`${match.reference.resource_id}:${match.reference.revision}`} className="flex gap-3">
-                    <span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span>
+                    <span className="font-mono text-[10px] text-brand">[{index + 1}]</span>
                     <div className="min-w-0">
                       <div className="text-sm font-medium leading-snug">{match.title}</div>
                       {match.summary !== null && (
@@ -115,6 +148,13 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
                     </div>
                   </div>
                 ))}
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-2 border-t border-border/70 pt-3 text-[11px] leading-5 text-muted-foreground">
+                  <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
+                  <span>{answer.limitation}</span>
+                </div>
               </div>
             )}
           </div>
