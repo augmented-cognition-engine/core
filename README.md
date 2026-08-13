@@ -396,6 +396,9 @@ changing the 0.8 public architecture or widening authority.
 - **A decision-oriented command center.** Intelligence, Opportunities, Agents, Connections, and
   Strategy are first-class destinations. An Opportunity is intelligence awaiting a decision: a
   Case, material Shift, or early Signal with evidence and a next decision window.
+- **Decision-readable intelligence.** Canonical Brief sections become visual What / Why / How /
+  When blocks in Atrium so the intelligence leads and its evidence, timing, unknowns, and limits
+  remain inspectable rather than overwhelming the answer.
 - **An ACE-owned visual identity.** Cognitive blue leads the shared product, cyan marks live
   intelligence, violet is reserved for agent and memory composition, and green means verified
   success. Customer branding remains a replaceable deployment overlay.

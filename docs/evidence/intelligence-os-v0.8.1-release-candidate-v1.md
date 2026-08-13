@@ -35,6 +35,8 @@ and reproduce the paired World AI Command Center demonstration.
    becoming a new durable store or authority path.
 7. The shared resource-detail sheet forwards its overlay ref through the Radix boundary, keeping
    cited Brief inspection free of React runtime warnings at desktop and mobile breakpoints.
+8. Atrium turns canonical Brief sections into visual What / Why / How / When blocks. Unknowns,
+   limitations, receipts, and lineage remain visible in the same governed resource detail.
 
 ## Required acceptance before publication
 
