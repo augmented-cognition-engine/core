@@ -1,10 +1,10 @@
 # ACE 0.8.0 unified Intelligence resource plane work packet
 
 Status: **active 0.8C packet; facade, intelligence/monitoring projections, governed HTTP query,
-and Decision → Outcome → Feedback closure implemented**
+Decision → Outcome → Feedback closure, and live Connection/Source projections implemented**
 Public milestone: [issue #40](https://github.com/augmented-cognition-engine/core/issues/40)
-Accepted base: `main@cf53360` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
-ledger/monitoring projection, and governed HTTP query)
+Accepted base: `main@5003cfb` (0.8A architecture, AM4 lifecycle, completed 0.8B, facade,
+ledger/monitoring projection, governed HTTP query, and Decision → Outcome → Feedback closure)
 
 ## Outcome
 
@@ -96,6 +96,16 @@ exact Decision, and Feedback points to both exact Decision and Outcome. Unknown 
 types remain visible only as explicitly degraded truth. The supported host composes all current
 contributors through one named factory so future resource families cannot silently bypass the
 same API path.
+
+The live-source contributor projects successful governed admissions as versioned Connections and
+Sources. It requires the exact acquisition → snapshot → admission chain, preserves the exact prior
+revision rather than reconstructing a partial reference, and exposes only redacted source metadata;
+captured payloads, URIs, locators, resolved addresses, and credentials never enter the public read
+model. Rebuilding the contributor over the same immutable store reproduces the same revisions.
+Partial, orphaned, duplicate, or inconsistent chains degrade without exposing material. Source
+Health remains explicitly unsupported because the current immutable records prove successful
+admissions but do not yet provide failure and health telemetry; 0.8C will not infer health from
+success-only history.
 
 0.8C must still add governed-state projections for the remaining canonical families and complete
 packaged schema/import integrity. 0.8D must prove Atrium consumes this interface rather than

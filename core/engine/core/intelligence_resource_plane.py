@@ -25,6 +25,7 @@ from ace.application import (
     IntelligenceResourcePlaneService,
     IntelligenceResourceProjectionReader,
     IntelligenceResourceQueryV1Alpha1,
+    LiveSourceResourceProjectionReader,
     MonitoringResourceProjectionReader,
 )
 from ace.core import ImmutableRecordPersistenceError, ImmutableRecordStore
@@ -96,6 +97,10 @@ def intelligence_resource_projection_reader(records: ImmutableRecordStore) -> In
             degrade_unsupported=False,
         ),
         DecisionOutcomeFeedbackResourceProjectionReader(
+            store=records,
+            degrade_unsupported=False,
+        ),
+        LiveSourceResourceProjectionReader(
             store=records,
             degrade_unsupported=False,
         ),
