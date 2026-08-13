@@ -118,10 +118,15 @@ function searchableText(record: IntelligenceResourceRecord): string {
 }
 
 function queryTerms(query: string): string[] {
+  const stopTerms = new Set([
+    'about', 'and', 'are', 'can', 'did', 'does', 'for', 'from', 'happened',
+    'how', 'into', 'that', 'the', 'this', 'was', 'were', 'what', 'when',
+    'where', 'which', 'who', 'why', 'you',
+  ])
   return query
     .toLocaleLowerCase()
     .split(/[^a-z0-9]+/)
-    .filter((term) => term.length > 2)
+    .filter((term) => term.length > 2 && !stopTerms.has(term))
 }
 
 export function rankResourcesForQuestion(
