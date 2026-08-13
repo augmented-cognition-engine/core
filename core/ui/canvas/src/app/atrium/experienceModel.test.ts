@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  intelligenceStoryForRecord,
   intelligenceStorySections,
   payloadNumber,
   payloadText,
   productDisplayName,
 } from './experienceModel'
+import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 
 describe('Atrium experience model', () => {
   it('orients the shell from a domain-owned product identity', () => {
@@ -51,6 +53,38 @@ describe('Atrium experience model', () => {
       { id: 'why_it_matters', label: 'Why it matters', body: 'An operating mechanism now exists.' },
       { id: 'how_we_know', label: 'How we know', body: 'Two admitted records support the change.' },
       { id: 'when_it_changed', label: 'When it changed', body: 'The second report arrived 39 days later.' },
+    ])
+  })
+
+  it('keeps the grammar visible for decision-facing resources without inventing facts', () => {
+    const signal: IntelligenceResourceRecord = {
+      contract: 'ace.intelligence.resource-record/v1alpha1',
+      reference: {
+        contract: 'ace.intelligence.resource-reference/v1alpha1',
+        product_id: 'product:test',
+        resource_kind: 'signal',
+        resource_id: 'signal:1',
+        resource_digest: 'sha256:signal',
+        resource_contract: 'ace.intelligence.signal/v1alpha1',
+        revision: 1,
+        as_of: '2026-08-13T12:00:00Z',
+        available_at: '2026-08-13T12:05:00Z',
+      },
+      availability: 'available',
+      title: 'A new signal arrived',
+      summary: 'An official report followed an issued directive.',
+      subject_refs: [],
+      provenance: [],
+      supersedes: null,
+      payload: {},
+      degraded_reason_refs: [],
+    }
+
+    expect(intelligenceStoryForRecord(signal)).toEqual([
+      { id: 'what_changed', label: 'What changed', body: 'An official report followed an issued directive.' },
+      { id: 'why_it_matters', label: 'Why it matters', body: 'It met the configured relevance and routing criteria, so it now warrants attention.' },
+      { id: 'how_we_know', label: 'How we know', body: 'No upstream evidence link is projected for this record.' },
+      { id: 'when_it_changed', label: 'When it changed', body: 'The evidence picture is current as of 2026-08-13T12:00:00Z; a distinct event time was not supplied.' },
     ])
   })
 })

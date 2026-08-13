@@ -106,8 +106,8 @@ four-agent `Connect -> Map -> Watch -> Brief` acceptance journey over admitted o
 evidence. Core PR #145 and World PR #24 landed after repository, installed-artifact, browser,
 naked-kernel, and package checks passed. Follow-on work adds a local-only replay of an immutable
 domain resource page, replaces internal persistence language with user-facing setup status,
-defines the Opportunity experience, introduces the ACE-owned design system, and projects canonical
-Brief sections into a visual What / Why / How / When grammar. It does not change the 0.9
+defines the Opportunity experience, introduces the ACE-owned design system, and applies a truthful
+visual What / Why / How / When grammar across Briefs and decision-facing intelligence. It does not change the 0.9
 Collaborative Intelligence promise.
 
 The prior [0.7.0 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.7.0)

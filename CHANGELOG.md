@@ -26,9 +26,11 @@ Notable user- and contributor-visible changes are recorded here.
   second persistence, authority, or domain state path.
 - Forward the shared resource-detail sheet overlay ref through its Radix boundary so opening cited
   Brief details remains free of React runtime warnings on desktop and mobile.
-- Project canonical Brief sections into a visual **What changed / Why it matters / How we know /
-  When it changed** grammar in Atrium, while keeping unknowns, limitations, receipts, and lineage
-  available in the same governed resource detail.
+- Project canonical Brief sections and every decision-facing Signal, Shift, Case, Decision,
+  Action, Outcome, and Feedback record into a visual **What changed / Why it matters / How we know /
+  When it changed** grammar in Atrium. Generic fallbacks disclose missing materiality or event time
+  instead of inventing it; unknowns, limitations, receipts, and lineage remain available in the
+  same governed resource detail.
 
 The patch preserves schema head v177, exactly eleven public MCP tools, the Core 0.8 compatibility
 line, and the existing reference action adapter 0.4.0 boundary.

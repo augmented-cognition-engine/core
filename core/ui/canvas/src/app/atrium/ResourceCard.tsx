@@ -16,7 +16,7 @@ import { Separator } from '@/design/shadcn/ui/separator'
 
 import { compactReference, kindLabel } from './intelligenceModel'
 import {
-  intelligenceStorySections,
+  intelligenceStoryForRecord,
   payloadNumber,
   payloadText,
 } from './experienceModel'
@@ -46,7 +46,7 @@ export function ResourceCard({
   readonly compact?: boolean
 }) {
   const whyItMatters = payloadText(record.payload, 'why_it_matters')
-  const storySections = intelligenceStorySections(record.payload)
+  const storySections = intelligenceStoryForRecord(record)
   const whatChanged = storySections.find((section) => section.id === 'what_changed')
   const confidence = payloadNumber(record.payload, 'confidence')
   const confidencePercent = confidence !== null && confidence >= 0 && confidence <= 1
@@ -96,7 +96,7 @@ export function ResourceCard({
                   >
                     {record.title}
                   </h3>
-                  {record.summary !== null && (!featured || storySections.length === 0) && (
+                  {record.summary !== null && storySections.length === 0 && (
                     <p
                       className={
                         featured
@@ -107,14 +107,22 @@ export function ResourceCard({
                       {record.summary}
                     </p>
                   )}
-                  {featured && storySections.length > 0 && (
-                    <div className="mt-5 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
+                  {storySections.length > 0 && (
+                    <div className={featured
+                      ? 'mt-5 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2'
+                      : 'mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border'}>
                       {storySections.map((section) => (
-                        <div key={section.id} className="bg-card p-4">
-                          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">
+                        <div key={section.id} className={featured ? 'bg-card p-4' : 'min-w-0 bg-card p-2.5'}>
+                          <div className={featured
+                            ? 'font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand'
+                            : 'font-mono text-[8px] font-semibold uppercase tracking-[0.14em] text-brand'}>
                             {section.label}
                           </div>
-                          <p className="mt-1.5 text-xs leading-5 text-foreground/85">{section.body}</p>
+                          <p className={featured
+                            ? 'mt-1.5 text-xs leading-5 text-foreground/85'
+                            : 'mt-1 line-clamp-2 text-[10px] leading-4 text-foreground/80'}>
+                            {section.body}
+                          </p>
                         </div>
                       ))}
                     </div>
