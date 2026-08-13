@@ -34,9 +34,7 @@ import {
 } from './onboardingModel'
 import { pageFreshness, productDisplayName } from './experienceModel'
 import {
-  EXPLICITLY_DEGRADED_RESOURCE_KINDS,
   groupResources,
-  kindLabel,
   type ResourceGroups,
 } from './intelligenceModel'
 import { ResourceCard } from './ResourceCard'
@@ -384,9 +382,9 @@ export function IntelligenceOS() {
           {page?.state === 'degraded' && (
             <Alert className="mb-6 border-warning/45 bg-warning/5">
               <CircleAlert className="size-4" />
-              <AlertTitle>ACE is showing the truth it can currently prove</AlertTitle>
+              <AlertTitle>Some evidence still needs review</AlertTitle>
               <AlertDescription>
-                {EXPLICITLY_DEGRADED_RESOURCE_KINDS.map(kindLabel).join(', ')} remain explicit gaps; available intelligence and provenance are still shown.
+                Some source-health, confidence, conflict, and revision checks are incomplete. Available intelligence and citations remain visible.
               </AlertDescription>
             </Alert>
           )}
@@ -403,11 +401,11 @@ export function IntelligenceOS() {
 
         <footer className="mx-auto flex w-full max-w-[1500px] flex-wrap items-center gap-2 px-5 pb-6 text-[10px] text-muted-foreground md:px-8">
           <Route className="size-3" />
-          <span>One governed resource plane</span>
+          <span>One current intelligence picture</span>
           <span>·</span>
-          <span>{page?.items.length ?? 0} current resources</span>
+          <span>{page?.items.length ?? 0} cited records</span>
           <span>·</span>
-          <span>exact provenance retained</span>
+          <span>Sources and history preserved</span>
         </footer>
         <OnboardingPreview
           open={onboardingOpen}

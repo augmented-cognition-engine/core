@@ -32,5 +32,8 @@ corroboration claim.
 - the Atrium production build completes;
 - focused World tests reproduce the four-agent journey and exact 23-resource Atrium page.
 
-Full repository, installed-wheel, accessibility, and paired-PR review gates remain required before
-this candidate advances to passed.
+The paired implementation landed through Core PR #145 and World PR #24 after the supported Core,
+World, Canvas, naked-kernel, Docker, installed-wheel, and browser gates passed. Post-landing demo
+hardening adds a Vite-only immutable-page replay seam and removes internal persistence vocabulary
+from the leadership-facing journey. Live network freshness, general accessibility review, and
+broader AI-area coverage remain separate follow-on gates.

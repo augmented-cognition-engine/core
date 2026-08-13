@@ -103,6 +103,63 @@ function serveExtensionStaticHtml(): Plugin {
   }
 }
 
+/**
+ * Replay one immutable Intelligence resource page through Atrium during local demos.
+ *
+ * This is deliberately a Vite-only presentation seam. It does not create a store,
+ * admit evidence, grant authority, or exist in the production canvas host. A domain
+ * repository generates the page through Core's real resource projection, then points
+ * this local server at the resulting JSON artifact with ACE_ATRIUM_RESOURCE_PAGE.
+ */
+function serveAtriumResourceReplay(): Plugin {
+  const configuredPath = process.env.ACE_ATRIUM_RESOURCE_PAGE
+  if (configuredPath === undefined || configuredPath.trim() === '') {
+    return { name: 'ace:atrium-resource-replay-disabled' }
+  }
+
+  const resourcePath = path.resolve(configuredPath)
+  let resourceBody: string
+  try {
+    const raw = readFileSync(resourcePath, 'utf-8')
+    if (raw.length > 10_000_000) throw new Error('resource page exceeds the 10 MB local replay limit')
+    const parsed = JSON.parse(raw) as { contract?: unknown; items?: unknown }
+    if (
+      parsed.contract !== 'ace.intelligence.resource-plane-page/v1alpha1' ||
+      !Array.isArray(parsed.items)
+    ) {
+      throw new Error('resource page does not match the public Intelligence page contract')
+    }
+    resourceBody = JSON.stringify(parsed)
+  } catch (error) {
+    throw new Error(`ACE_ATRIUM_RESOURCE_PAGE could not be loaded from ${resourcePath}: ${String(error)}`)
+  }
+
+  return {
+    name: 'ace:atrium-resource-replay',
+    configureServer(server) {
+      server.config.logger.info(`Atrium is replaying ${resourcePath}`)
+      server.middlewares.use((req, res, next) => {
+        const [pathname] = (req.url ?? '').split('?')
+        if (req.method === 'POST' && pathname === '/auth/token') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.setHeader('Cache-Control', 'no-store')
+          res.statusCode = 200
+          res.end(JSON.stringify({ token: 'atrium-local-replay' }))
+          return
+        }
+        if (req.method === 'POST' && pathname === '/v1/intelligence/resources/query') {
+          res.setHeader('Content-Type', 'application/json; charset=utf-8')
+          res.setHeader('Cache-Control', 'no-store')
+          res.statusCode = 200
+          res.end(resourceBody)
+          return
+        }
+        next()
+      })
+    },
+  }
+}
+
 /** The kernel's own routes. An extension may not claim any of these (fail-closed). */
 const kernelProxy: Record<string, ProxyOptions | string> = Object.fromEntries(
   KERNEL_DEV_PROXY_ROUTES.map(([route, ws]) => [
@@ -116,7 +173,7 @@ const kernelProxy: Record<string, ProxyOptions | string> = Object.fromEntries(
 )
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), serveExtensionStaticHtml()],
+  plugins: [serveAtriumResourceReplay(), react(), tailwindcss(), serveExtensionStaticHtml()],
   // Yjs constructor checks break if two copies of the module end up in the
   // bundle (one from `import * as Y from 'yjs'`, one from `y-websocket`
   // pulling its own pre-bundled copy). Force a single resolved instance.
