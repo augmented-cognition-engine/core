@@ -5,6 +5,15 @@ const BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 const BUILD_AUTHORITY_GRANT_REF =
   import.meta.env.VITE_INTELLIGENCE_BUILD_AUTHORITY_GRANT_REF ??
   'authority_grant:atrium-intelligence-build'
+const RESOURCE_AUTHORITY_GRANT_REF =
+  import.meta.env.VITE_INTELLIGENCE_RESOURCE_AUTHORITY_GRANT_REF ??
+  'authority_grant:atrium-observe-read'
+const APPROVED_ONBOARDING_EFFECTS = [
+  'connect_sources',
+  'map_concepts',
+  'activate_watch',
+  'create_first_brief',
+] as const
 
 export interface IntelligenceBuildStartInput {
   readonly profile_id: string
@@ -48,6 +57,8 @@ async function postBuild(token: string, input: IntelligenceBuildStartInput): Pro
     },
     body: JSON.stringify({
       authority_grant_ref: BUILD_AUTHORITY_GRANT_REF,
+      resource_authority_grant_ref: RESOURCE_AUTHORITY_GRANT_REF,
+      approved_effects: APPROVED_ONBOARDING_EFFECTS,
       client_request_id: requestId(),
       ...input,
       requested_at: new Date().toISOString(),

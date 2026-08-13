@@ -297,6 +297,16 @@ from ace.application.intelligence_agent_contracts import (
     WatchTargetV1,
     intelligence_model_semantic_diff,
 )
+from ace.application.intelligence_build_execution import (
+    REQUIRED_INTELLIGENCE_BUILD_EFFECTS,
+    AuthorizedIntelligenceBuild,
+    IntelligenceBuildEffect,
+    IntelligenceBuildExecutor,
+    IntelligenceBuildHostServices,
+    IntelligenceBuildResourcePagePort,
+    IntelligenceBuildStartV1,
+    ProductScopedImmutableRecordStore,
+)
 from ace.application.intelligence_builder import (
     ConnectionAgent,
     ConnectionAgentError,
@@ -760,6 +770,14 @@ __all__ = [
     "IntelligenceBuilderSessionReplayConflict",
     "IntelligenceBuilderSessionRevisionV1",
     "IntelligenceBuilderSessionService",
+    "IntelligenceBuildEffect",
+    "IntelligenceBuildExecutor",
+    "IntelligenceBuildHostServices",
+    "IntelligenceBuildResourcePagePort",
+    "IntelligenceBuildStartV1",
+    "AuthorizedIntelligenceBuild",
+    "ProductScopedImmutableRecordStore",
+    "REQUIRED_INTELLIGENCE_BUILD_EFFECTS",
     "IntelligenceActivationPlanV1Alpha2",
     "IntelligenceAgent",
     "IntelligenceAgentAttributionError",

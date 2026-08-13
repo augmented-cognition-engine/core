@@ -11,9 +11,16 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from ace.application import IntelligenceResourcePageV1Alpha1
+from ace.application.intelligence_build_execution import (
+    AuthorizedIntelligenceBuild,
+    IntelligenceBuildExecutor,
+    IntelligenceBuildHostServices,
+    IntelligenceBuildStartV1,
+    ProductScopedImmutableRecordStore,
+)
 from ace.core import ImmutableRecordStore
 from ace.core.contracts import canonical_hash
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
@@ -25,32 +32,15 @@ from core.engine.core.agent_composition_runtime import (
 from core.engine.core.db import pool
 from core.engine.core.governed_state import SurrealGovernedStateStore
 from core.engine.core.immutable_records import SurrealImmutableRecordStore
+from core.engine.core.intelligence_build_executor_registry import (
+    IntelligenceBuildExecutorRegistryError,
+    resolve_intelligence_build_executor,
+)
+from core.engine.core.intelligence_resource_plane import CoreIntelligenceBuildResourcePagePort
 
 INTELLIGENCE_BUILD_AUTHORITY = "intelligence_build"
 INTELLIGENCE_BUILD_OPERATION = "start_intelligence_build"
 INTELLIGENCE_BUILD_RESULT_VERSION = "ace.http.intelligence-build-result/v1alpha1"
-
-
-class IntelligenceBuildStartV1(BaseModel):
-    """One reviewed Atrium plan submitted for governed execution."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    authority_grant_ref: str = Field(min_length=1, max_length=240)
-    client_request_id: str = Field(min_length=1, max_length=240)
-    profile_id: str = Field(min_length=1, max_length=240)
-    subject: str = Field(min_length=8, max_length=2_000)
-    outcome_id: str = Field(min_length=1, max_length=240)
-    source_group_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=64)
-    cadence_id: str = Field(min_length=1, max_length=240)
-    requested_at: datetime
-
-    @field_validator("source_group_ids")
-    @classmethod
-    def _unique_source_groups(cls, value: tuple[str, ...]) -> tuple[str, ...]:
-        if len(value) != len(set(value)):
-            raise ValueError("source_group_ids must be unique")
-        return value
 
 
 class IntelligenceBuildResultV1(BaseModel):
@@ -66,20 +56,6 @@ class IntelligenceBuildResultV1(BaseModel):
     accepted_at: datetime
     authority_use: AuthorityUseReceiptV1Alpha1
     resource_page: IntelligenceResourcePageV1Alpha1
-
-
-@dataclass(frozen=True, slots=True)
-class AuthorizedIntelligenceBuild:
-    build_id: str
-    request_digest: str
-    product_id: str
-    actor_ref: str
-    request: IntelligenceBuildStartV1
-    authority_use: AuthorityUseReceiptV1Alpha1
-
-
-class IntelligenceBuildExecutor(Protocol):
-    async def start(self, build: AuthorizedIntelligenceBuild) -> IntelligenceResourcePageV1Alpha1: ...
 
 
 class IntelligenceBuildAuthorizationPort(Protocol):
@@ -123,10 +99,19 @@ class IntelligenceBuildContractConflict(IntelligenceBuildError):
     """A host result did not preserve the authorized request."""
 
 
-class _UnavailableIntelligenceBuildExecutor:
-    async def start(self, build: AuthorizedIntelligenceBuild) -> IntelligenceResourcePageV1Alpha1:
-        del build
-        raise IntelligenceBuildUnavailable("no Intelligence build executor is registered")
+class _InstalledIntelligenceBuildExecutor:
+    async def start(
+        self, build: AuthorizedIntelligenceBuild, host_services: IntelligenceBuildHostServices
+    ) -> IntelligenceResourcePageV1Alpha1:
+        try:
+            executor = resolve_intelligence_build_executor(build.request.profile_id)
+        except IntelligenceBuildExecutorRegistryError as exc:
+            raise IntelligenceBuildUnavailable("installed Intelligence build executors are ambiguous") from exc
+        if executor is None:
+            raise IntelligenceBuildUnavailable(
+                f"no Intelligence build executor is registered for profile: {build.request.profile_id}"
+            )
+        return await executor.start(build, host_services)
 
 
 def intelligence_build_runtime() -> IntelligenceBuildHttpRuntime:
@@ -135,7 +120,7 @@ def intelligence_build_runtime() -> IntelligenceBuildHttpRuntime:
     return IntelligenceBuildHttpRuntime(
         records=records,
         authority=GovernedStateRuntimeUseResolver(governed_state=governed_state),
-        executor=_UnavailableIntelligenceBuildExecutor(),
+        executor=_InstalledIntelligenceBuildExecutor(),
     )
 
 
@@ -145,13 +130,16 @@ def _verified_claims(user: dict) -> tuple[str, str]:
     authorities = user.get("authorities")
     if not isinstance(actor_ref, str) or not actor_ref or not isinstance(product_id, str) or not product_id:
         raise IntelligenceBuildUnauthenticated("verified token lacks product scope")
-    if not isinstance(authorities, list) or INTELLIGENCE_BUILD_AUTHORITY not in authorities:
-        raise IntelligenceBuildDenied("Intelligence build authority is required")
+    if not isinstance(authorities, list) or not {
+        INTELLIGENCE_BUILD_AUTHORITY,
+        "observe_read",
+    }.issubset(authorities):
+        raise IntelligenceBuildDenied("Intelligence build and read authorities are required")
     return actor_ref, product_id
 
 
 def _request_identity(*, request: IntelligenceBuildStartV1, product_id: str, actor_ref: str) -> tuple[str, str]:
-    material = request.model_dump(mode="json", exclude={"authority_grant_ref"})
+    material = request.model_dump(mode="json", exclude={"authority_grant_ref", "resource_authority_grant_ref"})
     raw_digest = canonical_hash([product_id, actor_ref, material])
     return f"intelligence_build:{raw_digest[:32]}", f"sha256:{raw_digest}"
 
@@ -204,19 +192,25 @@ async def start_intelligence_build(
         ):
             raise IntelligenceBuildContractConflict("authority resolver changed the Intelligence build request")
 
+        authorized_build = AuthorizedIntelligenceBuild(
+            build_id=build_id,
+            request_digest=request_digest,
+            product_id=product_id,
+            actor_ref=actor_ref,
+            request=request,
+            authority_use=exact_authority,
+        )
+        scoped_records = ProductScopedImmutableRecordStore(product_id=product_id, store=runtime.records)
+        host_services = IntelligenceBuildHostServices(
+            records=scoped_records,
+            resources=CoreIntelligenceBuildResourcePagePort(
+                build=authorized_build,
+                records=scoped_records,
+                authority=runtime.authority,
+            ),
+        )
         page = IntelligenceResourcePageV1Alpha1.model_validate(
-            (
-                await runtime.executor.start(
-                    AuthorizedIntelligenceBuild(
-                        build_id=build_id,
-                        request_digest=request_digest,
-                        product_id=product_id,
-                        actor_ref=actor_ref,
-                        request=request,
-                        authority_use=exact_authority,
-                    )
-                )
-            ).model_dump(mode="python")
+            (await runtime.executor.start(authorized_build, host_services)).model_dump(mode="python")
         )
         if page.product_id != product_id or page.actor_ref != actor_ref:
             raise IntelligenceBuildContractConflict("build executor crossed the authenticated product scope")

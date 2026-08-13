@@ -32,6 +32,7 @@ from ace.application import (
     LiveSourceResourceProjectionReader,
     MonitoringResourceProjectionReader,
 )
+from ace.application.intelligence_build_execution import AuthorizedIntelligenceBuild
 from ace.core import ImmutableRecordPersistenceError, ImmutableRecordStore
 from core.engine.core.agent_composition_runtime import (
     GovernedCompositionAuthorityError,
@@ -127,6 +128,49 @@ def intelligence_resource_projection_reader(records: ImmutableRecordStore) -> In
     )
 
 
+class CoreIntelligenceBuildResourcePagePort:
+    """Resolve one exact read page for an already-authorized build invocation."""
+
+    def __init__(
+        self,
+        *,
+        build: AuthorizedIntelligenceBuild,
+        records: ImmutableRecordStore,
+        authority: IntelligenceResourcePlaneAuthorizationPort,
+    ) -> None:
+        self.build = build
+        self.records = records
+        self.authority = authority
+
+    async def query(
+        self,
+        *,
+        resource_kinds: tuple[IntelligenceResourceKind, ...],
+        subject_refs: tuple[str, ...],
+        as_of: datetime,
+        available_at: datetime,
+        evaluated_at: datetime,
+        page_size: int = 200,
+    ) -> IntelligenceResourcePageV1Alpha1:
+        context = self.build.authority_use.authenticated_context
+        if context.product_id != self.build.product_id or context.actor_ref != self.build.actor_ref:
+            raise IntelligenceResourceHttpContractConflict("build context crossed its authorized scope")
+        request = IntelligenceResourceQueryV1Alpha1(
+            authenticated_context=context,
+            product_id=self.build.product_id,
+            authority_grant_ref=self.build.request.resource_authority_grant_ref,
+            resource_kinds=resource_kinds,
+            subject_refs=subject_refs,
+            as_of=as_of,
+            available_at=available_at,
+            page_size=page_size,
+        )
+        return await IntelligenceResourcePlaneService(
+            reader=intelligence_resource_projection_reader(self.records),
+            authority=self.authority,
+        ).query(request, evaluated_at=evaluated_at)
+
+
 def _verified_claims(user: dict) -> tuple[str, str]:
     actor_ref = user.get("sub")
     product_id = user.get("product")
@@ -185,6 +229,7 @@ __all__ = [
     "IntelligenceResourceHttpRuntime",
     "IntelligenceResourceHttpUnauthenticated",
     "IntelligenceResourceHttpUnavailable",
+    "CoreIntelligenceBuildResourcePagePort",
     "IntelligenceResourcePageV1Alpha1",
     "intelligence_resource_projection_reader",
     "intelligence_resource_runtime",

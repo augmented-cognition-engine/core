@@ -47,6 +47,13 @@ describe('startIntelligenceBuild', () => {
       outcome_id: 'outcome:decision-readiness',
       source_group_ids: ['sources:official', 'sources:independent'],
       cadence_id: 'cadence:daily',
+      resource_authority_grant_ref: 'authority_grant:atrium-observe-read',
+      approved_effects: [
+        'connect_sources',
+        'map_concepts',
+        'activate_watch',
+        'create_first_brief',
+      ],
     }))
     expect(body.client_request_id).toMatch(/^atrium-request:/)
     expect(body.requested_at).toEqual(expect.any(String))
