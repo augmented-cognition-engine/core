@@ -27,8 +27,6 @@ import {
   SidebarMenuItem,
 } from '@/design/shadcn/ui/sidebar'
 
-import { ACEMark } from '../../journey/ACEMark'
-
 interface NavItem {
   href: string
   icon: ComponentType<{ className?: string }>
@@ -57,12 +55,21 @@ export function KernelNav() {
           to="/atrium"
           className="flex items-center gap-2.5 pl-2.5 pr-2 py-1.5 overflow-hidden"
         >
-          <ACEMark size={22} variant="iris" />
-            <span className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
-              <span className="text-base font-semibold tracking-tight">ACE</span>
-              <span className="text-[10px] text-muted-foreground">
+          <span
+            className="relative flex size-7 shrink-0 items-center justify-center overflow-hidden"
+            aria-hidden="true"
+          >
+            <img
+              src="/brand/ace_logo_fixed_128.png"
+              alt=""
+              className="size-14 max-w-none"
+            />
+          </span>
+          <span className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
+            <span className="text-base font-semibold tracking-tight">ACE</span>
+            <span className="text-[10px] text-muted-foreground">
               Intelligence OS
-              </span>
+            </span>
           </span>
         </Link>
       </SidebarHeader>
