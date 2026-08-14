@@ -113,6 +113,7 @@ def test_host_adapters_are_the_only_core_engine_edge_into_public_ace() -> None:
         "core/engine/core/intelligence_build_executor_registry.py",
         "core/engine/core/intelligence_build_planner_registry.py",
         "core/engine/core/personal_intelligence_ownership.py",
+        "core/engine/core/local_owner_authority.py",
         "core/engine/core/live_cognition.py",
         "core/engine/core/action_execution.py",
         "core/engine/core/agent_composition_runtime.py",

@@ -188,11 +188,13 @@ def test_setup_starts_runtime_and_logs_in_without_exposing_api_key(tmp_path, mon
 
     def fake_login(api_key):
         captured["api_key"] = api_key
+        return "owner-token"
 
     with (
         patch("core.engine.cli.commands.setup._provider_preflight"),
         patch("core.engine.cli.commands.setup._start_local_runtime", side_effect=fake_start),
         patch("core.engine.cli.commands.setup._login_local", side_effect=fake_login),
+        patch("core.engine.cli.commands.setup._bootstrap_local_owner") as bootstrap,
         patch("core.engine.cli.commands.setup.get_config_path", return_value=tmp_path / "token.json"),
         patch("core.engine.cli.commands.setup.shutil.which", return_value="/usr/local/bin/ace-mcp-client"),
     ):
@@ -206,6 +208,7 @@ def test_setup_starts_runtime_and_logs_in_without_exposing_api_key(tmp_path, mon
     values = captured["values"]
     assert isinstance(values, dict)
     assert captured["api_key"] == values["API_KEY"]
+    bootstrap.assert_called_once_with("owner-token")
     assert str(values["API_KEY"]) not in result.output
     assert "/usr/local/bin/ace-mcp-client" in result.output
     assert "ACE is ready" in result.output
@@ -304,12 +307,14 @@ def test_service_start_reuses_saved_configuration(tmp_path, monkeypatch):
         patch("core.engine.cli.commands.setup._provider_preflight"),
         patch("core.engine.cli.commands.setup._start_local_runtime") as start,
         patch("core.engine.cli.commands.setup._login_local") as login,
+        patch("core.engine.cli.commands.setup._bootstrap_local_owner") as bootstrap,
     ):
         result = CliRunner().invoke(service, ["start", "--project-dir", str(root)])
 
     assert result.exit_code == 0, result.output
     start.assert_called_once()
     login.assert_called_once_with("saved-api-key")
+    bootstrap.assert_called_once_with(login.return_value)
     assert "ACE is ready" in result.output
 
 
@@ -351,6 +356,7 @@ def test_setup_records_time_to_first_use_and_trial_answers(tmp_path, monkeypatch
         patch("core.engine.cli.commands.setup._provider_preflight"),
         patch("core.engine.cli.commands.setup._start_local_runtime"),
         patch("core.engine.cli.commands.setup._login_local"),
+        patch("core.engine.cli.commands.setup._bootstrap_local_owner"),
         patch("core.engine.cli.commands.setup._run_first_task", return_value=(True, 2.5)),
     ):
         result = CliRunner().invoke(
@@ -388,6 +394,7 @@ def test_setup_first_result_failure_is_not_reported_as_success(tmp_path, monkeyp
         patch("core.engine.cli.commands.setup._provider_preflight"),
         patch("core.engine.cli.commands.setup._start_local_runtime"),
         patch("core.engine.cli.commands.setup._login_local"),
+        patch("core.engine.cli.commands.setup._bootstrap_local_owner"),
         patch("core.engine.cli.commands.setup._run_first_task", return_value=(False, 900.0)),
     ):
         result = CliRunner().invoke(

@@ -8,10 +8,24 @@ from pydantic import BaseModel
 from core.engine.core.auth import create_access_token, get_current_user
 from core.engine.core.config import settings
 from core.engine.core.db import parse_rows, pool
+from core.engine.core.governed_state import GovernedStatePersistenceError, SurrealGovernedStateStore
+from core.engine.core.local_owner_authority import (
+    LocalOwnerAuthorityBootstrapResult,
+    LocalOwnerAuthorityConflict,
+    LocalOwnerAuthorityDenied,
+    bootstrap_local_owner_authority,
+)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 COGNITION_REVIEW_AUTHORITY = "cognition-review"
+LOCAL_OWNER_AUTHORITIES = (
+    COGNITION_REVIEW_AUTHORITY,
+    "intelligence_build",
+    "observe_read",
+    "deliver_export",
+    "administer_lifecycle",
+)
 MAX_TOKEN_AUTHORITIES = 50
 _AUTHORITY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$")
 
@@ -22,6 +36,10 @@ class TokenRequest(BaseModel):
 
 class SwitchProductRequest(BaseModel):
     product_id: str
+
+
+def local_owner_authority_store() -> SurrealGovernedStateStore:
+    return SurrealGovernedStateStore(pool)
 
 
 def _bounded_authorities(user: dict) -> list[str]:
@@ -49,12 +67,13 @@ async def create_token(request: Request, body: TokenRequest):
     is_demo_pass = bool(demo_pass) and compare_digest(body.api_key, demo_pass)
     if not is_api_key and not is_demo_pass:
         raise HTTPException(status_code=401, detail="Invalid API key")
-    authorities = [COGNITION_REVIEW_AUTHORITY] if is_api_key else []
+    authorities = sorted(LOCAL_OWNER_AUTHORITIES) if is_api_key else []
     token = create_access_token(
         {
             "sub": "user:default",
             "product": "product:platform",
             "authorities": authorities,
+            "local_owner": is_api_key,
         }
     )
     return {"token": token}
@@ -68,9 +87,30 @@ async def refresh_token(user=Depends(get_current_user)):
             "sub": user["sub"],
             "product": user["product"],
             "authorities": _bounded_authorities(user),
+            "local_owner": user.get("local_owner") is True,
         }
     )
     return {"token": token}
+
+
+@router.post("/local-owner/bootstrap", response_model=LocalOwnerAuthorityBootstrapResult)
+async def bootstrap_local_owner(
+    user=Depends(get_current_user),
+    store=Depends(local_owner_authority_store),
+):
+    """Create or verify the four fixed grants for the local single-user owner."""
+
+    try:
+        return await bootstrap_local_owner_authority(
+            user=user,
+            store=store,
+        )
+    except LocalOwnerAuthorityDenied as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except LocalOwnerAuthorityConflict as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except GovernedStatePersistenceError as exc:
+        raise HTTPException(status_code=503, detail="Local-owner authority storage is unavailable") from exc
 
 
 @router.post("/switch-product")
@@ -98,6 +138,7 @@ async def switch_product(body: SwitchProductRequest, user=Depends(get_current_us
             "sub": user["sub"],
             "product": body.product_id,
             "authorities": _bounded_authorities(user),
+            "local_owner": user.get("local_owner") is True,
         }
     )
     return {"token": token}
