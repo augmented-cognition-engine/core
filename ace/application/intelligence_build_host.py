@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from ace.application.domain_activation import (
+    CommittedActivationBinding,
     CommittedDomainActivation,
     DomainActivationAdmissionService,
     bind_committed_activation,
@@ -35,6 +36,7 @@ from ace.application.intelligence_builder_activation_contracts import (
     BuilderActivationReceiptArtifactV1,
 )
 from ace.application.intelligence_builder_contracts import (
+    IntelligenceBuilderSessionRevisionV1,
     OnboardingArtifactKind,
     OnboardingArtifactReferenceV1,
     OnboardingStage,
@@ -60,6 +62,13 @@ class _BootstrapCandidate:
     receipt_reference: OnboardingArtifactReferenceV1
     plan: BuilderActivationPlanArtifactV1
     receipt: BuilderActivationReceiptArtifactV1
+    session: IntelligenceBuilderSessionRevisionV1
+
+
+@dataclass(frozen=True, slots=True)
+class _ResolvedBootstrap:
+    binding: CommittedActivationBinding
+    session: IntelligenceBuilderSessionRevisionV1
 
 
 def _artifact_reference(
@@ -208,6 +217,8 @@ class DurableIntelligenceBuildHostComposer:
                         session_id=receipt.session_id,
                         available_at=evaluated_at,
                     )
+                    if session is not None:
+                        await sessions.reload_admission(session)
                 except IntelligenceBuilderSessionError:
                     raise IntelligenceBuildHostCompositionError(
                         "correlated active Builder session failed exact durable replay"
@@ -228,17 +239,18 @@ class DurableIntelligenceBuildHostComposer:
                         receipt_reference=receipt_reference,
                         plan=plan,
                         receipt=receipt,
+                        session=session,
                     )
                 )
         return tuple(candidates)
 
-    async def _binding(
+    async def _bootstrap(
         self,
         *,
         build: AuthorizedIntelligenceBuild,
         records: ImmutableRecordStore,
         activation_authority: CoreAuthorityResolver,
-    ):
+    ) -> _ResolvedBootstrap | None:
         candidates = await self._matching_candidates(build=build, records=records)
         if not candidates:
             return None
@@ -261,11 +273,18 @@ class DurableIntelligenceBuildHostComposer:
                 artifact_type=BuilderActivationReceiptArtifactV1,
                 available_at=build.authority_use.evaluated_at,
             )
+            session = await sessions.load_latest(
+                product_id=build.product_id,
+                session_id=candidate.session.session_id,
+                available_at=build.authority_use.evaluated_at,
+            )
+            if session is not None:
+                await sessions.reload_admission(session)
         except IntelligenceBuilderSessionError:
             raise IntelligenceBuildHostCompositionError(
                 "authorized Builder bootstrap artifacts failed exact reload"
             ) from None
-        if plan != candidate.plan or receipt != candidate.receipt:
+        if plan != candidate.plan or receipt != candidate.receipt or session != candidate.session:
             raise IntelligenceBuildHostCompositionError("Builder bootstrap changed during exact reload")
 
         canonical = DomainActivationAdmissionService(
@@ -318,7 +337,7 @@ class DurableIntelligenceBuildHostComposer:
         if pack is None:
             return None
         try:
-            return bind_committed_activation(
+            binding = bind_committed_activation(
                 pack=pack,
                 committed=CommittedDomainActivation(
                     revision=revision,
@@ -329,6 +348,7 @@ class DurableIntelligenceBuildHostComposer:
             raise IntelligenceBuildHostCompositionError(
                 "installed Pack and canonical activation failed exact binding"
             ) from None
+        return _ResolvedBootstrap(binding=binding, session=candidate.session)
 
     async def compose(
         self,
@@ -340,17 +360,18 @@ class DurableIntelligenceBuildHostComposer:
     ) -> IntelligenceBuildHostServices:
         """Create per-invocation ports, or keep both unavailable without exact bootstrap."""
 
-        binding = await self._binding(
+        bootstrap = await self._bootstrap(
             build=build,
             records=records,
             activation_authority=activation_authority,
         )
-        if binding is None:
+        if bootstrap is None:
             return IntelligenceBuildHostServices(
                 records=records,
                 resources=resources,
                 activation_authority=activation_authority,
             )
+        binding = bootstrap.binding
         canonical = DomainActivationAdmissionService(
             store=self.governed_state,
             authority=activation_authority,
@@ -388,6 +409,7 @@ class DurableIntelligenceBuildHostComposer:
                     records=records,
                     runtime_use=self.runtime_use,
                     cognition=self.first_brief_cognition,
+                    active_session=bootstrap.session,
                 )
                 if self.first_brief_cognition is not None
                 else None

@@ -327,12 +327,14 @@ from ace.application.intelligence_build_execution import (
 )
 from ace.application.intelligence_build_first_brief import (
     CREATE_FIRST_BRIEF_EFFECT,
+    INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION,
     INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_VERSION,
     CoreIntelligenceBuildFirstBriefService,
     IntelligenceBuildFirstBriefCognition,
     IntelligenceBuildFirstBriefError,
     IntelligenceBuildFirstBriefOutcome,
     IntelligenceBuildFirstBriefRequestV1Alpha1,
+    IntelligenceBuildFirstBriefRequestV1Alpha2,
 )
 from ace.application.intelligence_build_planning import (
     INTELLIGENCE_BUILD_PLAN_REQUEST_V1ALPHA2_VERSION,
@@ -899,10 +901,12 @@ __all__ = [
     "CoreIntelligenceBuildFirstBriefService",
     "CREATE_FIRST_BRIEF_EFFECT",
     "INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_VERSION",
+    "INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION",
     "IntelligenceBuildFirstBriefCognition",
     "IntelligenceBuildFirstBriefError",
     "IntelligenceBuildFirstBriefOutcome",
     "IntelligenceBuildFirstBriefRequestV1Alpha1",
+    "IntelligenceBuildFirstBriefRequestV1Alpha2",
     "REQUIRED_INTELLIGENCE_BUILD_EFFECTS",
     "RecordedSourceAcquisitionReceiptV1Alpha1",
     "RecordedSourceAcquisitionReceiptV1Alpha2",

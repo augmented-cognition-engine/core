@@ -32,7 +32,7 @@ from ace.intelligence.contracts.common import validate_digest, validate_referenc
 if TYPE_CHECKING:
     from ace.application.intelligence_build_first_brief import (
         IntelligenceBuildFirstBriefOutcome,
-        IntelligenceBuildFirstBriefRequestV1Alpha1,
+        IntelligenceBuildFirstBriefRequestV1Alpha2,
     )
     from ace.application.prepared_shift_signal import (
         PreparedShiftSignalDerivationOutcome,
@@ -303,7 +303,7 @@ class IntelligenceBuildFirstBriefPort(Protocol):
 
     async def create_first_brief(
         self,
-        request: "IntelligenceBuildFirstBriefRequestV1Alpha1",
+        request: "IntelligenceBuildFirstBriefRequestV1Alpha2",
     ) -> "IntelligenceBuildFirstBriefOutcome": ...
 
 

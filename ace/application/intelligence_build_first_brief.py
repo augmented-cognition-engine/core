@@ -52,6 +52,9 @@ from ace.intelligence.packs.runtime import (
 )
 
 INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_VERSION = "ace.application.intelligence-build-first-brief-request/v1alpha1"
+INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION = (
+    "ace.application.intelligence-build-first-brief-request/v1alpha2"
+)
 CREATE_FIRST_BRIEF_EFFECT = "create_first_brief"
 INTELLIGENCE_BUILD_OPERATION = "start_intelligence_build"
 INTELLIGENCE_BUILD_AUTHORITY = "intelligence_build"
@@ -124,6 +127,62 @@ class IntelligenceBuildFirstBriefRequestV1Alpha1(FrozenContract):
         return self
 
 
+class IntelligenceBuildFirstBriefRequestV1Alpha2(FrozenContract):
+    """Build-bound routed material; Core owns the exact active session."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        strict=True,
+        revalidate_instances="always",
+        validate_default=True,
+        allow_inf_nan=False,
+    )
+
+    contract: Literal["ace.application.intelligence-build-first-brief-request/v1alpha2"] = (
+        INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION
+    )
+    build_id: str
+    build_request_digest: str
+    derivation_key: str
+    attention_receipt_id: str
+    attention_receipt_digest: str
+    requested_at: datetime
+    request_id: str | None = Field(default=None, max_length=240)
+    request_digest: str | None = Field(default=None, pattern=r"^sha256:[a-f0-9]{64}$")
+
+    @field_validator("build_id", "derivation_key", "attention_receipt_id", "request_id")
+    @classmethod
+    def validate_refs(cls, value: str | None, info) -> str | None:
+        return validate_reference(value, name=info.field_name) if value is not None else None
+
+    @field_validator("build_request_digest", "attention_receipt_digest", "request_digest")
+    @classmethod
+    def validate_digests(cls, value: str | None, info) -> str | None:
+        return validate_digest(value) if value is not None else None
+
+    @field_validator("requested_at")
+    @classmethod
+    def normalize_requested_at(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("requested_at must include a timezone")
+        return value.astimezone(UTC)
+
+    @model_validator(mode="after")
+    def derive_identity(self) -> Self:
+        material = self.model_dump(mode="json", exclude={"request_id", "request_digest"})
+        digest = canonical_hash(material)
+        expected_id = f"intelligence_build_first_brief:{digest[:32]}"
+        expected_digest = f"sha256:{digest}"
+        if self.request_id is not None and self.request_id != expected_id:
+            raise ValueError("request_id does not match exact first-Brief selection")
+        if self.request_digest is not None and self.request_digest != expected_digest:
+            raise ValueError("request_digest does not match exact first-Brief selection")
+        object.__setattr__(self, "request_id", expected_id)
+        object.__setattr__(self, "request_digest", expected_digest)
+        return self
+
+
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildFirstBriefCognition:
     """Existing governed cognition and append bindings selected by the Core host."""
@@ -135,7 +194,7 @@ class IntelligenceBuildFirstBriefCognition:
 
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildFirstBriefOutcome:
-    request: IntelligenceBuildFirstBriefRequestV1Alpha1
+    request: IntelligenceBuildFirstBriefRequestV1Alpha1 | IntelligenceBuildFirstBriefRequestV1Alpha2
     session: IntelligenceBuilderSessionRevisionV1
     binding: CommittedActivationBinding
     admission: PreparedBriefAppendAdmission
@@ -158,6 +217,7 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
         records: ImmutableRecordStore,
         runtime_use: RuntimeUseResolver,
         cognition: IntelligenceBuildFirstBriefCognition | None,
+        active_session: IntelligenceBuilderSessionRevisionV1,
     ) -> None:
         self.build = build
         self.sessions = sessions
@@ -167,6 +227,7 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
         self.runtime_use = runtime_use
         self.cognition = self._validate_cognition(cognition)
         self._validate_build()
+        self.active_session = self._validate_active_session(active_session)
 
     def _validate_build(self) -> None:
         authority = self.build.authority_use
@@ -181,6 +242,27 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
             or CREATE_FIRST_BRIEF_EFFECT not in self.build.request.approved_effects
         ):
             raise IntelligenceBuildFirstBriefError("authorized build does not cover the exact first-Brief operation")
+
+    def _validate_active_session(
+        self,
+        session: IntelligenceBuilderSessionRevisionV1,
+    ) -> IntelligenceBuilderSessionRevisionV1:
+        try:
+            exact = IntelligenceBuilderSessionRevisionV1.model_validate(session.model_dump(mode="python"))
+        except Exception:
+            raise IntelligenceBuildFirstBriefError("Core-resolved active Builder session is invalid") from None
+        artifact_kinds = tuple(item.artifact_kind for item in exact.artifacts)
+        if (
+            exact.product_id != self.build.product_id
+            or exact.stage is not OnboardingStage.ACTIVE
+            or exact.transition_actor_ref != self.build.actor_ref
+            or exact.approval_receipt_ref != self.build.request.activation_approval_receipt_ref
+            or exact.occurred_at > self.build.authority_use.evaluated_at
+            or artifact_kinds.count(OnboardingArtifactKind.ACTIVATION_PLAN) != 1
+            or artifact_kinds.count(OnboardingArtifactKind.ACTIVATION_RECEIPT) != 1
+        ):
+            raise IntelligenceBuildFirstBriefError("Core-resolved active Builder session crossed the authorized build")
+        return exact
 
     def _validate_cognition(
         self,
@@ -205,7 +287,7 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
 
     async def _resolve_current_build_authority(
         self,
-        request: IntelligenceBuildFirstBriefRequestV1Alpha1,
+        request: IntelligenceBuildFirstBriefRequestV1Alpha2,
     ) -> AuthorityUseReceiptV1Alpha1:
         original = self.build.authority_use
         try:
@@ -242,12 +324,12 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
 
     async def _load_current_session(
         self,
-        request: IntelligenceBuildFirstBriefRequestV1Alpha1,
+        request: IntelligenceBuildFirstBriefRequestV1Alpha2,
     ) -> IntelligenceBuilderSessionRevisionV1:
         try:
             session = await self.sessions.load_latest(
                 product_id=self.build.product_id,
-                session_id=request.session_id,
+                session_id=self.active_session.session_id,
                 available_at=request.requested_at,
             )
             if session is None:
@@ -257,12 +339,7 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
             raise
         except Exception:
             raise IntelligenceBuildFirstBriefError("current Builder session failed exact durable reload") from None
-        if (
-            session.stage is not OnboardingStage.ACTIVE
-            or session.revision_id != request.session_revision_id
-            or session.revision_digest != request.session_revision_digest
-            or session.occurred_at > request.requested_at
-        ):
+        if session != self.active_session or session.occurred_at > request.requested_at:
             raise IntelligenceBuildFirstBriefError("first Brief requires the exact current active Builder revision")
         if session.approval_receipt_ref != self.build.request.activation_approval_receipt_ref:
             raise IntelligenceBuildFirstBriefError("active Builder revision crossed the reviewed activation approval")
@@ -336,14 +413,16 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
 
     async def create_first_brief(
         self,
-        request: IntelligenceBuildFirstBriefRequestV1Alpha1,
+        request: IntelligenceBuildFirstBriefRequestV1Alpha2,
     ) -> IntelligenceBuildFirstBriefOutcome:
         try:
-            exact = IntelligenceBuildFirstBriefRequestV1Alpha1.model_validate(request.model_dump(mode="python"))
+            exact = IntelligenceBuildFirstBriefRequestV1Alpha2.model_validate(request.model_dump(mode="python"))
         except (AttributeError, TypeError, ValueError) as exc:
             raise IntelligenceBuildFirstBriefError("first-Brief request failed exact revalidation") from exc
-        await self._resolve_current_build_authority(exact)
+        if exact.build_id != self.build.build_id or exact.build_request_digest != self.build.request_digest:
+            raise IntelligenceBuildFirstBriefError("first-Brief request crossed the authorized build")
         session = await self._load_current_session(exact)
+        await self._resolve_current_build_authority(exact)
         binding = await self._load_binding(session=session, available_at=exact.requested_at)
         if self.cognition is None:
             raise IntelligenceBuildFirstBriefError(
@@ -436,9 +515,11 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
 __all__ = [
     "CREATE_FIRST_BRIEF_EFFECT",
     "CoreIntelligenceBuildFirstBriefService",
+    "INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION",
     "INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_VERSION",
     "IntelligenceBuildFirstBriefCognition",
     "IntelligenceBuildFirstBriefError",
     "IntelligenceBuildFirstBriefOutcome",
     "IntelligenceBuildFirstBriefRequestV1Alpha1",
+    "IntelligenceBuildFirstBriefRequestV1Alpha2",
 ]
