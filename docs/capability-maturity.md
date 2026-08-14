@@ -1,10 +1,9 @@
-# ACE 0.8.3 candidate capability maturity
+# ACE 1.0 capability maturity
 
-ACE 0.8.3 is a release candidate over the published 0.8.2 developer preview. This page
-distinguishes the public contract from implemented
-surfaces that remain experimental.
+ACE 1.0 is stable for the documented single-user, single-node topology. This page distinguishes
+that supported public contract from implemented surfaces that remain experimental.
 
-## Preview contract
+## Supported 1.0 contract
 
 The supported self-hosted path is:
 
@@ -13,13 +12,13 @@ install ace-core → configure SurrealDB and an optional provider → start ACE 
 → connect → map → watch → receive a cited brief → activate → inspect resources → stop cleanly
 ```
 
-The 0.8.3 candidate identities are:
+The 1.0 identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `0.8.3`
+- version: `1.0.0`
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -39,9 +38,21 @@ The thin MCP surface contains exactly eleven tools:
 
 The CLI, thin MCP adapter, public Core/Intelligence/Application packages, authorized Intelligence
 resource plane, inert Domain Pack boundary, persistence migrations, reference extension mechanism,
-and documented provider routes are the compatibility focus for the current developer preview.
+and documented provider routes are the compatibility focus for the 1.0 line.
 Atrium is a supported optional repository-delivered preview over the same resource plane. Changes
 to these surfaces receive migration notes when needed.
+
+The supported personal journey selects World, Market, or Custom Intelligence; reviews exact source
+material and required permissions; records activation, readiness, and health; produces and reopens
+a cited first Brief; admits a later source revision as a new Brief while retaining the prior
+revision; exposes a semantic change diff; and supports grounded Ask/correction against authorized
+resources. Local owner bootstrap grants build/read authority only. Source reads, delivery, and
+external effects remain separately authorized.
+
+Provider-neutral model setup includes direct OpenAI and Anthropic API keys, signed-in Codex and
+Claude CLI subscription routes, OpenAI-compatible endpoints, and local Ollama. Consumer
+subscriptions are not transformed into API credentials. World and Market Builders are separately
+installed trusted executables; inert Domain Packs grant no code execution or authority.
 
 The supported CLI also includes `ace landscape`, a versioned, authenticated, strictly read-only
 Living Product Graph snapshot. It exposes stable object identity, canonical and non-operational

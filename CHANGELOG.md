@@ -2,6 +2,33 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.0.0
+
+### Stable single-user Intelligence OS
+
+- Complete the guided single-user journey from Intelligence selection and exact reviewed source
+  binding through permission/readiness checks, activation, source health, and a cited first Brief.
+- Add append-only later-source updates with retained prior Briefs and a semantic what-changed/why/
+  evidence diff through the same governed resource path.
+- Publish signed local-owner authority for building and reading personal intelligence without
+  silently granting source, delivery, or external-effect authority.
+- Add deterministic hybrid retrieval using indexed lexical and vector plans, reciprocal-rank
+  fusion, product/type/tag isolation, correction promotion, a no-answer gate, and explicit degraded
+  receipts across HTTP and the unchanged eleven-tool MCP surface.
+- Preserve provider neutrality across direct API-key, subscription-backed Codex and Claude CLI,
+  OpenAI-compatible, and local Ollama routes; a consumer subscription is used through its signed-in
+  CLI route rather than treated as a transferable API key.
+- Complete the bounded World and Market solution-bundle paths through trusted, separately installed
+  Builders. Market additionally proves a content-addressed direction package, exact package and
+  destination approval, acknowledged reference delivery, a later Outcome, and proposal-only
+  Feedback using the existing Core handoff and learning contracts.
+- Keep the release single-user and single-node. Universal connector/destination catalogs, managed
+  hosting, collaboration, autonomous delivery or policy application, customer-corpus relevance,
+  multilingual quality, high concurrency, and distributed availability remain explicit post-1.0
+  work or non-claims.
+- Publish the unchanged reference workspace-action implementation as distribution 0.4.1 with an
+  `ace-core>=0.8.0,<1.1` compatibility envelope. Installation still grants no operation authority.
+
 ## 0.8.3
 
 ### External-pack compatibility and source time

@@ -56,7 +56,7 @@ class ProductExtension:
     """The open `product` extension — copy this file to start your own."""
 
     name = "product"
-    version = "0.8.3"
+    version = "1.0.0"
 
     def register(self, reg: "Registry") -> None:
         # This must remain the first operation. A current reference extension
