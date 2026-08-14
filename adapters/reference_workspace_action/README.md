@@ -10,12 +10,11 @@ execution creates a new file with exclusive-create semantics. Existing files, sy
 parent directories, absolute paths, traversal, and paths outside the workspace fail closed.
 
 This package is not included in the `ace-core` wheel and is not dynamically discovered. A host must
-install it, construct it, and register its exact artifact identity explicitly. The ACE 0.8.0
-release-candidate workflow builds it independently and would attach its wheel and source
-distribution to a separately authorized matching GitHub Release; only the Core distribution would
-be sent to PyPI.
+install it, construct it, and register its exact artifact identity explicitly. The ACE release
+workflow builds it independently and attaches its wheel and source distribution to the matching
+GitHub Release; only the Core distribution is sent to PyPI.
 
-Distribution 0.4.0 targets `ace-core>=0.8.0,<0.9`. The executable implementation is unchanged from
+Distribution 0.4.1 targets `ace-core>=0.8.0,<1.1`. The executable implementation is unchanged from
 0.1.0, so its public capability artifact identity remains 0.1.0 rather than manufacturing a new
-implementation identity for dependency metadata alone. The 0.4.0 archives remain unpublished
-candidate artifacts until the separate release gate passes.
+implementation identity for dependency metadata alone. Installation grants no execution authority;
+the host must still register and authorize the exact adapter and operation.

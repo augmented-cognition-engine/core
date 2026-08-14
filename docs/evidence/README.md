@@ -34,6 +34,9 @@ superseded by later work and is kept for audit trail only.
   — candidate; artifact, paired-domain, publication, and public-index gates pending
 - [ace-core 0.8.3 external-pack compatibility release candidate](external-pack-compatibility-v0.8.3-release-candidate-v1.md)
   — candidate; exact-pack, semantic-time, artifact, publication, and public-index gates pending
+- [ace-core 1.0 Personal Intelligence OS release candidate](personal-intelligence-os-v1.0.0-release-candidate-v1.md)
+  — candidate; bounded implementation and evaluation complete, trusted publication and clean
+  public-artifact reproduction pending
 - [ace-core 0.8.0 Intelligence OS release candidate](intelligence-os-v0.8.0-release-candidate-v1.md)
   — historical pre-publication candidate; cumulative Core, Atrium, World, Market, and package gate
 

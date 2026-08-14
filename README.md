@@ -11,10 +11,10 @@ monitors, and an intelligence system that improves with governed feedback. ACE i
 provenance, authority, durable state, and exact receipts stay built into the result instead of
 becoming infrastructure every product team must recreate.
 
-![version 0.8.3 candidate](https://img.shields.io/badge/version-0.8.3--candidate-blue)
+![version 1.0.0](https://img.shields.io/badge/version-1.0.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
-![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
+![status: stable single-user](https://img.shields.io/badge/status-stable%20single--user-green)
 
 [Quickstart](#quickstart) ·
 [Vision / Manifesto](https://github.com/augmented-cognition-engine/core/blob/main/MANIFESTO.md) ·
@@ -75,12 +75,11 @@ Builders should not hand-author Domain Pack JSON or learn compiler mechanics to 
 Generated material still passes the same fail-closed schema, compatibility, conformance, authority,
 and activation boundaries as an expert-built pack.
 
-**Maturity:** ACE 0.8 is the released Intelligence OS Realignment. It retains the complete 0.7
-Builder foundation, governed Agent Composition through AC7, and authorized Agent Memory through
-AM4, then makes their outputs consumable through one authorized Intelligence resource plane and
-the repository-delivered Atrium workspace. Independent World and Market consumers reproduce the
-same public resource contract. The Python artifact remains usable without Atrium, and the public
-MCP surface remains exactly eleven tools.
+**Maturity:** ACE 1.0 is the stable single-user Intelligence OS for the documented local,
+single-node topology. It composes the Builder foundation, governed Agent Composition, authorized
+Agent Memory, one authorized Intelligence resource plane, and Atrium into a resumable personal
+workflow. Independent World and Market products reproduce the same public contracts. The Python
+artifact remains usable without Atrium, and the public MCP surface remains exactly eleven tools.
 
 ### Two connected loops
 
@@ -386,7 +385,26 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.8.3 adds
+## What 1.0 adds
+
+ACE 1.0 turns the released Intelligence OS foundation into one complete personal product journey:
+choose an Intelligence experience, review and bind exact sources, see permission and health state,
+approve activation, receive a cited first Brief, and retain an attributable later update with a
+semantic diff. Ask ACE, corrections, decisions, optional reviewed handoffs, outcomes, and
+proposal-only learning all use the same authorized durable resources.
+
+World and Market remain independently versioned Solution Bundles rather than Core-owned domains.
+Their trusted Builders and connectors are separately installed and never gain authority merely by
+being present. Market's bounded release path prepares an engine-ready direction package and routes
+it through Core's existing handoff contracts; downstream design, content, campaign, ERP, trading,
+and other execution engines remain outside ACE.
+
+Model access is bring-your-own: direct OpenAI or Anthropic API keys, signed-in Codex or Claude CLI
+subscription routes, OpenAI-compatible endpoints, and local Ollama are supported configuration
+choices. A ChatGPT or Claude subscription is not converted into an API key; ACE uses the provider's
+authenticated CLI route when that subscription-backed option is selected.
+
+### What 0.8.3 added
 
 0.8.3 is a compatibility patch for independently packaged Intelligence products. It adds the
 public conformance seam needed to resolve exact installed Domain Packs and preserves source
@@ -505,7 +523,7 @@ remains unproven under explicit product-owned criteria. No governance proposal a
 
 The bounded **Reasoning into Action** topology introduced in 0.5.0 remains unchanged: one ACE host,
 one durable store, and explicitly trusted in-process adapters. The separately packaged reference
-adapter is distribution 0.4.0 with `ace-core>=0.8.0,<0.9`; its unchanged executable
+adapter is distribution 0.4.1 with `ace-core>=0.8.0,<1.1`; its unchanged executable
 implementation keeps artifact identity 0.1.0.
 
 The governed Intelligence foundation introduced in 0.4.0 remains part of the same install:
@@ -870,10 +888,9 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.8.3 is a release candidate over the published 0.8.2 developer preview.** Its Intelligence OS
-claim is bounded to
-the provider-free and installed-artifact journeys recorded in the evidence archive and the
-single-node topology below. Read this section before you build on it.
+**ACE 1.0 is stable for the documented single-user, single-node topology.** Its claims remain
+bounded to the provider-free and installed-artifact journeys recorded in the evidence archive.
+Read this section before you build on it.
 
 What is bounded:
 
@@ -882,8 +899,9 @@ What is bounded:
   independent databases are **not** claimed.
 - **Trusted extensions only.** In-process Python extensions must be explicitly trusted. There is no
   hostile-code isolation.
-- **Alpha contracts.** The `v1alpha1` / `v1alpha2` public contracts may change on a preview minor
-  release. Changes are visible in the contract string.
+- **Versioned compatibility.** Existing `v1alpha1` / `v1alpha2` contract strings are frozen for the
+  1.0 compatibility line. Incompatible changes require a new contract string and a documented
+  migration/deprecation path.
 - **Domain Packs and connectors are independently versioned** and are **not** part of this release's
   compatibility promise. There is no domain-pack marketplace, registry, or distribution channel —
   packs are artifacts you build and supply.

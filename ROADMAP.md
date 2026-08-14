@@ -77,14 +77,15 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-The latest published release is [`ace-core` 0.8.2](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.2)
-on PyPI and GitHub. It packages the Atrium Intelligence Catalog as backward-compatible hardening
-of the released 0.8 promise. It is the entry foundation for—but does not complete—the 0.9
-Single-user Intelligence Builder milestone.
+The latest published release is [`ace-core` 0.8.3](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.3)
+on PyPI and GitHub. It provides the compatibility baseline used by the independently released
+World and Market Intelligence products.
 
-The current 0.8.3 compatibility release candidate adds the public exact-installed-Pack
-conformance seam and preserves source publication time separately from observation and ingestion
-time. It remains a patch on the released 0.8 promise and does not advance roadmap maturity.
+The current 1.0.0 release candidate completes the bounded 0.9 single-user journey and freezes it as
+the stable Personal Intelligence Operating System for one local owner and one documented
+single-node deployment. Publication and clean public-artifact reproduction remain the final
+release gates; the candidate does not claim collaboration, managed hosting, or distributed
+operation.
 
 The 0.8 release makes the existing Builder, composition, memory, authority, action, and outcome
 capabilities coherent as one **Intelligence Operating System**. One governed point-in-time resource
@@ -95,9 +96,9 @@ thin MCP surface remains exactly eleven tools. The exact pre-publication source,
 proof, verification, and limitations are bound by the
 [Intelligence OS release closeout](docs/evidence/intelligence-os-v0.8.0-release-closeout-v1.md).
 
-The [0.8.2 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.2)
-and public [`ace-core==0.8.2`](https://pypi.org/project/ace-core/0.8.2/) package are the current
-developer-preview release line. The 0.8.1 foundation binds live onboarding state into Atrium, defines
+The [0.8.3 GitHub Release](https://github.com/augmented-cognition-engine/core/releases/tag/v0.8.3)
+and public [`ace-core==0.8.3`](https://pypi.org/project/ace-core/0.8.3/) package close the 0.8
+compatibility line. The 0.8.1 foundation binds live onboarding state into Atrium, defines
 Opportunities as evidence-backed decision openings, establishes the ACE design system, and adds a
 reproducible World AI resource replay. Atrium remains a repository-delivered optional workspace
 rather than a second state or authority path.
@@ -217,8 +218,8 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.6.0 | Measured Intelligence | **Passed** | Public Core 0.6.0 and World 0.10.0 artifacts reproduce exact useful/harmful/unproven classification, matched leakage-bounded controls, durable replay, and proposal-only governance under product-owned criteria; SI4 remains a broader future outcome | [#38](https://github.com/augmented-cognition-engine/core/issues/38) |
 | 0.7.0 | Intelligence Builder Foundation | **Passed** | Public Core 0.7.0 composes 0.7A–0.7E, AC1–AC7, and AM0–AM3; all release checks, trusted publication, public clean-install reproduction, and independent World/Market consumer gates passed | [#39](https://github.com/augmented-cognition-engine/core/issues/39) |
 | 0.8.0 | Intelligence OS Realignment | **Passed** | Public Core 0.8.0 unifies the governed resource plane and Atrium experience over the released Builder, composition, memory, action, and outcome foundations; independent World/Market proofs reproduce the same contract without domain branches | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
-| 0.9.0 | Single-user Intelligence Builder | **Now** | Completes the personal install → choose → connect → map → watch → first cited Brief → continuous update journey through Atrium, with local ownership, recovery, and World/Market proof | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
-| 1.0.0 | Personal Intelligence Operating System | **Next** | Freezes and hardens the complete supported single-user loop, public contracts, packaging, upgrades, security, recovery, and reproducible domain experiences without requiring collaboration or managed infrastructure | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
+| 0.9.0 | Single-user Intelligence Builder | **Passed** | The personal install → choose → connect → map → watch → first cited Brief → continuous update journey is implemented through Atrium, with local ownership, recovery, and World/Market proof | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
+| 1.0.0 | Personal Intelligence Operating System | **Candidate** | Freezes and hardens the complete supported single-user loop, public contracts, packaging, upgrades, security, recovery, and reproducible domain experiences without requiring collaboration or managed infrastructure; publication and clean public-artifact reproduction remain | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
 
 ### Parallel domain validation
 
@@ -573,6 +574,10 @@ does not become a second source of truth.
 
 ### 0.9.0 — Single-user Intelligence Builder
 
+Outcome state: **passed in the cumulative 1.0 candidate.** The product journey below is complete;
+its public-artifact reproduction is performed as part of the 1.0 release gate rather than as a
+separate 0.9 publication.
+
 Public promise: one person can install ACE, choose World, Market, or Custom Intelligence, connect a
 few authorized sources, describe what they need to understand, and receive a useful cited first
 Brief that keeps updating—without learning ACE architecture or hand-authoring a Domain Pack.
@@ -607,6 +612,9 @@ The bounded contract and acceptance matrix are frozen in the
 [0.9 work packet](docs/design/single-user-intelligence-builder-v0.9.0-work-packet-v1.md).
 
 ### 1.0.0 — Personal Intelligence Operating System
+
+Outcome state: **candidate.** Implementation and bounded source/evaluation evidence are complete;
+trusted publication plus a clean, public-artifact-only acceptance receipt remain before `passed`.
 
 Public promise: ACE is a stable, open, provider-neutral Intelligence Operating System that lets one
 person build living, source-grounded, inspectable, governable, and adaptive intelligence without
@@ -814,8 +822,9 @@ unchanged Core + Intelligence APIs.
 
 Exit condition: **passed.** The release preserves schema head v177, exactly eleven MCP tools,
 inert Domain Packs, proposal-only feedback, explicit read/effect authority, and the bounded
-single-node trusted-adapter topology. The next release milestone is 0.9.0 Single-user Intelligence
-Builder; 1.0 remains the stable personal Intelligence Operating System target.
+single-node trusted-adapter topology. The 0.9 single-user journey is complete in the cumulative
+1.0 candidate; trusted publication and clean public-artifact reproduction are the remaining release
+gates.
 
 ### Completed technical prerequisite: bounded Product State outcomes
 
