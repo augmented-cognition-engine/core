@@ -124,9 +124,14 @@ def _validate_existing(
     spec: LocalOwnerGrantSpec,
     *,
     revision: GovernedStateRevisionV1,
-) -> None:
+) -> CompositionAuthorityGrantMaterial:
     try:
-        grant = CompositionAuthorityGrantMaterial.model_validate(revision.payload)
+        # SurrealDB returns JSON-shaped material: tuples become lists, enums become
+        # strings, and datetimes may be decoded from their wire representation.  The
+        # private grant contract is strict for newly constructed Python material, but
+        # a durable JSON round trip must be accepted before the exact hash, expected
+        # material, and receipt comparisons below fail closed on any real change.
+        grant = CompositionAuthorityGrantMaterial.model_validate(revision.payload, strict=False)
     except ValueError as exc:
         raise LocalOwnerAuthorityConflict(f"fixed grant is malformed: {spec.grant_ref}") from exc
     expected = _grant_material(spec, effective_at=grant.effective_at)
@@ -139,6 +144,7 @@ def _validate_existing(
         or grant != expected
     ):
         raise LocalOwnerAuthorityConflict(f"fixed grant differs from approved material: {spec.grant_ref}")
+    return grant
 
 
 async def _verify_existing(store: GovernedStateStore, spec: LocalOwnerGrantSpec) -> bool:
@@ -164,8 +170,7 @@ async def _verify_existing(store: GovernedStateStore, spec: LocalOwnerGrantSpec)
         or len(receipt.authority_grants) != 1
     ):
         raise LocalOwnerAuthorityConflict(f"fixed grant lineage is incomplete: {spec.grant_ref}")
-    _validate_existing(spec, revision=revision)
-    grant = CompositionAuthorityGrantMaterial.model_validate(revision.payload)
+    grant = _validate_existing(spec, revision=revision)
     resolved = receipt.authority_grants[0]
     if (
         resolved.grant_ref != grant.grant_ref
