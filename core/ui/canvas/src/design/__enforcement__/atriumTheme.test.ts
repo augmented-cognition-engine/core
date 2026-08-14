@@ -86,6 +86,14 @@ describe('Atrium neutral-first theme', () => {
     expect(atriumSources).toContain("from '@/design/shadcn/ui/sheet'")
   })
 
+  it('uses semantic state color instead of resource-kind color', () => {
+    expect(atriumSources).toContain("record.availability === 'tombstoned' ? 'bg-muted-foreground/45' : 'bg-success'")
+    expect(atriumSources).toContain("`${sources} admitted`, tone: sources > 0 ? 'bg-success'")
+    expect(atriumSources).toContain("`${openCases} ready`, tone: openCases > 0 ? 'bg-success'")
+    expect(atriumSources).toContain("`${monitors} active`, tone: monitors > 0 ? 'bg-live'")
+    expect(atriumSources).not.toMatch(/\['signal', 'source', 'connection', 'monitor'\]\.includes\(resourceKind\)/)
+  })
+
   it.each([
     ['foreground on canvas', '--foreground', '--background', 4.5],
     ['card foreground on card', '--card-foreground', '--card', 4.5],

@@ -9,9 +9,11 @@ and decision policy, not the product's identity.
 
 The ACE mark is the color source, moving from cyan through blue to violet. The product
 chrome is quieter than the mark: **Atrium is neutral-first**, and ordinary selection,
-focus, navigation, and narrative remain neutral. Cyan marks live source/watch activity,
-blue marks evidence and provenance, violet marks human authority and decision openings,
-and green keeps its literal semantic role: verified success.
+focus, navigation, categories, and narrative remain neutral. Operational state is
+literal and consistent: green means healthy/current/admitted/linked/ready, cyan means
+actively processing or watching, amber means degraded/stale/review, and red means failed
+or destructive. Blue remains an evidence affordance; violet remains ACE identity and
+bounded visualization, not a substitute for status meaning.
 
 ## Reference lock
 
@@ -51,7 +53,8 @@ Color is locked to representative opaque clusters measured from the authoritativ
 violet `#9777F5`. Reference products may influence composition, never ACE color.
 
 Preserve: achromatic near-black surfaces, compact Spline typography, 8–12px radii,
-thin borders, evidence one interaction away, and semantic—not decorative—ACE color.
+thin borders, evidence one interaction away, and color that communicates state rather
+than resource category.
 
 Reject: blue-tinted surface ladders, importing a reference product's accent color, HPE
 green as the Core identity, rainbow category chrome, giant KPI walls, ambient glow on
@@ -94,20 +97,24 @@ remains one interaction away in the resource sheet.
 |---|---:|---:|---|
 | Primary action | `#315DDE` | `#E7E5E1` | Atrium uses a light neutral fill rather than a chromatic block |
 | Focus | `#315DDE` | `#B4B2AF` | Accessible interaction outline; focus is structural, not a brand statement |
-| Authority violet | `#315DDE` | `#9777F5` | Human decision openings, proposals, and explicit authority boundaries only |
-| Spectral cyan | `#0F8294` | `#58E8F9` | Live sources, watches, ingestion, and in-motion state only |
+| Identity violet | `#315DDE` | `#9777F5` | ACE mark and bounded cognitive visualization; never a generic ready/selected state |
+| Spectral cyan | `#0F8294` | `#58E8F9` | Actively processing, detecting, streaming, watching, or retrying only |
 | Evidence blue | `#315DDE` | `#2896E7` | Citations, provenance, preserved evidence, and grounded answers only |
-| Success green | `#178A4B` | `#4CC984` | Verified, completed, or accepted state only |
+| Success green | `#178A4B` | `#4CC984` | Healthy, current, admitted, connected, linked, ready, completed, or accepted |
+| Warning amber | semantic token | semantic token | Degraded, stale, blocked, or requiring review |
+| Destructive red | semantic token | semantic token | Failed, rejected, destructive, or unavailable |
 | Canvas | `#FFFFFF` | `#08090A` | Working surface / Atrium command center |
 | Card | `#FFFFFF` | `#111214` | Evidence and intelligence records |
 | Border | `#E6E8E9` | `#2A2B2D` | Structure without decorative elevation |
 
-Violet does not mean “selected” or “good”; it marks the point where intelligence meets
-human authority. Green remains literal success. Cyan never decorates static narrative,
-and blue never decorates generic chrome. Active navigation and ordinary selection use
-neutral surface contrast. The full cyan → blue → violet spectrum may appear only in the
-ACE mark and the Intelligence Horizon, where it communicates source → evidence → decision.
-A Domain Pack may add chart or taxonomy hues, but it must not change these meanings.
+Resource kinds are not statuses: Source, Evidence, Shift, Case, and Decision do not
+receive different colors simply because they are different objects. “Admitted,” “linked,”
+“current,” and “ready” all use success green; “detecting” and “watching” use live cyan;
+unknown or zero states remain neutral. Active navigation and ordinary selection use
+neutral surface contrast. Blue may identify evidence interactions, while the full cyan
+→ blue → violet spectrum may appear only in the ACE mark and bounded Intelligence Horizon
+visualization. A Domain Pack may add chart or taxonomy hues, but it must not change these
+meanings.
 
 ## Typography and density
 
@@ -125,8 +132,9 @@ A Domain Pack may add chart or taxonomy hues, but it must not change these meani
   Decision Aperture may carry a broad, low-opacity shadow to separate the operating
   picture from the shell; generic cards may not.
 - Cards use 8–12px radius; pills are reserved for status and short filters.
-- Atrium uses neutral primary actions; spectral violet appears on active navigation,
-  focus rings, links, and small ACE-voice moments. Large panels remain achromatic.
+- Atrium uses neutral primary actions, navigation, focus, and selection. Brand spectrum
+  appears in the ACE mark and bounded cognitive visualization; links and status use their
+  evidence or semantic roles. Large panels remain achromatic.
 - Every synthesized claim should be one interaction from evidence and provenance.
 - Motion communicates current system state, feedback, or continuity. The Cognitive
   Field may breathe while a current Brief exists; it freezes when empty and under

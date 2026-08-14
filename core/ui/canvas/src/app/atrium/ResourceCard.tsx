@@ -62,14 +62,7 @@ export function ResourceCard({
   const confidencePercent = confidence !== null && confidence >= 0 && confidence <= 1
     ? Math.round(confidence * 100)
     : null
-  const resourceKind = record.reference.resource_kind
-  const recordTone = ['signal', 'source', 'connection', 'monitor'].includes(resourceKind)
-    ? 'bg-live'
-    : ['case', 'decision', 'feedback'].includes(resourceKind)
-      ? 'bg-brand'
-      : resourceKind === 'outcome'
-        ? 'bg-success'
-        : 'bg-evidence'
+  const recordTone = record.availability === 'tombstoned' ? 'bg-muted-foreground/45' : 'bg-success'
 
   return (
     <Sheet>

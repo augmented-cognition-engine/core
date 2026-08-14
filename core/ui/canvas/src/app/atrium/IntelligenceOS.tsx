@@ -136,13 +136,13 @@ function EmptyBuilder({ onStart }: { readonly onStart: () => void }) {
       title: 'Tell ACE what matters',
       detail: 'Choose the decision or landscape you need to stay ahead of.',
       icon: Network,
-      tone: 'text-live border-live/20 bg-live/[0.06]',
+      tone: 'text-foreground/65 border-border bg-muted/45',
     },
     {
       title: 'Review the recommendation',
       detail: 'ACE proposes evidence, concepts, watches, and cadence for review.',
       icon: BrainCircuit,
-      tone: 'text-evidence border-evidence/20 bg-evidence/[0.06]',
+      tone: 'text-foreground/65 border-border bg-muted/45',
     },
     {
       title: 'Open the first Brief',
@@ -173,7 +173,7 @@ function EmptyBuilder({ onStart }: { readonly onStart: () => void }) {
                   <step.icon className="size-4" />
                 </div>
                 <span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span>
-                {index < 2 ? <ArrowRight className="ml-auto size-3.5 text-muted-foreground" /> : <ShieldCheck className="ml-auto size-3.5 text-live" />}
+                {index < 2 ? <ArrowRight className="ml-auto size-3.5 text-muted-foreground" /> : <ShieldCheck className="ml-auto size-3.5 text-muted-foreground" />}
               </div>
               <div className="mt-4 text-sm font-semibold">{step.title}</div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
@@ -234,7 +234,7 @@ function CognitiveField({
       <div className="absolute inset-x-8 top-7 z-10 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.18em] text-white/35">
         <span>Cognitive field</span>
         <span className="flex items-center gap-2">
-          <span className="atrium-field-heartbeat size-1 rounded-full bg-live" />
+          <span className={`atrium-field-heartbeat size-1 rounded-full ${active ? 'bg-success' : 'bg-white/25'}`} />
           {active ? 'Current picture' : 'Awaiting intelligence'}
         </span>
       </div>
@@ -296,19 +296,19 @@ function CognitiveField({
       <div className="absolute bottom-8 left-8 right-8 z-10 grid grid-cols-4 gap-4 border-t border-white/[0.08] pt-4">
         <div>
           <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Sources</div>
-          <div className="mt-1 font-mono text-[11px] text-live">{sourceCount} admitted</div>
+          <div className={`mt-1 font-mono text-[11px] ${sourceCount > 0 ? 'text-success' : 'text-white/45'}`}>{sourceCount} admitted</div>
         </div>
         <div>
           <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Movement</div>
-          <div className="mt-1 font-mono text-[11px] text-live">{movementCount} detected</div>
+          <div className={`mt-1 font-mono text-[11px] ${movementCount > 0 ? 'text-live' : 'text-white/45'}`}>{movementCount} detected</div>
         </div>
         <div>
           <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Evidence</div>
-          <div className="mt-1 font-mono text-[11px] text-evidence">{evidenceCount} linked</div>
+          <div className={`mt-1 font-mono text-[11px] ${evidenceCount > 0 ? 'text-success' : 'text-white/45'}`}>{evidenceCount} linked</div>
         </div>
         <div>
           <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Openings</div>
-          <div className="mt-1 font-mono text-[11px] text-brand">{decisionCount} ready</div>
+          <div className={`mt-1 font-mono text-[11px] ${decisionCount > 0 ? 'text-success' : 'text-white/45'}`}>{decisionCount} ready</div>
         </div>
       </div>
     </div>
@@ -332,10 +332,10 @@ function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroup
         <div className="relative z-10 grid min-h-[470px] lg:grid-cols-[minmax(0,1.16fr)_minmax(29rem,0.84fr)]">
           <div className="flex min-w-0 flex-col justify-center px-5 py-10 md:px-9 md:py-14 lg:pr-8">
             <div className="mb-8 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-live">
+              <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-success">
                 <span className="relative flex size-1.5">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-live opacity-45 motion-reduce:animate-none" />
-                  <span className="relative inline-flex size-1.5 rounded-full bg-live" />
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-45 motion-reduce:animate-none" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-success" />
                 </span>
                 Current intelligence
               </div>
@@ -389,10 +389,10 @@ function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups;
   const monitors = groups.agents.filter((item) => item.reference.resource_kind === 'monitor').length
   const openCases = groups.opportunities.filter((item) => item.reference.resource_kind === 'case').length
   const entries = [
-    { label: 'Sources', value: `${sources} admitted`, tone: 'bg-live' },
-    { label: 'Watches', value: `${monitors} active`, tone: 'bg-live' },
-    { label: 'Decision openings', value: `${openCases} ready`, tone: 'bg-brand' },
-    { label: 'Freshness', value: freshness, tone: 'bg-foreground/25' },
+    { label: 'Sources', value: `${sources} admitted`, tone: sources > 0 ? 'bg-success' : 'bg-foreground/25', valueTone: sources > 0 ? 'text-success' : 'text-foreground/60' },
+    { label: 'Watches', value: `${monitors} active`, tone: monitors > 0 ? 'bg-live' : 'bg-foreground/25', valueTone: monitors > 0 ? 'text-live' : 'text-foreground/60' },
+    { label: 'Decision openings', value: `${openCases} ready`, tone: openCases > 0 ? 'bg-success' : 'bg-foreground/25', valueTone: openCases > 0 ? 'text-success' : 'text-foreground/60' },
+    { label: 'Freshness', value: freshness, tone: 'bg-foreground/25', valueTone: 'text-foreground/75' },
   ]
 
   return (
@@ -401,7 +401,7 @@ function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups;
         <div key={entry.label} className="flex min-w-0 items-center gap-2.5">
           <span className={`size-1 shrink-0 rounded-full ${entry.tone}`} aria-hidden="true" />
           <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-muted-foreground">{entry.label}</span>
-          <span className="ml-auto truncate font-mono text-[9px] text-foreground/75">{entry.value}</span>
+          <span className={`ml-auto truncate font-mono text-[9px] ${entry.valueTone}`}>{entry.value}</span>
         </div>
       ))}
     </div>
@@ -445,31 +445,24 @@ function OpportunityStage({
   detail,
   count,
   active = false,
-  tone = 'neutral',
 }: {
   readonly title: string
   readonly detail: string
   readonly count: number
   readonly active?: boolean
-  readonly tone?: 'live' | 'evidence' | 'neutral'
 }) {
-  const inactiveTone = tone === 'live'
-    ? 'bg-live'
-    : tone === 'evidence'
-      ? 'bg-evidence'
-      : 'bg-foreground/35'
   return (
     <div className="group relative grid grid-cols-[1rem_minmax(0,1fr)_auto] items-center gap-4 py-4">
       <span className={active
-        ? 'relative z-10 size-2 rounded-full bg-brand shadow-[0_0_18px_color-mix(in_oklab,var(--brand)_45%,transparent)]'
-        : `relative z-10 size-1.5 rounded-full ${inactiveTone}`}
+        ? 'relative z-10 size-2 rounded-full bg-success shadow-[0_0_18px_color-mix(in_oklab,var(--success)_38%,transparent)]'
+        : 'relative z-10 size-1.5 rounded-full bg-foreground/30'}
         aria-hidden="true"
       />
       <div className="min-w-0">
         <div className={active ? 'text-sm font-semibold text-foreground' : 'text-sm font-medium text-foreground/80'}>{title}</div>
         <p className="mt-1 text-[11px] leading-4 text-muted-foreground">{detail}</p>
       </div>
-      <div className={active ? 'font-mono text-2xl font-medium tabular-nums text-brand' : 'font-mono text-2xl font-medium tabular-nums text-foreground/55'}>{count}</div>
+      <div className={active ? 'font-mono text-2xl font-medium tabular-nums text-success' : 'font-mono text-2xl font-medium tabular-nums text-foreground/55'}>{count}</div>
     </div>
   )
 }
@@ -487,9 +480,9 @@ function OpportunitySection({
   readonly detail: string
   readonly items: readonly IntelligenceResourceRecord[]
   readonly empty: string
-  readonly tone: 'live' | 'evidence' | 'authority'
+  readonly tone: 'ready' | 'progress' | 'neutral'
 }) {
-  const eyebrowTone = tone === 'live' ? 'text-live' : tone === 'evidence' ? 'text-evidence' : 'text-brand'
+  const eyebrowTone = tone === 'ready' ? 'text-success' : tone === 'progress' ? 'text-live' : 'text-muted-foreground'
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -516,7 +509,7 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
         <div className="grid min-h-[360px] lg:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]">
           <div className="flex flex-col justify-between px-6 py-7 md:px-9 md:py-9">
             <div>
-              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.19em] text-brand">Decision aperture</div>
+              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.19em] text-muted-foreground">Decision aperture</div>
               <h2 className="mt-5 max-w-3xl text-[clamp(2.25rem,4.2vw,4.5rem)] font-[420] leading-[0.98] tracking-[-0.05em]">
                 Intelligence becomes an opportunity when a decision window opens.
               </h2>
@@ -526,10 +519,10 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
             </p>
           </div>
           <div className="relative border-t border-white/[0.08] px-6 py-6 lg:border-l lg:border-t-0 lg:px-9">
-            <div className="absolute bottom-[5.5rem] left-[2.45rem] top-[5.5rem] w-px bg-gradient-to-b from-live/25 via-[var(--evidence)] to-brand/35 lg:left-[3.72rem]" />
+            <div className="absolute bottom-[5.5rem] left-[2.45rem] top-[5.5rem] w-px bg-gradient-to-b from-foreground/10 via-foreground/15 to-success/45 lg:left-[3.72rem]" />
             <div className="flex h-full flex-col justify-center divide-y divide-white/[0.07]">
-              <OpportunityStage title="Signal" count={earlySignals.length} detail="Relevant evidence enters the watch field." tone="live" />
-              <OpportunityStage title="Shift" count={emergingOpenings.length} detail="A material delta changes the current baseline." tone="evidence" />
+              <OpportunityStage title="Signal" count={earlySignals.length} detail="Relevant evidence enters the watch field." />
+              <OpportunityStage title="Shift" count={emergingOpenings.length} detail="A material delta changes the current baseline." />
               <OpportunityStage title="Decision opening" count={decisionOpenings.length} detail="A bounded question is ready for human judgment." active />
             </div>
           </div>
@@ -542,7 +535,7 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
         detail="Cases have a bounded question and preserved evidence. Review the record before turning one into Strategy or downstream Work."
         items={decisionOpenings}
         empty="No evidence-backed decision openings are ready yet."
-        tone="authority"
+        tone="ready"
       />
       <OpportunitySection
         eyebrow="Developing"
@@ -550,7 +543,7 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
         detail="Material shifts may become Opportunities once their decision window, impact, and evidence are clear."
         items={emergingOpenings}
         empty="No material shifts are currently developing into Opportunities."
-        tone="evidence"
+        tone="progress"
       />
       {earlySignals.length > 0 && (
         <OpportunitySection
@@ -559,7 +552,7 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
           detail="These observations are relevant, but ACE has not yet established a material shift or bounded decision question."
           items={earlySignals}
           empty="No early signals are being watched."
-          tone="live"
+          tone="progress"
         />
       )}
     </div>
@@ -681,7 +674,7 @@ export function IntelligenceOS() {
               <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden rounded-sm border border-border/70 bg-card font-mono text-[9px] sm:inline-flex">
                 {page.state === 'degraded'
                   ? <CircleAlert className="mr-1 size-3 text-warning" />
-                  : <span className="mr-1.5 size-1 rounded-full bg-live" aria-hidden="true" />}
+                  : <span className="mr-1.5 size-1 rounded-full bg-success" aria-hidden="true" />}
                 {page.state === 'degraded' ? 'Partial picture' : 'Picture current'}
               </Badge>
             )}
