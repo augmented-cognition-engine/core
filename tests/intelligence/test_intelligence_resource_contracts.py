@@ -441,6 +441,22 @@ def test_observation_cannot_precede_its_claimed_source_publication() -> None:
         )
 
 
+def test_observation_state_time_cannot_follow_its_ingestion_availability() -> None:
+    with pytest.raises(ValidationError, match="as_of cannot follow ingested_at"):
+        ObservationV1Alpha1(
+            **_common(),
+            source_ref="evidence:future-state",
+            source_digest="sha256:" + "4" * 64,
+            acquisition_mode=EvidenceAcquisitionMode.PREPARED_FIXTURE,
+            acquisition_receipt_ref="receipt:future-state-acquisition",
+            acquisition_receipt_digest="sha256:" + "4" * 64,
+            observed_at=AS_OF - timedelta(seconds=2),
+            ingested_at=AS_OF - timedelta(seconds=1),
+            payload=_json(),
+            confidence=0.5,
+        )
+
+
 def test_explicit_inference_requires_basis_and_uncertainty_but_not_a_fake_citation() -> None:
     basis_digest = "sha256:" + "3" * 64
     basis_ref = "shift:" + "3" * 32

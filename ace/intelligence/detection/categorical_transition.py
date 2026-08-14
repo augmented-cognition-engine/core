@@ -209,9 +209,9 @@ def _validate_pair(
         )
     if baseline.as_of >= current.as_of:
         raise CategoricalTransitionDetectionError("categorical transition baseline must precede current state")
-    if baseline.as_of < binding.revision.occurred_at:
+    if min(baseline.projected_at, current.projected_at) < binding.revision.occurred_at:
         raise CategoricalTransitionDetectionError(
-            "categorical transition baseline predates the prepared activation revision"
+            "categorical transition snapshot projection predates the prepared activation revision"
         )
     available_at = max(baseline.projected_at, current.projected_at)
     if _aware_utc(detected_at, label="detected_at") < available_at:
@@ -388,8 +388,8 @@ def _route_categorical_shift_as_signal(
         raise CategoricalTransitionDetectionError("the Shift does not use the exact bound activation revision")
     if validated_shift.product_id != validated_binding.revision.spec.product_id:
         raise CategoricalTransitionDetectionError("the Shift is outside the bound product scope")
-    if validated_shift.as_of < validated_binding.revision.occurred_at:
-        raise CategoricalTransitionDetectionError("the Shift predates the prepared activation revision")
+    if validated_shift.detected_at < validated_binding.revision.occurred_at:
+        raise CategoricalTransitionDetectionError("the Shift detection predates the prepared activation revision")
     if validated_shift.shift_type_ref != rule.shift_type:
         raise CategoricalTransitionDetectionError("the Shift does not match the bound detector rule")
     delta = validated_shift.delta.parsed_value()

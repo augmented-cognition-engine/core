@@ -208,8 +208,8 @@ def _validate_pair(
         raise NumericDeltaDetectionError("numeric delta rule does not target the snapshot entity type")
     if baseline.as_of >= current.as_of:
         raise NumericDeltaDetectionError("numeric delta baseline must precede current state")
-    if baseline.as_of < binding.revision.occurred_at:
-        raise NumericDeltaDetectionError("numeric delta baseline predates the prepared activation revision")
+    if min(baseline.projected_at, current.projected_at) < binding.revision.occurred_at:
+        raise NumericDeltaDetectionError("numeric delta snapshot projection predates the prepared activation revision")
     available_at = max(baseline.projected_at, current.projected_at)
     if _aware_utc(detected_at, label="detected_at") < available_at:
         raise NumericDeltaDetectionError("numeric delta cannot be detected before both snapshots were projected")
@@ -423,8 +423,8 @@ def _route_shift_as_signal(
         raise NumericDeltaDetectionError("the Shift does not use the exact bound activation revision")
     if validated_shift.product_id != validated_binding.revision.spec.product_id:
         raise NumericDeltaDetectionError("the Shift is outside the bound product scope")
-    if validated_shift.as_of < validated_binding.revision.occurred_at:
-        raise NumericDeltaDetectionError("the Shift predates the prepared activation revision")
+    if validated_shift.detected_at < validated_binding.revision.occurred_at:
+        raise NumericDeltaDetectionError("the Shift detection predates the prepared activation revision")
     if validated_shift.shift_type_ref != rule.shift_type:
         raise NumericDeltaDetectionError("the Shift does not match the bound detector rule")
     delta = validated_shift.delta.parsed_value()

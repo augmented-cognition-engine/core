@@ -319,6 +319,49 @@ def test_numeric_and_categorical_fixtures_use_one_branch_free_public_interpreter
     signature = set(inspect.signature(interpret_prepared_source_mapping).parameters)
     assert signature == {"binding", "mapping_id", "source_snapshot", "subject_binding"}
 
+
+def test_mapping_uses_semantic_state_time_and_keeps_actual_availability() -> None:
+    compiled = _compiled("numeric")
+    binding = _binding(compiled)
+    subject = _subject(binding, "numeric")
+    snapshot = _snapshot("numeric")
+
+    def rematerialize(**updates):
+        material = snapshot.model_dump(
+            mode="python",
+            exclude={"source_snapshot_ref", "source_snapshot_digest"},
+        )
+        material.update(updates)
+        return CanonicalSourceSnapshotV1Alpha1.model_validate(material)
+
+    event = interpret_prepared_source_mapping(
+        binding=binding,
+        mapping_id="reading_snapshot",
+        source_snapshot=snapshot,
+        subject_binding=subject,
+    )
+    publication = interpret_prepared_source_mapping(
+        binding=binding,
+        mapping_id="reading_snapshot",
+        source_snapshot=rematerialize(event_effective_at=None),
+        subject_binding=subject,
+    )
+    observation = interpret_prepared_source_mapping(
+        binding=binding,
+        mapping_id="reading_snapshot",
+        source_snapshot=rematerialize(event_effective_at=None, source_published_at=None),
+        subject_binding=subject,
+    )
+
+    assert event.observation.as_of == event.entity_snapshot.as_of == snapshot.event_effective_at
+    assert publication.observation.as_of == publication.entity_snapshot.as_of == snapshot.source_published_at
+    assert observation.observation.as_of == observation.entity_snapshot.as_of == snapshot.observed_at
+    for mapped in (event, publication, observation):
+        assert mapped.observation.ingested_at == INGESTED_AT
+        assert mapped.entity_snapshot.projected_at == INGESTED_AT
+        assert mapped.entity_snapshot.lineage[0].resource_as_of == mapped.observation.as_of
+        assert mapped.entity_snapshot.lineage[0].resource_available_at == INGESTED_AT
+
     _, _, numeric = _interpret("numeric")
     _, _, categorical = _interpret("categorical")
 
@@ -357,7 +400,7 @@ def test_numeric_and_categorical_fixtures_use_one_branch_free_public_interpreter
     assert conformance.lineage_relation is LineageRelation.DERIVED_FROM
     assert conformance.lineage_resource_id == conformance.observation_id
     assert conformance.lineage_resource_digest == conformance.observation_digest
-    assert conformance.lineage_resource_as_of == INGESTED_AT
+    assert conformance.lineage_resource_as_of == OBSERVED_AT - timedelta(minutes=30)
     assert conformance.lineage_resource_available_at == INGESTED_AT
 
 
@@ -497,10 +540,10 @@ def test_exact_prepared_outputs_are_pinned() -> None:
         numeric.entity_snapshot.resource_id,
         numeric.entity_snapshot.resource_digest,
     ) == (
-        "observation:b5f4394738f8b5e50049d251a86c57e6",
-        "sha256:b5f4394738f8b5e50049d251a86c57e6ae2ef8df3adb2e620739d3c80c5b0244",
-        "entity_snapshot:34e55f3de2964b0ead40b4f3139069a7",
-        "sha256:34e55f3de2964b0ead40b4f3139069a73d70837eff877c8961b0f337f5b21f0f",
+        "observation:1a12528799c8192eef0f450608da203b",
+        "sha256:1a12528799c8192eef0f450608da203b228c5dc220a19c267aaa14fe75efc035",
+        "entity_snapshot:935bb7668ce0cce0655877877793db66",
+        "sha256:935bb7668ce0cce0655877877793db663ee7aa3e7c3b6dcfc58264fed40f197e",
     )
     assert (
         categorical.observation.resource_id,
@@ -508,10 +551,10 @@ def test_exact_prepared_outputs_are_pinned() -> None:
         categorical.entity_snapshot.resource_id,
         categorical.entity_snapshot.resource_digest,
     ) == (
-        "observation:66426d907e83a36f6fe9eb8b619fade2",
-        "sha256:66426d907e83a36f6fe9eb8b619fade207c0a256f1eeec0089556f023e756912",
-        "entity_snapshot:c6103b731c5dd2e02694650c0d213e77",
-        "sha256:c6103b731c5dd2e02694650c0d213e77f136108562fdf9319647042f67a0905c",
+        "observation:db365d16a6ed9a399d36f90a96a67621",
+        "sha256:db365d16a6ed9a399d36f90a96a676213f0aa37677f6b31be48324787addafe1",
+        "entity_snapshot:377c44ca271b576f3768768b47a23446",
+        "sha256:377c44ca271b576f3768768b47a234468b22288eb7e56da9c762f5923487bb84",
     )
 
 

@@ -368,11 +368,12 @@ def _interpret_source_mapping(
         mapping_id=mapping.mapping_id,
         mapping_digest=f"sha256:{canonical_hash(mapping)}",
     )
+    state_as_of = snapshot.event_effective_at or snapshot.source_published_at or snapshot.observed_at
     observation = ObservationV1Alpha1(
         product_id=product_id,
         mode=mode,
         activation_revision=validated_binding.reference,
-        as_of=snapshot.ingested_at,
+        as_of=state_as_of,
         source_ref=snapshot.source_snapshot_ref,
         source_digest=snapshot.source_snapshot_digest,
         acquisition_mode=acquisition_mode,
@@ -393,7 +394,7 @@ def _interpret_source_mapping(
         product_id=product_id,
         mode=mode,
         activation_revision=validated_binding.reference,
-        as_of=snapshot.ingested_at,
+        as_of=state_as_of,
         lineage=(
             LineageReferenceV1Alpha1(
                 resource_kind=LineageResourceKind.OBSERVATION,

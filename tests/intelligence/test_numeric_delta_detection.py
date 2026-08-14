@@ -132,7 +132,7 @@ def _compiled_pack(
     )
 
 
-def _binding(**pack_changes) -> PreparedActivationBinding:
+def _binding(*, activated_at: datetime | None = None, **pack_changes) -> PreparedActivationBinding:
     pack = _compiled_pack(**pack_changes)
     overlay = compile_overlay(
         pack,
@@ -157,7 +157,7 @@ def _binding(**pack_changes) -> PreparedActivationBinding:
         state=ActivationState.ACTIVE,
         actor_ref="principal:test-author",
         approval_receipt_ref="receipt:prepared-approval",
-        occurred_at=AS_OF - timedelta(days=100),
+        occurred_at=activated_at or AS_OF - timedelta(days=100),
     )
     return bind_prepared_activation(pack=pack, revision=revision)
 
@@ -343,6 +343,71 @@ def test_detection_and_signal_timestamps_follow_input_availability() -> None:
             shift=available_shift,
             detected_at=AS_OF,
         )
+
+
+def test_semantic_state_may_predate_activation_but_processing_may_not() -> None:
+    activated_at = AS_OF - timedelta(hours=1)
+    binding = _binding(activated_at=activated_at)
+    baseline = _snapshot(
+        binding,
+        100.0,
+        as_of=AS_OF - timedelta(days=10),
+        projected_at=AS_OF,
+    )
+    current = _snapshot(
+        binding,
+        90.0,
+        as_of=AS_OF - timedelta(days=5),
+        projected_at=AS_OF,
+    )
+
+    shift = _detect(binding, baseline, current, detected_at=AS_OF)
+    assert shift is not None
+    assert shift.as_of < activated_at < shift.detected_at
+    signal = route_shift_as_signal(
+        binding=binding,
+        detector_id=DETECTOR_ID,
+        shift=shift,
+        detected_at=AS_OF,
+    )
+    assert signal.as_of < activated_at <= signal.detected_at
+    assert eligible_signal_routes(binding=binding, signal=signal) == ()
+
+    preactivation_baseline = _snapshot(
+        binding,
+        100.0,
+        as_of=AS_OF - timedelta(days=10),
+        projected_at=activated_at - timedelta(seconds=1),
+    )
+    with pytest.raises(NumericDeltaDetectionError, match="projection predates"):
+        _detect(binding, preactivation_baseline, current, detected_at=AS_OF)
+
+    shift_material = shift.model_dump(mode="python", exclude={"resource_id", "resource_digest"})
+    shift_material["detected_at"] = activated_at - timedelta(seconds=1)
+    shift_material["lineage"] = ()
+    preactivation_shift = shift.__class__.model_validate(shift_material)
+    with pytest.raises(NumericDeltaDetectionError, match="detection predates"):
+        route_shift_as_signal(
+            binding=binding,
+            detector_id=DETECTOR_ID,
+            shift=preactivation_shift,
+            detected_at=activated_at,
+        )
+
+    preactivation_signal = SignalV1Alpha1(
+        product_id=PRODUCT_ID,
+        mode=IntelligenceResourceMode.PREPARED,
+        activation_revision=binding.reference,
+        as_of=AS_OF - timedelta(days=5),
+        signal_type_ref="measure_attention",
+        title="Pre-activation processing is invalid",
+        summary="Historical state cannot be routed before the activation exists.",
+        details=CanonicalJsonValueV1Alpha1(value_json="{}"),
+        detected_at=activated_at - timedelta(seconds=1),
+        confidence=0.9,
+    )
+    with pytest.raises(SignalRoutingError, match="detection predates"):
+        eligible_signal_routes(binding=binding, signal=preactivation_signal)
 
 
 def test_comparison_context_prevents_cross_unit_delta() -> None:

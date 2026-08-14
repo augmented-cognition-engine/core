@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -26,14 +27,26 @@ from ace.core import (
     canonical_json,
 )
 from ace.core.runtime_use import AUTHORITY_GRANT_STATE_KIND
-from ace.intelligence import EvidenceAcquisitionMode, IntelligenceResourceMode
+from ace.intelligence import (
+    EvidenceAcquisitionMode,
+    IntelligenceResourceMode,
+    detect_numeric_shift,
+)
+from ace.intelligence.contracts.pack import DomainPackManifestV1
 from ace.intelligence.contracts.resource_plane import (
     IntelligenceResourceKind,
     IntelligenceResourceQueryV1Alpha1,
 )
+from ace.intelligence.packs.compiler import compile_pack
 from ace.testing import InMemoryImmutableRecordStore
+from tests.intelligence.conftest import digest_bytes, encode_json
 from tests.intelligence.test_domain_activation_admission import _Authority, _MemoryStore
-from tests.intelligence.test_source_mapping import _binding, _compiled, _fixture_documents, _subject
+from tests.intelligence.test_source_mapping import (
+    _binding,
+    _fixture_documents,
+    _manifest_and_resources,
+    _subject,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -43,8 +56,52 @@ OBSERVED_AT = datetime(2026, 8, 12, 18, tzinfo=UTC)
 ADMITTED_AT = datetime(2026, 8, 13, 18, tzinfo=UTC)
 
 
+def _compiled_recorded_numeric_pack():
+    ontology, mapping, _ = _fixture_documents("numeric")
+    manifest, resources = _manifest_and_resources(ontology, mapping)
+    detection = {
+        "contract": "ace.intelligence.detection/v1alpha1",
+        "module_id": "detection",
+        "numeric_delta_rules": [
+            {
+                "detector_id": "material_reading_change",
+                "entity_type_id": "reading",
+                "attribute_id": "value",
+                "baseline": "prior_snapshot",
+                "context_attribute_ids": ["code"],
+                "metric": "percent_change",
+                "threshold": 5.0,
+                "direction": "any",
+                "shift_type": "material_reading_change",
+                "signal_type": "reading_attention",
+            }
+        ],
+    }
+    detection_bytes = encode_json(detection)
+    resources["modules/detection.json"] = detection_bytes
+    material = manifest.model_dump(mode="python")
+    material["resources"] = (
+        *material["resources"],
+        {
+            "resource_id": "detection_resource",
+            "path": "modules/detection.json",
+            "digest": digest_bytes(detection_bytes),
+        },
+    )
+    material["modules"] = (
+        *material["modules"],
+        {
+            "module_id": "detection",
+            "contract": "ace.intelligence.detection/v1alpha1",
+            "resource_id": "detection_resource",
+            "depends_on": ("ontology",),
+        },
+    )
+    return compile_pack(DomainPackManifestV1.model_validate(material), resources)
+
+
 async def _stack():
-    pack = _compiled("numeric")
+    pack = _compiled_recorded_numeric_pack()
     prepared = _binding(pack, product_id=PRODUCT)
     activation_store = _MemoryStore()
     committed = await DomainActivationAdmissionService(
@@ -184,6 +241,65 @@ async def test_recorded_replay_admits_canonical_observation_entity_and_reopens_e
     assert replay.observations == first.observations
     assert replay.entity_snapshots == first.entity_snapshots
     assert replay.transaction_receipt == first.transaction_receipt
+
+
+@pytest.mark.asyncio
+async def test_one_recorded_batch_preserves_distinct_state_times_for_detection() -> None:
+    binding, build, records, baseline_material = await _stack()
+    current_payload = canonical_json({"reading": {"value": "90.000"}, "subject": {"code": "AX"}})
+    current_material = RecordedSourceMaterialV1Alpha1(
+        **baseline_material.model_dump(
+            mode="python",
+            exclude={
+                "source_uri",
+                "captured_payload_json",
+                "captured_payload_digest",
+                "source_published_at",
+                "event_effective_at",
+                "observed_at",
+                "locator",
+                "material_id",
+                "material_digest",
+            },
+        ),
+        source_uri="https://example.invalid/recorded/reading-2",
+        captured_payload_json=current_payload,
+        captured_payload_digest="sha256:" + hashlib.sha256(current_payload.encode()).hexdigest(),
+        source_published_at=OBSERVED_AT + timedelta(minutes=10),
+        event_effective_at=OBSERVED_AT + timedelta(minutes=15),
+        observed_at=OBSERVED_AT + timedelta(minutes=30),
+        locator="record:2",
+    )
+    refs = tuple(
+        RecordedSourceReferenceV1(
+            source_group_id=item.source_group_id,
+            material_id=str(item.material_id),
+            material_digest=str(item.material_digest),
+        )
+        for item in (baseline_material, current_material)
+    )
+    request_material = build.request.model_dump(mode="python")
+    request_material["recorded_source_refs"] = refs
+    build = replace(build, request=IntelligenceBuildStartV1.model_validate(request_material))
+
+    admitted = await CoreRecordedSourceAdmissionService(build=build, binding=binding, store=records).admit(
+        (baseline_material, current_material)
+    )
+    baseline, current = sorted(admitted.entity_snapshots, key=lambda item: item.as_of)
+    shift = detect_numeric_shift(
+        binding=binding.prepared_binding,
+        detector_id="material_reading_change",
+        baseline=baseline,
+        current=current,
+        detected_at=ADMITTED_AT,
+    )
+
+    assert baseline.as_of == baseline_material.event_effective_at
+    assert current.as_of == current_material.event_effective_at
+    assert baseline.as_of < current.as_of < baseline.projected_at == current.projected_at == ADMITTED_AT
+    assert shift is not None
+    assert shift.baseline_as_of == baseline.as_of
+    assert shift.as_of == current.as_of
 
 
 @pytest.mark.asyncio
