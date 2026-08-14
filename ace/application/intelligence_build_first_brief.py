@@ -261,9 +261,7 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
             or artifact_kinds.count(OnboardingArtifactKind.ACTIVATION_PLAN) != 1
             or artifact_kinds.count(OnboardingArtifactKind.ACTIVATION_RECEIPT) != 1
         ):
-            raise IntelligenceBuildFirstBriefError(
-                "Core-resolved active Builder session crossed the authorized build"
-            )
+            raise IntelligenceBuildFirstBriefError("Core-resolved active Builder session crossed the authorized build")
         return exact
 
     def _validate_cognition(
@@ -341,10 +339,7 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
             raise
         except Exception:
             raise IntelligenceBuildFirstBriefError("current Builder session failed exact durable reload") from None
-        if (
-            session != self.active_session
-            or session.occurred_at > request.requested_at
-        ):
+        if session != self.active_session or session.occurred_at > request.requested_at:
             raise IntelligenceBuildFirstBriefError("first Brief requires the exact current active Builder revision")
         if session.approval_receipt_ref != self.build.request.activation_approval_receipt_ref:
             raise IntelligenceBuildFirstBriefError("active Builder revision crossed the reviewed activation approval")

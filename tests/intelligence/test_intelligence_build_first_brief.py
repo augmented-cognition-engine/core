@@ -385,9 +385,7 @@ async def test_stale_session_wrong_attention_and_revoked_build_authority_fail_cl
 async def test_cross_build_request_fails_before_authority_or_provider_use():
     env, build, _, _, request, service = await _stack()
     material = request.model_dump(mode="python", exclude={"request_id", "request_digest"})
-    crossed = IntelligenceBuildFirstBriefRequestV1Alpha2(
-        **{**material, "build_request_digest": "sha256:" + "8" * 64}
-    )
+    crossed = IntelligenceBuildFirstBriefRequestV1Alpha2(**{**material, "build_request_digest": "sha256:" + "8" * 64})
 
     with pytest.raises(IntelligenceBuildFirstBriefError, match="crossed the authorized build"):
         await service.create_first_brief(crossed)
