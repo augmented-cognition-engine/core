@@ -27,6 +27,10 @@ Research was synthesized through Refero from:
 - **Borrowed — Parallel:** evidence-forward research hierarchy and a clear separation
   between a synthesized answer and its source record.
 
+Color is locked to representative opaque clusters measured from the authoritative
+4096px ACE mark: spectral cyan `#58E8F9`, evidence blue `#2896E7`, and identity
+violet `#9777F5`. Reference products may influence composition, never ACE color.
+
 Preserve: achromatic near-black surfaces, compact Spline typography, 8–12px radii,
 thin borders, evidence one interaction away, and one controlled ACE-mark accent.
 
@@ -39,8 +43,9 @@ glassmorphism, and gradients outside the ACE mark or a rare brand transition.
 | Role | Light | Dark / Atrium | Meaning |
 |---|---:|---:|---|
 | Primary action | `#315DDE` | `#E7E5E1` | Atrium uses a light neutral fill rather than a chromatic block |
-| Focus / identity | `#315DDE` | `#9B7BF6` | Spectral violet from the ACE mark for selection, links, focus, and ACE voice |
-| Spectral cyan | `#0F8294` | `#62C3BE` | Live/in-motion evidence only |
+| Focus / identity | `#315DDE` | `#9777F5` | Spectral violet from the ACE mark for selection, links, focus, and ACE voice |
+| Spectral cyan | `#0F8294` | `#58E8F9` | Live/in-motion evidence only |
+| Evidence blue | `#315DDE` | `#2896E7` | Information, evidence, and data visualization only |
 | Success green | `#178A4B` | `#4CC984` | Verified, completed, or accepted state only |
 | Canvas | `#FFFFFF` | `#08090A` | Working surface / Atrium command center |
 | Card | `#FFFFFF` | `#111214` | Evidence and intelligence records |

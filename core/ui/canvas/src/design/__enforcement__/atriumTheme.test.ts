@@ -55,8 +55,9 @@ describe('Atrium neutral-first theme', () => {
 
   it('uses neutral primary actions and one ACE-mark focus accent', () => {
     expect(token('--primary')).toBe('#E7E5E1')
-    expect(token('--brand')).toBe('#9B7BF6')
-    expect(token('--ring')).toBe('#9B7BF6')
+    expect(token('--brand')).toBe('#9777F5')
+    expect(token('--ring')).toBe('#9777F5')
+    expect(token('--live')).toBe('#58E8F9')
     expect(token('--anchor')).toBe('#15151A')
   })
 

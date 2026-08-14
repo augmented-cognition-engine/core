@@ -249,10 +249,10 @@
     --accent-foreground: #F3F1ED;
     --border: #2A2B2D;
     --input: #353638;
-    --ring: #9B7BF6;
-    --brand: #9B7BF6;
+    --ring: #9777F5;
+    --brand: #9777F5;
     --brand-foreground: #0D0917;
-    --live: #62C3BE;
+    --live: #58E8F9;
     --live-foreground: #071312;
     --success: #4CC984;
     --success-foreground: #07140C;
@@ -260,12 +260,12 @@
     --anchor-foreground: #F3F1ED;
     --sidebar: #0B0C0D;
     --sidebar-foreground: #E9E7E3;
-    --sidebar-primary: #9B7BF6;
+    --sidebar-primary: #9777F5;
     --sidebar-primary-foreground: #0D0917;
     --sidebar-accent: #17181A;
     --sidebar-accent-foreground: #F3F1ED;
     --sidebar-border: #242527;
-    --sidebar-ring: #9B7BF6;
+    --sidebar-ring: #9777F5;
 }
 
 @layer base {
