@@ -14,7 +14,10 @@ from ace.application.intelligence_build_execution import (
     IntelligenceBuildStartV1Alpha2,
     RecordedSourceReferenceV1,
 )
-from ace.application.intelligence_resource_projection import IntelligenceLedgerResourceProjectionReader
+from ace.application.intelligence_resource_projection import (
+    IntelligenceLedgerResourceProjectionReader,
+    RecordedSourceReadinessResourceProjectionReader,
+)
 from ace.application.recorded_source_admission import (
     CoreRecordedSourceAdmissionService,
     CoreRecordedSourceAdmissionV1Alpha2Service,
@@ -38,10 +41,12 @@ from ace.intelligence import (
 from ace.intelligence.contracts.pack import DomainPackManifestV1
 from ace.intelligence.contracts.resource_plane import (
     IntelligenceResourceKind,
+    IntelligenceResourcePageState,
     IntelligenceResourceQueryV1Alpha1,
 )
 from ace.intelligence.packs.compiler import compile_pack
 from ace.testing import InMemoryImmutableRecordStore
+from core.engine.core.intelligence_resource_plane import intelligence_resource_projection_reader
 from tests.intelligence.conftest import digest_bytes, encode_json
 from tests.intelligence.test_domain_activation_admission import _Authority, _MemoryStore
 from tests.intelligence.test_source_mapping import (
@@ -504,6 +509,85 @@ async def test_recorded_observation_is_visible_from_fresh_canonical_resource_pro
     assert len(entity_page.records) == 1
     assert entity_page.records[0].reference.resource_id == admitted.entity_snapshots[0].resource_id
     assert entity_page.records[0].reference.resource_kind is IntelligenceResourceKind.ENTITY
+
+
+@pytest.mark.asyncio
+async def test_recorded_admission_projects_explicit_source_readiness_without_freshness_claim() -> None:
+    binding, build, records, material, selection = await _v1alpha2_stack()
+    admitted = await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=records,
+    ).admit((material,))
+    query = IntelligenceResourceQueryV1Alpha1(
+        authenticated_context=build.authority_use.authenticated_context,
+        product_id=PRODUCT,
+        authority_grant_ref="authority_grant:atrium-observe-read",
+        resource_kinds=(IntelligenceResourceKind.SOURCE_HEALTH,),
+        subject_refs=(material.source_definition_ref,),
+        as_of=ADMITTED_AT,
+        available_at=ADMITTED_AT,
+        page_size=10,
+    )
+    page = await intelligence_resource_projection_reader(records).read(
+        query=query,
+        after=None,
+        limit=10,
+    )
+
+    assert page.state is IntelligenceResourcePageState.COMPLETE
+    assert len(page.records) == 1
+    readiness = page.records[0]
+    assert readiness.reference.resource_kind is IntelligenceResourceKind.SOURCE_HEALTH
+    assert readiness.reference.as_of == material.observed_at
+    assert readiness.reference.available_at == ADMITTED_AT
+    assert readiness.availability.value == "available"
+    payload = readiness.payload.parsed_value()
+    assert payload["readiness_state"] == "ready"
+    assert payload["credential_requirement"] == "none_required"
+    assert payload["permission_state"] == "approved"
+    assert payload["activation_state"] == "active"
+    assert payload["admission_state"] == "admitted"
+    assert payload["recorded_material_id"] == material.material_id
+    assert payload["reviewed_selection_id"] == selection.selection_id
+    assert payload["last_success_at"] == admitted.acquisition_receipts[0].admitted_at.isoformat()
+    assert payload["last_error"] is None
+    assert payload["retry_state"] == "not_retrying"
+    assert payload["freshness"] == "unverified"
+    assert payload["freshness_verified"] is False
+    assert payload["network_capture_performed"] is False
+
+
+@pytest.mark.asyncio
+async def test_recorded_source_readiness_fails_closed_on_orphaned_snapshot() -> None:
+    binding, build, records, material, _ = await _v1alpha2_stack()
+    await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=records,
+    ).admit((material,))
+    snapshot_id = next(
+        storage_id for storage_id, record in records.records.items() if record.record_kind == "source_snapshot"
+    )
+    del records.records[snapshot_id]
+    query = IntelligenceResourceQueryV1Alpha1(
+        authenticated_context=build.authority_use.authenticated_context,
+        product_id=PRODUCT,
+        authority_grant_ref="authority_grant:atrium-observe-read",
+        resource_kinds=(IntelligenceResourceKind.SOURCE_HEALTH,),
+        as_of=ADMITTED_AT,
+        available_at=ADMITTED_AT,
+        page_size=10,
+    )
+    page = await RecordedSourceReadinessResourceProjectionReader(store=records).read(
+        query=query,
+        after=None,
+        limit=10,
+    )
+
+    assert page.records == ()
+    assert page.state is IntelligenceResourcePageState.DEGRADED
+    assert page.degraded_reason_refs == ("degraded_reason:invalid-recorded-source-readiness",)
 
 
 @pytest.mark.asyncio

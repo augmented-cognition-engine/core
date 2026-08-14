@@ -453,6 +453,7 @@ from ace.application.intelligence_resource_projection import (
     IntelligenceResourceProjectionContributor,
     LiveSourceResourceProjectionReader,
     MonitoringResourceProjectionReader,
+    RecordedSourceReadinessResourceProjectionReader,
 )
 from ace.application.live_intelligence_bridge import (
     LiveBriefAdmission,
@@ -618,6 +619,7 @@ __all__ = [
     "CompositeIntelligenceResourceProjectionReader",
     "DecisionOutcomeFeedbackResourceProjectionReader",
     "MonitoringResourceProjectionReader",
+    "RecordedSourceReadinessResourceProjectionReader",
     "ASSERTION_DECISION_RECORD_KIND",
     "EXTRACTION_RECEIPT_RECORD_KIND",
     "GRAPH_PROJECTION_RECORD_KIND",
