@@ -342,6 +342,44 @@ async def test_recorded_observation_is_visible_from_fresh_canonical_resource_pro
 
 
 @pytest.mark.asyncio
+async def test_subject_binding_is_resolved_only_from_the_exact_committed_pack() -> None:
+    binding, build, records, material = await _stack()
+    service = CoreRecordedSourceAdmissionService(build=build, binding=binding, store=records)
+
+    subject = service.bind_subject(
+        subject_binding_id=material.subject_binding.subject_binding_id,
+        entity_type_id=material.subject_binding.entity_type_id,
+        entity_ref="entity:recorded-subject",
+    )
+
+    assert subject.product_id == build.product_id
+    assert subject.mode is IntelligenceResourceMode.PREPARED
+    assert subject.activation_revision == binding.prepared_binding.reference
+    assert subject.subject_binding_id == material.subject_binding.subject_binding_id
+    assert subject.entity_type_id == material.subject_binding.entity_type_id
+    assert subject.entity_ref == "entity:recorded-subject"
+
+    with pytest.raises(RecordedSourceAdmissionError, match="resolve exactly once"):
+        service.bind_subject(
+            subject_binding_id="undeclared_subject",
+            entity_type_id=material.subject_binding.entity_type_id,
+            entity_ref="entity:recorded-subject",
+        )
+    with pytest.raises(RecordedSourceAdmissionError, match="resolve exactly once"):
+        service.bind_subject(
+            subject_binding_id=material.subject_binding.subject_binding_id,
+            entity_type_id="undeclared_entity_type",
+            entity_ref="entity:recorded-subject",
+        )
+    with pytest.raises(RecordedSourceAdmissionError, match="exact committed Pack resolution"):
+        service.bind_subject(
+            subject_binding_id=material.subject_binding.subject_binding_id,
+            entity_type_id=material.subject_binding.entity_type_id,
+            entity_ref="not a valid entity reference",
+        )
+
+
+@pytest.mark.asyncio
 async def test_substituted_recorded_material_fails_before_any_write() -> None:
     binding, build, records, material = await _stack()
     changed_payload = canonical_json({"reading": {"value": "999.000"}, "subject": {"code": "AX"}})

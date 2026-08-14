@@ -13,14 +13,16 @@ from typing import Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, ValidationError
 
-from ace.application import IntelligenceResourcePageV1Alpha1
+from ace.application import InstalledCompiledPackArtifactResolver, IntelligenceResourcePageV1Alpha1
 from ace.application.intelligence_build_execution import (
     AuthorizedIntelligenceBuild,
     IntelligenceBuildExecutor,
     IntelligenceBuildHostServices,
+    IntelligenceBuildResourcePagePort,
     IntelligenceBuildStartV1,
     ProductScopedImmutableRecordStore,
 )
+from ace.application.intelligence_build_host import DurableIntelligenceBuildHostComposer
 from ace.core import CoreAuthorityResolver, ImmutableRecordStore, ResolvedApprovalReceiptV1
 from ace.core.contracts import canonical_hash
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
@@ -72,12 +74,24 @@ class IntelligenceBuildAuthorizationPort(Protocol):
     ) -> AuthorityUseReceiptV1Alpha1: ...
 
 
+class IntelligenceBuildHostCompositionPort(Protocol):
+    async def compose(
+        self,
+        *,
+        build: AuthorizedIntelligenceBuild,
+        records: ImmutableRecordStore,
+        resources: IntelligenceBuildResourcePagePort,
+        activation_authority: CoreAuthorityResolver,
+    ) -> IntelligenceBuildHostServices: ...
+
+
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildHttpRuntime:
     records: ImmutableRecordStore
     authority: IntelligenceBuildAuthorizationPort
     activation_authority: CoreAuthorityResolver
     executor: IntelligenceBuildExecutor
+    host_composer: IntelligenceBuildHostCompositionPort | None = None
 
 
 class IntelligenceBuildError(RuntimeError):
@@ -126,11 +140,17 @@ class _InstalledIntelligenceBuildExecutor:
 def intelligence_build_runtime() -> IntelligenceBuildHttpRuntime:
     records = SurrealImmutableRecordStore(pool)
     governed_state = SurrealGovernedStateStore(pool)
+    authority = GovernedStateRuntimeUseResolver(governed_state=governed_state)
     return IntelligenceBuildHttpRuntime(
         records=records,
-        authority=GovernedStateRuntimeUseResolver(governed_state=governed_state),
+        authority=authority,
         activation_authority=_UnavailableActivationAuthority(),
         executor=_InstalledIntelligenceBuildExecutor(),
+        host_composer=DurableIntelligenceBuildHostComposer(
+            governed_state=governed_state,
+            runtime_use=authority,
+            packs=InstalledCompiledPackArtifactResolver.discover(),
+        ),
     )
 
 
@@ -241,15 +261,23 @@ async def start_intelligence_build(
             activation_approval=activation_approval,
         )
         scoped_records = ProductScopedImmutableRecordStore(product_id=product_id, store=runtime.records)
+        resources = CoreIntelligenceBuildResourcePagePort(
+            build=authorized_build,
+            records=scoped_records,
+            authority=runtime.authority,
+        )
         host_services = IntelligenceBuildHostServices(
             records=scoped_records,
-            resources=CoreIntelligenceBuildResourcePagePort(
-                build=authorized_build,
-                records=scoped_records,
-                authority=runtime.authority,
-            ),
+            resources=resources,
             activation_authority=runtime.activation_authority,
         )
+        if runtime.host_composer is not None:
+            host_services = await runtime.host_composer.compose(
+                build=authorized_build,
+                records=scoped_records,
+                resources=resources,
+                activation_authority=runtime.activation_authority,
+            )
         page = IntelligenceResourcePageV1Alpha1.model_validate(
             (await runtime.executor.start(authorized_build, host_services)).model_dump(mode="python")
         )
@@ -283,6 +311,7 @@ __all__ = [
     "IntelligenceBuildDenied",
     "IntelligenceBuildExecutor",
     "IntelligenceBuildHttpRuntime",
+    "IntelligenceBuildHostCompositionPort",
     "IntelligenceBuildResultV1",
     "IntelligenceBuildStartV1",
     "IntelligenceBuildUnauthenticated",
