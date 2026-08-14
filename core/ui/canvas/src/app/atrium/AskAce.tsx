@@ -103,58 +103,61 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
                 I do not have enough governed evidence to answer that yet. Add a source or broaden a monitor; ACE will not fill the gap with an unsupported claim.
               </p>
             ) : (
-              <div className="mt-3 space-y-4">
-                <p className="border-l-2 border-brand pl-3 text-[15px] font-medium leading-6 text-foreground">
-                  {answer.conclusion}
-                </p>
+              <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
+                <div className="space-y-4">
+                  <div>
+                    <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Answer</div>
+                    <p className="mt-2 border-l-2 border-brand pl-3 text-[15px] font-medium leading-6 text-foreground">
+                      {answer.conclusion}
+                    </p>
+                  </div>
 
-                {(answer.whyItMatters !== null || answer.whenItChanged !== null) && (
-                  <div className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
-                    {answer.whyItMatters !== null && (
-                      <div className="bg-card p-3">
-                        <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Why it matters</div>
-                        <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whyItMatters}</p>
-                      </div>
-                    )}
-                    {answer.whenItChanged !== null && (
-                      <div className="bg-card p-3">
-                        <div className="flex items-center gap-1.5 font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">
-                          <Clock3 className="size-3" /> When
+                  {(answer.whyItMatters !== null || answer.whenItChanged !== null) && (
+                    <div className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
+                      {answer.whyItMatters !== null && (
+                        <div className="bg-card p-3">
+                          <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Why it matters</div>
+                          <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whyItMatters}</p>
                         </div>
-                        <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whenItChanged}</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div>
-                  <div className="mb-2 flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                    <GitBranch className="size-3" /> Evidence trail
-                  </div>
-                  <div className="space-y-2">
-                  {answer.evidence.slice(0, 3).map((match, index) => (
-                  <div key={`${match.reference.resource_id}:${match.reference.revision}`} className="flex gap-3">
-                    <span className="font-mono text-[10px] text-brand">[{index + 1}]</span>
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium leading-snug">{match.title}</div>
-                      {match.summary !== null && (
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {match.summary}
-                        </p>
                       )}
-                      <div className="mt-1.5 font-mono text-[10px] text-muted-foreground">
-                        {kindLabel(match.reference.resource_kind)} · revision {match.reference.revision} · {match.provenance.length} evidence links
-                      </div>
+                      {answer.whenItChanged !== null && (
+                        <div className="bg-card p-3">
+                          <div className="flex items-center gap-1.5 font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">
+                            <Clock3 className="size-3" /> When
+                          </div>
+                          <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whenItChanged}</p>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )}
+
+                  <div className="flex items-start gap-2 border-t border-border/70 pt-3 text-[11px] leading-5 text-muted-foreground">
+                    <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
+                    <span>{answer.limitation}</span>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-2 border-t border-border/70 pt-3 text-[11px] leading-5 text-muted-foreground">
-                  <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
-                  <span>{answer.limitation}</span>
-                </div>
+                <aside className="rounded-lg border bg-card/70 p-3.5" aria-label="Evidence used for this answer">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                      <GitBranch className="size-3" /> Evidence used
+                    </div>
+                    <Badge variant="outline" className="rounded-sm font-mono text-[8px]">{answer.evidence.length} records</Badge>
+                  </div>
+                  <div className="divide-y divide-border/70">
+                    {answer.evidence.slice(0, 4).map((match, index) => (
+                      <div key={`${match.reference.resource_id}:${match.reference.revision}`} className="flex gap-3 py-3 first:pt-0 last:pb-0">
+                        <span className="font-mono text-[10px] text-brand">[{index + 1}]</span>
+                        <div className="min-w-0">
+                          <div className="text-xs font-medium leading-snug">{match.title}</div>
+                          <div className="mt-1.5 font-mono text-[9px] text-muted-foreground">
+                            {kindLabel(match.reference.resource_kind)} · r{match.reference.revision} · {match.provenance.length} links
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </aside>
               </div>
             )}
           </div>
