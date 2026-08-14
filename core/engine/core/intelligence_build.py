@@ -23,8 +23,8 @@ from ace.application.intelligence_build_execution import (
     ProductScopedImmutableRecordStore,
 )
 from ace.application.intelligence_build_host import DurableIntelligenceBuildHostComposer
+from ace.application.intelligence_build_planning import intelligence_build_execution_identity
 from ace.core import CoreAuthorityResolver, ImmutableRecordStore, ResolvedApprovalReceiptV1
-from ace.core.contracts import canonical_hash
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1
 from core.engine.core.agent_composition_runtime import (
     GovernedCompositionAuthorityError,
@@ -177,8 +177,11 @@ def _request_identity(*, request: IntelligenceBuildStartV1, product_id: str, act
             "activation_approval_receipt_ref",
         },
     )
-    raw_digest = canonical_hash([product_id, actor_ref, material])
-    return f"intelligence_build:{raw_digest[:32]}", f"sha256:{raw_digest}"
+    return intelligence_build_execution_identity(
+        product_id=product_id,
+        actor_ref=actor_ref,
+        request_material=material,
+    )
 
 
 async def start_intelligence_build(
