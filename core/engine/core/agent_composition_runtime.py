@@ -243,7 +243,11 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
         if material.revision.payload_contract != GRANT_PAYLOAD_CONTRACT:
             raise GovernedCompositionAuthorityError("authority grant uses an unsupported private payload")
         try:
-            grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload)
+            # Durable stores return JSON-shaped values (lists, enum strings, and
+            # decoded datetimes) rather than the strict Python construction shape.
+            # Normalize that wire representation before the exact scope, operation,
+            # lifecycle, head, and commit-receipt comparisons below fail closed.
+            grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("authority grant payload failed exact validation") from exc
         if (
@@ -341,7 +345,9 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
         if material.revision.payload_contract != GRANT_PAYLOAD_CONTRACT:
             raise GovernedCompositionAuthorityError("authority grant uses an unsupported private payload")
         try:
-            grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload)
+            # See load_grant: current-use authorization reads the same durable JSON
+            # representation and retains every semantic authority check below.
+            grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("authority grant payload failed exact validation") from exc
         if (
