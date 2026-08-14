@@ -373,6 +373,15 @@ from ace.application.intelligence_build_planning import (
     validate_intelligence_build_planner_v1alpha2_registration,
     validate_intelligence_build_planner_v1alpha3_registration,
 )
+from ace.application.intelligence_build_review import (
+    INTELLIGENCE_BUILD_REVIEW_PROJECTION_VERSION,
+    IntelligenceBuildReviewConceptV1Alpha1,
+    IntelligenceBuildReviewEffectV1Alpha1,
+    IntelligenceBuildReviewProjectionV1Alpha1,
+    IntelligenceBuildReviewSourceV1Alpha1,
+    IntelligenceBuildReviewWatchV1Alpha1,
+    project_intelligence_build_review,
+)
 from ace.application.intelligence_builder import (
     ConnectionAgent,
     ConnectionAgentError,
@@ -900,6 +909,13 @@ __all__ = [
     "IntelligenceBuildRecordedSourcePort",
     "IntelligenceBuildStartV1",
     "IntelligenceBuildStartV1Alpha2",
+    "INTELLIGENCE_BUILD_REVIEW_PROJECTION_VERSION",
+    "IntelligenceBuildReviewConceptV1Alpha1",
+    "IntelligenceBuildReviewEffectV1Alpha1",
+    "IntelligenceBuildReviewProjectionV1Alpha1",
+    "IntelligenceBuildReviewSourceV1Alpha1",
+    "IntelligenceBuildReviewWatchV1Alpha1",
+    "project_intelligence_build_review",
     "INTELLIGENCE_BUILD_PLAN_REQUEST_VERSION",
     "INTELLIGENCE_BUILD_PLAN_VERSION",
     "INTELLIGENCE_BUILD_PLANNER_CONTRACT",

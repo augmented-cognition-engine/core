@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { getToken } from './auth'
-import { startIntelligenceBuild } from './intelligenceBuildsApi'
+import {
+  createIntelligenceBuildPlanPrepareInput,
+  prepareIntelligenceBuild,
+  startIntelligenceBuild,
+} from './intelligenceBuildsApi'
 
 vi.mock('./auth', () => ({ clearToken: vi.fn(), getToken: vi.fn() }))
 
@@ -75,5 +79,94 @@ describe('startIntelligenceBuild', () => {
       status: 503,
       message: 'no Intelligence build executor is registered',
     })
+  })
+})
+
+describe('prepareIntelligenceBuild', () => {
+  const selection = {
+    profile_id: 'onboarding_profile:world-ai',
+    profile_digest: `sha256:${'b'.repeat(64)}`,
+    subject: 'Keep me ahead of material AI changes.',
+    outcome_id: 'decision-readiness',
+    source_group_ids: ['official-records'],
+    cadence_id: 'daily',
+  }
+
+  beforeEach(() => {
+    vi.mocked(getToken).mockReset()
+    vi.mocked(getToken).mockResolvedValue('personal-token')
+  })
+
+  test('posts the exact reusable prepare input and returns server review material', async () => {
+    const input = createIntelligenceBuildPlanPrepareInput(selection)
+    const plan = {
+      contract: 'ace.application.intelligence-build-plan/v1alpha2',
+      request: {
+        ...input,
+        contract: 'ace.application.intelligence-build-plan-request/v1alpha2',
+        product_id: 'product:local',
+        actor_ref: 'principal:local-owner',
+        request_id: 'intelligence_build_plan_request:test',
+        request_digest: `sha256:${'c'.repeat(64)}`,
+      },
+      recorded_source_selection_refs: [],
+      review_projection: {
+        contract: 'ace.application.intelligence-build-review-projection/v1alpha1',
+        request_id: 'intelligence_build_plan_request:test',
+        request_digest: `sha256:${'c'.repeat(64)}`,
+        profile_id: selection.profile_id,
+        profile_digest: selection.profile_digest,
+        subject: selection.subject,
+        outcome_id: selection.outcome_id,
+        outcome_label: 'Decision readiness',
+        sources: [],
+        concepts: [],
+        watches: [],
+        cadence_id: selection.cadence_id,
+        cadence_label: 'Daily',
+        cadence_description: 'Once a day.',
+        effects: [],
+        projection_id: 'intelligence_build_review:test',
+        projection_digest: `sha256:${'d'.repeat(64)}`,
+      },
+      plan_id: 'intelligence_build_plan:test',
+      plan_digest: `sha256:${'e'.repeat(64)}`,
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(plan), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })))
+
+    await expect(prepareIntelligenceBuild(input)).resolves.toMatchObject({
+      plan_id: 'intelligence_build_plan:test',
+      review_projection: { projection_id: 'intelligence_build_review:test' },
+    })
+    const [path, options] = vi.mocked(fetch).mock.calls[0] ?? []
+    expect(path).toBe('/v1/intelligence/builds/prepare')
+    expect(JSON.parse(String(options?.body))).toEqual(input)
+    expect(options?.headers).toEqual(expect.objectContaining({ Authorization: 'Bearer personal-token' }))
+  })
+
+  test.each([404, 409, 503])('preserves the exact degraded status %s', async (status) => {
+    const input = createIntelligenceBuildPlanPrepareInput(selection)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(
+      JSON.stringify({ detail: `bounded failure ${status}` }),
+      { status, headers: { 'Content-Type': 'application/json' } },
+    )))
+
+    await expect(prepareIntelligenceBuild(input)).rejects.toMatchObject({
+      status,
+      message: `bounded failure ${status}`,
+    })
+  })
+
+  test('rejects a successful response that has no exact review projection', async () => {
+    const input = createIntelligenceBuildPlanPrepareInput(selection)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      contract: 'ace.application.intelligence-build-plan/v1alpha2',
+      review_projection: null,
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } })))
+
+    await expect(prepareIntelligenceBuild(input)).rejects.toMatchObject({ status: 409 })
   })
 })
