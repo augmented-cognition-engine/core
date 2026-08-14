@@ -780,7 +780,9 @@ For new insights, classify:
         embedding = None
         try:
             embedder = get_embedder()
-            if embedder.dimensions:
+            from core.engine.embedding.base import INTELLIGENCE_EMBEDDING_DIMENSIONS
+
+            if embedder.dimensions == INTELLIGENCE_EMBEDDING_DIMENSIONS:
                 # Contextual chunk enrichment: embed a [discipline · type · tags]-prefixed text so the
                 # vector captures context; the STORED content (below) stays raw. Off → raw content.
                 embed_text = content
@@ -794,7 +796,7 @@ For new insights, classify:
                         tags=tags,
                     )
                 vecs = await embedder.embed([embed_text])
-                if vecs and vecs[0] and len(vecs[0]) == embedder.dimensions:
+                if vecs and vecs[0] and len(vecs[0]) == INTELLIGENCE_EMBEDDING_DIMENSIONS:
                     embedding = vecs[0]
         except Exception:
             logger.warning("embedding failed; writing insight in degraded mode", exc_info=True)
@@ -885,7 +887,9 @@ For new insights, classify:
         embedding = None
         try:
             embedder = get_embedder()
-            if embedder.dimensions:
+            from core.engine.embedding.base import INTELLIGENCE_EMBEDDING_DIMENSIONS
+
+            if embedder.dimensions == INTELLIGENCE_EMBEDDING_DIMENSIONS:
                 embed_text = new_content
                 if settings.contextual_chunk_enrichment:
                     from core.engine.capture.contextualize import contextualize_for_embedding
@@ -897,7 +901,7 @@ For new insights, classify:
                         tags=ctx.get("tags"),
                     )
                 vecs = await embedder.embed([embed_text])
-                if vecs and vecs[0] and len(vecs[0]) == embedder.dimensions:
+                if vecs and vecs[0] and len(vecs[0]) == INTELLIGENCE_EMBEDDING_DIMENSIONS:
                     embedding = vecs[0]
         except Exception:
             logger.warning("embedding failed on update; marking needs_embedding", exc_info=True)

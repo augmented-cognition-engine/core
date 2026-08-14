@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 
 from core.engine.core.db import parse_rows, pool
-from core.engine.embedding.base import get_embedder
+from core.engine.embedding.base import INTELLIGENCE_EMBEDDING_DIMENSIONS, get_embedder
 from core.engine.sentinel.registry import register_engine
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ async def reconcile_missing_embeddings(limit: int = 200) -> int:
     mid-loop (LEASE_TTL) and starving the pool.
     """
     embedder = get_embedder()
-    if embedder.dimensions == 0:
+    if embedder.dimensions != INTELLIGENCE_EMBEDDING_DIMENSIONS:
         return 0
 
     # --- fetch, then release the connection before inference ---
@@ -85,7 +85,7 @@ async def reconcile_missing_embeddings(limit: int = 200) -> int:
     fixed = 0
     async with pool.connection() as db:
         for (id_str, _), vec in zip(pending, vectors):
-            if not vec or len(vec) != embedder.dimensions:
+            if not vec or len(vec) != INTELLIGENCE_EMBEDDING_DIMENSIONS:
                 continue
             await db.query(
                 "UPDATE <record>$id SET embedding = $emb, needs_embedding = false, updated_at = time::now()",

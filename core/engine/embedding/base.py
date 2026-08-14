@@ -6,6 +6,8 @@ from typing import Protocol, runtime_checkable
 
 from core.engine.core.config import settings
 
+INTELLIGENCE_EMBEDDING_DIMENSIONS = 768
+
 
 @runtime_checkable
 class Embedder(Protocol):

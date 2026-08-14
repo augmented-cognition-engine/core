@@ -171,6 +171,12 @@ async def atomic_capture_write(
                       or specialty lookup fails). The whole transaction is rolled back
                       before this is raised.
     """
+    from core.engine.embedding.base import INTELLIGENCE_EMBEDDING_DIMENSIONS
+
+    if embedding is not None and len(embedding) != INTELLIGENCE_EMBEDDING_DIMENSIONS:
+        raise ValueError(
+            f"insight embedding dimension mismatch (got {len(embedding)}, expected {INTELLIGENCE_EMBEDDING_DIMENSIONS})"
+        )
     needs_embedding = embedding is None
 
     # A lifecycle attempt supplies a deterministic ID.  An exact replay returns

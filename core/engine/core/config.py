@@ -290,7 +290,7 @@ class Settings(BaseSettings):
     gitlab_webhook_secret: str = ""
 
     # Embedding
-    embedding_provider: str = "onnx"  # "onnx" | "codesage" | "voyage" | "openai" | "none"
+    embedding_provider: str = "onnx"  # "onnx" | "codesage" | "none"; intelligence RAG requires ONNX's 768 dims
     embedding_model: str = "CodeRankEmbed"
     ace_model_dir: str = "~/.ace/models"
 

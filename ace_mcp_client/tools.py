@@ -231,16 +231,26 @@ async def ace_search(
     query: str,
     product_id: str = "product:default",
     knowledge_type: str | None = None,
+    tags: list[str] | None = None,
 ) -> dict:
     """Search the intelligence graph."""
     c = _get_client()
     params: dict = {"q": query, "product": product_id}
-    r = await c.get("/intel/search", params=params)
-    # Client-side filter by knowledge_type if provided
-    results = r.get("results", [])
     if knowledge_type:
+        params["knowledge_type"] = knowledge_type
+    if tags:
+        params["tags"] = tags
+    r = await c.get("/intel/search", params=params)
+    # Backward compatibility with older servers that did not expose the
+    # knowledge_type filter. Current servers apply it before both indexes.
+    results = r.get("results", [])
+    if knowledge_type and not r.get("retrieval"):
         results = [i for i in results if i.get("insight_type") == knowledge_type]
-    return {"results": results, "count": len(results)}
+    return {
+        "results": results,
+        "count": len(results),
+        **({"retrieval": r["retrieval"]} if r.get("retrieval") else {}),
+    }
 
 
 # ---------------------------------------------------------------------------

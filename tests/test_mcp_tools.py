@@ -335,7 +335,12 @@ async def test_ace_search_with_knowledge_type_filter():
         mock_conn.query = AsyncMock(
             return_value=[
                 [
-                    {"content": "Use rem not px", "confidence": 0.85, "insight_type": "correction"},
+                    {
+                        "id": "insight:spacing_correction",
+                        "content": "Use rem not px",
+                        "confidence": 0.85,
+                        "insight_type": "correction",
+                    },
                 ]
             ]
         )
@@ -345,9 +350,8 @@ async def test_ace_search_with_knowledge_type_filter():
         result = await ace_search(query="spacing", knowledge_type="correction", product_id="product:default")
 
     assert result["count"] == 1
-    call_args = mock_conn.query.call_args
-    params = call_args[0][1] if len(call_args[0]) > 1 else call_args[1]
-    assert params["type"] == "correction"
+    params_by_call = [call.args[1] if len(call.args) > 1 else call.kwargs for call in mock_conn.query.call_args_list]
+    assert any(params.get("type") == "correction" for params in params_by_call)
 
 
 @pytest.mark.asyncio
