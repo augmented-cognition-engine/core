@@ -118,6 +118,18 @@ class TokenAccumulator:
         with self._lock:
             return len(self._calls)
 
+    def calls_snapshot(self) -> tuple[dict, ...]:
+        """Return copied per-call usage facts for bounded adapter accounting."""
+
+        with self._lock:
+            return tuple(dict(call) for call in self._calls)
+
+    def llm_calls_snapshot(self) -> tuple[dict, ...]:
+        """Return copied logical-call provenance without exposing mutable state."""
+
+        with self._lock:
+            return tuple(dict(call) for call in self._llm_calls)
+
     def total_output(self) -> int:
         with self._lock:
             return sum(c["output_tokens"] for c in self._calls)
