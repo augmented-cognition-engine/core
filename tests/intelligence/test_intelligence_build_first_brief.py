@@ -14,6 +14,7 @@ from ace.application import (
     IntelligenceBuildFirstBriefCognition,
     IntelligenceBuildFirstBriefError,
     IntelligenceBuildFirstBriefRequestV1Alpha1,
+    IntelligenceBuildFirstBriefRequestV1Alpha2,
     OnboardingArtifactKind,
     OnboardingArtifactReferenceV1,
     OnboardingStage,
@@ -217,10 +218,9 @@ async def _stack(*, cognition: bool = True):
         authenticated_context=context,
     )
     build = replace(build, actor_ref=actor, authority_use=authority_use)
-    request = IntelligenceBuildFirstBriefRequestV1Alpha1(
-        session_id=session.session_id,
-        session_revision_id=str(session.revision_id),
-        session_revision_digest=str(session.revision_digest),
+    request = IntelligenceBuildFirstBriefRequestV1Alpha2(
+        build_id=build.build_id,
+        build_request_digest=build.request_digest,
         derivation_key=env.request.derivation_key,
         attention_receipt_id=str(env.attention.receipt_id),
         attention_receipt_digest=str(env.attention.receipt_digest),
@@ -243,6 +243,7 @@ async def _stack(*, cognition: bool = True):
         records=env.store,
         runtime_use=_CurrentBuildAuthority(build.authority_use),
         cognition=composition,
+        active_session=session,
     )
     return env, build, sessions, session, request, service
 
@@ -280,33 +281,37 @@ async def test_durable_host_exposes_first_brief_only_with_injected_governed_cogn
     )
 
     assert isinstance(host.first_brief, CoreIntelligenceBuildFirstBriefService)
+    assert host.first_brief.active_session == service.active_session
     assert unavailable.first_brief is None
 
 
 @pytest.mark.asyncio
 async def test_canonical_first_brief_reopens_and_replays_without_second_provider_call():
-    env, build, sessions, _, request, service = await _stack()
+    env, build, sessions, session, request, service = await _stack()
 
     first = await service.create_first_brief(request)
-    restarted = CoreIntelligenceBuildFirstBriefService(
-        build=build,
-        sessions=IntelligenceBuilderSessionService(store=env.store),
-        activations=env.activation_service,
-        packs=_PackArchive(env.pack),
-        records=env.store,
+    reopened = await DurableIntelligenceBuildHostComposer(
+        governed_state=env.activation_service.store,
         runtime_use=_CurrentBuildAuthority(build.authority_use),
-        cognition=IntelligenceBuildFirstBriefCognition(
+        packs=_PackArchive(env.pack),
+        first_brief_cognition=IntelligenceBuildFirstBriefCognition(
             reasoning=env.service.reasoning,
             execution_binding=env.execution_binding,
             append_binding=env.append_binding,
         ),
+    ).compose(
+        build=build,
+        records=ProductScopedImmutableRecordStore(product_id=PRODUCT, store=env.store),
+        resources=_Resources(),
+        activation_authority=env.activation_service.authority,
     )
-    replay = await restarted.create_first_brief(request)
+    assert reopened.first_brief is not None
+    replay = await reopened.first_brief.create_first_brief(request)
 
     assert replay == replace(first, admission=replace(first.admission, replayed=True))
     assert replay.session == await sessions.load_latest(
         product_id=PRODUCT,
-        session_id=request.session_id,
+        session_id=session.session_id,
         available_at=REQUESTED_AT,
     )
     assert env.provider.calls == 1
@@ -329,13 +334,33 @@ async def test_missing_cognition_setup_fails_closed_before_provider_or_append():
 async def test_stale_session_wrong_attention_and_revoked_build_authority_fail_closed():
     env, build, sessions, session, request, service = await _stack()
     material = request.model_dump(mode="python", exclude={"request_id", "request_digest"})
-    stale = IntelligenceBuildFirstBriefRequestV1Alpha1(
-        **{**material, "session_revision_id": str(session.prior_revision_id)}
+
+    class _StaleSessions:
+        async def load_latest(self, **kwargs):
+            return await sessions.load_latest(
+                **{**kwargs, "available_at": session.occurred_at - timedelta(microseconds=1)}
+            )
+
+        async def reload_admission(self, revision):
+            return await sessions.reload_admission(revision)
+
+        async def load_artifact(self, **kwargs):
+            return await sessions.load_artifact(**kwargs)
+
+    stale = CoreIntelligenceBuildFirstBriefService(
+        build=build,
+        sessions=_StaleSessions(),
+        activations=env.activation_service,
+        packs=_PackArchive(env.pack),
+        records=env.store,
+        runtime_use=_CurrentBuildAuthority(build.authority_use),
+        cognition=service.cognition,
+        active_session=session,
     )
     with pytest.raises(IntelligenceBuildFirstBriefError, match="exact current active Builder revision"):
-        await service.create_first_brief(stale)
+        await stale.create_first_brief(request)
 
-    wrong_attention = IntelligenceBuildFirstBriefRequestV1Alpha1(
+    wrong_attention = IntelligenceBuildFirstBriefRequestV1Alpha2(
         **{**material, "attention_receipt_digest": "sha256:" + "9" * 64}
     )
     with pytest.raises(IntelligenceBuildFirstBriefError, match="exact current routed attention receipt"):
@@ -349,13 +374,76 @@ async def test_stale_session_wrong_attention_and_revoked_build_authority_fail_cl
         records=env.store,
         runtime_use=_CurrentBuildAuthority(build.authority_use, denied=True),
         cognition=service.cognition,
+        active_session=session,
     )
     with pytest.raises(IntelligenceBuildFirstBriefError, match="current build authority denied"):
         await denied.create_first_brief(request)
     assert env.provider.calls == 0
 
 
+@pytest.mark.asyncio
+async def test_cross_build_request_fails_before_authority_or_provider_use():
+    env, build, _, _, request, service = await _stack()
+    material = request.model_dump(mode="python", exclude={"request_id", "request_digest"})
+    crossed = IntelligenceBuildFirstBriefRequestV1Alpha2(
+        **{**material, "build_request_digest": "sha256:" + "8" * 64}
+    )
+
+    with pytest.raises(IntelligenceBuildFirstBriefError, match="crossed the authorized build"):
+        await service.create_first_brief(crossed)
+
+    assert env.provider.calls == 0
+
+
+@pytest.mark.asyncio
+async def test_cross_linked_active_session_is_rejected_before_service_use():
+    env, build, sessions, session, _, service = await _stack()
+    crossed = type(session)(
+        **session.model_dump(mode="python", exclude={"transition_actor_ref", "revision_id", "revision_digest"}),
+        transition_actor_ref="principal:other-builder",
+    )
+
+    with pytest.raises(IntelligenceBuildFirstBriefError, match="crossed the authorized build"):
+        CoreIntelligenceBuildFirstBriefService(
+            build=build,
+            sessions=sessions,
+            activations=env.activation_service,
+            packs=_PackArchive(env.pack),
+            records=env.store,
+            runtime_use=_CurrentBuildAuthority(build.authority_use),
+            cognition=service.cognition,
+            active_session=crossed,
+        )
+
+    assert env.provider.calls == 0
+
+
+def test_v1alpha2_request_is_build_bound_and_v1alpha1_remains_read_only_compatible():
+    request = IntelligenceBuildFirstBriefRequestV1Alpha2(
+        build_id="intelligence_build:first-brief",
+        build_request_digest="sha256:" + "1" * 64,
+        derivation_key="prepared_derivation:first-brief",
+        attention_receipt_id="attention_receipt:first-brief",
+        attention_receipt_digest="sha256:" + "2" * 64,
+        requested_at=REQUESTED_AT,
+    )
+    historical = IntelligenceBuildFirstBriefRequestV1Alpha1(
+        session_id="intelligence_builder_session:historical",
+        session_revision_id="intelligence_builder_session_revision:historical",
+        session_revision_digest="sha256:" + "3" * 64,
+        derivation_key=request.derivation_key,
+        attention_receipt_id=request.attention_receipt_id,
+        attention_receipt_digest=request.attention_receipt_digest,
+        requested_at=request.requested_at,
+    )
+
+    assert request.contract.endswith("/v1alpha2")
+    assert "session_id" not in request.model_dump()
+    assert historical.contract.endswith("/v1alpha1")
+
+
 def test_first_brief_contracts_are_public_without_expanding_core_or_intelligence():
     assert application_api.IntelligenceBuildFirstBriefPort
     assert application_api.CoreIntelligenceBuildFirstBriefService
     assert application_api.IntelligenceBuildFirstBriefRequestV1Alpha1
+    assert application_api.IntelligenceBuildFirstBriefRequestV1Alpha2
