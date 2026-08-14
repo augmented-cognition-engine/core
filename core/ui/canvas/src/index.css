@@ -80,7 +80,8 @@
     /* ACE semantic-role tokens.
      *
      *   --primary  → decisive actions, in ACE cognitive blue.
-     *   --brand    → ACE identity and selected intelligence, also blue.
+     *   --brand    → ACE authority and decision boundaries.
+     *   --evidence → citations, provenance, and preserved knowledge.
      *   --live     → in-motion evidence, in the logo's cyan register.
      *   --success  → verified completion only, in semantic green.
      *
@@ -92,6 +93,7 @@
      * data-viz only, never for interactive state. See chart-1..5 below. */
     --color-brand: var(--brand);
     --color-brand-foreground: var(--brand-foreground);
+    --color-evidence: var(--evidence);
     /* State-status tokens — distinct from the decorative chart palette.
      * STATE answers "is this good / watch / bad" (success/warning/
      * destructive). DATA VIZ answers "which category is this"
@@ -222,10 +224,11 @@
 
 /* Atrium is ACE's always-on command center. Its palette is deliberately
  * neutral-first: near-black achromatic surfaces do the structural work,
- * neutral controls carry primary action, and one spectral violet lifted from
- * the ACE mark is rationed to selected state, links, and ACE voice. Cyan is
- * reserved for live intelligence; blue remains available to evidence/data
- * semantics, but no longer tints the command-center chrome.
+ * neutral controls carry primary action and focus. The ACE spectrum is
+ * semantic rather than decorative: cyan is live/source activity, blue is
+ * evidence/provenance, and violet is authority/decision state. The three hues
+ * may meet only in the ACE mark and the single Intelligence Horizon system
+ * diagram, where their progression communicates meaning.
  *
  * Direction synthesized through Refero from Raycast's 98%-achromatic dark
  * cockpit and Linear's precision surface ladder. The result is ACE-owned:
@@ -249,7 +252,7 @@
     --accent-foreground: #F3F1ED;
     --border: #2A2B2D;
     --input: #353638;
-    --ring: #9777F5;
+    --ring: #B4B2AF;
     --brand: #9777F5;
     --brand-foreground: #0D0917;
     --evidence: #2896E7;
@@ -261,12 +264,12 @@
     --anchor-foreground: #F3F1ED;
     --sidebar: #0B0C0D;
     --sidebar-foreground: #E9E7E3;
-    --sidebar-primary: #9777F5;
-    --sidebar-primary-foreground: #0D0917;
+    --sidebar-primary: #E7E5E1;
+    --sidebar-primary-foreground: #111214;
     --sidebar-accent: #17181A;
     --sidebar-accent-foreground: #F3F1ED;
     --sidebar-border: #242527;
-    --sidebar-ring: #9777F5;
+    --sidebar-ring: #B4B2AF;
 }
 
 /* The Intelligence Horizon is Atrium's signature composition: admitted

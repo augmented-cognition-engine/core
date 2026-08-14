@@ -86,16 +86,19 @@ function EmptyBuilder({ onStart }: { readonly onStart: () => void }) {
       title: 'Tell ACE what matters',
       detail: 'Choose the decision or landscape you need to stay ahead of.',
       icon: Network,
+      tone: 'text-live border-live/20 bg-live/[0.06]',
     },
     {
       title: 'Review the recommendation',
       detail: 'ACE proposes evidence, concepts, watches, and cadence for review.',
       icon: BrainCircuit,
+      tone: 'text-evidence border-evidence/20 bg-evidence/[0.06]',
     },
     {
       title: 'Open the first Brief',
       detail: 'Watch the system assemble, then land in a populated command center.',
       icon: Activity,
+      tone: 'text-foreground/70 border-border bg-muted/60',
     },
   ]
 
@@ -116,11 +119,11 @@ function EmptyBuilder({ onStart }: { readonly onStart: () => void }) {
               className="rounded-xl border bg-card p-4"
             >
               <div className="flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                <div className={`flex size-8 items-center justify-center rounded-lg border ${step.tone}`}>
                   <step.icon className="size-4" />
                 </div>
                 <span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span>
-                {index < 2 ? <ArrowRight className="ml-auto size-3.5 text-muted-foreground" /> : <ShieldCheck className="ml-auto size-3.5 text-brand" />}
+                {index < 2 ? <ArrowRight className="ml-auto size-3.5 text-muted-foreground" /> : <ShieldCheck className="ml-auto size-3.5 text-live" />}
               </div>
               <div className="mt-4 text-sm font-semibold">{step.title}</div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
@@ -264,7 +267,7 @@ function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroup
 
       <aside className="grid gap-5 border-y py-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
         <div>
-          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Attention queue</div>
+          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Attention queue</div>
           <h2 className="mt-2 text-xl font-medium tracking-[-0.02em]">What needs a look</h2>
           <p className="mt-2 max-w-xs text-xs leading-5 text-muted-foreground">Material records that crossed the line from background movement into human attention.</p>
         </div>
@@ -290,17 +293,17 @@ function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups;
   const monitors = groups.agents.filter((item) => item.reference.resource_kind === 'monitor').length
   const openCases = groups.opportunities.filter((item) => item.reference.resource_kind === 'case').length
   const entries = [
-    { icon: Radio, label: 'Sources', value: `${sources} admitted` },
-    { icon: Activity, label: 'Watches', value: `${monitors} active` },
-    { icon: Layers3, label: 'Decision openings', value: `${openCases} ready` },
-    { icon: Clock3, label: 'Freshness', value: freshness },
+    { icon: Radio, label: 'Sources', value: `${sources} admitted`, tone: 'text-live' },
+    { icon: Activity, label: 'Watches', value: `${monitors} active`, tone: 'text-live' },
+    { icon: Layers3, label: 'Decision openings', value: `${openCases} ready`, tone: 'text-brand' },
+    { icon: Clock3, label: 'Freshness', value: freshness, tone: 'text-white/35' },
   ]
 
   return (
     <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-b pb-4" aria-label="Intelligence coverage">
-      {entries.map((entry, index) => (
+      {entries.map((entry) => (
         <div key={entry.label} className="flex min-w-0 items-center gap-2">
-          <entry.icon className={index === 3 ? 'size-3 shrink-0 text-white/35' : 'size-3 shrink-0 text-live'} />
+          <entry.icon className={`size-3 shrink-0 ${entry.tone}`} />
           <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">{entry.label}</span>
           <span className="truncate font-mono text-[9px] text-foreground/80">{entry.value}</span>
         </div>
@@ -347,18 +350,25 @@ function OpportunityStage({
   detail,
   count,
   active = false,
+  tone = 'neutral',
 }: {
   readonly icon: typeof Crosshair
   readonly title: string
   readonly detail: string
   readonly count: number
   readonly active?: boolean
+  readonly tone?: 'live' | 'evidence' | 'neutral'
 }) {
+  const inactiveTone = tone === 'live'
+    ? 'border-live/20 bg-live/[0.05] text-live'
+    : tone === 'evidence'
+      ? 'border-evidence/20 bg-evidence/[0.05] text-evidence'
+      : 'border-white/10 bg-white/[0.035] text-muted-foreground'
   return (
     <div className="group relative grid grid-cols-[2.75rem_minmax(0,1fr)_auto] items-center gap-3 py-4">
       <div className={active
         ? 'relative z-10 flex size-11 items-center justify-center rounded-full border border-brand/40 bg-brand/15 text-brand shadow-[0_0_36px_color-mix(in_oklab,var(--brand)_22%,transparent)]'
-        : 'relative z-10 flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.035] text-muted-foreground'}>
+        : `relative z-10 flex size-11 items-center justify-center rounded-full border ${inactiveTone}`}>
         <Icon className="size-4" />
       </div>
       <div className="min-w-0">
@@ -376,18 +386,21 @@ function OpportunitySection({
   detail,
   items,
   empty,
+  tone,
 }: {
   readonly eyebrow: string
   readonly title: string
   readonly detail: string
   readonly items: readonly IntelligenceResourceRecord[]
   readonly empty: string
+  readonly tone: 'live' | 'evidence' | 'authority'
 }) {
+  const eyebrowTone = tone === 'live' ? 'text-live' : tone === 'evidence' ? 'text-evidence' : 'text-brand'
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">{eyebrow}</div>
+          <div className={`font-mono text-[9px] font-semibold uppercase tracking-[0.17em] ${eyebrowTone}`}>{eyebrow}</div>
           <h2 className="mt-1 text-lg font-semibold tracking-tight">{title}</h2>
           <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">{detail}</p>
         </div>
@@ -421,8 +434,8 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
           <div className="relative border-t border-white/[0.08] px-6 py-6 lg:border-l lg:border-t-0 lg:px-9">
             <div className="absolute bottom-[4.6rem] left-[3.72rem] top-[4.65rem] w-px bg-gradient-to-b from-live/30 via-[var(--evidence)] to-brand/45 lg:left-[4.72rem]" />
             <div className="flex h-full flex-col justify-center divide-y divide-white/[0.07]">
-              <OpportunityStage icon={Radio} title="Signal" count={earlySignals.length} detail="Relevant evidence enters the watch field." />
-              <OpportunityStage icon={TimerReset} title="Shift" count={emergingOpenings.length} detail="A material delta changes the current baseline." />
+              <OpportunityStage icon={Radio} title="Signal" count={earlySignals.length} detail="Relevant evidence enters the watch field." tone="live" />
+              <OpportunityStage icon={TimerReset} title="Shift" count={emergingOpenings.length} detail="A material delta changes the current baseline." tone="evidence" />
               <OpportunityStage icon={SearchCheck} title="Decision opening" count={decisionOpenings.length} detail="A bounded question is ready for human judgment." active />
             </div>
           </div>
@@ -435,6 +448,7 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
         detail="Cases have a bounded question and preserved evidence. Review the record before turning one into Strategy or downstream Work."
         items={decisionOpenings}
         empty="No evidence-backed decision openings are ready yet."
+        tone="authority"
       />
       <OpportunitySection
         eyebrow="Developing"
@@ -442,6 +456,7 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
         detail="Material shifts may become Opportunities once their decision window, impact, and evidence are clear."
         items={emergingOpenings}
         empty="No material shifts are currently developing into Opportunities."
+        tone="evidence"
       />
       {earlySignals.length > 0 && (
         <OpportunitySection
@@ -450,6 +465,7 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
           detail="These observations are relevant, but ACE has not yet established a material shift or bounded decision question."
           items={earlySignals}
           empty="No early signals are being watched."
+          tone="live"
         />
       )}
     </div>
@@ -474,7 +490,7 @@ function Metric({ label, value, detail, warning = false }: { readonly label: str
 function AgentRole({ title, detail, state }: { readonly title: string; readonly detail: string; readonly state: string }) {
   return (
     <div className="flex gap-3 rounded-xl border bg-background p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border bg-muted/60 text-foreground/65">
         <Bot className="size-4" />
       </div>
       <div>
@@ -557,7 +573,7 @@ export function IntelligenceOS() {
         <header className="sticky top-0 z-20 flex min-h-[72px] items-center gap-4 border-b bg-background/95 px-5 backdrop-blur md:px-8">
           <SidebarTrigger className="md:hidden" />
           <div className="min-w-0">
-            <div className="truncate font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-brand">
+            <div className="truncate font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
               ACE / {productName}
             </div>
             <div className="mt-1 flex min-w-0 items-baseline gap-3">
@@ -572,7 +588,7 @@ export function IntelligenceOS() {
             </Button>
             {page !== null && (
               <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden rounded-sm border border-border/70 bg-card font-mono text-[9px] sm:inline-flex">
-                {page.state === 'degraded' ? <CircleAlert className="mr-1 size-3 text-warning" /> : <ShieldCheck className="mr-1 size-3 text-brand" />}
+                {page.state === 'degraded' ? <CircleAlert className="mr-1 size-3 text-warning" /> : <ShieldCheck className="mr-1 size-3 text-live" />}
                 {page.state === 'degraded' ? 'Partial picture' : 'Picture current'}
               </Badge>
             )}

@@ -62,6 +62,14 @@ export function ResourceCard({
   const confidencePercent = confidence !== null && confidence >= 0 && confidence <= 1
     ? Math.round(confidence * 100)
     : null
+  const resourceKind = record.reference.resource_kind
+  const recordTone = ['signal', 'source', 'connection', 'monitor'].includes(resourceKind)
+    ? 'border-live/20 bg-live/[0.06] text-live'
+    : ['case', 'decision', 'feedback'].includes(resourceKind)
+      ? 'border-brand/20 bg-brand/[0.07] text-brand'
+      : resourceKind === 'outcome'
+        ? 'border-success/20 bg-success/[0.06] text-success'
+        : 'border-evidence/20 bg-evidence/[0.06] text-evidence'
 
   return (
     <Sheet>
@@ -71,14 +79,14 @@ export function ResourceCard({
           className="group w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           aria-label={`Open ${record.title}`}
         >
-          <Card className={horizon ? 'border-0 bg-transparent shadow-none' : featured ? 'border-brand/25 bg-card transition-colors duration-200 group-hover:border-brand/45' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
+          <Card className={horizon ? 'border-0 bg-transparent shadow-none' : featured ? 'border-border bg-card transition-colors duration-200 group-hover:border-foreground/25' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
             <CardContent className={horizon ? 'p-0' : featured ? 'p-6 md:p-7' : compact ? 'p-3.5' : 'p-4'}>
               <div className="flex items-start gap-3">
                 <div
                   className={
                     record.availability === 'degraded'
                       ? 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-warning/15 text-warning'
-                      : 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border border-brand/20 bg-brand/10 text-brand'
+                      : `mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border ${recordTone}`
                   }
                 >
                   {record.availability === 'degraded' ? <CircleAlert className="size-3.5" /> : <ShieldCheck className="size-3.5" />}
@@ -127,7 +135,7 @@ export function ResourceCard({
                         <div className="grid gap-5 py-4 sm:grid-cols-[minmax(0,1.35fr)_minmax(13rem,0.65fr)]">
                           {primaryStory !== undefined && (
                             <div className={horizon ? 'pr-5' : 'px-4'}>
-                              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-live">
+                              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-foreground/55">
                                 What changed
                               </div>
                               <p className="mt-2 max-w-[58ch] text-[15px] font-medium leading-6 text-foreground text-pretty">
@@ -137,7 +145,7 @@ export function ResourceCard({
                           )}
                           {resolvedWhy !== null && (
                             <div className={horizon ? 'border-l border-white/[0.08] pl-5 pr-3' : 'border-l px-4'}>
-                              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">
+                              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-foreground/55">
                                 Why it matters
                               </div>
                               <p className="mt-2 text-xs leading-5 text-foreground/75 text-pretty">{resolvedWhy}</p>
@@ -150,7 +158,7 @@ export function ResourceCard({
                             : 'grid gap-3 border-t px-4 py-3 text-[10px] text-muted-foreground sm:grid-cols-2'}>
                             {howStory !== undefined && (
                               <div className="flex min-w-0 items-start gap-2">
-                                <GitBranch className="mt-0.5 size-3 shrink-0 text-live" />
+                                <GitBranch className="mt-0.5 size-3 shrink-0 text-evidence" />
                                 <span className="line-clamp-2 leading-4">{howStory.body}</span>
                               </div>
                             )}
@@ -174,7 +182,7 @@ export function ResourceCard({
                         )}
                         {resolvedWhy !== null && resolvedWhy !== primaryStory?.body && (
                           <div className="mt-2 flex gap-2 border-t border-border/70 pt-2">
-                            <span className="shrink-0 font-mono text-[8px] font-semibold uppercase tracking-[0.12em] text-brand">Why</span>
+                            <span className="shrink-0 font-mono text-[8px] font-semibold uppercase tracking-[0.12em] text-foreground/55">Why</span>
                             <p className="line-clamp-2 text-[10px] leading-4 text-muted-foreground text-pretty">{resolvedWhy}</p>
                           </div>
                         )}
@@ -182,8 +190,8 @@ export function ResourceCard({
                     )
                   )}
                   {featured && resolvedStorySections.length === 0 && resolvedWhy !== null && (
-                    <div className="mt-5 border-l-2 border-brand/70 pl-3">
-                      <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">Why it matters</div>
+                    <div className="mt-5 border-l-2 border-foreground/20 pl-3">
+                      <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-foreground/55">Why it matters</div>
                       <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground/85">{resolvedWhy}</p>
                     </div>
                   )}
@@ -217,13 +225,13 @@ export function ResourceCard({
             <section className="space-y-5">
               {primaryStory !== undefined && (
                 <div>
-                  <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-live">What changed</div>
+                  <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">What changed</div>
                   <p className="mt-2 text-lg font-medium leading-7 tracking-[-0.01em] text-foreground text-pretty">{primaryStory.body}</p>
                 </div>
               )}
               {resolvedWhy !== null && (
-                <div className="border-l-2 border-brand/60 pl-4">
-                  <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">Why it matters</div>
+                <div className="border-l-2 border-foreground/20 pl-4">
+                  <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Why it matters</div>
                   <p className="mt-2 text-sm leading-6 text-foreground/85 text-pretty">{resolvedWhy}</p>
                 </div>
               )}
@@ -250,8 +258,8 @@ export function ResourceCard({
           )}
 
           {resolvedStorySections.length === 0 && resolvedWhy !== null && (
-            <section className="rounded-lg border border-brand/20 bg-brand/5 p-4">
-              <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">
+            <section className="rounded-lg border bg-muted/25 p-4">
+              <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                 Why it matters
               </div>
               <p className="mt-2 text-sm leading-relaxed text-foreground/90">{resolvedWhy}</p>
@@ -298,7 +306,7 @@ export function ResourceCard({
                     className="rounded-lg border bg-muted/30 p-3"
                   >
                     <div className="flex items-center gap-2">
-                      <GitBranch className="size-3.5 text-brand" />
+                      <GitBranch className="size-3.5 text-evidence" />
                       <span className="text-xs font-medium">{kindLabel(reference.resource_kind)}</span>
                       <span className="ml-auto font-mono text-[10px] text-muted-foreground">
                         r{reference.revision}

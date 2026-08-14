@@ -330,7 +330,7 @@ export function OnboardingPreview({
       <DialogContent className="atrium-command-center dark max-h-[calc(100svh-2rem)] overflow-y-auto rounded-lg border-border bg-popover p-0 sm:max-w-4xl">
         <div className="border-b px-6 py-4 sm:px-8">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">
+            <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">
               <Sparkles className="size-3.5" /> Build your intelligence
             </div>
             <Badge variant="outline" className="mr-6 rounded-sm font-mono text-[9px]">
@@ -348,8 +348,8 @@ export function OnboardingPreview({
           <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`Step ${step + 1} of 5: ${stepLabels[step]}`}>
             {stepLabels.map((label, index) => (
               <div key={label} className="min-w-0">
-                <div className={`h-1 rounded-full ${index <= step ? 'bg-brand' : 'bg-border'}`} />
-                <div className={`mt-1.5 hidden truncate font-mono text-[8px] uppercase tracking-[0.12em] sm:block ${index === step ? 'text-brand' : 'text-muted-foreground'}`}>{label}</div>
+                <div className={`h-1 rounded-full ${index <= step ? 'bg-foreground/75' : 'bg-border'}`} />
+                <div className={`mt-1.5 hidden truncate font-mono text-[8px] uppercase tracking-[0.12em] sm:block ${index === step ? 'text-foreground' : 'text-muted-foreground'}`}>{label}</div>
               </div>
             ))}
           </div>
@@ -373,15 +373,15 @@ export function OnboardingPreview({
                         type="button"
                         variant="ghost"
                         onClick={() => setProfileId(item.profile_id)}
-                        className={`h-auto min-h-44 w-full flex-col items-start justify-start whitespace-normal rounded-lg border p-5 text-left ${selected ? 'border-brand/70 bg-brand/7 ring-1 ring-brand/20' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
+                        className={`h-auto min-h-44 w-full flex-col items-start justify-start whitespace-normal rounded-lg border p-5 text-left ${selected ? 'border-foreground/30 bg-foreground/[0.045] ring-1 ring-foreground/10' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
                       >
                         <div className="flex w-full items-start justify-between gap-3">
-                          <div className={`flex size-9 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}>
+                          <div className={`flex size-9 items-center justify-center rounded-md border ${selected ? 'border-foreground/25 bg-foreground/[0.06] text-foreground' : 'bg-muted text-muted-foreground'}`}>
                             {item.profile_id.includes('custom') ? <Compass className="size-4" /> : <Sparkles className="size-4" />}
                           </div>
                           <div className="flex items-center gap-1.5">
                             {isCustomPreviewProfile(item) && <Badge variant="outline" className="rounded-sm border-[var(--ace-purple-500)]/40 bg-[var(--ace-purple-500)]/10 font-mono text-[8px] text-[var(--ace-purple-300)]">Preview</Badge>}
-                            {selected && <Badge variant="outline" className="rounded-sm border-brand/30 font-mono text-[8px] text-brand">Selected</Badge>}
+                            {selected && <Badge variant="outline" className="rounded-sm border-foreground/20 font-mono text-[8px] text-foreground/75">Selected</Badge>}
                           </div>
                         </div>
                         <div className="mt-5 text-base font-semibold">{item.domain_label}</div>
@@ -391,10 +391,10 @@ export function OnboardingPreview({
                     )
                   })}
               </div>
-              <div className={`mt-4 flex items-start gap-3 rounded-lg border p-4 ${customPreview ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'border-brand/20 bg-brand/5'}`}>
+              <div className={`mt-4 flex items-start gap-3 rounded-lg border p-4 ${customPreview ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'border-evidence/20 bg-evidence/[0.05]'}`}>
                 {customPreview
                   ? <FlaskConical className="mt-0.5 size-4 shrink-0 text-[var(--ace-purple-300)]" />
-                  : <BookOpenCheck className="mt-0.5 size-4 shrink-0 text-brand" />}
+                  : <BookOpenCheck className="mt-0.5 size-4 shrink-0 text-evidence" />}
                 <div>
                   <div className="text-xs font-medium text-foreground">{customPreview ? 'Custom Intelligence is a proposal preview.' : `${profile.display_name} is ready to specialize.`}</div>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
@@ -445,10 +445,10 @@ export function OnboardingPreview({
                     <Button key={item.outcome_id} type="button" variant="ghost" onClick={() => {
                       invalidatePreparedPlan()
                       setOutcomeId(item.outcome_id)
-                    }} className={`h-auto w-full justify-start gap-4 whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}>
-                      <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}><OutcomeIcon outcome={item} /></div>
+                    }} className={`h-auto w-full justify-start gap-4 whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-foreground/30 bg-foreground/[0.045]' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}>
+                      <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-foreground/25 bg-foreground/[0.06] text-foreground' : 'bg-muted text-muted-foreground'}`}><OutcomeIcon outcome={item} /></div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2 text-sm font-semibold">{item.label}{selected && <Check className="size-3.5 text-brand" />}</div>
+                        <div className="flex items-center gap-2 text-sm font-semibold">{item.label}{selected && <Check className="size-3.5 text-foreground/70" />}</div>
                         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
                       </div>
                     </Button>
@@ -463,7 +463,7 @@ export function OnboardingPreview({
                     return <Button key={cadence.cadence_id} type="button" variant="ghost" onClick={() => {
                       invalidatePreparedPlan()
                       setCadenceId(cadence.cadence_id)
-                    }} className={`h-auto w-full flex-col items-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-brand' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs font-normal text-muted-foreground">{cadence.description}</p></Button>
+                    }} className={`h-auto w-full flex-col items-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-foreground/30 bg-foreground/[0.045]' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-foreground/70' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs font-normal text-muted-foreground">{cadence.description}</p></Button>
                   })}
                 </div>
               </div>
@@ -489,12 +489,12 @@ export function OnboardingPreview({
                           type="button"
                           variant="ghost"
                           onClick={() => toggleSourceGroup(group.source_group_id)}
-                          className={`h-auto min-h-40 w-full flex-col items-stretch justify-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
+                          className={`h-auto min-h-40 w-full flex-col items-stretch justify-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-evidence/35 bg-evidence/[0.055]' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
                         >
                           <div className="flex items-start gap-3">
-                            <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}><SourceIcon group={group} /></div>
+                            <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-evidence/30 bg-evidence/[0.08] text-evidence' : 'bg-muted text-muted-foreground'}`}><SourceIcon group={group} /></div>
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 text-sm font-semibold">{group.label}{selected && <Check className="size-3.5 text-brand" />}</div>
+                              <div className="flex items-center gap-2 text-sm font-semibold">{group.label}{selected && <Check className="size-3.5 text-evidence" />}</div>
                               <p className="mt-1 text-xs font-normal leading-relaxed text-muted-foreground">{group.description}</p>
                             </div>
                           </div>
@@ -510,7 +510,7 @@ export function OnboardingPreview({
                     })}
                   </div>
                   <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-                    <PlugZap className="size-3.5 text-brand" /> {selectedSourceGroups.length} groups · {proposedSourceCount} sources proposed
+                    <PlugZap className="size-3.5 text-evidence" /> {selectedSourceGroups.length} groups · {proposedSourceCount} sources proposed
                   </div>
                 </>
               ) : (
@@ -659,7 +659,7 @@ function ExactPlanReview({ plan }: { readonly plan: IntelligenceBuildPlan }) {
           <div className="rounded-lg border bg-card p-4">
             <div className="flex items-center justify-between gap-3"><div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Watches · {review.watches.length}</div><Badge variant="outline" className="rounded-sm font-mono text-[8px]">{review.cadence_label}</Badge></div>
             <div className="mt-3 space-y-2">
-              {review.watches.map((watch) => <div key={watch.detector_id} className="rounded-md border bg-background/55 p-3"><div className="flex items-center gap-2 text-xs font-semibold"><Radar className="size-3 text-brand" />{watch.detector_id}</div><div className="mt-2 text-[11px] leading-relaxed text-foreground/85">{watch.change_rule}</div><div className="mt-2 font-mono text-[8px] text-muted-foreground">{watch.entity_type_id}.{watch.attribute_id} · {watch.detector_family.replace(/_/g, ' ')}</div></div>)}
+              {review.watches.map((watch) => <div key={watch.detector_id} className="rounded-md border bg-background/55 p-3"><div className="flex items-center gap-2 text-xs font-semibold"><Radar className="size-3 text-live" />{watch.detector_id}</div><div className="mt-2 text-[11px] leading-relaxed text-foreground/85">{watch.change_rule}</div><div className="mt-2 font-mono text-[8px] text-muted-foreground">{watch.entity_type_id}.{watch.attribute_id} · {watch.detector_family.replace(/_/g, ' ')}</div></div>)}
               {review.watches.length === 0 && <div className="rounded-md border border-warning/35 bg-warning/5 p-3 text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">No exact starting watch was returned.</span> There is no detector rule to activate.</div>}
             </div>
             <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">{review.cadence_description}</p>
@@ -678,7 +678,8 @@ function ExactPlanReview({ plan }: { readonly plan: IntelligenceBuildPlan }) {
 }
 
 function ReviewHeading({ eyebrow, title, count }: { readonly eyebrow: string; readonly title: string; readonly count: number }) {
-  return <div className="flex items-end justify-between gap-3"><div><div className="font-mono text-[8px] font-semibold uppercase tracking-[0.16em] text-brand">{eyebrow}</div><h3 className="mt-1 text-base font-semibold tracking-tight">{title}</h3></div><Badge variant="outline" className="rounded-sm font-mono text-[8px]">{count} exact</Badge></div>
+  const tone = eyebrow === 'Evidence' ? 'text-evidence' : eyebrow === 'Orientation' ? 'text-live' : 'text-brand'
+  return <div className="flex items-end justify-between gap-3"><div><div className={`font-mono text-[8px] font-semibold uppercase tracking-[0.16em] ${tone}`}>{eyebrow}</div><h3 className="mt-1 text-base font-semibold tracking-tight">{title}</h3></div><Badge variant="outline" className="rounded-sm font-mono text-[8px]">{count} exact</Badge></div>
 }
 
 function ReviewEffectCard({ effect, index }: { readonly effect: IntelligenceBuildPlanReviewEffect; readonly index: number }) {
@@ -689,7 +690,7 @@ function ReviewEffectCard({ effect, index }: { readonly effect: IntelligenceBuil
     ['When', effect.when],
     ['Unknowns', effect.unknowns.join(' ')],
   ] as const
-  return <Card className="overflow-hidden"><CardContent className="p-0"><div className="flex items-center gap-3 border-b bg-muted/25 px-4 py-3"><span className="font-mono text-[9px] text-brand">0{index + 1}</span><div><div className="text-xs font-semibold">{effect.label}</div><div className="mt-0.5 font-mono text-[8px] text-muted-foreground">{effect.effect}</div></div></div><dl>{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[4.5rem_1fr] gap-3 border-b px-4 py-2.5 last:border-b-0"><dt className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{label}</dt><dd className="text-[11px] leading-relaxed text-foreground/85">{value}</dd></div>)}</dl></CardContent></Card>
+  return <Card className="overflow-hidden"><CardContent className="p-0"><div className="flex items-center gap-3 border-b bg-muted/25 px-4 py-3"><span className="font-mono text-[9px] text-foreground/55">0{index + 1}</span><div><div className="text-xs font-semibold">{effect.label}</div><div className="mt-0.5 font-mono text-[8px] text-muted-foreground">{effect.effect}</div></div></div><dl>{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[4.5rem_1fr] gap-3 border-b px-4 py-2.5 last:border-b-0"><dt className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{label}</dt><dd className="text-[11px] leading-relaxed text-foreground/85">{value}</dd></div>)}</dl></CardContent></Card>
 }
 
 function PlanCard({ label, value, detail }: { readonly label: string; readonly value: string | number; readonly detail: string }) {
@@ -700,8 +701,8 @@ function BuildStep({ label, result, state }: BuildLane) {
   const Icon = state === 'complete' ? Check : state === 'blocked' ? TriangleAlert : state === 'active' ? LoaderCircle : state === 'preview' ? FlaskConical : CircleDot
   const stateLabel = state === 'complete' ? 'Complete' : state === 'blocked' ? 'Needs attention' : state === 'active' ? 'Working' : state === 'waiting' ? 'Waiting' : state === 'preview' ? 'Preview' : 'Proposed'
   return (
-    <div className={`flex items-center gap-3 rounded-lg border p-4 ${state === 'active' ? 'border-brand/40 bg-brand/7' : state === 'blocked' ? 'border-warning/45 bg-warning/5' : state === 'preview' ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'bg-card'}`}>
-      <div className={`flex size-7 items-center justify-center rounded-full ${state === 'blocked' ? 'bg-warning/15 text-warning' : state === 'complete' || state === 'active' ? 'bg-brand/10 text-brand' : state === 'preview' ? 'bg-[var(--ace-purple-500)]/15 text-[var(--ace-purple-300)]' : 'bg-muted text-muted-foreground'}`}>
+    <div className={`flex items-center gap-3 rounded-lg border p-4 ${state === 'active' ? 'border-live/30 bg-live/[0.055]' : state === 'blocked' ? 'border-warning/45 bg-warning/5' : state === 'preview' ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'bg-card'}`}>
+      <div className={`flex size-7 items-center justify-center rounded-full ${state === 'blocked' ? 'bg-warning/15 text-warning' : state === 'complete' ? 'bg-success/12 text-success' : state === 'active' ? 'bg-live/10 text-live' : state === 'preview' ? 'bg-[var(--ace-purple-500)]/15 text-[var(--ace-purple-300)]' : 'bg-muted text-muted-foreground'}`}>
         <Icon className={`size-3.5 ${state === 'active' ? 'animate-spin' : ''}`} />
       </div>
       <div className="min-w-0 flex-1"><div className="text-sm font-medium">{label}</div><div className="mt-0.5 text-xs text-muted-foreground">{result}</div></div>

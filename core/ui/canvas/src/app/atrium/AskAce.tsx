@@ -35,7 +35,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
     <Card className="overflow-hidden border-white/[0.1] bg-anchor text-anchor-foreground shadow-2xl">
       <CardContent className="p-3 md:p-3.5">
         <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-md border border-brand/25 bg-brand/[0.08] text-brand">
+          <div className="flex size-9 items-center justify-center rounded-md border border-border bg-white/[0.035] text-foreground/70">
             <Sparkles className="size-3.5" />
           </div>
           <div className="hidden shrink-0 md:block">
@@ -52,7 +52,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
               }}
               placeholder="Ask about competitors, shifts, evidence, or decisions"
               aria-label="Ask ACE about current intelligence"
-              className="h-11 border-white/[0.09] bg-white/[0.035] pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-brand/50"
+              className="h-11 border-white/[0.09] bg-white/[0.035] pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-foreground/30"
             />
           </div>
           <Button
@@ -65,7 +65,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
           >
             <ArrowRight className="size-4" />
           </Button>
-          <Badge variant="outline" className="ml-1 hidden border-live/15 bg-live/[0.04] text-live xl:inline-flex">
+          <Badge variant="outline" className="ml-1 hidden border-evidence/20 bg-evidence/[0.05] text-evidence xl:inline-flex">
             <ShieldCheck className="mr-1 size-3" />
             cited picture
           </Badge>
@@ -90,7 +90,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
           <div
             role="region"
             aria-label="Ask ACE answer"
-            className="mt-4 rounded-lg border border-brand/20 bg-background/75 p-4 text-foreground"
+            className="mt-4 rounded-lg border border-border bg-background/75 p-4 text-foreground"
           >
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               Intelligence answer · {answer?.evidence.length ?? 0} cited record{answer?.evidence.length === 1 ? '' : 's'}
@@ -103,15 +103,15 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
               <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
                 <div className="space-y-4">
                   <div>
-                    <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Answer</div>
-                    <p className="mt-2 border-l-2 border-brand pl-3 text-[15px] font-medium leading-6 text-foreground">
+                    <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-evidence">Answer</div>
+                    <p className="mt-2 border-l-2 border-evidence/70 pl-3 text-[15px] font-medium leading-6 text-foreground">
                       {answer.conclusion}
                     </p>
                   </div>
 
                   {answer.whyItMatters !== null && (
-                    <div className="border-l-2 border-brand/55 pl-3">
-                      <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Why it matters</div>
+                    <div className="border-l-2 border-foreground/20 pl-3">
+                      <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Why it matters</div>
                       <p className="mt-1.5 text-xs leading-5 text-foreground/80 text-pretty">{answer.whyItMatters}</p>
                     </div>
                   )}
@@ -132,7 +132,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
                   <div className="divide-y divide-border/70">
                     {answer.evidence.slice(0, 4).map((match, index) => (
                       <div key={`${match.reference.resource_id}:${match.reference.revision}`} className="flex gap-3 py-3 first:pt-0 last:pb-0">
-                        <span className="font-mono text-[10px] text-brand">[{index + 1}]</span>
+                        <span className="font-mono text-[10px] text-evidence">[{index + 1}]</span>
                         <div className="min-w-0">
                           <div className="text-xs font-medium leading-snug">{match.title}</div>
                           <div className="mt-1.5 font-mono text-[9px] text-muted-foreground">

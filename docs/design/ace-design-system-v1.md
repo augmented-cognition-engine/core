@@ -8,11 +8,10 @@ The system belongs to ACE itself; a public Domain Pack changes vocabulary, sourc
 and decision policy, not the product's identity.
 
 The ACE mark is the color source, moving from cyan through blue to violet. The product
-chrome is quieter than the mark: **Atrium is neutral-first**, with the mark's spectral
-violet used as sparse focus punctuation rather than washing the command center in blue.
-Blue remains available for informational and evidence semantics, cyan is reserved for
-live intelligence, violet identifies ACE selection and voice, and green keeps its
-literal semantic role: verified success.
+chrome is quieter than the mark: **Atrium is neutral-first**, and ordinary selection,
+focus, navigation, and narrative remain neutral. Cyan marks live source/watch activity,
+blue marks evidence and provenance, violet marks human authority and decision openings,
+and green keeps its literal semantic role: verified success.
 
 ## Reference lock
 
@@ -31,13 +30,17 @@ Research was synthesized through Refero from:
 - **Interaction — [Raycast](https://styles.refero.design/style/3b6a17f0-3bdf-418c-a95e-0b89e5a8b2f8):**
   neutral action surfaces and disciplined accent rationing. Its accent hue is not
   borrowed; Atrium's color comes from the ACE mark.
+- **Product color discipline — [Rork](https://refero.design/pages/32aa5e7b-2fa8-4344-ac18-5d0a146bacd6)
+  and [Mercury](https://refero.design/pages/914a4c3f-9825-47ea-b2c5-6b130a26ba93):**
+  product navigation and ordinary active states use tonal contrast first; saturated
+  color is reserved for functional data, status, and action meaning.
 
 Color is locked to representative opaque clusters measured from the authoritative
 4096px ACE mark: spectral cyan `#58E8F9`, evidence blue `#2896E7`, and identity
 violet `#9777F5`. Reference products may influence composition, never ACE color.
 
 Preserve: achromatic near-black surfaces, compact Spline typography, 8–12px radii,
-thin borders, evidence one interaction away, and one controlled ACE-mark accent.
+thin borders, evidence one interaction away, and semantic—not decorative—ACE color.
 
 Reject: blue-tinted surface ladders, importing a reference product's accent color, HPE
 green as the Core identity, rainbow category chrome, giant KPI walls, ambient glow on
@@ -73,18 +76,21 @@ remains one interaction away in the resource sheet.
 | Role | Light | Dark / Atrium | Meaning |
 |---|---:|---:|---|
 | Primary action | `#315DDE` | `#E7E5E1` | Atrium uses a light neutral fill rather than a chromatic block |
-| Focus / identity | `#315DDE` | `#9777F5` | Spectral violet from the ACE mark for selection, links, focus, and ACE voice |
-| Spectral cyan | `#0F8294` | `#58E8F9` | Live/in-motion evidence only |
-| Evidence blue | `#315DDE` | `#2896E7` | Information, evidence, and data visualization only |
+| Focus | `#315DDE` | `#B4B2AF` | Accessible interaction outline; focus is structural, not a brand statement |
+| Authority violet | `#315DDE` | `#9777F5` | Human decision openings, proposals, and explicit authority boundaries only |
+| Spectral cyan | `#0F8294` | `#58E8F9` | Live sources, watches, ingestion, and in-motion state only |
+| Evidence blue | `#315DDE` | `#2896E7` | Citations, provenance, preserved evidence, and grounded answers only |
 | Success green | `#178A4B` | `#4CC984` | Verified, completed, or accepted state only |
 | Canvas | `#FFFFFF` | `#08090A` | Working surface / Atrium command center |
 | Card | `#FFFFFF` | `#111214` | Evidence and intelligence records |
 | Border | `#E6E8E9` | `#2A2B2D` | Structure without decorative elevation |
 
-Violet identifies ACE; it does not mean “good.” Green remains literal success. Blue is
-not forbidden; it is removed from generic Atrium chrome and reserved for information,
-evidence, or data visualization. A Domain Pack may add chart or taxonomy hues, but it
-must not change these meanings.
+Violet does not mean “selected” or “good”; it marks the point where intelligence meets
+human authority. Green remains literal success. Cyan never decorates static narrative,
+and blue never decorates generic chrome. Active navigation and ordinary selection use
+neutral surface contrast. The full cyan → blue → violet spectrum may appear only in the
+ACE mark and the Intelligence Horizon, where it communicates source → evidence → decision.
+A Domain Pack may add chart or taxonomy hues, but it must not change these meanings.
 
 ## Typography and density
 

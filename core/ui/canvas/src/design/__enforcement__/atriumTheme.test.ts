@@ -53,10 +53,10 @@ describe('Atrium neutral-first theme', () => {
     }
   })
 
-  it('uses neutral primary actions and one ACE-mark focus accent', () => {
+  it('uses neutral actions and focus with semantic ACE spectrum roles', () => {
     expect(token('--primary')).toBe('#E7E5E1')
     expect(token('--brand')).toBe('#9777F5')
-    expect(token('--ring')).toBe('#9777F5')
+    expect(token('--ring')).toBe('#B4B2AF')
     expect(token('--live')).toBe('#58E8F9')
     expect(token('--evidence')).toBe('#2896E7')
     expect(token('--anchor')).toBe('#15151A')
@@ -75,6 +75,8 @@ describe('Atrium neutral-first theme', () => {
     ['brand on canvas', '--brand', '--background', 4.5],
     ['brand on card', '--brand', '--card', 4.5],
     ['brand foreground on brand', '--brand-foreground', '--brand', 4.5],
+    ['evidence on canvas', '--evidence', '--background', 3],
+    ['evidence on card', '--evidence', '--card', 3],
     ['sidebar foreground on sidebar', '--sidebar-foreground', '--sidebar', 4.5],
     ['focus ring on canvas', '--ring', '--background', 3],
     ['live foreground on live', '--live-foreground', '--live', 4.5],
