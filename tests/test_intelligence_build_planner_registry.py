@@ -7,6 +7,7 @@ import pytest
 from ace.application.intelligence_build_planning import (
     INTELLIGENCE_BUILD_PLANNER_CONTRACT,
     INTELLIGENCE_BUILD_PLANNER_V1ALPHA2_CONTRACT,
+    INTELLIGENCE_BUILD_PLANNER_V1ALPHA3_CONTRACT,
     INTELLIGENCE_BUILD_PLANNING_CAPABILITY,
 )
 from ace.core.runtime_use import CapabilityArtifactIdentityV1Alpha1
@@ -32,7 +33,7 @@ class _Planner:
     )
     artifact_identity = CapabilityArtifactIdentityV1Alpha1(
         capability=INTELLIGENCE_BUILD_PLANNING_CAPABILITY,
-        contract=INTELLIGENCE_BUILD_PLANNER_V1ALPHA2_CONTRACT,
+        contract=INTELLIGENCE_BUILD_PLANNER_V1ALPHA3_CONTRACT,
         implementation_id="fixture_planner",
         implementation_version="1.0.0",
         artifact_digest="sha256:" + "b" * 64,
@@ -66,7 +67,7 @@ def test_dedicated_entry_point_loads_and_resolves_exact_profile() -> None:
     assert resolve_intelligence_build_planner("intelligence_onboarding_profile:unknown") is None
 
 
-def test_installed_v1alpha2_entry_point_discovery_uses_active_registry(monkeypatch) -> None:
+def test_installed_v1alpha3_entry_point_discovery_uses_active_registry(monkeypatch) -> None:
     monkeypatch.setattr(
         "core.engine.core.intelligence_build_planner_registry.metadata.entry_points",
         lambda *, group: (_EntryPoint("fixture", _Planner),),
@@ -105,15 +106,17 @@ def test_invalid_or_sync_planner_fails_closed() -> None:
     class _WrongArtifactPlanner(_Planner):
         artifact_identity = _Planner.artifact_identity.model_copy(update={"capability": "other_capability"})
 
-    with pytest.raises(IntelligenceBuildPlannerRegistryError, match="wrong v1alpha2 capability"):
+    with pytest.raises(IntelligenceBuildPlannerRegistryError, match="wrong v1alpha3 capability"):
         register_intelligence_build_planner(profile_id=_Planner.profile_id, planner=_WrongArtifactPlanner())
 
 
-def test_active_registry_rejects_read_only_v1alpha1_planner_contract() -> None:
+@pytest.mark.parametrize(
+    "contract",
+    [INTELLIGENCE_BUILD_PLANNER_CONTRACT, INTELLIGENCE_BUILD_PLANNER_V1ALPHA2_CONTRACT],
+)
+def test_active_registry_rejects_older_read_only_planner_contracts(contract: str) -> None:
     class _LegacyPlanner(_Planner):
-        artifact_identity = _Planner.artifact_identity.model_copy(
-            update={"contract": INTELLIGENCE_BUILD_PLANNER_CONTRACT}
-        )
+        artifact_identity = _Planner.artifact_identity.model_copy(update={"contract": contract})
 
-    with pytest.raises(IntelligenceBuildPlannerRegistryError, match="wrong v1alpha2 capability contract"):
+    with pytest.raises(IntelligenceBuildPlannerRegistryError, match="wrong v1alpha3 capability contract"):
         register_intelligence_build_planner(profile_id=_LegacyPlanner.profile_id, planner=_LegacyPlanner())
