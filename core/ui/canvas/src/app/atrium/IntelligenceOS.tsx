@@ -164,40 +164,114 @@ function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroup
   const briefs = groups.intelligence.filter((item) => item.reference.resource_kind === 'brief')
   const latestBrief = briefs[0]
   const latestBriefStory = latestBrief === undefined ? undefined : briefRevisionStory(latestBrief, briefs[1])
+  const sourceCount = groups.connections.filter((item) => item.reference.resource_kind === 'source').length
+  const movementCount = groups.intelligence.filter((item) => ['signal', 'shift'].includes(item.reference.resource_kind)).length
+  const decisionCount = groups.opportunities.filter((item) => item.reference.resource_kind === 'case').length
   const stream = groups.intelligence
     .filter((item) => item !== latestBrief && ['signal', 'shift', 'brief'].includes(item.reference.resource_kind))
     .slice(0, 6)
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-10">
+      <section id="latest-brief" className="atrium-horizon scroll-mt-24 overflow-hidden rounded-xl border">
+        <div className="relative z-10 flex items-center justify-between border-b border-white/[0.08] px-5 py-3 md:px-7">
+          <div className="flex items-center gap-2 font-mono text-[9px] font-semibold uppercase tracking-[0.19em] text-live">
+            <span className="relative flex size-1.5">
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-live opacity-50 motion-reduce:animate-none" />
+              <span className="relative inline-flex size-1.5 rounded-full bg-live" />
+            </span>
+            Current intelligence
+          </div>
+          <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/45">
+            {briefs.length} immutable revision{briefs.length === 1 ? '' : 's'}
+          </span>
+        </div>
+        <div className="relative z-10 grid min-h-[430px] lg:grid-cols-[minmax(0,1.25fr)_minmax(25rem,0.75fr)]">
+          <div className="flex min-w-0 flex-col justify-center px-5 py-8 md:px-8 md:py-10 lg:pr-4">
+            {latestBrief === undefined ? (
+              <EmptyBuilder onStart={onStart} />
+            ) : (
+              <ResourceCard record={latestBrief} featured horizon storySections={latestBriefStory} />
+            )}
+          </div>
+          <div className="relative hidden min-h-[430px] overflow-hidden border-l border-white/[0.07] lg:block" aria-label="Intelligence horizon">
+            <div className="absolute inset-x-7 top-8 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.16em] text-white/35">
+              <span>Evidence field</span>
+              <span>Decision horizon</span>
+            </div>
+            <svg className="absolute inset-0 size-full" viewBox="0 0 520 430" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="ace-thread-cyan" x1="20" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="var(--live)" stopOpacity="0.12" />
+                  <stop offset="0.55" stopColor="var(--evidence)" stopOpacity="0.72" />
+                  <stop offset="1" stopColor="var(--brand)" stopOpacity="0.28" />
+                </linearGradient>
+                <radialGradient id="ace-core-glow">
+                  <stop stopColor="var(--foreground)" stopOpacity="0.92" />
+                  <stop offset="0.22" stopColor="var(--live)" stopOpacity="0.84" />
+                  <stop offset="0.58" stopColor="var(--evidence)" stopOpacity="0.42" />
+                  <stop offset="1" stopColor="var(--brand)" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+              <path d="M52 114C168 114 157 206 279 215C375 222 403 139 481 139" stroke="url(#ace-thread-cyan)" strokeWidth="1.2" />
+              <path d="M52 215C157 215 170 215 279 215C390 215 400 215 481 215" stroke="url(#ace-thread-cyan)" strokeWidth="1.2" />
+              <path d="M52 316C168 316 157 224 279 215C375 208 403 291 481 291" stroke="url(#ace-thread-cyan)" strokeWidth="1.2" />
+              <path d="M279 74V356" stroke="white" strokeOpacity="0.055" strokeDasharray="2 7" />
+              <circle cx="279" cy="215" r="100" stroke="var(--brand)" strokeOpacity="0.09" />
+              <circle cx="279" cy="215" r="66" stroke="var(--evidence)" strokeOpacity="0.12" />
+              <circle cx="279" cy="215" r="35" fill="url(#ace-core-glow)" opacity="0.82" />
+              <circle cx="279" cy="215" r="4" fill="var(--foreground)" />
+              <circle cx="52" cy="114" r="3" fill="var(--live)" />
+              <circle cx="52" cy="215" r="3" fill="var(--live)" />
+              <circle cx="52" cy="316" r="3" fill="var(--live)" />
+              <circle cx="481" cy="139" r="3" fill="var(--brand)" />
+              <circle cx="481" cy="215" r="3" fill="var(--brand)" />
+              <circle cx="481" cy="291" r="3" fill="var(--brand)" />
+            </svg>
+            <div className="absolute left-7 top-[5.35rem]">
+              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Admitted</div>
+              <div className="mt-1 text-sm font-medium text-live">{sourceCount} source{sourceCount === 1 ? '' : 's'}</div>
+            </div>
+            <div className="absolute left-7 top-[11.7rem]">
+              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Detected</div>
+              <div className="mt-1 text-sm font-medium text-live">{movementCount} movement{movementCount === 1 ? '' : 's'}</div>
+            </div>
+            <div className="absolute left-7 top-[18rem]">
+              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Preserved</div>
+              <div className="mt-1 text-sm font-medium text-white/75">{latestBrief?.provenance.length ?? 0} evidence links</div>
+            </div>
+            <div className="absolute left-[53.6%] top-[51%] -translate-x-1/2 -translate-y-1/2 text-center">
+              <div className="font-mono text-[8px] uppercase tracking-[0.17em] text-white/45">ACE</div>
+              <div className="mt-10 whitespace-nowrap text-[10px] text-white/45">one current picture</div>
+            </div>
+            <div className="absolute right-7 top-[6.9rem] text-right">
+              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Orient</div>
+              <div className="mt-1 text-xs font-medium text-white/75">Cited Brief</div>
+            </div>
+            <div className="absolute right-7 top-[11.7rem] text-right">
+              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Investigate</div>
+              <div className="mt-1 text-xs font-medium text-white/75">Grounded Ask</div>
+            </div>
+            <div className="absolute right-7 top-[16.5rem] text-right">
+              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Decide</div>
+              <div className="mt-1 text-xs font-medium text-brand">{decisionCount} opening{decisionCount === 1 ? '' : 's'}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <AskAce items={all} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.45fr)]">
-        <section id="latest-brief" className="scroll-mt-24 space-y-3">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Latest briefing</div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight">The situation now</h2>
-            </div>
-            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{briefs.length} revision{briefs.length === 1 ? '' : 's'}</Badge>
-          </div>
-          {latestBrief === undefined ? (
-            <EmptyBuilder onStart={onStart} />
-          ) : (
-            <ResourceCard record={latestBrief} featured storySections={latestBriefStory} />
-          )}
-        </section>
+      <aside className="grid gap-5 border-y py-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+        <div>
+          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Attention queue</div>
+          <h2 className="mt-2 text-xl font-medium tracking-[-0.02em]">What needs a look</h2>
+          <p className="mt-2 max-w-xs text-xs leading-5 text-muted-foreground">Material records that crossed the line from background movement into human attention.</p>
+        </div>
+        <ResourceGrid items={groups.attention.slice(0, 4)} empty="Nothing needs attention right now." compact />
+      </aside>
 
-        <aside className="space-y-3">
-          <div>
-            <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Attention</div>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight">What needs a look</h2>
-          </div>
-          <ResourceGrid items={groups.attention.slice(0, 4)} empty="Nothing needs attention right now." single compact />
-        </aside>
-      </div>
-
-      <section className="space-y-3 border-t pt-6">
+      <section className="space-y-4">
         <div className="flex items-end justify-between gap-3">
           <div>
             <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Live intelligence</div>
@@ -223,14 +297,12 @@ function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups;
   ]
 
   return (
-    <div className="mb-7 grid overflow-hidden rounded-lg border bg-card md:grid-cols-4" aria-label="Intelligence coverage">
+    <div className="mb-5 flex flex-wrap items-center gap-x-6 gap-y-2 border-b pb-4" aria-label="Intelligence coverage">
       {entries.map((entry, index) => (
-        <div key={entry.label} className={index === 0 ? 'flex items-center gap-3 px-4 py-3.5' : 'flex items-center gap-3 border-t px-4 py-3.5 md:border-l md:border-t-0'}>
-          <entry.icon className="size-3.5 shrink-0 text-brand" />
-          <div className="min-w-0">
-            <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">{entry.label}</div>
-            <div className="mt-0.5 truncate text-xs font-medium text-foreground/90">{entry.value}</div>
-          </div>
+        <div key={entry.label} className="flex min-w-0 items-center gap-2">
+          <entry.icon className={index === 3 ? 'size-3 shrink-0 text-white/35' : 'size-3 shrink-0 text-live'} />
+          <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">{entry.label}</span>
+          <span className="truncate font-mono text-[9px] text-foreground/80">{entry.value}</span>
         </div>
       ))}
     </div>
@@ -273,20 +345,27 @@ function OpportunityStage({
   icon: Icon,
   title,
   detail,
+  count,
+  active = false,
 }: {
   readonly icon: typeof Crosshair
   readonly title: string
   readonly detail: string
+  readonly count: number
+  readonly active?: boolean
 }) {
   return (
-    <div className="flex gap-3 rounded-lg border bg-background p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10 text-brand">
+    <div className="group relative grid grid-cols-[2.75rem_minmax(0,1fr)_auto] items-center gap-3 py-4">
+      <div className={active
+        ? 'relative z-10 flex size-11 items-center justify-center rounded-full border border-brand/40 bg-brand/15 text-brand shadow-[0_0_36px_color-mix(in_oklab,var(--brand)_22%,transparent)]'
+        : 'relative z-10 flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.035] text-muted-foreground'}>
         <Icon className="size-4" />
       </div>
-      <div>
-        <div className="text-sm font-semibold">{title}</div>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{detail}</p>
+      <div className="min-w-0">
+        <div className={active ? 'text-sm font-semibold text-foreground' : 'text-sm font-medium text-foreground/80'}>{title}</div>
+        <p className="mt-1 text-[11px] leading-4 text-muted-foreground">{detail}</p>
       </div>
+      <div className={active ? 'font-mono text-2xl font-medium tabular-nums text-brand' : 'font-mono text-2xl font-medium tabular-nums text-foreground/55'}>{count}</div>
     </div>
   )
 }
@@ -325,23 +404,30 @@ function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
   const earlySignals = groups.opportunities.filter((item) => item.reference.resource_kind === 'signal')
 
   return (
-    <div className="space-y-7">
-      <Card className="border-brand/20 bg-brand/[0.04]">
-        <CardContent className="p-5 md:p-6">
-          <div className="max-w-3xl">
-            <Badge variant="secondary" className="mb-3 border border-brand/15 bg-brand/10 text-brand">Decision openings</Badge>
-            <h2 className="text-xl font-semibold tracking-tight">An Opportunity is intelligence awaiting a decision.</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+    <div className="space-y-10">
+      <section className="atrium-opportunity-aperture overflow-hidden rounded-xl border border-white/10">
+        <div className="grid min-h-[360px] lg:grid-cols-[minmax(0,1.1fr)_minmax(22rem,0.9fr)]">
+          <div className="flex flex-col justify-between px-6 py-7 md:px-9 md:py-9">
+            <div>
+              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.19em] text-brand">Decision aperture</div>
+              <h2 className="mt-5 max-w-3xl text-[clamp(2.25rem,4.2vw,4.5rem)] font-[420] leading-[0.98] tracking-[-0.05em]">
+                Intelligence becomes an opportunity when a decision window opens.
+              </h2>
+            </div>
+            <p className="mt-8 max-w-2xl text-sm leading-6 text-muted-foreground">
               ACE promotes a signal or shift when the evidence suggests a favorable or avoidable window. It is not a lead, a task, or autonomous Work; it remains a proposal until a person investigates, accepts, dismisses, or turns it into Strategy.
             </p>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <OpportunityStage icon={Radio} title="Signal" detail="A relevant observation worth tracking, but not yet a decision opening." />
-            <OpportunityStage icon={TimerReset} title="Shift" detail="A material delta from the baseline that may create a time-sensitive opening." />
-            <OpportunityStage icon={SearchCheck} title="Case" detail="A bounded, evidence-backed question ready for investigation or decision." />
+          <div className="relative border-t border-white/[0.08] px-6 py-6 lg:border-l lg:border-t-0 lg:px-9">
+            <div className="absolute bottom-[4.6rem] left-[3.72rem] top-[4.65rem] w-px bg-gradient-to-b from-live/30 via-[var(--evidence)] to-brand/45 lg:left-[4.72rem]" />
+            <div className="flex h-full flex-col justify-center divide-y divide-white/[0.07]">
+              <OpportunityStage icon={Radio} title="Signal" count={earlySignals.length} detail="Relevant evidence enters the watch field." />
+              <OpportunityStage icon={TimerReset} title="Shift" count={emergingOpenings.length} detail="A material delta changes the current baseline." />
+              <OpportunityStage icon={SearchCheck} title="Decision opening" count={decisionOpenings.length} detail="A bounded question is ready for human judgment." active />
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       <OpportunitySection
         eyebrow="Ready to investigate"

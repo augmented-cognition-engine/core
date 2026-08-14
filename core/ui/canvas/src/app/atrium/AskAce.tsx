@@ -32,24 +32,17 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
   }
 
   return (
-    <Card className="overflow-hidden border-brand/20 bg-anchor text-anchor-foreground">
-      <CardContent className="p-4 md:p-5">
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-8 items-center justify-center rounded-md border border-brand/30 bg-brand/10 text-brand">
+    <Card className="overflow-hidden border-white/[0.1] bg-anchor text-anchor-foreground shadow-2xl">
+      <CardContent className="p-3 md:p-3.5">
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-md border border-brand/25 bg-brand/[0.08] text-brand">
             <Sparkles className="size-3.5" />
           </div>
-          <div>
-            <div className="text-sm font-semibold">Ask ACE</div>
-            <div className="text-[11px] text-muted-foreground">A sourced answer from the intelligence currently in view</div>
+          <div className="hidden shrink-0 md:block">
+            <div className="text-xs font-semibold">Ask ACE</div>
+            <div className="text-[10px] text-muted-foreground">Grounded in this picture</div>
           </div>
-          <Badge variant="outline" className="ml-auto hidden border-brand/25 bg-brand/5 text-brand sm:inline-flex">
-            <ShieldCheck className="mr-1 size-3" />
-            governed sources
-          </Badge>
-        </div>
-
-        <div className="mt-3 flex gap-2">
-          <div className="relative min-w-0 flex-1">
+          <div className="relative min-w-0 flex-1 md:ml-2">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={draft}
@@ -59,7 +52,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
               }}
               placeholder="Ask about competitors, shifts, evidence, or decisions"
               aria-label="Ask ACE about current intelligence"
-              className="h-11 border-border bg-background pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-brand/50"
+              className="h-11 border-white/[0.09] bg-white/[0.035] pl-10 text-foreground placeholder:text-muted-foreground focus-visible:border-brand/50"
             />
           </div>
           <Button
@@ -72,10 +65,14 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
           >
             <ArrowRight className="size-4" />
           </Button>
+          <Badge variant="outline" className="ml-1 hidden border-live/15 bg-live/[0.04] text-live xl:inline-flex">
+            <ShieldCheck className="mr-1 size-3" />
+            cited picture
+          </Badge>
         </div>
 
         {question.length === 0 ? (
-          <div className="mt-2.5 flex flex-wrap gap-1.5">
+          <div className="mt-2.5 flex flex-wrap gap-1.5 border-t border-white/[0.06] pt-2.5">
             {SUGGESTIONS.map((suggestion) => (
               <Button
                 key={suggestion}
@@ -137,10 +134,10 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
                   </div>
                 </div>
 
-                <aside className="rounded-lg border bg-card/70 p-3.5" aria-label="Evidence used for this answer">
+                <aside className="rounded-lg border bg-card/70 p-3.5" aria-label="Evidence trail for this answer">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                      <GitBranch className="size-3" /> Evidence used
+                      <GitBranch className="size-3" /> Evidence trail
                     </div>
                     <Badge variant="outline" className="rounded-sm font-mono text-[8px]">{answer.evidence.length} records</Badge>
                   </div>

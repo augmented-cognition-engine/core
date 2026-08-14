@@ -58,7 +58,13 @@ describe('Atrium neutral-first theme', () => {
     expect(token('--brand')).toBe('#9777F5')
     expect(token('--ring')).toBe('#9777F5')
     expect(token('--live')).toBe('#58E8F9')
+    expect(token('--evidence')).toBe('#2896E7')
     expect(token('--anchor')).toBe('#15151A')
+  })
+
+  it('keeps Atrium signature compositions scoped to the command center', () => {
+    expect(css).toContain('.atrium-horizon {')
+    expect(css).toContain('.atrium-opportunity-aperture {')
   })
 
   it.each([

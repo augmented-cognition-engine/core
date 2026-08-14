@@ -252,6 +252,7 @@
     --ring: #9777F5;
     --brand: #9777F5;
     --brand-foreground: #0D0917;
+    --evidence: #2896E7;
     --live: #58E8F9;
     --live-foreground: #071312;
     --success: #4CC984;
@@ -266,6 +267,53 @@
     --sidebar-accent-foreground: #F3F1ED;
     --sidebar-border: #242527;
     --sidebar-ring: #9777F5;
+}
+
+/* The Intelligence Horizon is Atrium's signature composition: admitted
+ * evidence converges into one governed picture, then opens toward human
+ * investigation and decision. The spectrum is sampled from the ACE mark and
+ * kept inside this focal surface; chrome remains neutral and quiet. */
+.atrium-horizon {
+    position: relative;
+    isolation: isolate;
+    background:
+        radial-gradient(70% 110% at 83% 50%, rgb(40 150 231 / 10%), transparent 64%),
+        radial-gradient(38% 80% at 69% 47%, rgb(151 119 245 / 8%), transparent 72%),
+        linear-gradient(135deg, #121315 0%, #0a0b0d 62%, #101016 100%);
+    border-color: rgb(255 255 255 / 10%);
+    box-shadow: 0 28px 100px rgb(0 0 0 / 32%), inset 0 1px rgb(255 255 255 / 3%);
+}
+
+.atrium-horizon::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.32;
+    background-image:
+        linear-gradient(rgb(255 255 255 / 2.8%) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 2.8%) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(90deg, transparent 4%, black 65%, transparent 100%);
+}
+
+.atrium-opportunity-aperture {
+    position: relative;
+    isolation: isolate;
+    background:
+        radial-gradient(58% 130% at 89% 70%, rgb(151 119 245 / 10%), transparent 63%),
+        radial-gradient(45% 90% at 54% 18%, rgb(40 150 231 / 6%), transparent 70%),
+        linear-gradient(145deg, #111214, #090a0c 68%);
+    box-shadow: 0 24px 90px rgb(0 0 0 / 26%), inset 0 1px rgb(255 255 255 / 3%);
+}
+
+.atrium-opportunity-aperture::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(105deg, transparent 54%, rgb(151 119 245 / 5%) 54.1%, transparent 84%);
+    pointer-events: none;
 }
 
 @layer base {

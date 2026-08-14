@@ -40,11 +40,13 @@ function relativeTime(value: string): string {
 export function ResourceCard({
   record,
   featured = false,
+  horizon = false,
   compact = false,
   storySections,
 }: {
   readonly record: IntelligenceResourceRecord
   readonly featured?: boolean
+  readonly horizon?: boolean
   readonly compact?: boolean
   readonly storySections?: readonly IntelligenceStorySection[]
 }) {
@@ -64,8 +66,8 @@ export function ResourceCard({
           className="group w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           aria-label={`Open ${record.title}`}
         >
-          <Card className={featured ? 'border-brand/25 bg-card transition-colors duration-200 group-hover:border-brand/45' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
-            <CardContent className={featured ? 'p-6 md:p-7' : compact ? 'p-3.5' : 'p-4'}>
+          <Card className={horizon ? 'border-0 bg-transparent shadow-none' : featured ? 'border-brand/25 bg-card transition-colors duration-200 group-hover:border-brand/45' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
+            <CardContent className={horizon ? 'p-0' : featured ? 'p-6 md:p-7' : compact ? 'p-3.5' : 'p-4'}>
               <div className="flex items-start gap-3">
                 <div
                   className={
@@ -93,7 +95,9 @@ export function ResourceCard({
                   <h3
                     className={
                       featured
-                        ? 'max-w-3xl text-2xl font-semibold leading-[1.12] tracking-[-0.025em]'
+                        ? horizon
+                          ? 'max-w-4xl text-[clamp(2rem,3.3vw,3.45rem)] font-[430] leading-[1.02] tracking-[-0.045em] text-white'
+                          : 'max-w-3xl text-2xl font-semibold leading-[1.12] tracking-[-0.025em]'
                         : 'text-sm font-semibold leading-snug tracking-tight'
                     }
                   >
@@ -112,10 +116,12 @@ export function ResourceCard({
                   )}
                   {resolvedStorySections.length > 0 && (
                     <div className={featured
-                      ? 'mt-5 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2'
+                      ? horizon
+                        ? 'mt-7 grid border-y border-white/[0.08] sm:grid-cols-2'
+                        : 'mt-5 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2'
                       : 'mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border'}>
                       {resolvedStorySections.map((section) => (
-                        <div key={section.id} className={featured ? 'bg-card p-4' : 'min-w-0 bg-card p-2.5'}>
+                        <div key={section.id} className={featured ? horizon ? 'border-white/[0.08] py-3 pr-5 even:border-l even:pl-5' : 'bg-card p-4' : 'min-w-0 bg-card p-2.5'}>
                           <div className={featured
                             ? 'font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand'
                             : 'font-mono text-[8px] font-semibold uppercase tracking-[0.14em] text-brand'}>

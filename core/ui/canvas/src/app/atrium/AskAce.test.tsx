@@ -50,7 +50,7 @@ describe('Ask ACE', () => {
 
     expect(screen.getByRole('region', { name: 'Ask ACE answer' })).toBeTruthy()
     expect(screen.getByText('The policy moved from directive to reported implementation.')).toBeTruthy()
-    expect(screen.getByRole('complementary', { name: 'Evidence used for this answer' })).toBeTruthy()
+    expect(screen.getByRole('complementary', { name: 'Evidence trail for this answer' })).toBeTruthy()
     expect(screen.getByText('AI policy moved into implementation')).toBeTruthy()
   })
 })
