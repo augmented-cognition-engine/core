@@ -44,9 +44,10 @@ from ace.intelligence.contracts.common import (
     validate_reference,
     validate_slug,
 )
-from ace.intelligence.contracts.ledger import IntelligenceRecordKind
+from ace.intelligence.contracts.ledger import IntelligenceRecordKind, resource_available_at
 from ace.intelligence.contracts.resources import (
     ActivationRevisionReferenceV1Alpha1,
+    EntitySnapshotV1Alpha1,
     EvidenceAcquisitionMode,
     IntelligenceResourceMode,
     ObservationV1Alpha1,
@@ -269,11 +270,12 @@ class RecordedSourceAcquisitionReceiptV1Alpha1(_StrictFrozenContract):
 
 @dataclass(frozen=True, slots=True)
 class RecordedSourceAdmission:
-    """Exact reopened recorded receipts, snapshots, Observations, and append receipt."""
+    """Exact reopened recorded evidence, mapped entities, and append receipt."""
 
     acquisition_receipts: tuple[RecordedSourceAcquisitionReceiptV1Alpha1, ...]
     source_snapshots: tuple[CanonicalSourceSnapshotV1Alpha1, ...]
     observations: tuple[ObservationV1Alpha1, ...]
+    entity_snapshots: tuple[EntitySnapshotV1Alpha1, ...]
     transaction_receipt: AppendOnlyTransactionReceiptV1
     replayed: bool
 
@@ -370,9 +372,11 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
             or authority.operation != INTELLIGENCE_BUILD_OPERATION
             or authority.authority != INTELLIGENCE_BUILD_AUTHORITY
             or authority.grant_ref != self.build.request.authority_grant_ref
-            or CONNECT_SOURCES_EFFECT not in self.build.request.approved_effects
+            or not {CONNECT_SOURCES_EFFECT, "map_concepts"}.issubset(self.build.request.approved_effects)
         ):
-            raise RecordedSourceAdmissionError("authorized build does not cover exact recorded source admission")
+            raise RecordedSourceAdmissionError(
+                "authorized build does not cover exact recorded source admission and mapping"
+            )
         if self.binding.prepared_binding.reference.product_id != self.build.product_id:
             raise RecordedSourceAdmissionError("committed activation crossed the authorized build product")
 
@@ -426,6 +430,7 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
         acquisitions: list[RecordedSourceAcquisitionReceiptV1Alpha1] = []
         snapshots: list[CanonicalSourceSnapshotV1Alpha1] = []
         observations: list[ObservationV1Alpha1] = []
+        entities: list[EntitySnapshotV1Alpha1] = []
         for material in exact:
             acquisition = RecordedSourceAcquisitionReceiptV1Alpha1(
                 product_id=self.build.product_id,
@@ -472,19 +477,36 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
             except Exception:
                 raise RecordedSourceAdmissionError("recorded material failed activation-bound source mapping") from None
             observation = mapped.observation
+            entity = mapped.entity_snapshot
             if (
                 observation.mode is not IntelligenceResourceMode.PREPARED
                 or observation.acquisition_mode is not EvidenceAcquisitionMode.RECORDED_REPLAY
                 or observation.acquisition_receipt_ref != acquisition.receipt_id
                 or observation.acquisition_receipt_digest != acquisition.receipt_digest
+                or entity.mode is not IntelligenceResourceMode.PREPARED
+                or entity.activation_revision != observation.activation_revision
+                or len(entity.lineage) != 1
+                or entity.lineage[0].resource_id != observation.resource_id
+                or entity.lineage[0].resource_digest != observation.resource_digest
+                or entity.lineage[0].resource_as_of != observation.as_of
+                or entity.lineage[0].resource_available_at != resource_available_at(observation)
             ):
-                raise RecordedSourceAdmissionError("prepared mapping changed recorded acquisition truth")
+                raise RecordedSourceAdmissionError(
+                    "prepared mapping changed recorded acquisition truth or entity lineage"
+                )
             acquisitions.append(acquisition)
             snapshots.append(snapshot)
             observations.append(observation)
+            entities.append(entity)
 
         records_list: list[ImmutableRecordV1] = []
-        for acquisition, snapshot, observation in zip(acquisitions, snapshots, observations, strict=True):
+        for acquisition, snapshot, observation, entity in zip(
+            acquisitions,
+            snapshots,
+            observations,
+            entities,
+            strict=True,
+        ):
             base = len(records_list)
             records_list.extend(
                 (
@@ -514,6 +536,15 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
                         as_of=observation.as_of,
                         available_at=admitted_at,
                         order=base + 2,
+                    ),
+                    _record(
+                        entity,
+                        product_id=self.build.product_id,
+                        kind=IntelligenceRecordKind.ENTITY_SNAPSHOT.value,
+                        key=str(entity.resource_id),
+                        as_of=entity.as_of,
+                        available_at=resource_available_at(entity),
+                        order=base + 3,
                     ),
                 )
             )
@@ -550,7 +581,7 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
         )
         if receipt is None:
             return None
-        if len(receipt.records) != len(expected) * 3:
+        if len(receipt.records) != len(expected) * 4:
             raise RecordedSourceAdmissionError("recorded admission receipt lost exact material-set shape")
         loaded: list[ImmutableRecordV1] = []
         for reference in receipt.records:
@@ -567,18 +598,21 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
             RECORDED_SOURCE_RECORD_KIND,
             SOURCE_SNAPSHOT_RECORD_KIND,
             IntelligenceRecordKind.OBSERVATION.value,
+            IntelligenceRecordKind.ENTITY_SNAPSHOT.value,
         ) * len(expected)
         if tuple(item.record_kind for item in loaded) != expected_kinds:
             raise RecordedSourceAdmissionError("recorded admission record kinds changed")
         acquisitions: list[RecordedSourceAcquisitionReceiptV1Alpha1] = []
         snapshots: list[CanonicalSourceSnapshotV1Alpha1] = []
         observations: list[ObservationV1Alpha1] = []
+        entities: list[EntitySnapshotV1Alpha1] = []
         for index, material in enumerate(expected):
-            offset = index * 3
+            offset = index * 4
             try:
                 acquisition = RecordedSourceAcquisitionReceiptV1Alpha1.model_validate(loaded[offset].payload)
                 snapshot = CanonicalSourceSnapshotV1Alpha1.model_validate(loaded[offset + 1].payload)
                 observation = ObservationV1Alpha1.model_validate(loaded[offset + 2].payload)
+                entity = EntitySnapshotV1Alpha1.model_validate(loaded[offset + 3].payload)
             except (TypeError, ValueError) as exc:
                 raise RecordedSourceAdmissionError("recorded admission payload failed exact replay") from exc
             if (
@@ -596,11 +630,21 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
                 or observation.activation_revision != self.binding.prepared_binding.reference
                 or observation.mode is not IntelligenceResourceMode.PREPARED
                 or observation.acquisition_mode is not EvidenceAcquisitionMode.RECORDED_REPLAY
+                or entity.product_id != self.build.product_id
+                or entity.mode is not IntelligenceResourceMode.PREPARED
+                or entity.activation_revision != self.binding.prepared_binding.reference
+                or len(entity.lineage) != 1
+                or entity.lineage[0].resource_id != observation.resource_id
+                or entity.lineage[0].resource_digest != observation.resource_digest
+                or entity.lineage[0].resource_as_of != observation.as_of
+                or entity.lineage[0].resource_available_at != resource_available_at(observation)
+                or loaded[offset + 3].available_at != resource_available_at(entity)
             ):
                 raise RecordedSourceAdmissionError("recorded admission chain crossed exact governed material")
             acquisitions.append(acquisition)
             snapshots.append(snapshot)
             observations.append(observation)
+            entities.append(entity)
         first_acquisition = acquisitions[0]
         expected_preconditions = tuple(
             sorted(
@@ -617,6 +661,7 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
             acquisition_receipts=tuple(acquisitions),
             source_snapshots=tuple(snapshots),
             observations=tuple(observations),
+            entity_snapshots=tuple(entities),
             transaction_receipt=receipt,
             replayed=replayed,
         )
