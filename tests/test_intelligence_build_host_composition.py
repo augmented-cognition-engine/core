@@ -206,6 +206,7 @@ async def test_exact_durable_bootstrap_composes_fresh_product_fenced_ports() -> 
 
     assert isinstance(first.recorded_sources, CoreRecordedSourceAdmissionService)
     assert first.prepared_derivations is not None
+    assert first.first_brief is None
     assert first.records.product_id == build.product_id
     assert first.recorded_sources.store is first.records
     assert first.prepared_derivations.ledger.store is first.records

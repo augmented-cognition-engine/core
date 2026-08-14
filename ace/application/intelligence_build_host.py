@@ -16,6 +16,10 @@ from ace.application.intelligence_build_execution import (
     IntelligenceBuildHostServices,
     IntelligenceBuildResourcePagePort,
 )
+from ace.application.intelligence_build_first_brief import (
+    CoreIntelligenceBuildFirstBriefService,
+    IntelligenceBuildFirstBriefCognition,
+)
 from ace.application.intelligence_builder import (
     INTELLIGENCE_BUILDER_RECORD_SPACE,
     ONBOARDING_ARTIFACT_RECORD_KIND,
@@ -86,10 +90,12 @@ class DurableIntelligenceBuildHostComposer:
         governed_state: GovernedStateStore,
         runtime_use: RuntimeUseResolver,
         packs: ExactCompiledPackResolver,
+        first_brief_cognition: IntelligenceBuildFirstBriefCognition | None = None,
     ) -> None:
         self.governed_state = governed_state
         self.runtime_use = runtime_use
         self.packs = packs
+        self.first_brief_cognition = first_brief_cognition
 
     async def _matching_candidates(
         self,
@@ -341,6 +347,10 @@ class DurableIntelligenceBuildHostComposer:
                 resources=resources,
                 activation_authority=activation_authority,
             )
+        canonical = DomainActivationAdmissionService(
+            store=self.governed_state,
+            authority=activation_authority,
+        )
         return IntelligenceBuildHostServices(
             records=records,
             resources=resources,
@@ -356,6 +366,19 @@ class DurableIntelligenceBuildHostComposer:
                 ledger=PreparedIntelligenceLedgerService(binding=binding, store=records),
                 governed_state=self.governed_state,
                 runtime_use=self.runtime_use,
+            ),
+            first_brief=(
+                CoreIntelligenceBuildFirstBriefService(
+                    build=build,
+                    sessions=IntelligenceBuilderSessionService(store=records),
+                    activations=canonical,
+                    packs=self.packs,
+                    records=records,
+                    runtime_use=self.runtime_use,
+                    cognition=self.first_brief_cognition,
+                )
+                if self.first_brief_cognition is not None
+                else None
             ),
         )
 

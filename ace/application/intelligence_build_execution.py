@@ -29,6 +29,10 @@ from ace.core.state import CoreAuthorityResolver, ResolvedApprovalReceiptV1
 from ace.intelligence.contracts.common import validate_digest, validate_reference, validate_slug
 
 if TYPE_CHECKING:
+    from ace.application.intelligence_build_first_brief import (
+        IntelligenceBuildFirstBriefOutcome,
+        IntelligenceBuildFirstBriefRequestV1Alpha1,
+    )
     from ace.application.prepared_shift_signal import (
         PreparedShiftSignalDerivationOutcome,
         PreparedShiftSignalDerivationRequestV1Alpha1,
@@ -238,6 +242,15 @@ class IntelligenceBuildPreparedDerivationPort(Protocol):
     ) -> "PreparedShiftSignalDerivationOutcome": ...
 
 
+class IntelligenceBuildFirstBriefPort(Protocol):
+    """Narrow host capability for one exact routed canonical first Brief."""
+
+    async def create_first_brief(
+        self,
+        request: "IntelligenceBuildFirstBriefRequestV1Alpha1",
+    ) -> "IntelligenceBuildFirstBriefOutcome": ...
+
+
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildHostServices:
     """Invocation-scoped capabilities Core grants to one trusted executor."""
@@ -247,6 +260,7 @@ class IntelligenceBuildHostServices:
     activation_authority: CoreAuthorityResolver
     recorded_sources: IntelligenceBuildRecordedSourcePort | None = None
     prepared_derivations: IntelligenceBuildPreparedDerivationPort | None = None
+    first_brief: IntelligenceBuildFirstBriefPort | None = None
 
 
 class IntelligenceBuildExecutor(Protocol):
@@ -262,6 +276,7 @@ __all__ = [
     "IntelligenceBuildEffect",
     "IntelligenceBuildExecutor",
     "IntelligenceBuildHostServices",
+    "IntelligenceBuildFirstBriefPort",
     "IntelligenceBuildPreparedDerivationPort",
     "IntelligenceBuildResourcePagePort",
     "IntelligenceBuildRecordedSourcePort",
