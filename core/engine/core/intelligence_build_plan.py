@@ -28,6 +28,7 @@ from ace.application.intelligence_build_planning import (
     IntelligenceBuildPlanV1Alpha3,
     validate_intelligence_build_planner_v1alpha3_registration,
 )
+from ace.application.intelligence_build_review import project_intelligence_build_review
 from core.engine.core.installed_intelligence_catalog import (
     InstalledIntelligenceCatalogError,
     InstalledOnboardingProfile,
@@ -217,6 +218,30 @@ async def prepare_intelligence_build_plan(
         != tuple(item.request_id for item in artifact.pack.authority_requests)
     ):
         raise IntelligenceBuildPlanConflict("Intelligence build planner changed exact installed review material")
+    try:
+        exact_review = project_intelligence_build_review(
+            request_id=str(exact_request.request_id),
+            request_digest=str(exact_request.request_digest),
+            subject=exact_request.subject,
+            outcome_id=exact_request.outcome_id,
+            cadence_id=exact_request.cadence_id,
+            profile=installed_profile.profile,
+            pack_reference=pack_reference,
+            pack=artifact.pack,
+            selections=plan.recorded_source_selections,
+        )
+        if plan.review_projection is not None and plan.review_projection != exact_review:
+            raise IntelligenceBuildPlanConflict("Intelligence build planner changed exact review presentation")
+        plan = IntelligenceBuildPlanV1Alpha3.model_validate(
+            {
+                **plan.model_dump(mode="python", exclude={"plan_id", "plan_digest", "review_projection"}),
+                "review_projection": exact_review,
+            }
+        )
+    except IntelligenceBuildPlanConflict:
+        raise
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise IntelligenceBuildPlanConflict("Intelligence build review projection is invalid") from exc
     return plan
 
 

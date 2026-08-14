@@ -113,15 +113,21 @@ describe('Atrium onboarding resources', () => {
 
   it('adds validated installed profiles without replacing admitted product profiles', () => {
     const installedWorld = { ...profile, profile_id: 'onboarding_profile:world', domain_label: 'World Intelligence' }
-    const installedDuplicate = { ...profile, domain_label: 'Installed duplicate' }
-    expect(onboardingProfilesFromResources(
+    const installedDuplicate = {
+      ...profile,
+      profile_digest: `sha256:${'d'.repeat(64)}`,
+      domain_label: 'Installed duplicate',
+    }
+    const catalog = onboardingProfilesFromResources(
       [resource('builder_profile', profile)],
       [installedWorld, installedDuplicate],
-    ).map((item) => item.domain_label)).toEqual([
+    )
+    expect(catalog.map((item) => item.domain_label)).toEqual([
       'Test domain',
       'World Intelligence',
       'Custom Intelligence',
     ])
+    expect(catalog[0]?.profile_digest).toBe(`sha256:${'d'.repeat(64)}`)
   })
 
   it('uses the latest exact builder session revision', () => {

@@ -18,6 +18,7 @@ from ace.application.intelligence_build_execution import (
     IntelligenceBuildEffect,
     RecordedSourceReferenceV1,
 )
+from ace.application.intelligence_build_review import IntelligenceBuildReviewProjectionV1Alpha1
 from ace.application.recorded_source_selection import (
     RecordedSourceSelectionReferenceV1Alpha1,
     RecordedSourceSelectionV1Alpha1,
@@ -306,6 +307,7 @@ class IntelligenceBuildPlanV1Alpha2(_PlanningContract):
         default_factory=tuple,
         max_length=64,
     )
+    review_projection: IntelligenceBuildReviewProjectionV1Alpha1 | None = None
     execution_request_id: str | None = None
     execution_request_digest: str | None = None
     plan_id: str | None = None
@@ -369,6 +371,18 @@ class IntelligenceBuildPlanV1Alpha2(_PlanningContract):
         if self.recorded_source_selection_refs and self.recorded_source_selection_refs != exact_refs:
             raise ValueError("recorded source selection references changed the exact reviewed selections")
         object.__setattr__(self, "recorded_source_selection_refs", exact_refs)
+        if self.review_projection is not None:
+            review = self.review_projection
+            if (
+                review.request_id != self.request.request_id
+                or review.request_digest != self.request.request_digest
+                or review.profile_id != self.request.profile_id
+                or review.profile_digest != self.request.profile_digest
+                or review.pack_reference != self.pack_reference
+                or tuple(item.selection for item in review.sources) != exact_refs
+                or tuple(item.effect for item in review.effects) != self.request.proposed_effects
+            ):
+                raise ValueError("review projection crossed exact activation-neutral plan material")
         execution_id, execution_digest = intelligence_build_execution_identity(
             product_id=self.request.product_id,
             actor_ref=self.request.actor_ref,
@@ -469,6 +483,7 @@ class IntelligenceBuildPlanV1Alpha3(_PlanningContract):
         default_factory=tuple,
         max_length=64,
     )
+    review_projection: IntelligenceBuildReviewProjectionV1Alpha1 | None = None
     plan_id: str | None = None
     plan_digest: str | None = None
 
@@ -514,6 +529,18 @@ class IntelligenceBuildPlanV1Alpha3(_PlanningContract):
         if self.recorded_source_selection_refs and self.recorded_source_selection_refs != exact_refs:
             raise ValueError("recorded source selection references changed the exact reviewed selections")
         object.__setattr__(self, "recorded_source_selection_refs", exact_refs)
+        if self.review_projection is not None:
+            review = self.review_projection
+            if (
+                review.request_id != self.request.request_id
+                or review.request_digest != self.request.request_digest
+                or review.profile_id != self.request.profile_id
+                or review.profile_digest != self.request.profile_digest
+                or review.pack_reference != self.pack_reference
+                or tuple(item.selection for item in review.sources) != exact_refs
+                or tuple(item.effect for item in review.effects) != self.request.proposed_effects
+            ):
+                raise ValueError("review projection crossed exact activation-neutral plan material")
         material = self.model_dump(mode="json", exclude={"plan_id", "plan_digest"})
         digest = canonical_hash(material)
         expected_id = f"intelligence_build_plan:{digest[:32]}"

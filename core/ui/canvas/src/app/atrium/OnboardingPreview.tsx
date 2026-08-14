@@ -8,6 +8,7 @@ import {
   CircleDot,
   Compass,
   Database,
+  Eye,
   FileCheck2,
   FlaskConical,
   Gauge,
@@ -30,7 +31,13 @@ import { Button } from '@/design/shadcn/ui/button'
 import { Card, CardContent } from '@/design/shadcn/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/design/shadcn/ui/dialog'
 import { Textarea } from '@/design/shadcn/ui/textarea'
-import type { IntelligenceBuildStartInput } from '@/api/intelligenceBuildsApi'
+import {
+  createIntelligenceBuildPlanPrepareInput,
+  IntelligenceBuildApiError,
+  type IntelligenceBuildPlan,
+  type IntelligenceBuildPlanPrepareInput,
+  type IntelligenceBuildPlanReviewEffect,
+} from '@/api/intelligenceBuildsApi'
 import type {
   IntelligenceBuilderSession,
   IntelligenceBuilderStage,
@@ -58,7 +65,7 @@ const SOURCE_ICONS: Record<string, typeof Database> = {
   private_organizational: LockKeyhole,
 }
 
-const STEP_LABELS = ['Choose', 'Intent', 'Evidence', 'Review', 'Build'] as const
+const STEP_LABELS = ['Choose', 'Intent', 'Evidence', 'Review', 'Activate'] as const
 const CUSTOM_PREVIEW_STEP_LABELS = ['Choose', 'Intent', 'Evidence', 'Review', 'Preview'] as const
 
 type BuildState = 'complete' | 'active' | 'blocked' | 'waiting' | 'proposed' | 'preview'
@@ -67,6 +74,43 @@ interface BuildLane {
   readonly label: string
   readonly result: string
   readonly state: BuildState
+}
+
+interface PlanErrorState {
+  readonly status: number
+  readonly title: string
+  readonly detail: string
+}
+
+function planErrorState(reason: unknown): PlanErrorState {
+  const status = reason instanceof IntelligenceBuildApiError ? reason.status : 0
+  const detail = reason instanceof Error ? reason.message : 'ACE could not prepare exact review material.'
+  if (status === 404) {
+    return {
+      status,
+      title: 'This starting point is no longer installed.',
+      detail: `${detail} Choose another installed intelligence starting point or refresh the catalog.`,
+    }
+  }
+  if (status === 409) {
+    return {
+      status,
+      title: 'This proposed plan is out of date.',
+      detail: `${detail} Go back and review the current profile and evidence selection before preparing again.`,
+    }
+  }
+  if (status === 503) {
+    return {
+      status,
+      title: 'Exact planning is not available yet.',
+      detail: `${detail} Nothing was connected, activated, or changed.`,
+    }
+  }
+  return {
+    status,
+    title: 'ACE stopped before preparing the plan.',
+    detail: `${detail} Nothing was connected, activated, or changed.`,
+  }
 }
 
 const STAGE_RANK: Record<IntelligenceBuilderStage, number> = {
@@ -161,14 +205,14 @@ export function OnboardingPreview({
   onOpenChange,
   profiles,
   session,
-  onStartBuild,
+  onPrepareBuild,
   onOpenBrief,
 }: {
   readonly open: boolean
   readonly onOpenChange: (open: boolean) => void
   readonly profiles: readonly IntelligenceOnboardingProfile[]
   readonly session: IntelligenceBuilderSession | null
-  readonly onStartBuild: (request: IntelligenceBuildStartInput) => Promise<void>
+  readonly onPrepareBuild: (request: IntelligenceBuildPlanPrepareInput) => Promise<IntelligenceBuildPlan>
   readonly onOpenBrief: () => void
 }) {
   const [profileId, setProfileId] = useState(profiles[0].profile_id)
@@ -183,8 +227,10 @@ export function OnboardingPreview({
   const [sourceGroupIds, setSourceGroupIds] = useState<readonly string[]>(() =>
     profile.source_groups.filter((group) => group.default_selected).map((group) => group.source_group_id),
   )
-  const [buildPending, setBuildPending] = useState(false)
-  const [buildError, setBuildError] = useState<string | null>(null)
+  const [planPending, setPlanPending] = useState(false)
+  const [planError, setPlanError] = useState<PlanErrorState | null>(null)
+  const [preparedInput, setPreparedInput] = useState<IntelligenceBuildPlanPrepareInput | null>(null)
+  const [preparedPlan, setPreparedPlan] = useState<IntelligenceBuildPlan | null>(null)
   const outcome = useMemo(() => profile.outcomes.find((item) => item.outcome_id === outcomeId) ?? profile.outcomes[0], [outcomeId, profile.outcomes])
   const selectedSourceGroups = useMemo(
     () => profile.source_groups.filter((group) => sourceGroupIds.includes(group.source_group_id)),
@@ -218,9 +264,19 @@ export function OnboardingPreview({
     setSourceGroupIds(
       profile.source_groups.filter((group) => group.default_selected).map((group) => group.source_group_id),
     )
+    setPreparedInput(null)
+    setPreparedPlan(null)
+    setPlanError(null)
   }, [profile])
 
+  function invalidatePreparedPlan() {
+    setPreparedInput(null)
+    setPreparedPlan(null)
+    setPlanError(null)
+  }
+
   function toggleSourceGroup(sourceGroupId: string) {
+    invalidatePreparedPlan()
     setSourceGroupIds((current) => current.includes(sourceGroupId)
       ? current.filter((item) => item !== sourceGroupId)
       : [...current, sourceGroupId])
@@ -229,30 +285,38 @@ export function OnboardingPreview({
   function close(next: boolean) {
     onOpenChange(next)
     if (!next) setStep(0)
-    if (!next) setBuildError(null)
+    if (!next) setPlanError(null)
   }
 
-  async function build() {
+  async function preparePlan() {
     if (customPreview) {
-      setBuildError(null)
-      setStep(4)
+      setPlanError(null)
+      setStep(3)
       return
     }
-    setBuildPending(true)
-    setBuildError(null)
+    if (profile.profile_digest === null) {
+      setPlanError(planErrorState(new IntelligenceBuildApiError(503, 'The installed profile has no exact digest.')))
+      return
+    }
+    const exactInput = preparedInput ?? createIntelligenceBuildPlanPrepareInput({
+      profile_id: profile.profile_id,
+      profile_digest: profile.profile_digest,
+      subject: subject.trim(),
+      outcome_id: outcome.outcome_id,
+      source_group_ids: sourceGroupIds,
+      cadence_id: cadenceId,
+    })
+    setPreparedInput(exactInput)
+    setPlanPending(true)
+    setPlanError(null)
     try {
-      await onStartBuild({
-        profile_id: profile.profile_id,
-        subject: subject.trim(),
-        outcome_id: outcome.outcome_id,
-        source_group_ids: sourceGroupIds,
-        cadence_id: cadenceId,
-      })
-      setStep(4)
+      const plan = await onPrepareBuild(exactInput)
+      setPreparedPlan(plan)
+      setStep(3)
     } catch (reason: unknown) {
-      setBuildError(reason instanceof Error ? reason.message : 'ACE could not start this Intelligence build.')
+      setPlanError(planErrorState(reason))
     } finally {
-      setBuildPending(false)
+      setPlanPending(false)
     }
   }
 
@@ -272,8 +336,8 @@ export function OnboardingPreview({
             <Badge variant="outline" className="mr-6 rounded-sm font-mono text-[9px]">
               {customPreview
                 ? 'Custom · Preview'
-                : buildPending
-                  ? 'Building'
+                : planPending
+                  ? 'Preparing'
                   : step < 4
                     ? 'Plan review'
                     : activeSession === null
@@ -355,14 +419,20 @@ export function OnboardingPreview({
                 <Textarea
                   aria-label="Describe the intelligence you want"
                   value={subject}
-                  onChange={(event) => setSubject(event.target.value)}
+                  onChange={(event) => {
+                    invalidatePreparedPlan()
+                    setSubject(event.target.value)
+                  }}
                   placeholder="For example: Keep me ahead of meaningful AI capability, cost, policy, and adoption shifts."
                   className="min-h-24 rounded-lg border-border bg-card px-4 py-3 text-sm leading-relaxed"
                 />
                 {profile.starter_prompts.length > 1 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {profile.starter_prompts.slice(1).map((prompt) => (
-                      <Button key={prompt} type="button" variant="outline" size="sm" className="h-auto whitespace-normal rounded-md py-1.5 text-left text-[10px] text-muted-foreground" onClick={() => setSubject(prompt)}>{prompt}</Button>
+                      <Button key={prompt} type="button" variant="outline" size="sm" className="h-auto whitespace-normal rounded-md py-1.5 text-left text-[10px] text-muted-foreground" onClick={() => {
+                        invalidatePreparedPlan()
+                        setSubject(prompt)
+                      }}>{prompt}</Button>
                     ))}
                   </div>
                 )}
@@ -372,7 +442,10 @@ export function OnboardingPreview({
                 {profile.outcomes.map((item) => {
                   const selected = item.outcome_id === outcomeId
                   return (
-                    <Button key={item.outcome_id} type="button" variant="ghost" onClick={() => setOutcomeId(item.outcome_id)} className={`h-auto w-full justify-start gap-4 whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}>
+                    <Button key={item.outcome_id} type="button" variant="ghost" onClick={() => {
+                      invalidatePreparedPlan()
+                      setOutcomeId(item.outcome_id)
+                    }} className={`h-auto w-full justify-start gap-4 whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}>
                       <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}><OutcomeIcon outcome={item} /></div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 text-sm font-semibold">{item.label}{selected && <Check className="size-3.5 text-brand" />}</div>
@@ -387,7 +460,10 @@ export function OnboardingPreview({
                 <div className="mt-3 grid gap-2 md:grid-cols-3">
                   {profile.cadences.map((cadence) => {
                     const selected = cadence.cadence_id === cadenceId
-                    return <Button key={cadence.cadence_id} type="button" variant="ghost" onClick={() => setCadenceId(cadence.cadence_id)} className={`h-auto w-full flex-col items-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-brand' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs font-normal text-muted-foreground">{cadence.description}</p></Button>
+                    return <Button key={cadence.cadence_id} type="button" variant="ghost" onClick={() => {
+                      invalidatePreparedPlan()
+                      setCadenceId(cadence.cadence_id)
+                    }} className={`h-auto w-full flex-col items-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-brand' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs font-normal text-muted-foreground">{cadence.description}</p></Button>
                   })}
                 </div>
               </div>
@@ -446,33 +522,26 @@ export function OnboardingPreview({
           )}
 
           {step === 3 && (
-            <>
-              <DialogHeader className="max-w-2xl"><DialogTitle className="text-2xl tracking-tight">Review what ACE will build</DialogTitle><DialogDescription>Public evidence creates the first picture. Private sources remain optional and require explicit permission.</DialogDescription></DialogHeader>
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <PlanCard label="Evidence" value={profile.source_groups.length > 0 ? `${proposedSourceCount} proposed sources` : 'Recommended public mix'} detail={selectedSourceGroups.length > 0 ? selectedSourceGroups.map((group) => group.label).join(' · ') : 'Primary records, first-party claims, independent measurement, operational telemetry, and leading indicators.'} />
-                <PlanCard label="Concept map" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting concepts`} detail={outcome.recommended_topic_labels.length > 0 ? outcome.recommended_topic_labels.join(' · ') : 'Entities, aliases, attributes, relationships, claims, events, and outcomes.'} />
-                <PlanCard label="Watches" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting areas`} detail="Material changes, contradictions, catalysts, and weak signals—scoped to your selected job." />
-                <PlanCard
-                  label="Briefing"
-                  value={customPreview ? 'Preview only' : profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'}
-                  detail={customPreview
-                    ? `Cadence captured: ${profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'}. v1 does not activate this Custom plan or run a first-Brief executor.`
-                    : outcome.recommended_intelligence_labels.length > 0
-                      ? outcome.recommended_intelligence_labels.join(' · ')
-                      : 'ACE will propose intelligence products from your custom questions.'}
-                />
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
-                <div className="flex items-start gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4"><Scale className="mt-0.5 size-4 shrink-0 text-brand" /><p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Nothing is connected or activated silently.</span> You will see every requested permission, every proposed source that remains unconnected, and every watch before it receives authority.</p></div>
-                <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3">
-                  {customPreview ? <FlaskConical className="size-4 text-[var(--ace-purple-300)]" /> : <BookOpenCheck className="size-4 text-brand" />}
-                  <div>
-                    <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{customPreview ? 'Preview boundary' : 'First value'}</div>
-                    <div className="mt-0.5 text-xs font-medium">{customPreview ? 'Draft proposal only' : 'One cited Brief'}</div>
+            customPreview ? (
+              <>
+                <DialogHeader className="max-w-2xl"><DialogTitle className="text-2xl tracking-tight">Review what ACE will build</DialogTitle><DialogDescription>Public evidence creates the first picture. Private sources remain optional and require explicit permission.</DialogDescription></DialogHeader>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  <PlanCard label="Evidence" value="Recommended public mix" detail="Primary records, first-party claims, independent measurement, operational telemetry, and leading indicators." />
+                  <PlanCard label="Concept map" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting concepts`} detail={outcome.recommended_topic_labels.length > 0 ? outcome.recommended_topic_labels.join(' · ') : 'Entities, aliases, attributes, relationships, claims, events, and outcomes.'} />
+                  <PlanCard label="Watches" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting areas`} detail="Material changes, contradictions, catalysts, and weak signals—scoped to your selected job." />
+                  <PlanCard label="Briefing" value="Preview only" detail={`Cadence captured: ${profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'}. v1 does not activate this Custom plan or run a first-Brief executor.`} />
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
+                  <div className="flex items-start gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4"><Scale className="mt-0.5 size-4 shrink-0 text-brand" /><p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Nothing is connected or activated silently.</span> This Custom preview is a local draft and makes no server request.</p></div>
+                  <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3">
+                    <FlaskConical className="size-4 text-[var(--ace-purple-300)]" />
+                    <div><div className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">Preview boundary</div><div className="mt-0.5 text-xs font-medium">Draft proposal only</div></div>
                   </div>
                 </div>
-              </div>
-            </>
+              </>
+            ) : preparedPlan?.review_projection !== null && preparedPlan?.review_projection !== undefined ? (
+              <ExactPlanReview plan={preparedPlan} />
+            ) : null
           )}
 
           {step === 4 && (
@@ -505,10 +574,14 @@ export function OnboardingPreview({
               </div>
             </>
           )}
-          {buildError !== null && (
+          {planError !== null && (
             <div role="alert" className="mt-5 flex items-start gap-3 rounded-lg border border-destructive/45 bg-destructive/5 p-4 text-xs text-destructive">
               <TriangleAlert className="mt-0.5 size-4 shrink-0" />
-              <div><div className="font-semibold">ACE paused before changing your intelligence.</div><div className="mt-1 text-destructive/85">{buildError}</div></div>
+              <div>
+                <div className="font-semibold">{planError.title}</div>
+                <div className="mt-1 text-destructive/85">{planError.detail}</div>
+                {planError.status > 0 && <div className="mt-2 font-mono text-[8px] uppercase tracking-[0.12em] text-destructive/70">Prepare response · {planError.status}</div>}
+              </div>
             </div>
           )}
         </div>
@@ -516,12 +589,107 @@ export function OnboardingPreview({
         <div className="flex items-center justify-between border-t px-6 py-4 sm:px-8">
           <Button type="button" variant="ghost" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}><ArrowLeft className="size-4" /> Back</Button>
           {step < 4
-            ? <Button type="button" disabled={!canContinue || buildPending} onClick={() => step === 3 ? void build() : setStep((value) => Math.min(3, value + 1))}>{buildPending ? <><LoaderCircle className="size-4 animate-spin" /> Building your first picture</> : <>{step === 0 ? customPreview ? 'Preview this intelligence' : 'Use this intelligence' : step === 1 ? 'Choose evidence' : step === 2 ? 'Review the plan' : customPreview ? 'View draft proposal' : 'Build my intelligence'} <ArrowRight className="size-4" /></>}</Button>
+            ? step === 3 && !customPreview && activeSession === null
+              ? <div className="flex items-center gap-3"><span className="hidden max-w-52 text-right text-[10px] leading-relaxed text-muted-foreground sm:block">Owner approval and activation setup are not available yet.</span><Button type="button" disabled><LockKeyhole className="size-4" /> Activation unavailable</Button></div>
+              : <Button type="button" disabled={!canContinue || planPending} onClick={() => {
+                if (step === 2) void preparePlan()
+                else if (step === 3) setStep(4)
+                else setStep((value) => Math.min(3, value + 1))
+              }}>{planPending ? <><LoaderCircle className="size-4 animate-spin" /> Preparing exact plan</> : <>{step === 0 ? customPreview ? 'Preview this intelligence' : 'Use this intelligence' : step === 1 ? 'Choose evidence' : step === 2 ? customPreview ? 'Review the plan' : preparedInput === null ? 'Prepare exact plan' : 'Retry exact plan' : customPreview ? 'View draft proposal' : 'View live build'} <ArrowRight className="size-4" /></>}</Button>
             : <Button type="button" onClick={finish}>{firstBriefReady ? profile.completion_label : 'Return to Atrium'} <ArrowRight className="size-4" /></Button>}
         </div>
       </DialogContent>
     </Dialog>
   )
+}
+
+function shortReference(value: string): string {
+  return value.length <= 34 ? value : `${value.slice(0, 18)}…${value.slice(-10)}`
+}
+
+function ExactPlanReview({ plan }: { readonly plan: IntelligenceBuildPlan }) {
+  const review = plan.review_projection
+  if (review === null) return null
+  return (
+    <>
+      <DialogHeader className="max-w-3xl">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className="rounded-sm border-brand/35 bg-brand/8 font-mono text-[8px] uppercase tracking-[0.12em] text-brand">Exact proposal</Badge>
+          <span className="font-mono text-[8px] text-muted-foreground">{shortReference(review.projection_id)}</span>
+        </div>
+        <DialogTitle className="text-2xl tracking-tight">Review the exact plan ACE prepared</DialogTitle>
+        <DialogDescription className="text-sm leading-relaxed">Every item below came back from the installed planner and exact Pack. This review grants no authority and performs no work.</DialogDescription>
+      </DialogHeader>
+
+      <div className="mt-5 flex items-start gap-3 rounded-lg border border-brand/30 bg-brand/7 p-4">
+        <Eye className="mt-0.5 size-4 shrink-0 text-brand" />
+        <div>
+          <div className="text-xs font-semibold">Prepared for review—not connected or activated</div>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">No source has been connected, no concept has been written, no watch is running, and no Brief has been generated.</p>
+        </div>
+      </div>
+
+      <section className="mt-6">
+        <ReviewHeading eyebrow="Evidence" title="Exact sources" count={review.sources.length} />
+        <div className="mt-3 grid gap-2 md:grid-cols-2">
+          {review.sources.map((source) => (
+            <div key={source.selection.selection_id} className="rounded-lg border bg-card p-4">
+              <div className="flex items-start justify-between gap-3"><div className="text-sm font-semibold">{source.label}</div><Badge variant="secondary" className="rounded-sm font-mono text-[8px]">{source.evidence_role.replace(/_/g, ' ')}</Badge></div>
+              <div className="mt-2 break-all text-[11px] text-foreground/80">{source.source_uri}</div>
+              <div className="mt-3 grid gap-1.5 border-t pt-3 font-mono text-[8px] text-muted-foreground">
+                <div><span className="text-foreground/65">Entity</span> · {source.entity_type_id} · {shortReference(source.entity_ref)}</div>
+                <div><span className="text-foreground/65">Selection</span> · {shortReference(source.selection.selection_id)}</div>
+                <div><span className="text-foreground/65">Observed</span> · {source.observed_at}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 border-t pt-6">
+        <ReviewHeading eyebrow="Orientation" title="Concepts and watches" count={review.concepts.length + review.watches.length} />
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border bg-card p-4">
+            <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Concepts · {review.concepts.length}</div>
+            <div className="mt-3 space-y-2">
+              {review.concepts.map((concept) => <div key={`${concept.entity_type_id}:${concept.entity_ref}`} className="rounded-md border bg-background/55 p-3"><div className="text-xs font-semibold">{concept.display_name}</div><div className="mt-1 font-mono text-[8px] text-muted-foreground">{concept.entity_type_id} · {shortReference(concept.entity_ref)}</div></div>)}
+              {review.concepts.length === 0 && <p className="text-xs text-muted-foreground">The exact proposal returned no starting entity references.</p>}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-card p-4">
+            <div className="flex items-center justify-between gap-3"><div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Watches · {review.watches.length}</div><Badge variant="outline" className="rounded-sm font-mono text-[8px]">{review.cadence_label}</Badge></div>
+            <div className="mt-3 space-y-2">
+              {review.watches.map((watch) => <div key={watch.detector_id} className="rounded-md border bg-background/55 p-3"><div className="flex items-center gap-2 text-xs font-semibold"><Radar className="size-3 text-brand" />{watch.detector_id}</div><div className="mt-2 text-[11px] leading-relaxed text-foreground/85">{watch.change_rule}</div><div className="mt-2 font-mono text-[8px] text-muted-foreground">{watch.entity_type_id}.{watch.attribute_id} · {watch.detector_family.replace(/_/g, ' ')}</div></div>)}
+              {review.watches.length === 0 && <div className="rounded-md border border-warning/35 bg-warning/5 p-3 text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">No exact starting watch was returned.</span> There is no detector rule to activate.</div>}
+            </div>
+            <p className="mt-3 text-[10px] leading-relaxed text-muted-foreground">{review.cadence_description}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6 border-t pt-6">
+        <ReviewHeading eyebrow="Proposed effects" title="What would happen next" count={review.effects.length} />
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          {review.effects.map((effect, index) => <ReviewEffectCard key={effect.effect} effect={effect} index={index} />)}
+        </div>
+      </section>
+    </>
+  )
+}
+
+function ReviewHeading({ eyebrow, title, count }: { readonly eyebrow: string; readonly title: string; readonly count: number }) {
+  return <div className="flex items-end justify-between gap-3"><div><div className="font-mono text-[8px] font-semibold uppercase tracking-[0.16em] text-brand">{eyebrow}</div><h3 className="mt-1 text-base font-semibold tracking-tight">{title}</h3></div><Badge variant="outline" className="rounded-sm font-mono text-[8px]">{count} exact</Badge></div>
+}
+
+function ReviewEffectCard({ effect, index }: { readonly effect: IntelligenceBuildPlanReviewEffect; readonly index: number }) {
+  const rows = [
+    ['What', effect.what],
+    ['Why', effect.why],
+    ['How', effect.how],
+    ['When', effect.when],
+    ['Unknowns', effect.unknowns.join(' ')],
+  ] as const
+  return <Card className="overflow-hidden"><CardContent className="p-0"><div className="flex items-center gap-3 border-b bg-muted/25 px-4 py-3"><span className="font-mono text-[9px] text-brand">0{index + 1}</span><div><div className="text-xs font-semibold">{effect.label}</div><div className="mt-0.5 font-mono text-[8px] text-muted-foreground">{effect.effect}</div></div></div><dl>{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[4.5rem_1fr] gap-3 border-b px-4 py-2.5 last:border-b-0"><dt className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{label}</dt><dd className="text-[11px] leading-relaxed text-foreground/85">{value}</dd></div>)}</dl></CardContent></Card>
 }
 
 function PlanCard({ label, value, detail }: { readonly label: string; readonly value: string | number; readonly detail: string }) {

@@ -32,6 +32,7 @@ export interface IntelligenceOnboardingSourceGroup {
 export interface IntelligenceOnboardingProfile {
   readonly contract: typeof PROFILE_CONTRACT | typeof LEGACY_PROFILE_CONTRACT
   readonly profile_id: string
+  readonly profile_digest: string | null
   readonly topic_id: string
   readonly domain_label: string
   readonly topic_label: string
@@ -80,6 +81,7 @@ export interface IntelligenceBuilderSession {
 const FALLBACK_PROFILE: IntelligenceOnboardingProfile = {
   contract: PROFILE_CONTRACT,
   profile_id: 'onboarding_profile:custom-intelligence',
+  profile_digest: null,
   topic_id: 'custom_intelligence',
   domain_label: 'Custom Intelligence',
   topic_label: 'Draft a model around your question',
@@ -251,6 +253,7 @@ export function parseOnboardingProfile(value: unknown): IntelligenceOnboardingPr
   return {
     contract: value.contract,
     profile_id: typeof value.profile_id === 'string' ? value.profile_id : `onboarding_profile:${value.display_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+    profile_digest: typeof value.profile_digest === 'string' ? value.profile_digest : null,
     topic_id: typeof value.topic_id === 'string' ? value.topic_id : value.display_name.toLowerCase().replace(/[^a-z0-9]+/g, '_'),
     domain_label: typeof value.domain_label === 'string' ? value.domain_label : 'Installed intelligence',
     topic_label: typeof value.topic_label === 'string' ? value.topic_label : value.display_name,
@@ -291,7 +294,13 @@ export function onboardingProfilesFromResources(
   }
   for (const value of installedProfiles) {
     const profile = parseOnboardingProfile(value)
-    if (profile !== null && !profiles.has(profile.profile_id)) profiles.set(profile.profile_id, profile)
+    if (profile === null) continue
+    const admitted = profiles.get(profile.profile_id)
+    if (admitted === undefined) {
+      profiles.set(profile.profile_id, profile)
+    } else if (admitted.profile_digest === null && profile.profile_digest !== null) {
+      profiles.set(profile.profile_id, { ...admitted, profile_digest: profile.profile_digest })
+    }
   }
   profiles.set(FALLBACK_PROFILE.profile_id, FALLBACK_PROFILE)
   return [...profiles.values()]

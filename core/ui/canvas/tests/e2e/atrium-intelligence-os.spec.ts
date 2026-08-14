@@ -27,6 +27,87 @@ function resource(kind: string, id: string, title: string, summary: string, prov
   }
 }
 
+function exactPreparedPlan(body: Record<string, unknown>) {
+  const selection = {
+    contract: 'ace.application.recorded-source-selection-reference/v1alpha1',
+    source_group_id: 'official_records',
+    selection_id: 'recorded_source_selection:official-records',
+    selection_digest: `sha256:${'3'.repeat(64)}`,
+  }
+  const effects = [
+    ['connect_sources', 'Connect reviewed evidence', 'Admit the exact Federal Register and White House records shown above.', 'Ground every later change in the reviewed public records.', 'Use the installed recorded-source adapters after approval.', 'Only after deliberate owner approval.'],
+    ['map_concepts', 'Map the AI policy concepts', 'Resolve the exact policy directive and implementation entities shown above.', 'Connect later evidence to the same concepts without guessing identities.', 'Apply the installed World AI ontology to admitted records.', 'After the reviewed records are admitted.'],
+    ['activate_watch', 'Watch policy progression', 'Compare directive status with later reported implementation status.', 'Surface the actual change instead of a vague change notification.', 'Run the declared categorical transition detector.', 'Daily, after activation.'],
+    ['create_first_brief', 'Create the first Brief', 'Explain what changed, why it matters, how ACE knows, and when it changed.', 'Give the operator a decision-ready starting picture.', 'Use only admitted evidence and the selected World AI Brief template.', 'After a material reviewed shift is routed.'],
+  ] as const
+  return {
+    contract: 'ace.application.intelligence-build-plan/v1alpha2',
+    request: {
+      ...body,
+      contract: 'ace.application.intelligence-build-plan-request/v1alpha2',
+      product_id: 'product:world-ai-command-center',
+      actor_ref: 'principal:local-owner',
+      request_id: 'intelligence_build_plan_request:world-ai',
+      request_digest: `sha256:${'4'.repeat(64)}`,
+    },
+    recorded_source_selection_refs: [selection],
+    review_projection: {
+      contract: 'ace.application.intelligence-build-review-projection/v1alpha1',
+      request_id: 'intelligence_build_plan_request:world-ai',
+      request_digest: `sha256:${'4'.repeat(64)}`,
+      profile_id: body.profile_id,
+      profile_digest: body.profile_digest,
+      subject: body.subject,
+      outcome_id: body.outcome_id,
+      outcome_label: 'Set strategy or evaluate investments',
+      sources: [{
+        selection,
+        label: 'Federal Register',
+        evidence_role: 'authoritative record',
+        source_uri: 'https://www.federalregister.gov/',
+        source_definition_ref: 'recorded_source_definition:federal-register',
+        entity_type_id: 'ai_policy_action',
+        entity_ref: 'entity:executive-order-14409',
+        observed_at: availableAt,
+      }],
+      concepts: [{
+        entity_type_id: 'ai_policy_action',
+        entity_ref: 'entity:executive-order-14409',
+        display_name: 'AI policy action',
+        source_selections: [selection],
+      }],
+      watches: [{
+        detector_id: 'detector:policy-progression',
+        detector_family: 'categorical_transition',
+        entity_type_id: 'ai_policy_action',
+        entity_refs: ['entity:executive-order-14409'],
+        attribute_id: 'implementation_status',
+        change_rule: 'directive_issued → implementation_reported',
+        shift_type: 'policy_progression',
+        signal_type: 'policy_implementation_signal',
+        cadence_id: body.cadence_id,
+        cadence_label: 'Daily pulse',
+      }],
+      cadence_id: body.cadence_id,
+      cadence_label: 'Daily pulse',
+      cadence_description: 'A concise daily orientation.',
+      effects: effects.map(([effect, label, what, why, how, when]) => ({
+        effect,
+        label,
+        what,
+        why,
+        how,
+        when,
+        unknowns: ['No authority has been granted and no runtime work has started.'],
+      })),
+      projection_id: 'intelligence_build_review:world-ai',
+      projection_digest: `sha256:${'5'.repeat(64)}`,
+    },
+    plan_id: 'intelligence_build_plan:world-ai',
+    plan_digest: `sha256:${'6'.repeat(64)}`,
+  }
+}
+
 test('Atrium is a briefing-first Intelligence OS over governed resources', async ({ page }, testInfo) => {
   const source = resource(
     'source',
@@ -126,6 +207,8 @@ test('Atrium is a briefing-first Intelligence OS over governed resources', async
 test('Atrium makes Custom proposal-only and stops before unsupported v1 execution', async ({ page }, testInfo) => {
   const onboardingProfile = {
     contract: 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1',
+    profile_id: 'intelligence_onboarding_profile:world-ai-command-center',
+    profile_digest: `sha256:${'7'.repeat(64)}`,
     domain_label: 'World Intelligence',
     topic_label: 'Artificial intelligence',
     display_name: 'AI Command Center',
@@ -195,6 +278,12 @@ test('Atrium makes Custom proposal-only and stops before unsupported v1 executio
     }),
   )
   let buildStartRequests = 0
+  let prepareRequests = 0
+  await page.route('**/v1/intelligence/builds/prepare', async (route) => {
+    prepareRequests += 1
+    const body = route.request().postDataJSON() as Record<string, unknown>
+    return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(exactPreparedPlan(body)) })
+  })
   await page.route('**/v1/intelligence/builds/start', (route) => {
     buildStartRequests += 1
     return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ detail: 'Custom execution must not be called.' }) })
@@ -208,6 +297,23 @@ test('Atrium makes Custom proposal-only and stops before unsupported v1 executio
   await expect(page.getByRole('button', { name: /World Intelligence/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Marketing Intelligence/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Custom Intelligence/ })).toBeVisible()
+  await page.getByRole('button', { name: /World Intelligence/ }).click()
+  await page.getByRole('button', { name: 'Use this intelligence' }).click()
+  await page.getByRole('button', { name: 'Choose evidence' }).click()
+  await page.getByRole('button', { name: 'Prepare exact plan' }).click()
+  await expect(page.getByText('Exact proposal', { exact: true })).toBeVisible()
+  await expect(page.getByText('Prepared for review—not connected or activated')).toBeVisible()
+  await expect(page.getByText('Federal Register', { exact: true })).toBeVisible()
+  await expect(page.getByText('directive_issued → implementation_reported')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Activation unavailable' })).toBeDisabled()
+  if (process.env.ACE_CAPTURE_ATRIUM === '1') {
+    await page.screenshot({ path: testInfo.outputPath('atrium-exact-plan-review.png'), fullPage: true })
+    await page.getByRole('heading', { name: 'What would happen next' }).scrollIntoViewIfNeeded()
+    await page.screenshot({ path: testInfo.outputPath('atrium-exact-plan-effects.png'), fullPage: true })
+  }
+  expect(prepareRequests).toBe(1)
+  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Build my intelligence' }).click()
   await page.getByRole('button', { name: /Custom Intelligence/ }).click()
   await expect(page.getByText('Custom Intelligence is a proposal preview.')).toBeVisible()
   await expect(page.getByText(/does not run a Custom first-Brief executor/)).toBeVisible()
@@ -232,6 +338,7 @@ test('Atrium makes Custom proposal-only and stops before unsupported v1 executio
   await expect(page.getByText('Not supported for Custom Intelligence in v1')).toBeVisible()
   await expect(page.getByText('Preview complete · No runtime execution performed')).toBeVisible()
   expect(buildStartRequests).toBe(0)
+  expect(prepareRequests).toBe(1)
   if (process.env.ACE_CAPTURE_ATRIUM === '1') {
     await page.screenshot({ path: testInfo.outputPath('atrium-custom-preview-complete.png'), fullPage: true })
   }
@@ -243,6 +350,7 @@ test('Atrium renders a durable first-brief-ready Builder session instead of simu
   const onboardingProfile = {
     contract: 'ace.intelligence.onboarding-profile/v1alpha1',
     profile_id: 'intelligence_onboarding_profile:world-ai-command-center',
+    profile_digest: `sha256:${'8'.repeat(64)}`,
     topic_id: 'artificial_intelligence',
     domain_label: 'World Intelligence',
     topic_label: 'Artificial intelligence',
@@ -351,12 +459,22 @@ test('Atrium renders a durable first-brief-ready Builder session instead of simu
       }),
     }),
   )
+  await page.route('**/v1/intelligence/builds/prepare', async (route) => {
+    const body = route.request().postDataJSON() as Record<string, unknown>
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(exactPreparedPlan(body)),
+    })
+  })
 
   await page.goto('/atrium')
   await page.getByRole('button', { name: 'View build' }).click()
-  await page.getByRole('button', { name: 'Use this starting point' }).click()
-  await page.getByRole('button', { name: 'Use these sources' }).click()
-  await page.getByRole('button', { name: 'Review the plan' }).click()
+  await page.getByRole('button', { name: 'Use this intelligence' }).click()
+  await page.getByRole('button', { name: 'Choose evidence' }).click()
+  await page.getByRole('button', { name: 'Prepare exact plan' }).click()
+  await expect(page.getByText('Exact proposal', { exact: true })).toBeVisible()
+  await expect(page.getByText('directive_issued → implementation_reported')).toBeVisible()
   await page.getByRole('button', { name: 'View live build' }).click()
   await expect(page.getByRole('heading', { name: 'Your first picture is ready' })).toBeVisible()
   await expect(page.getByText('Complete', { exact: true })).toHaveCount(4)
