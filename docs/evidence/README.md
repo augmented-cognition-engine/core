@@ -31,12 +31,14 @@ superseded by later work and is kept for audit trail only.
 - [ace-core 0.8.1 Intelligence Builder product-experience release candidate](intelligence-os-v0.8.1-release-candidate-v1.md)
   — public, passed; exact tag, trusted publication, hashes, and checkout-free install
 - [ace-core 0.8.2 Intelligence Catalog release candidate](intelligence-catalog-v0.8.2-release-candidate-v1.md)
-  — candidate; artifact, paired-domain, publication, and public-index gates pending
+  — historical pre-publication candidate; Core 0.8.2 was subsequently published
 - [ace-core 0.8.3 external-pack compatibility release candidate](external-pack-compatibility-v0.8.3-release-candidate-v1.md)
-  — candidate; exact-pack, semantic-time, artifact, publication, and public-index gates pending
+  — historical pre-publication candidate; Core 0.8.3 was subsequently published
+- [ace-core 1.0 Personal Intelligence OS public release closeout](personal-intelligence-os-v1.0-public-acceptance-v1.md)
+  — public, passed; exact Core 1.0.3, World 0.13.0, and Market 0.8.0 artifacts, checkout-free
+  acceptance, retrieval evaluation, recovery, authority, provider, and quiet-runtime receipts
 - [ace-core 1.0 Personal Intelligence OS release candidate](personal-intelligence-os-v1.0.0-release-candidate-v1.md)
-  — candidate; bounded implementation and evaluation complete, trusted publication and clean
-  public-artifact reproduction pending
+  — historical pre-publication candidate; superseded by the public closeout above
 - [ace-core 0.8.0 Intelligence OS release candidate](intelligence-os-v0.8.0-release-candidate-v1.md)
   — historical pre-publication candidate; cumulative Core, Atrium, World, Market, and package gate
 

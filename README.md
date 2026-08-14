@@ -910,7 +910,7 @@ What is bounded:
 What ACE does not claim:
 
 - No hosted SaaS. ACE is self-hosted; you run the database and bring your own model credentials.
-- Atrium is supported as repository-delivered preview source and remains optional. It is not
+- Atrium is supported as a repository-delivered workspace and remains optional. It is not
   embedded in the Python wheel, and it never becomes a second persistence or authority path.
 - No automatic or arbitrary web access.
 - No real-world causal accuracy, calibrated forecasting, autonomous learning, general model of
@@ -923,7 +923,11 @@ What ACE does not claim:
 Current supported/experimental/internal boundaries:
 [`docs/capability-maturity.md`](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md).
 Point-in-time acceptance receipts:
-[`docs/evidence/`](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/README.md).
+
+- [ACE 1.0 public acceptance](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/personal-intelligence-os-v1.0-public-acceptance-v1.md)
+- [ACE 1.0 announcement](https://github.com/augmented-cognition-engine/core/blob/main/docs/ace-1.0-announcement.md)
+
+Full archive: [`docs/evidence/`](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/README.md).
 
 ---
 

@@ -10,6 +10,10 @@ Point-in-time release and acceptance records live in the
 - [ACE vision and manifesto](../MANIFESTO.md) — the Intelligence Builder promise, constitutional
   boundaries, and open Intelligence Operating System direction.
 - [Project quickstart](../README.md) — install ACE and reach a first useful result.
+- [ACE 1.0 announcement](ace-1.0-announcement.md) — the stable single-user product promise,
+  domain experiences, provider choices, and explicit boundaries.
+- [ACE 1.0 public acceptance](evidence/personal-intelligence-os-v1.0-public-acceptance-v1.md) —
+  exact public artifacts, hashes, acceptance receipts, evaluation results, and limitations.
 - [Capability maturity](capability-maturity.md) — what the current release supports and what remains
   experimental.
 - [Architecture](architecture.md) — the as-built system map and responsibility boundaries.
