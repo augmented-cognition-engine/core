@@ -63,6 +63,15 @@ export interface IntelligenceStorySection {
   readonly body: string
 }
 
+interface BriefClaimMaterial {
+  readonly statement: string
+}
+
+interface BriefCitationMaterial {
+  readonly citation_id: string
+  readonly source_ref: string
+}
+
 const STORY_SECTIONS: readonly {
   readonly id: IntelligenceStorySectionId
   readonly label: string
@@ -88,6 +97,91 @@ function canonicalPayloadMaterial(payload: unknown): Record<string, unknown> | n
   } catch {
     return root
   }
+}
+
+function objectArray(payload: Record<string, unknown>, key: string): Record<string, unknown>[] {
+  const value = payload[key]
+  if (!Array.isArray(value)) return []
+  return value.filter(
+    (item): item is Record<string, unknown> => typeof item === 'object' && item !== null && !Array.isArray(item),
+  )
+}
+
+function briefClaims(payload: Record<string, unknown>): BriefClaimMaterial[] {
+  return objectArray(payload, 'claims').flatMap((item) => {
+    const statement = payloadText(item, 'statement')
+    return statement === null ? [] : [{ statement }]
+  })
+}
+
+function briefCitations(payload: Record<string, unknown>): BriefCitationMaterial[] {
+  return objectArray(payload, 'citations').flatMap((item) => {
+    const citationId = payloadText(item, 'citation_id')
+    const sourceRef = payloadText(item, 'source_ref')
+    return citationId === null || sourceRef === null
+      ? []
+      : [{ citation_id: citationId, source_ref: sourceRef }]
+  })
+}
+
+function listed(values: readonly string[], empty: string): string {
+  if (values.length === 0) return empty
+  const visible = values.slice(0, 3).map((value) => `“${value}”`).join('; ')
+  return values.length > 3 ? `${visible}; and ${values.length - 3} more` : visible
+}
+
+/** Explain one immutable Brief revision against the immediately prior Brief. */
+export function briefRevisionStory(
+  current: IntelligenceResourceRecord,
+  previous: IntelligenceResourceRecord | undefined,
+): IntelligenceStorySection[] {
+  if (
+    previous === undefined
+    || current.reference.resource_kind !== 'brief'
+    || previous.reference.resource_kind !== 'brief'
+    || current.reference.product_id !== previous.reference.product_id
+  ) return intelligenceStoryForRecord(current)
+
+  const currentPayload = canonicalPayloadMaterial(current.payload)
+  const previousPayload = canonicalPayloadMaterial(previous.payload)
+  if (currentPayload === null || previousPayload === null) return intelligenceStoryForRecord(current)
+
+  const currentStatements = new Set(briefClaims(currentPayload).map((claim) => claim.statement))
+  const previousStatements = new Set(briefClaims(previousPayload).map((claim) => claim.statement))
+  const addedClaims = [...currentStatements].filter((statement) => !previousStatements.has(statement)).sort()
+  const retiredClaims = [...previousStatements].filter((statement) => !currentStatements.has(statement)).sort()
+
+  const currentCitations = briefCitations(currentPayload)
+  const previousCitations = briefCitations(previousPayload)
+  const currentCitationIds = new Set(currentCitations.map((citation) => citation.citation_id))
+  const previousCitationIds = new Set(previousCitations.map((citation) => citation.citation_id))
+  const addedSources = [...new Set(
+    currentCitations
+      .filter((citation) => !previousCitationIds.has(citation.citation_id))
+      .map((citation) => citation.source_ref),
+  )].sort()
+  const retiredEvidenceCount = previousCitations.filter(
+    (citation) => !currentCitationIds.has(citation.citation_id),
+  ).length
+
+  const currentLineageIds = new Set(current.provenance.map((item) => item.resource_id))
+  const previousLineageIds = new Set(previous.provenance.map((item) => item.resource_id))
+  const addedLineageCount = [...currentLineageIds].filter((item) => !previousLineageIds.has(item)).length
+  const retiredLineageCount = [...previousLineageIds].filter((item) => !currentLineageIds.has(item)).length
+
+  const whatChanged = addedClaims.length === 0 && retiredClaims.length === 0
+    ? 'The supported claim set is unchanged; this revision refreshes its exact evidence and timing.'
+    : `New grounded claims: ${listed(addedClaims, 'none')}. Retired grounded claims: ${listed(retiredClaims, 'none')}.`
+  const why = `This revision incorporates ${addedLineageCount} newly available upstream record${addedLineageCount === 1 ? '' : 's'} and leaves ${retiredLineageCount} prior record${retiredLineageCount === 1 ? '' : 's'} outside its new evidence closure.`
+  const how = `Newly cited sources: ${listed(addedSources, 'none')}. ${retiredEvidenceCount} earlier citation${retiredEvidenceCount === 1 ? '' : 's'} no longer ${retiredEvidenceCount === 1 ? 'supports' : 'support'} the latest Brief.`
+  const when = `The prior Brief was current as of ${previous.reference.as_of}; this revision is current as of ${current.reference.as_of} and became available at ${current.reference.available_at}.`
+
+  return [
+    { id: 'what_changed', label: 'What changed', body: whatChanged },
+    { id: 'why_it_matters', label: 'Why this revision exists', body: why },
+    { id: 'how_we_know', label: 'Evidence change', body: how },
+    { id: 'when_it_changed', label: 'When it changed', body: when },
+  ]
 }
 
 function unescapeCanonicalMarkdown(value: string): string {
