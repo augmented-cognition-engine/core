@@ -7,6 +7,7 @@ exported here (routing, synthesis, epistemic, detection, source mapping) are
 deterministic functions over contract values only.
 """
 
+from ace.intelligence.conformance import conformance_receipt_json, run_domain_pack_conformance
 from ace.intelligence.contracts import *  # noqa: F403
 from ace.intelligence.contracts import __all__ as _CONTRACTS_ALL
 from ace.intelligence.derivation import (
@@ -123,6 +124,7 @@ __all__ = [
     "eligible_signal_routes",
     "evaluate_measured_impact",
     "compare_measured_composition",
+    "conformance_receipt_json",
     "interpret_live_source_mapping",
     "interpret_prepared_source_mapping",
     "render_canonical_brief_body",
@@ -130,5 +132,6 @@ __all__ = [
     "route_live_categorical_shift_as_signal",
     "route_live_shift_as_signal",
     "route_shift_as_signal",
+    "run_domain_pack_conformance",
     "validate_brief_synthesis_draft",
 ]
