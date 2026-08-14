@@ -10,6 +10,7 @@ from ace.application import (
     BuilderActivationPlanArtifactV1,
     BuilderActivationReceiptArtifactV1,
     CoreIntelligenceBuildFirstBriefService,
+    CorePreparedShiftSignalDerivationService,
     IntelligenceBuilderSessionService,
     IntelligenceBuildFirstBriefCognition,
     IntelligenceBuildFirstBriefError,
@@ -19,6 +20,8 @@ from ace.application import (
     OnboardingArtifactReferenceV1,
     OnboardingStage,
     OnboardingTransitionAuthority,
+    PreparedIntelligenceLedgerService,
+    PreparedShiftSignalDerivationRequestV1Alpha1,
     ProductScopedImmutableRecordStore,
     bind_committed_activation,
 )
@@ -27,12 +30,29 @@ from ace.application.domain_activation_plan_contracts import (
     DomainActivationCommitReferenceV1Alpha2,
 )
 from ace.application.intelligence_build_host import DurableIntelligenceBuildHostComposer
+from ace.application.intelligence_resource_projection import IntelligenceLedgerResourceProjectionReader
 from ace.core import (
     AuthenticatedRuntimeContextV1Alpha1,
     AuthorityUseReceiptV1Alpha1,
     GovernedStateHeadV1,
+    canonical_json,
 )
-from ace.intelligence import ActivationRevisionReferenceV1Alpha1
+from ace.intelligence import (
+    ActivationRevisionReferenceV1Alpha1,
+    CanonicalJsonValueV1Alpha1,
+    EntitySnapshotV1Alpha1,
+    EvidenceAcquisitionMode,
+    IntelligenceResourceKind,
+    IntelligenceResourceMode,
+    LineageReferenceV1Alpha1,
+    LineageRelation,
+    LineageResourceKind,
+    ObservationV1Alpha1,
+    PreparedResourceSetAdmissionV1Alpha1,
+    deterministic_resource_order,
+    resource_reference,
+)
+from ace.intelligence.contracts.resource_plane import IntelligenceResourceQueryV1Alpha1
 from tests.intelligence.test_brief_synthesis import (
     ACTIVATED_AT,
     PRODUCT,
@@ -318,6 +338,130 @@ async def test_canonical_first_brief_reopens_and_replays_without_second_provider
     assert replay.admission.brief.citations
     assert replay.admission.synthesis_receipt.template_id == "price_brief"
     assert replay.admission.synthesis_receipt.persona_ids == ("pricing_reviewer",)
+
+
+@pytest.mark.asyncio
+async def test_later_source_revision_appends_a_new_brief_and_preserves_the_prior_brief():
+    env, build, _, _, request, service = await _stack()
+    first = await service.create_first_brief(request)
+    binding = await _binding(env)
+    ledger = PreparedIntelligenceLedgerService(binding=binding, store=env.store)
+    original = await ledger.replay(derivation_key=request.derivation_key)
+    assert original is not None
+    baseline = max(
+        (item for item in original.resources if isinstance(item, EntitySnapshotV1Alpha1)),
+        key=lambda item: item.as_of,
+    )
+    update_as_of = REQUESTED_AT + timedelta(minutes=1)
+    update_projected_at = update_as_of + timedelta(seconds=30)
+    update_evaluated_at = update_as_of + timedelta(minutes=1)
+    update_requested_at = update_evaluated_at + timedelta(seconds=30)
+    update_observation = ObservationV1Alpha1(
+        product_id=PRODUCT,
+        mode=IntelligenceResourceMode.PREPARED,
+        activation_revision=binding.prepared_binding.reference,
+        as_of=update_as_of,
+        source_ref="source:edge-x1-later-revision",
+        source_digest="sha256:" + "5" * 64,
+        acquisition_mode=EvidenceAcquisitionMode.PREPARED_FIXTURE,
+        acquisition_receipt_ref="acquisition:edge-x1-later-revision",
+        acquisition_receipt_digest="sha256:" + "6" * 64,
+        source_published_at=update_as_of,
+        observed_at=update_as_of,
+        ingested_at=update_as_of,
+        subject_refs=("entity:edge-x1",),
+        payload=CanonicalJsonValueV1Alpha1(
+            value_json=canonical_json({"name": "Edge X1", "price": {"amount": 960, "currency": "USD"}})
+        ),
+        confidence=0.9,
+    )
+    update_reference = resource_reference(update_observation)
+    updated = EntitySnapshotV1Alpha1(
+        product_id=PRODUCT,
+        mode=IntelligenceResourceMode.PREPARED,
+        activation_revision=binding.prepared_binding.reference,
+        as_of=update_as_of,
+        lineage=(
+            LineageReferenceV1Alpha1(
+                resource_kind=LineageResourceKind.OBSERVATION,
+                relation=LineageRelation.DERIVED_FROM,
+                resource_id=update_reference.resource_id,
+                resource_digest=update_reference.resource_digest,
+                resource_as_of=update_reference.as_of,
+                resource_available_at=update_reference.available_at,
+            ),
+        ),
+        entity_ref="entity:edge-x1",
+        entity_type_ref="product",
+        attributes=CanonicalJsonValueV1Alpha1(value_json=canonical_json({"name": "Edge X1", "price": 960.0})),
+        projected_at=update_projected_at,
+        confidence=0.9,
+    )
+    source_update = (update_observation, updated)
+    await ledger.admit_resource_set(
+        PreparedResourceSetAdmissionV1Alpha1(
+            admission_key="resource_set:edge-x1-later-revision",
+            product_id=PRODUCT,
+            activation_revision=binding.prepared_binding.reference,
+            pack=binding.prepared_binding.revision.spec.pack,
+            resources=source_update,
+            processing_order=deterministic_resource_order(source_update),
+            admitted_at=update_projected_at,
+        )
+    )
+    derivation = await CorePreparedShiftSignalDerivationService(
+        build=build,
+        binding=binding,
+        ledger=ledger,
+        governed_state=env.activation_service.store,
+        runtime_use=_CurrentBuildAuthority(build.authority_use),
+    ).derive(
+        PreparedShiftSignalDerivationRequestV1Alpha1(
+            derivation_key="prepared_derivation:edge-x1-later-revision",
+            detector_id="price_change",
+            baseline_snapshot=resource_reference(baseline),
+            current_snapshot=resource_reference(updated),
+            evaluated_at=update_evaluated_at,
+        )
+    )
+    assert derivation.admission is not None
+    attention = derivation.admission.attention_receipt
+    env.service.reasoning.clock = lambda: update_requested_at
+    second = await service.create_first_brief(
+        IntelligenceBuildFirstBriefRequestV1Alpha2(
+            build_id=build.build_id,
+            build_request_digest=build.request_digest,
+            derivation_key="prepared_derivation:edge-x1-later-revision",
+            attention_receipt_id=str(attention.receipt_id),
+            attention_receipt_digest=str(attention.receipt_digest),
+            requested_at=update_requested_at,
+        )
+    )
+
+    query = IntelligenceResourceQueryV1Alpha1(
+        authenticated_context=build.authority_use.authenticated_context,
+        product_id=PRODUCT,
+        authority_grant_ref="authority_grant:atrium-observe-read",
+        resource_kinds=(IntelligenceResourceKind.BRIEF,),
+        subject_refs=(),
+        as_of=update_evaluated_at,
+        available_at=update_requested_at,
+        page_size=10,
+    )
+    projected = await IntelligenceLedgerResourceProjectionReader(
+        store=env.store,
+        modes=(IntelligenceResourceMode.PREPARED,),
+        degrade_unsupported=False,
+    ).read(query=query, after=None, limit=10)
+
+    assert env.provider.calls == 2
+    assert first.admission.brief.resource_id != second.admission.brief.resource_id
+    assert tuple(item.reference.resource_id for item in projected.records) == (
+        str(first.admission.brief.resource_id),
+        str(second.admission.brief.resource_id),
+    )
+    assert projected.records[0].payload is not None
+    assert str(first.admission.brief.resource_id) in projected.records[0].payload.value_json
 
 
 @pytest.mark.asyncio

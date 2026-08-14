@@ -38,7 +38,7 @@ import {
   onboardingProfilesFromResources,
   onboardingSessionFromResources,
 } from './onboardingModel'
-import { pageFreshness, productDisplayName } from './experienceModel'
+import { briefRevisionStory, pageFreshness, productDisplayName } from './experienceModel'
 import {
   groupResources,
   type ResourceGroups,
@@ -163,6 +163,7 @@ function ResourceGrid({
 function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
   const briefs = groups.intelligence.filter((item) => item.reference.resource_kind === 'brief')
   const latestBrief = briefs[0]
+  const latestBriefStory = latestBrief === undefined ? undefined : briefRevisionStory(latestBrief, briefs[1])
   const stream = groups.intelligence
     .filter((item) => item !== latestBrief && ['signal', 'shift', 'brief'].includes(item.reference.resource_kind))
     .slice(0, 6)
@@ -178,12 +179,12 @@ function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroup
               <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Latest briefing</div>
               <h2 className="mt-1 text-lg font-semibold tracking-tight">The situation now</h2>
             </div>
-            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{briefs.length} current</Badge>
+            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{briefs.length} revision{briefs.length === 1 ? '' : 's'}</Badge>
           </div>
           {latestBrief === undefined ? (
             <EmptyBuilder onStart={onStart} />
           ) : (
-            <ResourceCard record={latestBrief} featured />
+            <ResourceCard record={latestBrief} featured storySections={latestBriefStory} />
           )}
         </section>
 
