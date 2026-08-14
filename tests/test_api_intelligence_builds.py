@@ -181,6 +181,7 @@ async def _request(
     authority: _Authority,
     executor: _Executor,
     activation_authority: _ActivationAuthority | None = None,
+    body: dict | None = None,
 ):
     app = FastAPI()
     app.include_router(router)
@@ -193,7 +194,7 @@ async def _request(
         executor=executor,
     )
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
-        response = await client.post("/v1/intelligence/builds/start", json=_body())
+        response = await client.post("/v1/intelligence/builds/start", json=body or _body())
     return response, records
 
 
@@ -264,6 +265,34 @@ async def test_default_runtime_has_no_implicit_activation_approval_authority() -
     runtime = intelligence_build_runtime()
     with pytest.raises(IntelligenceBuildUnavailable, match="no reviewed activation approval resolver"):
         await runtime.activation_authority.resolve_approval()
+
+
+@pytest.mark.asyncio
+async def test_exact_recorded_material_coordinates_change_the_authorized_build_digest() -> None:
+    first_body = _body()
+    first_body["source_group_ids"] = ["official_records"]
+    first_body["recorded_source_refs"] = [
+        {
+            "source_group_id": "official_records",
+            "material_id": "recorded_source_material:one",
+            "material_digest": "sha256:" + "1" * 64,
+        }
+    ]
+    second_body = {**first_body}
+    second_body["recorded_source_refs"] = [
+        {
+            **first_body["recorded_source_refs"][0],
+            "material_digest": "sha256:" + "2" * 64,
+        }
+    ]
+    first_authority = _Authority()
+    second_authority = _Authority()
+
+    first, _ = await _request(claims=_claims(), authority=first_authority, executor=_Executor(), body=first_body)
+    second, _ = await _request(claims=_claims(), authority=second_authority, executor=_Executor(), body=second_body)
+
+    assert first.status_code == second.status_code == 200
+    assert first_authority.calls[0]["use_subject_digest"] != second_authority.calls[0]["use_subject_digest"]
 
 
 def test_start_build_openapi_exposes_stable_request_and_result_contracts() -> None:
