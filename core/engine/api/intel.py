@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 
 from core.engine.core.auth import get_current_user
+from core.engine.core.config import settings
 from core.engine.core.db import parse_rows, pool
 from core.engine.intelligence.maturation import calculate_maturation
 from core.engine.orchestrator.loader import load_intelligence
@@ -148,6 +149,7 @@ class IntelSearchResponse(BaseModel):
     query: str
     results: list[dict] = []
     count: int = 0
+    retrieval: dict = Field(default_factory=dict)
 
 
 @router.get("/context", response_model=IntelContextResponse)
@@ -213,50 +215,31 @@ async def get_intel_context(
 async def search_intel(
     q: str = Query(..., description="Search query"),
     product: str = Query(..., description="Organization ID"),
+    knowledge_type: str | None = Query(None, description="Optional insight type"),
+    tags: list[str] | None = Query(None, description="Optional routing tags"),
+    limit: int = Query(10, ge=1, le=50),
     user: dict = Depends(get_current_user),
 ):
     product = user.get("product", product)
-    async with pool.connection() as db:
-        results = await db.query(
-            """
-            SELECT id, content, confidence, tier, insight_type, domain_hint, created_at, source_kind
-            FROM insight
-            WHERE product = <record>$product
-              AND status = 'active'
-              AND content CONTAINS $q
-            ORDER BY confidence DESC
-            LIMIT 20
-            """,
-            {"product": product, "q": q},
-        )
-        rows = parse_rows(results)
+    from core.engine.search.intelligence import search_intelligence
+    from core.engine.search.rerank import cross_encoder_rerank
 
-    # Promotion-managed insight rows have an append-only receipt lifecycle.
-    # Rebuild that slice from authoritative receipts so superseded or contested
-    # rows cannot leak through the legacy ``status = active`` predicate.
-    has_promotion_candidates = any(row.get("source_kind") == "grounded_promotion" for row in rows)
-    rows = [row for row in rows if row.get("source_kind") != "grounded_promotion"]
-    if has_promotion_candidates:
-        try:
-            from core.engine.grounded_state.promotion import promoted_memory_as_insight, retrieve_promoted_memories
+    reranker = None
+    if getattr(settings, "rerank_peer_host", None):
 
-            promoted = await retrieve_promoted_memories(pool=pool, product_id=product, limit=20)
-            query = q.casefold()
-            rows.extend(promoted_memory_as_insight(item) for item in promoted if query in item.content.casefold())
-        except Exception:
-            # Legacy intelligence remains available, while promotion state
-            # fails closed instead of exposing a possibly stale memory row.
-            pass
+        async def reranker(query, rows):
+            return await cross_encoder_rerank(query, rows, top_k=limit)
 
-    rows.sort(key=lambda item: float(item.get("confidence") or 0.0), reverse=True)
-    rows = rows[:20]
-
-    # Serialize RecordID objects to strings for JSON response
-    for row in rows:
-        if "id" in row:
-            row["id"] = str(row["id"])
-
-    return {"query": q, "results": rows, "count": len(rows)}
+    result = await search_intelligence(
+        q,
+        product,
+        knowledge_type=knowledge_type,
+        tags=tags,
+        limit=limit,
+        db_pool=pool,
+        reranker=reranker,
+    )
+    return IntelSearchResponse(**result)
 
 
 @router.get("/specialties")

@@ -1,0 +1,60 @@
+{
+  "contract_version": "ace.rag-evaluation-config/v1",
+  "ranking_policy_version": "ace.rag-ranking/rrf-v1",
+  "top_k": 5,
+  "maximum_vector_distance": 0.45,
+  "thresholds": {
+    "minimum_recall_at_k": 1.0,
+    "minimum_mrr": 0.8,
+    "maximum_false_associations": 0
+  },
+  "cases": [
+    {
+      "case_id": "hybrid_webhook_retry",
+      "lexical_ranking": ["insight:webhook", "insight:generic_retry"],
+      "vector_ranking": [
+        {"id": "insight:webhook", "distance": 0.12},
+        {"id": "insight:delivery", "distance": 0.24}
+      ],
+      "expected_ids": ["insight:webhook"],
+      "forbidden_ids": []
+    },
+    {
+      "case_id": "semantic_delivery_retry",
+      "lexical_ranking": [],
+      "vector_ranking": [
+        {"id": "insight:delivery", "distance": 0.18},
+        {"id": "insight:unrelated", "distance": 0.81}
+      ],
+      "expected_ids": ["insight:delivery"],
+      "forbidden_ids": ["insight:unrelated"]
+    },
+    {
+      "case_id": "correction_over_superseded",
+      "lexical_ranking": ["insight:current_correction"],
+      "vector_ranking": [
+        {"id": "insight:current_correction", "distance": 0.14}
+      ],
+      "expected_ids": ["insight:current_correction"],
+      "forbidden_ids": ["insight:superseded_claim"]
+    },
+    {
+      "case_id": "product_isolation",
+      "lexical_ranking": ["insight:local_product"],
+      "vector_ranking": [
+        {"id": "insight:local_product", "distance": 0.11}
+      ],
+      "expected_ids": ["insight:local_product"],
+      "forbidden_ids": ["insight:foreign_product"]
+    },
+    {
+      "case_id": "no_answer_distance_gate",
+      "lexical_ranking": [],
+      "vector_ranking": [
+        {"id": "insight:nearest_but_unrelated", "distance": 0.92}
+      ],
+      "expected_ids": [],
+      "forbidden_ids": ["insight:nearest_but_unrelated"]
+    }
+  ]
+}

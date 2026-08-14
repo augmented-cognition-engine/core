@@ -22,13 +22,13 @@ async def test_write_insight_returns_record_with_id_content_embedding():
         ),
         patch("core.engine.capture.synthesizer.get_embedder") as ge,
     ):
-        ge.return_value.dimensions = 3
-        ge.return_value.embed = AsyncMock(return_value=[[0.1, 0.2, 0.3]])
+        ge.return_value.dimensions = 768
+        ge.return_value.embed = AsyncMock(return_value=[[0.1] * 768])
         rec = await s._write_insight({"content": "X depends on Y", "insight_type": "fact"})
     assert rec is not None
     assert rec["id"] == "insight:abc"
     assert rec["content"] == "X depends on Y"
-    assert rec["embedding"] == [0.1, 0.2, 0.3]
+    assert rec["embedding"] == [0.1] * 768
 
 
 @pytest.mark.asyncio

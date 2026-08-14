@@ -59,11 +59,11 @@ async def test_worker_embed_new_insights_enriches(monkeypatch):
     captured: dict = {}
 
     class _Emb:
-        dimensions = 3
+        dimensions = 768
 
         async def embed(self, texts):
             captured["texts"] = texts
-            return [[0.1, 0.2, 0.3] for _ in texts]
+            return [[0.1] * self.dimensions for _ in texts]
 
     monkeypatch.setattr(proc, "get_embedder", lambda: _Emb())
 

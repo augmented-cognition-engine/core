@@ -1,5 +1,19 @@
 # ACE evaluation harness
 
+## Pre-v1.0 RAG retrieval acceptance
+
+The provider-free RAG gate freezes hybrid, semantic-only, correction, product-isolation, and
+no-answer cases before v1.0:
+
+```bash
+uv run pytest tests/test_rag_retrieval.py tests/test_rag_retrieval_evaluation.py -q
+```
+
+The recorded result reports 100% Recall@5, MRR 1.0, and zero false associations across the five
+bounded cases. A disposable `EXPLAIN FULL` probe against the exact Compose-pinned SurrealDB 3.2.3
+image separately verifies `KnnScan` and `FullTextScan`. See
+[`rag_retrieval_v1.md`](results/rag_retrieval_v1.md).
+
 This directory provides a neutral, reproducible comparison format. It does not call ACE production
 orchestration. A suite contains frozen tasks, one public rubric per task, recorded outputs, and
 provider-reported operational metrics. Every variant is scored by the same evaluator.

@@ -209,3 +209,19 @@ async def test_degraded_mode_marks_needs_embedding(db_pool):
         row = parse_one(await db.query("SELECT embedding, needs_embedding FROM <record>$id", {"id": insight_id}))
     assert row.get("embedding") is None
     assert row.get("needs_embedding") is True
+
+
+@pytest.mark.asyncio
+async def test_rejects_embedding_dimension_mismatch_before_database_access():
+    class _Pool:
+        def connection(self):
+            raise AssertionError("database must not be opened for an invalid vector")
+
+    with pytest.raises(ValueError, match="embedding dimension mismatch"):
+        await atomic_capture_write(
+            _Pool(),
+            insight_fields={"product": "product:test"},
+            embedding=[0.01] * 1024,
+            specialty_slug=None,
+            observation_ids=[],
+        )

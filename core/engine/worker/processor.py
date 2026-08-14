@@ -20,7 +20,7 @@ from core.engine.capture.leases import (
 from core.engine.capture.lifecycle import MAX_PROCESSING_ATTEMPTS, process_observation_attempt
 from core.engine.capture.synthesizer import Synthesizer
 from core.engine.core.db import parse_rows, pool
-from core.engine.embedding.base import get_embedder
+from core.engine.embedding.base import INTELLIGENCE_EMBEDDING_DIMENSIONS, get_embedder
 
 logger = logging.getLogger(__name__)
 
@@ -197,7 +197,7 @@ async def embed_new_insights(product_id: str, limit: int = 20) -> int:
     or if embedding generation fails.
     """
     embedder = get_embedder()
-    if embedder.dimensions == 0:
+    if embedder.dimensions != INTELLIGENCE_EMBEDDING_DIMENSIONS:
         return 0
 
     try:
@@ -241,6 +241,8 @@ async def embed_new_insights(product_id: str, limit: int = 20) -> int:
 
         async with pool.connection() as db:
             for row, vec in zip(rows, vectors):
+                if len(vec) != INTELLIGENCE_EMBEDDING_DIMENSIONS:
+                    continue
                 await db.query(
                     "UPDATE <record>$id SET embedding = $vec WHERE product = <record>$product",
                     {"id": str(row["id"]), "vec": vec, "product": product_id},

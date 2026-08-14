@@ -692,7 +692,7 @@ async def ace_search(
     knowledge_type: str | None = None,
     tags: list[str] | None = None,
 ) -> dict:
-    """Search insights using hybrid BM25 + vector similarity (Reciprocal Rank Fusion).
+    """Search insights through the shared production-bounded RAG service.
 
     Args:
         query: Natural language query.
@@ -701,97 +701,24 @@ async def ace_search(
         tags: Optional list of discipline/specialty tags to narrow results
               (e.g. ["architecture", "error_handling"]). Uses CONTAINSANY.
     """
-    from core.engine.embedding.base import get_embedder
-
-    bm25_rows: list[dict] = []
-    vec_rows: list[dict] = []
-    limit = 10
-
-    # Build optional filter clauses
-    type_filter = "AND insight_type = $type" if knowledge_type else ""
-    tag_filter = "AND tags CONTAINSANY $tags" if tags else ""
-
-    async with pool.connection() as db:
-        # BM25 full-text search (fast, always runs)
-        bm25_rows = parse_rows(
-            await db.query(
-                f"""
-            SELECT id, content, confidence, domain_path, observation_type, tags
-            FROM insight
-            WHERE product = <record>$product AND status = 'active'
-              AND content @@ $query
-              {type_filter}
-              {tag_filter}
-            ORDER BY confidence DESC LIMIT $limit
-            """,
-                {
-                    "product": product_id,
-                    "query": query,
-                    "limit": limit * 2,
-                    **({"type": knowledge_type} if knowledge_type else {}),
-                    **({"tags": tags} if tags else {}),
-                },
-            )
-        )
-
-        # Vector similarity search (best-effort — only if embeddings exist)
-        embedder = get_embedder()
-        if embedder.dimensions > 0:
-            try:
-                vecs = await embedder.embed([query])
-                if vecs and vecs[0]:
-                    vec_rows = parse_rows(
-                        await db.query(
-                            f"""
-                        SELECT id, content, confidence, domain_path, observation_type, tags,
-                               vector::similarity::cosine(embedding, $vec) AS vec_score
-                        FROM insight
-                        WHERE product = <record>$product AND status = 'active'
-                          AND embedding IS NOT NONE
-                          {type_filter}
-                          {tag_filter}
-                        ORDER BY vec_score DESC LIMIT $limit
-                        """,
-                            {
-                                "product": product_id,
-                                "vec": vecs[0],
-                                "limit": limit * 2,
-                                **({"type": knowledge_type} if knowledge_type else {}),
-                                **({"tags": tags} if tags else {}),
-                            },
-                        )
-                    )
-            except Exception:
-                pass  # Vector search is best-effort
-
-    # Reciprocal Rank Fusion (k=60)
-    k = 60
-    scores: dict[str, float] = {}
-    id_to_row: dict[str, dict] = {}
-
-    for rank, row in enumerate(bm25_rows):
-        rid = str(row.get("id", ""))
-        scores[rid] = scores.get(rid, 0) + 1 / (k + rank + 1)
-        id_to_row[rid] = row
-
-    for rank, row in enumerate(vec_rows):
-        rid = str(row.get("id", ""))
-        scores[rid] = scores.get(rid, 0) + 1 / (k + rank + 1)
-        if rid not in id_to_row:
-            id_to_row[rid] = row
-
-    # Cross-encoder rerank (when configured): fuse a LARGER pool then let the local-Ollama reranker pick
-    # the final top-`limit` — so it can rescue relevant insights RRF ranked just below the cutoff. Off by
-    # default → pool == limit and cross_encoder_rerank is a no-op (original RRF order).
-    from core.engine.core.config import settings
+    from core.engine.search.intelligence import search_intelligence
     from core.engine.search.rerank import cross_encoder_rerank
 
-    pool_size = limit * 3 if getattr(settings, "rerank_peer_host", None) else limit
-    ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:pool_size]
-    results = [{**id_to_row[rid], "score": round(score, 4)} for rid, score in ranked if rid in id_to_row]
-    results = await cross_encoder_rerank(query, results, top_k=limit)
+    reranker = None
+    if getattr(settings, "rerank_peer_host", None):
 
-    return {"results": results, "count": len(results), "query": query}
+        async def reranker(q, rows):
+            return await cross_encoder_rerank(q, rows, top_k=10)
+
+    return await search_intelligence(
+        query,
+        product_id,
+        knowledge_type=knowledge_type,
+        tags=tags,
+        limit=10,
+        db_pool=pool,
+        reranker=reranker,
+    )
 
 
 def _slugify_path(file_path: str) -> str:

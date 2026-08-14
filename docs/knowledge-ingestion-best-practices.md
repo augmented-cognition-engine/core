@@ -267,16 +267,11 @@ tags; the standalone thin surface searches across the authenticated product:
 ace_search("invoice cancellation repeat purchase")
 ```
 
-The exact behavior is surface-dependent in this revision:
-
-- The in-process MCP implementation uses BM25 plus vector similarity and optional `insight_type` and
-  tag filters.
-- The supported standalone thin MCP client calls `/intel/search`, whose API implementation currently
-  uses `content CONTAINS` over active insights and applies `knowledge_type` client-side. It does not
-  expose the in-process hybrid/tag behavior.
-
-Record which surface the acceptance test uses. Do not infer production recall from a different
-surface's unit test or docstring.
+The in-process MCP implementation and supported standalone thin client share the same product-scoped
+retrieval service. It uses BM25 scoring plus SurrealDB indexed KNN, reciprocal-rank fusion, optional
+`insight_type` and tag filters, an optional bounded reranker, and an explicit retrieval receipt. The
+receipt reports embedding/index compatibility and degraded lexical-only fallbacks, so callers never
+need to infer which path ran from a transport-specific docstring.
 
 ### `ace_task`: prove reasoning use
 

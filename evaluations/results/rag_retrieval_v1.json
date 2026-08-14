@@ -1,0 +1,21 @@
+{
+  "cases": [
+    {"case_id": "hybrid_webhook_retry", "expected_found": ["insight:webhook"], "false_associations": [], "selected_ids": ["insight:webhook", "insight:delivery", "insight:generic_retry"]},
+    {"case_id": "semantic_delivery_retry", "expected_found": ["insight:delivery"], "false_associations": [], "selected_ids": ["insight:delivery"]},
+    {"case_id": "correction_over_superseded", "expected_found": ["insight:current_correction"], "false_associations": [], "selected_ids": ["insight:current_correction"]},
+    {"case_id": "product_isolation", "expected_found": ["insight:local_product"], "false_associations": [], "selected_ids": ["insight:local_product"]},
+    {"case_id": "no_answer_distance_gate", "expected_found": [], "false_associations": [], "selected_ids": []}
+  ],
+  "cases_evaluated": 5,
+  "contract_version": "ace.rag-evaluation-result/v1",
+  "expected_found": 4,
+  "expected_total": 4,
+  "false_associations": 0,
+  "fixture_hash": "7e21336f34d51ba0fb8ff9eba0692aa501e29016a2c0d082621c8b506e81122d",
+  "mrr": 1.0,
+  "passed": true,
+  "ranking_policy_version": "ace.rag-ranking/rrf-v1",
+  "recall_at_k": 1.0,
+  "result_hash": "6df690e598e3cebf7f60713f0926f8ad5747f9276c0ceaa8cc66255b1355e3f9",
+  "top_k": 5
+}
