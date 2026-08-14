@@ -4,7 +4,7 @@ This FAQ answers the operational questions that tend to appear after the archite
 what happens when part of a committee fails, how conflicting claims are handled, what confidence
 means, and how multiple products share SurrealDB without becoming one undifferentiated memory.
 
-ACE 0.8.2 is a release candidate over the published 0.8.1 developer preview. Answers below
+ACE 0.8.3 is a release candidate over the published 0.8.2 developer preview. Answers below
 distinguish the supported Intelligence OS contract
 from broader engine capabilities whose APIs and end-to-end journeys remain experimental. See
 [capability maturity](capability-maturity.md) for the authoritative boundary and
@@ -370,7 +370,7 @@ end-to-end operating journeys remain experimental in 0.8.
 
 ### What is the stable public contract today?
 
-ACE 0.8.2 is a developer-preview release candidate: the self-hosted CLI, exactly eleven thin MCP tools,
+ACE 0.8.3 is a developer-preview release candidate: the self-hosted CLI, exactly eleven thin MCP tools,
 documented provider routes, schema migrations, public Core/Intelligence/Application packages,
 inert Domain Pack boundary, and authorized Intelligence resource plane. Atrium is a supported,
 optional repository-delivered preview over that same plane; it is not included in the Python

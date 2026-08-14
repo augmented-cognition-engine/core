@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "0.8.2"
+version = "0.8.3"
 description = "Open Intelligence Operating System with a guided Intelligence Builder"
 readme = "README.md"
 license = "Apache-2.0"

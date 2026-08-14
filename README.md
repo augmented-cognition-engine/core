@@ -11,7 +11,7 @@ monitors, and an intelligence system that improves with governed feedback. ACE i
 provenance, authority, durable state, and exact receipts stay built into the result instead of
 becoming infrastructure every product team must recreate.
 
-![version 0.8.2](https://img.shields.io/badge/version-0.8.2-blue)
+![version 0.8.3 candidate](https://img.shields.io/badge/version-0.8.3--candidate-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: developer preview](https://img.shields.io/badge/status-developer%20preview-orange)
@@ -386,7 +386,19 @@ transforms only), `ace.intelligence.personas/v1alpha1` (personas plus signal-rou
 
 ---
 
-## What 0.8.2 adds
+## What 0.8.3 adds
+
+0.8.3 is a compatibility patch for independently packaged Intelligence products. It adds the
+public conformance seam needed to resolve exact installed Domain Packs and preserves source
+publication time separately from observation and ingestion time. Market and other external
+consumers can therefore test the exact installed pack and retain truthful bitemporal provenance
+without importing the private host runtime.
+
+The patch also carries the subsequent single-user Builder hardening already merged on the 0.8
+line. It preserves schema head v177, exactly eleven public MCP tools, the inert Domain Pack
+boundary, and the separately versioned adapter model.
+
+### What 0.8.2 added
 
 0.8.2 makes first use start with the outcome a person wants rather than ACE's internal
 architecture. Atrium discovers every admitted onboarding profile from the governed Intelligence
@@ -858,7 +870,7 @@ stay host-free, and host adapters are the only `core.engine` edge into the publi
 
 ## Maturity and limitations
 
-**0.8.2 is the current published developer preview.** Its Intelligence OS
+**0.8.3 is a release candidate over the published 0.8.2 developer preview.** Its Intelligence OS
 claim is bounded to
 the provider-free and installed-artifact journeys recorded in the evidence archive and the
 single-node topology below. Read this section before you build on it.

@@ -336,6 +336,10 @@ from ace.application.intelligence_build_first_brief import (
     IntelligenceBuildFirstBriefRequestV1Alpha1,
     IntelligenceBuildFirstBriefRequestV1Alpha2,
 )
+from ace.application.intelligence_build_host import (
+    DurableIntelligenceBuildHostComposer,
+    IntelligenceBuildHostCompositionError,
+)
 from ace.application.intelligence_build_planning import (
     INTELLIGENCE_BUILD_PLAN_REQUEST_V1ALPHA2_VERSION,
     INTELLIGENCE_BUILD_PLAN_REQUEST_VERSION,
@@ -871,6 +875,8 @@ __all__ = [
     "IntelligenceBuildEffect",
     "IntelligenceBuildExecutor",
     "IntelligenceBuildFirstBriefPort",
+    "DurableIntelligenceBuildHostComposer",
+    "IntelligenceBuildHostCompositionError",
     "IntelligenceBuildHostServices",
     "IntelligenceBuildPreparedDerivationPort",
     "IntelligenceBuildResourcePagePort",
