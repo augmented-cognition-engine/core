@@ -220,44 +220,52 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
-/* Atrium is ACE's always-on command center. It uses a tighter midnight
- * surface ladder than the deliberation and canvas routes while preserving
- * the shared ACE semantic tokens. Keeping this scoped prevents a domain or
- * command-center preference from becoming a kernel-wide theme decision. */
+/* Atrium is ACE's always-on command center. Its palette is deliberately
+ * neutral-first: near-black achromatic surfaces do the structural work,
+ * neutral controls carry primary action, and one spectral violet lifted from
+ * the ACE mark is rationed to selected state, links, and ACE voice. Cyan is
+ * reserved for live intelligence; blue remains available to evidence/data
+ * semantics, but no longer tints the command-center chrome.
+ *
+ * Direction synthesized through Refero from Raycast's 98%-achromatic dark
+ * cockpit and Linear's precision surface ladder. The result is ACE-owned:
+ * Spline typography, governed semantic state colors, and evidence hierarchy
+ * stay intact. Keeping this scoped prevents an Atrium preference from
+ * becoming a kernel-wide theme decision. */
 .atrium-command-center.dark {
-    --background: #070A10;
-    --foreground: #F2F5FA;
-    --card: #101620;
-    --card-foreground: #F2F5FA;
-    --popover: #141B27;
-    --popover-foreground: #F2F5FA;
-    --primary: #7597FF;
-    --primary-foreground: #071020;
-    --secondary: #1A2230;
-    --secondary-foreground: #F2F5FA;
-    --muted: #141B25;
-    --muted-foreground: #9CA9BC;
-    --accent: #1C2636;
-    --accent-foreground: #F2F5FA;
-    --border: #263248;
-    --input: #33425A;
-    --ring: #7597FF;
-    --brand: #7597FF;
-    --brand-foreground: #071020;
-    --live: #55D6E6;
-    --live-foreground: #071020;
-    --success: #48C77A;
+    --background: #08090A;
+    --foreground: #F3F1ED;
+    --card: #111214;
+    --card-foreground: #F3F1ED;
+    --popover: #17181A;
+    --popover-foreground: #F3F1ED;
+    --primary: #E7E5E1;
+    --primary-foreground: #111214;
+    --secondary: #18191B;
+    --secondary-foreground: #F3F1ED;
+    --muted: #151618;
+    --muted-foreground: #A7A5A2;
+    --accent: #1D1E20;
+    --accent-foreground: #F3F1ED;
+    --border: #2A2B2D;
+    --input: #353638;
+    --ring: #9B7BF6;
+    --brand: #9B7BF6;
+    --brand-foreground: #0D0917;
+    --live: #62C3BE;
+    --live-foreground: #071312;
+    --success: #4CC984;
     --success-foreground: #07140C;
-    --anchor: #111B32;
-    --anchor-foreground: #F2F5FA;
-    --sidebar: #090D14;
-    --sidebar-foreground: #EAF0F8;
-    --sidebar-primary: #7597FF;
-    --sidebar-primary-foreground: #071020;
-    --sidebar-accent: #161E2B;
-    --sidebar-accent-foreground: #F2F5FA;
-    --sidebar-border: #222D40;
-    --sidebar-ring: #7597FF;
+    --anchor: #15151A;
+    --anchor-foreground: #F3F1ED;
+    --sidebar: #0B0C0D;
+    --sidebar-foreground: #E9E7E3;
+    --sidebar-primary: #9B7BF6;
+    --sidebar-primary-foreground: #0D0917;
+    --sidebar-accent: #17181A;
+    --sidebar-accent-foreground: #F3F1ED;
+    --sidebar-border: #242527;
+    --sidebar-ring: #9B7BF6;
 }
 
 @layer base {

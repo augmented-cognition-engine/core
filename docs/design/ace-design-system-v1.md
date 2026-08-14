@@ -7,42 +7,49 @@ evidence-backed picture feel calm enough to trust and precise enough to act on.
 The system belongs to ACE itself; a public Domain Pack changes vocabulary, sources,
 and decision policy, not the product's identity.
 
-The ACE mark is the brand source. It moves from cyan through blue to violet, but the
-application deliberately chooses one dominant color: **ACE cognitive blue**. Cyan is
-reserved for live evidence, violet is reserved for rare composition/agent-memory
-moments, and green returns to its literal semantic role: verified success.
+The ACE mark is the color source, moving from cyan through blue to violet. The product
+chrome is quieter than the mark: **Atrium is neutral-first**, with the mark's spectral
+violet used as sparse focus punctuation rather than washing the command center in blue.
+Blue remains available for informational and evidence semantics, cyan is reserved for
+live intelligence, violet identifies ACE selection and voice, and green keeps its
+literal semantic role: verified success.
 
 ## Reference lock
 
-Research was synthesized from:
+Research was synthesized through Refero from:
 
-- **Primary — Linear Changelog:** midnight command-center density, restrained type,
-  graphite borders, and surface layering instead of decorative shadows.
-- **Borrowed — Warp:** a disciplined electric-blue focus treatment that highlights
-  active product state without tinting the whole interface.
+- **Primary — [Linear](https://styles.refero.design/style/90ce5883-bb24-4466-93f7-801cd617b0d1):**
+  near-black precision surfaces, quiet white/gray typography, compact density, and
+  hairline geometry instead of decorative shadows.
+- **Supporting — [Raycast](https://styles.refero.design/style/3b6a17f0-3bdf-418c-a95e-0b89e5a8b2f8):**
+  a 98%-achromatic dark cockpit, neutral action surfaces, and disciplined accent
+  rationing. Its accent hue is not borrowed; Atrium's color comes from the ACE mark.
 - **Borrowed — Parallel:** evidence-forward research hierarchy and a clear separation
   between a synthesized answer and its source record.
 
-Preserve: cool near-black surfaces, compact Inter/Spline-style typography, 8–12px
-radii, thin borders, evidence one interaction away, and one dominant accent.
+Preserve: achromatic near-black surfaces, compact Spline typography, 8–12px radii,
+thin borders, evidence one interaction away, and one controlled ACE-mark accent.
 
-Reject: HPE green as the Core identity, Vercel-branded blue language, rainbow category
-chrome, giant KPI walls, decorative glow, glassmorphism, and gradients outside the
-ACE mark or a rare brand transition.
+Reject: blue-tinted surface ladders, importing a reference product's accent color, HPE
+green as the Core identity, rainbow category chrome, giant KPI walls, decorative glow,
+glassmorphism, and gradients outside the ACE mark or a rare brand transition.
 
 ## Color roles
 
 | Role | Light | Dark / Atrium | Meaning |
 |---|---:|---:|---|
-| ACE cognitive blue | `#315DDE` | `#7597FF` | Primary actions, selected intelligence, links, focus, ACE identity |
-| Spectral cyan | `#0F8294` | `#55D6E6` | Live/in-motion evidence only |
-| Success green | `#178A4B` | `#48C77A` | Verified, completed, or accepted state only |
-| Canvas | `#FFFFFF` | `#070A10` | Working surface / Atrium command center |
-| Card | `#FFFFFF` | `#101620` | Evidence and intelligence records |
-| Border | `#E6E8E9` | `#263248` | Structure without decorative elevation |
+| Primary action | `#315DDE` | `#E7E5E1` | Atrium uses a light neutral fill rather than a chromatic block |
+| Focus / identity | `#315DDE` | `#9B7BF6` | Spectral violet from the ACE mark for selection, links, focus, and ACE voice |
+| Spectral cyan | `#0F8294` | `#62C3BE` | Live/in-motion evidence only |
+| Success green | `#178A4B` | `#4CC984` | Verified, completed, or accepted state only |
+| Canvas | `#FFFFFF` | `#08090A` | Working surface / Atrium command center |
+| Card | `#FFFFFF` | `#111214` | Evidence and intelligence records |
+| Border | `#E6E8E9` | `#2A2B2D` | Structure without decorative elevation |
 
-Blue does not mean “good.” Green does not mean “ACE.” A Domain Pack may add chart or
-taxonomy hues, but it must not change these meanings.
+Violet identifies ACE; it does not mean “good.” Green remains literal success. Blue is
+not forbidden; it is removed from generic Atrium chrome and reserved for information,
+evidence, or data visualization. A Domain Pack may add chart or taxonomy hues, but it
+must not change these meanings.
 
 ## Typography and density
 
@@ -57,8 +64,8 @@ taxonomy hues, but it must not change these meanings.
 
 - Use borders and small tonal steps for depth. Avoid a stack of large shadows.
 - Cards use 8–12px radius; pills are reserved for status and short filters.
-- Blue appears on the active navigation item, focus ring, primary action, intelligence
-  lineage, and key identity moments.
+- Atrium uses neutral primary actions; spectral violet appears on active navigation,
+  focus rings, links, and small ACE-voice moments. Large panels remain achromatic.
 - Every synthesized claim should be one interaction from evidence and provenance.
 - Motion communicates a state change. It never decorates an otherwise static card.
 
