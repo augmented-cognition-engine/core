@@ -137,7 +137,7 @@ class Conductor:
                 }
                 context["risk"] = assess_risk("work_item", risk_context)
 
-            # Load vision/themes from product_map
+            # Load active product themes from their canonical table.
             themes = await self._load_themes(db, product_id)
             context["themes"] = themes
 
@@ -236,16 +236,14 @@ class Conductor:
         return None
 
     async def _load_themes(self, db, product_id: str) -> list[dict]:
-        """Load active themes from product_map."""
+        """Load active themes for the current product."""
         rows = parse_rows(
             await db.query(
-                "SELECT themes FROM product_map WHERE product = <record>$product LIMIT 1",
+                "SELECT * FROM theme WHERE product = <record>$product AND status = 'active' ORDER BY created_at",
                 {"product": product_id},
             )
         )
-        if rows and rows[0].get("themes"):
-            return rows[0]["themes"]
-        return []
+        return rows
 
     async def _on_event(self, event_type: str, payload: dict) -> None:
         """Main event handler: build context, check alignment, evaluate rules, execute actions."""
