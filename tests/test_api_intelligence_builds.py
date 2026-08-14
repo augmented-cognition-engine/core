@@ -268,21 +268,21 @@ async def test_default_runtime_has_no_implicit_activation_approval_authority() -
 
 
 @pytest.mark.asyncio
-async def test_exact_recorded_material_coordinates_change_the_authorized_build_digest() -> None:
+async def test_exact_reviewed_source_selection_changes_the_authorized_build_digest() -> None:
     first_body = _body()
     first_body["source_group_ids"] = ["official_records"]
-    first_body["recorded_source_refs"] = [
+    first_body["recorded_source_selection_refs"] = [
         {
             "source_group_id": "official_records",
-            "material_id": "recorded_source_material:one",
-            "material_digest": "sha256:" + "1" * 64,
+            "selection_id": "recorded_source_selection:one",
+            "selection_digest": "sha256:" + "1" * 64,
         }
     ]
     second_body = {**first_body}
-    second_body["recorded_source_refs"] = [
+    second_body["recorded_source_selection_refs"] = [
         {
-            **first_body["recorded_source_refs"][0],
-            "material_digest": "sha256:" + "2" * 64,
+            **first_body["recorded_source_selection_refs"][0],
+            "selection_digest": "sha256:" + "2" * 64,
         }
     ]
     first_authority = _Authority()
@@ -295,11 +295,32 @@ async def test_exact_recorded_material_coordinates_change_the_authorized_build_d
     assert first_authority.calls[0]["use_subject_digest"] != second_authority.calls[0]["use_subject_digest"]
 
 
+@pytest.mark.asyncio
+async def test_start_rejects_legacy_activation_bound_material_references() -> None:
+    body = _body()
+    body["recorded_source_refs"] = [
+        {
+            "source_group_id": "sources:official",
+            "material_id": "recorded_source_material:legacy",
+            "material_digest": "sha256:" + "a" * 64,
+        }
+    ]
+
+    response, _ = await _request(
+        claims=_claims(),
+        authority=_Authority(),
+        executor=_Executor(),
+        body=body,
+    )
+
+    assert response.status_code == 422
+
+
 def test_start_build_openapi_exposes_stable_request_and_result_contracts() -> None:
     app = FastAPI()
     app.include_router(router)
     operation = app.openapi()["paths"]["/v1/intelligence/builds/start"]["post"]
     request_schema = operation["requestBody"]["content"]["application/json"]["schema"]
     response_schema = operation["responses"]["200"]["content"]["application/json"]["schema"]
-    assert request_schema["$ref"].endswith("IntelligenceBuildStartV1")
+    assert request_schema["$ref"].endswith("IntelligenceBuildStartV1Alpha2")
     assert response_schema["$ref"].endswith("IntelligenceBuildResultV1")
