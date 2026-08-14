@@ -35,7 +35,8 @@ from ace.intelligence.packs.runtime import (
     bind_prepared_activation,
 )
 
-DOMAIN_ACTIVATION_STATE_KIND = "domain_activation"
+DOMAIN_ACTIVATION_STATE_KIND = "domain_activation_v1alpha1"
+LEGACY_DOMAIN_ACTIVATION_STATE_KIND = "domain_activation"
 
 
 class DomainActivationAdmissionError(RuntimeError):
@@ -104,7 +105,6 @@ def _validate_committed_pair(
 ) -> CommittedDomainActivation:
     envelope = _envelope(revision)
     expected = {
-        "state_kind": envelope.state_kind,
         "product_id": envelope.product_id,
         "state_id": envelope.state_id,
         "sequence": envelope.sequence,
@@ -113,7 +113,10 @@ def _validate_committed_pair(
         "prior_revision_id": envelope.prior_revision_id,
     }
     actual = {name: getattr(receipt, name) for name in expected}
-    if actual != expected:
+    if (
+        receipt.state_kind not in {DOMAIN_ACTIVATION_STATE_KIND, LEGACY_DOMAIN_ACTIVATION_STATE_KIND}
+        or actual != expected
+    ):
         raise DomainActivationAdmissionError("Core commit receipt does not bind the exact activation revision")
     return CommittedDomainActivation(revision=revision, commit_receipt=receipt)
 
@@ -206,9 +209,15 @@ class DomainActivationAdmissionService:
             state_id=activation_id,
         )
         if head is None:
+            head = await self.store.load_head(
+                state_kind=LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
+                product_id=product_id,
+                state_id=activation_id,
+            )
+        if head is None:
             return None
         if (
-            head.state_kind != DOMAIN_ACTIVATION_STATE_KIND
+            head.state_kind not in {DOMAIN_ACTIVATION_STATE_KIND, LEGACY_DOMAIN_ACTIVATION_STATE_KIND}
             or head.product_id != product_id
             or head.state_id != activation_id
         ):
@@ -226,7 +235,6 @@ class DomainActivationAdmissionService:
         expected_envelope = _envelope(revision)
         envelope_fields = (
             "contract",
-            "state_kind",
             "product_id",
             "state_id",
             "sequence",
@@ -236,7 +244,9 @@ class DomainActivationAdmissionService:
             "approval_subject_ref",
             "payload_contract",
         )
-        if any(getattr(expected_envelope, name) != getattr(envelope, name) for name in envelope_fields):
+        if envelope.state_kind not in {DOMAIN_ACTIVATION_STATE_KIND, LEGACY_DOMAIN_ACTIVATION_STATE_KIND} or any(
+            getattr(expected_envelope, name) != getattr(envelope, name) for name in envelope_fields
+        ):
             raise DomainActivationAdmissionError("persisted envelope does not match exact activation material")
         if (
             head.sequence != revision.revision
@@ -283,7 +293,6 @@ class DomainActivationAdmissionService:
             raise DomainActivationAdmissionError("historical activation revision failed exact revalidation") from None
         envelope_fields = (
             "contract",
-            "state_kind",
             "product_id",
             "state_id",
             "sequence",
@@ -293,7 +302,9 @@ class DomainActivationAdmissionService:
             "approval_subject_ref",
             "payload_contract",
         )
-        if any(getattr(expected_envelope, name) != getattr(envelope, name) for name in envelope_fields):
+        if envelope.state_kind not in {DOMAIN_ACTIVATION_STATE_KIND, LEGACY_DOMAIN_ACTIVATION_STATE_KIND} or any(
+            getattr(expected_envelope, name) != getattr(envelope, name) for name in envelope_fields
+        ):
             raise DomainActivationAdmissionError("historical activation envelope changed from exact revision material")
         return _validate_committed_pair(revision, receipt)
 
@@ -317,6 +328,7 @@ __all__ = [
     "CommittedActivationBinding",
     "CommittedDomainActivation",
     "DOMAIN_ACTIVATION_STATE_KIND",
+    "LEGACY_DOMAIN_ACTIVATION_STATE_KIND",
     "DomainActivationAdmissionError",
     "DomainActivationAdmissionService",
     "bind_committed_activation",

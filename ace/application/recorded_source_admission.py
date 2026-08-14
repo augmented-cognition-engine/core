@@ -244,7 +244,7 @@ class RecordedSourceAcquisitionReceiptV1Alpha1(_StrictFrozenContract):
         ):
             raise ValueError("build authority use does not bind the exact recorded admission")
         if (
-            self.activation_head_precondition.state_kind != DOMAIN_ACTIVATION_STATE_KIND
+            self.activation_head_precondition.state_kind not in {DOMAIN_ACTIVATION_STATE_KIND, "domain_activation"}
             or self.activation_head_precondition.product_id != self.product_id
             or self.activation_head_precondition.state_id != self.activation_revision.activation_id
             or self.activation_head_precondition.sequence != self.activation_revision.revision
@@ -288,7 +288,7 @@ def _activation_head(binding: CommittedActivationBinding) -> GovernedStateHeadPr
     if revision.activation_id is None or revision.revision_id is None or receipt.receipt_id is None:
         raise RecordedSourceAdmissionError("committed activation is missing exact head coordinates")
     return GovernedStateHeadPreconditionV1Alpha1(
-        state_kind=DOMAIN_ACTIVATION_STATE_KIND,
+        state_kind=receipt.state_kind,
         product_id=revision.spec.product_id,
         state_id=revision.activation_id,
         sequence=revision.revision,

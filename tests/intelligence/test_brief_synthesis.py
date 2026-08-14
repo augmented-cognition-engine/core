@@ -868,13 +868,13 @@ async def test_live_then_fresh_service_replay_is_exact_authorized_and_provider_o
     )
     assert first.brief.resource_id == "brief:52d3d753b9b2ee30d1a8faaa316e1652"
     assert first.brief.resource_digest == ("sha256:52d3d753b9b2ee30d1a8faaa316e16526b3a6e5e4cf793d8417df8b91fe6a206")
-    assert first.synthesis_receipt.receipt_id == ("brief_synthesis_receipt:64f37fcb53080876222caf5f2d54eeea")
+    assert first.synthesis_receipt.receipt_id == ("brief_synthesis_receipt:13083446bbc36acc4ae97e2a96a22700")
     assert first.synthesis_receipt.receipt_digest == (
-        "sha256:64f37fcb53080876222caf5f2d54eeea7a521339963a421a08df47f06c409c16"
+        "sha256:13083446bbc36acc4ae97e2a96a22700087d98c9b4e5b3145a68c8b94439dfc1"
     )
     assert first.transaction_receipt.receipt_id == ("append_only_receipt:a0f17f23345df62697e317b927484ef1")
     assert first.transaction_receipt.request_hash == (
-        "sha256:99e04efd57a75d092329c27e222e3c31fa0656c65bc0fb4a9ded1ca99891cd6b"
+        "sha256:ce69f1018e1ea95d8b262626bbfe15580563cb999cb0b0b51b05f6960aa0d35b"
     )
     assert env.provider.calls == 1
     assert env.runtime.capability_calls == env.runtime.authority_calls == 4

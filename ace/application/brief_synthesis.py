@@ -7,7 +7,6 @@ from datetime import UTC, datetime
 from typing import Callable, Literal
 
 from ace.application.domain_activation import (
-    DOMAIN_ACTIVATION_STATE_KIND,
     CommittedActivationBinding,
     DomainActivationAdmissionError,
     DomainActivationAdmissionService,
@@ -319,7 +318,7 @@ def _activation_precondition(binding: CommittedActivationBinding) -> GovernedSta
     revision = binding.prepared_binding.revision
     receipt = binding.commit_receipt
     return GovernedStateHeadPreconditionV1Alpha1(
-        state_kind=DOMAIN_ACTIVATION_STATE_KIND,
+        state_kind=receipt.state_kind,
         product_id=revision.spec.product_id,
         state_id=str(revision.activation_id),
         sequence=revision.revision,

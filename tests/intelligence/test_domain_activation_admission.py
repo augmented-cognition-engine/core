@@ -7,6 +7,7 @@ import pytest
 
 from ace.application.domain_activation import (
     DOMAIN_ACTIVATION_STATE_KIND,
+    LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
     DomainActivationAdmissionError,
     DomainActivationAdmissionService,
 )
@@ -243,6 +244,56 @@ async def test_reload_reconstructs_exact_committed_head_but_not_live_authority()
         )
         is None
     )
+
+
+@pytest.mark.asyncio
+async def test_reload_accepts_only_matching_legacy_v1alpha1_material():
+    product_id = "product:legacy-reload"
+    spec = _spec(product_id=product_id)
+    occurred_at = datetime(2026, 8, 6, 12, tzinfo=UTC)
+    revision = _revision(spec=spec, receipt_ref="approval:legacy", occurred_at=occurred_at)
+    store = _MemoryStore()
+    committed = await DomainActivationAdmissionService(store=store, authority=_Authority()).admit(
+        revision,
+        expected_head_revision_id=None,
+        committed_at=occurred_at + timedelta(seconds=1),
+    )
+    key = (DOMAIN_ACTIVATION_STATE_KIND, product_id, str(revision.activation_id))
+    head = store.heads.pop(key)
+    envelope = store.revisions[(product_id, str(revision.revision_id))]
+    store.revisions[(product_id, str(revision.revision_id))] = envelope.model_copy(
+        update={"state_kind": LEGACY_DOMAIN_ACTIVATION_STATE_KIND}
+    )
+    receipt = store.receipts[(product_id, committed.commit_receipt.receipt_id)]
+    receipt_material = receipt.model_dump(mode="python", exclude={"audit_id", "receipt_id", "receipt_hash"})
+    receipt_material["state_kind"] = LEGACY_DOMAIN_ACTIVATION_STATE_KIND
+    legacy_receipt = type(receipt).model_validate(receipt_material)
+    del store.receipts[(product_id, committed.commit_receipt.receipt_id)]
+    store.receipts[(product_id, legacy_receipt.receipt_id)] = legacy_receipt
+    legacy_head = type(head).model_validate(
+        {
+            **head.model_dump(mode="python", exclude={"head_id", "commit_receipt_id", "state_kind"}),
+            "state_kind": LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
+            "commit_receipt_id": legacy_receipt.receipt_id,
+        }
+    )
+    store.heads[(LEGACY_DOMAIN_ACTIVATION_STATE_KIND, product_id, str(revision.activation_id))] = legacy_head
+
+    reloaded = await DomainActivationAdmissionService(store=store, authority=_Authority()).reload(
+        product_id=product_id,
+        activation_key=spec.activation_key,
+    )
+    assert reloaded is not None
+    assert reloaded.commit_receipt.state_kind == LEGACY_DOMAIN_ACTIVATION_STATE_KIND
+
+    store.revisions[(product_id, str(revision.revision_id))] = envelope.model_copy(
+        update={"state_kind": LEGACY_DOMAIN_ACTIVATION_STATE_KIND, "payload_contract": "wrong.contract/v1"}
+    )
+    with pytest.raises(DomainActivationAdmissionError, match="unsupported contract"):
+        await DomainActivationAdmissionService(store=store, authority=_Authority()).reload(
+            product_id=product_id,
+            activation_key=spec.activation_key,
+        )
 
 
 @pytest.mark.integration

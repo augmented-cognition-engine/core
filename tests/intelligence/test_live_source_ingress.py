@@ -473,7 +473,7 @@ async def test_each_governed_head_change_during_capture_fails_without_partial_ad
     def mutate() -> None:
         env = holder["env"]
         if race == "activation":
-            key = next(key for key in env.heads if key[0] == "domain_activation")
+            key = next(key for key in env.heads if key[0] == env.request.activation_head_precondition.state_kind)
             env.heads[key] = _next_head(env.heads[key])
         elif race == "capability":
             key = ("capability_state", PRODUCT, CAPABILITY_STATE_ID)

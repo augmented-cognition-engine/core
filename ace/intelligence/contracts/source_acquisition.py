@@ -529,7 +529,7 @@ class LiveSourceAdmissionReceiptV1Alpha1(_StrictFrozenContract):
             raise ValueError("source mapping does not bind the exact admitted activation")
         if (
             self.activation_head_precondition.product_id != self.product_id
-            or self.activation_head_precondition.state_kind != "domain_activation"
+            or self.activation_head_precondition.state_kind not in {"domain_activation", "domain_activation_v1alpha1"}
             or self.activation_head_precondition.state_id != self.activation_revision.activation_id
             or self.source_definition_head_precondition.product_id != self.product_id
             or self.source_definition_head_precondition.state_kind != "source_definition"
