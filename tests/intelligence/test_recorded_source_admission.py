@@ -153,7 +153,7 @@ async def _stack():
 
 
 @pytest.mark.asyncio
-async def test_recorded_replay_admits_canonical_observation_and_reopens_exactly() -> None:
+async def test_recorded_replay_admits_canonical_observation_entity_and_reopens_exactly() -> None:
     binding, build, records, material = await _stack()
     service = CoreRecordedSourceAdmissionService(build=build, binding=binding, store=records)
 
@@ -173,11 +173,16 @@ async def test_recorded_replay_admits_canonical_observation_and_reopens_exactly(
     assert first.observations[0].mode is IntelligenceResourceMode.PREPARED
     assert first.observations[0].acquisition_mode is EvidenceAcquisitionMode.RECORDED_REPLAY
     assert first.observations[0].acquisition_receipt_ref == acquisition.receipt_id
+    assert first.entity_snapshots[0].mode is IntelligenceResourceMode.PREPARED
+    assert first.entity_snapshots[0].entity_ref == material.subject_binding.entity_ref
+    assert first.entity_snapshots[0].lineage[0].resource_id == first.observations[0].resource_id
+    assert len(first.transaction_receipt.records) == 4
     assert len(first.transaction_receipt.governed_state_preconditions) == 2
     assert replay.replayed is True
     assert replay.acquisition_receipts == first.acquisition_receipts
     assert replay.source_snapshots == first.source_snapshots
     assert replay.observations == first.observations
+    assert replay.entity_snapshots == first.entity_snapshots
     assert replay.transaction_receipt == first.transaction_receipt
 
 
@@ -208,6 +213,16 @@ async def test_recorded_observation_is_visible_from_fresh_canonical_resource_pro
     assert len(page.records) == 1
     assert page.records[0].reference.resource_id == admitted.observations[0].resource_id
     assert page.records[0].reference.resource_kind is IntelligenceResourceKind.OBSERVATION
+
+    entity_query = query.model_copy(update={"resource_kinds": (IntelligenceResourceKind.ENTITY,)})
+    entity_page = await IntelligenceLedgerResourceProjectionReader(store=records).read(
+        query=entity_query,
+        after=None,
+        limit=10,
+    )
+    assert len(entity_page.records) == 1
+    assert entity_page.records[0].reference.resource_id == admitted.entity_snapshots[0].resource_id
+    assert entity_page.records[0].reference.resource_kind is IntelligenceResourceKind.ENTITY
 
 
 @pytest.mark.asyncio
