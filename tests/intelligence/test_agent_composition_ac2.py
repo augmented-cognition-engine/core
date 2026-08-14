@@ -94,6 +94,23 @@ class InMemoryGovernedStateStore:
         return self.receipts.get((product_id, receipt_id))
 
 
+class JsonRoundTripGovernedStateStore(InMemoryGovernedStateStore):
+    """Mirror the JSON-shaped values returned by the durable SurrealDB adapter."""
+
+    async def commit(self, request: GovernedStateCommitRequestV1):
+        receipt = await super().commit(request)
+        self.heads = {
+            key: type(value).model_validate_json(value.model_dump_json()) for key, value in self.heads.items()
+        }
+        self.revisions = {
+            key: type(value).model_validate_json(value.model_dump_json()) for key, value in self.revisions.items()
+        }
+        self.receipts = {
+            key: type(value).model_validate_json(value.model_dump_json()) for key, value in self.receipts.items()
+        }
+        return receipt
+
+
 def _approval(subject: str, sequence: int) -> ResolvedApprovalReceiptV1:
     return ResolvedApprovalReceiptV1(
         receipt_ref=f"approval:ac2-{sequence}",
@@ -298,6 +315,44 @@ async def test_token_authority_labels_only_attenuate_and_cannot_create_a_grant()
             agent_configs=[AgentConfig(role="analyst")],
             now=NOW + timedelta(seconds=5),
         )
+
+
+@pytest.mark.asyncio
+async def test_runtime_authority_resolver_accepts_durable_json_round_trip() -> None:
+    governed = JsonRoundTripGovernedStateStore()
+    await _seed(governed)
+    records = InMemoryImmutableRecordStore(governed_state_heads=governed.heads)
+    authentication = await persist_task_authentication_receipt(
+        claims={"sub": ACTOR, "product": PRODUCT, "exp": (NOW + timedelta(minutes=30)).timestamp()},
+        verified_at=NOW,
+        store=records,
+        verification_policy_ref="jwt_verification_policy:v1",
+    )
+    runtime = GovernedStateRuntimeUseResolver(governed_state=governed)
+    context = authentication.runtime_context()
+
+    grant, _ = await runtime.load_grant(
+        context=context,
+        participant_principal_ref=PRINCIPAL,
+        authority_class=AuthorityClass.DERIVE_PROPOSE,
+        operation="structured_reasoning",
+        grant_ref=GRANT_REF,
+        scope_ref=SCOPE_REF,
+        policy_ref=POLICY_REF,
+        evaluated_at=NOW,
+    )
+    use = await runtime.resolve_authority_use(
+        context=context,
+        use_subject_ref="subject:durable-json-round-trip",
+        use_subject_digest="sha256:" + "d" * 64,
+        operation="structured_reasoning",
+        authority=AuthorityClass.DERIVE_PROPOSE.value,
+        grant_ref=GRANT_REF,
+        evaluated_at=NOW,
+    )
+
+    assert grant.grant_ref == GRANT_REF
+    assert use.grant_ref == GRANT_REF
 
 
 @pytest.mark.asyncio

@@ -2,6 +2,16 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.0.2
+
+### Durable runtime authority use
+
+- Normalize the same SurrealDB JSON-shaped fixed-grant representation at the runtime-use resolver,
+  so export, two-step deletion, and other exactly authorized operations continue to work after a
+  process restart while retaining scope, operation, lifecycle, head, and receipt checks.
+- Add regression coverage for both grant loading and current authority-use resolution after a full
+  governed-state JSON round trip.
+
 ## 1.0.1
 
 ### Durable local-owner restart verification
