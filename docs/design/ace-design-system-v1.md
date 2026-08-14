@@ -17,6 +17,14 @@ and green keeps its literal semantic role: verified success.
 
 Research was synthesized through Refero from:
 
+- **Command-center structure — [AgentQL](https://styles.refero.design/style/d5307f56-76de-4d13-9741-f969c42e9aa5):**
+  an almost achromatic midnight shell, quiet light-weight typography, generous breathing
+  room, thin surface boundaries, and color rationed to meaningful product state.
+- **Cognitive signature — [Dala](https://styles.refero.design/style/e5f5f8cf-e68d-4ed1-bbf5-6b67569af648):**
+  a distributed, organic intelligence field that feels alive against a black void. ACE
+  translates its particle brain into a deterministic, data-bound neural mesh using the
+  ACE spectrum rather than importing Dala's violet and amber palette.
+
 - **Foundation — [Linear Changelog](https://styles.refero.design/style/11d3e58a-87d7-4a9a-bbf5-720f4fd3ffc6):**
   near-black precision surfaces, quiet white/gray typography, compact density,
   hairline geometry, and confident hierarchy without ornamental UI.
@@ -49,12 +57,18 @@ intelligence visualization.
 
 ## Signature composition
 
-Atrium's signature is the **Intelligence Horizon**. Admitted sources and detected
-movement converge into one immutable, cited Brief; the same picture then opens toward
-grounded investigation and a human decision. The visualization uses actual resource
-counts and provenance links, never invented confidence or activity metrics. A contained
-cyan → evidence-blue → violet field echoes the ACE mark while the surrounding shell
-stays achromatic.
+Atrium's signature is the **Intelligence Horizon**, whose living center is the **ACE
+Cognitive Field**. Admitted sources and detected movement form a distributed neural
+mesh around one current, cited Brief; the same picture then opens toward grounded
+investigation and a human decision. The visualization uses actual resource counts and
+provenance links, never invented confidence or activity metrics. A contained cyan →
+evidence-blue → violet field echoes the ACE mark while the surrounding shell stays
+achromatic.
+
+The field breathes slowly only when a current Brief exists. Its staggered pulse conveys
+that the operating picture is alive, not that a provider call or autonomous action is
+currently running. `prefers-reduced-motion` freezes the composition without losing any
+state or meaning.
 
 The Opportunities surface uses the paired **Decision Aperture**: Signal → Shift → Case
 is rendered as a progression, not three equivalent KPI cards. The last stage is an
@@ -111,7 +125,21 @@ A Domain Pack may add chart or taxonomy hues, but it must not change these meani
 - Atrium uses neutral primary actions; spectral violet appears on active navigation,
   focus rings, links, and small ACE-voice moments. Large panels remain achromatic.
 - Every synthesized claim should be one interaction from evidence and provenance.
-- Motion communicates a state change. It never decorates an otherwise static card.
+- Motion communicates current system state, feedback, or continuity. The Cognitive
+  Field may breathe while a current Brief exists; it freezes when empty and under
+  `prefers-reduced-motion`. Generic cards remain still.
+
+## Component architecture
+
+- Atrium application code composes interactive controls from the shared shadcn layer:
+  Button, Input, Textarea, Dialog, Sheet, Card, Alert, Badge, Sidebar, Separator, and
+  Skeleton. It does not introduce page-local button, input, select, textarea, or dialog
+  implementations.
+- Radix/Base UI behavior stays encapsulated inside those shared primitives; Atrium
+  screens do not import the primitive libraries directly.
+- Native HTML remains appropriate for document structure, and native SVG remains
+  appropriate for non-interactive, data-bound visualizations such as the Cognitive
+  Field. Neither becomes a parallel control system.
 
 ## Domain and deployment boundary
 

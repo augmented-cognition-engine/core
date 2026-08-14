@@ -31,8 +31,8 @@ result instead of becoming infrastructure every product team must recreate.
 
 ![Atrium — the ACE Intelligence OS command center](https://raw.githubusercontent.com/augmented-cognition-engine/core/main/docs/assets/atrium-intelligence-os-v1.jpg)
 
-*Atrium using the recorded ACE 1.0 demonstration: admitted evidence converges in the Intelligence
-Horizon into one cited Brief, grounded Ask, attention, and human decision openings.*
+*Atrium using the recorded ACE 1.0 demonstration: a living Cognitive Field holds admitted sources,
+evidence, movement, and decision openings around one cited Brief and grounded Ask.*
 
 ## What ACE does
 

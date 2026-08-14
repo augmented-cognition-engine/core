@@ -49,6 +49,34 @@ import { useInstalledIntelligenceCatalog } from './useInstalledIntelligenceCatal
 
 type Surface = 'intelligence' | 'opportunities' | 'agents' | 'connections' | 'strategy'
 
+const COGNITIVE_NODES = [
+  [116, 213], [130, 166], [153, 126], [191, 96], [237, 83], [282, 86],
+  [329, 101], [369, 128], [399, 164], [416, 207], [408, 249], [382, 286],
+  [344, 313], [298, 327], [250, 325], [204, 312], [165, 285], [136, 251],
+  [170, 173], [207, 142], [251, 132], [297, 137], [340, 157], [371, 197],
+  [356, 238], [322, 275], [276, 286], [230, 277], [193, 247], [183, 210],
+  [224, 189], [270, 173], [315, 193], [314, 234], [271, 248], [229, 232],
+] as const
+
+const COGNITIVE_FACETS = [
+  [0, 1, 18], [1, 2, 18], [2, 3, 19], [2, 19, 18], [3, 4, 19], [4, 20, 19],
+  [4, 5, 20], [5, 21, 20], [5, 6, 21], [6, 22, 21], [6, 7, 22], [7, 8, 22],
+  [8, 23, 22], [8, 9, 23], [9, 10, 23], [10, 24, 23], [10, 11, 24],
+  [11, 12, 25], [11, 25, 24], [12, 13, 25], [13, 26, 25], [13, 14, 26],
+  [14, 27, 26], [14, 15, 27], [15, 16, 27], [16, 28, 27], [16, 17, 28],
+  [17, 0, 29], [0, 18, 29], [18, 19, 30], [18, 30, 29], [19, 20, 30],
+  [20, 31, 30], [20, 21, 31], [21, 22, 32], [21, 32, 31], [22, 23, 32],
+  [23, 24, 33], [23, 33, 32], [24, 25, 33], [25, 26, 34], [25, 34, 33],
+  [26, 27, 34], [27, 28, 35], [27, 35, 34], [28, 29, 35], [29, 30, 35],
+  [30, 31, 34], [30, 34, 35], [31, 32, 33], [31, 33, 34],
+] as const
+
+function cognitiveZone(x: number): 'live' | 'evidence' | 'authority' {
+  if (x < 220) return 'live'
+  if (x < 315) return 'evidence'
+  return 'authority'
+}
+
 const SURFACE_COPY: Record<Surface, { title: string; subtitle: string }> = {
   intelligence: {
     title: 'Intelligence',
@@ -163,6 +191,108 @@ function ResourceGrid({
   )
 }
 
+function CognitiveField({
+  sourceCount,
+  movementCount,
+  evidenceCount,
+  decisionCount,
+  active,
+}: {
+  readonly sourceCount: number
+  readonly movementCount: number
+  readonly evidenceCount: number
+  readonly decisionCount: number
+  readonly active: boolean
+}) {
+  return (
+    <div
+      className={`atrium-cognitive-field relative hidden min-h-[470px] overflow-hidden lg:block ${active ? 'is-current' : ''}`}
+      aria-label="ACE cognitive field"
+    >
+      <div className="absolute inset-x-8 top-7 z-10 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.18em] text-white/35">
+        <span>Cognitive field</span>
+        <span className="flex items-center gap-2">
+          <span className="atrium-field-heartbeat size-1 rounded-full bg-live" />
+          {active ? 'Current picture' : 'Awaiting intelligence'}
+        </span>
+      </div>
+
+      <svg className="absolute inset-0 size-full" viewBox="0 0 520 430" fill="none" aria-hidden="true">
+        <defs>
+          <radialGradient id="ace-cognition-core">
+            <stop stopColor="var(--foreground)" stopOpacity="0.86" />
+            <stop offset="0.24" stopColor="var(--evidence)" stopOpacity="0.42" />
+            <stop offset="0.68" stopColor="var(--brand)" stopOpacity="0.12" />
+            <stop offset="1" stopColor="var(--brand)" stopOpacity="0" />
+          </radialGradient>
+          <filter id="ace-cognition-soften" x="-100%" y="-100%" width="300%" height="300%">
+            <feGaussianBlur stdDeviation="9" />
+          </filter>
+        </defs>
+
+        <ellipse className="atrium-cognitive-aura" cx="270" cy="210" rx="178" ry="142" fill="url(#ace-cognition-core)" filter="url(#ace-cognition-soften)" />
+
+        <g className="atrium-cognitive-facets">
+          {COGNITIVE_FACETS.map((facet, index) => {
+            const points = facet.map((nodeIndex) => COGNITIVE_NODES[nodeIndex])
+            const averageX = points.reduce((sum, point) => sum + point[0], 0) / points.length
+            return (
+              <polygon
+                key={facet.join('-')}
+                points={points.map((point) => point.join(',')).join(' ')}
+                data-zone={cognitiveZone(averageX)}
+                style={{ animationDelay: `${(index % 9) * -0.47}s` }}
+              />
+            )
+          })}
+        </g>
+
+        <path className="atrium-cognitive-spine" d="M258 86C247 133 277 160 263 204C249 247 280 278 270 326" />
+        <circle className="atrium-cognitive-core" cx="270" cy="211" r="31" />
+        <circle cx="270" cy="211" r="3.5" fill="var(--foreground)" />
+
+        <g className="atrium-cognitive-nodes">
+          {COGNITIVE_NODES.map(([x, y], index) => (
+            <circle
+              key={`${x}-${y}`}
+              cx={x}
+              cy={y}
+              r={index > 29 ? 2.25 : 1.6}
+              data-zone={cognitiveZone(x)}
+              style={{ animationDelay: `${(index % 12) * -0.38}s` }}
+            />
+          ))}
+        </g>
+
+        <g className="atrium-field-particles">
+          <circle cx="76" cy="106" r="1" /><circle cx="92" cy="304" r="1.2" />
+          <circle cx="447" cy="121" r="1" /><circle cx="462" cy="278" r="1.2" />
+          <circle cx="101" cy="220" r="0.8" /><circle cx="435" cy="211" r="0.8" />
+        </g>
+      </svg>
+
+      <div className="absolute bottom-8 left-8 right-8 z-10 grid grid-cols-4 gap-4 border-t border-white/[0.08] pt-4">
+        <div>
+          <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Sources</div>
+          <div className="mt-1 font-mono text-[11px] text-live">{sourceCount} admitted</div>
+        </div>
+        <div>
+          <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Movement</div>
+          <div className="mt-1 font-mono text-[11px] text-live">{movementCount} detected</div>
+        </div>
+        <div>
+          <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Evidence</div>
+          <div className="mt-1 font-mono text-[11px] text-evidence">{evidenceCount} linked</div>
+        </div>
+        <div>
+          <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Openings</div>
+          <div className="mt-1 font-mono text-[11px] text-brand">{decisionCount} ready</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
   const briefs = groups.intelligence.filter((item) => item.reference.resource_kind === 'brief')
   const latestBrief = briefs[0]
@@ -189,77 +319,21 @@ function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroup
             {briefs.length} immutable revision{briefs.length === 1 ? '' : 's'}
           </span>
         </div>
-        <div className="relative z-10 grid min-h-[430px] lg:grid-cols-[minmax(0,1.25fr)_minmax(25rem,0.75fr)]">
-          <div className="flex min-w-0 flex-col justify-center px-5 py-8 md:px-8 md:py-10 lg:pr-4">
+        <div className="relative z-10 grid min-h-[470px] lg:grid-cols-[minmax(0,1.16fr)_minmax(29rem,0.84fr)]">
+          <div className="flex min-w-0 flex-col justify-center px-5 py-10 md:px-9 md:py-14 lg:pr-8">
             {latestBrief === undefined ? (
               <EmptyBuilder onStart={onStart} />
             ) : (
               <ResourceCard record={latestBrief} featured horizon storySections={latestBriefStory} />
             )}
           </div>
-          <div className="relative hidden min-h-[430px] overflow-hidden border-l border-white/[0.07] lg:block" aria-label="Intelligence horizon">
-            <div className="absolute inset-x-7 top-8 flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.16em] text-white/35">
-              <span>Evidence field</span>
-              <span>Decision horizon</span>
-            </div>
-            <svg className="absolute inset-0 size-full" viewBox="0 0 520 430" fill="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="ace-thread-cyan" x1="20" y1="0" x2="480" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="var(--live)" stopOpacity="0.12" />
-                  <stop offset="0.55" stopColor="var(--evidence)" stopOpacity="0.72" />
-                  <stop offset="1" stopColor="var(--brand)" stopOpacity="0.28" />
-                </linearGradient>
-                <radialGradient id="ace-core-glow">
-                  <stop stopColor="var(--foreground)" stopOpacity="0.92" />
-                  <stop offset="0.22" stopColor="var(--live)" stopOpacity="0.84" />
-                  <stop offset="0.58" stopColor="var(--evidence)" stopOpacity="0.42" />
-                  <stop offset="1" stopColor="var(--brand)" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-              <path d="M52 114C168 114 157 206 279 215C375 222 403 139 481 139" stroke="url(#ace-thread-cyan)" strokeWidth="1.2" />
-              <path d="M52 215C157 215 170 215 279 215C390 215 400 215 481 215" stroke="url(#ace-thread-cyan)" strokeWidth="1.2" />
-              <path d="M52 316C168 316 157 224 279 215C375 208 403 291 481 291" stroke="url(#ace-thread-cyan)" strokeWidth="1.2" />
-              <path d="M279 74V356" stroke="white" strokeOpacity="0.055" strokeDasharray="2 7" />
-              <circle cx="279" cy="215" r="100" stroke="var(--brand)" strokeOpacity="0.09" />
-              <circle cx="279" cy="215" r="66" stroke="var(--evidence)" strokeOpacity="0.12" />
-              <circle cx="279" cy="215" r="35" fill="url(#ace-core-glow)" opacity="0.82" />
-              <circle cx="279" cy="215" r="4" fill="var(--foreground)" />
-              <circle cx="52" cy="114" r="3" fill="var(--live)" />
-              <circle cx="52" cy="215" r="3" fill="var(--live)" />
-              <circle cx="52" cy="316" r="3" fill="var(--live)" />
-              <circle cx="481" cy="139" r="3" fill="var(--brand)" />
-              <circle cx="481" cy="215" r="3" fill="var(--brand)" />
-              <circle cx="481" cy="291" r="3" fill="var(--brand)" />
-            </svg>
-            <div className="absolute left-7 top-[5.35rem]">
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Admitted</div>
-              <div className="mt-1 text-sm font-medium text-live">{sourceCount} source{sourceCount === 1 ? '' : 's'}</div>
-            </div>
-            <div className="absolute left-7 top-[11.7rem]">
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Detected</div>
-              <div className="mt-1 text-sm font-medium text-live">{movementCount} movement{movementCount === 1 ? '' : 's'}</div>
-            </div>
-            <div className="absolute left-7 top-[18rem]">
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Preserved</div>
-              <div className="mt-1 text-sm font-medium text-white/75">{latestBrief?.provenance.length ?? 0} evidence links</div>
-            </div>
-            <div className="absolute left-[53.6%] top-[51%] -translate-x-1/2 -translate-y-1/2 text-center">
-              <div className="font-mono text-[8px] uppercase tracking-[0.17em] text-white/45">ACE</div>
-              <div className="mt-10 whitespace-nowrap text-[10px] text-white/45">one current picture</div>
-            </div>
-            <div className="absolute right-7 top-[6.9rem] text-right">
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Orient</div>
-              <div className="mt-1 text-xs font-medium text-white/75">Cited Brief</div>
-            </div>
-            <div className="absolute right-7 top-[11.7rem] text-right">
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Investigate</div>
-              <div className="mt-1 text-xs font-medium text-white/75">Grounded Ask</div>
-            </div>
-            <div className="absolute right-7 top-[16.5rem] text-right">
-              <div className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/35">Decide</div>
-              <div className="mt-1 text-xs font-medium text-brand">{decisionCount} opening{decisionCount === 1 ? '' : 's'}</div>
-            </div>
-          </div>
+          <CognitiveField
+            sourceCount={sourceCount}
+            movementCount={movementCount}
+            evidenceCount={latestBrief?.provenance.length ?? 0}
+            decisionCount={decisionCount}
+            active={latestBrief !== undefined}
+          />
         </div>
       </section>
 

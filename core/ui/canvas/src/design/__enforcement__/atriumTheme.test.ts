@@ -6,6 +6,11 @@ import { describe, expect, it } from 'vitest'
 const INDEX_CSS = path.resolve(__dirname, '..', '..', 'index.css')
 const css = fs.readFileSync(INDEX_CSS, 'utf8')
 const atriumBlock = css.match(/\.atrium-command-center\.dark\s*\{([\s\S]*?)\n\}/)?.[1]
+const ATRIUM_APP = path.resolve(__dirname, '..', '..', 'app', 'atrium')
+const atriumSources = fs.readdirSync(ATRIUM_APP)
+  .filter((name) => name.endsWith('.tsx') && !name.endsWith('.test.tsx'))
+  .map((name) => fs.readFileSync(path.join(ATRIUM_APP, name), 'utf8'))
+  .join('\n')
 
 function token(name: string): string {
   if (atriumBlock === undefined) throw new Error('Atrium theme block is missing')
@@ -64,7 +69,21 @@ describe('Atrium neutral-first theme', () => {
 
   it('keeps Atrium signature compositions scoped to the command center', () => {
     expect(css).toContain('.atrium-horizon {')
+    expect(css).toContain('.atrium-cognitive-field {')
     expect(css).toContain('.atrium-opportunity-aperture {')
+  })
+
+  it('freezes the cognitive field when the user requests reduced motion', () => {
+    expect(css).toContain('@media (prefers-reduced-motion: reduce)')
+    expect(css).toContain('.atrium-cognitive-field.is-current .atrium-cognitive-nodes circle')
+  })
+
+  it('routes interactive Atrium controls through the shared shadcn layer', () => {
+    expect(atriumSources).not.toMatch(/<(button|input|select|textarea|dialog)(\s|>)/)
+    expect(atriumSources).toContain("from '@/design/shadcn/ui/button'")
+    expect(atriumSources).toContain("from '@/design/shadcn/ui/dialog'")
+    expect(atriumSources).toContain("from '@/design/shadcn/ui/input'")
+    expect(atriumSources).toContain("from '@/design/shadcn/ui/sheet'")
   })
 
   it.each([

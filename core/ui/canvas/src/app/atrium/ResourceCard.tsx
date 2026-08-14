@@ -74,9 +74,10 @@ export function ResourceCard({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <button
+        <Button
           type="button"
-          className="group w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          variant="ghost"
+          className="group h-auto w-full justify-start rounded-lg p-0 text-left whitespace-normal hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
           aria-label={`Open ${record.title}`}
         >
           <Card className={horizon ? 'border-0 bg-transparent shadow-none' : featured ? 'border-border bg-card transition-colors duration-200 group-hover:border-foreground/25' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
@@ -204,7 +205,7 @@ export function ResourceCard({
               </div>
             </CardContent>
           </Card>
-        </button>
+        </Button>
       </SheetTrigger>
       <SheetContent className="w-full overflow-y-auto p-0 sm:max-w-xl">
         <SheetHeader className="border-b p-6 text-left">
