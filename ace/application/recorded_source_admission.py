@@ -52,7 +52,12 @@ from ace.intelligence.contracts.resources import (
     IntelligenceResourceMode,
     ObservationV1Alpha1,
 )
-from ace.intelligence.contracts.source_mapping import ResolvedSubjectBindingV1Alpha1
+from ace.intelligence.contracts.source_mapping import (
+    SOURCE_MAPPING_MODULE_VERSION,
+    ResolvedSubjectBindingV1Alpha1,
+    SourceMappingModuleV1,
+)
+from ace.intelligence.packs.runtime import resolve_entity_type_declaration
 from ace.intelligence.source_mapping import interpret_prepared_source_mapping
 
 RECORDED_SOURCE_MATERIAL_VERSION = "ace.application.recorded-source-material/v1alpha1"
@@ -379,6 +384,46 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
             )
         if self.binding.prepared_binding.reference.product_id != self.build.product_id:
             raise RecordedSourceAdmissionError("committed activation crossed the authorized build product")
+
+    def bind_subject(
+        self,
+        *,
+        subject_binding_id: str,
+        entity_type_id: str,
+        entity_ref: str,
+    ) -> ResolvedSubjectBindingV1Alpha1:
+        """Resolve one declared subject identity without exposing activation inputs."""
+
+        try:
+            declared_types = {
+                mapping.entity_type_id
+                for module_ir in self.binding.prepared_binding.pack.modules
+                if module_ir.contract == SOURCE_MAPPING_MODULE_VERSION
+                for mapping in SourceMappingModuleV1.model_validate_json(module_ir.canonical_payload).mappings
+                if mapping.subject_binding_id == subject_binding_id
+            }
+            if len(declared_types) != 1 or entity_type_id not in declared_types:
+                raise RecordedSourceAdmissionError(
+                    "subject binding and entity type must resolve exactly once in the committed Pack"
+                )
+            resolved_entity = resolve_entity_type_declaration(
+                self.binding.prepared_binding,
+                entity_type_id=entity_type_id,
+            )
+            if resolved_entity.entity_type_id != entity_type_id:
+                raise RecordedSourceAdmissionError("subject binding resolved a different Pack entity type")
+            return ResolvedSubjectBindingV1Alpha1(
+                product_id=self.build.product_id,
+                mode=IntelligenceResourceMode.PREPARED,
+                activation_revision=self.binding.prepared_binding.reference,
+                subject_binding_id=subject_binding_id,
+                entity_type_id=entity_type_id,
+                entity_ref=entity_ref,
+            )
+        except RecordedSourceAdmissionError:
+            raise
+        except Exception:
+            raise RecordedSourceAdmissionError("subject binding failed exact committed Pack resolution") from None
 
     def _materials(
         self,

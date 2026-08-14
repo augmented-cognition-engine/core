@@ -34,6 +34,7 @@ if TYPE_CHECKING:
         PreparedShiftSignalDerivationRequestV1Alpha1,
     )
     from ace.application.recorded_source_admission import RecordedSourceAdmission, RecordedSourceMaterialV1Alpha1
+    from ace.intelligence.contracts.source_mapping import ResolvedSubjectBindingV1Alpha1
 
 IntelligenceBuildEffect = Literal[
     "connect_sources",
@@ -213,6 +214,14 @@ class IntelligenceBuildResourcePagePort(Protocol):
 
 class IntelligenceBuildRecordedSourcePort(Protocol):
     """Narrow host capability for the exact recorded material set in one build."""
+
+    def bind_subject(
+        self,
+        *,
+        subject_binding_id: str,
+        entity_type_id: str,
+        entity_ref: str,
+    ) -> "ResolvedSubjectBindingV1Alpha1": ...
 
     async def admit(
         self,
