@@ -18,7 +18,7 @@ The 1.0 identities are:
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `1.0.0`
+- version: `1.0.3` (recommended 1.0 patch)
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -39,8 +39,9 @@ The thin MCP surface contains exactly eleven tools:
 The CLI, thin MCP adapter, public Core/Intelligence/Application packages, authorized Intelligence
 resource plane, inert Domain Pack boundary, persistence migrations, reference extension mechanism,
 and documented provider routes are the compatibility focus for the 1.0 line.
-Atrium is a supported optional repository-delivered preview over the same resource plane. Changes
-to these surfaces receive migration notes when needed.
+Atrium is the supported optional repository-delivered interface over the same resource plane. It
+remains outside the Python wheel and never becomes a second persistence, policy, or authority path.
+Changes to these surfaces receive migration notes when needed.
 
 The supported personal journey selects World, Market, or Custom Intelligence; reviews exact source
 material and required permissions; records activation, readiness, and health; produces and reopens
@@ -217,7 +218,7 @@ independent falsifier, not a condition retroactively added to the released World
 
 ## Implemented architecture beyond the compatibility contract
 
-The broader HTTP and engine MCP APIs, Atrium, worker automation, MAKE/SHIP execution arms,
+The broader HTTP and engine MCP APIs, worker automation, MAKE/SHIP execution arms,
 foresight, calibration, proactive intelligence, continuous-learning paths, and advanced extension
 hooks are implemented parts of ACE. They are not stable 0.3.x contracts: their APIs, supported
 end-to-end journeys, and compatibility guarantees can change. This maturity label limits the public
@@ -270,10 +271,11 @@ all-controls interval rule. L1 is therefore passed for the frozen executable-wor
 human, customer, external-product, provider, and general real-world benefit remain unsupported. See the
 [L1 evidence gate](evidence/l1-foresight-impact-evidence.md).
 
-Atrium is a supported repository-delivered developer-preview workspace. It consumes the same
-authorized Intelligence resource plane as machine clients and is covered by repository tests and
-production-build acceptance. It remains optional, is not included in the Python wheel or sdist,
-and is never an authoritative state, policy, or effect path.
+Atrium is a supported repository-delivered workspace for the 1.0 single-user journey. It consumes
+the same authorized Intelligence resource plane as machine clients and is covered by repository
+tests, production-build acceptance, and the public 1.0 release closeout. It remains optional, is
+not included in the Python wheel or sdist, and is never an authoritative state, policy, or effect
+path.
 
 ## Promotion rule
 

@@ -5,16 +5,16 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The current-release assertions preserve published 0.8.3 while admitting the bounded 1.0
-# candidate. Historical 0.4.1 GI2,
+# The current-release assertions preserve published 1.0.3 while keeping the stable 1.0 claim
+# bounded. Historical 0.4.1 GI2,
 # 0.4.2 builder-surface, 0.4.4 GC1, 0.5.0 T1/B1, and P1/P2 identities remain exact point-in-time
 # evidence. Keep these aligned with test_evidence_index_integrity.py.
 
 
-def test_current_release_and_passed_milestone_are_not_conflated() -> None:
-    assert "latest published release is [`ace-core` 0.8.3]" in ROADMAP
+def test_current_release_and_passed_milestone_are_reconciled() -> None:
+    assert "latest published release is [`ace-core` 1.0.3]" in ROADMAP
     assert "passed 0.8.2 patch adds the Atrium Intelligence Catalog" in ROADMAP
-    assert "current 1.0.0 release candidate" in ROADMAP
+    assert "The 1.0 public-artifact acceptance is **passed**" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
     assert "| 0.4.0 | Governed Cognition | **Delivered** |" not in ROADMAP
     assert "| 0.4.0 | Governed Cognition | **Now** |" not in ROADMAP
@@ -25,7 +25,7 @@ def test_current_release_and_passed_milestone_are_not_conflated() -> None:
     assert "ACE 1.0 is stable for the documented single-user, single-node topology" in " ".join(readme.split())
     assert "| 0.8.0 | Intelligence OS Realignment | **Passed** |" in ROADMAP
     assert "| 0.9.0 | Single-user Intelligence Builder | **Passed** |" in ROADMAP
-    assert "| 1.0.0 | Personal Intelligence Operating System | **Candidate** |" in ROADMAP
+    assert "| 1.0.0 | Personal Intelligence Operating System | **Passed** |" in ROADMAP
 
 
 def test_090_and_100_are_complete_single_user_products() -> None:
