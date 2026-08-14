@@ -333,6 +333,17 @@ from ace.application.intelligence_build_first_brief import (
     IntelligenceBuildFirstBriefOutcome,
     IntelligenceBuildFirstBriefRequestV1Alpha1,
 )
+from ace.application.intelligence_build_planning import (
+    INTELLIGENCE_BUILD_PLAN_REQUEST_VERSION,
+    INTELLIGENCE_BUILD_PLAN_VERSION,
+    INTELLIGENCE_BUILD_PLANNER_CONTRACT,
+    INTELLIGENCE_BUILD_PLANNING_CAPABILITY,
+    IntelligenceBuildPlanner,
+    IntelligenceBuildPlanRequestV1Alpha1,
+    IntelligenceBuildPlanV1Alpha1,
+    intelligence_build_execution_identity,
+    validate_intelligence_build_planner_registration,
+)
 from ace.application.intelligence_builder import (
     ConnectionAgent,
     ConnectionAgentError,
@@ -849,6 +860,15 @@ __all__ = [
     "IntelligenceBuildResourcePagePort",
     "IntelligenceBuildRecordedSourcePort",
     "IntelligenceBuildStartV1",
+    "INTELLIGENCE_BUILD_PLAN_REQUEST_VERSION",
+    "INTELLIGENCE_BUILD_PLAN_VERSION",
+    "INTELLIGENCE_BUILD_PLANNER_CONTRACT",
+    "INTELLIGENCE_BUILD_PLANNING_CAPABILITY",
+    "IntelligenceBuildPlanRequestV1Alpha1",
+    "IntelligenceBuildPlanner",
+    "IntelligenceBuildPlanV1Alpha1",
+    "intelligence_build_execution_identity",
+    "validate_intelligence_build_planner_registration",
     "AuthorizedIntelligenceBuild",
     "ProductScopedImmutableRecordStore",
     "CoreRecordedSourceAdmissionService",
