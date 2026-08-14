@@ -27,8 +27,22 @@ def test_cli_help():
     assert "intel" in result.output
     assert "search" in result.output
     assert "status" in result.output
+    assert "recovery" in result.output
     assert "landscape" in result.output
     assert "skills" not in result.output
+
+
+def test_cli_recovery_help_exposes_bounded_backup_and_restore():
+    """Installed users can discover the supported recovery commands."""
+    from core.engine.cli.main import cli
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["recovery", "--help"])
+
+    assert result.exit_code == 0, result.output
+    assert "complete ACE database" in result.output
+    assert "backup" in result.output
+    assert "restore" in result.output
 
 
 def test_legacy_skills_command_remains_callable_when_hidden():
