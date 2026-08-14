@@ -73,6 +73,21 @@ async def test_on_event_evaluates_rules_when_aligned():
 
 
 @pytest.mark.asyncio
+async def test_load_themes_uses_the_current_theme_table():
+    db = AsyncMock()
+    db.query.return_value = [{"name": "growth", "status": "active"}]
+    conductor = Conductor(_make_pool(db))
+
+    themes = await conductor._load_themes(db, "product:test")
+
+    assert themes == [{"name": "growth", "status": "active"}]
+    query = db.query.await_args.args[0]
+    assert "FROM theme" in query
+    assert "product_map" not in query
+    assert db.query.await_args.args[1] == {"product": "product:test"}
+
+
+@pytest.mark.asyncio
 async def test_on_event_failure_rollback():
     """If an action fails, the track state should be rolled back."""
     db = AsyncMock()

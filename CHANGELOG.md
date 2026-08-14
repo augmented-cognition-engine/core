@@ -2,6 +2,16 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.0.3
+
+### Quiet clean-runtime heartbeat
+
+- Read active product themes from the canonical `theme` table during Conductor context assembly,
+  removing the recurring fresh-install heartbeat error caused by the long-retired `product_map`
+  table name.
+- Add a focused query-contract regression so the scheduled heartbeat cannot drift back to the
+  removed table.
+
 ## 1.0.2
 
 ### Durable runtime authority use
