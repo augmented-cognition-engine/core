@@ -17,6 +17,10 @@ from ace.application.intelligence_agent_contracts import (
     IntelligenceModelDispositionV1,
     IntelligenceModelProposalV1,
 )
+from ace.application.intelligence_builder_activation_contracts import (
+    BuilderActivationPlanArtifactV1,
+    BuilderActivationReceiptArtifactV1,
+)
 from ace.application.intelligence_builder_contracts import (
     ONBOARDING_SESSION_REVISION_VERSION,
     ConnectionEffect,
@@ -57,6 +61,8 @@ OnboardingArtifact = (
     | IntelligenceModelProposalV1
     | IntelligenceModelDispositionV1
     | FirstBriefingPreviewV1
+    | BuilderActivationPlanArtifactV1
+    | BuilderActivationReceiptArtifactV1
 )
 OnboardingArtifactT = TypeVar(
     "OnboardingArtifactT",
@@ -68,6 +74,8 @@ OnboardingArtifactT = TypeVar(
     IntelligenceModelProposalV1,
     IntelligenceModelDispositionV1,
     FirstBriefingPreviewV1,
+    BuilderActivationPlanArtifactV1,
+    BuilderActivationReceiptArtifactV1,
 )
 
 
@@ -216,6 +224,10 @@ def _artifact_material(artifact: OnboardingArtifact) -> tuple[str, str, datetime
         return str(artifact.disposition_id), str(artifact.disposition_digest), artifact.approved_at
     if isinstance(artifact, FirstBriefingPreviewV1):
         return str(artifact.brief_id), str(artifact.brief_digest), artifact.generated_at
+    if isinstance(artifact, BuilderActivationPlanArtifactV1):
+        return str(artifact.artifact_id), str(artifact.artifact_digest), artifact.created_at
+    if isinstance(artifact, BuilderActivationReceiptArtifactV1):
+        return str(artifact.artifact_id), str(artifact.artifact_digest), artifact.activated_at
     raise TypeError("unsupported onboarding artifact contract")
 
 
@@ -236,6 +248,10 @@ def _artifact_kind(artifact: OnboardingArtifact) -> OnboardingArtifactKind:
         return OnboardingArtifactKind.INTELLIGENCE_MODEL_DISPOSITION
     if isinstance(artifact, FirstBriefingPreviewV1):
         return OnboardingArtifactKind.FIRST_BRIEFING_PREVIEW
+    if isinstance(artifact, BuilderActivationPlanArtifactV1):
+        return OnboardingArtifactKind.ACTIVATION_PLAN
+    if isinstance(artifact, BuilderActivationReceiptArtifactV1):
+        return OnboardingArtifactKind.ACTIVATION_RECEIPT
     raise TypeError("unsupported onboarding artifact contract")
 
 
@@ -305,6 +321,10 @@ class IntelligenceBuilderSessionService:
             exact = IntelligenceModelDispositionV1.model_validate(artifact.model_dump(mode="python"))
         elif isinstance(artifact, FirstBriefingPreviewV1):
             exact = FirstBriefingPreviewV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, BuilderActivationPlanArtifactV1):
+            exact = BuilderActivationPlanArtifactV1.model_validate(artifact.model_dump(mode="python"))
+        elif isinstance(artifact, BuilderActivationReceiptArtifactV1):
+            exact = BuilderActivationReceiptArtifactV1.model_validate(artifact.model_dump(mode="python"))
         else:
             raise IntelligenceBuilderSessionError("unsupported onboarding artifact failed closed")
         artifact_id, artifact_digest, occurred_at = _artifact_material(exact)
@@ -539,6 +559,18 @@ class IntelligenceBuilderSessionService:
             ):
                 raise IntelligenceBuilderSessionError("onboarding session history lost exact chain continuity")
         return revisions[-1]
+
+    async def reload_admission(
+        self,
+        revision: IntelligenceBuilderSessionRevisionV1,
+    ) -> IntelligenceBuilderSessionAdmission:
+        """Reopen one exact durable session revision and its append receipt."""
+
+        validated = IntelligenceBuilderSessionRevisionV1.model_validate(revision.model_dump(mode="python"))
+        admission = await self._replay(validated)
+        if admission is None:
+            raise IntelligenceBuilderSessionError("onboarding revision is not durably admitted")
+        return admission
 
     async def start(
         self,

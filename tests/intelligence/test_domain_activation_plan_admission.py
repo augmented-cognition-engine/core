@@ -8,8 +8,13 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
-from ace.application.domain_activation import DomainActivationAdmissionService
+from ace.application.domain_activation import (
+    LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
+    DomainActivationAdmissionService,
+)
+from ace.application.domain_activation_compatibility import DomainActivationCompatibilityService
 from ace.application.domain_activation_plan import (
+    DOMAIN_ACTIVATION_PLAN_STATE_KIND,
     DomainActivationPlanAdmissionError,
     DomainActivationPlanAdmissionService,
     activation_commit_reference,
@@ -24,6 +29,11 @@ from ace.application.domain_activation_plan_contracts import (
     DomainActivationCommitReferenceV1Alpha2,
     DomainActivationRevisionV1Alpha2,
     IntelligenceActivationPlanV1Alpha2,
+)
+from ace.application.intelligence_builder import IntelligenceBuilderSessionService
+from ace.application.intelligence_builder_activation import (
+    IntelligenceBuilderActivationError,
+    IntelligenceBuilderActivationService,
 )
 from ace.core.state import (
     GovernedStateCommitReceiptV1,
@@ -299,7 +309,7 @@ def _pack_material():
     return _encoded(manifest), resources, _encoded(fixture)
 
 
-def _activation_material():
+def _activation_material(*, product_id="product:activation-fixture"):
     manifest, resources, fixture = _pack_material()
     pack = compile_pack_document(manifest, resources)
     conformance = run_domain_pack_conformance(
@@ -331,7 +341,7 @@ def _activation_material():
         grant_ref="authority_grant:fixture-read",
     )
     spec = prepare_domain_activation(
-        product_id="product:activation-fixture",
+        product_id=product_id,
         activation_key="fixture",
         pack=pack,
         overlay=overlay,
@@ -520,6 +530,162 @@ async def test_exact_plan_is_approval_subject_and_restart_receipt_material():
     assert lineage.commit_receipt_id == committed.commit_receipt.receipt_id
     assert lineage.authority_stage == "historical_reference"
     assert lineage.live_authority is False
+
+
+@pytest.mark.asyncio
+async def test_v1alpha2_reload_accepts_only_matching_legacy_material():
+    pack, conformance, spec = _activation_material()
+    _, handoff, watch_admission = await _watch_material()
+    created = datetime(2026, 8, 11, 12, tzinfo=UTC)
+    revision = _revision(
+        plan=_plan(
+            spec=spec,
+            action=ActivationPlanAction.INITIAL_ACTIVATION,
+            created_at=created,
+            handoff=handoff,
+        ),
+        revision=1,
+        occurred_at=created + timedelta(minutes=1),
+    )
+    store = _MemoryStore()
+    committed = await DomainActivationPlanAdmissionService(store=store, authority=_Authority()).admit(
+        revision,
+        pack=pack,
+        conformance_receipts=(conformance,),
+        committed_at=revision.occurred_at + timedelta(seconds=1),
+        **watch_admission,
+    )
+    key = (DOMAIN_ACTIVATION_PLAN_STATE_KIND, spec.product_id, str(revision.activation_id))
+    head = store.heads.pop(key)
+    envelope = store.revisions[(spec.product_id, str(revision.revision_id))]
+    store.revisions[(spec.product_id, str(revision.revision_id))] = envelope.model_copy(
+        update={"state_kind": LEGACY_DOMAIN_ACTIVATION_STATE_KIND}
+    )
+    receipt = committed.commit_receipt
+    receipt_material = receipt.model_dump(mode="python", exclude={"audit_id", "receipt_id", "receipt_hash"})
+    receipt_material["state_kind"] = LEGACY_DOMAIN_ACTIVATION_STATE_KIND
+    legacy_receipt = type(receipt).model_validate(receipt_material)
+    del store.receipts[(spec.product_id, receipt.receipt_id)]
+    store.receipts[(spec.product_id, legacy_receipt.receipt_id)] = legacy_receipt
+    legacy_head = type(head).model_validate(
+        {
+            **head.model_dump(mode="python", exclude={"head_id", "commit_receipt_id", "state_kind"}),
+            "state_kind": LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
+            "commit_receipt_id": legacy_receipt.receipt_id,
+        }
+    )
+    store.heads[(LEGACY_DOMAIN_ACTIVATION_STATE_KIND, spec.product_id, str(revision.activation_id))] = legacy_head
+
+    reopened = await DomainActivationPlanAdmissionService(store=store, authority=_Authority()).reload(
+        product_id=spec.product_id,
+        activation_key=spec.activation_key,
+    )
+    assert reopened is not None
+    assert reopened.commit_receipt.state_kind == LEGACY_DOMAIN_ACTIVATION_STATE_KIND
+
+    store.revisions[(spec.product_id, str(revision.revision_id))] = envelope.model_copy(
+        update={"state_kind": LEGACY_DOMAIN_ACTIVATION_STATE_KIND, "payload_contract": "wrong.contract/v1"}
+    )
+    with pytest.raises(DomainActivationPlanAdmissionError, match="mixed v1alpha1/v1alpha2"):
+        await DomainActivationPlanAdmissionService(store=store, authority=_Authority()).reload(
+            product_id=spec.product_id,
+            activation_key=spec.activation_key,
+        )
+
+
+class _PackResolver:
+    def __init__(self, pack):
+        self.pack = pack
+
+    async def load_exact(self, *, reference):
+        if (
+            self.pack.metadata.pack_id == reference.pack_id
+            and self.pack.metadata.version == reference.pack_version
+            and self.pack.compiled_pack_id == reference.compiled_pack_id
+            and self.pack.pack_digest == reference.pack_digest
+        ):
+            return self.pack
+        return None
+
+
+@pytest.mark.asyncio
+async def test_builder_bootstrap_coexists_replays_and_revocation_fails_closed():
+    watch, handoff, watch_admission = await _watch_material()
+    product_id = watch.briefing.session.revision.product_id
+    pack, conformance, spec = _activation_material(product_id=product_id)
+    created = watch.briefing.session.revision.occurred_at + timedelta(seconds=1)
+    plan = _plan(
+        spec=spec,
+        action=ActivationPlanAction.INITIAL_ACTIVATION,
+        created_at=created,
+        handoff=handoff,
+    )
+    revision = _revision(plan=plan, revision=1, occurred_at=created + timedelta(seconds=2))
+    authority = _Authority(approved_at=created + timedelta(seconds=1))
+    governed = _MemoryStore()
+    plans = DomainActivationPlanAdmissionService(store=governed, authority=authority)
+    committed_plan = await plans.admit(
+        revision,
+        pack=pack,
+        conformance_receipts=(conformance,),
+        committed_at=revision.occurred_at + timedelta(seconds=1),
+        **watch_admission,
+    )
+    service = IntelligenceBuilderActivationService(
+        sessions=IntelligenceBuilderSessionService(store=watch.mapped.store),
+        plans=plans,
+        compatibility=DomainActivationCompatibilityService(authority=authority),
+        canonical=DomainActivationAdmissionService(store=governed, authority=authority),
+        packs=_PackResolver(pack),
+    )
+    recorded = await service.record_current_plan(
+        product_id=product_id,
+        session_id=watch.briefing.session.revision.session_id,
+        committed=committed_plan,
+        pack=spec.pack,
+        recorded_at=revision.occurred_at + timedelta(seconds=2),
+    )
+    first = await service.activate(
+        product_id=product_id,
+        session_id=recorded.session.revision.session_id,
+        activation_approval_receipt_ref="approval:canonical-spec",
+        evaluated_at=revision.occurred_at + timedelta(seconds=3),
+    )
+    replay = await service.activate(
+        product_id=product_id,
+        session_id=recorded.session.revision.session_id,
+        activation_approval_receipt_ref="approval:canonical-spec",
+        evaluated_at=revision.occurred_at + timedelta(seconds=4),
+    )
+
+    assert committed_plan.commit_receipt.state_kind == "domain_activation_plan_v1alpha2"
+    assert first.binding.commit_receipt.state_kind == "domain_activation_v1alpha1"
+    assert first.binding.prepared_binding.revision.activation_id == committed_plan.revision.activation_id
+    assert replay.binding == first.binding
+    assert replay.receipt_artifact == first.receipt_artifact
+    assert replay.replayed is True
+    assert replay.session.revision.stage.value == "active"
+
+    class _Revoked(_Authority):
+        async def resolve_approval(self, **kwargs):
+            if kwargs["receipt_ref"] == "approval:canonical-spec":
+                raise PermissionError("revoked")
+            return await super().resolve_approval(**kwargs)
+
+    revoked = _Revoked(approved_at=created + timedelta(seconds=1))
+    with pytest.raises(IntelligenceBuilderActivationError):
+        await IntelligenceBuilderActivationService(
+            sessions=IntelligenceBuilderSessionService(store=watch.mapped.store),
+            plans=DomainActivationPlanAdmissionService(store=governed, authority=revoked),
+            compatibility=DomainActivationCompatibilityService(authority=revoked),
+            canonical=DomainActivationAdmissionService(store=governed, authority=revoked),
+            packs=_PackResolver(pack),
+        ).activate(
+            product_id=product_id,
+            session_id=recorded.session.revision.session_id,
+            activation_approval_receipt_ref="approval:canonical-spec",
+            evaluated_at=revision.occurred_at + timedelta(seconds=5),
+        )
 
 
 def test_plan_identity_changes_for_effect_or_capability_material_and_drift_fails_closed():
@@ -834,7 +1000,7 @@ async def test_mixed_v1alpha1_history_and_stale_conformance_fail_closed():
         handoff=handoff,
     )
     revision = _revision(plan=plan, revision=2, occurred_at=start + timedelta(minutes=2))
-    with pytest.raises(DomainActivationPlanAdmissionError, match="mixed v1alpha1/v1alpha2"):
+    with pytest.raises(DomainActivationPlanAdmissionError, match="requires a current v1alpha2 head"):
         await DomainActivationPlanAdmissionService(store=store, authority=_Authority()).admit(
             revision,
             pack=pack,

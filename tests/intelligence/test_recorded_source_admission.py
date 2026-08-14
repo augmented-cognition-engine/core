@@ -67,7 +67,11 @@ async def _stack():
         updated_at=ADMITTED_AT - timedelta(minutes=1),
     )
     activation_head = activation_store.heads[
-        ("domain_activation", PRODUCT, str(binding.prepared_binding.revision.activation_id))
+        (
+            binding.commit_receipt.state_kind,
+            PRODUCT,
+            str(binding.prepared_binding.revision.activation_id),
+        )
     ]
     records = InMemoryImmutableRecordStore(
         governed_state_heads={

@@ -11,7 +11,6 @@ from urllib.parse import urlsplit
 from pydantic import TypeAdapter
 
 from ace.application.domain_activation import (
-    DOMAIN_ACTIVATION_STATE_KIND,
     DomainActivationAdmissionError,
     DomainActivationAdmissionService,
     bind_committed_activation,
@@ -131,7 +130,7 @@ def _activation_head(committed) -> GovernedStateHeadPreconditionV1Alpha1:
     if revision.activation_id is None or revision.revision_id is None or receipt.receipt_id is None:
         raise LiveSourceIngressError("committed activation is missing exact head coordinates")
     return GovernedStateHeadPreconditionV1Alpha1(
-        state_kind=DOMAIN_ACTIVATION_STATE_KIND,
+        state_kind=receipt.state_kind,
         product_id=revision.spec.product_id,
         state_id=revision.activation_id,
         sequence=revision.revision,

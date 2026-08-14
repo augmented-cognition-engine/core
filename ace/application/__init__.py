@@ -330,6 +330,19 @@ from ace.application.intelligence_builder import (
     IntelligenceBuilderSessionService,
     RegisteredSourceOptionProvider,
 )
+from ace.application.intelligence_builder_activation import (
+    BuilderActivationBootstrapOutcome,
+    BuilderActivationPlanAdmission,
+    ExactCompiledPackResolver,
+    IntelligenceBuilderActivationError,
+    IntelligenceBuilderActivationService,
+)
+from ace.application.intelligence_builder_activation_contracts import (
+    BUILDER_ACTIVATION_PLAN_ARTIFACT_VERSION,
+    BUILDER_ACTIVATION_RECEIPT_ARTIFACT_VERSION,
+    BuilderActivationPlanArtifactV1,
+    BuilderActivationReceiptArtifactV1,
+)
 from ace.application.intelligence_builder_contracts import (
     ConnectionEffect,
     IntelligenceBuilderSessionRevisionV1,
@@ -785,6 +798,15 @@ __all__ = [
     "IMPACT_PROPOSAL_DISPOSITION_DECISION_TYPE",
     "IMPACT_PROPOSAL_DISPOSITION_RECORD_KIND",
     "IntelligenceBuilderArtifactAdmission",
+    "BuilderActivationBootstrapOutcome",
+    "BuilderActivationPlanAdmission",
+    "BuilderActivationPlanArtifactV1",
+    "BuilderActivationReceiptArtifactV1",
+    "BUILDER_ACTIVATION_PLAN_ARTIFACT_VERSION",
+    "BUILDER_ACTIVATION_RECEIPT_ARTIFACT_VERSION",
+    "ExactCompiledPackResolver",
+    "IntelligenceBuilderActivationError",
+    "IntelligenceBuilderActivationService",
     "IntelligenceBuilderSessionAdmission",
     "IntelligenceBuilderSessionError",
     "IntelligenceBuilderSessionReplayConflict",

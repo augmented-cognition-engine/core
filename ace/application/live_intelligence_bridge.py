@@ -8,7 +8,6 @@ from typing import Protocol
 from pydantic import BaseModel, TypeAdapter
 
 from ace.application.domain_activation import (
-    DOMAIN_ACTIVATION_STATE_KIND,
     CommittedActivationBinding,
     DomainActivationAdmissionService,
     bind_committed_activation,
@@ -160,7 +159,7 @@ def _activation_precondition(
     revision = binding.prepared_binding.revision
     receipt = binding.commit_receipt
     return GovernedStateHeadPreconditionV1Alpha1(
-        state_kind=DOMAIN_ACTIVATION_STATE_KIND,
+        state_kind=receipt.state_kind,
         product_id=revision.spec.product_id,
         state_id=str(revision.activation_id),
         sequence=revision.revision,

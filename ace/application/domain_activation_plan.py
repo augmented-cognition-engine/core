@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Literal
 
 from ace.application.briefing_agent_contracts import FirstBriefingPreviewV1
-from ace.application.domain_activation import DOMAIN_ACTIVATION_STATE_KIND
+from ace.application.domain_activation import LEGACY_DOMAIN_ACTIVATION_STATE_KIND
 from ace.application.domain_activation_plan_contracts import (
     DOMAIN_ACTIVATION_REVISION_V1ALPHA2_VERSION,
     ActivationOnboardingHandoffV1Alpha2,
@@ -46,6 +46,9 @@ from ace.intelligence.packs.compiler import negotiate_pack_compatibility
 
 class DomainActivationPlanAdmissionError(RuntimeError):
     """Exact-plan activation material failed closed before durable effect."""
+
+
+DOMAIN_ACTIVATION_PLAN_STATE_KIND = "domain_activation_plan_v1alpha2"
 
 
 @dataclass(frozen=True, slots=True)
@@ -300,7 +303,7 @@ def _envelope(revision: DomainActivationRevisionV1Alpha2) -> GovernedStateRevisi
     ):
         raise DomainActivationPlanAdmissionError("v1alpha2 activation material is missing a derived identity")
     return GovernedStateRevisionV1(
-        state_kind=DOMAIN_ACTIVATION_STATE_KIND,
+        state_kind=DOMAIN_ACTIVATION_PLAN_STATE_KIND,
         product_id=revision.plan.spec.product_id,
         state_id=revision.activation_id,
         sequence=revision.revision,
@@ -320,7 +323,6 @@ def _validate_committed_pair(
     receipt = _revalidate_commit_receipt(receipt)
     envelope = _envelope(revision)
     expected = {
-        "state_kind": envelope.state_kind,
         "product_id": envelope.product_id,
         "state_id": envelope.state_id,
         "sequence": envelope.sequence,
@@ -328,7 +330,9 @@ def _validate_committed_pair(
         "material_hash": envelope.material_hash,
         "prior_revision_id": envelope.prior_revision_id,
     }
-    if any(getattr(receipt, name) != value for name, value in expected.items()):
+    if receipt.state_kind not in {DOMAIN_ACTIVATION_PLAN_STATE_KIND, LEGACY_DOMAIN_ACTIVATION_STATE_KIND} or any(
+        getattr(receipt, name) != value for name, value in expected.items()
+    ):
         raise DomainActivationPlanAdmissionError(
             "Core commit receipt does not bind the exact v1alpha2 activation revision"
         )
@@ -444,7 +448,6 @@ def _parse_persisted_revision(
     expected = _envelope(revision)
     fields = (
         "contract",
-        "state_kind",
         "product_id",
         "state_id",
         "sequence",
@@ -454,7 +457,9 @@ def _parse_persisted_revision(
         "approval_subject_ref",
         "payload_contract",
     )
-    if any(getattr(expected, name) != getattr(envelope, name) for name in fields):
+    if envelope.state_kind not in {DOMAIN_ACTIVATION_PLAN_STATE_KIND, LEGACY_DOMAIN_ACTIVATION_STATE_KIND} or any(
+        getattr(expected, name) != getattr(envelope, name) for name in fields
+    ):
         raise DomainActivationPlanAdmissionError("persisted envelope does not match exact v1alpha2 activation material")
     return revision
 
@@ -471,7 +476,7 @@ class DomainActivationPlanAdmissionService:
         revision: DomainActivationRevisionV1Alpha2,
     ) -> DomainActivationRevisionV1Alpha2 | None:
         head = await self.store.load_head(
-            state_kind=DOMAIN_ACTIVATION_STATE_KIND,
+            state_kind=DOMAIN_ACTIVATION_PLAN_STATE_KIND,
             product_id=revision.plan.spec.product_id,
             state_id=str(revision.activation_id),
         )
@@ -669,10 +674,16 @@ class DomainActivationPlanAdmissionService:
 
         activation_id = f"domain_activation:{canonical_hash([product_id, activation_key])[:32]}"
         head = await self.store.load_head(
-            state_kind=DOMAIN_ACTIVATION_STATE_KIND,
+            state_kind=DOMAIN_ACTIVATION_PLAN_STATE_KIND,
             product_id=product_id,
             state_id=activation_id,
         )
+        if head is None:
+            head = await self.store.load_head(
+                state_kind=LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
+                product_id=product_id,
+                state_id=activation_id,
+            )
         if head is None:
             return None
         envelope = await self.store.load_revision(head.revision_id, product_id=product_id)
@@ -699,6 +710,7 @@ __all__ = [
     "CommittedDomainActivationPlan",
     "DomainActivationPlanAdmissionError",
     "DomainActivationPlanAdmissionService",
+    "DOMAIN_ACTIVATION_PLAN_STATE_KIND",
     "activation_commit_reference",
     "prepare_activation_onboarding_handoff",
     "validate_activation_commit_reference",
