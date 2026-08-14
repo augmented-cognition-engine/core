@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-ARG ACE_VERSION=1.0.0
+ARG ACE_VERSION=1.0.1
 LABEL org.opencontainers.image.title="ace-core" \
       org.opencontainers.image.version="${ACE_VERSION}" \
       org.opencontainers.image.source="https://github.com/augmented-cognition-engine/core"

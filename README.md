@@ -11,7 +11,7 @@ monitors, and an intelligence system that improves with governed feedback. ACE i
 provenance, authority, durable state, and exact receipts stay built into the result instead of
 becoming infrastructure every product team must recreate.
 
-![version 1.0.0](https://img.shields.io/badge/version-1.0.0-blue)
+![version 1.0.1](https://img.shields.io/badge/version-1.0.1-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: stable single-user](https://img.shields.io/badge/status-stable%20single--user-green)

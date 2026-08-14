@@ -2,6 +2,16 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.0.1
+
+### Durable local-owner restart verification
+
+- Accept the JSON-shaped representation returned by SurrealDB when re-validating the four fixed
+  local-owner grants after an API restart, while retaining exact material-hash, approved-material,
+  lineage, and receipt comparisons that fail closed on any real change.
+- Add regression coverage that forces every governed-state record through the same JSON boundary
+  as durable storage before the idempotent bootstrap recheck.
+
 ## 1.0.0
 
 ### Stable single-user Intelligence OS

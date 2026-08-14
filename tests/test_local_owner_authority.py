@@ -68,6 +68,23 @@ class InMemoryGovernedStateStore:
         return self.receipts.get((product_id, receipt_id))
 
 
+class JsonRoundTripGovernedStateStore(InMemoryGovernedStateStore):
+    """Mirror the JSON-shaped values returned by the durable SurrealDB adapter."""
+
+    async def commit(self, request):
+        receipt = await super().commit(request)
+        self.heads = {
+            key: type(value).model_validate_json(value.model_dump_json()) for key, value in self.heads.items()
+        }
+        self.revisions = {
+            key: type(value).model_validate_json(value.model_dump_json()) for key, value in self.revisions.items()
+        }
+        self.receipts = {
+            key: type(value).model_validate_json(value.model_dump_json()) for key, value in self.receipts.items()
+        }
+        return receipt
+
+
 def _owner() -> dict:
     return {
         "sub": LOCAL_OWNER_ACTOR_REF,
@@ -105,6 +122,22 @@ async def test_bootstrap_creates_then_verifies_four_fixed_product_scoped_grants(
         assert grant.expires_at is None
         assert receipt.authority_grants[0].grant_ref == spec.grant_ref
         assert receipt.authority_grants[0].grant_hash == grant.grant_hash
+
+
+@pytest.mark.asyncio
+async def test_bootstrap_verifies_grants_after_durable_json_round_trip():
+    store = JsonRoundTripGovernedStateStore()
+
+    created = await bootstrap_local_owner_authority(user=_owner(), store=store, approved_at=NOW)
+    verified = await bootstrap_local_owner_authority(
+        user=_owner(),
+        store=store,
+        approved_at=NOW + timedelta(hours=1),
+    )
+
+    assert [item.status for item in created.grants] == ["created"] * 4
+    assert [item.status for item in verified.grants] == ["verified"] * 4
+    assert len(store.heads) == 4
 
 
 @pytest.mark.asyncio
