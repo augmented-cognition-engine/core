@@ -38,6 +38,7 @@ import type {
   IntelligenceOnboardingProfile,
   IntelligenceOnboardingSourceGroup,
 } from './onboardingModel'
+import { isCustomPreviewProfile } from './onboardingModel'
 
 const ICONS: Record<string, typeof Compass> = {
   choice: Gauge,
@@ -58,8 +59,9 @@ const SOURCE_ICONS: Record<string, typeof Database> = {
 }
 
 const STEP_LABELS = ['Choose', 'Intent', 'Evidence', 'Review', 'Build'] as const
+const CUSTOM_PREVIEW_STEP_LABELS = ['Choose', 'Intent', 'Evidence', 'Review', 'Preview'] as const
 
-type BuildState = 'complete' | 'active' | 'blocked' | 'waiting' | 'proposed'
+type BuildState = 'complete' | 'active' | 'blocked' | 'waiting' | 'proposed' | 'preview'
 
 interface BuildLane {
   readonly label: string
@@ -145,6 +147,15 @@ function buildLanes(session: IntelligenceBuilderSession | null, watchCount: numb
   return lanes
 }
 
+function customPreviewLanes(watchCount: number | 'Custom'): readonly BuildLane[] {
+  return [
+    { label: 'Recommend an evidence mix', result: 'Public evidence roles proposed for review', state: 'proposed' },
+    { label: 'Draft the concept model', result: 'Entities, concepts, and relationships proposed', state: 'proposed' },
+    { label: 'Draft the watch model', result: `${watchCount} starting areas proposed`, state: 'proposed' },
+    { label: 'Activate and assemble a first cited Brief', result: 'Not supported for Custom Intelligence in v1', state: 'preview' },
+  ]
+}
+
 export function OnboardingPreview({
   open,
   onOpenChange,
@@ -180,13 +191,17 @@ export function OnboardingPreview({
     [profile.source_groups, sourceGroupIds],
   )
   const proposedSourceCount = selectedSourceGroups.reduce((total, group) => total + group.source_ids.length, 0)
+  const customPreview = isCustomPreviewProfile(profile)
   const activeSession = profile.profile_id === profiles[0]?.profile_id ? session : null
   const firstBriefReady = activeSession !== null && STAGE_RANK[activeSession.stage] >= STAGE_RANK.first_briefing_ready
-  const lanes = buildLanes(activeSession, outcome.recommended_topic_labels.length || 'Custom')
+  const lanes = customPreview
+    ? customPreviewLanes(outcome.recommended_topic_labels.length || 'Custom')
+    : buildLanes(activeSession, outcome.recommended_topic_labels.length || 'Custom')
   const evidenceRequired = profile.source_groups.length > 0
   const canContinue = step === 1
     ? subject.trim().length >= 8
     : step !== 2 || !evidenceRequired || selectedSourceGroups.length > 0
+  const stepLabels = customPreview ? CUSTOM_PREVIEW_STEP_LABELS : STEP_LABELS
 
   useEffect(() => {
     if (!profiles.some((item) => item.profile_id === profileId)) setProfileId(profiles[0].profile_id)
@@ -218,6 +233,11 @@ export function OnboardingPreview({
   }
 
   async function build() {
+    if (customPreview) {
+      setBuildError(null)
+      setStep(4)
+      return
+    }
     setBuildPending(true)
     setBuildError(null)
     try {
@@ -250,11 +270,19 @@ export function OnboardingPreview({
               <Sparkles className="size-3.5" /> Build your intelligence
             </div>
             <Badge variant="outline" className="mr-6 rounded-sm font-mono text-[9px]">
-              {buildPending ? 'Building' : step < 4 ? 'Plan review' : activeSession === null ? 'Plan ready' : `Live · step ${activeSession.sequence}`}
+              {customPreview
+                ? 'Custom · Preview'
+                : buildPending
+                  ? 'Building'
+                  : step < 4
+                    ? 'Plan review'
+                    : activeSession === null
+                      ? 'Plan ready'
+                      : `Live · step ${activeSession.sequence}`}
             </Badge>
           </div>
-          <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`Step ${step + 1} of 5: ${STEP_LABELS[step]}`}>
-            {STEP_LABELS.map((label, index) => (
+          <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`Step ${step + 1} of 5: ${stepLabels[step]}`}>
+            {stepLabels.map((label, index) => (
               <div key={label} className="min-w-0">
                 <div className={`h-1 rounded-full ${index <= step ? 'bg-brand' : 'bg-border'}`} />
                 <div className={`mt-1.5 hidden truncate font-mono text-[8px] uppercase tracking-[0.12em] sm:block ${index === step ? 'text-brand' : 'text-muted-foreground'}`}>{label}</div>
@@ -287,7 +315,10 @@ export function OnboardingPreview({
                           <div className={`flex size-9 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}>
                             {item.profile_id.includes('custom') ? <Compass className="size-4" /> : <Sparkles className="size-4" />}
                           </div>
-                          {selected && <Badge variant="outline" className="rounded-sm border-brand/30 font-mono text-[8px] text-brand">Selected</Badge>}
+                          <div className="flex items-center gap-1.5">
+                            {isCustomPreviewProfile(item) && <Badge variant="outline" className="rounded-sm border-[var(--ace-purple-500)]/40 bg-[var(--ace-purple-500)]/10 font-mono text-[8px] text-[var(--ace-purple-300)]">Preview</Badge>}
+                            {selected && <Badge variant="outline" className="rounded-sm border-brand/30 font-mono text-[8px] text-brand">Selected</Badge>}
+                          </div>
                         </div>
                         <div className="mt-5 text-base font-semibold">{item.domain_label}</div>
                         <div className="mt-1 text-xs font-medium text-foreground/85">{item.topic_label}</div>
@@ -296,11 +327,17 @@ export function OnboardingPreview({
                     )
                   })}
               </div>
-              <div className="mt-4 flex items-start gap-3 rounded-lg border border-brand/20 bg-brand/5 p-4">
-                <BookOpenCheck className="mt-0.5 size-4 shrink-0 text-brand" />
+              <div className={`mt-4 flex items-start gap-3 rounded-lg border p-4 ${customPreview ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'border-brand/20 bg-brand/5'}`}>
+                {customPreview
+                  ? <FlaskConical className="mt-0.5 size-4 shrink-0 text-[var(--ace-purple-300)]" />
+                  : <BookOpenCheck className="mt-0.5 size-4 shrink-0 text-brand" />}
                 <div>
-                  <div className="text-xs font-medium text-foreground">{profile.display_name} is ready to specialize.</div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Next, tell ACE what you need to understand or decide. Nothing connects or starts watching until you review the plan.</p>
+                  <div className="text-xs font-medium text-foreground">{customPreview ? 'Custom Intelligence is a proposal preview.' : `${profile.display_name} is ready to specialize.`}</div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    {customPreview
+                      ? 'ACE can draft an evidence mix, concept model, watches, and cadence for review. v1 stops before source activation and does not run a Custom first-Brief executor.'
+                      : 'Next, tell ACE what you need to understand or decide. Nothing connects or starts watching until you review the plan.'}
+                  </p>
                 </div>
               </div>
             </>
@@ -415,11 +452,25 @@ export function OnboardingPreview({
                 <PlanCard label="Evidence" value={profile.source_groups.length > 0 ? `${proposedSourceCount} proposed sources` : 'Recommended public mix'} detail={selectedSourceGroups.length > 0 ? selectedSourceGroups.map((group) => group.label).join(' · ') : 'Primary records, first-party claims, independent measurement, operational telemetry, and leading indicators.'} />
                 <PlanCard label="Concept map" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting concepts`} detail={outcome.recommended_topic_labels.length > 0 ? outcome.recommended_topic_labels.join(' · ') : 'Entities, aliases, attributes, relationships, claims, events, and outcomes.'} />
                 <PlanCard label="Watches" value={`${outcome.recommended_topic_labels.length || 'Custom'} starting areas`} detail="Material changes, contradictions, catalysts, and weak signals—scoped to your selected job." />
-                <PlanCard label="Briefing" value={profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'} detail={outcome.recommended_intelligence_labels.length > 0 ? outcome.recommended_intelligence_labels.join(' · ') : 'ACE will propose intelligence products from your custom questions.'} />
+                <PlanCard
+                  label="Briefing"
+                  value={customPreview ? 'Preview only' : profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'}
+                  detail={customPreview
+                    ? `Cadence captured: ${profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'}. v1 does not activate this Custom plan or run a first-Brief executor.`
+                    : outcome.recommended_intelligence_labels.length > 0
+                      ? outcome.recommended_intelligence_labels.join(' · ')
+                      : 'ACE will propose intelligence products from your custom questions.'}
+                />
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
                 <div className="flex items-start gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4"><Scale className="mt-0.5 size-4 shrink-0 text-brand" /><p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Nothing is connected or activated silently.</span> You will see every requested permission, every proposed source that remains unconnected, and every watch before it receives authority.</p></div>
-                <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3"><BookOpenCheck className="size-4 text-brand" /><div><div className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">First value</div><div className="mt-0.5 text-xs font-medium">One cited Brief</div></div></div>
+                <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3">
+                  {customPreview ? <FlaskConical className="size-4 text-[var(--ace-purple-300)]" /> : <BookOpenCheck className="size-4 text-brand" />}
+                  <div>
+                    <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{customPreview ? 'Preview boundary' : 'First value'}</div>
+                    <div className="mt-0.5 text-xs font-medium">{customPreview ? 'Draft proposal only' : 'One cited Brief'}</div>
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -427,9 +478,11 @@ export function OnboardingPreview({
           {step === 4 && (
             <>
               <DialogHeader className="max-w-2xl">
-                <DialogTitle className="text-2xl tracking-tight">{firstBriefReady ? 'Your first picture is ready' : activeSession?.stage === 'blocked' ? 'ACE needs your attention' : activeSession === null ? 'Your governed plan is ready' : 'Your first picture is assembling'}</DialogTitle>
+                <DialogTitle className="text-2xl tracking-tight">{customPreview ? 'Your Custom proposal is ready' : firstBriefReady ? 'Your first picture is ready' : activeSession?.stage === 'blocked' ? 'ACE needs your attention' : activeSession === null ? 'Your governed plan is ready' : 'Your first picture is assembling'}</DialogTitle>
                 <DialogDescription>
-                  {activeSession === null
+                  {customPreview
+                    ? 'This is a draft model for review. ACE has not connected sources, activated watches, or run a first-Brief executor.'
+                    : activeSession === null
                     ? 'Review the plan before ACE connects sources or starts watching.'
                     : firstBriefReady
                       ? 'ACE built this picture from the sources and watch settings you approved.'
@@ -442,7 +495,9 @@ export function OnboardingPreview({
                 {lanes.map((lane) => <BuildStep key={lane.label} {...lane} />)}
               </div>
               <div className="mt-5 rounded-lg border bg-card p-4 text-xs text-muted-foreground">
-                {activeSession === null
+                {customPreview
+                  ? 'Preview complete · No runtime execution performed'
+                  : activeSession === null
                   ? 'Reviewing this plan changes nothing until you approve it.'
                   : firstBriefReady
                     ? 'First cited Brief ready · Setup saved'
@@ -461,7 +516,7 @@ export function OnboardingPreview({
         <div className="flex items-center justify-between border-t px-6 py-4 sm:px-8">
           <Button type="button" variant="ghost" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}><ArrowLeft className="size-4" /> Back</Button>
           {step < 4
-            ? <Button type="button" disabled={!canContinue || buildPending} onClick={() => step === 3 ? void build() : setStep((value) => Math.min(3, value + 1))}>{buildPending ? <><LoaderCircle className="size-4 animate-spin" /> Building your first picture</> : <>{step === 0 ? 'Use this intelligence' : step === 1 ? 'Choose evidence' : step === 2 ? 'Review the plan' : 'Build my intelligence'} <ArrowRight className="size-4" /></>}</Button>
+            ? <Button type="button" disabled={!canContinue || buildPending} onClick={() => step === 3 ? void build() : setStep((value) => Math.min(3, value + 1))}>{buildPending ? <><LoaderCircle className="size-4 animate-spin" /> Building your first picture</> : <>{step === 0 ? customPreview ? 'Preview this intelligence' : 'Use this intelligence' : step === 1 ? 'Choose evidence' : step === 2 ? 'Review the plan' : customPreview ? 'View draft proposal' : 'Build my intelligence'} <ArrowRight className="size-4" /></>}</Button>
             : <Button type="button" onClick={finish}>{firstBriefReady ? profile.completion_label : 'Return to Atrium'} <ArrowRight className="size-4" /></Button>}
         </div>
       </DialogContent>
@@ -474,11 +529,11 @@ function PlanCard({ label, value, detail }: { readonly label: string; readonly v
 }
 
 function BuildStep({ label, result, state }: BuildLane) {
-  const Icon = state === 'complete' ? Check : state === 'blocked' ? TriangleAlert : state === 'active' ? LoaderCircle : CircleDot
-  const stateLabel = state === 'complete' ? 'Complete' : state === 'blocked' ? 'Needs attention' : state === 'active' ? 'Working' : state === 'waiting' ? 'Waiting' : 'Proposed'
+  const Icon = state === 'complete' ? Check : state === 'blocked' ? TriangleAlert : state === 'active' ? LoaderCircle : state === 'preview' ? FlaskConical : CircleDot
+  const stateLabel = state === 'complete' ? 'Complete' : state === 'blocked' ? 'Needs attention' : state === 'active' ? 'Working' : state === 'waiting' ? 'Waiting' : state === 'preview' ? 'Preview' : 'Proposed'
   return (
-    <div className={`flex items-center gap-3 rounded-lg border p-4 ${state === 'active' ? 'border-brand/40 bg-brand/7' : state === 'blocked' ? 'border-warning/45 bg-warning/5' : 'bg-card'}`}>
-      <div className={`flex size-7 items-center justify-center rounded-full ${state === 'blocked' ? 'bg-warning/15 text-warning' : state === 'complete' || state === 'active' ? 'bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}>
+    <div className={`flex items-center gap-3 rounded-lg border p-4 ${state === 'active' ? 'border-brand/40 bg-brand/7' : state === 'blocked' ? 'border-warning/45 bg-warning/5' : state === 'preview' ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'bg-card'}`}>
+      <div className={`flex size-7 items-center justify-center rounded-full ${state === 'blocked' ? 'bg-warning/15 text-warning' : state === 'complete' || state === 'active' ? 'bg-brand/10 text-brand' : state === 'preview' ? 'bg-[var(--ace-purple-500)]/15 text-[var(--ace-purple-300)]' : 'bg-muted text-muted-foreground'}`}>
         <Icon className={`size-3.5 ${state === 'active' ? 'animate-spin' : ''}`} />
       </div>
       <div className="min-w-0 flex-1"><div className="text-sm font-medium">{label}</div><div className="mt-0.5 text-xs text-muted-foreground">{result}</div></div>
