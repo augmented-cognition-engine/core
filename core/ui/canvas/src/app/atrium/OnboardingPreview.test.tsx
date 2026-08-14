@@ -1,8 +1,9 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { OnboardingPreview } from './OnboardingPreview'
 import type { IntelligenceOnboardingProfile } from './onboardingModel'
+import { onboardingProfilesFromResources } from './onboardingModel'
 
 const profile: IntelligenceOnboardingProfile = {
   contract: 'ace.intelligence.onboarding-profile/v1alpha1',
@@ -58,5 +59,68 @@ describe('Atrium Intelligence Builder onboarding', () => {
 
     expect(screen.getByRole('heading', { name: 'What do you need to stay ahead of?' })).toBeTruthy()
     expect(screen.getByLabelText('Describe the intelligence you want')).toBeTruthy()
+  })
+
+  it('keeps Custom unmistakably in Preview and never starts unsupported execution', async () => {
+    const onStartBuild = vi.fn()
+    const custom = onboardingProfilesFromResources([])[0]
+
+    render(
+      <OnboardingPreview
+        open
+        onOpenChange={vi.fn()}
+        profiles={[custom]}
+        session={null}
+        onStartBuild={onStartBuild}
+        onOpenBrief={vi.fn()}
+      />,
+    )
+
+    expect(screen.getAllByText('Preview').length).toBeGreaterThan(0)
+    expect(screen.getByText('Custom Intelligence is a proposal preview.')).toBeTruthy()
+    expect(screen.getByText(/does not run a Custom first-Brief executor/)).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: /Preview this intelligence/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Choose evidence/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Review the plan/ }))
+
+    expect(screen.getByText('Draft proposal only')).toBeTruthy()
+    expect(screen.getByText(/v1 does not activate this Custom plan/)).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: /View draft proposal/ }))
+
+    expect(screen.getByRole('heading', { name: 'Your Custom proposal is ready' })).toBeTruthy()
+    expect(screen.getByText('Not supported for Custom Intelligence in v1')).toBeTruthy()
+    expect(screen.getByText('Preview complete · No runtime execution performed')).toBeTruthy()
+    expect(onStartBuild).not.toHaveBeenCalled()
+  })
+
+  it('preserves supported domain build execution', async () => {
+    const onStartBuild = vi.fn().mockResolvedValue(undefined)
+
+    render(
+      <OnboardingPreview
+        open
+        onOpenChange={vi.fn()}
+        profiles={[profile]}
+        session={null}
+        onStartBuild={onStartBuild}
+        onOpenBrief={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Use this intelligence/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Choose evidence/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Review the plan/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Build my intelligence/ }))
+
+    await waitFor(() => expect(onStartBuild).toHaveBeenCalledTimes(1))
+    expect(onStartBuild).toHaveBeenCalledWith({
+      profile_id: profile.profile_id,
+      subject: profile.starter_prompts[0],
+      outcome_id: profile.outcomes[0].outcome_id,
+      source_group_ids: [profile.source_groups[0].source_group_id],
+      cadence_id: profile.default_cadence_id,
+    })
   })
 })

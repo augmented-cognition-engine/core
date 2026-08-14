@@ -82,10 +82,10 @@ const FALLBACK_PROFILE: IntelligenceOnboardingProfile = {
   profile_id: 'onboarding_profile:custom-intelligence',
   topic_id: 'custom_intelligence',
   domain_label: 'Custom Intelligence',
-  topic_label: 'Built around your question',
+  topic_label: 'Draft a model around your question',
   display_name: 'Custom Intelligence',
   prompt: 'What do you need to stay ahead of?',
-  description: 'Choose the decision context. ACE will recommend the evidence, concepts, watches, and briefing system.',
+  description: 'Preview a proposed evidence mix, concept model, and watches. Custom activation and a first-Brief executor are not supported in v1.',
   starter_prompts: [
     'Help me stay ahead of the changes that could materially affect my decisions.',
   ],
@@ -337,6 +337,15 @@ export function parseBuilderSession(value: unknown): IntelligenceBuilderSession 
 
 export function onboardingProfileFromResources(items: readonly IntelligenceResourceRecord[]): IntelligenceOnboardingProfile {
   return onboardingProfilesFromResources(items).find((profile) => profile.profile_id !== FALLBACK_PROFILE.profile_id) ?? FALLBACK_PROFILE
+}
+
+/** Core's Custom starting point is proposal-only in v1.
+ *
+ * Installed domain profiles have supported activation and first-Brief executors.
+ * The Core-owned fallback intentionally stops before those runtime boundaries.
+ */
+export function isCustomPreviewProfile(profile: IntelligenceOnboardingProfile): boolean {
+  return profile.profile_id === FALLBACK_PROFILE.profile_id
 }
 
 export function onboardingSessionFromResources(items: readonly IntelligenceResourceRecord[]): IntelligenceBuilderSession | null {

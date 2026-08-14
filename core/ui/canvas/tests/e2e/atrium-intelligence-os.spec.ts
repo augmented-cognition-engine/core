@@ -123,7 +123,7 @@ test('Atrium is a briefing-first Intelligence OS over governed resources', async
   await expect(page.getByText('Connections', { exact: true })).toBeVisible()
 })
 
-test('Atrium empty state starts with the user job and previews a complete first-Brief journey', async ({ page }, testInfo) => {
+test('Atrium makes Custom proposal-only and stops before unsupported v1 execution', async ({ page }, testInfo) => {
   const onboardingProfile = {
     contract: 'ace.domain-pack.intelligence-onboarding-profile/v1alpha1',
     domain_label: 'World Intelligence',
@@ -194,38 +194,47 @@ test('Atrium empty state starts with the user job and previews a complete first-
       }),
     }),
   )
+  let buildStartRequests = 0
+  await page.route('**/v1/intelligence/builds/start', (route) => {
+    buildStartRequests += 1
+    return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ detail: 'Custom execution must not be called.' }) })
+  })
 
   await page.goto('/atrium')
   await expect(page.getByRole('heading', { name: 'What do you need to stay ahead of?' })).toBeVisible()
   await page.getByRole('button', { name: 'Build my intelligence' }).click()
 
-  await expect(page.getByRole('heading', { name: 'What do you want intelligence about?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'What kind of intelligence do you want to build?' })).toBeVisible()
   await expect(page.getByRole('button', { name: /World Intelligence/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Marketing Intelligence/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Custom Intelligence/ })).toBeVisible()
-  await page.getByRole('button', { name: /World Intelligence/ }).click()
+  await page.getByRole('button', { name: /Custom Intelligence/ }).click()
+  await expect(page.getByText('Custom Intelligence is a proposal preview.')).toBeVisible()
+  await expect(page.getByText(/does not run a Custom first-Brief executor/)).toBeVisible()
   if (process.env.ACE_CAPTURE_ATRIUM === '1') {
-    await page.screenshot({ path: testInfo.outputPath('atrium-onboarding-outcome.png'), fullPage: true })
+    await page.screenshot({ path: testInfo.outputPath('atrium-custom-preview-choice.png'), fullPage: true })
   }
-  await page.getByRole('button', { name: /Track frontier research and products/ }).click()
-  await page.getByRole('button', { name: 'Use this starting point' }).click()
+  await expect(page.getByLabel('Step 1 of 5: Choose')).toBeVisible()
+  await page.getByRole('button', { name: 'Preview this intelligence' }).click()
+  await expect(page.getByRole('heading', { name: 'What do you need to stay ahead of?' })).toBeVisible()
+  await page.getByRole('button', { name: 'Choose evidence' }).click()
   await expect(page.getByRole('heading', { name: 'Choose the evidence ACE can use' })).toBeVisible()
-  await expect(page.getByText('2 groups · 4 sources proposed')).toBeVisible()
-  if (process.env.ACE_CAPTURE_ATRIUM === '1') {
-    await page.screenshot({ path: testInfo.outputPath('atrium-onboarding-evidence.png'), fullPage: true })
-  }
-  await page.getByRole('button', { name: 'Use these sources' }).click()
-  await expect(page.getByRole('heading', { name: 'Shape the intelligence picture' })).toBeVisible()
-  await page.getByRole('button', { name: 'Daily pulse' }).click()
   await page.getByRole('button', { name: 'Review the plan' }).click()
   await expect(page.getByRole('heading', { name: 'Review what ACE will build' })).toBeVisible()
   await expect(page.getByText('Nothing is connected or activated silently.')).toBeVisible()
+  await expect(page.getByText('Draft proposal only')).toBeVisible()
   if (process.env.ACE_CAPTURE_ATRIUM === '1') {
-    await page.screenshot({ path: testInfo.outputPath('atrium-onboarding-review.png'), fullPage: true })
+    await page.screenshot({ path: testInfo.outputPath('atrium-custom-preview-review.png'), fullPage: true })
   }
-  await page.getByRole('button', { name: 'Review proposed build' }).click()
-  await expect(page.getByRole('heading', { name: 'Your governed plan is ready' })).toBeVisible()
-  await expect(page.getByText('Proposed', { exact: true })).toHaveCount(4)
+  await page.getByRole('button', { name: 'View draft proposal' }).click()
+  await expect(page.getByLabel('Step 5 of 5: Preview')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Your Custom proposal is ready' })).toBeVisible()
+  await expect(page.getByText('Not supported for Custom Intelligence in v1')).toBeVisible()
+  await expect(page.getByText('Preview complete · No runtime execution performed')).toBeVisible()
+  expect(buildStartRequests).toBe(0)
+  if (process.env.ACE_CAPTURE_ATRIUM === '1') {
+    await page.screenshot({ path: testInfo.outputPath('atrium-custom-preview-complete.png'), fullPage: true })
+  }
   await page.getByRole('button', { name: 'Return to Atrium' }).click()
   await expect(page.getByRole('dialog')).not.toBeVisible()
 })
