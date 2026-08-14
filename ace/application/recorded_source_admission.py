@@ -27,8 +27,10 @@ from ace.application.domain_activation import (
 from ace.application.intelligence_build_execution import (
     AuthorizedIntelligenceBuild,
     IntelligenceBuildRecordedSourcePort,
+    IntelligenceBuildStartV1Alpha2,
 )
 from ace.application.intelligence_ledger import PREPARED_RECORD_SPACE
+from ace.application.recorded_source_selection import RecordedSourceSelectionV1Alpha1
 from ace.core.contracts import FrozenContract, canonical_hash, canonical_json
 from ace.core.records import (
     AppendOnlyTransactionReceiptV1,
@@ -62,6 +64,7 @@ from ace.intelligence.source_mapping import interpret_prepared_source_mapping
 
 RECORDED_SOURCE_MATERIAL_VERSION = "ace.application.recorded-source-material/v1alpha1"
 RECORDED_SOURCE_ACQUISITION_RECEIPT_VERSION = "ace.application.recorded-source-acquisition-receipt/v1alpha1"
+RECORDED_SOURCE_ACQUISITION_RECEIPT_V1ALPHA2_VERSION = "ace.application.recorded-source-acquisition-receipt/v1alpha2"
 RECORDED_SOURCE_RECORD_KIND = "recorded_source_acquisition"
 SOURCE_SNAPSHOT_RECORD_KIND = "source_snapshot"
 CONNECT_SOURCES_EFFECT = "connect_sources"
@@ -273,11 +276,34 @@ class RecordedSourceAcquisitionReceiptV1Alpha1(_StrictFrozenContract):
         return False
 
 
+class RecordedSourceAcquisitionReceiptV1Alpha2(RecordedSourceAcquisitionReceiptV1Alpha1):
+    """Recorded admission binding reviewed selection and activation material."""
+
+    contract: Literal["ace.application.recorded-source-acquisition-receipt/v1alpha2"] = (
+        RECORDED_SOURCE_ACQUISITION_RECEIPT_V1ALPHA2_VERSION
+    )
+    reviewed_selection_id: str
+    reviewed_selection_digest: str
+
+    @field_validator("reviewed_selection_id")
+    @classmethod
+    def validate_selection_ref(cls, value: str) -> str:
+        return validate_reference(value, name="reviewed_selection_id")
+
+    @field_validator("reviewed_selection_digest")
+    @classmethod
+    def validate_selection_digest(cls, value: str) -> str:
+        return validate_digest(value)
+
+
 @dataclass(frozen=True, slots=True)
 class RecordedSourceAdmission:
     """Exact reopened recorded evidence, mapped entities, and append receipt."""
 
-    acquisition_receipts: tuple[RecordedSourceAcquisitionReceiptV1Alpha1, ...]
+    acquisition_receipts: tuple[
+        RecordedSourceAcquisitionReceiptV1Alpha1 | RecordedSourceAcquisitionReceiptV1Alpha2,
+        ...,
+    ]
     source_snapshots: tuple[CanonicalSourceSnapshotV1Alpha1, ...]
     observations: tuple[ObservationV1Alpha1, ...]
     entity_snapshots: tuple[EntitySnapshotV1Alpha1, ...]
@@ -425,6 +451,31 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
         except Exception:
             raise RecordedSourceAdmissionError("subject binding failed exact committed Pack resolution") from None
 
+    def _reviewed_selection(
+        self,
+        material: RecordedSourceMaterialV1Alpha1,
+    ) -> RecordedSourceSelectionV1Alpha1:
+        """Derive the activation-neutral half of one exact material binding."""
+
+        subject = material.subject_binding
+        return RecordedSourceSelectionV1Alpha1(
+            product_id=subject.product_id,
+            pack=self.binding.prepared_binding.revision.spec.pack,
+            source_group_id=material.source_group_id,
+            mapping_id=material.mapping_id,
+            subject_binding_id=subject.subject_binding_id,
+            entity_type_id=subject.entity_type_id,
+            entity_ref=subject.entity_ref,
+            source_definition_ref=material.source_definition_ref,
+            source_type_ref=material.source_type_ref,
+            source_uri=material.source_uri,
+            captured_payload_digest=material.captured_payload_digest,
+            source_published_at=material.source_published_at,
+            event_effective_at=material.event_effective_at,
+            observed_at=material.observed_at,
+            locator=material.locator,
+        )
+
     def _materials(
         self,
         materials: tuple[RecordedSourceMaterialV1Alpha1, ...],
@@ -463,6 +514,49 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
         )
         return f"recorded_source_admission:{canonical_hash([self.build.build_id, coordinates])[:32]}"
 
+    def _acquisition_receipt(
+        self,
+        *,
+        material: RecordedSourceMaterialV1Alpha1,
+        activation_head: GovernedStateHeadPreconditionV1Alpha1,
+        admitted_at: datetime,
+    ) -> RecordedSourceAcquisitionReceiptV1Alpha1:
+        return RecordedSourceAcquisitionReceiptV1Alpha1(
+            product_id=self.build.product_id,
+            actor_ref=self.build.actor_ref,
+            build_id=self.build.build_id,
+            build_request_digest=self.build.request_digest,
+            build_authority_use=self.build.authority_use,
+            activation_revision=self.binding.prepared_binding.reference,
+            activation_head_precondition=activation_head,
+            recorded_material_id=str(material.material_id),
+            recorded_material_digest=str(material.material_digest),
+            source_group_id=material.source_group_id,
+            source_definition_ref=material.source_definition_ref,
+            source_type_ref=material.source_type_ref,
+            source_uri=material.source_uri,
+            captured_payload_digest=material.captured_payload_digest,
+            source_published_at=material.source_published_at,
+            event_effective_at=material.event_effective_at,
+            observed_at=material.observed_at,
+            admitted_at=admitted_at,
+        )
+
+    def _decode_acquisition(self, record: ImmutableRecordV1) -> RecordedSourceAcquisitionReceiptV1Alpha1:
+        if record.payload_contract != RECORDED_SOURCE_ACQUISITION_RECEIPT_VERSION:
+            raise ValueError("recorded admission receipt is not legacy v1alpha1 material")
+        return RecordedSourceAcquisitionReceiptV1Alpha1.model_validate(record.payload)
+
+    def _acquisition_matches(
+        self,
+        acquisition: RecordedSourceAcquisitionReceiptV1Alpha1,
+        material: RecordedSourceMaterialV1Alpha1,
+    ) -> bool:
+        return (
+            acquisition.recorded_material_id == material.material_id
+            and acquisition.recorded_material_digest == material.material_digest
+        )
+
     async def admit(self, materials: tuple[RecordedSourceMaterialV1Alpha1, ...]) -> RecordedSourceAdmission:
         exact = self._materials(materials)
         transaction_key = self._transaction_key()
@@ -477,24 +571,9 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
         observations: list[ObservationV1Alpha1] = []
         entities: list[EntitySnapshotV1Alpha1] = []
         for material in exact:
-            acquisition = RecordedSourceAcquisitionReceiptV1Alpha1(
-                product_id=self.build.product_id,
-                actor_ref=self.build.actor_ref,
-                build_id=self.build.build_id,
-                build_request_digest=self.build.request_digest,
-                build_authority_use=self.build.authority_use,
-                activation_revision=self.binding.prepared_binding.reference,
-                activation_head_precondition=activation_head,
-                recorded_material_id=str(material.material_id),
-                recorded_material_digest=str(material.material_digest),
-                source_group_id=material.source_group_id,
-                source_definition_ref=material.source_definition_ref,
-                source_type_ref=material.source_type_ref,
-                source_uri=material.source_uri,
-                captured_payload_digest=material.captured_payload_digest,
-                source_published_at=material.source_published_at,
-                event_effective_at=material.event_effective_at,
-                observed_at=material.observed_at,
+            acquisition = self._acquisition_receipt(
+                material=material,
+                activation_head=activation_head,
                 admitted_at=admitted_at,
             )
             snapshot = CanonicalSourceSnapshotV1Alpha1(
@@ -654,15 +733,14 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
         for index, material in enumerate(expected):
             offset = index * 4
             try:
-                acquisition = RecordedSourceAcquisitionReceiptV1Alpha1.model_validate(loaded[offset].payload)
+                acquisition = self._decode_acquisition(loaded[offset])
                 snapshot = CanonicalSourceSnapshotV1Alpha1.model_validate(loaded[offset + 1].payload)
                 observation = ObservationV1Alpha1.model_validate(loaded[offset + 2].payload)
                 entity = EntitySnapshotV1Alpha1.model_validate(loaded[offset + 3].payload)
             except (TypeError, ValueError) as exc:
                 raise RecordedSourceAdmissionError("recorded admission payload failed exact replay") from exc
             if (
-                acquisition.recorded_material_id != material.material_id
-                or acquisition.recorded_material_digest != material.material_digest
+                not self._acquisition_matches(acquisition, material)
                 or acquisition.build_id != self.build.build_id
                 or acquisition.build_request_digest != self.build.request_digest
                 or acquisition.activation_revision != self.binding.prepared_binding.reference
@@ -712,13 +790,98 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
         )
 
 
+class CoreRecordedSourceAdmissionV1Alpha2Service(CoreRecordedSourceAdmissionService):
+    """Admission path for activation-neutral reviewed-source selections."""
+
+    def _materials(
+        self,
+        materials: tuple[RecordedSourceMaterialV1Alpha1, ...],
+    ) -> tuple[RecordedSourceMaterialV1Alpha1, ...]:
+        if not materials:
+            raise RecordedSourceAdmissionError("recorded source admission requires exact reviewed material")
+        if not isinstance(self.build.request, IntelligenceBuildStartV1Alpha2):
+            raise RecordedSourceAdmissionError("v1alpha2 admission requires reviewed source selection references")
+        try:
+            exact = tuple(
+                RecordedSourceMaterialV1Alpha1.model_validate(material.model_dump(mode="python"))
+                for material in materials
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise RecordedSourceAdmissionError("recorded source material failed exact revalidation") from exc
+        ordered = tuple(
+            item[0]
+            for item in sorted(
+                ((material, self._reviewed_selection(material)) for material in exact),
+                key=lambda item: (item[1].source_group_id, str(item[1].selection_id)),
+            )
+        )
+        actual_refs = tuple(self._reviewed_selection(item).reference() for item in ordered)
+        if actual_refs != self.build.request.recorded_source_selection_refs:
+            raise RecordedSourceAdmissionError(
+                "recorded source set does not exactly match the reviewed activation-neutral selections"
+            )
+        if any(item.subject_binding.product_id != self.build.product_id for item in ordered):
+            raise RecordedSourceAdmissionError("recorded material crossed the authorized build product")
+        if any(item.subject_binding.activation_revision != self.binding.prepared_binding.reference for item in ordered):
+            raise RecordedSourceAdmissionError("recorded material does not bind the exact committed activation")
+        return ordered
+
+    def _transaction_key(self) -> str:
+        assert isinstance(self.build.request, IntelligenceBuildStartV1Alpha2)
+        coordinates = tuple(
+            (item.source_group_id, item.selection_id, item.selection_digest)
+            for item in self.build.request.recorded_source_selection_refs
+        )
+        return f"recorded_source_admission:{canonical_hash([self.build.build_id, coordinates])[:32]}"
+
+    def _acquisition_receipt(
+        self,
+        *,
+        material: RecordedSourceMaterialV1Alpha1,
+        activation_head: GovernedStateHeadPreconditionV1Alpha1,
+        admitted_at: datetime,
+    ) -> RecordedSourceAcquisitionReceiptV1Alpha2:
+        selection = self._reviewed_selection(material)
+        common = super()._acquisition_receipt(
+            material=material,
+            activation_head=activation_head,
+            admitted_at=admitted_at,
+        )
+        return RecordedSourceAcquisitionReceiptV1Alpha2(
+            **common.model_dump(mode="python", exclude={"contract", "receipt_id", "receipt_digest"}),
+            reviewed_selection_id=str(selection.selection_id),
+            reviewed_selection_digest=str(selection.selection_digest),
+        )
+
+    def _decode_acquisition(self, record: ImmutableRecordV1) -> RecordedSourceAcquisitionReceiptV1Alpha2:
+        if record.payload_contract != RECORDED_SOURCE_ACQUISITION_RECEIPT_V1ALPHA2_VERSION:
+            raise ValueError("recorded admission receipt is not v1alpha2 material")
+        return RecordedSourceAcquisitionReceiptV1Alpha2.model_validate(record.payload)
+
+    def _acquisition_matches(
+        self,
+        acquisition: RecordedSourceAcquisitionReceiptV1Alpha1,
+        material: RecordedSourceMaterialV1Alpha1,
+    ) -> bool:
+        if not isinstance(acquisition, RecordedSourceAcquisitionReceiptV1Alpha2):
+            return False
+        selection = self._reviewed_selection(material)
+        return super()._acquisition_matches(acquisition, material) and (
+            acquisition.reviewed_selection_id == selection.selection_id
+            and acquisition.reviewed_selection_digest == selection.selection_digest
+        )
+
+
 __all__ = [
     "CONNECT_SOURCES_EFFECT",
     "CoreRecordedSourceAdmissionService",
+    "CoreRecordedSourceAdmissionV1Alpha2Service",
     "IntelligenceBuildRecordedSourcePort",
     "RECORDED_SOURCE_ACQUISITION_RECEIPT_VERSION",
+    "RECORDED_SOURCE_ACQUISITION_RECEIPT_V1ALPHA2_VERSION",
     "RECORDED_SOURCE_MATERIAL_VERSION",
     "RecordedSourceAcquisitionReceiptV1Alpha1",
+    "RecordedSourceAcquisitionReceiptV1Alpha2",
     "RecordedSourceAdmission",
     "RecordedSourceAdmissionError",
     "RecordedSourceMaterialV1Alpha1",

@@ -15,10 +15,11 @@ from ace.application.intelligence_build_execution import (
     RecordedSourceReferenceV1,
 )
 from ace.application.intelligence_build_planning import (
-    IntelligenceBuildPlanner,
-    IntelligenceBuildPlanRequestV1Alpha1,
+    IntelligenceBuildPlannerV1Alpha2,
+    IntelligenceBuildPlanRequestV1Alpha2,
     IntelligenceBuildPlanV1Alpha1,
-    validate_intelligence_build_planner_registration,
+    IntelligenceBuildPlanV1Alpha2,
+    validate_intelligence_build_planner_v1alpha2_registration,
 )
 from core.engine.core.installed_intelligence_catalog import (
     InstalledIntelligenceCatalogError,
@@ -48,12 +49,28 @@ class IntelligenceBuildPlanPrepareV1(BaseModel):
     requested_at: datetime
 
 
+class IntelligenceBuildPlanPrepareV1Alpha2(BaseModel):
+    """Activation-neutral onboarding selection; identity supplies product and actor."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    client_request_id: str = Field(min_length=1, max_length=240)
+    profile_id: str = Field(min_length=1, max_length=240)
+    profile_digest: str
+    subject: str = Field(min_length=8, max_length=2_000)
+    outcome_id: str = Field(min_length=1, max_length=240)
+    source_group_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=64)
+    cadence_id: str = Field(min_length=1, max_length=240)
+    proposed_effects: tuple[IntelligenceBuildEffect, ...] = REQUIRED_INTELLIGENCE_BUILD_EFFECTS
+    requested_at: datetime
+
+
 class IntelligenceBuildPlannerResolutionPort(Protocol):
-    def resolve(self, profile_id: str) -> IntelligenceBuildPlanner | None: ...
+    def resolve(self, profile_id: str) -> IntelligenceBuildPlannerV1Alpha2 | None: ...
 
 
 class _InstalledPlannerResolution:
-    def resolve(self, profile_id: str) -> IntelligenceBuildPlanner | None:
+    def resolve(self, profile_id: str) -> IntelligenceBuildPlannerV1Alpha2 | None:
         return resolve_intelligence_build_planner(profile_id)
 
 
@@ -106,7 +123,7 @@ def _verified_claims(user: dict) -> tuple[str, str]:
 
 
 def _profile_for_request(
-    *, request: IntelligenceBuildPlanPrepareV1, runtime: IntelligenceBuildPlanHttpRuntime
+    *, request: IntelligenceBuildPlanPrepareV1Alpha2, runtime: IntelligenceBuildPlanHttpRuntime
 ) -> InstalledOnboardingProfile:
     matches = tuple(item for item in runtime.profiles if item.profile.profile_id == request.profile_id)
     if not matches:
@@ -129,10 +146,10 @@ def _profile_for_request(
 
 async def prepare_intelligence_build_plan(
     *,
-    request: IntelligenceBuildPlanPrepareV1,
+    request: IntelligenceBuildPlanPrepareV1Alpha2,
     user: dict,
     runtime: IntelligenceBuildPlanHttpRuntime,
-) -> IntelligenceBuildPlanV1Alpha1:
+) -> IntelligenceBuildPlanV1Alpha2:
     """Prepare exact review material without granting authority or executing work."""
 
     actor_ref, product_id = _verified_claims(user)
@@ -151,7 +168,7 @@ async def prepare_intelligence_build_plan(
             f"no Intelligence build planner is registered for profile: {request.profile_id}"
         )
     try:
-        pack_reference, planner_artifact = validate_intelligence_build_planner_registration(
+        pack_reference, planner_artifact = validate_intelligence_build_planner_v1alpha2_registration(
             planner,
             profile_id=request.profile_id,
         )
@@ -164,12 +181,12 @@ async def prepare_intelligence_build_plan(
     if artifact is None:
         raise IntelligenceBuildPlanUnavailable("planned Intelligence Pack is not installed at the exact version")
     try:
-        exact_request = IntelligenceBuildPlanRequestV1Alpha1(
+        exact_request = IntelligenceBuildPlanRequestV1Alpha2(
             product_id=product_id,
             actor_ref=actor_ref,
             **request.model_dump(mode="python"),
         )
-        plan = IntelligenceBuildPlanV1Alpha1.model_validate(
+        plan = IntelligenceBuildPlanV1Alpha2.model_validate(
             (
                 await planner.prepare(
                     exact_request,
@@ -187,7 +204,6 @@ async def prepare_intelligence_build_plan(
         or plan.planner_artifact != planner_artifact
         or plan.pack_reference != pack_reference
         or plan.activation_spec.pack != pack_reference
-        or plan.recorded_source_refs != exact_request.recorded_source_refs
     ):
         raise IntelligenceBuildPlanConflict("Intelligence build planner changed exact installed review material")
     return plan
@@ -199,9 +215,11 @@ __all__ = [
     "IntelligenceBuildPlanHttpRuntime",
     "IntelligenceBuildPlanNotFound",
     "IntelligenceBuildPlanPrepareV1",
+    "IntelligenceBuildPlanPrepareV1Alpha2",
     "IntelligenceBuildPlanUnauthenticated",
     "IntelligenceBuildPlanUnavailable",
     "IntelligenceBuildPlanV1Alpha1",
+    "IntelligenceBuildPlanV1Alpha2",
     "IntelligenceBuildPlannerResolutionPort",
     "intelligence_build_plan_runtime",
     "prepare_intelligence_build_plan",

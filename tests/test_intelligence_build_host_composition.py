@@ -15,6 +15,7 @@ from ace.application.intelligence_build_execution import (
     REQUIRED_INTELLIGENCE_BUILD_EFFECTS,
     AuthorizedIntelligenceBuild,
     IntelligenceBuildStartV1,
+    IntelligenceBuildStartV1Alpha2,
     ProductScopedImmutableRecordStore,
 )
 from ace.application.intelligence_build_host import (
@@ -23,7 +24,10 @@ from ace.application.intelligence_build_host import (
 )
 from ace.application.intelligence_builder import IntelligenceBuilderSessionService
 from ace.application.intelligence_builder_activation import IntelligenceBuilderActivationService
-from ace.application.recorded_source_admission import CoreRecordedSourceAdmissionService
+from ace.application.recorded_source_admission import (
+    CoreRecordedSourceAdmissionService,
+    CoreRecordedSourceAdmissionV1Alpha2Service,
+)
 from ace.core import (
     AuthenticatedRuntimeContextV1Alpha1,
     AuthorityUseReceiptV1Alpha1,
@@ -175,6 +179,23 @@ def _build(active) -> AuthorizedIntelligenceBuild:
     )
 
 
+def _v1alpha2_build(active) -> AuthorizedIntelligenceBuild:
+    build = _build(active)
+    request = IntelligenceBuildStartV1Alpha2(
+        **build.request.model_dump(mode="python", exclude={"recorded_source_refs"}),
+        recorded_source_selection_refs=(),
+    )
+    return AuthorizedIntelligenceBuild(
+        build_id=build.build_id,
+        request_digest=build.request_digest,
+        product_id=build.product_id,
+        actor_ref=build.actor_ref,
+        request=request,
+        authority_use=build.authority_use,
+        activation_approval=build.activation_approval,
+    )
+
+
 @pytest.mark.asyncio
 async def test_exact_durable_bootstrap_composes_fresh_product_fenced_ports() -> None:
     records, governed, pack, authority, active = await _activated_stack()
@@ -216,6 +237,24 @@ async def test_exact_durable_bootstrap_composes_fresh_product_fenced_ports() -> 
     assert reopened.prepared_derivations is not first.prepared_derivations
     assert reopened.recorded_sources.binding == first.recorded_sources.binding == active.binding
     assert runtime_use.calls == []
+
+
+@pytest.mark.asyncio
+async def test_v1alpha2_build_composes_only_the_activation_neutral_recorded_source_port() -> None:
+    records, governed, pack, authority, active = await _activated_stack()
+    build = _v1alpha2_build(active)
+    services = await DurableIntelligenceBuildHostComposer(
+        governed_state=governed,
+        runtime_use=_RuntimeUse(),
+        packs=_PackResolver(pack),
+    ).compose(
+        build=build,
+        records=ProductScopedImmutableRecordStore(product_id=build.product_id, store=records),
+        resources=_Resources(),
+        activation_authority=authority,
+    )
+
+    assert isinstance(services.recorded_sources, CoreRecordedSourceAdmissionV1Alpha2Service)
 
 
 @pytest.mark.asyncio

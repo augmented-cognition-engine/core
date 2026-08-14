@@ -8,7 +8,7 @@ from core.engine.core.intelligence_build import (
     IntelligenceBuildDenied,
     IntelligenceBuildHttpRuntime,
     IntelligenceBuildResultV1,
-    IntelligenceBuildStartV1,
+    IntelligenceBuildStartV1Alpha2,
     IntelligenceBuildUnauthenticated,
     IntelligenceBuildUnavailable,
     intelligence_build_runtime,
@@ -18,10 +18,10 @@ from core.engine.core.intelligence_build_plan import (
     IntelligenceBuildPlanConflict,
     IntelligenceBuildPlanHttpRuntime,
     IntelligenceBuildPlanNotFound,
-    IntelligenceBuildPlanPrepareV1,
+    IntelligenceBuildPlanPrepareV1Alpha2,
     IntelligenceBuildPlanUnauthenticated,
     IntelligenceBuildPlanUnavailable,
-    IntelligenceBuildPlanV1Alpha1,
+    IntelligenceBuildPlanV1Alpha2,
     intelligence_build_plan_runtime,
     prepare_intelligence_build_plan,
 )
@@ -29,12 +29,12 @@ from core.engine.core.intelligence_build_plan import (
 router = APIRouter(prefix="/v1/intelligence/builds", tags=["intelligence-builds"])
 
 
-@router.post("/prepare", response_model=IntelligenceBuildPlanV1Alpha1)
+@router.post("/prepare", response_model=IntelligenceBuildPlanV1Alpha2)
 async def prepare_build(
-    request: IntelligenceBuildPlanPrepareV1,
+    request: IntelligenceBuildPlanPrepareV1Alpha2,
     user: dict = Depends(get_current_user),
     runtime: IntelligenceBuildPlanHttpRuntime = Depends(intelligence_build_plan_runtime),
-) -> IntelligenceBuildPlanV1Alpha1:
+) -> IntelligenceBuildPlanV1Alpha2:
     try:
         return await prepare_intelligence_build_plan(request=request, user=user, runtime=runtime)
     except IntelligenceBuildPlanUnauthenticated as exc:
@@ -51,7 +51,7 @@ async def prepare_build(
 
 @router.post("/start", response_model=IntelligenceBuildResultV1)
 async def start_build(
-    request: IntelligenceBuildStartV1,
+    request: IntelligenceBuildStartV1Alpha2,
     user: dict = Depends(get_current_user),
     runtime: IntelligenceBuildHttpRuntime = Depends(intelligence_build_runtime),
 ) -> IntelligenceBuildResultV1:

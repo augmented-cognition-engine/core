@@ -8,12 +8,13 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from ace.application.intelligence_build_execution import IntelligenceBuildStartV1
+from ace.application.intelligence_build_execution import IntelligenceBuildStartV1Alpha2
 from ace.application.intelligence_build_planning import (
-    INTELLIGENCE_BUILD_PLANNER_CONTRACT,
+    INTELLIGENCE_BUILD_PLANNER_V1ALPHA2_CONTRACT,
     INTELLIGENCE_BUILD_PLANNING_CAPABILITY,
-    IntelligenceBuildPlanV1Alpha1,
+    IntelligenceBuildPlanV1Alpha2,
 )
+from ace.application.recorded_source_selection import RecordedSourceSelectionV1Alpha1
 from ace.core.runtime_use import CapabilityArtifactIdentityV1Alpha1
 from ace.intelligence.contracts.activation import CompiledOverlayV1, CompiledPackRefV1, DomainActivationSpecV1
 from ace.intelligence.contracts.intelligence_builder_presentation import IntelligenceOnboardingProfileV1Alpha1
@@ -53,7 +54,7 @@ PACK_REFERENCE = CompiledPackRefV1(
 )
 PLANNER_ARTIFACT = CapabilityArtifactIdentityV1Alpha1(
     capability=INTELLIGENCE_BUILD_PLANNING_CAPABILITY,
-    contract=INTELLIGENCE_BUILD_PLANNER_CONTRACT,
+    contract=INTELLIGENCE_BUILD_PLANNER_V1ALPHA2_CONTRACT,
     implementation_id="fixture_planner",
     implementation_version="1.0.0",
     artifact_digest="sha256:" + "b" * 64,
@@ -125,12 +126,27 @@ class _Planner:
             compilation_receipt_ref="pack_compilation:fixture",
             conformance_receipt_refs=("pack_conformance:fixture",),
         )
-        return IntelligenceBuildPlanV1Alpha1(
+        selection = RecordedSourceSelectionV1Alpha1(
+            product_id=request.product_id,
+            pack=self.pack_reference,
+            source_group_id="official_records",
+            mapping_id="official_record_snapshot",
+            subject_binding_id="published_record",
+            entity_type_id="measurement",
+            entity_ref="entity:artificial-intelligence",
+            source_definition_ref="source_definition:official-record",
+            source_type_ref="source:official-record/v1",
+            source_uri="https://example.invalid/official-record",
+            captured_payload_digest="sha256:" + "d" * 64,
+            observed_at=request.requested_at,
+            locator="record:official",
+        )
+        return IntelligenceBuildPlanV1Alpha2(
             request=request,
             planner_artifact=self.artifact_identity,
             pack_reference=self.pack_reference,
             activation_spec=spec,
-            recorded_source_refs=request.recorded_source_refs,
+            recorded_source_selections=(selection,),
         )
 
 
@@ -159,13 +175,6 @@ def _body() -> dict:
         "subject": "Keep me ahead of meaningful changes in artificial intelligence.",
         "outcome_id": "decision_readiness",
         "source_group_ids": ["official_records"],
-        "recorded_source_refs": [
-            {
-                "source_group_id": "official_records",
-                "material_id": "recorded_source_material:directive",
-                "material_digest": "sha256:" + "d" * 64,
-            }
-        ],
         "cadence_id": "daily",
         "proposed_effects": [
             "connect_sources",
@@ -198,12 +207,12 @@ async def test_prepare_returns_exact_review_material_without_authority_or_execut
     response, packs = await _request(planner=planner)
 
     assert response.status_code == 200
-    plan = IntelligenceBuildPlanV1Alpha1.model_validate_json(response.content)
+    plan = IntelligenceBuildPlanV1Alpha2.model_validate_json(response.content)
     assert plan.request.product_id == PRODUCT
     assert plan.request.actor_ref == ACTOR
     assert plan.pack_reference == PACK_REFERENCE
     assert plan.activation_spec.spec_id.startswith("activation_spec:")
-    assert plan.recorded_source_refs[0].material_id == "recorded_source_material:directive"
+    assert plan.recorded_source_selection_refs[0].selection_id.startswith("recorded_source_selection:")
     assert plan.plan_digest.startswith("sha256:")
     assert len(planner.calls) == 1
     assert planner.calls[0][1] == PROFILE
@@ -214,8 +223,8 @@ async def test_prepare_returns_exact_review_material_without_authority_or_execut
 @pytest.mark.asyncio
 async def test_planned_execution_identity_is_byte_for_byte_the_existing_start_identity() -> None:
     response, _ = await _request(planner=_Planner())
-    plan = IntelligenceBuildPlanV1Alpha1.model_validate_json(response.content)
-    start = IntelligenceBuildStartV1(
+    plan = IntelligenceBuildPlanV1Alpha2.model_validate_json(response.content)
+    start = IntelligenceBuildStartV1Alpha2(
         authority_grant_ref="authority_grant:build",
         resource_authority_grant_ref="authority_grant:read",
         activation_approval_receipt_ref="approval:activation",
@@ -225,7 +234,7 @@ async def test_planned_execution_identity_is_byte_for_byte_the_existing_start_id
         subject=plan.request.subject,
         outcome_id=plan.request.outcome_id,
         source_group_ids=plan.request.source_group_ids,
-        recorded_source_refs=plan.request.recorded_source_refs,
+        recorded_source_selection_refs=plan.recorded_source_selection_refs,
         cadence_id=plan.request.cadence_id,
         approved_effects=plan.request.proposed_effects,
         requested_at=plan.request.requested_at,
@@ -256,6 +265,22 @@ async def test_prepare_fails_closed_for_unknown_or_changed_installed_material() 
     invalid, _ = await _request(planner=_Planner(invalid=True))
     assert invalid.status_code == 409
 
+
+@pytest.mark.asyncio
+async def test_prepare_rejects_legacy_activation_bound_material_references() -> None:
+    body = _body()
+    body["recorded_source_refs"] = [
+        {
+            "source_group_id": "official_records",
+            "material_id": "recorded_source_material:legacy",
+            "material_digest": "sha256:" + "a" * 64,
+        }
+    ]
+
+    response, _ = await _request(planner=_Planner(), body=body)
+
+    assert response.status_code == 422
+
     unavailable, _ = await _request(planner=_Planner(unavailable=True))
     assert unavailable.status_code == 503
 
@@ -275,5 +300,5 @@ def test_prepare_openapi_exposes_stable_request_and_plan_contracts() -> None:
     operation = app.openapi()["paths"]["/v1/intelligence/builds/prepare"]["post"]
     request_schema = operation["requestBody"]["content"]["application/json"]["schema"]
     response_schema = operation["responses"]["200"]["content"]["application/json"]["schema"]
-    assert request_schema["$ref"].endswith("IntelligenceBuildPlanPrepareV1")
-    assert response_schema["$ref"].endswith("IntelligenceBuildPlanV1Alpha1")
+    assert request_schema["$ref"].endswith("IntelligenceBuildPlanPrepareV1Alpha2")
+    assert response_schema["$ref"].endswith("IntelligenceBuildPlanV1Alpha2")

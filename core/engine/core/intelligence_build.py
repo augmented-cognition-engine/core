@@ -20,6 +20,7 @@ from ace.application.intelligence_build_execution import (
     IntelligenceBuildHostServices,
     IntelligenceBuildResourcePagePort,
     IntelligenceBuildStartV1,
+    IntelligenceBuildStartV1Alpha2,
     ProductScopedImmutableRecordStore,
 )
 from ace.application.intelligence_build_host import DurableIntelligenceBuildHostComposer
@@ -168,7 +169,7 @@ def _verified_claims(user: dict) -> tuple[str, str]:
     return actor_ref, product_id
 
 
-def _request_identity(*, request: IntelligenceBuildStartV1, product_id: str, actor_ref: str) -> tuple[str, str]:
+def _request_identity(*, request: IntelligenceBuildStartV1Alpha2, product_id: str, actor_ref: str) -> tuple[str, str]:
     material = request.model_dump(
         mode="json",
         exclude={
@@ -186,7 +187,7 @@ def _request_identity(*, request: IntelligenceBuildStartV1, product_id: str, act
 
 async def start_intelligence_build(
     *,
-    request: IntelligenceBuildStartV1,
+    request: IntelligenceBuildStartV1Alpha2,
     user: dict,
     runtime: IntelligenceBuildHttpRuntime,
 ) -> IntelligenceBuildResultV1:

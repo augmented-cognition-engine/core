@@ -17,6 +17,7 @@ from ace.application.intelligence_resource_plane import (
     IntelligenceResourceKind,
     IntelligenceResourcePageV1Alpha1,
 )
+from ace.application.recorded_source_selection import RecordedSourceSelectionReferenceV1Alpha1
 from ace.core.records import (
     AppendOnlyTransactionReceiptV1,
     AppendOnlyTransactionRequestV1,
@@ -131,6 +132,61 @@ class IntelligenceBuildStartV1(BaseModel):
         return self
 
 
+class IntelligenceBuildStartV1Alpha2(BaseModel):
+    """One reviewed v1alpha2 plan submitted for governed execution."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    authority_grant_ref: str = Field(min_length=1, max_length=240)
+    resource_authority_grant_ref: str = Field(min_length=1, max_length=240)
+    activation_approval_receipt_ref: str = Field(min_length=1, max_length=240)
+    activation_approval_subject_ref: str = Field(min_length=1, max_length=240)
+    client_request_id: str = Field(min_length=1, max_length=240)
+    profile_id: str = Field(min_length=1, max_length=240)
+    subject: str = Field(min_length=8, max_length=2_000)
+    outcome_id: str = Field(min_length=1, max_length=240)
+    source_group_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=64)
+    recorded_source_selection_refs: tuple[RecordedSourceSelectionReferenceV1Alpha1, ...] = Field(
+        default_factory=tuple,
+        max_length=64,
+    )
+    cadence_id: str = Field(min_length=1, max_length=240)
+    approved_effects: tuple[IntelligenceBuildEffect, ...]
+    requested_at: datetime
+
+    @field_validator("source_group_ids")
+    @classmethod
+    def _unique_source_groups(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("source_group_ids must be unique")
+        return value
+
+    @field_validator("recorded_source_selection_refs")
+    @classmethod
+    def _exact_recorded_source_selections(
+        cls,
+        value: tuple[RecordedSourceSelectionReferenceV1Alpha1, ...],
+    ) -> tuple[RecordedSourceSelectionReferenceV1Alpha1, ...]:
+        keys = [(item.source_group_id, item.selection_id) for item in value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("recorded_source_selection_refs must name each reviewed source once")
+        return tuple(sorted(value, key=lambda item: (item.source_group_id, item.selection_id)))
+
+    @field_validator("approved_effects")
+    @classmethod
+    def _exact_bounded_effects(cls, value: tuple[IntelligenceBuildEffect, ...]) -> tuple[IntelligenceBuildEffect, ...]:
+        if value != REQUIRED_INTELLIGENCE_BUILD_EFFECTS:
+            raise ValueError("approved_effects must preserve the exact bounded onboarding effect sequence")
+        return value
+
+    @model_validator(mode="after")
+    def _recorded_sources_are_in_reviewed_groups(self):
+        selected = set(self.source_group_ids)
+        if any(item.source_group_id not in selected for item in self.recorded_source_selection_refs):
+            raise ValueError("every recorded source selection must belong to a reviewed source group")
+        return self
+
+
 @dataclass(frozen=True, slots=True)
 class AuthorizedIntelligenceBuild:
     """Exact identity, scope, request, and authority admitted by Core."""
@@ -139,7 +195,7 @@ class AuthorizedIntelligenceBuild:
     request_digest: str
     product_id: str
     actor_ref: str
-    request: IntelligenceBuildStartV1
+    request: IntelligenceBuildStartV1 | IntelligenceBuildStartV1Alpha2
     authority_use: AuthorityUseReceiptV1Alpha1
     activation_approval: ResolvedApprovalReceiptV1
 
@@ -281,6 +337,7 @@ __all__ = [
     "IntelligenceBuildResourcePagePort",
     "IntelligenceBuildRecordedSourcePort",
     "IntelligenceBuildStartV1",
+    "IntelligenceBuildStartV1Alpha2",
     "ProductScopedImmutableRecordStore",
     "RecordedSourceReferenceV1",
     "REQUIRED_INTELLIGENCE_BUILD_EFFECTS",

@@ -11,14 +11,17 @@ from ace.application.intelligence_build_execution import (
     REQUIRED_INTELLIGENCE_BUILD_EFFECTS,
     AuthorizedIntelligenceBuild,
     IntelligenceBuildStartV1,
+    IntelligenceBuildStartV1Alpha2,
     RecordedSourceReferenceV1,
 )
 from ace.application.intelligence_resource_projection import IntelligenceLedgerResourceProjectionReader
 from ace.application.recorded_source_admission import (
     CoreRecordedSourceAdmissionService,
+    CoreRecordedSourceAdmissionV1Alpha2Service,
     RecordedSourceAdmissionError,
     RecordedSourceMaterialV1Alpha1,
 )
+from ace.application.recorded_source_selection import RecordedSourceSelectionV1Alpha1
 from ace.core import (
     AuthenticatedRuntimeContextV1Alpha1,
     AuthorityUseReceiptV1Alpha1,
@@ -207,6 +210,168 @@ async def _stack():
         activation_approval=binding.commit_receipt.approval,
     )
     return binding, build, records, material
+
+
+def _selection(binding, material: RecordedSourceMaterialV1Alpha1) -> RecordedSourceSelectionV1Alpha1:
+    subject = material.subject_binding
+    return RecordedSourceSelectionV1Alpha1(
+        product_id=subject.product_id,
+        pack=binding.prepared_binding.revision.spec.pack,
+        source_group_id=material.source_group_id,
+        mapping_id=material.mapping_id,
+        subject_binding_id=subject.subject_binding_id,
+        entity_type_id=subject.entity_type_id,
+        entity_ref=subject.entity_ref,
+        source_definition_ref=material.source_definition_ref,
+        source_type_ref=material.source_type_ref,
+        source_uri=material.source_uri,
+        captured_payload_digest=material.captured_payload_digest,
+        source_published_at=material.source_published_at,
+        event_effective_at=material.event_effective_at,
+        observed_at=material.observed_at,
+        locator=material.locator,
+    )
+
+
+async def _v1alpha2_stack():
+    binding, build, records, material = await _stack()
+    selection = _selection(binding, material)
+    request = IntelligenceBuildStartV1Alpha2(
+        **build.request.model_dump(mode="python", exclude={"recorded_source_refs"}),
+        recorded_source_selection_refs=(selection.reference(),),
+    )
+    return binding, replace(build, request=request), records, material, selection
+
+
+@pytest.mark.asyncio
+async def test_v1alpha2_admission_binds_reviewed_selection_and_activation_material_on_replay() -> None:
+    binding, build, records, material, selection = await _v1alpha2_stack()
+    first = await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=records,
+    ).admit((material,))
+    replay = await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=records,
+    ).admit((material,))
+
+    receipt = first.acquisition_receipts[0]
+    assert receipt.contract == "ace.application.recorded-source-acquisition-receipt/v1alpha2"
+    assert receipt.reviewed_selection_id == selection.selection_id
+    assert receipt.reviewed_selection_digest == selection.selection_digest
+    assert receipt.recorded_material_id == material.material_id
+    assert receipt.recorded_material_digest == material.material_digest
+    assert receipt.activation_revision == binding.prepared_binding.reference
+    assert replay.replayed is True
+    assert replay == replace(first, replayed=True)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("substitution", ["uri", "time", "subject", "payload"])
+async def test_v1alpha2_admission_rejects_exact_source_substitution_before_append(substitution: str) -> None:
+    binding, build, records, material, _ = await _v1alpha2_stack()
+    excluded = {"material_id", "material_digest"}
+    updates = {}
+    if substitution == "uri":
+        excluded.add("source_uri")
+        updates["source_uri"] = "https://example.invalid/recorded/substituted"
+    elif substitution == "time":
+        excluded.add("observed_at")
+        updates["observed_at"] = material.observed_at + timedelta(minutes=1)
+    elif substitution == "subject":
+        excluded.add("subject_binding")
+        updates["subject_binding"] = type(material.subject_binding)(
+            **material.subject_binding.model_dump(mode="python", exclude={"entity_ref"}),
+            entity_ref="entity:substituted",
+        )
+    else:
+        payload = canonical_json({"reading": {"value": "77.000"}, "subject": {"code": "AX"}})
+        excluded.update({"captured_payload_json", "captured_payload_digest"})
+        updates["captured_payload_json"] = payload
+        updates["captured_payload_digest"] = "sha256:" + hashlib.sha256(payload.encode()).hexdigest()
+    changed = RecordedSourceMaterialV1Alpha1(
+        **material.model_dump(mode="python", exclude=excluded),
+        **updates,
+    )
+
+    with pytest.raises(RecordedSourceAdmissionError, match="activation-neutral selections"):
+        await CoreRecordedSourceAdmissionV1Alpha2Service(
+            build=build,
+            binding=binding,
+            store=records,
+        ).admit((changed,))
+
+    assert records.records == {}
+
+
+@pytest.mark.asyncio
+async def test_v1alpha2_selection_is_activation_neutral_but_admission_requires_current_activation() -> None:
+    binding, build, records, material, selection = await _v1alpha2_stack()
+    current = material.subject_binding.activation_revision
+    stale_revision = type(current)(
+        **current.model_dump(
+            mode="python",
+            exclude={"revision", "revision_id", "revision_digest"},
+        ),
+        revision=current.revision + 1,
+        revision_id="activation_revision:" + "9" * 32,
+        revision_digest="sha256:" + "9" * 64,
+    )
+    stale_subject = type(material.subject_binding)(
+        **material.subject_binding.model_dump(mode="python", exclude={"activation_revision"}),
+        activation_revision=stale_revision,
+    )
+    stale_material = RecordedSourceMaterialV1Alpha1(
+        **material.model_dump(
+            mode="python",
+            exclude={"subject_binding", "material_id", "material_digest"},
+        ),
+        subject_binding=stale_subject,
+    )
+
+    assert _selection(binding, stale_material).reference() == selection.reference()
+    assert stale_material.material_id != material.material_id
+    with pytest.raises(RecordedSourceAdmissionError, match="exact committed activation"):
+        await CoreRecordedSourceAdmissionV1Alpha2Service(
+            build=build,
+            binding=binding,
+            store=records,
+        ).admit((stale_material,))
+
+    assert records.records == {}
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("coordinate", ["product", "pack"])
+async def test_v1alpha2_admission_rejects_reviewed_product_or_pack_substitution(coordinate: str) -> None:
+    binding, build, records, material, selection = await _v1alpha2_stack()
+    changed = selection.model_dump(mode="python", exclude={"selection_id", "selection_digest"})
+    if coordinate == "product":
+        changed["product_id"] = "product:substituted"
+    else:
+        digest = "8" * 64
+        changed["pack"] = type(selection.pack)(
+            pack_id=selection.pack.pack_id,
+            pack_version=selection.pack.pack_version,
+            compiled_pack_id=f"pack_ir:{digest[:32]}",
+            pack_digest=f"sha256:{digest}",
+        )
+    substituted = RecordedSourceSelectionV1Alpha1(**changed)
+    request = IntelligenceBuildStartV1Alpha2(
+        **build.request.model_dump(mode="python", exclude={"recorded_source_selection_refs"}),
+        recorded_source_selection_refs=(substituted.reference(),),
+    )
+
+    with pytest.raises(RecordedSourceAdmissionError, match="activation-neutral selections"):
+        await CoreRecordedSourceAdmissionV1Alpha2Service(
+            build=replace(build, request=request),
+            binding=binding,
+            store=records,
+        ).admit((material,))
+
+    assert records.records == {}
 
 
 @pytest.mark.asyncio

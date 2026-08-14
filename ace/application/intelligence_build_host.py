@@ -15,6 +15,7 @@ from ace.application.intelligence_build_execution import (
     AuthorizedIntelligenceBuild,
     IntelligenceBuildHostServices,
     IntelligenceBuildResourcePagePort,
+    IntelligenceBuildStartV1Alpha2,
 )
 from ace.application.intelligence_build_first_brief import (
     CoreIntelligenceBuildFirstBriefService,
@@ -40,7 +41,10 @@ from ace.application.intelligence_builder_contracts import (
 )
 from ace.application.intelligence_ledger import PreparedIntelligenceLedgerService
 from ace.application.prepared_shift_signal import CorePreparedShiftSignalDerivationService
-from ace.application.recorded_source_admission import CoreRecordedSourceAdmissionService
+from ace.application.recorded_source_admission import (
+    CoreRecordedSourceAdmissionService,
+    CoreRecordedSourceAdmissionV1Alpha2Service,
+)
 from ace.core import CoreAuthorityResolver, ImmutableRecordStore, RuntimeUseResolver
 from ace.core.state import GovernedStateStore
 from ace.intelligence.contracts.resources import ActivationRevisionReferenceV1Alpha1
@@ -355,10 +359,18 @@ class DurableIntelligenceBuildHostComposer:
             records=records,
             resources=resources,
             activation_authority=activation_authority,
-            recorded_sources=CoreRecordedSourceAdmissionService(
-                build=build,
-                binding=binding,
-                store=records,
+            recorded_sources=(
+                CoreRecordedSourceAdmissionV1Alpha2Service(
+                    build=build,
+                    binding=binding,
+                    store=records,
+                )
+                if isinstance(build.request, IntelligenceBuildStartV1Alpha2)
+                else CoreRecordedSourceAdmissionService(
+                    build=build,
+                    binding=binding,
+                    store=records,
+                )
             ),
             prepared_derivations=CorePreparedShiftSignalDerivationService(
                 build=build,
