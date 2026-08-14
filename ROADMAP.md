@@ -82,6 +82,10 @@ on PyPI and GitHub. It packages the Atrium Intelligence Catalog as backward-comp
 of the released 0.8 promise. It is the entry foundation for—but does not complete—the 0.9
 Single-user Intelligence Builder milestone.
 
+The current 0.8.3 compatibility release candidate adds the public exact-installed-Pack
+conformance seam and preserves source publication time separately from observation and ingestion
+time. It remains a patch on the released 0.8 promise and does not advance roadmap maturity.
+
 The 0.8 release makes the existing Builder, composition, memory, authority, action, and outcome
 capabilities coherent as one **Intelligence Operating System**. One governed point-in-time resource
 plane exposes the complete evidence → orientation → decision/action → outcome → feedback loop to

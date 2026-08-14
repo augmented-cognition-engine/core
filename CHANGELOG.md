@@ -2,6 +2,19 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 0.8.3
+
+### External-pack compatibility and source time
+
+- Add the public conformance seam external packages use to resolve and verify exact installed
+  Domain Packs without importing the private host runtime.
+- Preserve source publication time separately from observation and ingestion time in declarative
+  source mapping, including explicit unknown publication time.
+- Export the durable Intelligence build-host composer through the public Application surface so
+  isolated installed-surface conformance cannot depend on test import order.
+- Carry the merged single-user Builder hardening through active-session first-Brief binding while
+  preserving schema head v177, exactly eleven MCP tools, and the 0.8 compatibility line.
+
 ## 0.8.2
 
 ### Intelligence Catalog and outcome-led onboarding
