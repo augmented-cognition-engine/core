@@ -811,7 +811,7 @@ class LiveBriefSynthesisService:
             or receipt.attention != attention.record_reference()
             or receipt.signal != resource_reference(signal)
             or receipt.shift != resource_reference(shift)
-            or signal.as_of != request.brief_as_of
+            or signal.as_of > request.brief_as_of
         ):
             raise LiveBriefSynthesisError("LIVE route receipt is missing or cross-wired")
         try:

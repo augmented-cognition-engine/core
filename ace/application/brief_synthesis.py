@@ -679,8 +679,8 @@ class BriefSynthesisService:
         loaded_signal = await ledger.load_exact(attention.signal)
         if not isinstance(loaded_signal, SignalV1Alpha1):
             raise BriefSynthesisError("routed attention Signal is missing from exact PREPARED scope")
-        if loaded_signal.as_of != request.brief_as_of:
-            raise BriefSynthesisError("Brief cutoff must equal the routed Signal as_of time")
+        if loaded_signal.as_of > request.brief_as_of:
+            raise BriefSynthesisError("routed Signal semantic as_of cannot follow the Brief cutoff")
         if len(loaded_signal.lineage) != 1 or any(
             item.resource_kind is not LineageResourceKind.SHIFT or item.relation is not LineageRelation.DERIVED_FROM
             for item in loaded_signal.lineage

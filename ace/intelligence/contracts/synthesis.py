@@ -283,8 +283,10 @@ class BriefSynthesisRequestV1Alpha1(_StrictFrozenContract):
             or self.activation_revision.product_id != self.product_id
         ):
             raise ValueError("Brief synthesis request crossed exact product scope")
-        if not self.brief_as_of <= self.context_cutoff_at <= self.requested_at:
-            raise ValueError("Brief semantic as_of, context cutoff, and request time must be ordered")
+        if self.brief_as_of != self.context_cutoff_at:
+            raise ValueError("Brief as_of must equal its frozen analysis and evidence cutoff")
+        if self.context_cutoff_at > self.requested_at:
+            raise ValueError("Brief analysis and evidence cutoff cannot follow request time")
         if not (
             self.authenticated_context.authenticated_at <= self.requested_at < self.authenticated_context.expires_at
         ):
@@ -1092,12 +1094,14 @@ class CaseBriefSynthesisRequestV1Alpha1(_StrictFrozenContract):
             raise ValueError("Case Brief synthesis request crossed exact product scope")
         if self.case.resource_kind is not IntelligenceRecordKind.CASE or self.case.mode is not self.mode:
             raise ValueError("Case Brief synthesis request must bind one exact PREPARED Case")
-        if self.case.as_of != self.brief_as_of:
-            raise ValueError("Brief cutoff must equal the bound Case as_of closure")
-        if self.case.available_at > self.context_cutoff_at:
+        if self.case.as_of > self.brief_as_of:
+            raise ValueError("the bound Case semantic as_of cannot follow the Brief cutoff")
+        if self.case.available_at > self.brief_as_of:
             raise ValueError("the bound Case must be available by the context cutoff")
-        if not self.brief_as_of <= self.context_cutoff_at <= self.requested_at:
-            raise ValueError("Brief semantic as_of, context cutoff, and request time must be ordered")
+        if self.brief_as_of != self.context_cutoff_at:
+            raise ValueError("Brief as_of must equal its frozen analysis and evidence cutoff")
+        if self.context_cutoff_at > self.requested_at:
+            raise ValueError("Brief analysis and evidence cutoff cannot follow request time")
         if not (
             self.authenticated_context.authenticated_at <= self.requested_at < self.authenticated_context.expires_at
         ):
