@@ -109,22 +109,10 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
                     </p>
                   </div>
 
-                  {(answer.whyItMatters !== null || answer.whenItChanged !== null) && (
-                    <div className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
-                      {answer.whyItMatters !== null && (
-                        <div className="bg-card p-3">
-                          <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Why it matters</div>
-                          <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whyItMatters}</p>
-                        </div>
-                      )}
-                      {answer.whenItChanged !== null && (
-                        <div className="bg-card p-3">
-                          <div className="flex items-center gap-1.5 font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">
-                            <Clock3 className="size-3" /> When
-                          </div>
-                          <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whenItChanged}</p>
-                        </div>
-                      )}
+                  {answer.whyItMatters !== null && (
+                    <div className="border-l-2 border-brand/55 pl-3">
+                      <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Why it matters</div>
+                      <p className="mt-1.5 text-xs leading-5 text-foreground/80 text-pretty">{answer.whyItMatters}</p>
                     </div>
                   )}
 
@@ -154,6 +142,12 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
                       </div>
                     ))}
                   </div>
+                  {answer.whenItChanged !== null && (
+                    <div className="mt-3 flex items-start gap-2 border-t border-border/70 pt-3 text-[10px] leading-4 text-muted-foreground">
+                      <Clock3 className="mt-0.5 size-3 shrink-0" />
+                      <span>{answer.whenItChanged}</span>
+                    </div>
+                  )}
                 </aside>
               </div>
             )}

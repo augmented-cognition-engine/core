@@ -58,6 +58,16 @@ is rendered as a progression, not three equivalent KPI cards. The last stage is 
 opening for human judgment, not an autonomous action. Together these compositions make
 the product legible as an Intelligence OS rather than a collection of dashboards.
 
+Within every intelligence record, narrative weight is intentionally asymmetric:
+
+1. **What changed** is the lead claim and receives the strongest type and spacing.
+2. **Why it matters** is the interpretation and appears as a secondary annotation.
+3. **Evidence and timing** form a compact receipt beneath or beside the narrative.
+
+Compact cards omit the repeated four-part grid entirely: they show the change, a short
+“Why” annotation when available, and the existing provenance/time receipt. Full detail
+remains one interaction away in the resource sheet.
+
 ## Color roles
 
 | Role | Light | Dark / Atrium | Meaning |

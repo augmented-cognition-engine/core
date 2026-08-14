@@ -1,4 +1,4 @@
-import { ArrowUpRight, CircleAlert, GitBranch, ShieldCheck } from 'lucide-react'
+import { ArrowUpRight, CircleAlert, Clock3, GitBranch, ShieldCheck } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 import { Badge } from '@/design/shadcn/ui/badge'
@@ -53,6 +53,11 @@ export function ResourceCard({
   const whyItMatters = payloadText(record.payload, 'why_it_matters')
   const resolvedStorySections = storySections ?? intelligenceStoryForRecord(record)
   const whatChanged = resolvedStorySections.find((section) => section.id === 'what_changed')
+  const whyStory = resolvedStorySections.find((section) => section.id === 'why_it_matters')
+  const howStory = resolvedStorySections.find((section) => section.id === 'how_we_know')
+  const whenStory = resolvedStorySections.find((section) => section.id === 'when_it_changed')
+  const primaryStory = whatChanged ?? resolvedStorySections[0]
+  const resolvedWhy = whyStory?.body ?? whyItMatters
   const confidence = payloadNumber(record.payload, 'confidence')
   const confidencePercent = confidence !== null && confidence >= 0 && confidence <= 1
     ? Math.round(confidence * 100)
@@ -115,31 +120,71 @@ export function ResourceCard({
                     </p>
                   )}
                   {resolvedStorySections.length > 0 && (
-                    <div className={featured
-                      ? horizon
-                        ? 'mt-7 grid border-y border-white/[0.08] sm:grid-cols-2'
-                        : 'mt-5 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2'
-                      : 'mt-3 grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border'}>
-                      {resolvedStorySections.map((section) => (
-                        <div key={section.id} className={featured ? horizon ? 'border-white/[0.08] py-3 pr-5 even:border-l even:pl-5' : 'bg-card p-4' : 'min-w-0 bg-card p-2.5'}>
-                          <div className={featured
-                            ? 'font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand'
-                            : 'font-mono text-[8px] font-semibold uppercase tracking-[0.14em] text-brand'}>
-                            {section.label}
-                          </div>
-                          <p className={featured
-                            ? 'mt-1.5 text-xs leading-5 text-foreground/85'
-                            : 'mt-1 line-clamp-2 text-[10px] leading-4 text-foreground/80'}>
-                            {section.body}
-                          </p>
+                    featured ? (
+                      <div className={horizon
+                        ? 'mt-7 border-y border-white/[0.08]'
+                        : 'mt-5 overflow-hidden rounded-lg border bg-card'}>
+                        <div className="grid gap-5 py-4 sm:grid-cols-[minmax(0,1.35fr)_minmax(13rem,0.65fr)]">
+                          {primaryStory !== undefined && (
+                            <div className={horizon ? 'pr-5' : 'px-4'}>
+                              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-live">
+                                What changed
+                              </div>
+                              <p className="mt-2 max-w-[58ch] text-[15px] font-medium leading-6 text-foreground text-pretty">
+                                {primaryStory.body}
+                              </p>
+                            </div>
+                          )}
+                          {resolvedWhy !== null && (
+                            <div className={horizon ? 'border-l border-white/[0.08] pl-5 pr-3' : 'border-l px-4'}>
+                              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">
+                                Why it matters
+                              </div>
+                              <p className="mt-2 text-xs leading-5 text-foreground/75 text-pretty">{resolvedWhy}</p>
+                            </div>
+                          )}
                         </div>
-                      ))}
-                    </div>
+                        {(howStory !== undefined || whenStory !== undefined) && (
+                          <div className={horizon
+                            ? 'grid gap-3 border-t border-white/[0.08] py-3 text-[10px] text-muted-foreground sm:grid-cols-2'
+                            : 'grid gap-3 border-t px-4 py-3 text-[10px] text-muted-foreground sm:grid-cols-2'}>
+                            {howStory !== undefined && (
+                              <div className="flex min-w-0 items-start gap-2">
+                                <GitBranch className="mt-0.5 size-3 shrink-0 text-live" />
+                                <span className="line-clamp-2 leading-4">{howStory.body}</span>
+                              </div>
+                            )}
+                            {whenStory !== undefined && (
+                              <div className="flex min-w-0 items-start gap-2">
+                                <Clock3 className="mt-0.5 size-3 shrink-0 text-white/40" />
+                                <span className="line-clamp-2 leading-4">{whenStory.body}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-3">
+                        {primaryStory !== undefined && (
+                          <p className={compact
+                            ? 'line-clamp-2 text-xs font-medium leading-[1.45] text-foreground/90 text-pretty'
+                            : 'line-clamp-3 text-sm font-medium leading-5 text-foreground/90 text-pretty'}>
+                            {primaryStory.body}
+                          </p>
+                        )}
+                        {resolvedWhy !== null && resolvedWhy !== primaryStory?.body && (
+                          <div className="mt-2 flex gap-2 border-t border-border/70 pt-2">
+                            <span className="shrink-0 font-mono text-[8px] font-semibold uppercase tracking-[0.12em] text-brand">Why</span>
+                            <p className="line-clamp-2 text-[10px] leading-4 text-muted-foreground text-pretty">{resolvedWhy}</p>
+                          </div>
+                        )}
+                      </div>
+                    )
                   )}
-                  {featured && resolvedStorySections.length === 0 && whyItMatters !== null && (
+                  {featured && resolvedStorySections.length === 0 && resolvedWhy !== null && (
                     <div className="mt-5 border-l-2 border-brand/70 pl-3">
                       <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">Why it matters</div>
-                      <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground/85">{whyItMatters}</p>
+                      <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground/85">{resolvedWhy}</p>
                     </div>
                   )}
                   <div className={compact ? 'mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground' : 'mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground'}>
@@ -169,24 +214,47 @@ export function ResourceCard({
 
         <div className="space-y-6 p-6">
           {resolvedStorySections.length > 0 && (
-            <section className="grid gap-3 sm:grid-cols-2">
-              {resolvedStorySections.map((section) => (
-                <div key={section.id} className="rounded-lg border border-brand/15 bg-brand/[0.035] p-4">
-                  <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">
-                    {section.label}
-                  </div>
-                  <p className="mt-2 text-sm leading-relaxed text-foreground/90">{section.body}</p>
+            <section className="space-y-5">
+              {primaryStory !== undefined && (
+                <div>
+                  <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-live">What changed</div>
+                  <p className="mt-2 text-lg font-medium leading-7 tracking-[-0.01em] text-foreground text-pretty">{primaryStory.body}</p>
                 </div>
-              ))}
+              )}
+              {resolvedWhy !== null && (
+                <div className="border-l-2 border-brand/60 pl-4">
+                  <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-brand">Why it matters</div>
+                  <p className="mt-2 text-sm leading-6 text-foreground/85 text-pretty">{resolvedWhy}</p>
+                </div>
+              )}
+              {(howStory !== undefined || whenStory !== undefined) && (
+                <div className="rounded-lg border bg-muted/25 p-4">
+                  <div className="mb-3 font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Evidence receipt</div>
+                  <dl className="space-y-3 text-xs">
+                    {howStory !== undefined && (
+                      <div className="grid grid-cols-[4.5rem_1fr] gap-3">
+                        <dt className="flex items-center gap-1.5 text-muted-foreground"><GitBranch className="size-3" /> Basis</dt>
+                        <dd className="leading-5 text-foreground/80">{howStory.body}</dd>
+                      </div>
+                    )}
+                    {whenStory !== undefined && (
+                      <div className="grid grid-cols-[4.5rem_1fr] gap-3 border-t pt-3">
+                        <dt className="flex items-center gap-1.5 text-muted-foreground"><Clock3 className="size-3" /> Timing</dt>
+                        <dd className="leading-5 text-foreground/80">{whenStory.body}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
+              )}
             </section>
           )}
 
-          {resolvedStorySections.length === 0 && whyItMatters !== null && (
+          {resolvedStorySections.length === 0 && resolvedWhy !== null && (
             <section className="rounded-lg border border-brand/20 bg-brand/5 p-4">
               <div className="font-mono text-[10px] font-semibold uppercase tracking-widest text-brand">
                 Why it matters
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-foreground/90">{whyItMatters}</p>
+              <p className="mt-2 text-sm leading-relaxed text-foreground/90">{resolvedWhy}</p>
             </section>
           )}
 
