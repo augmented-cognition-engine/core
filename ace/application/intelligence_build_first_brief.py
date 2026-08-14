@@ -384,7 +384,6 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
             ) from None
         except Exception:
             raise IntelligenceBuildFirstBriefError("routed PREPARED material failed exact replay") from None
-        signal = signals[0]
         synthesis_material = {
             "build_id": self.build.build_id,
             "request_id": exact.request_id,
@@ -405,7 +404,7 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
             pack=binding.prepared_binding.revision.spec.pack,
             attention_receipt_id=exact.attention_receipt_id,
             attention_receipt_digest=exact.attention_receipt_digest,
-            brief_as_of=signal.as_of,
+            brief_as_of=attention.evaluated_at,
             context_cutoff_at=attention.evaluated_at,
             requested_at=exact.requested_at,
         )

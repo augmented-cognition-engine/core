@@ -72,11 +72,12 @@ pytestmark = pytest.mark.unit
 PRODUCT = "product:prepared-brief"
 ACTIVATED_AT = datetime(2026, 8, 6, 11, 55, tzinfo=UTC)
 BASELINE_AS_OF = datetime(2026, 8, 6, 12, 0, tzinfo=UTC)
-BRIEF_AS_OF = datetime(2026, 8, 6, 12, 1, tzinfo=UTC)
+SIGNAL_AS_OF = datetime(2026, 8, 6, 12, 1, tzinfo=UTC)
 PROJECTED_AT = datetime(2026, 8, 6, 12, 1, 30, tzinfo=UTC)
 SHIFT_DETECTED_AT = datetime(2026, 8, 6, 12, 2, tzinfo=UTC)
 SIGNAL_DETECTED_AT = datetime(2026, 8, 6, 12, 2, 30, tzinfo=UTC)
 ROUTED_AT = datetime(2026, 8, 6, 12, 4, tzinfo=UTC)
+BRIEF_AS_OF = ROUTED_AT
 REQUESTED_AT = datetime(2026, 8, 6, 12, 5, tzinfo=UTC)
 GENERATED_AT = datetime(2026, 8, 6, 12, 5, 15, tzinfo=UTC)
 
@@ -325,16 +326,16 @@ def _batch(binding, *, same_source: bool = False) -> PreparedResourceAdmissionV1
         "source_digest": "sha256:" + "3" * 64,
         "acquisition_receipt_ref": "acquisition:edge-x1-current",
         "acquisition_receipt_digest": "sha256:" + "4" * 64,
-        "source_published_at": BRIEF_AS_OF,
+        "source_published_at": SIGNAL_AS_OF,
     }
     second = ObservationV1Alpha1(
         product_id=PRODUCT,
         mode=IntelligenceResourceMode.PREPARED,
         activation_revision=reference,
-        as_of=BRIEF_AS_OF,
+        as_of=SIGNAL_AS_OF,
         **second_source,
-        observed_at=BRIEF_AS_OF,
-        ingested_at=BRIEF_AS_OF,
+        observed_at=SIGNAL_AS_OF,
+        ingested_at=SIGNAL_AS_OF,
         subject_refs=("entity:edge-x1",),
         payload=CanonicalJsonValueV1Alpha1(
             value_json=canonical_json({"name": "Edge X1", "price": {"amount": 1080, "currency": "USD"}})
@@ -346,10 +347,10 @@ def _batch(binding, *, same_source: bool = False) -> PreparedResourceAdmissionV1
             product_id=PRODUCT,
             mode=IntelligenceResourceMode.PREPARED,
             activation_revision=reference,
-            as_of=BRIEF_AS_OF,
+            as_of=SIGNAL_AS_OF,
             **second_source,
-            observed_at=BRIEF_AS_OF,
-            ingested_at=BRIEF_AS_OF,
+            observed_at=SIGNAL_AS_OF,
+            ingested_at=SIGNAL_AS_OF,
             subject_refs=("entity:edge-x1",),
             payload=CanonicalJsonValueV1Alpha1(
                 value_json=canonical_json(
@@ -381,7 +382,7 @@ def _batch(binding, *, same_source: bool = False) -> PreparedResourceAdmissionV1
         product_id=PRODUCT,
         mode=IntelligenceResourceMode.PREPARED,
         activation_revision=reference,
-        as_of=BRIEF_AS_OF,
+        as_of=SIGNAL_AS_OF,
         lineage=tuple(
             _lineage(item, LineageResourceKind.OBSERVATION) for item in (second, convergent) if item is not None
         ),
@@ -866,15 +867,15 @@ async def test_live_then_fresh_service_replay_is_exact_authorized_and_provider_o
     assert env.request.activation_revision.revision_digest == (
         "sha256:caeb8fcafd17a6ba50741d44837d9980f755549d82cabcdb64d127efab72fff0"
     )
-    assert first.brief.resource_id == "brief:52d3d753b9b2ee30d1a8faaa316e1652"
-    assert first.brief.resource_digest == ("sha256:52d3d753b9b2ee30d1a8faaa316e16526b3a6e5e4cf793d8417df8b91fe6a206")
-    assert first.synthesis_receipt.receipt_id == ("brief_synthesis_receipt:13083446bbc36acc4ae97e2a96a22700")
+    assert first.brief.resource_id == "brief:b5974bba19f9cbd4fa854db254c063db"
+    assert first.brief.resource_digest == ("sha256:b5974bba19f9cbd4fa854db254c063db4a111204fe4fa6c3a5650a447e6dfe95")
+    assert first.synthesis_receipt.receipt_id == ("brief_synthesis_receipt:da04b6b9c195d0cf98fe7d5ad969df4a")
     assert first.synthesis_receipt.receipt_digest == (
-        "sha256:13083446bbc36acc4ae97e2a96a22700087d98c9b4e5b3145a68c8b94439dfc1"
+        "sha256:da04b6b9c195d0cf98fe7d5ad969df4a5f0c226b64e34c011bc10720d07b6de9"
     )
     assert first.transaction_receipt.receipt_id == ("append_only_receipt:a0f17f23345df62697e317b927484ef1")
     assert first.transaction_receipt.request_hash == (
-        "sha256:ce69f1018e1ea95d8b262626bbfe15580563cb999cb0b0b51b05f6960aa0d35b"
+        "sha256:42f2dcdc73c34a9b09b4ab371445b0c73f6bdb4e8314dec03e5178f39789598b"
     )
     assert env.provider.calls == 1
     assert env.runtime.capability_calls == env.runtime.authority_calls == 4
@@ -1318,28 +1319,23 @@ async def test_divergent_synthesis_replay_and_cross_wired_attempt_fail_before_pr
 
 
 @pytest.mark.asyncio
-async def test_semantic_as_of_and_context_availability_are_distinct_and_fail_closed():
+async def test_signal_semantic_time_precedes_brief_analysis_cutoff_and_future_evidence_fails_closed():
     env = await _environment()
-    wrong_as_of = BriefSynthesisRequestV1Alpha1.model_validate(
+    assert SIGNAL_AS_OF < env.request.brief_as_of == env.request.context_cutoff_at
+    stale_cutoff = BriefSynthesisRequestV1Alpha1.model_validate(
         {
             **env.request.model_dump(mode="python", exclude={"request_id", "request_digest"}),
             "brief_as_of": BRIEF_AS_OF - timedelta(seconds=1),
+            "context_cutoff_at": BRIEF_AS_OF - timedelta(seconds=1),
         }
     )
     with pytest.raises(BriefSynthesisError):
-        await env.service.synthesize(wrong_as_of)
-    unavailable = BriefSynthesisRequestV1Alpha1.model_validate(
-        {
-            **env.request.model_dump(mode="python", exclude={"request_id", "request_digest"}),
-            "context_cutoff_at": ROUTED_AT - timedelta(seconds=1),
-        }
-    )
-    with pytest.raises(BriefSynthesisError):
-        await env.service.synthesize(unavailable)
+        await env.service.synthesize(stale_cutoff)
     with pytest.raises(ValidationError):
         BriefSynthesisRequestV1Alpha1.model_validate(
             {
                 **env.request.model_dump(mode="python", exclude={"request_id", "request_digest"}),
+                "brief_as_of": REQUESTED_AT + timedelta(seconds=1),
                 "context_cutoff_at": REQUESTED_AT + timedelta(seconds=1),
             }
         )

@@ -61,6 +61,7 @@ from tests.intelligence.test_brief_synthesis import (
     REQUESTED_AT,
     ROUTED_AT,
     SHIFT_DETECTED_AT,
+    SIGNAL_AS_OF,
     SIGNAL_DETECTED_AT,
     _ActivationAuthority,
     _ActivationStore,
@@ -301,7 +302,7 @@ def _derivation(
         reference,
         entity=entity,
         suffix=f"{key}-current",
-        as_of=BRIEF_AS_OF,
+        as_of=SIGNAL_AS_OF,
         attributes=current,
     )
     baseline_snapshot = _snapshot(
@@ -315,7 +316,7 @@ def _derivation(
         reference,
         entity=entity,
         observations=(second,),
-        as_of=BRIEF_AS_OF,
+        as_of=SIGNAL_AS_OF,
         attributes=current,
     )
     shift = detect_numeric_shift(
@@ -791,6 +792,7 @@ async def test_stale_context_cutoff_excludes_a_case_member_and_fails_closed():
         CaseBriefSynthesisRequestV1Alpha1.model_validate(
             env.request.model_copy(
                 update={
+                    "brief_as_of": stale_cutoff,
                     "context_cutoff_at": stale_cutoff,
                     "request_id": None,
                     "request_digest": None,
