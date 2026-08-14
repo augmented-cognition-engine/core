@@ -31,6 +31,7 @@ from ace.application import (
     IntelligenceResourceQueryV1Alpha1,
     LiveSourceResourceProjectionReader,
     MonitoringResourceProjectionReader,
+    RecordedSourceReadinessResourceProjectionReader,
 )
 from ace.application.intelligence_build_execution import AuthorizedIntelligenceBuild
 from ace.core import ImmutableRecordPersistenceError, ImmutableRecordStore
@@ -122,6 +123,10 @@ def intelligence_resource_projection_reader(records: ImmutableRecordStore) -> In
             degrade_unsupported=False,
         ),
         LiveSourceResourceProjectionReader(
+            store=records,
+            degrade_unsupported=False,
+        ),
+        RecordedSourceReadinessResourceProjectionReader(
             store=records,
             degrade_unsupported=False,
         ),

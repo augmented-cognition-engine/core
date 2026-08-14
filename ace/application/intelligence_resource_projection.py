@@ -9,11 +9,20 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, TypeAdapter
 
+from ace.application.intelligence_ledger import PREPARED_RECORD_SPACE
 from ace.application.intelligence_resource_plane import (
     IntelligenceResourceProjectionBatch,
     IntelligenceResourceProjectionReader,
 )
 from ace.application.monitoring import LIVE_MONITORING_RECORD_SPACE
+from ace.application.recorded_source_admission import (
+    RECORDED_SOURCE_ACQUISITION_RECEIPT_V1ALPHA2_VERSION,
+    RECORDED_SOURCE_ACQUISITION_RECEIPT_VERSION,
+    RECORDED_SOURCE_RECORD_KIND,
+    SOURCE_SNAPSHOT_RECORD_KIND,
+    RecordedSourceAcquisitionReceiptV1Alpha1,
+    RecordedSourceAcquisitionReceiptV1Alpha2,
+)
 from ace.core.contracts import canonical_hash, canonical_json
 from ace.core.decisions import DecisionV1Alpha1, OutcomeV1Alpha1
 from ace.core.records import ImmutableRecordStore, ImmutableRecordV1
@@ -88,6 +97,7 @@ LIVE_SOURCE_RESOURCE_KINDS = frozenset(
         IntelligenceResourceKind.SOURCE,
     }
 )
+RECORDED_SOURCE_READINESS_RESOURCE_KINDS = frozenset({IntelligenceResourceKind.SOURCE_HEALTH})
 _LINEAGE_TO_PUBLIC: dict[LineageResourceKind, IntelligenceResourceKind] = {
     LineageResourceKind.OBSERVATION: IntelligenceResourceKind.OBSERVATION,
     LineageResourceKind.ENTITY_SNAPSHOT: IntelligenceResourceKind.ENTITY,
@@ -1099,6 +1109,259 @@ class LiveSourceResourceProjectionReader(IntelligenceResourceProjectionReader):
         )
 
 
+def _decode_recorded_acquisition(
+    record: ImmutableRecordV1,
+) -> RecordedSourceAcquisitionReceiptV1Alpha1 | RecordedSourceAcquisitionReceiptV1Alpha2:
+    models = {
+        RECORDED_SOURCE_ACQUISITION_RECEIPT_VERSION: RecordedSourceAcquisitionReceiptV1Alpha1,
+        RECORDED_SOURCE_ACQUISITION_RECEIPT_V1ALPHA2_VERSION: RecordedSourceAcquisitionReceiptV1Alpha2,
+    }
+    model = models.get(record.payload_contract)
+    if model is None:
+        raise ValueError("recorded acquisition uses an unsupported contract")
+    value = model.model_validate(record.payload)
+    if (
+        record.record_space != PREPARED_RECORD_SPACE
+        or record.record_kind != RECORDED_SOURCE_RECORD_KIND
+        or record.record_key != value.receipt_id
+        or record.product_id != value.product_id
+        or record.as_of != value.observed_at
+        or record.available_at != value.admitted_at
+    ):
+        raise ValueError("recorded acquisition envelope mismatch")
+    return value
+
+
+def _decode_recorded_snapshot(record: ImmutableRecordV1) -> CanonicalSourceSnapshotV1Alpha1:
+    value = CanonicalSourceSnapshotV1Alpha1.model_validate(record.payload)
+    if (
+        record.record_space != PREPARED_RECORD_SPACE
+        or record.record_kind != SOURCE_SNAPSHOT_RECORD_KIND
+        or record.record_key != value.source_snapshot_ref
+        or record.payload_contract != value.contract
+        or record.as_of != value.ingested_at
+        or record.available_at != value.ingested_at
+    ):
+        raise ValueError("recorded source snapshot envelope mismatch")
+    return value
+
+
+def _recorded_source_readiness_record(
+    *,
+    acquisition: RecordedSourceAcquisitionReceiptV1Alpha1 | RecordedSourceAcquisitionReceiptV1Alpha2,
+    snapshot: CanonicalSourceSnapshotV1Alpha1,
+    revision: int,
+    supersedes: IntelligenceResourceReferenceV1Alpha1 | None,
+) -> IntelligenceResourceRecordV1Alpha1:
+    if (
+        snapshot.acquisition_receipt_ref != acquisition.receipt_id
+        or snapshot.acquisition_receipt_digest != acquisition.receipt_digest
+        or snapshot.source_definition_ref != acquisition.source_definition_ref
+        or snapshot.source_type_ref != acquisition.source_type_ref
+        or snapshot.source_uri != acquisition.source_uri
+        or snapshot.captured_payload_digest != acquisition.captured_payload_digest
+        or snapshot.source_published_at != acquisition.source_published_at
+        or snapshot.event_effective_at != acquisition.event_effective_at
+        or snapshot.observed_at != acquisition.observed_at
+        or snapshot.ingested_at != acquisition.admitted_at
+        or snapshot.acquisition_mode.value != "recorded_replay"
+    ):
+        raise ValueError("recorded acquisition and source snapshot do not form one exact admitted source")
+    resource_id = f"source_health:{canonical_hash([acquisition.product_id, acquisition.source_definition_ref])[:32]}"
+    reference = IntelligenceResourceReferenceV1Alpha1(
+        product_id=acquisition.product_id,
+        resource_kind=IntelligenceResourceKind.SOURCE_HEALTH,
+        resource_id=resource_id,
+        resource_digest=str(acquisition.receipt_digest),
+        resource_contract=acquisition.contract,
+        revision=revision,
+        as_of=acquisition.observed_at,
+        available_at=acquisition.admitted_at,
+    )
+    if revision == 1 and supersedes is not None:
+        raise ValueError("first recorded source readiness revision cannot supersede prior material")
+    if revision > 1 and (
+        supersedes is None or supersedes.resource_id != resource_id or supersedes.revision != revision - 1
+    ):
+        raise ValueError("later recorded source readiness requires its exact prior revision")
+    reviewed_selection_id = (
+        acquisition.reviewed_selection_id if isinstance(acquisition, RecordedSourceAcquisitionReceiptV1Alpha2) else None
+    )
+    reviewed_selection_digest = (
+        acquisition.reviewed_selection_digest
+        if isinstance(acquisition, RecordedSourceAcquisitionReceiptV1Alpha2)
+        else None
+    )
+    payload = {
+        "health_basis": "recorded_admission",
+        "readiness_state": "ready",
+        "credential_requirement": "none_required",
+        "credential_state": "not_applicable",
+        "permission_state": "approved",
+        "permission_receipt_ref": str(acquisition.build_authority_use.receipt_id),
+        "permission_receipt_digest": str(acquisition.build_authority_use.receipt_digest),
+        "activation_state": "active",
+        "activation_revision": acquisition.activation_revision.model_dump(mode="json"),
+        "admission_state": "admitted",
+        "admission_receipt_ref": str(acquisition.receipt_id),
+        "admission_receipt_digest": str(acquisition.receipt_digest),
+        "source_group_id": acquisition.source_group_id,
+        "source_definition_ref": acquisition.source_definition_ref,
+        "source_type_ref": acquisition.source_type_ref,
+        "source_uri": acquisition.source_uri,
+        "recorded_material_id": acquisition.recorded_material_id,
+        "recorded_material_digest": acquisition.recorded_material_digest,
+        "reviewed_selection_id": reviewed_selection_id,
+        "reviewed_selection_digest": reviewed_selection_digest,
+        "source_snapshot_ref": str(snapshot.source_snapshot_ref),
+        "source_snapshot_digest": str(snapshot.source_snapshot_digest),
+        "last_success_at": acquisition.admitted_at.isoformat(),
+        "last_error": None,
+        "retry_state": "not_retrying",
+        "semantic_as_of": acquisition.observed_at.isoformat(),
+        "source_published_at": (
+            None if acquisition.source_published_at is None else acquisition.source_published_at.isoformat()
+        ),
+        "event_effective_at": (
+            None if acquisition.event_effective_at is None else acquisition.event_effective_at.isoformat()
+        ),
+        "available_at": acquisition.admitted_at.isoformat(),
+        "freshness": "unverified",
+        "freshness_verified": False,
+        "network_capture_performed": False,
+    }
+    subjects = tuple(
+        sorted(
+            {
+                acquisition.build_id,
+                acquisition.source_group_id,
+                acquisition.source_definition_ref,
+                acquisition.source_type_ref,
+                acquisition.recorded_material_id,
+                *(item for item in (reviewed_selection_id,) if item is not None),
+            }
+        )
+    )
+    return IntelligenceResourceRecordV1Alpha1(
+        reference=reference,
+        availability=IntelligenceResourceAvailability.AVAILABLE,
+        title=f"Recorded source ready: {acquisition.source_definition_ref}",
+        summary="Exact reviewed material was admitted; credentials are not required and freshness is unverified.",
+        subject_refs=subjects,
+        supersedes=supersedes,
+        payload=CanonicalJsonValueV1Alpha1(value_json=canonical_json(payload)),
+    )
+
+
+class RecordedSourceReadinessResourceProjectionReader(IntelligenceResourceProjectionReader):
+    """Project governed recorded admissions as explicit, non-live source readiness."""
+
+    def __init__(self, *, store: ImmutableRecordStore, degrade_unsupported: bool = True) -> None:
+        self.store = store
+        self.degrade_unsupported = degrade_unsupported
+
+    @property
+    def supported_kinds(self) -> frozenset[IntelligenceResourceKind]:
+        return RECORDED_SOURCE_READINESS_RESOURCE_KINDS
+
+    async def read(
+        self,
+        *,
+        query: IntelligenceResourceQueryV1Alpha1,
+        after: IntelligenceResourceCursorV1Alpha1 | None,
+        limit: int,
+    ) -> IntelligenceResourceProjectionBatch:
+        requested = set(query.resource_kinds)
+        relevant = requested & RECORDED_SOURCE_READINESS_RESOURCE_KINDS
+        degraded = {
+            f"degraded_reason:unsupported-{kind.value}"
+            for kind in requested - RECORDED_SOURCE_READINESS_RESOURCE_KINDS
+            if self.degrade_unsupported
+        }
+        if not relevant:
+            return IntelligenceResourceProjectionBatch(
+                records=(),
+                state=(IntelligenceResourcePageState.DEGRADED if degraded else IntelligenceResourcePageState.COMPLETE),
+                degraded_reason_refs=tuple(sorted(degraded)),
+            )
+        try:
+            acquisition_records = await self.store.read_as_of(
+                product_id=query.product_id,
+                record_space=PREPARED_RECORD_SPACE,
+                record_kind=RECORDED_SOURCE_RECORD_KIND,
+                available_at=query.available_at,
+            )
+            snapshot_records = await self.store.read_as_of(
+                product_id=query.product_id,
+                record_space=PREPARED_RECORD_SPACE,
+                record_kind=SOURCE_SNAPSHOT_RECORD_KIND,
+                available_at=query.available_at,
+            )
+        except Exception:
+            return IntelligenceResourceProjectionBatch(
+                records=(),
+                state=IntelligenceResourcePageState.DEGRADED,
+                degraded_reason_refs=("degraded_reason:read-recorded-source-readiness",),
+            )
+        snapshots: dict[str, tuple[ImmutableRecordV1, CanonicalSourceSnapshotV1Alpha1]] = {}
+        for record in snapshot_records:
+            try:
+                snapshot = _decode_recorded_snapshot(record)
+                receipt_ref = str(snapshot.acquisition_receipt_ref)
+                if receipt_ref in snapshots:
+                    raise ValueError("duplicate recorded source snapshot")
+                snapshots[receipt_ref] = (record, snapshot)
+            except Exception:
+                degraded.add("degraded_reason:invalid-recorded-source-readiness")
+        chains: dict[
+            str,
+            list[
+                tuple[
+                    RecordedSourceAcquisitionReceiptV1Alpha1 | RecordedSourceAcquisitionReceiptV1Alpha2,
+                    CanonicalSourceSnapshotV1Alpha1,
+                ]
+            ],
+        ] = defaultdict(list)
+        used_snapshots: set[str] = set()
+        for record in acquisition_records:
+            try:
+                acquisition = _decode_recorded_acquisition(record)
+                _, snapshot = snapshots[str(acquisition.receipt_id)]
+                if snapshot.ingested_at > query.available_at or acquisition.observed_at > query.as_of:
+                    continue
+                chains[acquisition.source_definition_ref].append((acquisition, snapshot))
+                used_snapshots.add(str(acquisition.receipt_id))
+            except Exception:
+                degraded.add("degraded_reason:invalid-recorded-source-readiness")
+        if set(snapshots) - used_snapshots:
+            degraded.add("degraded_reason:orphan-recorded-source-snapshot")
+        projected: list[IntelligenceResourceRecordV1Alpha1] = []
+        for source_definition_ref, source_chains in chains.items():
+            ordered = sorted(source_chains, key=lambda chain: (chain[0].admitted_at, str(chain[0].receipt_digest)))
+            prior: IntelligenceResourceReferenceV1Alpha1 | None = None
+            for revision, (acquisition, snapshot) in enumerate(ordered, start=1):
+                try:
+                    item = _recorded_source_readiness_record(
+                        acquisition=acquisition,
+                        snapshot=snapshot,
+                        revision=revision,
+                        supersedes=prior,
+                    )
+                    prior = item.reference
+                    if query.subject_refs and set(query.subject_refs).isdisjoint(item.subject_refs):
+                        continue
+                    projected.append(item)
+                except Exception:
+                    degraded.add(f"degraded_reason:invalid-recorded-source-readiness:{source_definition_ref}")
+        visible = _after_cursor(projected, after)[:limit]
+        reasons = tuple(sorted(degraded))
+        return IntelligenceResourceProjectionBatch(
+            records=tuple(visible),
+            state=(IntelligenceResourcePageState.DEGRADED if reasons else IntelligenceResourcePageState.COMPLETE),
+            degraded_reason_refs=reasons,
+        )
+
+
 class CompositeIntelligenceResourceProjectionReader(IntelligenceResourceProjectionReader):
     """Merge disjoint rebuildable projection contributors into one stable page."""
 
@@ -1158,4 +1421,5 @@ __all__ = [
     "IntelligenceResourceProjectionContributor",
     "LiveSourceResourceProjectionReader",
     "MonitoringResourceProjectionReader",
+    "RecordedSourceReadinessResourceProjectionReader",
 ]
