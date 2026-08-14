@@ -272,6 +272,12 @@ from ace.application.external_operations import (
     delivery_payload_digest,
     export_manifest_checksum,
 )
+from ace.application.installed_pack_artifacts import (
+    ACTIVATION_GOLDEN_FIXTURE_PATH,
+    InstalledCompiledPackArtifact,
+    InstalledCompiledPackArtifactResolver,
+    InstalledPackArtifactError,
+)
 from ace.application.intelligence_agent import (
     AuthorizedObservationSetAdmission,
     IntelligenceAgent,
@@ -496,6 +502,10 @@ from ace.application.supersession_impact import (
 )
 
 __all__ = [
+    "ACTIVATION_GOLDEN_FIXTURE_PATH",
+    "InstalledCompiledPackArtifact",
+    "InstalledCompiledPackArtifactResolver",
+    "InstalledPackArtifactError",
     "PERSONAL_INTELLIGENCE_DELETION_PROOF_RECORD_KIND",
     "PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE",
     "PersonalIntelligenceDeletePreviewStale",
