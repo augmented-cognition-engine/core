@@ -15,15 +15,15 @@ def _read(rel_path: str) -> str:
 
 
 @pytest.mark.unit
-def test_readme_opens_with_intelligence_builder_framing():
-    """README leads with first intelligence value and retains trust boundaries below it."""
+def test_readme_opens_with_intelligence_os_framing():
+    """README leads with the Intelligence OS and retains trust boundaries below it."""
     readme = _read("README.md")
     head = " ".join(readme[:800].split())
-    assert "ACE, the Intelligence Builder. Build intelligence, not infrastructure." in head
-    assert "source-grounded briefing" in head
+    assert "ACE is the open Intelligence OS. Build intelligence, not infrastructure." in head
+    assert "cited Briefs" in head
     assert "provenance, authority, durable state, and exact receipts" in head
     assert "## What ACE does" in readme
-    assert "Connect → Map → Watch → Brief → Activate" in readme
+    assert "Choose Intelligence → Connect → Map → Watch → cited Brief → Activate → Learn" in readme
     assert "Domain Pack JSON" in readme
     assert "### Two connected loops" in readme
     assert "Decision reasoning" in readme

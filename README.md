@@ -2,14 +2,13 @@
 
 # ACE — Augmented Cognition Engine
 
-**ACE, the Intelligence Builder. Build intelligence, not infrastructure.**
+**ACE is the open Intelligence OS. Build intelligence, not infrastructure.**
 
-ACE is an open, self-hosted **Intelligence Operating System** for products that need to stay
-oriented as evidence changes. Its first product experience is the Intelligence Builder: connect
-the sources that matter and let ACE turn changing evidence into source-grounded briefings, living
-monitors, and an intelligence system that improves with governed feedback. ACE is provider-neutral;
-provenance, authority, durable state, and exact receipts stay built into the result instead of
-becoming infrastructure every product team must recreate.
+ACE is an open, self-hosted **Intelligence Operating System**: the governed brain between systems
+of record and systems of action. Connect the sources that matter and ACE turns changing evidence
+into cited Briefs, living monitors, decisions, and outcome-aware intelligence. ACE is
+provider-neutral; provenance, authority, durable state, and exact receipts stay built into the
+result instead of becoming infrastructure every product team must recreate.
 
 ![version 1.0.3](https://img.shields.io/badge/version-1.0.3-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
@@ -19,9 +18,9 @@ becoming infrastructure every product team must recreate.
 [Quickstart](#quickstart) ·
 [Vision / Manifesto](https://github.com/augmented-cognition-engine/core/blob/main/MANIFESTO.md) ·
 [What ACE does](#what-ace-does) ·
-[Builder journey](#the-intelligence-builder-journey) ·
+[Intelligence OS journey](#the-intelligence-os-journey) ·
 [Architecture](#architecture-one-install-two-bounded-contexts) ·
-[Domain Packs](#domain-packs-add-a-vertical-without-touching-the-kernel) ·
+[Solution Bundles](#solution-bundles-make-the-intelligence-os-useful) ·
 [Python surface](#the-public-python-surface) ·
 [Limitations](#maturity-and-limitations) ·
 [Roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md)
@@ -29,6 +28,11 @@ becoming infrastructure every product team must recreate.
 </div>
 
 ---
+
+![Atrium — the ACE Intelligence OS command center](https://raw.githubusercontent.com/augmented-cognition-engine/core/main/docs/assets/atrium-intelligence-os-v1.jpg)
+
+*Atrium using the recorded ACE 1.0 demonstration: one governed view of source coverage, Ask ACE,
+a cited Brief, attention, and decision openings.*
 
 ## What ACE does
 
@@ -51,25 +55,30 @@ governed intelligence lifecycle around it.
   corrections, and make governed feedback available to later reasoning. ACE does not silently
   rewrite history or grant itself new authority.
 
-### The Intelligence Builder journey
+### The Intelligence OS journey
 
 ACE's north-star experience is deliberately simpler than its internal architecture:
 
 ```text
-Connect → Map → Watch → Brief → Activate
+Choose Intelligence → Connect → Map → Watch → cited Brief → Activate → Learn
 ```
 
-1. **Connect.** Choose a few supported sources, see the exact requested permission and scope, and
-   approve only the bounded connection you want.
-2. **Map.** ACE proposes an editable, cited **concept model** for the entities, relationships,
+1. **Choose Intelligence.** Start with the decision context you want to improve: World, Market, or
+   a custom personal Intelligence experience.
+2. **Connect.** Inventory and bind the exact sources you approve. A source adapter can wrap an API,
+   MCP server, data provider, cloud store, warehouse, document system, or recorded files; ACE does
+   not pretend one universal connector catalog exists.
+3. **Map.** ACE proposes an editable, cited **concept model** for the entities, relationships,
    terminology, and exclusions it found.
-3. **Watch.** ACE proposes what to monitor, what counts as material change, who it matters to, and
+4. **Watch.** ACE proposes what to monitor, what counts as material change, who it matters to, and
    how often to look.
-4. **Brief.** A cited first briefing appears with uncertainty, disagreement, and why each item
-   matters—even before every optional integration is configured.
-5. **Activate.** You review the exact permissions and effects, approve the plan, and receive an
-   activation receipt. ACE then keeps watching; feedback improves relevance without silently
-   changing authority.
+5. **Brief.** A cited first Brief appears with uncertainty, disagreement, and why each item
+   matters—even before every optional integration is configured. Later source revisions append a
+   new Brief and preserve what changed, why, and the evidence behind it.
+6. **Activate.** You review the exact permissions and effects, approve the plan, and receive an
+   activation receipt. ACE then keeps watching.
+7. **Learn.** Decisions and outcomes return as governed feedback proposals. Nothing silently
+   rewrites history, changes policy, or expands authority.
 
 Builders should not hand-author Domain Pack JSON or learn compiler mechanics to reach this moment.
 Generated material still passes the same fail-closed schema, compatibility, conformance, authority,
@@ -244,7 +253,24 @@ host.** Architecture gates in the test suite assert this.
 
 ---
 
-## Domain Packs: add a vertical without touching the kernel
+## Solution Bundles make the Intelligence OS useful
+
+A **Solution Bundle** is the complete installable product unit: an exact Domain Pack or overlay,
+source adapters and reviewed bindings, Monitors and Subscriptions, optional downstream destination
+adapters, Atrium/application modules, outcome mappings, and conformance fixtures. This is how ACE
+can support official web records, Snowflake, AWS, GCP, CSV, OneDrive, Obsidian, Notion, or a future
+data provider without putting those systems—or their credentials—inside Core.
+
+Personal Intelligence uses the same substrate. Notes and documents are approved sources; the
+connections ACE forms become governed observations, entities, shifts, signals, and cited Briefs.
+It may ship as its own Solution Bundle, but it does not need a separate Core ontology or a parallel
+intelligence engine.
+
+ACE owns the source-grounded state, knowledge formation, intelligence swimlanes, direction
+packages, provenance, authority boundaries, and outcome learning. Mature external engines own
+design, coding, campaigns, logistics, trading, and other effects: ACE is the brain, not the hands.
+
+### Domain Packs: add a vertical without touching the kernel
 
 A Domain Pack is a manifest plus JSON module resources. The compiler
 (`ace.intelligence.packs.compiler.compile_pack_document`) is a **pure, deterministic function**: it
@@ -393,7 +419,7 @@ approve activation, receive a cited first Brief, and retain an attributable late
 semantic diff. Ask ACE, corrections, decisions, optional reviewed handoffs, outcomes, and
 proposal-only learning all use the same authorized durable resources.
 
-World and Market remain independently versioned Solution Bundles rather than Core-owned domains.
+World and Market are independently versioned Solution Bundles rather than Core-owned domains.
 Their trusted Builders and connectors are separately installed and never gain authority merely by
 being present. Market's bounded release path prepares an engine-ready direction package and routes
 it through Core's existing handoff contracts; downstream design, content, campaign, ERP, trading,
@@ -404,7 +430,13 @@ subscription routes, OpenAI-compatible endpoints, and local Ollama are supported
 choices. A ChatGPT or Claude subscription is not converted into an API key; ACE uses the provider's
 authenticated CLI route when that subscription-backed option is selected.
 
-### What 0.8.3 added
+### Earlier milestones (historical)
+
+The sections below describe what each earlier release added at that point in time. They are not the
+current installation or compatibility contract; use the 1.0 Quickstart and limitations below for
+the supported release boundary.
+
+#### What 0.8.3 added
 
 0.8.3 is a compatibility patch for independently packaged Intelligence products. It adds the
 public conformance seam needed to resolve exact installed Domain Packs and preserves source
@@ -416,7 +448,7 @@ The patch also carries the subsequent single-user Builder hardening already merg
 line. It preserves schema head v177, exactly eleven public MCP tools, the inert Domain Pack
 boundary, and the separately versioned adapter model.
 
-### What 0.8.2 added
+#### What 0.8.2 added
 
 0.8.2 makes first use start with the outcome a person wants rather than ACE's internal
 architecture. Atrium discovers every admitted onboarding profile from the governed Intelligence
@@ -429,7 +461,7 @@ domain-neutral and names neither vertical. This is backward-compatible product-e
 hardening of the 0.8 Intelligence OS promise and the entry foundation for—not completion of—the 0.9
 Single-user Intelligence Builder gate.
 
-### What 0.8.1 added
+#### What 0.8.1 added
 
 0.8.1 turns the Intelligence OS foundation into a clearer first-run product experience without
 changing the 0.8 public architecture or widening authority.
@@ -450,7 +482,7 @@ changing the 0.8 public architecture or widening authority.
   Connect → Map → Watch → Brief journey and an immutable local replay through the same governed
   resource plane.
 
-### What 0.8.0 added
+#### What 0.8.0 added
 
 0.8.0 makes the **Intelligence Operating System** the coherent product experience rather than an
 architecture users have to assemble themselves.
@@ -476,7 +508,7 @@ architecture users have to assemble themselves.
 - **Authority remains bounded.** Feedback proposals do not apply themselves, Domain Packs remain
   inert, Atrium is not a second source of truth, and the MCP boundary remains exactly eleven tools.
 
-### What 0.7.0 added
+#### What 0.7.0 added
 
 0.7.0 is the public **Intelligence Builder Foundation** release: the first coherent foundation for
 ACE as an Intelligence Operating System. The visible product journey is:
@@ -495,13 +527,13 @@ Connect → Map → Watch → Brief → Activate
 - **Authorized memory.** AM0–AM3 adds episodic experience, typed assertions and corrections,
   authorized recall, explicit scoring and omissions, and a canonical Context Manifest without
   letting memory choose agents or widen tools.
-- **Two-domain proof.** World Intelligence and a private B2B Market Intelligence deployment
+- **Two-domain proof.** World Intelligence and the then-private B2B Market Intelligence deployment
   exercise materially different nouns and policies through unchanged Core + Intelligence APIs,
   including restart, upgrade, rollback, and fail-closed conformance.
 - **Stable public boundary.** Core and Intelligence remain one install, schema head remains v177,
   and the public MCP surface remains exactly eleven tools.
 
-### What 0.6.0 added
+#### What 0.6.0 added
 
 0.6.0 is the public **Measured Intelligence** release. It adds a bounded, domain-neutral way to
 determine whether an intelligence artifact or governed cognition revision helped, harmed, or
@@ -558,20 +590,20 @@ Full detail: [CHANGELOG](https://github.com/augmented-cognition-engine/core/blob
 
 ## Quickstart
 
-### Fastest verified path — no database, no provider, no keys
+### Install the stable package
 
-The Core and Intelligence contracts are pure. You can compile a pack and exercise the full
-derivation machinery on a laptop in seconds:
+The distribution is `ace-core`; it provides the `ace` import package, the `ace` CLI, the packaged
+Atrium workspace, and the `ace-mcp-client` command.
 
 ```bash
-git clone https://github.com/augmented-cognition-engine/core ace
-cd ace
-uv sync
-uv run pytest tests/intelligence -q
+python -m pip install ace-core==1.0.3
+python -c "import ace; print(ace.__version__)"
+ace --help
 ```
 
-That runs the Domain Pack compiler, detection, routing, synthesis, epistemic status, source
-mapping, ledger, activation, and governed-reasoning suites against no external service.
+The package includes Atrium, but Atrium is a view over the running ACE API rather than a second
+source of truth. The supported full-stack path below uses a source checkout for the pinned Compose
+stack and release-maintained service assets.
 
 ### Full self-hosted runtime
 
@@ -582,6 +614,9 @@ Running the reasoning service adds a database and a model provider.
 [supported provider](https://github.com/augmented-cognition-engine/core/blob/main/docs/providers.md).
 
 ```bash
+git clone https://github.com/augmented-cognition-engine/core ace
+cd ace
+uv sync
 uv run ace setup
 ```
 
@@ -592,6 +627,7 @@ client. It is safe to rerun; if it is interrupted, run the same command again.
 
 ```bash
 uv run ace doctor          # configuration, database, schema, auth, provider routing, API, MCP
+uv run ace atrium          # open the personal Intelligence OS command center
 uv run ace service status
 uv run ace service logs --lines 80
 uv run ace service stop    # preserves the SurrealDB volume
@@ -611,19 +647,17 @@ uv run uvicorn core.engine.api.main:app --host 127.0.0.1 --port 3000
 uv run ace login --api-key '<the API_KEY from .env>'
 ```
 
-### Package-only install
+### Evaluate the contract substrate — no database, provider, or keys
 
-The distribution is `ace-core`; it provides the `ace` import package, the `ace` CLI, and the
-`ace-mcp-client` command.
+Core and Intelligence contracts are pure. From the checkout above, you can compile packs and
+exercise the full derivation machinery without an external service:
 
 ```bash
-python -m pip install ace-core
-python -c "import ace; print(ace.__version__)"
-ace --help
+uv run pytest tests/intelligence -q
 ```
 
-The self-hosted runtime path above uses the source checkout because it carries the pinned Compose
-stack and the release-maintained local service scripts.
+That covers the Domain Pack compiler, detection, routing, synthesis, epistemic status, source
+mapping, ledger, activation, and governed-reasoning suites.
 
 ### Test gates
 
@@ -768,15 +802,15 @@ for conformance and fault tests — production hosts supply Core's database-back
 | `ace.application` | `LiveSourceIngressService`, `LiveIntelligenceBridgeService`, `LiveBriefSynthesisService`, `BriefSynthesisService`, `PreparedDecisionFeedbackService`, `DomainActivationAdmissionService` |
 | `ace.testing` | `InMemoryImmutableRecordStore`, `exercise_live_source_ingress_restart`, `exercise_prepared_ledger_restart`, `exercise_prepared_source_mapping` |
 
-Public contracts are `v1alpha1` / `v1alpha2`. They are versioned in the name so a change is visible,
-but they are alpha and may change on a preview minor release.
+Public contract names remain `v1alpha1` / `v1alpha2`, but those exact contracts are frozen for the
+1.0 compatibility line. Incompatible changes require a new contract string plus a documented
+migration and deprecation path.
 
 ---
 
-## MCP: still exactly eleven tools
+## MCP: exactly eleven tools
 
-The thin, pure-HTTP MCP client exposes the same eleven tools it did in 0.2 and 0.3. **0.4.0 adds
-none.**
+The stable 1.0 thin, pure-HTTP MCP client exposes exactly eleven tools:
 
 | Tool | Purpose |
 |---|---|
@@ -870,7 +904,7 @@ Report vulnerabilities per
 ├── core/
 │   ├── engine/               ← the host runtime (private): API, CLI, orchestration, adapters
 │   ├── schema/               ← SurrealDB migrations (head: v177)
-│   └── ui/canvas/            ← Atrium, the repository-delivered Intelligence OS workspace
+│   └── ui/canvas/            ← Atrium source for the packaged Intelligence OS workspace
 ├── ace_mcp_client/           ← thin pure-HTTP MCP client (the eleven tools)
 ├── extensions/reference/     ← the worked extension example the kernel actually loads
 ├── examples/                 ← independent example packages
@@ -910,8 +944,8 @@ What is bounded:
 What ACE does not claim:
 
 - No hosted SaaS. ACE is self-hosted; you run the database and bring your own model credentials.
-- Atrium is supported as a repository-delivered workspace and remains optional. It is not
-  embedded in the Python wheel, and it never becomes a second persistence or authority path.
+- Atrium is packaged in the Python wheel and remains optional. It reads and writes through the
+  same authorized ACE API; it never becomes a second persistence or authority path.
 - No automatic or arbitrary web access.
 - No real-world causal accuracy, calibrated forecasting, autonomous learning, general model of
   reality,
@@ -939,12 +973,11 @@ The north-star loop is:
 understand → reason → decide → act with authority → observe outcomes → improve future reasoning
 ```
 
-0.5.0 delivers bounded Reasoning into Action. Public 0.6.0 (*Measured Intelligence*) connects that
-journey to later product-owned outcomes. Public 0.7.0 established the Intelligence Builder
-Foundation. Public 0.8.0 turns that foundation into one coherent Intelligence Operating System:
-the unified resource plane, Atrium, builder agents, governed composition and memory, and World /
-Market product proof. Exact release evidence is recorded in the
-[0.8 release closeout](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/intelligence-os-v0.8.0-release-closeout-v1.md).
+ACE 1.0 completes the bounded single-user Intelligence OS: source selection and admission,
+knowledge formation, continuously updating cited Briefs, governed decisions and optional handoff,
+outcome return, and proposal-only learning across the same durable resource plane. World and
+Market prove the model as independent Solution Bundles. Exact claims and limitations are frozen in
+the [ACE 1.0 public acceptance packet](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/personal-intelligence-os-v1.0-public-acceptance-v1.md).
 
 - [Public roadmap](https://github.com/augmented-cognition-engine/core/blob/main/ROADMAP.md) — outcome
   state, sequencing, and declared boundaries
@@ -956,7 +989,7 @@ Market product proof. Exact release evidence is recorded in the
   [Code of conduct](https://github.com/augmented-cognition-engine/core/blob/main/CODE_OF_CONDUCT.md) ·
   [Security policy](https://github.com/augmented-cognition-engine/core/blob/main/SECURITY.md)
 - [Issues](https://github.com/augmented-cognition-engine/core/issues) — the best first contribution is
-  a Domain Pack for a vertical we have not tried, plus the diagnostic it made you wish existed
+  a small Solution Bundle for a decision context we have not tried, with fixed conformance data
 
 Good contributions to start with: a new detector family, a synthesis template contract, a source
 connector against a public API, or a conformance seam that makes an external package easier to test.
@@ -981,7 +1014,7 @@ the SurrealDB server is source-available under BSL 1.1 rather than OSI open sour
 **Bring the domain. ACE keeps the receipts.**
 
 [Quickstart](#quickstart) ·
-[Domain Packs](#domain-packs-add-a-vertical-without-touching-the-kernel) ·
+[Solution Bundles](#solution-bundles-make-the-intelligence-os-useful) ·
 [Limitations](#maturity-and-limitations)
 
 </div>
