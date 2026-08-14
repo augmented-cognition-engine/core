@@ -9,8 +9,8 @@ from inspect import iscoroutinefunction
 from typing import Iterable
 
 from ace.application.intelligence_build_planning import (
-    IntelligenceBuildPlannerV1Alpha2,
-    validate_intelligence_build_planner_v1alpha2_registration,
+    IntelligenceBuildPlannerV1Alpha3,
+    validate_intelligence_build_planner_v1alpha3_registration,
 )
 
 INTELLIGENCE_BUILD_PLANNER_ENTRY_POINT_GROUP = "ace.intelligence_build_planners"
@@ -21,14 +21,14 @@ class IntelligenceBuildPlannerRegistryError(RuntimeError):
     """Installed planner material is invalid or ambiguous."""
 
 
-_planners: dict[str, IntelligenceBuildPlannerV1Alpha2] = {}
+_planners: dict[str, IntelligenceBuildPlannerV1Alpha3] = {}
 _loaded = False
 _load_error: IntelligenceBuildPlannerRegistryError | None = None
 
 
 def register_intelligence_build_planner(
-    *, profile_id: str, planner: IntelligenceBuildPlannerV1Alpha2
-) -> IntelligenceBuildPlannerV1Alpha2:
+    *, profile_id: str, planner: IntelligenceBuildPlannerV1Alpha3
+) -> IntelligenceBuildPlannerV1Alpha3:
     """Register one exact planner for one profile, rejecting every ambiguity."""
 
     if not isinstance(profile_id, str) or not _PROFILE_ID.fullmatch(profile_id):
@@ -36,7 +36,7 @@ def register_intelligence_build_planner(
     if not iscoroutinefunction(getattr(planner, "prepare", None)):
         raise IntelligenceBuildPlannerRegistryError("Intelligence build planner omitted async prepare")
     try:
-        validate_intelligence_build_planner_v1alpha2_registration(planner, profile_id=profile_id)
+        validate_intelligence_build_planner_v1alpha3_registration(planner, profile_id=profile_id)
     except (AttributeError, TypeError, ValueError) as exc:
         raise IntelligenceBuildPlannerRegistryError(str(exc)) from exc
     if profile_id in _planners:
@@ -82,7 +82,7 @@ def load_installed_intelligence_build_planners(entry_points: Iterable | None = N
     return tuple(sorted(_planners))
 
 
-def resolve_intelligence_build_planner(profile_id: str) -> IntelligenceBuildPlannerV1Alpha2 | None:
+def resolve_intelligence_build_planner(profile_id: str) -> IntelligenceBuildPlannerV1Alpha3 | None:
     load_installed_intelligence_build_planners()
     return _planners.get(profile_id)
 

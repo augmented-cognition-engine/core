@@ -24,8 +24,8 @@ from ace.application.recorded_source_selection import (
 )
 from ace.core.contracts import FrozenContract, canonical_hash
 from ace.core.runtime_use import CapabilityArtifactIdentityV1Alpha1
-from ace.intelligence.contracts.activation import CompiledPackRefV1, DomainActivationSpecV1
-from ace.intelligence.contracts.common import validate_digest, validate_reference
+from ace.intelligence.contracts.activation import CompiledOverlayV1, CompiledPackRefV1, DomainActivationSpecV1
+from ace.intelligence.contracts.common import validate_digest, validate_product_id, validate_reference, validate_slug
 from ace.intelligence.contracts.intelligence_builder_presentation import IntelligenceOnboardingProfileV1Alpha1
 from ace.intelligence.contracts.pack import CompiledDomainPackV1
 
@@ -36,6 +36,9 @@ INTELLIGENCE_BUILD_PLANNING_CAPABILITY = "intelligence_build_planning"
 INTELLIGENCE_BUILD_PLANNER_V1ALPHA2_CONTRACT = "ace.application.intelligence-build-planner/v1alpha2"
 INTELLIGENCE_BUILD_PLAN_REQUEST_V1ALPHA2_VERSION = "ace.application.intelligence-build-plan-request/v1alpha2"
 INTELLIGENCE_BUILD_PLAN_V1ALPHA2_VERSION = "ace.application.intelligence-build-plan/v1alpha2"
+INTELLIGENCE_BUILD_ACTIVATION_PROPOSAL_VERSION = "ace.application.intelligence-build-activation-proposal/v1alpha1"
+INTELLIGENCE_BUILD_PLANNER_V1ALPHA3_CONTRACT = "ace.application.intelligence-build-planner/v1alpha3"
+INTELLIGENCE_BUILD_PLAN_V1ALPHA3_VERSION = "ace.application.intelligence-build-plan/v1alpha3"
 
 
 class _PlanningContract(FrozenContract):
@@ -388,6 +391,140 @@ class IntelligenceBuildPlanV1Alpha2(_PlanningContract):
         return self
 
 
+class IntelligenceBuildActivationProposalV1Alpha1(_PlanningContract):
+    """Exact, non-authorizing activation material proposed for later owner binding."""
+
+    contract: Literal["ace.application.intelligence-build-activation-proposal/v1alpha1"] = (
+        INTELLIGENCE_BUILD_ACTIVATION_PROPOSAL_VERSION
+    )
+    product_id: str
+    activation_key: str
+    pack: CompiledPackRefV1
+    overlay: CompiledOverlayV1
+    capability_requirement_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=256)
+    authority_request_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=256)
+    proposal_id: str | None = None
+    proposal_digest: str | None = None
+
+    @field_validator("product_id")
+    @classmethod
+    def _product(cls, value: str) -> str:
+        return validate_product_id(value)
+
+    @field_validator("activation_key")
+    @classmethod
+    def _activation_key(cls, value: str) -> str:
+        return validate_slug(value, name="activation_key")
+
+    @field_validator("capability_requirement_ids", "authority_request_ids")
+    @classmethod
+    def _declaration_ids(cls, value: tuple[str, ...], info) -> tuple[str, ...]:
+        normalized = tuple(validate_slug(item, name=info.field_name) for item in value)
+        if len(normalized) != len(set(normalized)):
+            raise ValueError(f"{info.field_name} must be unique")
+        return tuple(sorted(normalized))
+
+    @field_validator("proposal_id")
+    @classmethod
+    def _proposal_ref(cls, value: str | None) -> str | None:
+        return validate_reference(value, name="proposal_id") if value is not None else None
+
+    @field_validator("proposal_digest")
+    @classmethod
+    def _proposal_digest(cls, value: str | None) -> str | None:
+        return validate_digest(value) if value is not None else None
+
+    @model_validator(mode="after")
+    def _bind_proposal(self) -> Self:
+        if (
+            self.overlay.pack_id != self.pack.pack_id
+            or self.overlay.pack_version != self.pack.pack_version
+            or self.overlay.pack_digest != self.pack.pack_digest
+        ):
+            raise ValueError("activation proposal overlay crossed the exact Pack")
+        material = self.model_dump(mode="json", exclude={"proposal_id", "proposal_digest"})
+        digest = canonical_hash(material)
+        expected_id = f"intelligence_build_activation_proposal:{digest[:32]}"
+        expected_digest = f"sha256:{digest}"
+        if self.proposal_id not in {None, expected_id} or self.proposal_digest not in {None, expected_digest}:
+            raise ValueError("activation proposal identity does not match exact non-authorizing material")
+        object.__setattr__(self, "proposal_id", expected_id)
+        object.__setattr__(self, "proposal_digest", expected_digest)
+        return self
+
+
+class IntelligenceBuildPlanV1Alpha3(_PlanningContract):
+    """Reviewable plan that cannot execute until an owner binds exact requirements."""
+
+    contract: Literal["ace.application.intelligence-build-plan/v1alpha3"] = INTELLIGENCE_BUILD_PLAN_V1ALPHA3_VERSION
+    request: IntelligenceBuildPlanRequestV1Alpha2
+    planner_artifact: CapabilityArtifactIdentityV1Alpha1
+    pack_reference: CompiledPackRefV1
+    activation_proposal: IntelligenceBuildActivationProposalV1Alpha1
+    recorded_source_selections: tuple[RecordedSourceSelectionV1Alpha1, ...] = Field(
+        default_factory=tuple,
+        max_length=64,
+    )
+    recorded_source_selection_refs: tuple[RecordedSourceSelectionReferenceV1Alpha1, ...] = Field(
+        default_factory=tuple,
+        max_length=64,
+    )
+    plan_id: str | None = None
+    plan_digest: str | None = None
+
+    @field_validator("recorded_source_selections")
+    @classmethod
+    def _canonical_selections(
+        cls,
+        value: tuple[RecordedSourceSelectionV1Alpha1, ...],
+    ) -> tuple[RecordedSourceSelectionV1Alpha1, ...]:
+        keys = [(item.source_group_id, item.selection_id) for item in value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("recorded_source_selections must name each exact selection once")
+        return tuple(sorted(value, key=lambda item: (item.source_group_id, str(item.selection_id))))
+
+    @field_validator("plan_id")
+    @classmethod
+    def _plan_ref(cls, value: str | None) -> str | None:
+        return validate_reference(value, name="plan_id") if value is not None else None
+
+    @field_validator("plan_digest")
+    @classmethod
+    def _plan_digest(cls, value: str | None) -> str | None:
+        return validate_digest(value) if value is not None else None
+
+    @model_validator(mode="after")
+    def _bind_exact_plan(self) -> Self:
+        if self.planner_artifact.capability != INTELLIGENCE_BUILD_PLANNING_CAPABILITY:
+            raise ValueError("planner artifact must declare the Intelligence build planning capability")
+        if self.planner_artifact.contract != INTELLIGENCE_BUILD_PLANNER_V1ALPHA3_CONTRACT:
+            raise ValueError("planner artifact must implement the exact v1alpha3 planning contract")
+        if self.activation_proposal.product_id != self.request.product_id:
+            raise ValueError("activation proposal crossed the requested product scope")
+        if self.activation_proposal.pack != self.pack_reference:
+            raise ValueError("activation proposal crossed the exact planned Pack")
+        selected_groups = set(self.request.source_group_ids)
+        if any(item.product_id != self.request.product_id for item in self.recorded_source_selections):
+            raise ValueError("recorded source selection crossed the requested product scope")
+        if any(item.pack != self.pack_reference for item in self.recorded_source_selections):
+            raise ValueError("recorded source selection crossed the exact planned Pack")
+        if any(item.source_group_id not in selected_groups for item in self.recorded_source_selections):
+            raise ValueError("recorded source selection crossed the selected source groups")
+        exact_refs = tuple(item.reference() for item in self.recorded_source_selections)
+        if self.recorded_source_selection_refs and self.recorded_source_selection_refs != exact_refs:
+            raise ValueError("recorded source selection references changed the exact reviewed selections")
+        object.__setattr__(self, "recorded_source_selection_refs", exact_refs)
+        material = self.model_dump(mode="json", exclude={"plan_id", "plan_digest"})
+        digest = canonical_hash(material)
+        expected_id = f"intelligence_build_plan:{digest[:32]}"
+        expected_digest = f"sha256:{digest}"
+        if self.plan_id not in {None, expected_id} or self.plan_digest not in {None, expected_digest}:
+            raise ValueError("plan identity does not match exact review material")
+        object.__setattr__(self, "plan_id", expected_id)
+        object.__setattr__(self, "plan_digest", expected_digest)
+        return self
+
+
 class IntelligenceBuildPlanner(Protocol):
     """Installed, profile-specific, authority-neutral build planner."""
 
@@ -418,6 +555,22 @@ class IntelligenceBuildPlannerV1Alpha2(Protocol):
         profile: IntelligenceOnboardingProfileV1Alpha1,
         pack: CompiledDomainPackV1,
     ) -> IntelligenceBuildPlanV1Alpha2: ...
+
+
+class IntelligenceBuildPlannerV1Alpha3(Protocol):
+    """Installed planner that can propose, but cannot bind, one activation."""
+
+    profile_id: str
+    pack_reference: CompiledPackRefV1
+    artifact_identity: CapabilityArtifactIdentityV1Alpha1
+
+    async def prepare(
+        self,
+        request: IntelligenceBuildPlanRequestV1Alpha2,
+        *,
+        profile: IntelligenceOnboardingProfileV1Alpha1,
+        pack: CompiledDomainPackV1,
+    ) -> IntelligenceBuildPlanV1Alpha3: ...
 
 
 def validate_intelligence_build_planner_registration(
@@ -466,21 +619,51 @@ def validate_intelligence_build_planner_v1alpha2_registration(
     return pack_reference, artifact
 
 
+def validate_intelligence_build_planner_v1alpha3_registration(
+    planner: IntelligenceBuildPlannerV1Alpha3,
+    *,
+    profile_id: str,
+) -> tuple[CompiledPackRefV1, CapabilityArtifactIdentityV1Alpha1]:
+    """Revalidate one installed v1alpha3 planner identity at the host edge."""
+
+    if getattr(planner, "profile_id", None) != profile_id:
+        raise ValueError("Intelligence build planner profile identity changed")
+    pack_reference = CompiledPackRefV1.model_validate(
+        getattr(planner, "pack_reference", None).model_dump(mode="python")
+    )
+    artifact = CapabilityArtifactIdentityV1Alpha1.model_validate(
+        getattr(planner, "artifact_identity", None).model_dump(mode="python")
+    )
+    if (
+        artifact.capability != INTELLIGENCE_BUILD_PLANNING_CAPABILITY
+        or artifact.contract != INTELLIGENCE_BUILD_PLANNER_V1ALPHA3_CONTRACT
+    ):
+        raise ValueError("Intelligence build planner declared the wrong v1alpha3 capability contract")
+    return pack_reference, artifact
+
+
 __all__ = [
     "INTELLIGENCE_BUILD_PLAN_REQUEST_VERSION",
     "INTELLIGENCE_BUILD_PLAN_VERSION",
     "INTELLIGENCE_BUILD_PLANNER_CONTRACT",
     "INTELLIGENCE_BUILD_PLANNING_CAPABILITY",
     "INTELLIGENCE_BUILD_PLANNER_V1ALPHA2_CONTRACT",
+    "INTELLIGENCE_BUILD_ACTIVATION_PROPOSAL_VERSION",
+    "INTELLIGENCE_BUILD_PLANNER_V1ALPHA3_CONTRACT",
     "INTELLIGENCE_BUILD_PLAN_REQUEST_V1ALPHA2_VERSION",
     "INTELLIGENCE_BUILD_PLAN_V1ALPHA2_VERSION",
+    "INTELLIGENCE_BUILD_PLAN_V1ALPHA3_VERSION",
+    "IntelligenceBuildActivationProposalV1Alpha1",
     "IntelligenceBuildPlanRequestV1Alpha1",
     "IntelligenceBuildPlanRequestV1Alpha2",
     "IntelligenceBuildPlanV1Alpha1",
     "IntelligenceBuildPlanV1Alpha2",
+    "IntelligenceBuildPlanV1Alpha3",
     "IntelligenceBuildPlanner",
     "IntelligenceBuildPlannerV1Alpha2",
+    "IntelligenceBuildPlannerV1Alpha3",
     "intelligence_build_execution_identity",
     "validate_intelligence_build_planner_registration",
     "validate_intelligence_build_planner_v1alpha2_registration",
+    "validate_intelligence_build_planner_v1alpha3_registration",
 ]

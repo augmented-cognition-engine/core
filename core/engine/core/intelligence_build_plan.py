@@ -14,12 +14,19 @@ from ace.application.intelligence_build_execution import (
     IntelligenceBuildEffect,
     RecordedSourceReferenceV1,
 )
+from ace.application.intelligence_build_plan_binding import (
+    BoundIntelligenceBuildPlanV1Alpha1,
+    IntelligenceBuildPlanBindingError,
+    IntelligenceBuildPlanBindingService,
+    IntelligenceBuildPlanBindRequestV1Alpha1,
+)
 from ace.application.intelligence_build_planning import (
-    IntelligenceBuildPlannerV1Alpha2,
+    IntelligenceBuildPlannerV1Alpha3,
     IntelligenceBuildPlanRequestV1Alpha2,
     IntelligenceBuildPlanV1Alpha1,
     IntelligenceBuildPlanV1Alpha2,
-    validate_intelligence_build_planner_v1alpha2_registration,
+    IntelligenceBuildPlanV1Alpha3,
+    validate_intelligence_build_planner_v1alpha3_registration,
 )
 from core.engine.core.installed_intelligence_catalog import (
     InstalledIntelligenceCatalogError,
@@ -66,11 +73,11 @@ class IntelligenceBuildPlanPrepareV1Alpha2(BaseModel):
 
 
 class IntelligenceBuildPlannerResolutionPort(Protocol):
-    def resolve(self, profile_id: str) -> IntelligenceBuildPlannerV1Alpha2 | None: ...
+    def resolve(self, profile_id: str) -> IntelligenceBuildPlannerV1Alpha3 | None: ...
 
 
 class _InstalledPlannerResolution:
-    def resolve(self, profile_id: str) -> IntelligenceBuildPlannerV1Alpha2 | None:
+    def resolve(self, profile_id: str) -> IntelligenceBuildPlannerV1Alpha3 | None:
         return resolve_intelligence_build_planner(profile_id)
 
 
@@ -149,7 +156,7 @@ async def prepare_intelligence_build_plan(
     request: IntelligenceBuildPlanPrepareV1Alpha2,
     user: dict,
     runtime: IntelligenceBuildPlanHttpRuntime,
-) -> IntelligenceBuildPlanV1Alpha2:
+) -> IntelligenceBuildPlanV1Alpha3:
     """Prepare exact review material without granting authority or executing work."""
 
     actor_ref, product_id = _verified_claims(user)
@@ -168,7 +175,7 @@ async def prepare_intelligence_build_plan(
             f"no Intelligence build planner is registered for profile: {request.profile_id}"
         )
     try:
-        pack_reference, planner_artifact = validate_intelligence_build_planner_v1alpha2_registration(
+        pack_reference, planner_artifact = validate_intelligence_build_planner_v1alpha3_registration(
             planner,
             profile_id=request.profile_id,
         )
@@ -186,7 +193,7 @@ async def prepare_intelligence_build_plan(
             actor_ref=actor_ref,
             **request.model_dump(mode="python"),
         )
-        plan = IntelligenceBuildPlanV1Alpha2.model_validate(
+        plan = IntelligenceBuildPlanV1Alpha3.model_validate(
             (
                 await planner.prepare(
                     exact_request,
@@ -203,24 +210,83 @@ async def prepare_intelligence_build_plan(
         plan.request != exact_request
         or plan.planner_artifact != planner_artifact
         or plan.pack_reference != pack_reference
-        or plan.activation_spec.pack != pack_reference
+        or plan.activation_proposal.pack != pack_reference
+        or plan.activation_proposal.capability_requirement_ids
+        != tuple(item.requirement_id for item in artifact.pack.capability_requirements)
+        or plan.activation_proposal.authority_request_ids
+        != tuple(item.request_id for item in artifact.pack.authority_requests)
     ):
         raise IntelligenceBuildPlanConflict("Intelligence build planner changed exact installed review material")
     return plan
 
 
+async def bind_intelligence_build_plan(
+    *,
+    request: IntelligenceBuildPlanBindRequestV1Alpha1,
+    user: dict,
+    runtime: IntelligenceBuildPlanHttpRuntime,
+) -> BoundIntelligenceBuildPlanV1Alpha1:
+    """Bind reviewed references without resolving, granting, or exercising authority."""
+
+    actor_ref, product_id = _verified_claims(user)
+    now = datetime.now(UTC)
+    if request.bound_at > now + timedelta(minutes=5):
+        raise IntelligenceBuildPlanConflict("bound_at cannot be materially in the future")
+    plan = request.plan
+    if plan.request.product_id != product_id or plan.request.actor_ref != actor_ref:
+        raise IntelligenceBuildPlanUnauthenticated("reviewed plan crossed verified product or actor scope")
+
+    prepare_request = IntelligenceBuildPlanPrepareV1Alpha2(
+        client_request_id=plan.request.client_request_id,
+        profile_id=plan.request.profile_id,
+        profile_digest=plan.request.profile_digest,
+        subject=plan.request.subject,
+        outcome_id=plan.request.outcome_id,
+        source_group_ids=plan.request.source_group_ids,
+        cadence_id=plan.request.cadence_id,
+        proposed_effects=plan.request.proposed_effects,
+        requested_at=plan.request.requested_at,
+    )
+    _profile_for_request(request=prepare_request, runtime=runtime)
+    try:
+        planner = runtime.planners.resolve(plan.request.profile_id)
+    except IntelligenceBuildPlannerRegistryError as exc:
+        raise IntelligenceBuildPlanUnavailable("installed Intelligence build planners are ambiguous") from exc
+    if planner is None:
+        raise IntelligenceBuildPlanUnavailable(
+            f"no Intelligence build planner is registered for profile: {plan.request.profile_id}"
+        )
+    try:
+        pack_reference, planner_artifact = validate_intelligence_build_planner_v1alpha3_registration(
+            planner,
+            profile_id=plan.request.profile_id,
+        )
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise IntelligenceBuildPlanUnavailable("installed Intelligence build planner identity is invalid") from exc
+    if plan.pack_reference != pack_reference or plan.planner_artifact != planner_artifact:
+        raise IntelligenceBuildPlanConflict("reviewed plan is stale for the installed planner")
+    try:
+        return await IntelligenceBuildPlanBindingService(packs=runtime.packs).bind(request)
+    except IntelligenceBuildPlanBindingError as exc:
+        raise IntelligenceBuildPlanConflict(str(exc)) from exc
+
+
 __all__ = [
+    "BoundIntelligenceBuildPlanV1Alpha1",
     "IntelligenceBuildPlanConflict",
     "IntelligenceBuildPlanError",
     "IntelligenceBuildPlanHttpRuntime",
     "IntelligenceBuildPlanNotFound",
     "IntelligenceBuildPlanPrepareV1",
     "IntelligenceBuildPlanPrepareV1Alpha2",
+    "IntelligenceBuildPlanBindRequestV1Alpha1",
     "IntelligenceBuildPlanUnauthenticated",
     "IntelligenceBuildPlanUnavailable",
     "IntelligenceBuildPlanV1Alpha1",
     "IntelligenceBuildPlanV1Alpha2",
+    "IntelligenceBuildPlanV1Alpha3",
     "IntelligenceBuildPlannerResolutionPort",
+    "bind_intelligence_build_plan",
     "intelligence_build_plan_runtime",
     "prepare_intelligence_build_plan",
 ]
