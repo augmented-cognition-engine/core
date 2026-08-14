@@ -36,6 +36,7 @@ from core.engine.cli.commands.ownership import ownership
 from core.engine.cli.commands.product_state import state
 from core.engine.cli.commands.proposals import proposals
 from core.engine.cli.commands.reasoning import frameworks
+from core.engine.cli.commands.recovery import recovery
 from core.engine.cli.commands.run import quick, run
 from core.engine.cli.commands.sentinel import sentinel
 from core.engine.cli.commands.setup import onboarding, service, setup
@@ -54,6 +55,7 @@ cli.add_command(status)
 cli.add_command(doctor)
 cli.add_command(model_policy)
 cli.add_command(ownership)
+cli.add_command(recovery)
 cli.add_command(landscape)
 cli.add_command(state)
 cli.add_command(graph)
