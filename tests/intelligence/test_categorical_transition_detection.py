@@ -133,7 +133,7 @@ def _compiled_pack(
     return compile_pack_document(_encoded(manifest), resources)
 
 
-def _binding(**pack_changes: Any) -> PreparedActivationBinding:
+def _binding(*, activated_at: datetime | None = None, **pack_changes: Any) -> PreparedActivationBinding:
     pack = _compiled_pack(**pack_changes)
     overlay = compile_overlay(
         pack,
@@ -158,7 +158,7 @@ def _binding(**pack_changes: Any) -> PreparedActivationBinding:
         state=ActivationState.ACTIVE,
         actor_ref="principal:test-author",
         approval_receipt_ref="receipt:prepared-approval",
-        occurred_at=AS_OF - timedelta(days=100),
+        occurred_at=activated_at or AS_OF - timedelta(days=100),
     )
     return bind_prepared_activation(pack=pack, revision=revision)
 
@@ -618,6 +618,58 @@ def test_snapshot_pair_time_and_scope_discipline_is_enforced() -> None:
             _snapshot(binding, "draft", as_of=AS_OF - timedelta(days=1)),
             late_projection,
             detected_at=AS_OF,
+        )
+
+
+def test_historical_categorical_state_requires_post_activation_processing() -> None:
+    from ace.intelligence import route_categorical_shift_as_signal
+    from ace.intelligence.detection import CategoricalTransitionDetectionError
+
+    activated_at = AS_OF - timedelta(hours=1)
+    binding = _binding(activated_at=activated_at)
+    baseline = _snapshot(
+        binding,
+        "draft",
+        as_of=AS_OF - timedelta(days=10),
+        projected_at=AS_OF,
+    )
+    current = _snapshot(
+        binding,
+        "active",
+        as_of=AS_OF - timedelta(days=5),
+        projected_at=AS_OF,
+    )
+
+    shift = _detect(binding, baseline, current, detected_at=AS_OF)
+    assert shift is not None
+    assert shift.as_of < activated_at < shift.detected_at
+    signal = route_categorical_shift_as_signal(
+        binding=binding,
+        detector_id=DETECTOR_ID,
+        shift=shift,
+        detected_at=AS_OF,
+    )
+    assert signal.as_of < activated_at <= signal.detected_at
+
+    preactivation_current = _snapshot(
+        binding,
+        "active",
+        as_of=AS_OF - timedelta(days=5),
+        projected_at=activated_at - timedelta(seconds=1),
+    )
+    with pytest.raises(CategoricalTransitionDetectionError, match="projection predates"):
+        _detect(binding, baseline, preactivation_current, detected_at=AS_OF)
+
+    shift_material = shift.model_dump(mode="python", exclude={"resource_id", "resource_digest"})
+    shift_material["detected_at"] = activated_at - timedelta(seconds=1)
+    shift_material["lineage"] = ()
+    preactivation_shift = shift.__class__.model_validate(shift_material)
+    with pytest.raises(CategoricalTransitionDetectionError, match="detection predates"):
+        route_categorical_shift_as_signal(
+            binding=binding,
+            detector_id=DETECTOR_ID,
+            shift=preactivation_shift,
+            detected_at=activated_at,
         )
 
 

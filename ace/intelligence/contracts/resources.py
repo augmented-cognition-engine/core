@@ -524,8 +524,8 @@ class ObservationV1Alpha1(_IntelligenceResourceV1Alpha1):
             raise ValueError("a live Observation requires live acquisition")
         if self.observed_at > self.ingested_at:
             raise ValueError("Observation ingested_at cannot precede observed_at")
-        if self.ingested_at > self.as_of:
-            raise ValueError("Observation as_of cannot precede ingested_at")
+        if self.as_of > self.ingested_at:
+            raise ValueError("Observation as_of cannot follow ingested_at")
         if self.source_published_at is not None and self.source_published_at > self.observed_at:
             raise ValueError("Observation source_published_at cannot follow observed_at")
         if self.source_mapping is not None and self.source_mapping.activation_revision != self.activation_revision:

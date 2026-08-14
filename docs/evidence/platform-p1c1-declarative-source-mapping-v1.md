@@ -24,6 +24,13 @@ Observation and one exact-lineage Entity Snapshot.
   executable.
 - Product, activation, mode, source and receipt identities, and all times come from the host
   envelope and resolved binding. Source payload labels cannot override them.
+- Mapped intelligence state time is the first available semantic timestamp in the strict order
+  event-effective, source-published, then observed. Ingestion and projection retain actual
+  availability time. This bitemporal correction was reverified on 2026-08-13 and intentionally
+  changes mapped Observation and Entity Snapshot identities.
+- Detection and routing compare semantic state in `as_of`, but activation admissibility is checked
+  against projection and detection availability. Historical source state may predate installation;
+  projecting, detecting, or routing it before the exact activation remains fail-closed.
 - Observation provenance durably pins the activation revision, compiled Pack ID and digest,
   source-mapping module ID and digest, and mapping ID and digest. The Entity Snapshot's single
   lineage edge pins that exact Observation without adding domain data to its attributes.
@@ -58,8 +65,8 @@ branches. Their pinned outputs are:
 
 | Fixture | Observation | Entity Snapshot |
 |---|---|---|
-| numeric | `observation:b5f4394738f8b5e50049d251a86c57e6` / `sha256:b5f4394738f8b5e50049d251a86c57e6ae2ef8df3adb2e620739d3c80c5b0244` | `entity_snapshot:34e55f3de2964b0ead40b4f3139069a7` / `sha256:34e55f3de2964b0ead40b4f3139069a73d70837eff877c8961b0f337f5b21f0f` |
-| categorical | `observation:66426d907e83a36f6fe9eb8b619fade2` / `sha256:66426d907e83a36f6fe9eb8b619fade207c0a256f1eeec0089556f023e756912` | `entity_snapshot:c6103b731c5dd2e02694650c0d213e77` / `sha256:c6103b731c5dd2e02694650c0d213e77f136108562fdf9319647042f67a0905c` |
+| numeric | `observation:1a12528799c8192eef0f450608da203b` / `sha256:1a12528799c8192eef0f450608da203b228c5dc220a19c267aaa14fe75efc035` | `entity_snapshot:935bb7668ce0cce0655877877793db66` / `sha256:935bb7668ce0cce0655877877793db663ee7aa3e7c3b6dcfc58264fed40f197e` |
+| categorical | `observation:db365d16a6ed9a399d36f90a96a67621` / `sha256:db365d16a6ed9a399d36f90a96a676213f0aa37677f6b31be48324787addafe1` | `entity_snapshot:377c44ca271b576f3768768b47a23446` / `sha256:377c44ca271b576f3768768b47a234468b22288eb7e56da9c762f5923487bb84` |
 
 Semantically reordered declarations and `0.0`/`-0.0` confidence compile to identical Pack IR and
 identity; material changes alter Pack identity. Regression coverage also proves exact source and
@@ -69,6 +76,18 @@ aggregate output amplification control, direct-IR normalization enforcement, pub
 normalization, and rejection of every LIVE attempt.
 
 ## Verification record
+
+- 2026-08-13 bitemporal correction: **54 passed** across source mapping, resource contracts, and
+  recorded admission; **160 passed** across LIVE ingestion, numeric/categorical detection,
+  synthesis, resource projections, and public boundaries. The full supported gate reached
+  **7,976 passed, 50 skipped, 262 deselected** with one unrelated persistent-store transaction
+  failure; that exact failing test passed immediately in isolation. One recorded two-snapshot
+  transaction proves distinct semantic state times survive a shared admission time and are
+  accepted by the unchanged numeric detector.
+- Follow-up activation-time audit: **109 passed, 2 skipped** across numeric and categorical
+  PREPARED/LIVE detection, routing, source mapping, recorded admission, solution Pack behavior,
+  and public boundaries. Positive and negative fixtures distinguish historical state from
+  post-activation projection/detection without weakening exact activation binding.
 
 - Focused source-mapping, compiler, resource, ledger, boundary, artifact-contract, and build-backend
   gate: **89 passed, 1 deselected**.

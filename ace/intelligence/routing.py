@@ -58,8 +58,8 @@ def _eligible_signal_routes(
         raise SignalRoutingError("Signal does not use the exact bound activation revision")
     if validated_signal.product_id != validated_binding.revision.spec.product_id:
         raise SignalRoutingError("Signal is outside the bound product scope")
-    if validated_signal.as_of < validated_binding.revision.occurred_at:
-        raise SignalRoutingError("Signal predates the prepared activation revision")
+    if validated_signal.detected_at < validated_binding.revision.occurred_at:
+        raise SignalRoutingError("Signal detection predates the prepared activation revision")
 
     routes = (
         route

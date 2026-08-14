@@ -176,7 +176,7 @@ def _lineage(resource) -> LineageReferenceV1Alpha1:
 
 
 def _citation(observation: ObservationV1Alpha1) -> CitationV1Alpha1:
-    source_as_of = observation.source_published_at or observation.event_effective_at or observation.observed_at
+    source_as_of = observation.event_effective_at or observation.source_published_at or observation.observed_at
     return CitationV1Alpha1(
         source_ref=observation.source_ref,
         source_digest=observation.source_digest,
