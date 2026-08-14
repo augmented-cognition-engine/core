@@ -29,6 +29,10 @@ from ace.core.state import CoreAuthorityResolver, ResolvedApprovalReceiptV1
 from ace.intelligence.contracts.common import validate_digest, validate_reference, validate_slug
 
 if TYPE_CHECKING:
+    from ace.application.prepared_shift_signal import (
+        PreparedShiftSignalDerivationOutcome,
+        PreparedShiftSignalDerivationRequestV1Alpha1,
+    )
     from ace.application.recorded_source_admission import RecordedSourceAdmission, RecordedSourceMaterialV1Alpha1
 
 IntelligenceBuildEffect = Literal[
@@ -216,6 +220,15 @@ class IntelligenceBuildRecordedSourcePort(Protocol):
     ) -> "RecordedSourceAdmission": ...
 
 
+class IntelligenceBuildPreparedDerivationPort(Protocol):
+    """Narrow host capability for one exact activation-bound PREPARED derivation."""
+
+    async def derive(
+        self,
+        request: "PreparedShiftSignalDerivationRequestV1Alpha1",
+    ) -> "PreparedShiftSignalDerivationOutcome": ...
+
+
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildHostServices:
     """Invocation-scoped capabilities Core grants to one trusted executor."""
@@ -224,6 +237,7 @@ class IntelligenceBuildHostServices:
     resources: IntelligenceBuildResourcePagePort
     activation_authority: CoreAuthorityResolver
     recorded_sources: IntelligenceBuildRecordedSourcePort | None = None
+    prepared_derivations: IntelligenceBuildPreparedDerivationPort | None = None
 
 
 class IntelligenceBuildExecutor(Protocol):
@@ -239,6 +253,7 @@ __all__ = [
     "IntelligenceBuildEffect",
     "IntelligenceBuildExecutor",
     "IntelligenceBuildHostServices",
+    "IntelligenceBuildPreparedDerivationPort",
     "IntelligenceBuildResourcePagePort",
     "IntelligenceBuildRecordedSourcePort",
     "IntelligenceBuildStartV1",

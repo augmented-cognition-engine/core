@@ -29,12 +29,15 @@ from ace.core.records import (
     ImmutableRecordV1,
     immutable_record_storage_id,
 )
+from ace.core.runtime_use import AUTHORITY_GRANT_STATE_KIND
+from ace.core.state import GovernedStateHeadPreconditionV1Alpha1
 from ace.intelligence.contracts.ledger import (
     AttentionDisposition,
     AttentionDispositionReceiptV1Alpha1,
     AttentionSuppressionReason,
     IntelligenceRecordKind,
     IntelligenceRecordReferenceV1Alpha1,
+    PreparedDerivedResourceAdmissionV1Alpha1,
     PreparedResourceAdmissionV1Alpha1,
     PreparedResourceSetAdmissionV1Alpha1,
     PreparedResourceV1Alpha1,
@@ -152,6 +155,15 @@ def _revalidate_resource_set(
         return PreparedResourceSetAdmissionV1Alpha1.model_validate(batch.model_dump(mode="python"))
     except (AttributeError, TypeError, ValueError) as exc:
         raise PreparedIntelligenceAdmissionError("prepared resource-set admission failed exact revalidation") from exc
+
+
+def _revalidate_derived(
+    batch: PreparedDerivedResourceAdmissionV1Alpha1,
+) -> PreparedDerivedResourceAdmissionV1Alpha1:
+    try:
+        return PreparedDerivedResourceAdmissionV1Alpha1.model_validate(batch.model_dump(mode="python"))
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise PreparedIntelligenceAdmissionError("prepared derived admission failed exact revalidation") from exc
 
 
 def _record_for_resource(
@@ -313,7 +325,7 @@ class PreparedIntelligenceLedgerService:
     def _attention_receipt(
         self,
         *,
-        batch: PreparedResourceAdmissionV1Alpha1,
+        batch: PreparedResourceAdmissionV1Alpha1 | PreparedDerivedResourceAdmissionV1Alpha1,
         signal_lineage: tuple[IntelligenceRecordReferenceV1Alpha1, ...],
     ) -> AttentionDispositionReceiptV1Alpha1:
         try:
@@ -448,6 +460,118 @@ class PreparedIntelligenceLedgerService:
                 "Core transaction receipt does not bind the exact resource-set request"
             )
         return await self._replay_resource_set_receipt(transaction_receipt)
+
+    async def admit_derived(
+        self,
+        batch: PreparedDerivedResourceAdmissionV1Alpha1,
+        *,
+        governed_state_preconditions: tuple[GovernedStateHeadPreconditionV1Alpha1, ...],
+    ) -> PreparedIntelligenceAdmission:
+        """Persist only a new Shift, Signal, and attention receipt over stored Entities."""
+
+        validated_binding = _validated_binding(self.binding)
+        validated = _revalidate_derived(batch)
+        if validated.product_id != self.product_id:
+            raise PreparedIntelligenceAdmissionError("derived admission crossed the committed product scope")
+        if validated.activation_revision != validated_binding.prepared_binding.reference:
+            raise PreparedIntelligenceAdmissionError("derived admission does not use the exact activation revision")
+        if validated.pack != validated_binding.prepared_binding.revision.spec.pack:
+            raise PreparedIntelligenceAdmissionError("derived admission does not bind the exact compiled Pack")
+        try:
+            exact_preconditions = tuple(
+                sorted(
+                    (
+                        GovernedStateHeadPreconditionV1Alpha1.model_validate(item.model_dump(mode="python"))
+                        for item in governed_state_preconditions
+                    ),
+                    key=lambda item: (item.state_kind, item.product_id, item.state_id),
+                )
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise PreparedIntelligenceAdmissionError("derived governed-state preconditions failed validation") from exc
+        if len(exact_preconditions) != 2 or any(item.product_id != self.product_id for item in exact_preconditions):
+            raise PreparedIntelligenceAdmissionError(
+                "derived admission requires exact activation and build-authority preconditions"
+            )
+        revision = validated_binding.prepared_binding.revision
+        commit_receipt = validated_binding.commit_receipt
+        if revision.activation_id is None or revision.revision_id is None or commit_receipt.receipt_id is None:
+            raise PreparedIntelligenceAdmissionError("committed activation lost exact current-head coordinates")
+        activation_precondition = GovernedStateHeadPreconditionV1Alpha1(
+            state_kind=commit_receipt.state_kind,
+            product_id=self.product_id,
+            state_id=revision.activation_id,
+            sequence=revision.revision,
+            revision_id=revision.revision_id,
+            commit_receipt_id=commit_receipt.receipt_id,
+        )
+        authority_preconditions = tuple(item for item in exact_preconditions if item != activation_precondition)
+        if (
+            activation_precondition not in exact_preconditions
+            or len(authority_preconditions) != 1
+            or authority_preconditions[0].state_kind != AUTHORITY_GRANT_STATE_KIND
+        ):
+            raise PreparedIntelligenceAdmissionError(
+                "derived admission preconditions do not name the exact activation and one authority grant"
+            )
+
+        loaded_snapshots: list[EntitySnapshotV1Alpha1] = []
+        for reference in (validated.baseline_snapshot, validated.current_snapshot):
+            value = await self.load_exact(reference)
+            if not isinstance(value, EntitySnapshotV1Alpha1) or resource_reference(value) != reference:
+                raise PreparedIntelligenceAdmissionError("selected Entity Snapshot is missing or changed")
+            if value.activation_revision != validated.activation_revision:
+                raise PreparedIntelligenceAdmissionError("selected Entity Snapshot crossed exact activation scope")
+            loaded_snapshots.append(value)
+        if loaded_snapshots[0].entity_ref != loaded_snapshots[1].entity_ref:
+            raise PreparedIntelligenceAdmissionError("selected Entity Snapshots do not identify one entity")
+
+        resources: tuple[PreparedResourceV1Alpha1, ...] = (validated.shift, validated.signal)
+        by_id = {str(resource.resource_id): resource for resource in resources}
+        ordered = tuple(by_id[reference.resource_id] for reference in validated.processing_order)
+        order_by_id = {str(resource.resource_id): index for index, resource in enumerate(ordered)}
+        resolved_lineage: dict[str, tuple[IntelligenceRecordReferenceV1Alpha1, ...]] = {}
+        for resource in ordered:
+            self._assert_bound_resource(resource)
+            resolved_lineage[str(resource.resource_id)] = await self._resolve_lineage(
+                resource=resource,
+                in_batch=by_id,
+                order_by_id=order_by_id,
+            )
+
+        attention = self._attention_receipt(
+            batch=validated,
+            signal_lineage=resolved_lineage[str(validated.signal.resource_id)],
+        )
+        records = tuple(
+            _record_for_resource(resource, processing_order=index) for index, resource in enumerate(ordered)
+        ) + (_record_for_attention(attention, processing_order=len(ordered)),)
+        request = AppendOnlyTransactionRequestV1(
+            product_id=validated.product_id,
+            record_space=PREPARED_RECORD_SPACE,
+            transaction_key=validated.derivation_key,
+            records=records,
+            submitted_at=validated.attention_evaluated_at,
+            governed_state_preconditions=exact_preconditions,
+        )
+        transaction_receipt = await self.store.append(request)
+        if transaction_receipt != request.receipt():
+            raise PreparedIntelligenceAdmissionError(
+                "Core transaction receipt does not bind the exact derived admission"
+            )
+        return await self._replay_receipt(transaction_receipt)
+
+    async def replay_derived(
+        self,
+        *,
+        derivation_key: str,
+    ) -> PreparedIntelligenceAdmission | None:
+        receipt = await self.store.load_transaction_receipt(
+            product_id=self.product_id,
+            record_space=PREPARED_RECORD_SPACE,
+            transaction_key=derivation_key,
+        )
+        return await self._replay_receipt(receipt) if receipt is not None else None
 
     async def replay_resource_set(
         self,

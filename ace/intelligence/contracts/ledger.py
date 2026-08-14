@@ -22,6 +22,7 @@ from ace.intelligence.contracts.resources import (
     CaseV1Alpha1,
     EntitySnapshotV1Alpha1,
     IntelligenceResourceMode,
+    LineageResourceKind,
     ObservationV1Alpha1,
     ShiftV1Alpha1,
     SignalV1Alpha1,
@@ -30,6 +31,7 @@ from ace.intelligence.contracts.resources import (
 INTELLIGENCE_RECORD_REFERENCE_VERSION = "ace.intelligence.intelligence-record-reference/v1alpha1"
 PREPARED_RESOURCE_ADMISSION_VERSION = "ace.intelligence.prepared-resource-admission/v1alpha1"
 PREPARED_RESOURCE_SET_ADMISSION_VERSION = "ace.intelligence.prepared-resource-set-admission/v1alpha1"
+PREPARED_DERIVED_RESOURCE_ADMISSION_VERSION = "ace.intelligence.prepared-derived-resource-admission/v1alpha1"
 ATTENTION_DISPOSITION_RECEIPT_VERSION = "ace.intelligence.attention-disposition-receipt/v1alpha1"
 
 
@@ -439,10 +441,124 @@ class PreparedResourceSetAdmissionV1Alpha1(_StrictFrozenContract):
         return self
 
 
+class PreparedDerivedResourceAdmissionV1Alpha1(_StrictFrozenContract):
+    """Admit only a new Shift, Signal, and attention decision over stored Entities."""
+
+    contract: Literal["ace.intelligence.prepared-derived-resource-admission/v1alpha1"] = (
+        PREPARED_DERIVED_RESOURCE_ADMISSION_VERSION
+    )
+    derivation_key: str
+    product_id: str
+    mode: Literal[IntelligenceResourceMode.PREPARED] = IntelligenceResourceMode.PREPARED
+    activation_revision: ActivationRevisionReferenceV1Alpha1
+    pack: CompiledPackRefV1
+    baseline_snapshot: IntelligenceRecordReferenceV1Alpha1
+    current_snapshot: IntelligenceRecordReferenceV1Alpha1
+    shift: ShiftV1Alpha1
+    signal: SignalV1Alpha1
+    processing_order: tuple[IntelligenceRecordReferenceV1Alpha1, ...] = Field(min_length=2, max_length=2)
+    attention_evaluated_at: datetime
+    admission_id: str | None = None
+    admission_digest: str | None = None
+
+    @field_validator("derivation_key")
+    @classmethod
+    def validate_derivation_key(cls, value: str) -> str:
+        return validate_reference(value, name="derivation_key")
+
+    @field_validator("product_id")
+    @classmethod
+    def validate_product_scope(cls, value: str) -> str:
+        return validate_product_id(value)
+
+    @field_validator("attention_evaluated_at")
+    @classmethod
+    def normalize_evaluated_at(cls, value: datetime) -> datetime:
+        return _aware(value, "attention_evaluated_at")
+
+    @staticmethod
+    def _lineage_matches(
+        resource: IntelligenceRecordReferenceV1Alpha1,
+        *,
+        lineage,
+        kind: LineageResourceKind,
+    ) -> bool:
+        return (
+            lineage.resource_kind is kind
+            and lineage.resource_id == resource.resource_id
+            and lineage.resource_digest == resource.resource_digest
+            and lineage.resource_as_of == resource.as_of
+            and lineage.resource_available_at == resource.available_at
+        )
+
+    @model_validator(mode="after")
+    def validate_exact_derived_admission(self) -> Self:
+        if self.activation_revision.product_id != self.product_id:
+            raise ValueError("derived admission activation crossed the product scope")
+        snapshots = (self.baseline_snapshot, self.current_snapshot)
+        if any(
+            item.product_id != self.product_id
+            or item.mode is not IntelligenceResourceMode.PREPARED
+            or item.resource_kind is not IntelligenceRecordKind.ENTITY_SNAPSHOT
+            for item in snapshots
+        ):
+            raise ValueError("derived admission requires exact same-product PREPARED Entity Snapshot references")
+        if self.baseline_snapshot.resource_id == self.current_snapshot.resource_id:
+            raise ValueError("derived admission baseline and current snapshots must be distinct")
+        if self.baseline_snapshot.as_of >= self.current_snapshot.as_of:
+            raise ValueError("derived admission baseline must precede current snapshot")
+        if any(item.available_at > self.attention_evaluated_at for item in snapshots):
+            raise ValueError("derived admission cannot evaluate unavailable Entity Snapshots")
+        if (
+            self.shift.product_id != self.product_id
+            or self.signal.product_id != self.product_id
+            or self.shift.mode is not self.mode
+            or self.signal.mode is not self.mode
+            or self.shift.activation_revision != self.activation_revision
+            or self.signal.activation_revision != self.activation_revision
+        ):
+            raise ValueError("derived Shift and Signal crossed exact product, mode, or activation scope")
+        shift_lineage = self.shift.lineage
+        if len(shift_lineage) != 2 or not all(
+            any(
+                self._lineage_matches(snapshot, lineage=lineage, kind=LineageResourceKind.ENTITY_SNAPSHOT)
+                for lineage in shift_lineage
+            )
+            for snapshot in snapshots
+        ):
+            raise ValueError("derived Shift must name exactly the selected Entity Snapshot lineage")
+        signal_lineage = self.signal.lineage
+        shift_reference = resource_reference(self.shift)
+        if len(signal_lineage) != 1 or not self._lineage_matches(
+            shift_reference,
+            lineage=signal_lineage[0],
+            kind=LineageResourceKind.SHIFT,
+        ):
+            raise ValueError("derived Signal must name exactly the new Shift lineage")
+        resources: tuple[PreparedResourceV1Alpha1, ...] = (self.shift, self.signal)
+        if any(resource_available_at(item) > self.attention_evaluated_at for item in resources):
+            raise ValueError("derived admission cannot predate Shift or Signal availability")
+        if self.processing_order != deterministic_resource_order(resources):
+            raise ValueError("processing_order must equal the exact Shift-to-Signal order")
+
+        material = self.model_dump(mode="json", exclude={"admission_id", "admission_digest"})
+        digest = canonical_hash(material)
+        expected_id = f"derived_resource_admission:{canonical_hash([self.product_id, self.derivation_key])[:32]}"
+        expected_digest = f"sha256:{digest}"
+        if self.admission_id is not None and self.admission_id != expected_id:
+            raise ValueError("admission_id does not match the stable derivation scope")
+        if self.admission_digest is not None and self.admission_digest != expected_digest:
+            raise ValueError("admission_digest does not match exact derived material")
+        object.__setattr__(self, "admission_id", expected_id)
+        object.__setattr__(self, "admission_digest", expected_digest)
+        return self
+
+
 __all__ = [
     "ATTENTION_DISPOSITION_RECEIPT_VERSION",
     "INTELLIGENCE_RECORD_REFERENCE_VERSION",
     "PREPARED_RESOURCE_ADMISSION_VERSION",
+    "PREPARED_DERIVED_RESOURCE_ADMISSION_VERSION",
     "PREPARED_RESOURCE_SET_ADMISSION_VERSION",
     "AttentionDisposition",
     "AttentionDispositionReceiptV1Alpha1",
@@ -450,6 +566,7 @@ __all__ = [
     "IntelligenceRecordKind",
     "IntelligenceRecordReferenceV1Alpha1",
     "PreparedResourceAdmissionV1Alpha1",
+    "PreparedDerivedResourceAdmissionV1Alpha1",
     "PreparedResourceSetAdmissionV1Alpha1",
     "PreparedResourceV1Alpha1",
     "deterministic_resource_order",
