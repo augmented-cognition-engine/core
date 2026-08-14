@@ -636,7 +636,7 @@ def _stop_local_runtime(root: Path) -> None:
     console.print("SurrealDB stopped. Its Docker volume was preserved.")
 
 
-def _login_local(api_key: str) -> None:
+def _login_local(api_key: str) -> str:
     try:
         response = httpx.post(f"{_API_URL}/auth/token", json={"api_key": api_key}, timeout=10)
         response.raise_for_status()
@@ -646,6 +646,22 @@ def _login_local(api_key: str) -> None:
     if not token:
         raise click.ClickException("ACE started, but automatic login returned no bearer token.")
     save_config(_API_URL, str(token))
+    return str(token)
+
+
+def _bootstrap_local_owner(token: str) -> None:
+    try:
+        response = httpx.post(
+            f"{_API_URL}/auth/local-owner/bootstrap",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=10,
+        )
+        response.raise_for_status()
+        grants = response.json().get("grants")
+    except (httpx.HTTPError, ValueError) as exc:
+        raise click.ClickException(f"ACE started, but local-owner permissions could not be verified: {exc}") from exc
+    if not isinstance(grants, list) or len(grants) != 4:
+        raise click.ClickException("ACE started, but local-owner permission verification was incomplete.")
 
 
 def _run_first_task(description: str) -> tuple[bool, float]:
@@ -798,7 +814,9 @@ def setup(
         stage = "local_services"
         _start_local_runtime(root, configured)
         stage = "authentication"
-        _login_local(configured["API_KEY"])
+        token = _login_local(configured["API_KEY"])
+        stage = "owner_authority"
+        _bootstrap_local_owner(token)
         evidence["setup_succeeded"] = True
         evidence["time_to_ready_seconds"] = round(time.monotonic() - started, 3)
         console.print("\n[green bold]ACE is ready to reason with you.[/green bold]")
@@ -870,7 +888,8 @@ def service_start(project_dir: Path | None) -> None:
         raise click.ClickException("No usable model provider is configured. Rerun `ace setup --provider <provider>`.")
     _provider_preflight("existing", {**configured, **os.environ})
     _start_local_runtime(root, configured)
-    _login_local(configured["API_KEY"])
+    token = _login_local(configured["API_KEY"])
+    _bootstrap_local_owner(token)
     console.print("[green]ACE is ready.[/green]")
 
 

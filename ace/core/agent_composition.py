@@ -122,6 +122,7 @@ class ParticipantKind(StrEnum):
 
 
 class AuthorityClass(StrEnum):
+    INTELLIGENCE_BUILD = "intelligence_build"
     OBSERVE_READ = "observe_read"
     DERIVE_PROPOSE = "derive_propose"
     DECIDE_APPROVE = "decide_approve"

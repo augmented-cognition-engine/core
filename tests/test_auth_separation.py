@@ -36,7 +36,14 @@ def test_login_accepts_api_key():
         resp = client.post("/auth/token", json={"api_key": "my-login-key"})
         assert resp.status_code == 200
         claims = verify_token(resp.json()["token"])
-        assert claims["authorities"] == ["cognition-review"]
+        assert claims["authorities"] == [
+            "administer_lifecycle",
+            "cognition-review",
+            "deliver_export",
+            "intelligence_build",
+            "observe_read",
+        ]
+        assert claims["local_owner"] is True
 
 
 def test_login_accepts_demo_pass():
@@ -53,6 +60,7 @@ def test_login_accepts_demo_pass():
         assert resp.status_code == 200
         claims = verify_token(resp.json()["token"])
         assert claims["authorities"] == []
+        assert claims["local_owner"] is False
 
 
 def test_login_refuses_ambiguous_owner_and_demo_credentials():

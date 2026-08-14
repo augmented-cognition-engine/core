@@ -35,6 +35,8 @@ def _validate_claims(payload: dict) -> dict:
         or any(not isinstance(item, str) or not _AUTHORITY.fullmatch(item) for item in authorities)
     ):
         raise _invalid_token()
+    if "local_owner" in payload and not isinstance(payload["local_owner"], bool):
+        raise _invalid_token()
     return payload
 
 
