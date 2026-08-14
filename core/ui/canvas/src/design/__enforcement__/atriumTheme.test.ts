@@ -58,13 +58,21 @@ describe('Atrium neutral-first theme', () => {
     }
   })
 
-  it('uses neutral actions and focus with semantic ACE spectrum roles', () => {
+  it('separates the interaction hierarchy, ACE spectrum, and operational status', () => {
     expect(token('--primary')).toBe('#E7E5E1')
+    expect(token('--brand-primary')).toBe('#2896E7')
+    expect(token('--brand-secondary')).toBe('#9777F5')
+    expect(token('--brand-tertiary')).toBe('#58E8F9')
     expect(token('--brand')).toBe('#9777F5')
     expect(token('--ring')).toBe('#B4B2AF')
     expect(token('--live')).toBe('#58E8F9')
     expect(token('--evidence')).toBe('#2896E7')
+    expect(token('--status-live')).toBe('#58E8F9')
+    expect(token('--status-success')).toBe('#4CC984')
     expect(token('--anchor')).toBe('#15151A')
+    expect(css).toContain("fill: var(--brand-tertiary)")
+    expect(css).toContain("fill: var(--brand-primary)")
+    expect(css).toContain("fill: var(--brand-secondary)")
   })
 
   it('keeps Atrium signature compositions scoped to the command center', () => {
@@ -92,6 +100,8 @@ describe('Atrium neutral-first theme', () => {
     expect(atriumSources).toContain("`${openCases} ready`, tone: openCases > 0 ? 'bg-success'")
     expect(atriumSources).toContain("`${monitors} active`, tone: monitors > 0 ? 'bg-live'")
     expect(atriumSources).not.toMatch(/\['signal', 'source', 'connection', 'monitor'\]\.includes\(resourceKind\)/)
+    expect(atriumSources).not.toContain('ace-purple')
+    expect(atriumSources).not.toContain("selected ? 'border-evidence")
   })
 
   it.each([
@@ -99,6 +109,9 @@ describe('Atrium neutral-first theme', () => {
     ['card foreground on card', '--card-foreground', '--card', 4.5],
     ['muted foreground on canvas', '--muted-foreground', '--background', 4.5],
     ['primary foreground on primary', '--primary-foreground', '--primary', 4.5],
+    ['brand primary on canvas', '--brand-primary', '--background', 3],
+    ['brand secondary on canvas', '--brand-secondary', '--background', 3],
+    ['brand tertiary on canvas', '--brand-tertiary', '--background', 3],
     ['brand on canvas', '--brand', '--background', 4.5],
     ['brand on card', '--brand', '--card', 4.5],
     ['brand foreground on brand', '--brand-foreground', '--brand', 4.5],

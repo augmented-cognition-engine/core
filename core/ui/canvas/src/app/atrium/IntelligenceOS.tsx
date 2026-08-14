@@ -243,9 +243,9 @@ function CognitiveField({
         <defs>
           <radialGradient id="ace-cognition-core">
             <stop stopColor="var(--foreground)" stopOpacity="0.86" />
-            <stop offset="0.24" stopColor="var(--evidence)" stopOpacity="0.42" />
-            <stop offset="0.68" stopColor="var(--brand)" stopOpacity="0.12" />
-            <stop offset="1" stopColor="var(--brand)" stopOpacity="0" />
+            <stop offset="0.24" stopColor="var(--brand-primary)" stopOpacity="0.42" />
+            <stop offset="0.68" stopColor="var(--brand-secondary)" stopOpacity="0.12" />
+            <stop offset="1" stopColor="var(--brand-secondary)" stopOpacity="0" />
           </radialGradient>
           <filter id="ace-cognition-soften" x="-100%" y="-100%" width="300%" height="300%">
             <feGaussianBlur stdDeviation="9" />

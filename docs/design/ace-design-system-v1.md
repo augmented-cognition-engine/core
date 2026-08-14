@@ -9,11 +9,11 @@ and decision policy, not the product's identity.
 
 The ACE mark is the color source, moving from cyan through blue to violet. The product
 chrome is quieter than the mark: **Atrium is neutral-first**, and ordinary selection,
-focus, navigation, categories, and narrative remain neutral. Operational state is
-literal and consistent: green means healthy/current/admitted/linked/ready, cyan means
-actively processing or watching, amber means degraded/stale/review, and red means failed
-or destructive. Blue remains an evidence affordance; violet remains ACE identity and
-bounded visualization, not a substitute for status meaning.
+focus, navigation, categories, and narrative remain neutral. In Atrium, the primary
+action is a high-contrast neutral; secondary and tertiary controls step down through
+neutral outline and ghost treatments. Operational state is a separate system: green means
+healthy/current/admitted/linked/ready, cyan means actively processing or watching,
+amber means degraded/stale/review, and red means failed or destructive.
 
 ## Reference lock
 
@@ -91,15 +91,34 @@ Compact cards omit the repeated four-part grid entirely: they show the change, a
 “Why” annotation when available, and the existing provenance/time receipt. Full detail
 remains one interaction away in the resource sheet.
 
+## Interaction hierarchy
+
+Primary, secondary, and tertiary describe action emphasis, not three competing colors:
+
+1. **Primary** — one solid, high-contrast neutral action per decision region. Use it only for the next
+   committed step, such as preparing an intelligence build or submitting a grounded Ask.
+2. **Secondary** — neutral outline or tonal fill for reversible alternatives, review,
+   refresh, and supporting actions.
+3. **Tertiary** — neutral ghost or text treatment for navigation, disclosure, and low-risk
+   utilities. Evidence links may use ACE blue because the hue identifies provenance.
+
+The ACE identity spectrum is separately tokenized as primary blue, secondary violet,
+and tertiary cyan. Those hues may meet in the mark and Cognitive Field, but they do not
+assign status to product objects.
+
 ## Color roles
 
 | Role | Light | Dark / Atrium | Meaning |
 |---|---:|---:|---|
-| Primary action | `#315DDE` | `#E7E5E1` | Atrium uses a light neutral fill rather than a chromatic block |
+| Primary action | `#315DDE` | `#E7E5E1` | One highest-emphasis committed action; neutral in Atrium to prevent accent competition |
+| Brand primary | `#315DDE` | `#2896E7` | Evidence affordances and bounded Cognitive Field only |
+| Brand secondary | `#7764FC` | `#9777F5` | ACE identity and bounded Cognitive Field only |
+| Brand tertiary | `#0F8294` | `#58E8F9` | ACE identity and bounded Cognitive Field only |
+| Secondary action | neutral tonal | `#18191B` | Reversible supporting action |
+| Tertiary action | transparent | transparent | Navigation, disclosure, and low-risk utility |
 | Focus | `#315DDE` | `#B4B2AF` | Accessible interaction outline; focus is structural, not a brand statement |
-| Identity violet | `#315DDE` | `#9777F5` | ACE mark and bounded cognitive visualization; never a generic ready/selected state |
-| Spectral cyan | `#0F8294` | `#58E8F9` | Actively processing, detecting, streaming, watching, or retrying only |
 | Evidence blue | `#315DDE` | `#2896E7` | Citations, provenance, preserved evidence, and grounded answers only |
+| Live-status cyan | `#0F8294` | `#58E8F9` | Actively processing, detecting, streaming, watching, or retrying only |
 | Success green | `#178A4B` | `#4CC984` | Healthy, current, admitted, connected, linked, ready, completed, or accepted |
 | Warning amber | semantic token | semantic token | Degraded, stale, blocked, or requiring review |
 | Destructive red | semantic token | semantic token | Failed, rejected, destructive, or unavailable |
@@ -113,8 +132,9 @@ receive different colors simply because they are different objects. “Admitted,
 unknown or zero states remain neutral. Active navigation and ordinary selection use
 neutral surface contrast. Blue may identify evidence interactions, while the full cyan
 → blue → violet spectrum may appear only in the ACE mark and bounded Intelligence Horizon
-visualization. A Domain Pack may add chart or taxonomy hues, but it must not change these
-meanings.
+visualization. Brand and status tokens remain separately named even when a theme gives
+two roles the same sampled hue. A Domain Pack may add chart or taxonomy hues, but it must
+not change these meanings.
 
 ## Typography and density
 
@@ -132,9 +152,10 @@ meanings.
   Decision Aperture may carry a broad, low-opacity shadow to separate the operating
   picture from the shell; generic cards may not.
 - Cards use 8–12px radius; pills are reserved for status and short filters.
-- Atrium uses neutral primary actions, navigation, focus, and selection. Brand spectrum
-  appears in the ACE mark and bounded cognitive visualization; links and status use their
-  evidence or semantic roles. Large panels remain achromatic.
+- Atrium permits one high-contrast neutral primary action per decision region. Secondary and tertiary
+  actions, navigation, focus, and selection remain neutral. Brand spectrum appears in the
+  ACE mark and bounded cognitive visualization; links and status use their evidence or
+  semantic roles. Large panels remain achromatic.
 - Every synthesized claim should be one interaction from evidence and provenance.
 - Motion communicates current system state, feedback, or continuity. The Cognitive
   Field may breathe while a current Brief exists; it freezes when empty and under

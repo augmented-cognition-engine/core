@@ -77,13 +77,12 @@
     --color-card: var(--card);
     --color-foreground: var(--foreground);
     --color-background: var(--background);
-    /* ACE semantic-role tokens.
+    /* ACE interaction, brand, and status tokens.
      *
-     *   --primary  → decisive actions, in ACE cognitive blue.
-     *   --brand    → ACE authority and decision boundaries.
-     *   --evidence → citations, provenance, and preserved knowledge.
-     *   --live     → in-motion evidence, in the logo's cyan register.
-     *   --success  → verified completion only, in semantic green.
+     *   --primary                           → highest-emphasis action only.
+     *   --brand-primary/secondary/tertiary → ACE identity and bounded visualization.
+     *   --evidence                         → citations and provenance affordances.
+     *   --live/--success/--warning         → literal operational status.
      *
      * Selected/active state is NOT a token — it's a structural treatment
      * (ring-2 + shadow + bg-foreground at low opacity). Visual weight,
@@ -93,6 +92,9 @@
      * data-viz only, never for interactive state. See chart-1..5 below. */
     --color-brand: var(--brand);
     --color-brand-foreground: var(--brand-foreground);
+    --color-brand-primary: var(--brand-primary);
+    --color-brand-secondary: var(--brand-secondary);
+    --color-brand-tertiary: var(--brand-tertiary);
     --color-evidence: var(--evidence);
     /* State-status tokens — distinct from the decorative chart palette.
      * STATE answers "is this good / watch / bad" (success/warning/
@@ -101,6 +103,10 @@
      * amber, a 4th chart series is Blue. */
     --color-success: var(--success);
     --color-success-foreground: var(--success-foreground);
+    --color-status-live: var(--status-live);
+    --color-status-success: var(--status-success);
+    --color-status-warning: var(--status-warning);
+    --color-status-danger: var(--status-danger);
     --color-warning: var(--warning);
     --color-warning-foreground: var(--warning-foreground);
     /* --anchor → the dark editorial anchor card (hero quote blocks,
@@ -155,12 +161,19 @@
     /* Semantic role tokens — see @theme comment above for the contract. */
     --brand: #315DDE;                            /* ACE cognitive blue — identity */
     --brand-foreground: #FFFFFF;
+    --brand-primary: #315DDE;                    /* primary ACE blue */
+    --brand-secondary: #7764FC;                  /* secondary ACE violet */
+    --brand-tertiary: #0F8294;                   /* tertiary ACE cyan */
     --live: #0F8294;                             /* in-motion evidence = spectral cyan */
     --live-foreground: #FFFFFF;
     --success: #178A4B;                          /* verified completion */
     --success-foreground: #FFFFFF;
     --warning: oklch(0.74 0.15 78);              /* watch = amber (state, NOT chart-3 cyan) */
     --warning-foreground: oklch(0.205 0 0);
+    --status-live: #0F8294;
+    --status-success: #178A4B;
+    --status-warning: oklch(0.74 0.15 78);
+    --status-danger: oklch(0.577 0.245 27.325);
     /* --anchor → the editorial hero surface. A pale blue wash makes an
      * ACE-owned intelligence moment visible without turning it into a CTA. */
     --anchor: #EEF2FF;
@@ -204,12 +217,19 @@
     --chart-5: #7764FC;
     --brand: #7597FF;
     --brand-foreground: #071020;
+    --brand-primary: #7597FF;
+    --brand-secondary: #9B8BFF;
+    --brand-tertiary: #55D6E6;
     --live: #55D6E6;
     --live-foreground: #071020;
     --success: #48C77A;
     --success-foreground: #07140C;
     --warning: oklch(0.78 0.15 78);
     --warning-foreground: oklch(0.205 0 0);
+    --status-live: #55D6E6;
+    --status-success: #48C77A;
+    --status-warning: oklch(0.78 0.15 78);
+    --status-danger: oklch(0.704 0.191 22.216);
     --anchor: #131E38;
     --anchor-foreground: #F7F7F7;
     --sidebar: oklch(0.205 0 0);
@@ -224,11 +244,11 @@
 
 /* Atrium is ACE's always-on command center. Its palette is deliberately
  * neutral-first: near-black achromatic surfaces do the structural work,
- * neutral controls carry primary action and focus. The ACE spectrum is
- * semantic rather than decorative: cyan is live/source activity, blue is
- * evidence/provenance, and violet is authority/decision state. The three hues
- * may meet only in the ACE mark and the single Intelligence Horizon system
- * diagram, where their progression communicates meaning.
+ * one high-contrast neutral primary action is available for the highest-emphasis
+ * choice; secondary and tertiary controls also remain neutral. The ACE spectrum belongs to
+ * identity and the single Intelligence Horizon visualization. Operational
+ * state uses a separately named status family even when a hue is visually
+ * related to the mark.
  *
  * Direction synthesized through Refero from Raycast's 98%-achromatic dark
  * cockpit and Linear's precision surface ladder. The result is ACE-owned:
@@ -255,11 +275,18 @@
     --ring: #B4B2AF;
     --brand: #9777F5;
     --brand-foreground: #0D0917;
+    --brand-primary: #2896E7;
+    --brand-secondary: #9777F5;
+    --brand-tertiary: #58E8F9;
     --evidence: #2896E7;
     --live: #58E8F9;
     --live-foreground: #071312;
     --success: #4CC984;
     --success-foreground: #07140C;
+    --status-live: #58E8F9;
+    --status-success: #4CC984;
+    --status-warning: oklch(0.78 0.15 78);
+    --status-danger: oklch(0.704 0.191 22.216);
     --anchor: #15151A;
     --anchor-foreground: #F3F1ED;
     --sidebar: #0B0C0D;
@@ -336,17 +363,17 @@
 
 .atrium-cognitive-particles g[data-zone='live'] polygon,
 .atrium-cognitive-pulses circle[data-zone='live'] {
-    fill: var(--live);
+    fill: var(--brand-tertiary);
 }
 
 .atrium-cognitive-particles g[data-zone='evidence'] polygon,
 .atrium-cognitive-pulses circle[data-zone='evidence'] {
-    fill: var(--evidence);
+    fill: var(--brand-primary);
 }
 
 .atrium-cognitive-particles g[data-zone='authority'] polygon,
 .atrium-cognitive-pulses circle[data-zone='authority'] {
-    fill: var(--brand);
+    fill: var(--brand-secondary);
 }
 
 .atrium-cognitive-streams path {
@@ -358,15 +385,15 @@
 }
 
 .atrium-cognitive-streams path[data-zone='live'] {
-    stroke: var(--live);
+    stroke: var(--brand-tertiary);
 }
 
 .atrium-cognitive-streams path[data-zone='evidence'] {
-    stroke: var(--evidence);
+    stroke: var(--brand-primary);
 }
 
 .atrium-cognitive-streams path[data-zone='authority'] {
-    stroke: var(--brand);
+    stroke: var(--brand-secondary);
 }
 
 .atrium-cognitive-fissure {

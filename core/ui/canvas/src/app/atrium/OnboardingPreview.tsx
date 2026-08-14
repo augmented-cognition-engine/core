@@ -380,7 +380,7 @@ export function OnboardingPreview({
                             {item.profile_id.includes('custom') ? <Compass className="size-4" /> : <Sparkles className="size-4" />}
                           </div>
                           <div className="flex items-center gap-1.5">
-                            {isCustomPreviewProfile(item) && <Badge variant="outline" className="rounded-sm border-[var(--ace-purple-500)]/40 bg-[var(--ace-purple-500)]/10 font-mono text-[8px] text-[var(--ace-purple-300)]">Preview</Badge>}
+                            {isCustomPreviewProfile(item) && <Badge variant="outline" className="rounded-sm border-warning/35 bg-warning/8 font-mono text-[8px] text-warning">Preview</Badge>}
                             {selected && <Badge variant="outline" className="rounded-sm border-foreground/20 font-mono text-[8px] text-foreground/75">Selected</Badge>}
                           </div>
                         </div>
@@ -391,9 +391,9 @@ export function OnboardingPreview({
                     )
                   })}
               </div>
-              <div className={`mt-4 flex items-start gap-3 rounded-lg border p-4 ${customPreview ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'border-evidence/20 bg-evidence/[0.05]'}`}>
+              <div className={`mt-4 flex items-start gap-3 rounded-lg border p-4 ${customPreview ? 'border-warning/35 bg-warning/5' : 'border-evidence/20 bg-evidence/[0.05]'}`}>
                 {customPreview
-                  ? <FlaskConical className="mt-0.5 size-4 shrink-0 text-[var(--ace-purple-300)]" />
+                  ? <FlaskConical className="mt-0.5 size-4 shrink-0 text-warning" />
                   : <BookOpenCheck className="mt-0.5 size-4 shrink-0 text-evidence" />}
                 <div>
                   <div className="text-xs font-medium text-foreground">{customPreview ? 'Custom Intelligence is a proposal preview.' : `${profile.display_name} is ready to specialize.`}</div>
@@ -489,12 +489,12 @@ export function OnboardingPreview({
                           type="button"
                           variant="ghost"
                           onClick={() => toggleSourceGroup(group.source_group_id)}
-                          className={`h-auto min-h-40 w-full flex-col items-stretch justify-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-evidence/35 bg-evidence/[0.055]' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
+                          className={`h-auto min-h-40 w-full flex-col items-stretch justify-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-foreground/35 bg-foreground/[0.045] ring-1 ring-foreground/10' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
                         >
                           <div className="flex items-start gap-3">
-                            <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-evidence/30 bg-evidence/[0.08] text-evidence' : 'bg-muted text-muted-foreground'}`}><SourceIcon group={group} /></div>
+                            <div className={`flex size-9 shrink-0 items-center justify-center rounded-md border ${selected ? 'border-foreground/25 bg-foreground/[0.06] text-foreground' : 'bg-muted text-muted-foreground'}`}><SourceIcon group={group} /></div>
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 text-sm font-semibold">{group.label}{selected && <Check className="size-3.5 text-evidence" />}</div>
+                              <div className="flex items-center gap-2 text-sm font-semibold">{group.label}{selected && <Check className="size-3.5 text-foreground" />}</div>
                               <p className="mt-1 text-xs font-normal leading-relaxed text-muted-foreground">{group.description}</p>
                             </div>
                           </div>
@@ -510,7 +510,7 @@ export function OnboardingPreview({
                     })}
                   </div>
                   <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-                    <PlugZap className="size-3.5 text-evidence" /> {selectedSourceGroups.length} groups · {proposedSourceCount} sources proposed
+                    <PlugZap className="size-3.5 text-muted-foreground" /> {selectedSourceGroups.length} groups · {proposedSourceCount} sources proposed
                   </div>
                 </>
               ) : (
@@ -532,9 +532,9 @@ export function OnboardingPreview({
                   <PlanCard label="Briefing" value="Preview only" detail={`Cadence captured: ${profile.cadences.find((item) => item.cadence_id === cadenceId)?.label ?? 'Selected cadence'}. v1 does not activate this Custom plan or run a first-Brief executor.`} />
                 </div>
                 <div className="mt-4 grid gap-3 md:grid-cols-[1fr_auto]">
-                  <div className="flex items-start gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4"><Scale className="mt-0.5 size-4 shrink-0 text-brand" /><p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Nothing is connected or activated silently.</span> This Custom preview is a local draft and makes no server request.</p></div>
+                  <div className="flex items-start gap-3 rounded-lg border border-warning/35 bg-warning/5 p-4"><Scale className="mt-0.5 size-4 shrink-0 text-warning" /><p className="text-xs leading-relaxed text-muted-foreground"><span className="font-medium text-foreground">Nothing is connected or activated silently.</span> This Custom preview is a local draft and makes no server request.</p></div>
                   <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3">
-                    <FlaskConical className="size-4 text-[var(--ace-purple-300)]" />
+                    <FlaskConical className="size-4 text-warning" />
                     <div><div className="font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground">Preview boundary</div><div className="mt-0.5 text-xs font-medium">Draft proposal only</div></div>
                   </div>
                 </div>
@@ -614,15 +614,15 @@ function ExactPlanReview({ plan }: { readonly plan: IntelligenceBuildPlan }) {
     <>
       <DialogHeader className="max-w-3xl">
         <div className="mb-2 flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="rounded-sm border-brand/35 bg-brand/8 font-mono text-[8px] uppercase tracking-[0.12em] text-brand">Exact proposal</Badge>
+          <Badge variant="outline" className="rounded-sm font-mono text-[8px] uppercase tracking-[0.12em]">Exact proposal</Badge>
           <span className="font-mono text-[8px] text-muted-foreground">{shortReference(review.projection_id)}</span>
         </div>
         <DialogTitle className="text-2xl tracking-tight">Review the exact plan ACE prepared</DialogTitle>
         <DialogDescription className="text-sm leading-relaxed">Every item below came back from the installed planner and exact Pack. This review grants no authority and performs no work.</DialogDescription>
       </DialogHeader>
 
-      <div className="mt-5 flex items-start gap-3 rounded-lg border border-brand/30 bg-brand/7 p-4">
-        <Eye className="mt-0.5 size-4 shrink-0 text-brand" />
+      <div className="mt-5 flex items-start gap-3 rounded-lg border border-warning/30 bg-warning/5 p-4">
+        <Eye className="mt-0.5 size-4 shrink-0 text-warning" />
         <div>
           <div className="text-xs font-semibold">Prepared for review—not connected or activated</div>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground">No source has been connected, no concept has been written, no watch is running, and no Brief has been generated.</p>
@@ -678,8 +678,7 @@ function ExactPlanReview({ plan }: { readonly plan: IntelligenceBuildPlan }) {
 }
 
 function ReviewHeading({ eyebrow, title, count }: { readonly eyebrow: string; readonly title: string; readonly count: number }) {
-  const tone = eyebrow === 'Evidence' ? 'text-evidence' : eyebrow === 'Orientation' ? 'text-live' : 'text-brand'
-  return <div className="flex items-end justify-between gap-3"><div><div className={`font-mono text-[8px] font-semibold uppercase tracking-[0.16em] ${tone}`}>{eyebrow}</div><h3 className="mt-1 text-base font-semibold tracking-tight">{title}</h3></div><Badge variant="outline" className="rounded-sm font-mono text-[8px]">{count} exact</Badge></div>
+  return <div className="flex items-end justify-between gap-3"><div><div className="font-mono text-[8px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{eyebrow}</div><h3 className="mt-1 text-base font-semibold tracking-tight">{title}</h3></div><Badge variant="outline" className="rounded-sm font-mono text-[8px]">{count} exact</Badge></div>
 }
 
 function ReviewEffectCard({ effect, index }: { readonly effect: IntelligenceBuildPlanReviewEffect; readonly index: number }) {
@@ -701,8 +700,8 @@ function BuildStep({ label, result, state }: BuildLane) {
   const Icon = state === 'complete' ? Check : state === 'blocked' ? TriangleAlert : state === 'active' ? LoaderCircle : state === 'preview' ? FlaskConical : CircleDot
   const stateLabel = state === 'complete' ? 'Complete' : state === 'blocked' ? 'Needs attention' : state === 'active' ? 'Working' : state === 'waiting' ? 'Waiting' : state === 'preview' ? 'Preview' : 'Proposed'
   return (
-    <div className={`flex items-center gap-3 rounded-lg border p-4 ${state === 'active' ? 'border-live/30 bg-live/[0.055]' : state === 'blocked' ? 'border-warning/45 bg-warning/5' : state === 'preview' ? 'border-[var(--ace-purple-500)]/35 bg-[var(--ace-purple-500)]/8' : 'bg-card'}`}>
-      <div className={`flex size-7 items-center justify-center rounded-full ${state === 'blocked' ? 'bg-warning/15 text-warning' : state === 'complete' ? 'bg-success/12 text-success' : state === 'active' ? 'bg-live/10 text-live' : state === 'preview' ? 'bg-[var(--ace-purple-500)]/15 text-[var(--ace-purple-300)]' : 'bg-muted text-muted-foreground'}`}>
+    <div className={`flex items-center gap-3 rounded-lg border p-4 ${state === 'active' ? 'border-live/30 bg-live/[0.055]' : state === 'blocked' || state === 'preview' ? 'border-warning/45 bg-warning/5' : 'bg-card'}`}>
+      <div className={`flex size-7 items-center justify-center rounded-full ${state === 'blocked' || state === 'preview' ? 'bg-warning/15 text-warning' : state === 'complete' ? 'bg-success/12 text-success' : state === 'active' ? 'bg-live/10 text-live' : 'bg-muted text-muted-foreground'}`}>
         <Icon className={`size-3.5 ${state === 'active' ? 'animate-spin' : ''}`} />
       </div>
       <div className="min-w-0 flex-1"><div className="text-sm font-medium">{label}</div><div className="mt-0.5 text-xs text-muted-foreground">{result}</div></div>
