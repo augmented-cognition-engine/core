@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import {
   Activity,
@@ -428,6 +428,7 @@ export function IntelligenceOS() {
   const productName = productDisplayName(page?.product_id)
   const freshness = pageFreshness(page)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const onboardingPresented = useRef(false)
   const onboardingProfiles = useMemo(
     () => onboardingProfilesFromResources(
       page?.items ?? [],
@@ -436,6 +437,19 @@ export function IntelligenceOS() {
     [installedCatalog, page?.items],
   )
   const onboardingSession = useMemo(() => onboardingSessionFromResources(page?.items ?? []), [page?.items])
+
+  useEffect(() => {
+    if (
+      onboardingPresented.current
+      || loading
+      || error !== null
+      || installedCatalog.length === 0
+      || onboardingSession !== null
+      || groups.intelligence.length > 0
+    ) return
+    onboardingPresented.current = true
+    setOnboardingOpen(true)
+  }, [error, groups.intelligence.length, installedCatalog.length, loading, onboardingSession])
 
   function openFirstBrief() {
     requestAnimationFrame(() => document.getElementById('latest-brief')?.scrollIntoView({ behavior: 'smooth' }))

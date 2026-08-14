@@ -57,7 +57,7 @@ const SOURCE_ICONS: Record<string, typeof Database> = {
   private_organizational: LockKeyhole,
 }
 
-const STEP_LABELS = ['Intent', 'Evidence', 'Focus', 'Review', 'Build'] as const
+const STEP_LABELS = ['Choose', 'Intent', 'Evidence', 'Review', 'Build'] as const
 
 type BuildState = 'complete' | 'active' | 'blocked' | 'waiting' | 'proposed'
 
@@ -184,9 +184,9 @@ export function OnboardingPreview({
   const firstBriefReady = activeSession !== null && STAGE_RANK[activeSession.stage] >= STAGE_RANK.first_briefing_ready
   const lanes = buildLanes(activeSession, outcome.recommended_topic_labels.length || 'Custom')
   const evidenceRequired = profile.source_groups.length > 0
-  const canContinue = step === 0
+  const canContinue = step === 1
     ? subject.trim().length >= 8
-    : step !== 1 || !evidenceRequired || selectedSourceGroups.length > 0
+    : step !== 2 || !evidenceRequired || selectedSourceGroups.length > 0
 
   useEffect(() => {
     if (!profiles.some((item) => item.profile_id === profileId)) setProfileId(profiles[0].profile_id)
@@ -267,9 +267,51 @@ export function OnboardingPreview({
           {step === 0 && (
             <>
               <DialogHeader className="max-w-2xl">
-                <DialogTitle className="text-2xl tracking-tight">What do you want intelligence about?</DialogTitle>
+                <DialogTitle className="text-2xl tracking-tight">What kind of intelligence do you want to build?</DialogTitle>
                 <DialogDescription className="text-sm leading-relaxed">
-                  Describe the subject or decision in plain language. ACE will choose the strongest available intelligence starting point and specialize it around your job.
+                  Start with a proven domain or build a new one around your question. This choice gives ACE the vocabulary, evidence roles, and quality rules for the first picture.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-6 grid gap-3 md:grid-cols-3">
+                  {profiles.map((item) => {
+                    const selected = item.profile_id === profile.profile_id
+                    return (
+                      <Button
+                        key={item.profile_id}
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setProfileId(item.profile_id)}
+                        className={`h-auto min-h-44 w-full flex-col items-start justify-start whitespace-normal rounded-lg border p-5 text-left ${selected ? 'border-brand/70 bg-brand/7 ring-1 ring-brand/20' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
+                      >
+                        <div className="flex w-full items-start justify-between gap-3">
+                          <div className={`flex size-9 items-center justify-center rounded-md border ${selected ? 'border-brand/40 bg-brand/10 text-brand' : 'bg-muted text-muted-foreground'}`}>
+                            {item.profile_id.includes('custom') ? <Compass className="size-4" /> : <Sparkles className="size-4" />}
+                          </div>
+                          {selected && <Badge variant="outline" className="rounded-sm border-brand/30 font-mono text-[8px] text-brand">Selected</Badge>}
+                        </div>
+                        <div className="mt-5 text-base font-semibold">{item.domain_label}</div>
+                        <div className="mt-1 text-xs font-medium text-foreground/85">{item.topic_label}</div>
+                        <p className="mt-3 text-[11px] font-normal leading-relaxed text-muted-foreground">{item.description}</p>
+                      </Button>
+                    )
+                  })}
+              </div>
+              <div className="mt-4 flex items-start gap-3 rounded-lg border border-brand/20 bg-brand/5 p-4">
+                <BookOpenCheck className="mt-0.5 size-4 shrink-0 text-brand" />
+                <div>
+                  <div className="text-xs font-medium text-foreground">{profile.display_name} is ready to specialize.</div>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Next, tell ACE what you need to understand or decide. Nothing connects or starts watching until you review the plan.</p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {step === 1 && (
+            <>
+              <DialogHeader className="max-w-2xl">
+                <DialogTitle className="text-2xl tracking-tight">What do you need to stay ahead of?</DialogTitle>
+                <DialogDescription className="text-sm leading-relaxed">
+                  Describe the subject or decision in plain language. ACE will specialize {profile.domain_label} around your job.
                 </DialogDescription>
               </DialogHeader>
               <div className="mt-5">
@@ -288,42 +330,7 @@ export function OnboardingPreview({
                   </div>
                 )}
               </div>
-              <div className="mt-4 grid gap-3 rounded-lg border border-brand/25 bg-brand/5 p-4 md:grid-cols-[auto_1fr_auto] md:items-center">
-                <div className="flex size-9 items-center justify-center rounded-md border border-brand/40 bg-brand/10 text-brand"><Sparkles className="size-4" /></div>
-                <div className="min-w-0">
-                  <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-brand">Selected intelligence</div>
-                  <div className="mt-1 text-sm font-semibold">{profile.domain_label} <span className="text-muted-foreground">→</span> {profile.topic_label}</div>
-                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{profile.display_name} gives ACE the starting vocabulary, evidence roles, and quality policy. Your request determines the actual picture.</p>
-                </div>
-                <Badge variant="outline" className="w-fit rounded-sm font-mono text-[9px]">Selected</Badge>
-              </div>
-              <div className="mt-5">
-                <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Choose a starting point</div>
-                <div className="mt-3 grid gap-3 md:grid-cols-3">
-                  {profiles.map((item) => {
-                    const selected = item.profile_id === profile.profile_id
-                    return (
-                      <Button
-                        key={item.profile_id}
-                        type="button"
-                        variant="ghost"
-                        onClick={() => setProfileId(item.profile_id)}
-                        className={`h-auto min-h-28 w-full flex-col items-start justify-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}
-                      >
-                        <div className="flex w-full items-start justify-between gap-3">
-                          <div className="text-sm font-semibold">{item.domain_label}</div>
-                          {selected && <Check className="size-3.5 shrink-0 text-brand" />}
-                        </div>
-                        <div className="mt-1 text-xs font-medium text-foreground/85">{item.topic_label}</div>
-                        <p className="mt-2 line-clamp-2 text-[10px] font-normal leading-relaxed text-muted-foreground">{item.description}</p>
-                      </Button>
-                    )
-                  })}
-                </div>
-              </div>
-              <div className="mt-6">
-                <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">{profile.prompt}</div>
-              </div>
+              <div className="mt-6 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">{profile.prompt}</div>
               <div className="mt-6 grid gap-3 md:grid-cols-2">
                 {profile.outcomes.map((item) => {
                   const selected = item.outcome_id === outcomeId
@@ -338,10 +345,19 @@ export function OnboardingPreview({
                   )
                 })}
               </div>
+              <div className="mt-6">
+                <div className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">How often should ACE orient you?</div>
+                <div className="mt-3 grid gap-2 md:grid-cols-3">
+                  {profile.cadences.map((cadence) => {
+                    const selected = cadence.cadence_id === cadenceId
+                    return <Button key={cadence.cadence_id} type="button" variant="ghost" onClick={() => setCadenceId(cadence.cadence_id)} className={`h-auto w-full flex-col items-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-brand' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs font-normal text-muted-foreground">{cadence.description}</p></Button>
+                  })}
+                </div>
+              </div>
             </>
           )}
 
-          {step === 1 && (
+          {step === 2 && (
             <>
               <DialogHeader className="max-w-2xl">
                 <DialogTitle className="text-2xl tracking-tight">Choose the evidence ACE can use</DialogTitle>
@@ -389,19 +405,6 @@ export function OnboardingPreview({
                   ACE will propose a balanced mix of primary records, first-party claims, independent evidence, telemetry, and leading indicators for review.
                 </div>
               )}
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <DialogHeader className="max-w-2xl">
-                <DialogTitle className="text-2xl tracking-tight">Shape the intelligence picture</DialogTitle>
-                <DialogDescription>ACE recommends a complete starting view for <span className="text-foreground">{outcome.label.toLowerCase()}</span>. You can refine it later.</DialogDescription>
-              </DialogHeader>
-              <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_0.8fr]">
-                <Card><CardContent className="p-5"><div className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Recommended coverage</div><div className="mt-4 flex flex-wrap gap-2">{outcome.recommended_topic_labels.length > 0 ? outcome.recommended_topic_labels.map((topic) => <Badge key={topic} variant="secondary" className="rounded-sm py-1 font-normal">{topic}</Badge>) : <span className="text-sm text-muted-foreground">Choose topics after continuing.</span>}</div><div className="mt-6 border-t pt-4"><div className="text-xs font-medium">You can add specific entities, organizations, products, policies, or technologies next.</div><p className="mt-1 text-xs text-muted-foreground">ACE asks only for details it cannot safely infer.</p></div></CardContent></Card>
-                <div><div className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">How often should ACE orient you?</div><div className="mt-3 space-y-2">{profile.cadences.map((cadence) => { const selected = cadence.cadence_id === cadenceId; return <Button key={cadence.cadence_id} type="button" variant="ghost" onClick={() => setCadenceId(cadence.cadence_id)} className={`h-auto w-full flex-col items-start whitespace-normal rounded-lg border p-4 text-left ${selected ? 'border-brand/70 bg-brand/7' : 'bg-card hover:border-foreground/25 hover:bg-card'}`}><div className="flex items-center gap-2 text-sm font-semibold"><CircleDot className={`size-3.5 ${selected ? 'text-brand' : 'text-muted-foreground'}`} />{cadence.label}</div><p className="mt-1 pl-5 text-xs font-normal text-muted-foreground">{cadence.description}</p></Button>})}</div></div>
-              </div>
             </>
           )}
 
@@ -458,7 +461,7 @@ export function OnboardingPreview({
         <div className="flex items-center justify-between border-t px-6 py-4 sm:px-8">
           <Button type="button" variant="ghost" disabled={step === 0} onClick={() => setStep((value) => Math.max(0, value - 1))}><ArrowLeft className="size-4" /> Back</Button>
           {step < 4
-            ? <Button type="button" disabled={!canContinue || buildPending} onClick={() => step === 3 ? void build() : setStep((value) => Math.min(3, value + 1))}>{buildPending ? <><LoaderCircle className="size-4 animate-spin" /> Building your first picture</> : <>{step === 0 ? 'Use this starting point' : step === 1 ? 'Use these sources' : step === 2 ? 'Review the plan' : 'Build my intelligence'} <ArrowRight className="size-4" /></>}</Button>
+            ? <Button type="button" disabled={!canContinue || buildPending} onClick={() => step === 3 ? void build() : setStep((value) => Math.min(3, value + 1))}>{buildPending ? <><LoaderCircle className="size-4 animate-spin" /> Building your first picture</> : <>{step === 0 ? 'Use this intelligence' : step === 1 ? 'Choose evidence' : step === 2 ? 'Review the plan' : 'Build my intelligence'} <ArrowRight className="size-4" /></>}</Button>
             : <Button type="button" onClick={finish}>{firstBriefReady ? profile.completion_label : 'Return to Atrium'} <ArrowRight className="size-4" /></Button>}
         </div>
       </DialogContent>
