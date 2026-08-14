@@ -22,8 +22,11 @@ Research was synthesized through Refero from:
   room, thin surface boundaries, and color rationed to meaningful product state.
 - **Cognitive signature — [Dala](https://styles.refero.design/style/e5f5f8cf-e68d-4ed1-bbf5-6b67569af648):**
   a distributed, organic intelligence field that feels alive against a black void. ACE
-  translates its particle brain into a deterministic, data-bound neural mesh using the
+  translates its particle brain into a deterministic, data-bound cognitive mass using the
   ACE spectrum rather than importing Dala's violet and amber palette.
+- **Generative density — [Midjourney](https://styles.refero.design/style/1e85631f-1e2e-41fa-a5dc-b1604bdbe25a):**
+  intelligence feels present because a dense field visibly composes itself. ACE borrows
+  that density and low-amplitude motion, not Midjourney's terminal typography or palette.
 
 - **Foundation — [Linear Changelog](https://styles.refero.design/style/11d3e58a-87d7-4a9a-bbf5-720f4fd3ffc6):**
   near-black precision surfaces, quiet white/gray typography, compact density,
@@ -58,8 +61,8 @@ intelligence visualization.
 ## Signature composition
 
 Atrium's signature is the **Intelligence Horizon**, whose living center is the **ACE
-Cognitive Field**. Admitted sources and detected movement form a distributed neural
-mesh around one current, cited Brief; the same picture then opens toward grounded
+Cognitive Field**. Admitted sources and detected movement form a distributed particle
+mass around one current, cited Brief; the same picture then opens toward grounded
 investigation and a human decision. The visualization uses actual resource counts and
 provenance links, never invented confidence or activity metrics. A contained cyan →
 evidence-blue → violet field echoes the ACE mark while the surrounding shell stays
@@ -137,6 +140,9 @@ A Domain Pack may add chart or taxonomy hues, but it must not change these meani
   implementations.
 - Radix/Base UI behavior stays encapsulated inside those shared primitives; Atrium
   screens do not import the primitive libraries directly.
+- Product icons use one outline family at one optical weight. They remain small,
+  inherit `currentColor`, and appear only when the glyph clarifies an action or
+  destination; semantic dots replace decorative status icons.
 - Native HTML remains appropriate for document structure, and native SVG remains
   appropriate for non-interactive, data-bound visualizations such as the Cognitive
   Field. Neither becomes a parallel control system.

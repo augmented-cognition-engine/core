@@ -75,7 +75,7 @@ describe('Atrium neutral-first theme', () => {
 
   it('freezes the cognitive field when the user requests reduced motion', () => {
     expect(css).toContain('@media (prefers-reduced-motion: reduce)')
-    expect(css).toContain('.atrium-cognitive-field.is-current .atrium-cognitive-nodes circle')
+    expect(css).toContain('.atrium-cognitive-field.is-current .atrium-cognitive-particles g')
   })
 
   it('routes interactive Atrium controls through the shared shadcn layer', () => {

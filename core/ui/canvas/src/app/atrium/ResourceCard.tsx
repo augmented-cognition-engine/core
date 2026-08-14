@@ -1,4 +1,4 @@
-import { ArrowUpRight, CircleAlert, Clock3, GitBranch, ShieldCheck } from 'lucide-react'
+import { ArrowUpRight, CircleAlert, Clock3, GitBranch } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 import { Badge } from '@/design/shadcn/ui/badge'
@@ -64,12 +64,12 @@ export function ResourceCard({
     : null
   const resourceKind = record.reference.resource_kind
   const recordTone = ['signal', 'source', 'connection', 'monitor'].includes(resourceKind)
-    ? 'border-live/20 bg-live/[0.06] text-live'
+    ? 'bg-live'
     : ['case', 'decision', 'feedback'].includes(resourceKind)
-      ? 'border-brand/20 bg-brand/[0.07] text-brand'
+      ? 'bg-brand'
       : resourceKind === 'outcome'
-        ? 'border-success/20 bg-success/[0.06] text-success'
-        : 'border-evidence/20 bg-evidence/[0.06] text-evidence'
+        ? 'bg-success'
+        : 'bg-evidence'
 
   return (
     <Sheet>
@@ -77,24 +77,22 @@ export function ResourceCard({
         <Button
           type="button"
           variant="ghost"
-          className="group h-auto w-full justify-start rounded-lg p-0 text-left whitespace-normal hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+          className="group h-auto w-full justify-start rounded-none p-0 text-left whitespace-normal hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring/50"
           aria-label={`Open ${record.title}`}
         >
-          <Card className={horizon ? 'border-0 bg-transparent shadow-none' : featured ? 'border-border bg-card transition-colors duration-200 group-hover:border-foreground/25' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
+          <Card className={horizon ? 'w-full gap-0 rounded-none border-0 bg-transparent py-0 shadow-none ring-0' : featured ? 'border-border bg-card transition-colors duration-200 group-hover:border-foreground/25' : 'transition-colors duration-200 group-hover:border-foreground/25'}>
             <CardContent className={horizon ? 'p-0' : featured ? 'p-6 md:p-7' : compact ? 'p-3.5' : 'p-4'}>
-              <div className="flex items-start gap-3">
-                <div
-                  className={
-                    record.availability === 'degraded'
-                      ? 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-warning/15 text-warning'
-                      : `mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border ${recordTone}`
-                  }
-                >
-                  {record.availability === 'degraded' ? <CircleAlert className="size-3.5" /> : <ShieldCheck className="size-3.5" />}
-                </div>
+              <div className={`flex items-start ${horizon ? '' : 'gap-3'}`}>
+                {!horizon && (
+                  record.availability === 'degraded'
+                    ? <CircleAlert className="mt-1 size-4 shrink-0 text-warning" />
+                    : <span className={`mt-2 size-1.5 shrink-0 rounded-full ${recordTone}`} aria-hidden="true" />
+                )}
                 <div className="min-w-0 flex-1">
                   <div className={compact ? 'mb-1.5 flex flex-wrap items-center gap-2' : 'mb-2 flex flex-wrap items-center gap-2'}>
-                    <Badge variant="secondary" className="h-5 rounded-sm border border-border/70 bg-muted px-1.5 font-mono text-[9px] uppercase tracking-wide">
+                    <Badge variant="secondary" className={horizon
+                      ? 'h-auto rounded-none border-0 bg-transparent p-0 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground/50'
+                      : 'h-5 rounded-sm border border-border/70 bg-muted px-1.5 font-mono text-[9px] uppercase tracking-wide'}>
                       {kindLabel(record.reference.resource_kind)}
                     </Badge>
                     <span className="font-mono text-[10px] text-muted-foreground">
@@ -105,12 +103,13 @@ export function ResourceCard({
                         · {confidencePercent}% confidence
                       </span>
                     )}
+                    {horizon && <ArrowUpRight className="ml-auto size-3.5 text-foreground/35 transition-colors group-hover:text-foreground/70" />}
                   </div>
                   <h3
                     className={
                       featured
                         ? horizon
-                          ? 'max-w-4xl text-[clamp(2rem,3.3vw,3.45rem)] font-[430] leading-[1.02] tracking-[-0.045em] text-white'
+                          ? 'max-w-4xl text-[clamp(2rem,2.7vw,3rem)] font-[430] leading-[1.03] tracking-[-0.04em] text-white'
                           : 'max-w-3xl text-2xl font-semibold leading-[1.12] tracking-[-0.025em]'
                         : 'text-sm font-semibold leading-snug tracking-tight'
                     }
@@ -131,7 +130,7 @@ export function ResourceCard({
                   {resolvedStorySections.length > 0 && (
                     featured ? (
                       <div className={horizon
-                        ? 'mt-7 border-y border-white/[0.08]'
+                        ? 'mt-8 border-t border-white/[0.08]'
                         : 'mt-5 overflow-hidden rounded-lg border bg-card'}>
                         <div className="grid gap-5 py-4 sm:grid-cols-[minmax(0,1.35fr)_minmax(13rem,0.65fr)]">
                           {primaryStory !== undefined && (
@@ -196,11 +195,13 @@ export function ResourceCard({
                       <p className="mt-1 max-w-3xl text-xs leading-5 text-foreground/85">{resolvedWhy}</p>
                     </div>
                   )}
-                  <div className={compact ? 'mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground' : 'mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground'}>
-                    <GitBranch className="size-3" />
-                    <span>{record.provenance.length} evidence link{record.provenance.length === 1 ? '' : 's'}</span>
-                    <ArrowUpRight className="ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
-                  </div>
+                  {!horizon && (
+                    <div className={compact ? 'mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground' : 'mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground'}>
+                      <GitBranch className="size-3" />
+                      <span>{record.provenance.length} evidence link{record.provenance.length === 1 ? '' : 's'}</span>
+                      <ArrowUpRight className="ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>

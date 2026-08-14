@@ -4,15 +4,15 @@
 // the `nav` slot. Covers the kernel's own surfaces only; an extension
 // nav (registered through the ext seam) replaces this wholesale and is
 // expected to link back to the room.
-import { type ComponentType } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
-  Bot,
-  BrainCircuit,
-  Compass,
-  Lightbulb,
-  Network,
-  StickyNote,
+  Crosshair,
+  FileSearch2,
+  Orbit,
+  Radar,
+  Route,
+  type LucideIcon,
+  Waypoints,
 } from 'lucide-react'
 
 import {
@@ -29,20 +29,20 @@ import {
 
 interface NavItem {
   href: string
-  icon: ComponentType<{ className?: string }>
+  icon: LucideIcon
   label: string
 }
 
 const NAV: NavItem[] = [
-  { href: '/atrium', icon: BrainCircuit, label: 'Intelligence' },
-  { href: '/atrium/opportunities', icon: Lightbulb, label: 'Opportunities' },
-  { href: '/atrium/agents', icon: Bot, label: 'Agents' },
-  { href: '/atrium/connections', icon: Network, label: 'Connections' },
-  { href: '/atrium/strategy', icon: Compass, label: 'Strategy' },
+  { href: '/atrium', icon: Radar, label: 'Intelligence' },
+  { href: '/atrium/opportunities', icon: Crosshair, label: 'Opportunities' },
+  { href: '/atrium/agents', icon: Orbit, label: 'Agents' },
+  { href: '/atrium/connections', icon: Waypoints, label: 'Connections' },
+  { href: '/atrium/strategy', icon: Route, label: 'Strategy' },
 ]
 
 const DOWNSTREAM_NAV: NavItem[] = [
-  { href: '/board', icon: StickyNote, label: 'Investigation board' },
+  { href: '/board', icon: FileSearch2, label: 'Investigation board' },
 ]
 
 export function KernelNav() {
@@ -50,10 +50,10 @@ export function KernelNav() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="px-3 py-3">
         <Link
           to="/atrium"
-          className="flex items-center gap-2.5 pl-2.5 pr-2 py-1.5 overflow-hidden"
+          className="flex items-center gap-2.5 overflow-hidden px-1 py-1"
         >
           <span
             className="relative flex size-7 shrink-0 items-center justify-center overflow-hidden"
@@ -74,22 +74,16 @@ export function KernelNav() {
         </Link>
       </SidebarHeader>
 
-      <div className="mx-3 mb-2 rounded-md border border-sidebar-border bg-sidebar-accent/45 px-3 py-2.5 group-data-[collapsible=icon]:hidden">
-        <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.16em] text-sidebar-foreground/55">Command center</div>
-        <p className="mt-1 text-[10px] leading-4 text-muted-foreground">
-          One live picture from governed sources.
-        </p>
-      </div>
-
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Surfaces</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-mono text-[8px] uppercase tracking-[0.14em] text-sidebar-foreground/45">Surfaces</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {NAV.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
+                    className="rounded-md px-2.5 focus-visible:ring-2 [&_svg]:size-3.5"
                     isActive={
                       item.href === '/atrium'
                         ? pathname === '/atrium'
@@ -98,7 +92,7 @@ export function KernelNav() {
                     tooltip={item.label}
                   >
                     <Link to={item.href}>
-                      <item.icon />
+                      <item.icon strokeWidth={1.65} />
                       <span>{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -109,18 +103,19 @@ export function KernelNav() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Downstream work</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-mono text-[8px] uppercase tracking-[0.14em] text-sidebar-foreground/45">Downstream work</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {DOWNSTREAM_NAV.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
+                    className="rounded-md px-2.5 focus-visible:ring-2 [&_svg]:size-3.5"
                     isActive={pathname === item.href}
                     tooltip={item.label}
                   >
                     <Link to={item.href}>
-                      <item.icon />
+                      <item.icon strokeWidth={1.65} />
                       <span>{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
