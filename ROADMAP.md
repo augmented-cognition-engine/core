@@ -213,6 +213,12 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 3. patch releases harden a published promise without introducing a backward-incompatible public
    contract or silently widening authority.
 
+After every published minor or patch release, maintainers reconcile four public records before the
+next milestone moves to **Now**: this file, the release milestone issue, the GitHub Project view,
+and the release evidence or published GitHub Release. Each record must be updated or explicitly
+marked **reviewed — no change required**. The exact closeout checklist lives in
+[docs/release-closeout.md](docs/release-closeout.md).
+
 | Target | Public milestone | Lane | Granular outcome map | Public issue |
 |---|---|---|---|---|
 | 0.2.x | State Engine stabilization | **Maintenance** | Inherits the passed R0, R1, R2, R3, R4, R5, R6, R7, G1, IA-R1, I1, I2, I3, F1, L1, K1, K2, and K3 foundation; patch work is limited to compatibility, migration, recovery, observability, reliability, security, and documentation hardening | [#1](https://github.com/augmented-cognition-engine/core/issues/1) |
@@ -224,6 +230,14 @@ Release targets describe sequence, not calendar commitments. ACE follows three r
 | 0.8.0 | Intelligence OS Realignment | **Passed** | Public Core 0.8.0 unifies the governed resource plane and Atrium experience over the released Builder, composition, memory, action, and outcome foundations; independent World/Market proofs reproduce the same contract without domain branches | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
 | 0.9.0 | Single-user Intelligence Builder | **Passed** | The personal install → choose → connect → map → watch → first cited Brief → continuous update journey is implemented through Atrium, with local ownership, recovery, and World/Market proof | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
 | 1.0.0 | Personal Intelligence Operating System | **Passed** | Public Core 1.0.3, World 0.13.0, and Market 0.8.0 artifacts reproduce the supported single-user loop, exact owner authority, provider-neutral model setup, recovery, continuously updating cited Briefs, and bounded direction-package/outcome return without requiring collaboration or managed infrastructure | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
+| 1.1 | Code Intelligence | **Now** | Repository-to-reasoning graph for architecture, symbols, features, tests, APIs, ownership, ADRs, incidents, dependencies, decision rationale, disconnected code, and downstream change impact; Atrium Code lens plus bounded handoff to coding agents | [#194](https://github.com/augmented-cognition-engine/core/issues/194) |
+| 1.2 | Personal Intelligence | **Next** | A durable personal intelligence environment across notes, files, cloud drives, databases, warehouses, and object stores; adapters remain independently released and reusable across bundles | [#195](https://github.com/augmented-cognition-engine/core/issues/195) |
+| 1.3 | Intelligence Operations and Safe Evolution | **Later** | Version discovery, Atrium update experience, compatibility-aware upgrade plans, migration receipts, backup, rollback, health, and recovery so upgrades improve the experience without surprising users | [#196](https://github.com/augmented-cognition-engine/core/issues/196) |
+| 1.4 | Intelligence Pack Kit and Topic Intelligence | **Later** | A supported kit for organizational, domain, and focused Topic packs with reusable concepts, semantics, policies, tests, demos, and packaging over the same graph substrate | [#197](https://github.com/augmented-cognition-engine/core/issues/197) |
+| 1.5 | Organizational and Connected Product Intelligence | **Later** | Organization, design, data, and connected-product intelligence views that preserve their own semantics while composing through Topics, shared evidence, and Atrium lenses | [#198](https://github.com/augmented-cognition-engine/core/issues/198) |
+| 1.6 | Governed Self-Improving Agents | **Later** | Autonomous operation, reflection, evaluation, proposal, approval, rollout, measurement, rollback, and retirement under explicit authority and exact receipts | [#199](https://github.com/augmented-cognition-engine/core/issues/199) |
+| 1.7 | Portable Deployment and Interoperability | **Later** | Portable local, hosted, and federated operation with export, restore, runtime interoperability, and no forced durable-intelligence custody | [#200](https://github.com/augmented-cognition-engine/core/issues/200) |
+| 2.0 | Collaborative Organizational Intelligence | **Later** | Permission-sensitive shared intelligence across teams and external participants, with tenancy, dissent, provenance, revocation, export, and recovery preserved end to end | [#152](https://github.com/augmented-cognition-engine/core/issues/152) |
 
 ### Parallel domain validation
 
@@ -649,9 +663,60 @@ authority, provider lock-in, domain ontology in Core, or organizational ownershi
 
 Multi-user collaboration, organizations and teams, tenant isolation, shared workspaces, delegated
 administration, multiplayer approvals, managed hosting, marketplace operation, hostile-extension
-sandboxing, and distributed execution are explicit
-[post-1.0 work](https://github.com/augmented-cognition-engine/core/issues/152). They do not gate the
-first stable personal Intelligence OS.
+sandboxing, and distributed execution remain explicit later work, culminating in
+[Collaborative Organizational Intelligence](https://github.com/augmented-cognition-engine/core/issues/152).
+They do not gate the first stable personal Intelligence OS.
+
+## Post-1.0 release direction
+
+ACE now turns its general intelligence substrate into products people can immediately understand,
+adopt, and keep. The sequence is deliberate: **World makes people look; Code makes builders
+install; Personal makes them stay; Organization makes teams standardize.** One intelligence core
+supports many intelligence products without moving their nouns or policies into Core.
+
+### 1.1 — Code Intelligence
+
+Code Intelligence is the lead post-1.0 demonstration and adoption wedge. Within each declared
+supported-language and repository-topology profile, ACE connects software-system evidence beyond
+files: repositories, services, modules, symbols, features, tests, APIs, ownership, ADRs, incidents,
+dependencies, architectural decisions, and the reasons behind them. It surfaces disconnected
+function candidates, traces evidence-backed feature connections, and reports calibrated downstream
+change impact with citations, provenance, omissions, and uncertainty. Atrium provides the
+inspectable Code lens; bounded context packages feed coding agents such as Codex or Claude Code
+without transferring source, reasoning, delivery, or effect authority. This does not imply universal
+language coverage, safe-deletion proof, or omniscient impact prediction. The public contract and
+acceptance gate live in [issue #194](https://github.com/augmented-cognition-engine/core/issues/194).
+
+### 1.2 — Personal Intelligence
+
+Personal Intelligence is the next retention frontier: a durable environment spanning a person's
+notes, documents, files, projects, sources, decisions, and evolving interests. The Solution Bundle
+is distinct from the adapter ecosystem. The 1.2 acceptance starts with read-only local
+Markdown/Obsidian folders, PDF, CSV, and JSON; at most one remote knowledge source may follow only
+after the local journey passes. Adapter packages remain independently versioned and reusable across
+bundles, but this roadmap does not promise a universal connector catalog or make adapters part of
+the Personal Solution Bundle. The public contract lives in [issue #195](https://github.com/augmented-cognition-engine/core/issues/195).
+
+### 1.3–1.7 — Operationalize, package, connect, improve, and port
+
+- **1.3 Intelligence Operations and Safe Evolution:** version discovery, Atrium update flows,
+  compatibility-aware upgrades, migration receipts, backup, rollback, health, and recovery.
+- **1.4 Intelligence Pack Kit and Topic Intelligence:** the supported product grammar for broad
+  organizational/domain packs and focused Topic packs over common graph, semantic, policy, and
+  evaluation contracts. Geopolitics is a World/Topic intelligence product, not a Core ontology.
+- **1.5 Organizational and Connected Product Intelligence:** organization, design, data, and other
+  connected-product lenses that can feed tools such as Figma MCP or data/analysis arms while ACE
+  preserves connections, decisions, evidence, and rationale.
+- **1.6 Governed Self-Improving Agents:** autonomous operation and improvement through proposal,
+  evaluation, approval, rollout, measurement, rollback, and retirement—never silent authority.
+- **1.7 Portable Deployment and Interoperability:** local, hosted, and federated operation with
+  export, restore, and provider/runtime portability.
+
+### 2.0 — Collaborative Organizational Intelligence
+
+Multiple teams and external participants operate shared intelligence without collapsing identity,
+authority, source entitlement, privacy, dissent, or provenance. The public contract lives in
+[issue #152](https://github.com/augmented-cognition-engine/core/issues/152).
 
 ## Continuous situational intelligence sequence
 
@@ -783,6 +848,20 @@ flowchart LR
 | 8. Continuous situational intelligence | Can ACE maintain a trustworthy, changing orientation over any bounded subject without making its domain ontology part of Core or Intelligence? | **GI1 substrate passed; product outcome not ready** | SI1–SI4 require GI1, independent Domain Packs, K1–K3, I1–I3, E2, L1, F2 where justified, and the single-user workspace, recovery, and ownership slices required by the 1.0 gate | cross-cuts 0.4.x–0.9.0; complete by 1.0.0 |
 
 ## Immediate dispatch
+
+### Active milestone: 1.1 Code Intelligence
+
+Code Intelligence is **Now**. The first post-1.0 work packet turns ACE's existing graph,
+composition, decision-memory, provenance, and architecture foundations into one undeniable public
+journey: connect a real repository, reconstruct how a feature crosses code and tests, explain the
+architectural why, predict downstream impact, and hand an inspectable bounded context package to a
+coding agent. Acceptance, boundaries, and dependency sequencing live in
+[issue #194](https://github.com/augmented-cognition-engine/core/issues/194).
+
+Personal Intelligence is **Next** in [issue #195](https://github.com/augmented-cognition-engine/core/issues/195).
+The live [Release Spine](https://github.com/orgs/augmented-cognition-engine/projects/1/views/1)
+keeps all later milestones ordered and shows only open work.
+
 
 ### Completed milestone: 0.6.0 Measured Intelligence
 
