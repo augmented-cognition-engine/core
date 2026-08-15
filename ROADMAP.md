@@ -665,7 +665,7 @@ Multi-user collaboration, organizations and teams, tenant isolation, shared work
 administration, multiplayer approvals, managed hosting, marketplace operation, hostile-extension
 sandboxing, and distributed execution remain explicit later work, culminating in
 [Collaborative Organizational Intelligence](https://github.com/augmented-cognition-engine/core/issues/152).
-They did not gate the first stable personal Intelligence OS.
+They do not gate the first stable personal Intelligence OS.
 
 ## Post-1.0 release direction
 
