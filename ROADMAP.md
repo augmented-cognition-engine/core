@@ -676,22 +676,26 @@ supports many intelligence products without moving their nouns or policies into 
 
 ### 1.1 — Code Intelligence
 
-Code Intelligence is the lead post-1.0 demonstration and adoption wedge. ACE understands the full
-software system—not only files: repositories, services, modules, symbols, features, tests, APIs,
-ownership, ADRs, incidents, dependencies, architectural decisions, and the reasons behind them. It
-surfaces disconnected functions, traces feature connections, and explains what is likely to break
-downstream when something changes. Atrium provides the inspectable Code lens; bounded context
-packages feed coding agents such as Codex or Claude Code without transferring source or effect
-authority. The public contract and acceptance gate live in [issue #194](https://github.com/augmented-cognition-engine/core/issues/194).
+Code Intelligence is the lead post-1.0 demonstration and adoption wedge. Within each declared
+supported-language and repository-topology profile, ACE connects software-system evidence beyond
+files: repositories, services, modules, symbols, features, tests, APIs, ownership, ADRs, incidents,
+dependencies, architectural decisions, and the reasons behind them. It surfaces disconnected
+function candidates, traces evidence-backed feature connections, and reports calibrated downstream
+change impact with citations, provenance, omissions, and uncertainty. Atrium provides the
+inspectable Code lens; bounded context packages feed coding agents such as Codex or Claude Code
+without transferring source, reasoning, delivery, or effect authority. This does not imply universal
+language coverage, safe-deletion proof, or omniscient impact prediction. The public contract and
+acceptance gate live in [issue #194](https://github.com/augmented-cognition-engine/core/issues/194).
 
 ### 1.2 — Personal Intelligence
 
 Personal Intelligence is the next retention frontier: a durable environment spanning a person's
 notes, documents, files, projects, sources, decisions, and evolving interests. The Solution Bundle
-is distinct from the adapter ecosystem. Obsidian, Notion, OneDrive, Google Drive, SharePoint, Box,
-Dropbox, local files, email, calendars, CSV, relational databases, Snowflake, Databricks, BigQuery,
-Redshift, S3, Azure Blob Storage, GCS, and future adapters ship independently and remain reusable
-across every bundle. The public contract lives in [issue #195](https://github.com/augmented-cognition-engine/core/issues/195).
+is distinct from the adapter ecosystem. The 1.2 acceptance starts with read-only local
+Markdown/Obsidian folders, PDF, CSV, and JSON; at most one remote knowledge source may follow only
+after the local journey passes. Adapter packages remain independently versioned and reusable across
+bundles, but this roadmap does not promise a universal connector catalog or make adapters part of
+the Personal Solution Bundle. The public contract lives in [issue #195](https://github.com/augmented-cognition-engine/core/issues/195).
 
 ### 1.3–1.7 — Operationalize, package, connect, improve, and port
 
