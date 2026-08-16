@@ -51,6 +51,22 @@ No. Accepted decisions, corrections, outcomes, and calibration signals can infor
 persistence only creates the opportunity for better-informed reasoning. ACE does not treat every
 generated answer as learning or promise monotonic improvement.
 
+ACE also keeps three kinds of improvement separate. **Change completion** checks whether the
+current task reached every affected consumer. **Capability evolution** asks whether an observed
+pattern deserves to become a versioned reusable procedure or module. **Experience improvement**
+asks whether recurring friction should change how ACE supplies context, coordinates work, or
+presents decisions. The latter two require their own proposal, evaluation, and approval; a
+successful run cannot silently promote either one.
+
+### Can ACE use Code Intelligence to improve ACE itself?
+
+That is the active 1.1 proof target. ACE should be able to map its own architecture, identify the
+likely blast radius of a change, notice concurrent human or agent work, verify that implementation
+and documentation agree, and propose reusable improvements. Self-application is not self-authority:
+ACE cannot approve its own permissions, policies, or capability promotion, and Git remains the
+source of code truth. See the
+[governed Code Intelligence improvement loop](design/governed-code-improvement-loop-v1.md).
+
 ## Partial failure and degraded operation
 
 ### What happens when a tool call times out during a committee run?

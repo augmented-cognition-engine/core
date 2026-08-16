@@ -264,6 +264,29 @@ makes cognition improvable once for every domain while keeping domain meaning wi
 domain authority with the organization activating it. It does not position ACE as a reasoning
 engine or make any inference provider the product boundary.
 
+## Governed improvement, including ACE itself
+
+ACE separates three improvement lifecycles:
+
+- **complete an approved change** through bounded verification, linked repair, and reverification;
+- **improve the represented system** through a new, separately reviewed architecture or operating
+  Decision; and
+- **improve future cognition and coordination** through evidence-backed proposals for memory,
+  procedures, routing, frameworks, Pack policy, context policy, verification, or agent definitions.
+
+Detection and proposal authority do not imply repair, refactor, activation, merge, release,
+deployment, or promotion authority. A successful repair does not become a reusable procedure by
+repetition alone. Similar code does not become one abstraction without semantic and ownership
+evidence. A passing check does not prove that a governing Decision was fully realized.
+
+ACE applies Code Intelligence to its own repository as the reference customer. Self-application is
+not self-approval: ACE may inspect, diagnose, compose participants, propose changes, invoke bounded
+coding tools, and verify results, but it cannot widen its scope, approve architecture, merge,
+release, deploy, or promote a durable revision without separately granted authority.
+
+The detailed lifecycle and conformance program are frozen in the
+[governed Code Intelligence improvement loop](docs/design/governed-code-improvement-loop-v1.md).
+
 ## Open-platform principles
 
 1. **One ACE runtime, many domain programs.** Core and Intelligence ship together while preserving
@@ -288,6 +311,18 @@ engine or make any inference provider the product boundary.
    recording an outcome does not promote its proposed revision.
 10. **Open contracts create the ecosystem.** Packs, adapters, bundles, applications, and agents use
     versioned APIs and conformance suites.
+11. **Single-player useful, multiplayer compounding.** One person receives the complete supported
+    cognitive loop without organization administration; additional participants add shared
+    context, specialization, and coordination without creating a second product.
+12. **Scale adds boundaries, not alternate meaning.** Personal, team, enterprise, and federated
+    operation use the same durable objects and lifecycle semantics. Authorization precedes
+    relevance, and derived intelligence is never less restricted than its inputs.
+13. **Repair, architecture, and learning are separate.** Completing current work, proposing a
+    reusable system improvement, and changing how future work is performed require distinct
+    objects, evidence, authority, evaluation, and rollback.
+14. **Self-application is not self-authority.** ACE should use its own intelligence to improve how
+    ACE is built, but operating on its own repository never grants approval, merge, release,
+    deployment, policy, or promotion authority.
 
 ## The boundary test
 
@@ -305,8 +340,15 @@ acceptance journey:
 9. restart the runtime and reproduce identities, versions, access, derivations, and receipts;
 10. upgrade and roll back the activation without silently reinterpreting older intelligence;
 11. run the same journey with materially different semantic, quantitative, and event-driven packs;
-    and
-12. prove a zero-line domain-specific diff in Core and Intelligence.
+12. prove a zero-line domain-specific diff in Core and Intelligence;
+13. begin in a fully governed workspace of one and add participants or policy without replacing
+    durable identities or re-ingesting intelligence;
+14. govern higher-consequence operations more strongly regardless of participant count;
+15. preserve unauthorized sources, private context, and dissent across a multi-participant Topic;
+16. distinguish incomplete-change repair, a reusable-architecture proposal or no-opportunity
+    result, and an agent/procedure proposal or no-learning result; and
+17. apply that distinction to ACE's own repository while proving ACE cannot approve, merge,
+    release, deploy, promote, or widen itself.
 
 If the final condition fails, the abstraction is incomplete. If the journey passes only because a
 lower layer knows the domain's nouns, thresholds, prompts, sources, or action semantics, the

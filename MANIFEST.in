@@ -1,4 +1,4 @@
-include README.md ROADMAP.md CONTRIBUTING.md SECURITY.md CHANGELOG.md LICENSE NOTICE
+include README.md ROADMAP.md VISION.md MANIFESTO.md CONTRIBUTING.md SECURITY.md CHANGELOG.md LICENSE NOTICE
 include Dockerfile Makefile .env.example uv.lock
 include build_backend.py
 recursive-include ace_mcp_client *.py

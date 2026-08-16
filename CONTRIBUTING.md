@@ -1,13 +1,17 @@
 # Contributing to ACE
 
-ACE is an open-source reasoning kernel — the engine that powers partner-team reasoning across any
-domain. The 0.1.x contribution path covers the kernel, CLI/thin MCP contract, evaluation, docs, and
-extension ecosystem. Atrium is a separately gated experimental visual-product/research track.
+ACE is the open-source Augmented Cognition Engine: an Intelligence OS for building governed,
+durable intelligence systems. The stable 1.0 contribution path covers Core, Intelligence,
+applications, CLI and thin MCP interfaces, Atrium, evaluation, documentation, and the extension
+ecosystem. The active 1.1 milestone applies that complete stack to Code Intelligence.
 
 **Before you start, please read:**
 - [`ROADMAP.md`](ROADMAP.md) — the public priorities and longer-term direction
+- [`VISION.md`](VISION.md) — the product thesis, users, architecture, and scale model
+- [`MANIFESTO.md`](MANIFESTO.md) — the principles and non-negotiable boundaries
 - [`docs/capability-maturity.md`](docs/capability-maturity.md) — which surfaces are supported, experimental, conditional, dormant, or planned
 - [`docs/architecture.md`](docs/architecture.md) — how the system works today
+- [`docs/design/governed-code-improvement-loop-v1.md`](docs/design/governed-code-improvement-loop-v1.md) — the 1.1 Code Intelligence target contract
 - [`docs/build-your-first-extension.md`](docs/build-your-first-extension.md) — the contributor entry point if you're building an extension
 
 ---
@@ -15,8 +19,8 @@ extension ecosystem. Atrium is a separately gated experimental visual-product/re
 ## Setup
 
 Prerequisites are Git, Python 3.12, `uv`, and Docker Engine with Compose v2. SurrealDB listens on
-**8001**, not its upstream default port. Atrium's experimental visual-product/research track has a
-separate Node.js toolchain and is not part of preview setup. The ACE kernel is Apache-2.0; the
+**8001**, not its upstream default port. Atrium has a separate Node.js toolchain and remains an
+optional repository-delivered interface rather than part of the Python wheel. ACE is Apache-2.0; the
 separately run SurrealDB server is
 source-available under BSL 1.1 rather than OSI open source.
 
@@ -42,11 +46,12 @@ uv run python scripts/verify_golden_path.py
 
 ```
 
-See the [README](README.md) quickstart for the authoritative end-to-end setup.
+See the [getting-started guide](docs/getting-started.md) for the authoritative end-to-end setup and
+the [development guide](docs/development.md) for contributor verification.
 
-MCP and CLI are the developer-preview interaction paths. Atrium—the experimental
-visual-product/research track—is present as a repository beta, not a supported Python artifact or
-prerequisite for contributing to the engine.
+The CLI and exact eleven-tool thin MCP adapter are supported 1.0 machine interfaces. Atrium is the
+supported optional human control plane over the same API and resource plane; it is not a second
+store or authority system and is not required for engine-only contribution work.
 
 ---
 
@@ -65,7 +70,7 @@ prerequisite for contributing to the engine.
 | Fix a kernel bug or improve a layer's behavior | `core/engine/{orchestrator,orchestration,cognition,capture,sentinel,foresight}/` |
 | Add or evaluate an orchestration pattern | `core/engine/orchestration/` and `tests/orchestration/` |
 | Add a MAKE or SHIP capability | `core/engine/arms/` with focused tests under `tests/` |
-| Propose an Atrium HCI research change | Begin with the isolated research packet; do not expand the preview artifact |
+| Improve Atrium or add an intelligence lens | Preserve the shared API/resource-plane boundary and extend the design system first |
 | Improve evaluation and conformance | `tests/`, especially orchestration, intelligence, extension, and naked-kernel boundaries |
 
 ### 3. Run the tests
@@ -110,9 +115,10 @@ Do not make provider-quality claims from credential-free fixtures; follow
   issue or Project item when one exists.
 - Never include credentials, private graph exports, proprietary fixtures, or private-extension code.
 
-The thin 11-tool MCP package and CLI are the preview contracts. The broad HTTP API, internal MCP
-host, Atrium UI seams, and experimental extension hooks may change. Propose stable-contract changes
-before implementation using [`docs/governance.md`](docs/governance.md).
+The thin 11-tool MCP package, documented CLI, public Python packages, authorized Intelligence
+resource plane, and supported Atrium journey are 1.0 contracts. Undocumented HTTP routes, the broad
+internal MCP host, and experimental extension or execution seams may change. Propose stable-contract
+changes before implementation using [`docs/governance.md`](docs/governance.md).
 
 ### 5. Architectural contracts (don't break these)
 
@@ -125,6 +131,12 @@ These are described in [`docs/architecture.md`](docs/architecture.md). They are 
 - **Forward Momentum** — every synthesis emits a forward-looking next move.
 - **Nested Partnership** — `Human ↔ ACE ↔ LLM`. The LLM is computation, not loop controller.
 - **Adaptive Framework Orchestration** — recipes select frameworks dynamically.
+- **Scale-Invariant Semantics** — one person and a 10,000-person organization use the same object,
+  authority, and receipt meanings; scale adds topology, not a second product model.
+- **Separated Improvement Loops** — change completion, reusable capability evolution, and experience
+  improvement have distinct evidence and promotion paths.
+- **Self-Application Is Not Self-Authority** — ACE may inspect and propose improvements to ACE, but
+  models and agents cannot approve their own permissions, policy, or promotion.
 - **Mandatory Design System Use** — every UI component composes from `core/ui/canvas/src/design/components/`.
 
 ### 6. Extensions: the recommended contribution path

@@ -187,6 +187,9 @@ self-assessment, or an unverified positive response to modify future behavior.
 19. **Freshness is not truth or trust.** Age, real-world validity, relevance, belief confidence,
     source reliability, and retention are separate signals. Retrieval or repetition alone never
     reinforces a memory, and missing trust is never treated as fully trusted.
+20. **A repair is not a reusable procedure.** Completing or recovering one task may supply evidence
+    for a capability proposal, but only the governed cognition lifecycle can version, evaluate,
+    approve, and activate it for later work.
 
 ## Intentional non-goals
 

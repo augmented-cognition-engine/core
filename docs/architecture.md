@@ -9,7 +9,7 @@ boundaries.
 
 This document is the map: how the pieces fit, why they're shaped that way, and where your own work plugs in.
 
-## Developer-preview as-built map (verified 2026-07-19)
+## ACE 1.0 as-built map (verified against v1.0.3)
 
 This section records the repository that exists today. Statements labelled **verified** come from
 source/import inspection or executable tests. Statements labelled **direction** describe the
@@ -25,7 +25,7 @@ flowchart LR
     ADAPTERS[Adapters and stores\nmodels · execution · SurrealDB]
     HOSTS[Runtime hosts\nHTTP API · CLI · worker · broad MCP]
     PUBLIC[Public thin MCP\n11 HTTP-backed tools]
-    ATRIUM[Atrium\nexperimental API consumer]
+    ATRIUM[Atrium\nsupported optional API consumer]
     EXT[Extensions]
 
     CONTRACTS --> SERVICES --> ARMS
@@ -47,10 +47,10 @@ engine. Atrium consumes API and event state and is not a kernel composition root
 | Boundary / root | As built | Protection and status |
 |---|---|---|
 | Public MCP | `ace_mcp_client/server.py` registers exactly 11 wire tools; `client.py` and `tools.py` call the HTTP API | **Verified:** exact-name/count tests plus source and clean-process import guards; no engine or extension import |
-| Full engine MCP | `core/engine/mcp/server.py` declares 112 built-in tools and eagerly adds extension tools at import through `registered_tools()` | **Verified:** broad advanced/experimental host; import-time extension discovery means it is not the preview contract |
-| HTTP API | `core/engine/api/main.py` owns the FastAPI app, lifespan, database/schema startup, event/sentinel/notification registration, and a broad router list | **Verified:** largest composition root; required preview endpoints and legacy/experimental routes share one host |
-| CLI | `core/engine/cli/main.py` imports and registers Click commands explicitly; commands primarily call HTTP | **Verified:** preview host, but broader than the minimal golden commands |
-| Worker | `core/engine/worker/app.py` owns a separate FastAPI lifecycle, SurrealDB live query, capture processing, filesystem watcher, and session services | **Verified:** optional automation/runtime host; not required by the preview allowlist |
+| Full engine MCP | `core/engine/mcp/server.py` declares 112 built-in tools and eagerly adds extension tools at import through `registered_tools()` | **Verified:** broad advanced/experimental host; import-time extension discovery keeps it outside the stable thin MCP contract |
+| HTTP API | `core/engine/api/main.py` owns the FastAPI app, lifespan, database/schema startup, event/sentinel/notification registration, and a broad router list | **Verified:** largest composition root; stable resource endpoints and legacy/experimental routes share one host |
+| CLI | `core/engine/cli/main.py` imports and registers Click commands explicitly; commands primarily call HTTP | **Verified:** supported 1.0 host, with some commands outside the minimum Builder journey |
+| Worker | `core/engine/worker/app.py` owns a separate FastAPI lifecycle, SurrealDB live query, capture processing, filesystem watcher, and session services | **Verified:** optional automation/runtime host; not required by the minimum 1.0 journey |
 | Brain | `orchestrator/`, `orchestration/`, and `cognition/` implement classification, dispatch, patterns, composition, engagement, synthesis, and run traces | **Verified:** `orchestration/executor.py` is the principal reasoning use-case coordinator |
 | Meta-Intelligence | `capture/`, `graph/`, `intelligence/`, `learning/`, `foresight/`, and `sentinel/` load and write durable intelligence, outcomes, predictions, and background signals | **Verified:** many modules access the shared DB pool directly; store boundaries are mixed with service logic |
 | Grounded State Engine | `grounded_state/` owns temporal evidence, deterministic candidate receipts, reviewed epistemic assertion revisions, as-of belief projections, transition hypotheses, bounded consequence rollouts, reasoning-use receipts, promotion lineage, and later-outcome reconciliation | **Verified:** TP0–TP8, the repeated provider-free readiness audit, and the independent-extension product journey cover product-fenced append-only persistence, task integration, restart/replay/interruption, the retained 220,000-claim single-node corpus, 40 frozen K2 domain cases, five repeated K3 process journeys, and the supported clean-builder path; K1/K2/K3 passed for the named bounded capability; no benefit, distributed, causal-accuracy, calibration, or general-world-model claim |
@@ -101,7 +101,7 @@ thin MCP / CLI
 
 The receipt is created before provider or orchestration work, so losing the submitting connection
 does not erase task identity or cancel execution. Retry identity is product/user scoped. The
-single-process preview reconciles receipts left `pending` or `running` by a runtime restart to
+supported single-process 1.0 runtime reconciles receipts left `pending` or `running` by a restart to
 `degraded`. Every new receipt also carries a `task-attempt-v1` root/attempt identity.
 `POST /tasks/{task_id}/resume` deliberately reconstructs a failed or degraded direct task from its
 private durable request and creates one deterministic linked successor. Duplicate process-local
@@ -227,7 +227,7 @@ The following are audit findings, not a request for a speculative rewrite:
   specific call, when that call can be moved behind an existing service with a compatibility shim.
 - **Verified:** `foresight/forecaster.py` and `foresight/reconciler.py` import an API canvas helper,
   and `review/providers.py` imports an API PR helper. These are host dependencies inside services.
-  They are outside the current preview signature path and need event/port extraction before G2 or
+  They are outside the stable 1.0 signature path and need event/port extraction before G2 or
   execution hardening, not a directory move.
 - **Verified:** the same eleven conceptual operations exist in both the HTTP-backed thin client
   and the broad in-process MCP server. Their transport behavior and return shapes differ, so the
@@ -239,17 +239,18 @@ The following are audit findings, not a request for a speculative rewrite:
   and idempotent, but full API registration remains broad.
 - **Verified:** direct global-pool queries are widespread across graph, capture, and intelligence.
   `CaptureService` accepts a pool, but no uniform decision/run/intelligence store boundary exists.
-  Introduce a store only when G1 or an exercised preview caller needs an independently testable
+  Introduce a store only when G1 or an exercised supported caller needs an independently testable
   read model; do not wrap every query pre-emptively.
 
 ### Optional and experimental seams
 
 - Optional provider routers (`litellm`, `any-llm`), Discord, and browser tooling are dependency
   extras or guarded imports. Extensions have a process-lifetime kill switch and fail independently.
-- Atrium, worker automation, sentinels, MAKE/SHIP execution, foresight/calibration, and the broad
-  engine MCP are implemented architecture outside the developer-preview shipping allowlist. That
-  support boundary does not make them placeholders; it means their APIs and end-to-end behavior are
-  not yet compatibility-stable 0.1.x contracts.
+- Atrium is a supported optional repository-delivered 1.0 interface over the same authenticated
+  resource plane; it adds no second store or authority system. Worker automation, broader sentinel,
+  MAKE/SHIP execution, foresight/calibration, and the broad engine MCP include implemented seams
+  outside the stable public contract. That boundary does not make them placeholders; it means only
+  their documented bounded paths carry compatibility commitments.
 - The API still mounts broad reporting, research, voice, notification, and compatibility routes.
   Their presence is not a public compatibility promise.
 
@@ -308,10 +309,10 @@ flowchart TB
 - **The arms** are first-class parts of the engine. MAKE turns approved reasoning into code, design,
   data, and scaffold artifacts. SHIP challenges production readiness across security, testing,
   observability, DevOps, and scale; the current gate assesses and proposes without mutating. The
-  implementations are present today, while their APIs and end-to-end paths remain experimental
-  rather than compatibility-stable 0.1.x contracts.
-- **The skin** is Atrium, the experimental ACE Canvas research track. MCP and CLI carry the
-  supported developer-preview interaction path.
+  implementations are present today, while broader execution APIs and end-to-end paths remain
+  experimental outside their documented bounded contracts.
+- **The skin** is Atrium, the supported optional ACE workspace. MCP and CLI carry the supported
+  machine interaction paths; every surface uses the same kernel-owned state and authority.
 - **Extensions grow new arms.** A domain (personas, frameworks, recipes, instruments, tools, schema) attaches to the brain without forking it. That's the whole extension model, and it's covered in [build-your-first-extension.md](build-your-first-extension.md).
 
 ---
@@ -345,8 +346,8 @@ task database—and Atrium is initially a view over the same kernel-owned state.
 
 ## The cognitive pipeline — 9 layers
 
-ACE is implemented as a nine-layer cognitive loop. The supported developer-preview contract is
-narrower than the whole engine, but the other layers are real code rather than roadmap
+ACE is implemented as a nine-layer cognitive loop. The stable 1.0 public contract is narrower than
+the whole engine, but the other layers are real code rather than roadmap
 placeholders. **Layer 1, Meta-Intelligence** is the standing substrate of past insights, decisions,
 capabilities, provenance, graph relationships, outcomes, calibration, and sentinel state.
 
@@ -489,7 +490,7 @@ The arm registry discovers and routes the built-in scaffold, code, design, data,
 implementations. MAKE arms share a depth-aware brain/hand loop. SHIP is intentionally an
 adversarial production-readiness gate: it produces a verdict and hardening actions, performs no file
 mutation, and refuses a vacuous pass. These are substantive engine components. What remains
-experimental in 0.1.x is their public compatibility boundary and supported end-to-end journey, not
+experimental outside the stable 1.0 contract is their broader public compatibility boundary, not
 their place in the architecture.
 
 ### Continuous learning — outcomes close the loop
@@ -515,6 +516,38 @@ measurements, records outcomes, and updates calibration signals. Calibration is 
 orchestration context; effectiveness scores are persisted as an inspectable outcome ledger, with
 broader prioritization use still evolving. Each step is inspectable, feature-gated where required,
 and designed to degrade without blocking the primary reasoning path.
+
+### Governed recursive improvement — the 1.1 target
+
+Code Intelligence is the first proving ground for ACE to apply its own stack to work performed by
+people and agents. This is a **1.1 target contract**, not a retroactive 1.0 capability claim. The
+architecture separates three loops because each requires different evidence and authority:
+
+```mermaid
+flowchart LR
+    CH["requested change"] --> WORK["people + governed agents"] --> VERIFY["tests + review + receipts"]
+    VERIFY --> COMPLETE["change completion\nmissing consumers · tests · docs · migrations"]
+    VERIFY --> CAP["capability evolution\nreusable procedure · pattern · module"]
+    VERIFY --> EXP["experience improvement\nfriction · routing · context quality"]
+    COMPLETE --> DEC["human-governed Decision"]
+    CAP --> PROPOSE["versioned proposal + evaluation"] --> DEC
+    EXP --> PROPOSE
+    DEC --> NEXT["authorized next action"]
+```
+
+| Loop | Question | Required boundary |
+|---|---|---|
+| Change completion | Was this requested change applied everywhere it should be? | Repository impact, concurrent-work awareness, exact verification, and a bounded work receipt |
+| Capability evolution | Should a successful pattern become reusable across the stack? | Separate versioned proposal, evaluation evidence, compatibility review, and explicit promotion |
+| Experience improvement | Did the workflow expose recurring friction or a better way to use ACE? | Separate proposal tied to observed experience and outcomes; no inference from success alone |
+
+ACE may inspect ACE, find missed consumers, and propose reusable improvements. It cannot approve
+its own permissions, policy changes, or capability promotion. Git remains the source of code truth;
+ACE retains the intent, impact, coordination, evidence, authority, and outcome graph around it. The
+full target contract is in the
+[governed Code Intelligence improvement loop](design/governed-code-improvement-loop-v1.md), and the
+one-person-to-10,000-person invariants are in the
+[scale-invariant product architecture](design/scale-invariant-product-architecture-v1.md).
 
 ### Sentinel and foresight — time enters the graph
 
@@ -557,17 +590,18 @@ Resolution provenance records whether execution aligned, partially aligned, or d
 plan and downgrades effective attribution for missing or conflicting execution details. Alignment
 never upgrades a design into a verified causal claim.
 
-### Architecture versus the 0.1.x compatibility promise
+### Architecture versus the stable 1.0 contract
 
-| Area | Implemented architectural role | 0.1.x promise |
+| Area | Implemented architectural role | 1.0 contract |
 |---|---|---|
-| CLI + thin MCP | Supported entry to reasoning, capture, retrieval, and task receipts | Compatibility focus; exactly 11 thin MCP tools |
-| Brain + graph | Classification, composition, engagement, synthesis, capture, provenance, and durable relationships | Supported preview path, subject to documented limits |
-| Extensions | Add perspectives, frameworks, recipes, tools, and schema without forking core | Reference mechanism and documented boundary are compatibility focus |
-| MAKE + SHIP | Build artifacts and challenge production readiness | Implemented; APIs and end-to-end execution paths experimental |
-| Learning + outcomes | Detect action/outcome evidence and update effectiveness signals | Implemented; feature-gated and experimental |
-| Sentinel + foresight + calibration | Watch for change, predict, reconcile, and calibrate | Implemented; scheduling and public APIs experimental |
-| Atrium + broad hosts | Visual research surface and wider API/MCP/worker composition roots | Repository beta / advanced surfaces, not the golden path |
+| CLI + thin MCP | Entry to reasoning, capture, retrieval, Builder operations, and task receipts | Supported documented CLI; exactly 11 thin MCP tools |
+| Public Core + Intelligence + Application | Identity, reasoning, authorized resources, durable state, and Builder lifecycle | Supported within the documented single-user, single-node topology |
+| Brain + graph | Classification, composition, engagement, synthesis, capture, provenance, and durable relationships | Supported bounded paths with documented maturity limits |
+| Extensions and Domain Packs | Add governed capability or inert domain vocabulary without forking Core | Reference mechanism, entry point, conformance, and trust boundaries are compatibility focus |
+| MAKE + SHIP | Build artifacts and challenge production readiness | Bounded paths implemented; broader execution APIs remain experimental |
+| Learning + outcomes | Detect action/outcome evidence and update effectiveness signals | Bounded measured/proposal paths supported; autonomous promotion is excluded |
+| Sentinel + foresight + calibration | Watch for change, predict, reconcile, and calibrate | Bounded contracts supported; broader scheduling and APIs vary by documented maturity |
+| Atrium + broad hosts | Human control plane and wider API/MCP/worker composition roots | Atrium's documented 1.0 journey is supported; undocumented host seams remain experimental |
 
 ---
 

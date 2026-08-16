@@ -3,6 +3,10 @@
 ACE 1.0 is stable for the documented single-user, single-node topology. This page distinguishes
 that supported public contract from implemented surfaces that remain experimental.
 
+Code Intelligence and its three governed improvement loops are the active 1.1 target. They are
+described in the roadmap and architecture so their boundaries can shape implementation, but they
+are not included in the 1.0 capability claim below.
+
 ## Supported 1.0 contract
 
 The supported self-hosted path is:
@@ -105,8 +109,7 @@ reviewed transition revisions; labeled action/no-action simulations and reconcil
 reasoning-use receipts; and human-authority promotion, correction, and supersession lineage.
 
 The supported extension-first journey is executable from a source checkout as documented in the
-[product-builder guide](state-engine-product-builder.md) and
-[README](../README.md#reproduce-the-v02-state-engine-journey). It performs, in order:
+[State Engine product-builder guide](state-engine-product-builder.md). It performs, in order:
 
 1. build, clean-install, and discover the independent product extension;
 2. schema-zero and supported-predecessor upgrade verification;
