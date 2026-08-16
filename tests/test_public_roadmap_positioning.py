@@ -33,7 +33,8 @@ def test_090_and_100_are_complete_single_user_products() -> None:
     assert "install ACE, choose World, Market, or Custom Intelligence" in ROADMAP_ONE_LINE
     assert "### 1.0.0 — Personal Intelligence Operating System" in ROADMAP
     assert "Multi-user collaboration" in ROADMAP
-    assert "post-1.0 work" in ROADMAP_ONE_LINE
+    assert "## Current 1.x release direction" in ROADMAP
+    assert "### Active milestone: 1.1 Code Intelligence" in ROADMAP
     assert "do not gate the first stable personal Intelligence OS" in ROADMAP_ONE_LINE
 
 

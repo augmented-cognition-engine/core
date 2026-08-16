@@ -156,6 +156,8 @@ include = ["ace", "ace.*", "ace_mcp_client*", "core*", "extensions*", "scripts*"
 "share/doc/ace" = [
     "README.md",
     "ROADMAP.md",
+    "VISION.md",
+    "MANIFESTO.md",
     "CONTRIBUTING.md",
     "SECURITY.md",
     "CHANGELOG.md",

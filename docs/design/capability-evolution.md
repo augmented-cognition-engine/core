@@ -14,8 +14,8 @@ execution—not parity with another product or growth in tool count for its own 
 
 This document is a companion to the [public roadmap](../../ROADMAP.md). The public roadmap remains
 the authority for outcome state and dispatch. Nothing here advances an outcome to `ready`, `active`,
-or `passed`. The 0.2.0 Reasoning OS foundation is released; this note supplies the detailed design
-for the governed-cognition phase that follows the productized State Engine closeout.
+or `passed`. ACE 1.0.3 is the current stable release; this note preserves the detailed design behind
+the governed-cognition foundation and informs the separate 1.1 capability-evolution loop.
 
 ## Product thesis
 
@@ -64,12 +64,17 @@ That path should converge into cognition recipes rather than becoming a second p
   full definitions and supporting material load only after selection.
 - **Explicit authority.** Reasoning, writing, local execution, remote execution, and promotion are
   separate authority levels with separate receipts.
-- **No public-contract sprawl.** The 0.1.x thin MCP surface remains exactly eleven tools. New journeys
+- **No public-contract sprawl.** The stable 1.0 thin MCP surface remains exactly eleven tools. New journeys
   use the CLI and existing capture, briefing, task, and status semantics until a later compatibility
   decision explicitly changes the contract.
 - **Kernel remains domain-neutral.** Domain recipes, instruments, frameworks, tools, and vocabulary
   attach through the extension boundary. The kernel supplies lifecycle, policy, provenance, and
   execution contracts.
+- **Repair is not learning.** Completing a current change or recovering a failed run does not create
+  a reusable procedure. Capability evolution requires its own versioned proposal, evidence,
+  compatibility review, and disposition.
+- **Self-application is not self-authority.** ACE may generate and evaluate cognition proposals for
+  ACE, but it cannot approve its own policy, permissions, activation, or promotion.
 
 ## Existing foundation
 

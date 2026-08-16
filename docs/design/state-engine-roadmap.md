@@ -174,6 +174,9 @@ cognitive memory.
     versions, constraints, route, and uncertainty are immutable inputs to a consequence receipt.
 14. **The system learns from misses.** Observed outcomes score compatible predictions and update
     calibration or transition proposals without rewriting the original rollout.
+15. **Evidence does not grant change authority.** State Engine records may support a missed-consumer
+    finding, capability proposal, or experience-improvement proposal. They do not by themselves
+    prove completion or benefit, and cannot approve code, policy, permissions, or promotion.
 
 ## Existing foundations to reuse
 

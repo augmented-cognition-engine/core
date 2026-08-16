@@ -7,9 +7,15 @@ Point-in-time release and acceptance records live in the
 
 ## Start here
 
-- [ACE vision and manifesto](../MANIFESTO.md) — the Intelligence Builder promise, constitutional
-  boundaries, and open Intelligence Operating System direction.
-- [Project quickstart](../README.md) — install ACE and reach a first useful result.
+- [Project overview](../README.md) — understand why ACE exists, what makes it different, and choose
+  the right depth.
+- [Product vision](../VISION.md) — the durable Decision Operations promise, representative user
+  value, scale model, and success measures.
+- [ACE manifesto](../MANIFESTO.md) — the Intelligence Builder promise, constitutional boundaries,
+  and open Intelligence Operating System direction.
+- [Getting started](getting-started.md) — install ACE 1.0.3 and reach a first useful result.
+- [Intelligence OS and Builder](intelligence-os.md) — the complete guided journey, connected loops,
+  Core/Intelligence shape, Solution Bundles, and Domain Packs.
 - [ACE 1.0 announcement](ace-1.0-announcement.md) — the stable single-user product promise,
   domain experiences, provider choices, and explicit boundaries.
 - [ACE 1.0 public acceptance](evidence/personal-intelligence-os-v1.0-public-acceptance-v1.md) —
@@ -22,7 +28,11 @@ Point-in-time release and acceptance records live in the
 
 ## Use ACE
 
+- [CLI, MCP, and Atrium interfaces](interfaces.md) — operate the supported human and machine
+  surfaces over one governed resource plane.
 - [Model providers](providers.md) — configure model access and understand routing behavior.
+- [Local runtime operations](local-runtime.md) — start, stop, inspect, diagnose, and manually
+  operate the documented local topology.
 - [Product-builder golden path](product-builder-golden-path.md) — reproduce an evidence-backed
   decision, correction, restart, and later reuse.
 - [State Engine product-builder journey](state-engine-product-builder.md) — install an independent
@@ -37,6 +47,10 @@ Point-in-time release and acceptance records live in the
 
 ## Product contracts
 
+- [Public Python API](python-api.md) — compile Packs, append immutable records, and use the frozen
+  1.0 public contract families without a database or model.
+- [Trust, security, and governance boundaries](trust-and-security.md) — enforced authority, state,
+  acquisition, Pack, and connector invariants.
 - [Living Product Graph](living-product-graph.md) — the supported read-only product projection.
 - [Decision and correction receipts](decision-correction-receipts.md) — structured decisions,
   dispositions, corrections, and restart behavior.
@@ -47,6 +61,8 @@ Point-in-time release and acceptance records live in the
 
 ## Build extensions
 
+- [Development guide](development.md) — repository map, contributor setup, verification gates, and
+  architectural entry points.
 - [Build your first extension](build-your-first-extension.md) — scaffold, run, and package an
   extension.
 - [Extension API](extension-api.md) — stable and experimental extension-author contracts.
@@ -65,6 +81,11 @@ support the public roadmap but do not compete with it for outcome state or dispa
 
 - [Governed cognition](design/capability-evolution.md) — teach, govern, and measure reusable
   cognition.
+- [Scale-invariant product architecture](design/scale-invariant-product-architecture-v1.md) — one
+  semantic kernel from a workspace of one through collaborative and federated operation.
+- [Governed Code Intelligence improvement loop](design/governed-code-improvement-loop-v1.md) —
+  incomplete-change repair, architecture opportunities, future-work improvement, and `ACE Builds
+  ACE` authority separation for the active 1.1 milestone.
 - [ACE State Engine design and implementation record](design/state-engine-roadmap.md) — reason over
   high-volume temporal evidence, inspectable dynamics, and bounded consequences while preserving
   sparse durable memory.
@@ -84,7 +105,7 @@ support the public roadmap but do not compete with it for outcome state or dispa
   conditions.
 - [Single-user Intelligence Builder](design/single-user-intelligence-builder-v0.9.0-work-packet-v1.md)
   — the 0.9 install-to-first-Brief product contract, World and Market signature demonstrations,
-  personal ownership gates, and explicit post-1.0 collaboration boundary.
+  personal ownership gates, and explicit later collaboration boundary.
 - [Intelligence OS runtime-boundary realignment](design/intelligence-os-runtime-boundary-v0.8.0-work-packet-v1.md)
   — the active 0.8B packet, accepted AM4 input, default isolation of embedded product-intelligence
   engines, compatibility switch, remaining runtime convergence, and rollback.

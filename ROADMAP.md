@@ -56,7 +56,18 @@ connectors own the reviewed translation from an authorized source into that boun
 ## Roadmap and design-document hierarchy
 
 - **This file** owns current public outcome state, sequencing, and dispatch.
+- The [product vision](VISION.md) owns the durable user promise, Decision Operations category,
+  one-person-to-federation scale model, representative experiences, and success measures.
+- The [ACE manifesto](MANIFESTO.md) owns the constitutional Core → Intelligence → Domain Pack →
+  adapter and product-surface boundaries.
 - [Architecture](docs/architecture.md) records the as-built system and dependency boundaries.
+- The [scale-invariant product architecture](docs/design/scale-invariant-product-architecture-v1.md)
+  freezes the workspace-of-one, progressive-disclosure, progressive-governance, promotion,
+  federation, and cross-release conformance rules.
+- The [governed Code Intelligence improvement loop](docs/design/governed-code-improvement-loop-v1.md)
+  separates incomplete-change repair, reusable-architecture proposals, and future agent/procedure
+  improvement; defines `ACE Builds ACE`; and grants no maturity or self-modification authority by
+  itself.
 - [Governed cognition design](docs/design/capability-evolution.md) details how ACE can be taught,
   reviewed, versioned, measured, revised, and retired.
 - [State Engine design and implementation record](docs/design/state-engine-roadmap.md) preserves the
@@ -667,7 +678,7 @@ sandboxing, and distributed execution remain explicit later work, culminating in
 [Collaborative Organizational Intelligence](https://github.com/augmented-cognition-engine/core/issues/152).
 They do not gate the first stable personal Intelligence OS.
 
-## Post-1.0 release direction
+## Current 1.x release direction
 
 ACE now turns its general intelligence substrate into products people can immediately understand,
 adopt, and keep. The sequence is deliberate: **World makes people look; Code makes builders
@@ -676,7 +687,8 @@ supports many intelligence products without moving their nouns or policies into 
 
 ### 1.1 — Code Intelligence
 
-Code Intelligence is the lead post-1.0 demonstration and adoption wedge. Within each declared
+Code Intelligence is the first expansion after the stable 1.0 foundation and the current adoption
+wedge. Within each declared
 supported-language and repository-topology profile, ACE connects software-system evidence beyond
 files: repositories, services, modules, symbols, features, tests, APIs, ownership, ADRs, incidents,
 dependencies, architectural decisions, and the reasons behind them. It surfaces disconnected
@@ -686,6 +698,36 @@ inspectable Code lens; bounded context packages feed coding agents such as Codex
 without transferring source, reasoning, delivery, or effect authority. This does not imply universal
 language coverage, safe-deletion proof, or omniscient impact prediction. The public contract and
 acceptance gate live in [issue #194](https://github.com/augmented-cognition-engine/core/issues/194).
+
+The 1.1 improvement model contains three separately governed loops:
+
+1. **Complete the current change.** Reconcile an approved Decision against the current repository
+   and impact graph; identify omitted APIs, schemas, consumers, tests, migrations, documentation,
+   observability, security, recovery, or concurrent work; perform only an authorized linked repair;
+   then reverify the integrated change.
+2. **Improve the codebase.** Detect repeated, divergent, misplaced, overloaded, or bypassed
+   behavior and create a separate architecture opportunity. Semantic equivalence, correct ownership,
+   alternatives, blast radius, migration, expected benefit, verification, and rollback are required;
+   similarity alone never authorizes a refactor.
+3. **Improve future work.** Preserve repeated corrections, failures, costs, context use, participant
+   outcomes, release evidence, and later product Outcomes as inputs to a separately governed 1.6
+   proposal. Current repair or architecture authority never activates an agent, procedure, routing,
+   framework, context, Pack-policy, or verification revision.
+
+Concurrent human and agent work is part of the product contract. ACE records exact repository and
+dependency heads, detects stale Context Manifests and overlapping work, and supports explicit
+notify, pause, steer, cancel, replan, and integration dispositions. Git remains authoritative for
+commits and merges; the IDE or coding agent owns its editing session; ACE owns the Decision,
+impact, participant, context, handoff, integration, and Outcome lineage.
+
+The reference acceptance program is **ACE Builds ACE**: freeze a real 1.1 roadmap Decision, compare
+the same coding agent with and without ACE under equivalent models, tools, task, and authority,
+exercise concurrent participants and at least one stale-context event, produce a propagation result,
+linked repair or explicit complete coverage, architecture opportunity or justified no-opportunity,
+release evidence, and later Outcome. The journey must prove that repository access and
+self-application do not grant ACE approval, merge, release, deployment, policy, promotion, or
+authority-expansion rights. The full contract lives in the
+[governed Code Intelligence improvement loop](docs/design/governed-code-improvement-loop-v1.md).
 
 ### 1.2 — Personal Intelligence
 
@@ -709,6 +751,8 @@ the Personal Solution Bundle. The public contract lives in [issue #195](https://
   preserves connections, decisions, evidence, and rationale.
 - **1.6 Governed Self-Improving Agents:** autonomous operation and improvement through proposal,
   evaluation, approval, rollout, measurement, rollback, and retirement—never silent authority.
+  An `ExperienceImprovementProposal` remains distinct from an incomplete-change finding, linked
+  repair, and architecture opportunity; a well-supported no-learning result is valid.
 - **1.7 Portable Deployment and Interoperability:** local, hosted, and federated operation with
   export, restore, and provider/runtime portability.
 
@@ -851,11 +895,13 @@ flowchart LR
 
 ### Active milestone: 1.1 Code Intelligence
 
-Code Intelligence is **Now**. The first post-1.0 work packet turns ACE's existing graph,
+Code Intelligence is **Now**. The first 1.1 work packet turns ACE's existing graph,
 composition, decision-memory, provenance, and architecture foundations into one undeniable public
 journey: connect a real repository, reconstruct how a feature crosses code and tests, explain the
 architectural why, predict downstream impact, and hand an inspectable bounded context package to a
-coding agent. Acceptance, boundaries, and dependency sequencing live in
+coding agent. It must additionally reconcile concurrent work, distinguish incomplete-change repair
+from reusable-architecture review, and run the `ACE Builds ACE` matched reference program without
+self-approval. Acceptance, boundaries, and dependency sequencing live in
 [issue #194](https://github.com/augmented-cognition-engine/core/issues/194).
 
 Personal Intelligence is **Next** in [issue #195](https://github.com/augmented-cognition-engine/core/issues/195).
@@ -1203,6 +1249,10 @@ general-intelligence claim.
 - Attention policy cannot widen evidence access, and sensitive or licensed evidence cannot be
   reproduced outside its consent, entitlement, retention, and redaction policy.
 - New capability claims require reproducible evidence, declared limits, and roadmap reconciliation.
+- Incomplete-change repair, reusable-architecture improvement, and future agent/procedure evolution
+  are separate lifecycles. Findings, similarity, passing tests, repeated use, consensus, or operating
+  on ACE's own repository grant no architecture, merge, release, deployment, activation, or
+  promotion authority.
 
 ## Follow and contribute
 

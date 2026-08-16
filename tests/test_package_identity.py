@@ -103,6 +103,8 @@ def test_installed_documentation_paths_do_not_collide() -> None:
 
     assert "README.md" in data_files["share/doc/ace"]
     assert "ROADMAP.md" in data_files["share/doc/ace"]
+    assert "VISION.md" in data_files["share/doc/ace"]
+    assert "MANIFESTO.md" in data_files["share/doc/ace"]
     assert "docs/*.md" in data_files["share/doc/ace/docs"]
     assert "docs/evidence/*.md" in data_files["share/doc/ace/docs/evidence"]
     assert "docs/design/*.md" in data_files["share/doc/ace/docs/design"]
