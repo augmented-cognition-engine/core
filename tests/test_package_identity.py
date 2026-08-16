@@ -59,6 +59,7 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
 def test_docker_image_includes_public_cli_package() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     assert "COPY ace/ ace/" in dockerfile
+    assert "README.md ROADMAP.md VISION.md MANIFESTO.md" in dockerfile
     assert "ARG ACE_VERSION=1.0.3" in dockerfile
     assert 'org.opencontainers.image.version="${ACE_VERSION}"' in dockerfile
     assert "uv sync --frozen --no-dev --no-editable --no-cache" in dockerfile
