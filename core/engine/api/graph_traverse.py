@@ -95,7 +95,11 @@ class TraverseRequest(BaseModel):
         table, _, record = v.partition(":")
         if table not in NODE_TYPES:
             raise ValueError(f"Unknown node type '{table}'. Valid: {sorted(NODE_TYPES)}")
-        if not record or not re.fullmatch(r"[\w./-]+", record):
+        # Real node IDs are `_slug()` output — word characters only. Admitting
+        # `.`, `/`, or `-` lets a record ID reach the SurrealQL start-node
+        # SELECT unquoted, where a `--` would comment out the graph_id
+        # isolation fence; no legitimate node ID needs them.
+        if not record or not re.fullmatch(r"\w+", record):
             raise ValueError("record ID contains invalid characters")
         return v
 
@@ -469,21 +473,29 @@ def _bound_product_to_principal(requested: str, user: dict) -> str:
     return principal_product
 
 
+_TRAVERSE_FIELD_DETAIL = {
+    "start": "node_id must be a valid node reference of the form table:record_id",
+    "graph_id": "graph_id must be a non-empty, bounded graph identifier",
+}
+
+
 def _admitted_traverse_request(**kwargs) -> TraverseRequest:
     """Build a TraverseRequest from caller-supplied selectors.
 
     The shortcut endpoints construct the request themselves, so `TraverseRequest`
-    validation failures there are caller errors, not server faults — a node ID
-    that is not a `table:record_id` reference is refused with 422, never 500.
-    The refusal names the shape without echoing the value.
+    validation failures there are caller errors, not server faults — refused with
+    422, never surfaced as a 500. The refusal names the field that actually
+    failed (node_id or graph_id), without echoing the value.
     """
     try:
         return TraverseRequest(**kwargs)
     except ValidationError as exc:
-        raise HTTPException(
-            status_code=422,
-            detail="node_id must be a valid node reference of the form table:record_id",
-        ) from exc
+        loc = exc.errors()[0].get("loc") if exc.errors() else ()
+        field = loc[0] if loc else ""
+        detail = _TRAVERSE_FIELD_DETAIL.get(
+            field, "request contains an invalid node_id or graph_id selector"
+        )
+        raise HTTPException(status_code=422, detail=detail) from exc
 
 
 def _admit_impact_selector(value: str, field: str, limit: int, *, allow_empty: bool = False) -> str:
