@@ -41,7 +41,7 @@ The thin MCP surface contains exactly eleven tools:
 
 The CLI, thin MCP adapter, public Core/Intelligence/Application packages, authorized Intelligence
 resource plane, inert Domain Pack boundary, persistence migrations, reference extension mechanism,
-and documented provider routes are the compatibility focus for the 1.0 line.
+and documented provider routes are the compatibility focus for the 1.1 line.
 Atrium is the supported optional interface over the same resource plane. Its compiled static UI is
 packaged in both the Python wheel and source distribution; it never becomes a second persistence,
 policy, or authority path. Changes to these surfaces receive migration notes when needed.

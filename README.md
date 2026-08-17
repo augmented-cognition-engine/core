@@ -145,7 +145,7 @@ of content-generation point solutions.
 |---|---|---|
 | **World and Market Intelligence** | Sources, actors, entities, claims, shifts, uncertainty, Briefs, Decisions, and Outcomes | Data providers, research sources, publishing, analysis, and execution tools |
 | **Code Intelligence — passed in 1.1** | Intent, architecture, symbols, affected tests, concurrent work, handoffs, release evidence, incidents, and outcomes | IDEs, Git, coding agents, CI, and deployment systems |
-| **Personal Intelligence — 1.2** | Notes, files, projects, decisions, evolving interests, and local or approved remote sources | Filesystems, knowledge tools, cloud drives, databases, and warehouses |
+| **Personal Intelligence — 1.2** | Notes, files, projects, decisions, and evolving interests | Read-only local Markdown/Obsidian, PDF, CSV, and JSON to start; one remote knowledge source only after the local journey passes |
 | **Product, Design, and Organizational Intelligence — 1.5** | Needs, research, rationale, ownership, systems, policy, dependencies, experiments, and outcomes | Figma, product tools, CRM, BI, ERP, and each team's systems of record |
 
 Solution Bundles combine exact Packs, adapters, monitors, applications, outcome mappings, and
