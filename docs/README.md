@@ -90,7 +90,7 @@ support the public roadmap but do not compete with it for outcome state or dispa
   semantic kernel from a workspace of one through collaborative and federated operation.
 - [Governed Code Intelligence improvement loop](design/governed-code-improvement-loop-v1.md) —
   incomplete-change repair, architecture opportunities, future-work improvement, and `ACE Builds
-  ACE` authority separation for the active 1.1 milestone.
+  ACE` authority separation for the Code Intelligence milestone.
 - [ACE State Engine design and implementation record](design/state-engine-roadmap.md) — reason over
   high-volume temporal evidence, inspectable dynamics, and bounded consequences while preserving
   sparse durable memory.

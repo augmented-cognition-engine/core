@@ -1,7 +1,9 @@
 # ACE Agent Memory roadmap
 
-Status: **AM0 published for draft review; AM1 is an isolated verified publication candidate, not
-an accepted or supported product outcome**
+Status: **AM0–AM4 are composed into the passed public Core 0.7.0–0.8.0 releases (0.7.0 composes
+AM0–AM3; 0.8.0 consumes AM4 through the authorized resource plane); AM5 onward remain a proposed
+cross-release roadmap, not accepted or supported product outcomes.** See the
+[public roadmap](../../ROADMAP.md) for authoritative outcome state.
 
 This roadmap defines an open, ACE-native Agent Memory capability inside the internal,
 cross-cutting Meta-Intelligence capability. Meta-Intelligence is not a customer-facing package or
