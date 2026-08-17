@@ -24,7 +24,6 @@ _MAX_QUERY_LENGTH = 2_000
 _MAX_LIMIT = 50
 _MAX_TAGS = 20
 _RRF_K = 60
-_MAX_VECTOR_DISTANCE = 0.45
 
 
 def _validate_inputs(
@@ -159,6 +158,9 @@ async def search_intelligence(
     started = time.perf_counter()
     query = query.strip()
     candidate_limit = min(_MAX_LIMIT * 3, max(limit * 3, 20))
+    # Capture once so filtering and the externally visible receipt cannot
+    # disagree if settings are replaced or monkeypatched during an await.
+    vector_max_distance = settings.rag_vector_max_distance
     type_filter, tag_filter = _query_filters(knowledge_type, tags)
     params = _query_params(
         product_id=product_id,
@@ -234,7 +236,7 @@ async def search_intelligence(
                 vector_rows = [
                     row
                     for row in raw_vector_rows
-                    if row.get("vector_distance") is not None and float(row["vector_distance"]) <= _MAX_VECTOR_DISTANCE
+                    if row.get("vector_distance") is not None and float(row["vector_distance"]) <= vector_max_distance
                 ]
                 vector_distance_omitted = len(raw_vector_rows) - len(vector_rows)
                 vector_state = "complete"
@@ -288,7 +290,7 @@ async def search_intelligence(
                     "candidates": len(vector_rows),
                     "distance_omitted": vector_distance_omitted,
                     "index": "insight_hnsw",
-                    "maximum_distance": _MAX_VECTOR_DISTANCE,
+                    "maximum_distance": vector_max_distance,
                 },
                 "promotion_projection": {
                     "state": "degraded" if promotion_reason else "complete",

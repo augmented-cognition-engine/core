@@ -1,446 +1,477 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
-  Activity,
   ArrowRight,
-  Bot,
-  BrainCircuit,
+  Check,
   CircleAlert,
-  Clock3,
-  Crosshair,
-  Layers3,
-  Network,
-  Radio,
+  CircleMinus,
   RefreshCw,
   Route,
-  SearchCheck,
-  ShieldCheck,
-  Sparkles,
-  TimerReset,
 } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 import {
+  activateIntelligenceBuilderPlan,
+  associateIntelligenceBuildSession,
+  approveDomainActivationPlan,
+  approveIntelligenceBuildPlan,
+  bindIntelligenceBuildPlan,
+  configuredIntelligenceBuildActivation,
+  prepareDomainActivationPlan,
   prepareIntelligenceBuild,
+  projectIntelligenceBuild,
+  projectIntelligenceBuildResourceState,
+  retryIntelligenceBuildSession,
+  startIntelligenceBuild,
+  type DomainActivationPlanApproveInput,
+  type DomainActivationPlanPrepareInput,
+  type IntelligenceBuildPlan,
+  type IntelligenceBuildPlanBindInput,
   type IntelligenceBuildPlanPrepareInput,
+  type IntelligenceBuildResourceStateInput,
+  type IntelligenceBuildStartInput,
+  type IntelligenceBuilderPlanActivateInput,
 } from '@/api/intelligenceBuildsApi'
 import { Alert, AlertDescription, AlertTitle } from '@/design/shadcn/ui/alert'
 import { Badge } from '@/design/shadcn/ui/badge'
 import { Button } from '@/design/shadcn/ui/button'
-import { Card, CardContent } from '@/design/shadcn/ui/card'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/design/shadcn/ui/sidebar'
 import { Skeleton } from '@/design/shadcn/ui/skeleton'
 
 import { KernelNav } from '../ext/defaults/KernelNav'
-import { AskAce } from './AskAce'
+import { productDisplayName } from './experienceModel'
+import { groupResources, kindLabel, type ResourceGroups } from './intelligenceModel'
+import {
+  DomainHealthRail,
+  ExploreIntelligence,
+  LivingBriefOverview,
+  SurfacePlaceholder,
+} from './LivingIntelligence'
 import { OnboardingPreview } from './OnboardingPreview'
+import { ConsumerContractLedger, DomainPackLedger, PackActivationReader } from './DomainPackConsumers'
+import { EntityIntelligenceExplore } from './EntityIntelligence'
+import { ATRIUM_ACTION_ICONS } from './atriumIcons'
 import {
   onboardingProfilesFromResources,
   onboardingSessionFromResources,
 } from './onboardingModel'
-import { briefRevisionStory, pageFreshness, productDisplayName } from './experienceModel'
-import {
-  groupResources,
-  type ResourceGroups,
-} from './intelligenceModel'
-import { ResourceCard } from './ResourceCard'
-import { useIntelligenceResources } from './useIntelligenceResources'
 import { useInstalledIntelligenceCatalog } from './useInstalledIntelligenceCatalog'
+import { useIntelligenceProductCatalog } from './useIntelligenceProductCatalog'
+import { useIntelligenceResources } from './useIntelligenceResources'
 
-type Surface = 'intelligence' | 'opportunities' | 'agents' | 'connections' | 'strategy'
+type Surface = 'overview' | 'explore' | 'build' | 'operate' | 'consumers'
+
+const BuildIcon = ATRIUM_ACTION_ICONS.build
+const CurrentIcon = ATRIUM_ACTION_ICONS.current
+
+const LEGACY_SURFACE_REDIRECTS: Readonly<Record<string, string>> = {
+  '/atrium/intelligence': '/atrium',
+  '/atrium/opportunities': '/atrium',
+  '/atrium/agents': '/atrium/build',
+  '/atrium/connections': '/atrium/operate',
+  '/atrium/strategy': '/atrium/consumers',
+}
 
 const SURFACE_COPY: Record<Surface, { title: string; subtitle: string }> = {
-  intelligence: {
-    title: 'Intelligence',
-    subtitle: 'What changed, why it matters, and the evidence behind it.',
+  overview: {
+    title: 'Overview',
+    subtitle: 'The current answer, material movement, unknowns, and attention.',
   },
-  opportunities: {
-    title: 'Opportunities',
-    subtitle: 'Evidence-backed openings that may warrant a decision, response, or new watch.',
+  explore: {
+    title: 'Explore',
+    subtitle: 'Ask the governed world, then inspect its evidence and focused relationships.',
   },
-  agents: {
-    title: 'Agents',
-    subtitle: 'The governed team mapping, watching, briefing, and learning.',
+  build: {
+    title: 'Build',
+    subtitle: 'The proposed intelligence model, source plan, readiness, and reviewable changes.',
   },
-  connections: {
-    title: 'Connections',
-    subtitle: 'Authorized sources and the live evidence entering ACE.',
+  operate: {
+    title: 'Operate',
+    subtitle: 'Coverage, freshness, confidence, conflicts, source health, and maintenance.',
   },
-  strategy: {
-    title: 'Strategy',
-    subtitle: 'Decisions, actions, outcomes, and the feedback closing the loop.',
+  consumers: {
+    title: 'Consumers',
+    subtitle: 'The governed interfaces through which people, applications, and agents consume intelligence.',
   },
 }
 
 function activeSurface(pathname: string): Surface {
   const part = pathname.split('/')[2]
-  if (part === 'opportunities' || part === 'agents' || part === 'connections' || part === 'strategy') {
+  if (part === 'explore' || part === 'build' || part === 'operate' || part === 'consumers') {
     return part
   }
-  return 'intelligence'
+
+  // Keep earlier deep links useful while the visible IA moves to the brief's five surfaces.
+  if (part === 'agents') return 'build'
+  if (part === 'connections') return 'operate'
+  if (part === 'strategy') return 'consumers'
+  return 'overview'
 }
 
-function EmptyBuilder({ onStart }: { readonly onStart: () => void }) {
-  const steps = [
-    {
-      title: 'Tell ACE what matters',
-      detail: 'Choose the decision or landscape you need to stay ahead of.',
-      icon: Network,
-    },
-    {
-      title: 'Review the recommendation',
-      detail: 'ACE proposes evidence, concepts, watches, and cadence for review.',
-      icon: BrainCircuit,
-    },
-    {
-      title: 'Open the first Brief',
-      detail: 'Watch the system assemble, then land in a populated command center.',
-      icon: Activity,
-    },
-  ]
-
-  return (
-    <Card className="border-dashed">
-      <CardContent className="p-6 md:p-8">
-        <div className="max-w-xl">
-          <Badge variant="secondary" className="mb-3">Start here</Badge>
-          <h2 className="text-xl font-semibold tracking-tight">What do you need to stay ahead of?</h2>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Tell ACE the outcome. It recommends the sources, concepts, watches, and briefing system; you review the plan and the first cited Brief assembles itself.
-          </p>
-        </div>
-        <div className="mt-6 grid gap-3 md:grid-cols-3">
-          {steps.map((step, index) => (
-            <div
-              key={step.title}
-              className="rounded-xl border bg-card p-4"
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
-                  <step.icon className="size-4" />
-                </div>
-                <span className="font-mono text-[10px] text-muted-foreground">0{index + 1}</span>
-                {index < 2 ? <ArrowRight className="ml-auto size-3.5 text-muted-foreground" /> : <ShieldCheck className="ml-auto size-3.5 text-brand" />}
-              </div>
-              <div className="mt-4 text-sm font-semibold">{step.title}</div>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{step.detail}</p>
-            </div>
-          ))}
-        </div>
-        <Button type="button" className="mt-5" onClick={onStart}>Build my intelligence <ArrowRight className="size-4" /></Button>
-      </CardContent>
-    </Card>
-  )
+function RecordStatus({ record }: { readonly record: IntelligenceResourceRecord }) {
+  if (record.availability === 'degraded') {
+    return <span className="inline-flex items-center gap-1.5 text-warning"><CircleAlert className="size-3" aria-hidden="true" />Degraded</span>
+  }
+  if (record.availability === 'tombstoned') {
+    return <span className="inline-flex items-center gap-1.5 text-destructive"><CircleMinus className="size-3" aria-hidden="true" />Tombstoned</span>
+  }
+  return <span className="inline-flex items-center gap-1.5 text-foreground/80"><Check className="size-3 text-success" aria-hidden="true" />Available</span>
 }
 
-function ResourceGrid({
+function RecordLedger({
   items,
   empty,
-  single = false,
-  compact = false,
 }: {
   readonly items: readonly IntelligenceResourceRecord[]
   readonly empty: string
-  readonly single?: boolean
-  readonly compact?: boolean
 }) {
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed px-5 py-10 text-center text-sm text-muted-foreground">
+      <div className="border-y border-border px-4 py-9 text-sm text-muted-foreground">
         {empty}
       </div>
     )
   }
+
   return (
-    <div className={single ? 'grid gap-3' : 'grid gap-3 xl:grid-cols-2'}>
+    <ol className="border-y border-border" aria-label="Projected intelligence records">
       {items.map((item) => (
-        <ResourceCard key={`${item.reference.resource_id}:${item.reference.revision}`} record={item} compact={compact} />
-      ))}
-    </div>
-  )
-}
-
-function BriefingHome({ groups, all, onStart }: { readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
-  const briefs = groups.intelligence.filter((item) => item.reference.resource_kind === 'brief')
-  const latestBrief = briefs[0]
-  const latestBriefStory = latestBrief === undefined ? undefined : briefRevisionStory(latestBrief, briefs[1])
-  const stream = groups.intelligence
-    .filter((item) => item !== latestBrief && ['signal', 'shift', 'brief'].includes(item.reference.resource_kind))
-    .slice(0, 6)
-
-  return (
-    <div className="space-y-7">
-      <AskAce items={all} />
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(20rem,0.45fr)]">
-        <section id="latest-brief" className="scroll-mt-24 space-y-3">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">Latest briefing</div>
-              <h2 className="mt-1 text-lg font-semibold tracking-tight">The situation now</h2>
-            </div>
-            <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{briefs.length} revision{briefs.length === 1 ? '' : 's'}</Badge>
-          </div>
-          {latestBrief === undefined ? (
-            <EmptyBuilder onStart={onStart} />
-          ) : (
-            <ResourceCard record={latestBrief} featured storySections={latestBriefStory} />
-          )}
-        </section>
-
-        <aside className="space-y-3">
+        <li
+          key={`${item.reference.resource_id}:${item.reference.revision}`}
+          className="grid gap-3 border-t border-border px-0 py-4 first:border-t-0 md:grid-cols-[7rem_minmax(0,1fr)_7rem_9rem] md:items-start md:gap-5"
+        >
           <div>
-            <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Attention</div>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight">What needs a look</h2>
+            <Badge variant="outline" className="rounded-sm font-mono text-[7px] uppercase tracking-[0.1em]">
+              {kindLabel(item.reference.resource_kind)}
+            </Badge>
+            <div className="mt-2 font-mono text-[7px] text-muted-foreground">r{item.reference.revision}</div>
           </div>
-          <ResourceGrid items={groups.attention.slice(0, 4)} empty="Nothing needs attention right now." single compact />
-        </aside>
-      </div>
-
-      <section className="space-y-3 border-t pt-6">
-        <div className="flex items-end justify-between gap-3">
-          <div>
-            <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-muted-foreground">Live intelligence</div>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight">What is moving</h2>
-          </div>
-          <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{stream.length} updates</Badge>
-        </div>
-        <ResourceGrid items={stream} empty="No additional signals or shifts have arrived yet." compact />
-      </section>
-    </div>
-  )
-}
-
-function CoverageStrip({ groups, freshness }: { readonly groups: ResourceGroups; readonly freshness: string }) {
-  const sources = groups.connections.filter((item) => item.reference.resource_kind === 'source').length
-  const monitors = groups.agents.filter((item) => item.reference.resource_kind === 'monitor').length
-  const openCases = groups.opportunities.filter((item) => item.reference.resource_kind === 'case').length
-  const entries = [
-    { icon: Radio, label: 'Sources', value: `${sources} admitted` },
-    { icon: Activity, label: 'Watches', value: `${monitors} active` },
-    { icon: Layers3, label: 'Decision openings', value: `${openCases} ready` },
-    { icon: Clock3, label: 'Freshness', value: freshness },
-  ]
-
-  return (
-    <div className="mb-7 grid overflow-hidden rounded-lg border bg-card md:grid-cols-4" aria-label="Intelligence coverage">
-      {entries.map((entry, index) => (
-        <div key={entry.label} className={index === 0 ? 'flex items-center gap-3 px-4 py-3.5' : 'flex items-center gap-3 border-t px-4 py-3.5 md:border-l md:border-t-0'}>
-          <entry.icon className="size-3.5 shrink-0 text-brand" />
           <div className="min-w-0">
-            <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">{entry.label}</div>
-            <div className="mt-0.5 truncate text-xs font-medium text-foreground/90">{entry.value}</div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function ConnectionsView({ groups }: { readonly groups: ResourceGroups }) {
-  const connections = groups.connections.filter((item) => item.reference.resource_kind === 'connection')
-  const sources = groups.connections.filter((item) => item.reference.resource_kind === 'source')
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Metric label="Live connections" value={connections.length} detail="authorized pathways" />
-        <Metric label="Sources" value={sources.length} detail="admitted evidence origins" />
-        <Metric label="Health" value="Pending" detail="failure telemetry is not yet projected" warning />
-      </div>
-      <ResourceGrid items={groups.connections} empty="No authorized sources have been admitted yet." />
-    </div>
-  )
-}
-
-function AgentsView({ groups }: { readonly groups: ResourceGroups }) {
-  const active = groups.agents.filter((item) => item.reference.resource_kind === 'agent')
-  const monitors = groups.agents.filter((item) => item.reference.resource_kind === 'monitor')
-  return (
-    <div className="space-y-6">
-      <Card className="bg-muted/25">
-        <CardContent className="grid gap-4 p-5 md:grid-cols-3">
-          <AgentRole title="Source Scout" detail="Connects and validates permitted evidence." state={active.length > 0 ? 'Ready' : 'Waiting'} />
-          <AgentRole title="Ontology Guide" detail="Maps entities and relationships with you." state={active.length > 0 ? 'Ready' : 'Waiting'} />
-          <AgentRole title="Intelligence Analyst" detail="Watches, briefs, and preserves citations." state={monitors.length > 0 ? 'Watching' : 'Waiting'} />
-        </CardContent>
-      </Card>
-      <ResourceGrid items={groups.agents} empty="No governed agents or monitors are active yet." />
-    </div>
-  )
-}
-
-function OpportunityStage({
-  icon: Icon,
-  title,
-  detail,
-}: {
-  readonly icon: typeof Crosshair
-  readonly title: string
-  readonly detail: string
-}) {
-  return (
-    <div className="flex gap-3 rounded-lg border bg-background p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-brand/20 bg-brand/10 text-brand">
-        <Icon className="size-4" />
-      </div>
-      <div>
-        <div className="text-sm font-semibold">{title}</div>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{detail}</p>
-      </div>
-    </div>
-  )
-}
-
-function OpportunitySection({
-  eyebrow,
-  title,
-  detail,
-  items,
-  empty,
-}: {
-  readonly eyebrow: string
-  readonly title: string
-  readonly detail: string
-  readonly items: readonly IntelligenceResourceRecord[]
-  readonly empty: string
-}) {
-  return (
-    <section className="space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="font-mono text-[9px] font-semibold uppercase tracking-[0.17em] text-brand">{eyebrow}</div>
-          <h2 className="mt-1 text-lg font-semibold tracking-tight">{title}</h2>
-          <p className="mt-1 max-w-3xl text-xs leading-relaxed text-muted-foreground">{detail}</p>
-        </div>
-        <Badge variant="outline" className="rounded-sm font-mono text-[9px]">{items.length} current</Badge>
-      </div>
-      <ResourceGrid items={items} empty={empty} compact />
-    </section>
-  )
-}
-
-function OpportunitiesView({ groups }: { readonly groups: ResourceGroups }) {
-  const decisionOpenings = groups.opportunities.filter((item) => item.reference.resource_kind === 'case')
-  const emergingOpenings = groups.opportunities.filter((item) => item.reference.resource_kind === 'shift')
-  const earlySignals = groups.opportunities.filter((item) => item.reference.resource_kind === 'signal')
-
-  return (
-    <div className="space-y-7">
-      <Card className="border-brand/20 bg-brand/[0.04]">
-        <CardContent className="p-5 md:p-6">
-          <div className="max-w-3xl">
-            <Badge variant="secondary" className="mb-3 border border-brand/15 bg-brand/10 text-brand">Decision openings</Badge>
-            <h2 className="text-xl font-semibold tracking-tight">An Opportunity is intelligence awaiting a decision.</h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              ACE promotes a signal or shift when the evidence suggests a favorable or avoidable window. It is not a lead, a task, or autonomous Work; it remains a proposal until a person investigates, accepts, dismisses, or turns it into Strategy.
+            <h4 className="text-xs font-medium leading-5 text-foreground">{item.title}</h4>
+            <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-muted-foreground">
+              {item.summary ?? 'No summary is projected for this record.'}
             </p>
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <OpportunityStage icon={Radio} title="Signal" detail="A relevant observation worth tracking, but not yet a decision opening." />
-            <OpportunityStage icon={TimerReset} title="Shift" detail="A material delta from the baseline that may create a time-sensitive opening." />
-            <OpportunityStage icon={SearchCheck} title="Case" detail="A bounded, evidence-backed question ready for investigation or decision." />
+          <div className="font-mono text-[8px] uppercase tracking-[0.08em]">
+            <div className="mb-1 text-[7px] text-muted-foreground md:hidden">Availability</div>
+            <RecordStatus record={item} />
           </div>
-        </CardContent>
-      </Card>
-
-      <OpportunitySection
-        eyebrow="Ready to investigate"
-        title="Decision openings"
-        detail="Cases have a bounded question and preserved evidence. Review the record before turning one into Strategy or downstream Work."
-        items={decisionOpenings}
-        empty="No evidence-backed decision openings are ready yet."
-      />
-      <OpportunitySection
-        eyebrow="Developing"
-        title="Emerging openings"
-        detail="Material shifts may become Opportunities once their decision window, impact, and evidence are clear."
-        items={emergingOpenings}
-        empty="No material shifts are currently developing into Opportunities."
-      />
-      {earlySignals.length > 0 && (
-        <OpportunitySection
-          eyebrow="Watchlist"
-          title="Early signals"
-          detail="These observations are relevant, but ACE has not yet established a material shift or bounded decision question."
-          items={earlySignals}
-          empty="No early signals are being watched."
-        />
-      )}
-    </div>
+          <div className="text-[9px] leading-4 text-muted-foreground">
+            <div className="font-mono text-[7px] uppercase tracking-[0.1em]">Evidence basis</div>
+            <div className="mt-1 text-foreground/75">
+              {item.provenance.length === 0
+                ? 'No upstream record projected'
+                : `${item.provenance.length} linked record${item.provenance.length === 1 ? '' : 's'}`}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
   )
 }
 
-function Metric({ label, value, detail, warning = false }: { readonly label: string; readonly value: number | string; readonly detail: string; readonly warning?: boolean }) {
+function BuildSurface({
+  groups,
+  packs,
+  onStart,
+}: {
+  readonly groups: ResourceGroups
+  readonly packs: ReturnType<typeof useIntelligenceProductCatalog>['packs']
+  readonly onStart: () => void
+}) {
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="text-xs text-muted-foreground">{label}</div>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="text-2xl font-semibold tracking-tight">{value}</span>
-          {warning && <CircleAlert className="size-4 text-warning" />}
-        </div>
-        <div className="mt-1 text-[11px] text-muted-foreground">{detail}</div>
-      </CardContent>
-    </Card>
+    <SurfacePlaceholder
+      eyebrow="Build · the intelligence model"
+      title="Review what ACE maintains."
+      description="Tell ACE what you want to understand. ACE proposes the blueprint, exact source roles, watches, readiness, and changes; you review them before activation."
+    >
+      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_19rem]">
+        <section>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">
+                Current model resources
+              </div>
+              <h3 className="mt-2 text-lg font-medium tracking-tight">Maintainers and authorized source roles</h3>
+            </div>
+            <Button type="button" onClick={onStart}>
+              Review intelligence build <ArrowRight className="size-4" aria-hidden="true" />
+            </Button>
+          </div>
+          <div className="mt-5 space-y-6">
+            <section>
+              <div className="mb-2 font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Maintenance model</div>
+              <RecordLedger
+                items={groups.agents}
+                empty="No governed maintainer or watch resources are projected yet."
+              />
+            </section>
+            <section>
+              <div className="mb-2 font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Source model</div>
+              <RecordLedger
+                items={groups.connections}
+                empty="No authorized source or connection resources are projected yet."
+              />
+            </section>
+          </div>
+        </section>
+        <aside className="border-t border-border pt-5 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
+          <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">
+            Review boundary
+          </div>
+          <ol className="mt-4 space-y-0">
+            {[
+              'Intent and domain proposal',
+              'Blueprint and reviewable changes',
+              'Exact source plan and predicted coverage',
+              'Permission and readiness',
+              'Initialization and first cited Brief',
+            ].map((item, index) => (
+              <li key={item} className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-2 border-t border-border py-3 first:border-t-0">
+                <span className="font-mono text-[8px] text-muted-foreground">0{index + 1}</span>
+                <span className="text-[10px] leading-4 text-foreground/80">{item}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-4 border-t border-border pt-4 text-[9px] leading-4 text-muted-foreground">
+            Custom Intelligence remains proposal-only Preview in v1. Readiness and coverage appear only when the current contracts project them.
+          </p>
+        </aside>
+      </div>
+      <div className="mt-10 border-t border-border pt-8">
+        <DomainPackLedger packs={packs} onReviewBuild={onStart} />
+      </div>
+      <PackActivationReader />
+    </SurfacePlaceholder>
   )
 }
 
-function AgentRole({ title, detail, state }: { readonly title: string; readonly detail: string; readonly state: string }) {
+function OperateSurface({
+  page,
+  groups,
+  items,
+}: {
+  readonly page: ReturnType<typeof useIntelligenceResources>['page']
+  readonly groups: ResourceGroups
+  readonly items: readonly IntelligenceResourceRecord[]
+}) {
   return (
-    <div className="flex gap-3 rounded-xl border bg-background p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
-        <Bot className="size-4" />
+    <SurfacePlaceholder
+      eyebrow="Operate · the trust layer"
+      title="Know what the picture can support."
+      description="Domain Health separates literal status from unscored quality. Raw traces remain operator detail; customer-visible limits remain visible here and in every Why?"
+    >
+      <DomainHealthRail page={page} items={items} compact />
+      <div className="mt-8 space-y-8">
+        <section>
+          <div className="mb-3 font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Source records</div>
+          <RecordLedger items={groups.connections} empty="No source or connection health records are projected." />
+        </section>
+        <section>
+          <div className="mb-3 font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Maintenance records</div>
+          <RecordLedger items={groups.agents} empty="No maintenance resources are projected." />
+        </section>
       </div>
-      <div>
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          {title}
-          <Badge variant="secondary" className="font-mono text-[9px]">{state}</Badge>
-        </div>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{detail}</p>
-      </div>
-    </div>
+    </SurfacePlaceholder>
   )
 }
 
-function PageContent({ surface, groups, all, onStart }: { readonly surface: Surface; readonly groups: ResourceGroups; readonly all: IntelligenceResourceRecord[]; readonly onStart: () => void }) {
-  if (surface === 'intelligence') return <BriefingHome groups={groups} all={all} onStart={onStart} />
-  if (surface === 'connections') return <ConnectionsView groups={groups} />
-  if (surface === 'agents') return <AgentsView groups={groups} />
-  if (surface === 'opportunities') return <OpportunitiesView groups={groups} />
-  return <ResourceGrid items={groups.strategy} empty="No decisions or outcomes have entered the strategy loop yet." />
+function ConsumersSurface({
+  groups,
+  catalog,
+}: {
+  readonly groups: ResourceGroups
+  readonly catalog: ReturnType<typeof useIntelligenceProductCatalog>['consumers']
+}) {
+  return (
+    <SurfacePlaceholder
+      eyebrow="Consumers · interfaces out"
+      title="Intelligence goes where decisions happen."
+      description="ACE maintains the intelligence system and exposes governed interfaces out. It does not replace downstream execution engines, create work silently, or imply a second handoff framework."
+    >
+      <ConsumerContractLedger catalog={catalog} />
+      <div className="mt-10 border-t border-border pt-8">
+      <div className="grid gap-7 xl:grid-cols-[minmax(0,1fr)_19rem]">
+        <section>
+          <div className="mb-3 font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">
+            Current decision and outcome records
+          </div>
+          <RecordLedger
+            items={groups.strategy}
+            empty="No consumer-facing decision or outcome record is projected yet."
+          />
+        </section>
+        <aside className="border-t border-border pt-5 xl:border-l xl:border-t-0 xl:pl-5 xl:pt-0">
+          <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">Downstream interface</div>
+          <h3 className="mt-3 text-sm font-medium">Investigation Board</h3>
+          <p className="mt-2 text-[10px] leading-5 text-muted-foreground">
+            The existing bounded handoff for focused investigation. ACE preserves the cited intelligence record; downstream work remains downstream.
+          </p>
+          <Button asChild variant="outline" size="sm" className="mt-4">
+            <Link to="/board">Open Investigation Board</Link>
+          </Button>
+        </aside>
+      </div>
+      </div>
+    </SurfacePlaceholder>
+  )
+}
+
+function PageContent({
+  surface,
+  page,
+  groups,
+  items,
+  productCatalog,
+  onStart,
+}: {
+  readonly surface: Surface
+  readonly page: ReturnType<typeof useIntelligenceResources>['page']
+  readonly groups: ResourceGroups
+  readonly items: readonly IntelligenceResourceRecord[]
+  readonly productCatalog: ReturnType<typeof useIntelligenceProductCatalog>
+  readonly onStart: () => void
+}) {
+  if (surface === 'overview') {
+    return <LivingBriefOverview page={page} groups={groups} items={items} onStart={onStart} />
+  }
+  if (surface === 'explore') {
+    return (
+      <div className="space-y-12">
+        <ExploreIntelligence items={items} />
+        <section aria-labelledby="focused-entity-intelligence" className="border-t border-border pt-10">
+          <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">
+            Focused entity intelligence
+          </div>
+          <h2 id="focused-entity-intelligence" className="mt-2 text-2xl font-normal tracking-[-0.03em]">
+            Inspect the supported world behind the answer.
+          </h2>
+          <p className="mt-2 max-w-3xl text-xs leading-5 text-muted-foreground">
+            State, movement, time, evidence, unknowns, and exact depth-one lineage appear only when the current resource contracts support them.
+          </p>
+          <div className="mt-6">
+            <EntityIntelligenceExplore items={items} embedded />
+          </div>
+        </section>
+      </div>
+    )
+  }
+  if (surface === 'build') return <BuildSurface groups={groups} packs={productCatalog.packs} onStart={onStart} />
+  if (surface === 'operate') return <OperateSurface page={page} groups={groups} items={items} />
+  return <ConsumersSurface groups={groups} catalog={productCatalog.consumers} />
 }
 
 function LoadingState() {
   return (
-    <div className="space-y-4" aria-label="Loading intelligence">
-      <Skeleton className="h-40 w-full rounded-xl" />
-      <div className="grid gap-4 md:grid-cols-2">
-        <Skeleton className="h-40 rounded-xl" />
-        <Skeleton className="h-40 rounded-xl" />
+    <div role="status" aria-label="Loading intelligence" aria-live="polite">
+      <span className="sr-only">ACE is loading the cited intelligence picture.</span>
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_17rem] xl:gap-0">
+        <div className="min-w-0 xl:pr-8">
+          <section className="border-b border-border pb-10 pt-4">
+            <Skeleton className="h-2.5 w-40 rounded-none" />
+            <Skeleton className="mt-7 h-12 w-[min(46rem,88%)] rounded-none md:h-16" />
+            <Skeleton className="mt-3 h-12 w-[min(40rem,76%)] rounded-none md:h-16" />
+            <Skeleton className="mt-6 h-3 w-[min(34rem,72%)] rounded-none" />
+            <Skeleton className="mt-2 h-3 w-[min(27rem,58%)] rounded-none" />
+            <Skeleton className="mt-7 h-9 w-36 rounded-full" />
+          </section>
+          <section className="border-b border-border py-7">
+            <Skeleton className="h-2.5 w-32 rounded-none" />
+            <Skeleton className="mt-4 h-7 w-64 rounded-none" />
+            <div className="mt-6 grid gap-4 border-t border-border pt-5 md:grid-cols-[2rem_minmax(0,1fr)_14rem]">
+              <Skeleton className="h-3 w-5 rounded-none" />
+              <div>
+                <Skeleton className="h-6 w-[min(30rem,90%)] rounded-none" />
+                <Skeleton className="mt-3 h-3 w-[min(24rem,75%)] rounded-none" />
+              </div>
+              <Skeleton className="h-14 w-full rounded-none" />
+            </div>
+          </section>
+          <section className="grid md:grid-cols-3">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="border-t border-border py-5 md:border-l md:border-t-0 md:px-5 first:md:border-l-0 first:md:pl-0 last:md:pr-0">
+                <Skeleton className="h-2.5 w-24 rounded-none" />
+                <Skeleton className="mt-4 h-4 w-36 rounded-none" />
+                <Skeleton className="mt-3 h-10 w-full rounded-none" />
+              </div>
+            ))}
+          </section>
+        </div>
+        <aside aria-hidden="true" className="border-t border-border pt-5 xl:border-l xl:border-t-0 xl:pl-6 xl:pt-0">
+          <Skeleton className="h-2.5 w-24 rounded-none" />
+          <Skeleton className="mt-3 h-5 w-40 rounded-none" />
+          <div className="mt-4 space-y-3">
+            {[0, 1, 2, 3, 4, 5].map((index) => (
+              <div key={index} className="border-t border-border pt-3">
+                <Skeleton className="h-2.5 w-full rounded-none" />
+                <Skeleton className="mt-2 h-2 w-4/5 rounded-none" />
+              </div>
+            ))}
+          </div>
+        </aside>
       </div>
     </div>
+  )
+}
+
+function UnavailableState() {
+  return (
+    <section aria-label="Unavailable intelligence" className="border-y border-border py-10 md:py-14">
+      <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+        Picture unavailable
+      </div>
+      <h2 className="mt-3 max-w-2xl text-2xl font-normal tracking-[-0.025em]">
+        No intelligence picture is available in this view.
+      </h2>
+      <p className="mt-3 max-w-2xl text-xs leading-5 text-muted-foreground">
+        ACE has not substituted inferred, cached, or presentation-only content. Retry the resource request above to restore the cited picture.
+      </p>
+    </section>
   )
 }
 
 export function IntelligenceOS() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const surface = activeSurface(pathname)
   const copy = SURFACE_COPY[surface]
   const { page, loading, error, refresh } = useIntelligenceResources()
   const installedCatalog = useInstalledIntelligenceCatalog()
-  const groups = useMemo(() => groupResources(page?.items ?? []), [page?.items])
+  const productCatalog = useIntelligenceProductCatalog()
+  const items = page?.items ?? []
+  const degradedRecordCount = items.filter((item) => item.availability === 'degraded').length
+  const groups = useMemo(() => groupResources(items), [items])
   const productName = productDisplayName(page?.product_id)
-  const freshness = pageFreshness(page)
   const [onboardingOpen, setOnboardingOpen] = useState(false)
+  const onboardingTrigger = useRef<HTMLElement | null>(null)
+  const [sidebarDefaultOpen] = useState(() => (
+    typeof window === 'undefined'
+    || typeof window.matchMedia !== 'function'
+    || window.matchMedia('(min-width: 1024px)').matches
+  ))
   const onboardingPresented = useRef(false)
   const onboardingProfiles = useMemo(
     () => onboardingProfilesFromResources(
-      page?.items ?? [],
+      items,
       installedCatalog.map((item) => item.profile),
     ),
-    [installedCatalog, page?.items],
+    [installedCatalog, items],
   )
-  const onboardingSession = useMemo(() => onboardingSessionFromResources(page?.items ?? []), [page?.items])
+  const onboardingSession = useMemo(() => onboardingSessionFromResources(items), [items])
+  const activationSetup = useMemo(() => configuredIntelligenceBuildActivation(), [])
+
+  useEffect(() => {
+    const canonicalPath = LEGACY_SURFACE_REDIRECTS[pathname]
+    if (canonicalPath !== undefined) navigate(canonicalPath, { replace: true })
+  }, [navigate, pathname])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [surface])
+
+  useEffect(() => {
+    document.title = `${copy.title} — ACE`
+  }, [copy.title])
 
   useEffect(() => {
     if (
@@ -456,94 +487,214 @@ export function IntelligenceOS() {
   }, [error, groups.intelligence.length, installedCatalog.length, loading, onboardingSession])
 
   function openFirstBrief() {
-    requestAnimationFrame(() => document.getElementById('latest-brief')?.scrollIntoView({ behavior: 'smooth' }))
+    requestAnimationFrame(() => document.getElementById('latest-brief')?.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    }))
   }
 
   async function prepareIntelligence(request: IntelligenceBuildPlanPrepareInput) {
     return prepareIntelligenceBuild(request)
   }
 
+  async function projectIntelligence(plan: IntelligenceBuildPlan) {
+    return projectIntelligenceBuild(plan)
+  }
+
+  async function bindIntelligence(request: IntelligenceBuildPlanBindInput) {
+    return bindIntelligenceBuildPlan(request)
+  }
+
+  async function approveIntelligence(boundPlan: Parameters<typeof approveIntelligenceBuildPlan>[0]) {
+    return approveIntelligenceBuildPlan(boundPlan)
+  }
+
+  async function associateBuilderSession(
+    boundPlan: Parameters<typeof associateIntelligenceBuildSession>[0],
+    approvalReceiptRef: Parameters<typeof associateIntelligenceBuildSession>[1],
+  ) {
+    return associateIntelligenceBuildSession(boundPlan, approvalReceiptRef)
+  }
+
+  async function startIntelligence(request: IntelligenceBuildStartInput) {
+    return startIntelligenceBuild(request)
+  }
+
+  async function projectIntelligenceResourceState(input: IntelligenceBuildResourceStateInput) {
+    return projectIntelligenceBuildResourceState(input)
+  }
+
+  async function prepareIntelligenceActivationPlan(input: DomainActivationPlanPrepareInput) {
+    return prepareDomainActivationPlan(input)
+  }
+
+  async function approveIntelligenceActivationPlan(input: DomainActivationPlanApproveInput) {
+    return approveDomainActivationPlan(input)
+  }
+
+  async function activateIntelligenceBuilderActivationPlan(input: IntelligenceBuilderPlanActivateInput) {
+    return activateIntelligenceBuilderPlan(input)
+  }
+
+  async function retryIntelligence(current: Readonly<Record<string, unknown>>) {
+    return retryIntelligenceBuildSession(current)
+  }
+
+  function openOnboarding() {
+    const activeElement = document.activeElement
+    onboardingTrigger.current = activeElement instanceof HTMLElement ? activeElement : null
+    setOnboardingOpen(true)
+  }
+
+  function changeOnboardingOpen(nextOpen: boolean) {
+    setOnboardingOpen(nextOpen)
+    if (nextOpen) return
+    const trigger = onboardingTrigger.current
+    onboardingTrigger.current = null
+    if (trigger?.isConnected) requestAnimationFrame(() => trigger.focus())
+  }
+
   return (
     <div className="atrium-command-center dark min-h-svh bg-background text-foreground">
-      <SidebarProvider>
-        <KernelNav />
+      <a
+        href="#atrium-main"
+        className="fixed left-3 top-3 z-50 -translate-y-20 bg-foreground px-3 py-2 text-xs font-semibold text-background transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-brand motion-reduce:transition-none"
+      >
+        Skip to intelligence
+      </a>
+      <SidebarProvider defaultOpen={sidebarDefaultOpen}>
+        <KernelNav productName={productName} />
         <SidebarInset className="min-h-svh bg-background">
-        <header className="sticky top-0 z-20 flex min-h-[72px] items-center gap-4 border-b bg-background/95 px-5 backdrop-blur md:px-8">
-          <SidebarTrigger className="md:hidden" />
-          <div className="min-w-0">
-            <div className="truncate font-mono text-[8px] font-semibold uppercase tracking-[0.18em] text-brand">
-              ACE / {productName}
+          <header className="sticky top-0 z-20 flex min-h-16 items-center gap-4 border-b bg-background/95 px-5 backdrop-blur md:px-8">
+            <SidebarTrigger className="lg:hidden" />
+            <div className="min-w-0">
+              <div className="truncate font-mono text-[8px] uppercase tracking-[0.18em] text-muted-foreground">
+                ACE / {productName}
+              </div>
+              <div className="mt-1 flex min-w-0 items-baseline gap-3">
+                <h1 className="truncate text-sm font-medium tracking-tight">{copy.title}</h1>
+                <p className="hidden truncate text-[10px] text-muted-foreground lg:block">{copy.subtitle}</p>
+              </div>
             </div>
-            <div className="mt-1 flex min-w-0 items-baseline gap-3">
-              <h1 className="truncate text-base font-semibold tracking-tight">{copy.title}</h1>
-              <p className="hidden truncate text-[11px] text-muted-foreground lg:block">{copy.subtitle}</p>
+            <div className="ml-auto flex items-center gap-1.5">
+              {surface !== 'explore' && (
+                <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+                  <Link to="/atrium/explore">Ask ACE</Link>
+                </Button>
+              )}
+              <Button type="button" variant="outline" size="sm" onClick={openOnboarding}>
+                <BuildIcon className="size-3.5" aria-hidden="true" />
+                <span className="hidden sm:inline">{onboardingSession === null ? 'Build' : 'Review build'}</span>
+              </Button>
+              {page !== null && (
+                <Badge
+                  variant="outline"
+                  role="status"
+                  aria-live="polite"
+                  className="hidden rounded-sm border-border bg-card font-mono text-[8px] font-normal sm:inline-flex"
+                >
+                  {error !== null
+                    ? <CircleAlert className="mr-1 size-3 text-warning" aria-hidden="true" />
+                    : page.state === 'degraded'
+                    ? <CircleAlert className="mr-1 size-3 text-warning" aria-hidden="true" />
+                    : <CurrentIcon className="mr-1 size-3 text-success" aria-hidden="true" />}
+                  {error !== null
+                    ? 'Last loaded picture'
+                    : page.state === 'degraded'
+                      ? 'Partial picture'
+                      : 'Picture current'}
+                </Badge>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={refresh}
+                aria-label={loading ? 'Refreshing intelligence' : 'Refresh intelligence'}
+                aria-busy={loading}
+              >
+                <RefreshCw className={loading ? 'size-4 animate-spin motion-reduce:animate-none' : 'size-4'} aria-hidden="true" />
+              </Button>
             </div>
-          </div>
-          <div className="ml-auto flex items-center gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setOnboardingOpen(true)}>
-              <Sparkles className="size-3.5" />
-              <span className="hidden sm:inline">{onboardingSession === null ? 'Build intelligence' : 'View build'}</span>
-            </Button>
-            {page !== null && (
-              <Badge variant={page.state === 'degraded' ? 'outline' : 'secondary'} className="hidden rounded-sm border border-border/70 bg-card font-mono text-[9px] sm:inline-flex">
-                {page.state === 'degraded' ? <CircleAlert className="mr-1 size-3 text-warning" /> : <ShieldCheck className="mr-1 size-3 text-brand" />}
-                {page.state === 'degraded' ? 'Partial picture' : 'Picture current'}
-              </Badge>
+          </header>
+
+          <main id="atrium-main" tabIndex={-1} className="mx-auto w-full max-w-[1560px] p-5 outline-none md:p-8">
+            {error !== null && (
+              <Alert variant="destructive" className="mb-6">
+                <CircleAlert className="size-4" aria-hidden="true" />
+                <AlertTitle>
+                  {page === null
+                    ? 'ACE could not open this intelligence view'
+                    : 'ACE could not refresh this intelligence view'}
+                </AlertTitle>
+                <AlertDescription className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span>
+                    {error.message}
+                    {page !== null && ' The last loaded cited picture remains visible.'}
+                  </span>
+                  <Button type="button" variant="outline" size="sm" onClick={refresh}>Try again</Button>
+                </AlertDescription>
+              </Alert>
             )}
-            <Button type="button" variant="ghost" size="icon" onClick={refresh} aria-label="Refresh intelligence">
-              <RefreshCw className={loading ? 'size-4 animate-spin' : 'size-4'} />
-            </Button>
-          </div>
-        </header>
 
-        <main className="mx-auto w-full max-w-[1500px] p-5 md:p-8">
-          {error !== null && (
-            <Alert variant="destructive" className="mb-6">
-              <CircleAlert className="size-4" />
-              <AlertTitle>ACE could not open this intelligence view</AlertTitle>
-              <AlertDescription className="mt-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <span>{error.message}</span>
-                <Button type="button" variant="outline" size="sm" onClick={refresh}>Try again</Button>
-              </AlertDescription>
-            </Alert>
-          )}
+            {page?.state === 'degraded' && (
+              <Alert className="mb-6 border-warning/45 bg-warning/[0.04]">
+                <CircleAlert className="size-4 text-warning" aria-hidden="true" />
+                <AlertTitle>Some evidence still needs review</AlertTitle>
+                <AlertDescription>
+                  <span className="block">Available intelligence and citations remain visible. Open Operate for the dimensions the current contracts can and cannot support.</span>
+                  <span className="mt-1 block font-mono text-[9px] uppercase tracking-[0.1em]">
+                    {degradedRecordCount > 0
+                      ? `${degradedRecordCount} cited record${degradedRecordCount === 1 ? ' is' : 's are'} marked degraded.`
+                      : 'The page reports a degraded state without a degraded record projection.'}
+                  </span>
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {page?.state === 'degraded' && (
-            <Alert className="mb-6 border-warning/45 bg-warning/5">
-              <CircleAlert className="size-4" />
-              <AlertTitle>Some evidence still needs review</AlertTitle>
-              <AlertDescription>
-                Some source-health, confidence, conflict, and revision checks are incomplete. Available intelligence and citations remain visible.
-              </AlertDescription>
-            </Alert>
-          )}
+            {error !== null && page === null ? (
+              <UnavailableState />
+            ) : loading && page === null ? (
+              <LoadingState />
+            ) : (
+              <PageContent
+                surface={surface}
+                page={page}
+                groups={groups}
+                items={items}
+                productCatalog={productCatalog}
+                onStart={openOnboarding}
+              />
+            )}
+          </main>
 
-          {loading && page === null ? (
-            <LoadingState />
-          ) : (
-            <>
-              <CoverageStrip groups={groups} freshness={freshness} />
-              <PageContent surface={surface} groups={groups} all={page?.items ?? []} onStart={() => setOnboardingOpen(true)} />
-            </>
-          )}
-        </main>
-
-        <footer className="mx-auto flex w-full max-w-[1500px] flex-wrap items-center gap-2 px-5 pb-6 text-[10px] text-muted-foreground md:px-8">
-          <Route className="size-3" />
-          <span>One current intelligence picture</span>
-          <span>·</span>
-          <span>{page?.items.length ?? 0} cited records</span>
-          <span>·</span>
-          <span>Sources and history preserved</span>
-        </footer>
-        <OnboardingPreview
-          open={onboardingOpen}
-          onOpenChange={setOnboardingOpen}
-          profiles={onboardingProfiles}
-          session={onboardingSession}
-          onPrepareBuild={prepareIntelligence}
-          onOpenBrief={openFirstBrief}
-        />
+          <footer className="mx-auto flex w-full max-w-[1560px] flex-wrap items-center gap-2 px-5 pb-6 text-[9px] text-muted-foreground md:px-8">
+            <Route className="size-3" aria-hidden="true" />
+            <span>One maintained intelligence picture</span>
+            <span>·</span>
+            <span>{loading && page === null ? 'Loading cited records' : `${items.length} cited records`}</span>
+            <span>·</span>
+            <span>Sources, limits, and history preserved</span>
+          </footer>
+          <OnboardingPreview
+            open={onboardingOpen}
+            onOpenChange={changeOnboardingOpen}
+            profiles={onboardingProfiles}
+            session={onboardingSession}
+            onPrepareBuild={prepareIntelligence}
+            onProjectBuild={projectIntelligence}
+            activationSetup={activationSetup}
+            onBindBuild={bindIntelligence}
+            onApproveBuild={approveIntelligence}
+            onAssociateBuilderSession={associateBuilderSession}
+            onPrepareActivationPlan={prepareIntelligenceActivationPlan}
+            onApproveActivationPlan={approveIntelligenceActivationPlan}
+            onActivatePlan={activateIntelligenceBuilderActivationPlan}
+            onStartBuild={startIntelligence}
+            onProjectResourceState={projectIntelligenceResourceState}
+            onRetryBuild={retryIntelligence}
+            onBuildStarted={() => refresh()}
+            onOpenBrief={openFirstBrief}
+          />
         </SidebarInset>
       </SidebarProvider>
     </div>

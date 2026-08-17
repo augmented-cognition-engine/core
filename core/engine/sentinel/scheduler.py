@@ -13,15 +13,24 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from dataclasses import asdict, dataclass
 from typing import Any
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from core.engine.core.db import parse_rows
+from core.engine.core.db import parse_record_id, parse_rows
 from core.engine.sentinel.registry import engine_registry, get_engine
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class SentinelStartupState:
+    status: str
+    product_id: str
+    reason: str | None
+    job_count: int
 
 
 class SentinelScheduler:
@@ -38,10 +47,33 @@ class SentinelScheduler:
         self._running = False
         self._running_engines: set[str] = set()
         self._lock = asyncio.Lock()
+        self._startup_state = SentinelStartupState(
+            status="not_started",
+            product_id=default_org_id,
+            reason=None,
+            job_count=0,
+        )
 
     @property
     def running(self) -> bool:
         return self._running
+
+    @property
+    def startup_state(self) -> dict[str, Any]:
+        """Return the explicit scheduler startup outcome for diagnostics."""
+        return asdict(self._startup_state)
+
+    async def _query_overrides(self, product_id: str) -> dict[str, dict]:
+        async with self._db_pool.connection() as db:
+            rows = await db.query(
+                """
+                SELECT engine, cron, enabled FROM engine_schedule_override
+                WHERE product = $product
+                """,
+                {"product": parse_record_id(product_id)},
+            )
+        parsed = parse_rows(rows)
+        return {row["engine"]: {"cron": row.get("cron"), "enabled": row.get("enabled", True)} for row in parsed}
 
     async def load_overrides(self, product_id: str) -> dict[str, dict]:
         """Load engine schedule overrides from DB for the given org.
@@ -50,19 +82,64 @@ class SentinelScheduler:
         Returns empty dict if no overrides exist.
         """
         try:
-            async with self._db_pool.connection() as db:
-                rows = await db.query(
-                    """
-                    SELECT engine, cron, enabled FROM engine_schedule_override
-                    WHERE product = <record>$product
-                    """,
-                    {"product": product_id},
-                )
-            parsed = parse_rows(rows)
-            return {row["engine"]: {"cron": row.get("cron"), "enabled": row.get("enabled", True)} for row in parsed}
+            return await self._query_overrides(product_id)
         except Exception as exc:
             logger.warning(f"Failed to load schedule overrides: {exc}")
             return {}
+
+    async def start_for_configured_product(self) -> dict[str, Any]:
+        """Start for the configured product only, or expose a zero-job state.
+
+        A fresh store is disabled without guessing or creating a product.  A
+        configured product that is absent from a non-empty store, or a database
+        dependency failure, is degraded.  No APScheduler instance is started in
+        either case.
+        """
+        product_id = self._default_org_id
+        try:
+            async with self._db_pool.connection() as db:
+                configured_rows = parse_rows(
+                    await db.query(
+                        "SELECT id FROM product WHERE id = $product LIMIT 1",
+                        {"product": parse_record_id(product_id)},
+                    )
+                )
+                if not configured_rows:
+                    any_rows = parse_rows(await db.query("SELECT id FROM product ORDER BY id LIMIT 1"))
+                    if not any_rows:
+                        self._startup_state = SentinelStartupState(
+                            status="disabled",
+                            product_id=product_id,
+                            reason="fresh_storage_no_product",
+                            job_count=0,
+                        )
+                    else:
+                        self._startup_state = SentinelStartupState(
+                            status="degraded",
+                            product_id=product_id,
+                            reason="configured_product_missing",
+                            job_count=0,
+                        )
+                    logger.warning(
+                        "Sentinel scheduler %s for %s: %s",
+                        self._startup_state.status,
+                        product_id,
+                        self._startup_state.reason,
+                    )
+                    return self.startup_state
+            overrides = await self._query_overrides(product_id)
+        except Exception as exc:
+            self._startup_state = SentinelStartupState(
+                status="degraded",
+                product_id=product_id,
+                reason=f"startup_dependency_unavailable:{type(exc).__name__}",
+                job_count=0,
+            )
+            logger.warning("Sentinel scheduler degraded for %s: %s", product_id, exc)
+            return self.startup_state
+
+        self.start(overrides=overrides)
+        return self.startup_state
 
     def start(self, overrides: dict[str, dict] | None = None) -> None:
         """Register all engines from the registry and start the APScheduler.
@@ -107,10 +184,14 @@ class SentinelScheduler:
 
         self._scheduler.start()
         self._running = True
-        logger.info(
-            f"Sentinel scheduler started with {len(engine_registry) - skipped} engine(s)"
-            f" ({skipped} disabled by override)"
+        job_count = len(engine_registry) - skipped
+        self._startup_state = SentinelStartupState(
+            status="running",
+            product_id=self._default_org_id,
+            reason=None,
+            job_count=job_count,
         )
+        logger.info(f"Sentinel scheduler started with {job_count} engine(s) ({skipped} disabled by override)")
 
     def reschedule_engine(self, name: str, cron: str) -> None:
         """Change the cron schedule for a running engine.
@@ -182,6 +263,12 @@ class SentinelScheduler:
         if self._scheduler and self._running:
             self._scheduler.shutdown(wait=False)
             self._running = False
+            self._startup_state = SentinelStartupState(
+                status="stopped",
+                product_id=self._default_org_id,
+                reason=None,
+                job_count=0,
+            )
             logger.info("Sentinel scheduler stopped")
 
     async def _run_engine_job(self, engine_name: str, product_id: str) -> None:

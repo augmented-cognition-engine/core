@@ -254,7 +254,7 @@ async def _install_packaged_schema(target: DatabaseTarget, *, expected_version: 
         for version, path in files:
             await apply_file(db, version, path.name, path.read_text(encoding="utf-8"))
             await db.query(
-                "UPSERT config_entry SET key = 'schema_version', value = $version WHERE key = 'schema_version'",
+                "UPSERT config_entry SET key = 'schema_version', `value` = $version WHERE key = 'schema_version'",
                 {"version": str(version)},
             )
         await validate_schema(db, expected_version)

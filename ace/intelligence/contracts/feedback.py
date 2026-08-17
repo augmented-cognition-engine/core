@@ -28,6 +28,7 @@ from ace.intelligence.contracts.common import (
     validate_reference,
     validate_slug,
 )
+from ace.intelligence.contracts.resource_plane import IntelligenceResourceReferenceV1Alpha1
 from ace.intelligence.contracts.resources import (
     ActivationRevisionReferenceV1Alpha1,
     IntelligenceResourceMode,
@@ -37,6 +38,7 @@ DECISION_OUTCOMES_MODULE_VERSION = "ace.intelligence.decision-outcomes/v1alpha1"
 FEEDBACK_PROPOSAL_INTENT_VERSION = "ace.intelligence.feedback-proposal-intent/v1alpha1"
 FEEDBACK_PROPOSAL_VERSION = "ace.intelligence.feedback-proposal/v1alpha1"
 FEEDBACK_POLICY_STATE_VERSION = "ace.intelligence.feedback-policy-state/v1alpha1"
+OUTCOME_PROVENANCE_RETURN_VERSION = "ace.intelligence.outcome-provenance-return/v1alpha1"
 
 
 class _StrictFrozenContract(FrozenContract):
@@ -367,6 +369,99 @@ class FeedbackProposalV1Alpha1(_StrictFrozenContract):
         return self
 
 
+class OutcomeProvenanceReturnV1Alpha1(_StrictFrozenContract):
+    """Attributed return of the exact Intelligence used by one recorded Outcome.
+
+    This is a companion receipt for the existing Core Outcome. It records no
+    outbound delivery, acknowledgement, ranking, recalculation, or trust effect.
+    """
+
+    contract: Literal["ace.intelligence.outcome-provenance-return/v1alpha1"] = OUTCOME_PROVENANCE_RETURN_VERSION
+    product_id: str
+    actor_ref: str
+    decision: ImmutableRecordReferenceV1
+    outcome: ImmutableRecordReferenceV1
+    consumed_intelligence: tuple[IntelligenceResourceReferenceV1Alpha1, ...] = Field(
+        min_length=1,
+        max_length=256,
+    )
+    returned_at: datetime
+    return_id: str | None = None
+    return_digest: str | None = None
+
+    @field_validator("product_id")
+    @classmethod
+    def validate_product_scope(cls, value: str) -> str:
+        return validate_product_id(value)
+
+    @field_validator("actor_ref")
+    @classmethod
+    def validate_actor_ref(cls, value: str) -> str:
+        return validate_reference(value, name="actor_ref")
+
+    @field_validator("return_digest")
+    @classmethod
+    def validate_return_digest(cls, value: str | None) -> str | None:
+        return validate_digest(value) if value is not None else None
+
+    @field_validator("returned_at")
+    @classmethod
+    def normalize_returned_at(cls, value: datetime) -> datetime:
+        return _aware(value, name="returned_at")
+
+    @field_validator("consumed_intelligence")
+    @classmethod
+    def normalize_consumed_intelligence(
+        cls,
+        value: tuple[IntelligenceResourceReferenceV1Alpha1, ...],
+    ) -> tuple[IntelligenceResourceReferenceV1Alpha1, ...]:
+        keys = tuple(
+            (item.resource_kind.value, item.resource_id, item.revision, item.resource_digest) for item in value
+        )
+        if len(keys) != len(set(keys)):
+            raise ValueError("consumed Intelligence references must be unique")
+        return tuple(
+            sorted(
+                value,
+                key=lambda item: (
+                    item.resource_kind.value,
+                    item.resource_id,
+                    item.revision,
+                    item.resource_digest,
+                ),
+            )
+        )
+
+    @model_validator(mode="after")
+    def validate_exact_return_and_identity(self) -> Self:
+        if (
+            self.decision.product_id != self.product_id
+            or self.outcome.product_id != self.product_id
+            or any(item.product_id != self.product_id for item in self.consumed_intelligence)
+        ):
+            raise ValueError("Outcome provenance return crossed exact product scope")
+        if self.decision.record_space != "prepared" or self.decision.record_kind != "decision":
+            raise ValueError("Outcome provenance return requires one exact PREPARED Decision")
+        if self.outcome.record_space != "prepared" or self.outcome.record_kind != "outcome":
+            raise ValueError("Outcome provenance return requires one exact PREPARED Outcome")
+        if self.decision.available_at > self.outcome.as_of:
+            raise ValueError("Outcome provenance return cannot predate Decision availability")
+        if self.outcome.available_at > self.returned_at:
+            raise ValueError("provenance return cannot predate Outcome availability")
+        if any(
+            item.as_of > self.decision.as_of or item.available_at > self.decision.as_of
+            for item in self.consumed_intelligence
+        ):
+            raise ValueError("consumed Intelligence was unavailable when the Decision was made")
+        _derive_identity(
+            self,
+            prefix="outcome_provenance_return",
+            id_field="return_id",
+            digest_field="return_digest",
+        )
+        return self
+
+
 class FeedbackPolicyStateV1Alpha1(_StrictFrozenContract):
     """One Core-governed PREPARED policy value derived from an approved proposal."""
 
@@ -455,10 +550,12 @@ __all__ = [
     "FEEDBACK_POLICY_STATE_VERSION",
     "FEEDBACK_PROPOSAL_INTENT_VERSION",
     "FEEDBACK_PROPOSAL_VERSION",
+    "OUTCOME_PROVENANCE_RETURN_VERSION",
     "DecisionOutcomesModuleV1",
     "FeedbackPolicyStateV1Alpha1",
     "FeedbackPolicyV1",
     "FeedbackProposalIntentV1Alpha1",
     "FeedbackProposalV1Alpha1",
     "OutcomeAdjustmentV1",
+    "OutcomeProvenanceReturnV1Alpha1",
 ]

@@ -36,28 +36,89 @@ _SEVERITY_ICONS = {
 }
 
 
+def _impact_row_label(row: object, *keys: str) -> str:
+    """Name one structured impact row by its first populated identifying column."""
+    if not isinstance(row, dict):
+        return str(row)
+    for key in keys:
+        value = row.get(key)
+        if value:
+            return str(value)
+    return str(row)
+
+
 def _fmt_impact(d: dict, file_path: str) -> str:
-    safe = d.get("safe_to_delete", True)
-    indicator = "✓ SAFE" if safe else "⚠ BREAKING"
-    importers = d.get("importers", [])
-    caps = d.get("capabilities", [])
-    fns = d.get("functions_defined", [])
     label = file_path.split("/")[-1]
-    lines = [f"{'✓' if safe else '⚠'} Impact  ·  {label}  ·  {indicator}", _SEP]
+    error = d.get("error")
+    if error:
+        # An unavailable observation is rendered as its own outcome. Falling
+        # through to the counted branch would print "0 importers" for a file
+        # that was never looked at, which reads as an assessment of the file
+        # rather than a failure to produce one.
+        return "\n".join(
+            [
+                f"× Impact  ·  {label}  ·  OBSERVATION UNAVAILABLE",
+                _SEP,
+                str(error),
+                "",
+                "×  No dependent-graph observation was produced. Nothing about this file's dependents,",
+                "   co-change partners, or deletion safety was assessed.",
+            ]
+        )
+
+    importers = d.get("importers") or []
+    caps = d.get("capabilities") or []
+    fns = d.get("functions") or d.get("functions_defined") or []
+    partners = d.get("cochange_partners") or []
+    uncertainties = d.get("uncertainties") or []
+    truncated = d.get("truncated_collections") or []
+    cochange_observed = d.get("impact_evidence_basis") == "direct_static_importers_and_cochange"
+
+    impact_observed = bool(importers)
+    indicator = "⚠ IMPACT OBSERVED" if impact_observed else "? NO DIRECT STATIC IMPORTERS OBSERVED"
+    lines = [f"{'⚠' if impact_observed else '?'} Impact  ·  {label}  ·  {indicator}", _SEP]
     lines.append(f"{len(importers)} importers  ·  {len(fns)} functions  ·  {len(caps)} capabilities")
+    if cochange_observed:
+        lines.append(f"{len(partners)} co-change partner(s) observed")
+    else:
+        lines.append("Co-change partners not observed by this adapter")
+
     if importers:
         lines.append("")
         lines.append("Importers:")
         for imp in importers[:8]:
-            lines.append(f"  {imp}")
+            lines.append(f"  {_impact_row_label(imp, 'path', 'name', 'node_id')}")
         if len(importers) > 8:
             lines.append(f"  … +{len(importers) - 8} more")
+    if fns:
+        lines.append("")
+        lines.append("Functions defined:")
+        for fn in fns[:8]:
+            lines.append(f"  {_impact_row_label(fn, 'name', 'node_id')}")
+        if len(fns) > 8:
+            lines.append(f"  … +{len(fns) - 8} more")
     if caps:
         lines.append("")
-        lines.append("Capabilities affected: " + ", ".join(caps[:6]))
-    if not safe:
+        rendered_caps = [_impact_row_label(capability, "name", "slug", "id") for capability in caps[:6]]
+        lines.append("Capabilities declaring this file: " + ", ".join(rendered_caps))
+
+    if impact_observed:
         lines.append("")
-        lines.append("⚠  Breaking changes — review importers before proceeding.")
+        lines.append("⚠  Direct static importers observed — review them before proceeding.")
+    else:
+        lines.append("")
+        lines.append("?  No direct static importers observed; deletion safety was not assessed.")
+    if truncated:
+        lines.append("")
+        lines.append(
+            "…  Bounded traversal stopped at its limit for: "
+            + ", ".join(str(collection) for collection in truncated)
+            + " — the remainder is unknown and uncounted."
+        )
+    if uncertainties:
+        lines.append("")
+        lines.append("Uncertainties:")
+        lines.extend(f"  - {uncertainty}" for uncertainty in uncertainties)
     return "\n".join(lines)
 
 
@@ -407,7 +468,7 @@ async def ace_briefing(date: str | None = None, briefing_id: str | None = None) 
 
 @mcp.tool(title="Impact")
 async def ace_impact(file_path: str, product_id: str = DEFAULT_PRODUCT) -> str:
-    """What breaks if I delete or change this file? Returns importers, functions, capabilities affected. Use before deleting or refactoring."""
+    """Bounded observed dependent graph for one file. Returns the files observed to import it, the functions it defines, and the capabilities declaring it, within one product. Does not assess what breaks, fragility, or deletion safety."""
     from core.engine.mcp.tools import ace_impact as _impact
 
     d = await _impact(file_path=file_path, product_id=product_id)
@@ -416,7 +477,7 @@ async def ace_impact(file_path: str, product_id: str = DEFAULT_PRODUCT) -> str:
 
 @mcp.tool(title="Impact Path")
 async def ace_impact_path(file_path: str, product_id: str = DEFAULT_PRODUCT) -> str:
-    """Alias for ace_impact — what breaks if I delete this file? Calls the graph impact-by-path analysis and returns importers, functions defined, and capabilities affected."""
+    """Alias for ace_impact — the same bounded observed dependent-graph traversal for one file path, returning observed importers, functions defined, and declaring capabilities. Does not assess what breaks, fragility, or deletion safety."""
     from core.engine.mcp.tools import ace_impact as _impact
 
     d = await _impact(file_path=file_path, product_id=product_id)

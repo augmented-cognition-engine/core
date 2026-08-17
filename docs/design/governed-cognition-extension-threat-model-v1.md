@@ -30,7 +30,8 @@ The boundaries are:
 3. Callable-free Level 0/1 catalog metadata.
 4. Digest-verified Level 2 resource loading.
 5. Product-scoped discovery and task-context composition.
-6. Human proposal/review/lifecycle authority.
+6. Human proposal/review/lifecycle authority, plus the separately provisioned two-grant delegated
+   cognition SERVICE boundary.
 7. Trusted Python instrument execution.
 8. Public task, API, CLI, MCP, metrics, and log projections.
 
@@ -43,7 +44,7 @@ The boundaries are:
 | Package/resource substitution | Module/package and resource SHA-256 digests are in callable-free manifests; invalid, absolute, traversing, or malformed resource entries reject registration | Extension conformance tests |
 | Prompt or instruction authority injection | Embedded text is data. Instructions cannot grant tools, execution, review, lifecycle, product, workspace, user, filesystem, or network authority | Governance contracts and trusted-code decision |
 | Cross-product disclosure or activation | Product ID is required in heads, proposals, reviews, selections, uses, task projections, and receipt reads; foreign records return unavailable/not found | Governance, discovery, API, and restart tests |
-| Model self-approval or automatic retirement | Only authenticated human actors with `cognition-review` can approve or move a head; evaluation emits a non-selectable proposal only | Governance, lifecycle, effectiveness tests |
+| Model self-approval or automatic retirement | Interactive review and every lifecycle move remain authenticated-human-only. The sole headless exception is a human/admin-provisioned SERVICE with distinct identity and exact product/scope-bound review and internal-activation grants; it cannot retire, renew, widen, transfer, administer lifecycle, or produce an external effect. Evaluation alone emits a non-selectable proposal. | Governance, delegated provisioning/activation/restart/revocation, lifecycle, and effectiveness tests |
 | Missing extension after restart | Stored identity/revision/head history remains; required missing extension dependencies are `unavailable`; no same-slug fallback is selected | Discovery missing-dependency tests |
 | Registry/resource denial of service | Recipe, route, dependency, source, candidate, serialized-byte, selected-revision, token, artifact, and receipt bounds fail closed | Contract, budget, and conformance tests |
 | Secret/private detail in public evidence | Public manifests contain stable metadata and digests, not callables or resource bodies. Discovery exposes bounded reason codes, never raw database/provider exceptions | Manifest and public normalization tests |

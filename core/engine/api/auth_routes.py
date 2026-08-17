@@ -23,6 +23,7 @@ LOCAL_OWNER_AUTHORITIES = (
     COGNITION_REVIEW_AUTHORITY,
     "intelligence_build",
     "observe_read",
+    "derive_propose",
     "deliver_export",
     "administer_lifecycle",
 )
@@ -98,7 +99,7 @@ async def bootstrap_local_owner(
     user=Depends(get_current_user),
     store=Depends(local_owner_authority_store),
 ):
-    """Create or verify the four fixed grants for the local single-user owner."""
+    """Create or verify the fixed grants for the local single-user owner."""
 
     try:
         return await bootstrap_local_owner_authority(

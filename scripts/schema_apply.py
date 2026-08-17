@@ -174,7 +174,7 @@ async def apply_schema() -> None:
         # table in the same query batch (the DEFINE sees the old table).
         compatibility_events.extend(await apply_file(db, version, f.name, f.read_text()))
         await db.query(
-            "UPSERT config_entry SET key = 'schema_version', value = $v WHERE key = 'schema_version'",
+            "UPSERT config_entry SET key = 'schema_version', `value` = $v WHERE key = 'schema_version'",
             {"v": str(version)},
         )
         applied += 1

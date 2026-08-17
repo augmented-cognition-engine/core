@@ -9,10 +9,9 @@
 //   /showcase                  → V14Showcase (chrome reference)
 //   ?mode=showcase             → DesignSystemShowcase (dev reference)
 //
-// Extension routes mount AFTER the kernel routes, discovered through
-// the ext seam (src/app/ext/registry.tsx) — the kernel never names an
-// extension path. With no extensions present the canvas runs with the
-// routes above only.
+// Installed-solution and extension routes mount AFTER the kernel routes,
+// discovered through the Canvas contribution seam. The entry point never
+// names a product solution or extension path.
 //
 // AcknowledgmentProvider wraps the whole tree so any surface can fire
 // acknowledgments via useAcknowledgment().
@@ -25,7 +24,7 @@ import { DeliberationCanvas } from './app/DeliberationCanvas'
 import { IntelligenceOS } from './app/atrium/IntelligenceOS'
 import { LiveBrain } from './app/LiveBrain'
 import { ProductMap } from './app/ProductMap'
-import { extensionRoutes } from './app/ext/registry'
+import { canvasRoutes } from './app/ext/registry'
 import { AceContextProvider } from './app/journey/aceContext'
 import { AcknowledgmentProvider, TooltipProvider } from './design/components'
 import { DesignSystemShowcase } from './design/showcase/DesignSystemShowcase'
@@ -38,6 +37,22 @@ import './design/tokens.css'
 
 const params = new URLSearchParams(window.location.search)
 const isShowcase = params.get('mode') === 'showcase'
+const KERNEL_ROUTE_PATHS = [
+  '/',
+  '/atrium',
+  '/atrium/*',
+  '/atrium/opportunities',
+  '/atrium/agents',
+  '/atrium/connections',
+  '/atrium/strategy',
+  '/room',
+  '/deliberation',
+  '/board',
+  '/brain',
+  '/landscape',
+  '/showcase',
+  '*',
+] as const
 
 function Root() {
   if (isShowcase) return <DesignSystemShowcase />
@@ -69,8 +84,8 @@ function Root() {
                 This route exposes no write, execution, extension, or model authority. */}
             <Route path="/landscape" element={<ProductMap />} />
             <Route path="/showcase" element={<V14Showcase />} />
-            {/* Extension-contributed routes (pages, legacy aliases). */}
-            {extensionRoutes().map((r) => (
+            {/* Installed-solution and extension routes. */}
+            {canvasRoutes(KERNEL_ROUTE_PATHS).map((r) => (
               <Route key={r.path} path={r.path} element={r.element} />
             ))}
             {/* Anything else falls back to the canvas. */}

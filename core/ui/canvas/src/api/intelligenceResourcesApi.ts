@@ -6,6 +6,9 @@ const BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 const AUTHORITY_GRANT_REF =
   import.meta.env.VITE_INTELLIGENCE_AUTHORITY_GRANT_REF ??
   'authority_grant:atrium-observe-read'
+const FEEDBACK_AUTHORITY_GRANT_REF =
+  import.meta.env.VITE_INTELLIGENCE_FEEDBACK_AUTHORITY_GRANT_REF ??
+  'authority_grant:atrium-resource-feedback'
 
 export const INTELLIGENCE_RESOURCE_KINDS = [
   'connection',
@@ -90,6 +93,45 @@ export interface IntelligenceResourcePage {
   page_digest: string
 }
 
+export type IntelligenceResourceCorrectionIntent =
+  | 'outdated'
+  | 'entity_mapping_wrong'
+  | 'missing_source'
+  | 'source_overweighted'
+
+export interface IntelligenceResourceFeedbackAdmission {
+  readonly contract: string
+  readonly feedback: {
+    readonly contract: string
+    readonly request: {
+      readonly feedback_id: string
+      readonly feedback_digest: string
+      readonly target: IntelligenceResourceReference
+      readonly correction_intent: IntelligenceResourceCorrectionIntent
+      readonly note: string
+      readonly evidence: readonly IntelligenceResourceReference[]
+      readonly authenticated_context: {
+        readonly actor_ref: string
+      }
+    }
+    readonly disposition: 'recorded_proposal_only'
+    readonly changes_target: false
+    readonly changes_source_trust: false
+    readonly changes_ranking: false
+    readonly triggers_recalculation: false
+    readonly receipt_id: string
+    readonly receipt_digest: string
+  }
+  readonly record: {
+    readonly storage_id: string
+    readonly material_hash: string
+  }
+  readonly transaction: {
+    readonly receipt_id: string
+    readonly request_hash: string
+  }
+}
+
 export class IntelligenceResourceApiError extends Error {
   readonly status: number
 
@@ -134,6 +176,55 @@ async function responseError(response: Response): Promise<IntelligenceResourceAp
     // Preserve the bounded status-only message when the response is not JSON.
   }
   return new IntelligenceResourceApiError(response.status, detail)
+}
+
+async function postFeedback(
+  token: string,
+  requestKey: string,
+  target: IntelligenceResourceReference,
+  correctionIntent: IntelligenceResourceCorrectionIntent,
+  note: string,
+  evidence: readonly IntelligenceResourceReference[],
+): Promise<Response> {
+  return fetch(`${BASE}/v1/intelligence/resources/feedback`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      authority_grant_ref: FEEDBACK_AUTHORITY_GRANT_REF,
+      request_key: requestKey,
+      target,
+      correction_intent: correctionIntent,
+      note,
+      evidence,
+    }),
+  })
+}
+
+export async function submitIntelligenceResourceFeedback({
+  requestKey,
+  target,
+  correctionIntent,
+  note,
+  evidence = [],
+}: {
+  readonly requestKey: string
+  readonly target: IntelligenceResourceReference
+  readonly correctionIntent: IntelligenceResourceCorrectionIntent
+  readonly note: string
+  readonly evidence?: readonly IntelligenceResourceReference[]
+}): Promise<IntelligenceResourceFeedbackAdmission> {
+  let token = await getToken()
+  let response = await postFeedback(token, requestKey, target, correctionIntent, note, evidence)
+  if (response.status === 401) {
+    clearToken()
+    token = await getToken()
+    response = await postFeedback(token, requestKey, target, correctionIntent, note, evidence)
+  }
+  if (!response.ok) throw await responseError(response)
+  return (await response.json()) as IntelligenceResourceFeedbackAdmission
 }
 
 export async function queryIntelligenceResources(

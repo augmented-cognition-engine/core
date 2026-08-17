@@ -1,0 +1,92 @@
+{
+  "contract": "ace.code-intelligence.public-incident-fixture/v1alpha1",
+  "fixture_key": "keep-tbtc-deposit-pause-2020",
+  "source_kind": "incident_postmortem",
+  "title": "Details of the tBTC Deposit Pause on May 18, 2020",
+  "report": {
+    "repository_url": "https://github.com/keep-network/tbtc-website",
+    "repository_commit": "083c62168e470e466e9d701fb48242eef254d7b5",
+    "repository_path": "src/pages/news/2020-05-21-details-of-the-tbtc-deposit-pause-on-may-18-2020.md",
+    "git_blob_sha": "693535acb820c7b8347c4e1bf3bccc81414b01c8",
+    "content_sha256": "sha256:9f105c2a56cae01b16e27625dee1b6c2d32a5f9dae71225bb0c0fb4a659a6a72",
+    "byte_count": 20336,
+    "raw_url": "https://raw.githubusercontent.com/keep-network/tbtc-website/083c62168e470e466e9d701fb48242eef254d7b5/src/pages/news/2020-05-21-details-of-the-tbtc-deposit-pause-on-may-18-2020.md",
+    "immutable_url": "https://github.com/keep-network/tbtc-website/blob/083c62168e470e466e9d701fb48242eef254d7b5/src/pages/news/2020-05-21-details-of-the-tbtc-deposit-pause-on-may-18-2020.md",
+    "published_url": "https://tbtc.network/news/2020-05-21-details-of-the-tbtc-deposit-pause-on-may-18-2020/",
+    "published_at": "2020-05-21T17:02:51.487Z"
+  },
+  "licenses": [
+    {
+      "scope": "report",
+      "spdx_id": "MIT",
+      "immutable_url": "https://github.com/keep-network/tbtc-website/blob/083c62168e470e466e9d701fb48242eef254d7b5/LICENSE",
+      "raw_url": "https://raw.githubusercontent.com/keep-network/tbtc-website/083c62168e470e466e9d701fb48242eef254d7b5/LICENSE",
+      "git_blob_sha": "4ed19fdb338ca18942ed904d47e5c377103e45eb",
+      "byte_count": 1054,
+      "content_sha256": "sha256:be587dab2304aa7efbf8807c30107fbe74f17a772a563233b2d9fd1fb05503fd",
+      "copyright_notice": "Copyright (c) 2020 Keep SEZC."
+    },
+    {
+      "scope": "code",
+      "spdx_id": "MIT",
+      "immutable_url": "https://github.com/keep-network/tbtc/blob/9651d53a443b3d2470e13ee1db0ecae60be8b246/LICENSE",
+      "raw_url": "https://raw.githubusercontent.com/keep-network/tbtc/9651d53a443b3d2470e13ee1db0ecae60be8b246/LICENSE",
+      "git_blob_sha": "80a1ed24975b0263f29157a7bc788d9e30ab2adf",
+      "byte_count": 1053,
+      "content_sha256": "sha256:59f67a2ea030f1fcbfd4f5ffd0aae8b65f66954e5aa0fdd5b745c4ac9eba6fb9",
+      "copyright_notice": "Copyright (c) 2020 Keep SEZC."
+    }
+  ],
+  "clocks": [
+    {"label": "sortition_pool_created", "occurred_at": "2020-03-15T15:52:00Z", "source_line": 23},
+    {"label": "redemption_first_failed", "occurred_at": "2020-05-18T02:29:00Z", "source_line": 29},
+    {"label": "relay_caught_up", "occurred_at": "2020-05-18T03:07:00Z", "source_line": 29},
+    {"label": "redemption_error_observed", "occurred_at": "2020-05-18T03:13:00Z", "source_line": 31},
+    {"label": "finding_corroborated", "occurred_at": "2020-05-18T05:02:00Z", "source_line": 35},
+    {"label": "emergency_pause_triggered", "occurred_at": "2020-05-18T05:18:00Z", "source_line": 37},
+    {"label": "pause_transaction_completed", "occurred_at": "2020-05-18T05:45:00Z", "source_line": 37},
+    {"label": "hosted_pages_redirected", "occurred_at": "2020-05-18T14:11:00Z", "source_line": 39}
+  ],
+  "sections": [
+    {
+      "section_id": "incident-timeline",
+      "kind": "timeline_only",
+      "source_line_start": 21,
+      "source_line_end": 39,
+      "excerpt": "## Incident Timeline\n\nThe incident began on March 15, 2020 at 15:52 UTC with the creation of the tBTC system’s sortition pool. The deployment of the sortition pool itself did not place any funds at risk. However: the sortition pool is used to randomly select signers who have enough bond to back new deposits. Signers must opt in to using the sortition pool by placing ETH into a bonding contract. That contract then requires an additional authorization from the signer to enable use of the funds they placed into the bonding contract for the specific sortition pool used by the tBTC system. Lastly, the signer must register themselves with the sortition pool to populate the data used during deposit opening to select signers.\n\nOver the course of approximately 3 days, multiple signers made bond available and authorized the sortition pool, but only 3 signers registered themselves with the pool to be used during deposit opening. These 3 signers were controlled by a single person who was in contact with teams supporting tBTC.\n\nDeposits were available via an alpha dApp at <https://dapp.tbtc.network/>, limited to a 0.001 BTC deposit size. The ETH bonds made available by the 3 signers that were operational also placed an upper limit on how much tBTC could be minted, since each tBTC deposit required 1.5 times its value in ETH to be bonded. The dApp was taken down briefly on the evening of May 15, 2020 while a potential issue was investigated, but re-enabled early on May 16th once that issue was understood. Additionally, several members of the community set up local versions of the dApp and used them to open deposits with BTC lot sizes larger than 0.001.\n\nOn May 18, at 2:29 UTC, the operator of the 3 signers was unable to redeem a deposit. The likely cause was identified as high gas prices on the Ethereum chain causing the relay’s updates on Bitcoin state to be a few blocks behind. The relay began using a higher gas price and caught up by 3:07 UTC.\n\nAt 3:13 UTC, the same operator again had difficulty redeeming. At this point an error was observed from the deposit contract, “Tx sends value to wrong pubkeyhash”. This error indicated that the proof the dApp was constructing to show the Ethereum chain that redemption had completed successfully was incorrect; specifically, the proof did not successfully prove the transaction sent the deposit’s BTC holdings to the correct redeemer address.\n\nAfter an investigation, a determination was made that there was the potential for signer bond danger. Because signer bonds can only be seized after 6 hours without a redemption proof, the investigation was continued.\n\nAt 5:02 UTC, the finding was corroborated by key tBTC contributors, at which point the hosted dApp URL was immediately redirected to the tBTC homepage to prevent further new deposits being opened.\n\nAt 5:18 UTC, the single-use 10-day emergency pause available in the tBTC system contract was triggered. This function prevents new deposits from being opened for 10 days, but does not affect the functionality of any already-open deposits. For security, the process of triggering any tBTC system updates requires 2 of 3 members of a technical wallet team to manually craft an Ethereum transaction, then use air gapped machines to sign the transaction’s information, and finally submit the transaction and the signatures to the Ethereum chain. This process was completed at 5:45 UTC.\n\nBy 14:11 UTC, the remainder of the hosted dApp’s pages had been redirected to the tBTC homepage.",
+      "excerpt_sha256": "sha256:31bfd48a08b7535c7726f04b4ff6af4fcb1ec5d113b5462f6774607692881d1c",
+      "code_coordinate": null
+    },
+    {
+      "section_id": "technical-issue-code-coordinate",
+      "kind": "source_declared_code_coordinate",
+      "source_line_start": 45,
+      "source_line_end": 45,
+      "excerpt": "The proof that a redemption transaction has been sufficiently confirmed on the Bitcoin chain involves certain checks; one of these is verification that the Bitcoin transaction sends the funds the signers jointly control to the requested redemption address. These checks are performed by the [`redemptionTransactionChecks`](https://github.com/keep-network/tbtc/blob/9651d53a443b3d2470e13ee1db0ecae60be8b246/solidity/contracts/deposit/DepositRedemption.sol#L326-L355) function:",
+      "excerpt_sha256": "sha256:7f15b01d687ad196081b48c75d6e2ec4028bfc615b8744d5a563d2945e0bd450",
+      "code_coordinate": {
+        "relation": "affected_code_snapshot",
+        "repository_url": "https://github.com/keep-network/tbtc",
+        "revision": "9651d53a443b3d2470e13ee1db0ecae60be8b246",
+        "path": "solidity/contracts/deposit/DepositRedemption.sol",
+        "symbol": "redemptionTransactionChecks",
+        "line_start": 326,
+        "line_end": 355,
+        "immutable_url": "https://github.com/keep-network/tbtc/blob/9651d53a443b3d2470e13ee1db0ecae60be8b246/solidity/contracts/deposit/DepositRedemption.sol#L326-L355",
+        "git_blob_sha": "e7e16d77c32fd23437320cede83c07db75e6f5e8",
+        "file_sha256": "sha256:22ce6fd7f78e97423a495273bbea89d7d185b12318b3dd0da6449b38acbaf330",
+        "byte_count": 17849,
+        "raw_url": "https://raw.githubusercontent.com/keep-network/tbtc/9651d53a443b3d2470e13ee1db0ecae60be8b246/solidity/contracts/deposit/DepositRedemption.sol",
+        "excerpt": "    /// @notice                 Check the redemption transaction input and output vector to ensure the transaction spends\n    ///                         the correct UTXO and sends value to the appropriate public key hash.\n    /// @dev                    We only look at the first input and first output. Revert if we find the wrong UTXO or value recipient.\n    ///                         It's safe to look at only the first input/output as anything that breaks this can be considered fraud\n    ///                         and can be caught by ECDSAFraudProof.\n    /// @param  _d              Deposit storage pointer.\n    /// @param _txInputVector   All transaction inputs prepended by the number of inputs encoded as a VarInt, max 0xFC(252) inputs.\n    /// @param _txOutputVector  All transaction outputs prepended by the number of outputs encoded as a VarInt, max 0xFC(252) outputs.\n    /// @return                 The value sent to the redeemer's public key hash.\n    function redemptionTransactionChecks(\n        DepositUtils.Deposit storage _d,\n        bytes memory _txInputVector,\n        bytes memory _txOutputVector\n    ) public view returns (uint256) {\n        require(_txInputVector.validateVin(), \"invalid input vector provided\");\n        require(_txOutputVector.validateVout(), \"invalid output vector provided\");\n\n        bytes memory _input = _txInputVector.slice(1, _txInputVector.length-1);\n        bytes memory _output = _txOutputVector.slice(1, _txOutputVector.length-1);\n\n        require(\n            keccak256(_input.extractOutpoint()) == keccak256(_d.utxoOutpoint),\n            \"Tx spends the wrong UTXO\"\n        );\n        require(\n            keccak256(_output.slice(8, 3).concat(_output.extractHash())) == keccak256(abi.encodePacked(_d.redeemerOutputScript)),\n            \"Tx sends value to wrong pubkeyhash\"\n        );\n        return (uint256(_output.extractValue()));\n    }",
+        "excerpt_sha256": "sha256:8dcc8a65e144e04de894826c9b7777430570265f175198a0b687d6652c50d172"
+      }
+    }
+  ],
+  "non_projected_context": {
+    "revision": "71361a51c220536d82681f1ab77ed640836329ce",
+    "immutable_url": "https://github.com/keep-network/tbtc/commit/71361a51c220536d82681f1ab77ed640836329ce",
+    "report_label": "How The Code Landed",
+    "projected": false,
+    "reason": "The report discusses this historical change separately; this fixture does not bind it to the affected snapshot coordinate and emits no historical-change relation."
+  }
+}

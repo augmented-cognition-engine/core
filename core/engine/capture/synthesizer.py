@@ -336,7 +336,7 @@ class Synthesizer:
             try:
                 from core.engine.intelligence.emergence import check_emergence
 
-                emerged = await check_emergence(self.product_id)
+                emerged = await check_emergence(self.product_id, pool=self._db_pool)
                 if emerged:
                     counts["specialties_emerged"] = len(emerged)
                     for spec in emerged:

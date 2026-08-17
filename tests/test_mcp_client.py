@@ -246,14 +246,116 @@ async def test_ace_impact_calls_graph_api():
     tools_mod._client = mock_client
     try:
         result = await tools_mod.ace_impact("engine/core/db.py")
-        assert "Impact Analysis" in result
+        assert "Observed Dependent Graph (bounded traversal)" in result
         assert "engine/core/db.py" in result
+        # The thin public tool keeps its existing bounded traversal endpoint.
+        # It is not rerouted to the structured impact surface, so it must not
+        # render or imply structured deletion fields it never receives.
         mock_client.get.assert_called_once_with(
             "/graph/impact/graph_file:engine_core_db_py",
             params={"graph_id": "default"},
         )
+        for forbidden in ("safe_to_delete", "deletion_safety", "fragility", "BREAKING", "SAFE"):
+            assert forbidden not in result, forbidden
     finally:
         tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
+async def test_ace_impact_rejects_oversized_or_non_string_inputs_before_any_http_call():
+    """A malformed file_path or graph_id is refused before `_get_client`/HTTP.
+
+    The refusal is bounded and non-echoing: it names the field and its limit,
+    never the caller's oversized or non-string material, and it never reaches
+    `_slugify_path` — which would otherwise happily interpolate arbitrary
+    material into a node ID.
+    """
+    import ace_mcp_client.tools as tools_mod
+
+    mock_client = AsyncMock()
+    mock_client.get = AsyncMock(side_effect=AssertionError("no HTTP call may run for a rejected selector"))
+
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    try:
+        overlong_path = "a" * (tools_mod._ACE_IMPACT_MAX_FILE_PATH_CHARS + 1)
+        overlong_graph = "g" * (tools_mod._ACE_IMPACT_MAX_GRAPH_ID_CHARS + 1)
+
+        for kwargs in (
+            {"file_path": overlong_path},
+            {"file_path": "engine/core/db.py", "graph_id": overlong_graph},
+            {"file_path": ""},
+            {"file_path": "engine/core/db.py", "graph_id": ""},
+            {"file_path": 7},
+            {"file_path": "engine/core/db.py", "graph_id": ["default"]},
+            {"file_path": True},
+        ):
+            result = await tools_mod.ace_impact(**kwargs)
+            assert result.startswith("**Error traversing the dependent graph:**")
+            assert overlong_path not in result
+            assert overlong_graph not in result
+            mock_client.get.assert_not_called()
+    finally:
+        tools_mod._client = old_client
+
+
+@pytest.mark.asyncio
+async def test_ace_impact_does_not_slugify_invalid_file_path():
+    """`_slugify_path` must never see material that failed admission."""
+    import ace_mcp_client.tools as tools_mod
+
+    calls = []
+    real_slugify = tools_mod._slugify_path
+
+    def _tracking_slugify(file_path):
+        calls.append(file_path)
+        return real_slugify(file_path)
+
+    mock_client = AsyncMock()
+    mock_client.get = AsyncMock(side_effect=AssertionError("no HTTP call may run for a rejected selector"))
+
+    old_client = tools_mod._client
+    tools_mod._client = mock_client
+    old_slugify = tools_mod._slugify_path
+    tools_mod._slugify_path = _tracking_slugify
+    try:
+        await tools_mod.ace_impact("a" * (tools_mod._ACE_IMPACT_MAX_FILE_PATH_CHARS + 1))
+        await tools_mod.ace_impact(7)
+        assert calls == []
+    finally:
+        tools_mod._client = old_client
+        tools_mod._slugify_path = old_slugify
+
+
+@pytest.mark.asyncio
+async def test_thin_impact_tool_promises_only_bounded_observed_traversal():
+    """The public promise is a bounded observed traversal and nothing more."""
+    import inspect
+
+    import ace_mcp_client.tools as tools_mod
+    from ace_mcp_client.server import mcp
+
+    tools = {t.name: t for t in await mcp.list_tools()}
+    description = tools["ace_impact"].description or ""
+    docstring = inspect.getdoc(tools_mod.ace_impact) or ""
+    module_source = Path(tools_mod.__file__).read_text()
+
+    for promise in (description, docstring):
+        lowered = promise.lower()
+        assert "bounded" in lowered
+        assert "traversal" in lowered
+        # The retired promises: a fragility score and a blast radius are
+        # assessments this endpoint has never produced.
+        assert "fragility" not in lowered
+        assert "blast radius" not in lowered
+        assert not lowered.startswith("what breaks")
+        # Each surface names what it refuses rather than staying silent.
+        assert "does not establish" in lowered
+        assert "safe to delete" in lowered
+        assert "recent decisions" in lowered
+
+    assert "# 9. ace_impact — bounded observed dependent graph for a file" in module_source
+    assert "what breaks if you change this file" not in module_source.lower()
 
 
 @pytest.mark.asyncio

@@ -48,7 +48,7 @@ from ace.application.recorded_source_admission import (
     CoreRecordedSourceAdmissionV1Alpha2Service,
 )
 from ace.core import CoreAuthorityResolver, ImmutableRecordStore, RuntimeUseResolver
-from ace.core.state import GovernedStateStore
+from ace.core.state import GovernedStateStore, ResolvedApprovalReceiptV1
 from ace.intelligence.contracts.resources import ActivationRevisionReferenceV1Alpha1
 
 
@@ -113,13 +113,15 @@ class DurableIntelligenceBuildHostComposer:
     async def _matching_candidates(
         self,
         *,
-        build: AuthorizedIntelligenceBuild,
+        product_id: str,
+        activation_approval_subject_ref: str,
+        activation_approval_receipt_ref: str,
+        evaluated_at: datetime,
         records: ImmutableRecordStore,
     ) -> tuple[_BootstrapCandidate, ...]:
-        evaluated_at = build.authority_use.evaluated_at
         try:
             artifacts = await records.read_as_of(
-                product_id=build.product_id,
+                product_id=product_id,
                 record_space=INTELLIGENCE_BUILDER_RECORD_SPACE,
                 record_kind=ONBOARDING_ARTIFACT_RECORD_KIND,
                 available_at=evaluated_at,
@@ -138,14 +140,14 @@ class DurableIntelligenceBuildHostComposer:
             try:
                 plan = BuilderActivationPlanArtifactV1.model_validate(record.payload, strict=False)
             except Exception:
-                if raw_spec == build.request.activation_approval_subject_ref:
+                if raw_spec == activation_approval_subject_ref:
                     raise IntelligenceBuildHostCompositionError(
                         "correlated Builder activation plan failed exact revalidation"
                     ) from None
                 continue
-            if plan.spec_id != build.request.activation_approval_subject_ref:
+            if plan.spec_id != activation_approval_subject_ref:
                 continue
-            if plan.source_commit.product_id != build.product_id or not _record_matches_artifact(
+            if plan.source_commit.product_id != product_id or not _record_matches_artifact(
                 record,
                 plan,
                 timestamp=plan.created_at,
@@ -180,7 +182,7 @@ class DurableIntelligenceBuildHostComposer:
                 continue
             if receipt.activation_plan_artifact_id not in correlated_plan_ids:
                 continue
-            if receipt.canonical_revision.product_id != build.product_id or not _record_matches_artifact(
+            if receipt.canonical_revision.product_id != product_id or not _record_matches_artifact(
                 record,
                 receipt,
                 timestamp=receipt.activated_at,
@@ -213,7 +215,7 @@ class DurableIntelligenceBuildHostComposer:
             for receipt_reference, receipt in matching_receipts:
                 try:
                     session = await sessions.load_latest(
-                        product_id=build.product_id,
+                        product_id=product_id,
                         session_id=receipt.session_id,
                         available_at=evaluated_at,
                     )
@@ -226,7 +228,7 @@ class DurableIntelligenceBuildHostComposer:
                 if session is None or session.stage is not OnboardingStage.ACTIVE:
                     continue
                 if (
-                    session.approval_receipt_ref != build.request.activation_approval_receipt_ref
+                    session.approval_receipt_ref != activation_approval_receipt_ref
                     or plan_reference not in session.artifacts
                     or receipt_reference not in session.artifacts
                 ):
@@ -247,11 +249,22 @@ class DurableIntelligenceBuildHostComposer:
     async def _bootstrap(
         self,
         *,
-        build: AuthorizedIntelligenceBuild,
+        product_id: str,
+        actor_ref: str,
+        evaluated_at: datetime,
+        activation_approval_subject_ref: str,
+        activation_approval_receipt_ref: str,
+        activation_approval: ResolvedApprovalReceiptV1,
         records: ImmutableRecordStore,
         activation_authority: CoreAuthorityResolver,
     ) -> _ResolvedBootstrap | None:
-        candidates = await self._matching_candidates(build=build, records=records)
+        candidates = await self._matching_candidates(
+            product_id=product_id,
+            activation_approval_subject_ref=activation_approval_subject_ref,
+            activation_approval_receipt_ref=activation_approval_receipt_ref,
+            evaluated_at=evaluated_at,
+            records=records,
+        )
         if not candidates:
             return None
         if len(candidates) != 1:
@@ -262,21 +275,21 @@ class DurableIntelligenceBuildHostComposer:
         sessions = IntelligenceBuilderSessionService(store=records)
         try:
             plan = await sessions.load_artifact(
-                product_id=build.product_id,
+                product_id=product_id,
                 reference=candidate.plan_reference,
                 artifact_type=BuilderActivationPlanArtifactV1,
-                available_at=build.authority_use.evaluated_at,
+                available_at=evaluated_at,
             )
             receipt = await sessions.load_artifact(
-                product_id=build.product_id,
+                product_id=product_id,
                 reference=candidate.receipt_reference,
                 artifact_type=BuilderActivationReceiptArtifactV1,
-                available_at=build.authority_use.evaluated_at,
+                available_at=evaluated_at,
             )
             session = await sessions.load_latest(
-                product_id=build.product_id,
+                product_id=product_id,
                 session_id=candidate.session.session_id,
-                available_at=build.authority_use.evaluated_at,
+                available_at=evaluated_at,
             )
             if session is not None:
                 await sessions.reload_admission(session)
@@ -293,7 +306,7 @@ class DurableIntelligenceBuildHostComposer:
         )
         try:
             committed = await canonical.load_exact(
-                product_id=build.product_id,
+                product_id=product_id,
                 revision_id=receipt.canonical_revision.revision_id,
                 commit_receipt_id=receipt.canonical_commit_receipt_id,
             )
@@ -304,14 +317,14 @@ class DurableIntelligenceBuildHostComposer:
         if committed is None:
             return None
         current = await canonical.reload(
-            product_id=build.product_id,
+            product_id=product_id,
             activation_key=receipt.canonical_revision.activation_key,
         )
         if current is None or current != committed:
             return None
         revision = committed.revision
         canonical_reference = ActivationRevisionReferenceV1Alpha1(
-            product_id=build.product_id,
+            product_id=product_id,
             activation_key=revision.spec.activation_key,
             activation_id=str(revision.activation_id),
             revision=revision.revision,
@@ -322,9 +335,9 @@ class DurableIntelligenceBuildHostComposer:
             receipt.canonical_revision != canonical_reference
             or receipt.canonical_state_kind != committed.commit_receipt.state_kind
             or receipt.canonical_commit_receipt_digest != f"sha256:{committed.commit_receipt.receipt_hash}"
-            or committed.commit_receipt.approval != build.activation_approval
-            or committed.commit_receipt.actor_ref != build.actor_ref
-            or revision.spec.spec_id != build.request.activation_approval_subject_ref
+            or committed.commit_receipt.approval != activation_approval
+            or committed.commit_receipt.actor_ref != actor_ref
+            or revision.spec.spec_id != activation_approval_subject_ref
             or revision.spec.pack != plan.pack
         ):
             raise IntelligenceBuildHostCompositionError(
@@ -350,6 +363,46 @@ class DurableIntelligenceBuildHostComposer:
             ) from None
         return _ResolvedBootstrap(binding=binding, session=candidate.session)
 
+    async def resolve_active_binding(
+        self,
+        *,
+        product_id: str,
+        actor_ref: str,
+        evaluated_at: datetime,
+        activation_approval_subject_ref: str,
+        activation_approval_receipt_ref: str,
+        activation_approval: ResolvedApprovalReceiptV1,
+        records: ImmutableRecordStore,
+        activation_authority: CoreAuthorityResolver,
+    ) -> CommittedActivationBinding | None:
+        """Independently prove and resolve the exact active canonical activation binding.
+
+        This is the same durable Builder-artifact bootstrap ``compose`` uses to
+        grant build execution ports, exposed for read-only callers that need to
+        prove the current accepted activation without spending a build
+        authority use. It introduces no second association: exactly one
+        durable, currently ``ACTIVE`` Builder session's activation plan and
+        receipt artifacts must exist for ``activation_approval_subject_ref``;
+        their referenced canonical activation revision must independently
+        reload to a current, matching head; and the receipt, the caller's
+        independently resolved ``activation_approval``, and ``actor_ref`` must
+        all exactly agree. Anything less returns ``None`` rather than a guess;
+        ambiguous or corrupt durable material still raises
+        ``IntelligenceBuildHostCompositionError``.
+        """
+
+        bootstrap = await self._bootstrap(
+            product_id=product_id,
+            actor_ref=actor_ref,
+            evaluated_at=evaluated_at,
+            activation_approval_subject_ref=activation_approval_subject_ref,
+            activation_approval_receipt_ref=activation_approval_receipt_ref,
+            activation_approval=activation_approval,
+            records=records,
+            activation_authority=activation_authority,
+        )
+        return None if bootstrap is None else bootstrap.binding
+
     async def compose(
         self,
         *,
@@ -361,7 +414,12 @@ class DurableIntelligenceBuildHostComposer:
         """Create per-invocation ports, or keep both unavailable without exact bootstrap."""
 
         bootstrap = await self._bootstrap(
-            build=build,
+            product_id=build.product_id,
+            actor_ref=build.actor_ref,
+            evaluated_at=build.authority_use.evaluated_at,
+            activation_approval_subject_ref=build.request.activation_approval_subject_ref,
+            activation_approval_receipt_ref=build.request.activation_approval_receipt_ref,
+            activation_approval=build.activation_approval,
             records=records,
             activation_authority=activation_authority,
         )

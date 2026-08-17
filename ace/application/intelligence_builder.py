@@ -87,6 +87,10 @@ class IntelligenceBuilderSessionReplayConflict(IntelligenceBuilderSessionError):
     """One stable onboarding transition identity already binds other material."""
 
 
+class IntelligenceBuilderArtifactNotFoundError(IntelligenceBuilderSessionError):
+    """One exact referenced onboarding artifact is not durably present yet."""
+
+
 class ConnectionAgentError(RuntimeError):
     """The Connection Agent failed before a safe handoff could be produced."""
 
@@ -390,6 +394,8 @@ class IntelligenceBuilderSessionService:
         except Exception:
             raise IntelligenceBuilderSessionError("onboarding artifact load failed closed") from None
         matches = [record for record in records if record.record_key == reference.artifact_id]
+        if not matches:
+            raise IntelligenceBuilderArtifactNotFoundError("onboarding artifact is not durably present")
         if len(matches) != 1:
             raise IntelligenceBuilderSessionError("onboarding artifact is missing or has conflicting records")
         record = matches[0]
@@ -1070,6 +1076,7 @@ __all__ = [
     "ConnectionScopeAdmission",
     "INTELLIGENCE_BUILDER_RECORD_SPACE",
     "IntelligenceBuilderArtifactAdmission",
+    "IntelligenceBuilderArtifactNotFoundError",
     "IntelligenceBuilderSessionAdmission",
     "IntelligenceBuilderSessionError",
     "IntelligenceBuilderSessionReplayConflict",

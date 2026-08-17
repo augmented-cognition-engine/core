@@ -9,6 +9,7 @@ import pytest
 from core.engine.grounded_state import baseline as runtime_baseline
 from core.engine.grounded_state.baseline import (
     BaselineDisposition,
+    PublicSurfaceV1,
     RuntimeBaselineConfigV1,
     RuntimeBaselineResultV1,
     RuntimeCaseInputV1,
@@ -28,7 +29,8 @@ RESULT = ROOT / "evaluations/results/state_engine_tp0_runtime_baseline_v1.json"
 EVIDENCE = ROOT / "docs/evidence/state-engine-tp0-runtime-baseline-v1.md"
 ROADMAP = ROOT / "docs/design/state-engine-roadmap.md"
 CORPUS_HASH = "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09"
-SURFACE_HASH = "7bf2e0959cf19a9aa65d1b53d64e940346ddcc564eccee2d218ee0c616c9662c"
+FROZEN_SURFACE_HASH = "7bf2e0959cf19a9aa65d1b53d64e940346ddcc564eccee2d218ee0c616c9662c"
+CURRENT_SURFACE_HASH = "bb22c0530e849fb2688272b5319c7f54678c03e49816a3f071018aadcb4b8508"
 ADAPTER_HASH = "b42ec0dd7a25810ec2c923e3adf6811dbb84db22b9313f3abc86d6c2c6c9b88d"
 UTC = timezone.utc
 
@@ -39,10 +41,12 @@ def _portable_git_layout(monkeypatch):
 
 
 def _run():
+    recorded = json.loads(RESULT.read_text(encoding="utf-8"))
+    frozen_surface = PublicSurfaceV1.model_validate(recorded["public_surface"])
     return run_current_ace_baseline(
         load_runtime_baseline_config(CONFIG),
         load_temporal_corpus(CORPUS),
-        inspect_thin_mcp_surface(SURFACE),
+        frozen_surface,
         executed_at=datetime(2026, 8, 3, 18, tzinfo=UTC),
     )
 
@@ -75,7 +79,7 @@ def test_frozen_baseline_config_declares_zero_write_provider_free_rules():
 
     assert config.corpus_hash == CORPUS_HASH
     assert config.adapter_source_sha256 == ADAPTER_HASH
-    assert config.public_surface_sha256 == SURFACE_HASH
+    assert config.public_surface_sha256 == FROZEN_SURFACE_HASH
     assert config.environment.public_surface == "thin_mcp_11_tool_contract"
     assert config.environment.provider_route == "none"
     assert config.environment.model is None
@@ -102,7 +106,7 @@ def test_adapter_input_contract_cannot_receive_the_reference_answers():
 def test_current_supported_surface_is_the_frozen_thin_11_tool_contract():
     surface = inspect_thin_mcp_surface(SURFACE)
 
-    assert surface.source_sha256 == SURFACE_HASH
+    assert surface.source_sha256 == CURRENT_SURFACE_HASH
     assert [tool.name for tool in surface.tools] == [
         "ace_briefing",
         "ace_capture",
@@ -182,10 +186,12 @@ def test_current_ace_baseline_records_all_cases_as_unsupported_without_vacuous_c
 
 def test_baseline_replay_has_stable_material_outcome_identity():
     first = _run()
+    recorded = json.loads(RESULT.read_text(encoding="utf-8"))
+    frozen_surface = PublicSurfaceV1.model_validate(recorded["public_surface"])
     second = run_current_ace_baseline(
         load_runtime_baseline_config(CONFIG),
         load_temporal_corpus(CORPUS),
-        inspect_thin_mcp_surface(SURFACE),
+        frozen_surface,
         executed_at=datetime(2026, 8, 4, 18, tzinfo=UTC),
     )
 

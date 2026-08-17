@@ -129,7 +129,7 @@ async def ace_briefing_tool(date: str | None = None) -> dict:
 
 @mcp.tool(name="ace_impact")
 async def ace_impact_tool(file_path: str, graph_id: str = "default") -> str:
-    """What breaks if you change this file? Returns dependents (who imports it), functions defined, recent decisions, and a fragility score. Call this before refactoring or deleting a file to understand blast radius."""
+    """What is observed to depend on this file? Returns a bounded traversal of the dependent graph — the nodes reachable inward from this file through depends_on, tests, breaks, and imports edges, up to a fixed depth and node limit. This is an observed subgraph, not an assessment: it does not establish what breaks, how fragile the file is, whether it is safe to delete, or which recent decisions touched it."""
     return await ace_impact(file_path=file_path, graph_id=graph_id)
 
 

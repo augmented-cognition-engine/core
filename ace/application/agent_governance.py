@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Any, TypeAlias
 
 from pydantic import BaseModel
+from pydantic_core import to_json
 
 from ace.core.agent_composition import AgentPrincipalV1Alpha1, ExactArtifactReferenceV1Alpha1
 from ace.core.agent_governance import AgentGovernanceCoordinateV1Alpha1
@@ -527,7 +528,11 @@ class AgentGovernanceService:
         if envelope.payload_contract != contract:
             raise AgentGovernanceError("agent-governance head uses an unsupported payload contract")
         try:
-            payload = model.model_validate(envelope.payload)
+            # SurrealDB returns the canonical JSON representation: tuples are
+            # arrays and enum/datetime values are JSON scalars. Parse that wire
+            # form strictly, then retain the exact coordinate, envelope,
+            # material-hash, lineage, head, and receipt comparisons below.
+            payload = model.model_validate_json(to_json(envelope.payload), strict=True)
         except Exception:
             raise AgentGovernanceError("agent-governance payload failed exact revalidation") from None
         if payload.governance != governance or _state_id(payload) != head.state_id:
@@ -1478,6 +1483,7 @@ class AgentGovernanceService:
             "dry_run_receipt",
             "activation_receipt",
             "compatibility_replacement_receipt",
+            "delegated_cognition_provisioning_receipt",
             "lifecycle_revision",
             "governed_state_commit_receipt",
         )

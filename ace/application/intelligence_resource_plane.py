@@ -14,6 +14,7 @@ from ace.intelligence.contracts.resource_plane import (
     IntelligenceResourcePageV1Alpha1,
     IntelligenceResourceQueryV1Alpha1,
     IntelligenceResourceRecordV1Alpha1,
+    IntelligenceResourceReferenceV1Alpha1,
 )
 
 RESOURCE_QUERY_OPERATION = "query_intelligence_resources"
@@ -222,6 +223,7 @@ __all__ = [
     "IntelligenceResourceKind",
     "IntelligenceResourcePageV1Alpha1",
     "IntelligenceResourceQueryV1Alpha1",
+    "IntelligenceResourceReferenceV1Alpha1",
     "IntelligenceResourceProjectionBatch",
     "IntelligenceResourceProjectionReader",
 ]

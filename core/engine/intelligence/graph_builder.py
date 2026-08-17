@@ -15,18 +15,32 @@ from __future__ import annotations
 
 import logging
 import os
+import stat
 import time
+from copy import deepcopy
 from typing import Any
 
 import networkx as nx
 
-from core.engine.core.llm import get_llm
 from core.engine.intelligence.detector import SKIP_DIRS
 from core.engine.scanner.ast_parser import LANG_MAP, parse_file
 
 logger = logging.getLogger(__name__)
 
 MAX_FILE_SIZE = 500_000  # Skip files over 500KB
+
+
+def get_llm(*args: Any, **kwargs: Any) -> Any:
+    """Stable module-level provider hook resolved lazily at call time.
+
+    Importing this module must stay provider-free, but the phases below need a
+    single named seam that tests can patch (``graph_builder.get_llm``).  A
+    module-level proxy gives both: the attribute exists at import time, while
+    :mod:`core.engine.core.llm` is imported only when a phase actually calls it.
+    """
+    from core.engine.core.llm import get_llm as _provider_get_llm
+
+    return _provider_get_llm(*args, **kwargs)
 
 
 def _rate_limit_wait(exc: Exception, default: float = 30.0) -> float:
@@ -97,6 +111,9 @@ class GraphBuilder:
         Returns stats dict: {files, functions, classes, imports}.
         """
         self._files = self._walk_files()
+        self._symbols = []
+        self._imports = []
+        self._nx_graph = nx.DiGraph()
         stats = {"files": len(self._files), "functions": 0, "classes": 0, "imports": 0}
 
         for f in self._files:
@@ -105,13 +122,12 @@ class GraphBuilder:
             if not lang:
                 continue
 
+            self._nx_graph.add_node(f["path"], **{k: v for k, v in f.items() if k != "full_path"})
+
             try:
                 with open(f["full_path"], "rb") as fh:
                     content = fh.read()
                 result = parse_file(content, lang)
-
-                # File node
-                self._nx_graph.add_node(f["path"], **{k: v for k, v in f.items() if k != "full_path"})
 
                 # Function/method symbols
                 for func in result.functions:
@@ -884,6 +900,27 @@ class GraphBuilder:
         """Return all scanned file records."""
         return list(self._files)
 
+    def export_phase1_state(self) -> dict[str, list[dict]]:
+        """Return the provider-free phase-one state needed for exact reopening."""
+        files = [{key: deepcopy(value) for key, value in item.items() if key != "full_path"} for item in self._files]
+        return {
+            "files": files,
+            "symbols": deepcopy(self._symbols),
+            "imports": deepcopy(self._imports),
+        }
+
+    @classmethod
+    def from_phase1_state(cls, repo_path: str, state: dict[str, list[dict]]) -> "GraphBuilder":
+        """Reopen a phase-one graph without rescanning or invoking a provider."""
+        builder = cls(repo_path)
+        builder._files = []
+        for item in deepcopy(state["files"]):
+            builder._files.append({**item, "full_path": builder._contained_path(item["path"])})
+        builder._symbols = deepcopy(state["symbols"])
+        builder._imports = deepcopy(state["imports"])
+        builder._rebuild_phase1_graph()
+        return builder
+
     @property
     def graph(self) -> nx.DiGraph:
         """The underlying NetworkX directed graph."""
@@ -894,7 +931,13 @@ class GraphBuilder:
     # ------------------------------------------------------------------
 
     def _walk_files(self) -> list[dict]:
-        """Walk the repo, returning file metadata for supported extensions."""
+        """Walk the repo, returning file metadata for supported extensions.
+
+        Symlinks are never sized or opened.  ``os.walk`` does not descend into
+        symlinked directories, and every candidate entry is inspected with
+        ``lstat`` so a link that points outside the repository is rejected
+        before any byte of its target can be measured or read.
+        """
         files = []
         for dirpath, dirnames, filenames in os.walk(self._repo_path):
             dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")]
@@ -906,9 +949,12 @@ class GraphBuilder:
                 if ext not in _KNOWN_EXTENSIONS:
                     continue
                 try:
-                    size = os.path.getsize(full_path)
+                    info = os.lstat(full_path)
                 except OSError:
                     continue
+                if not stat.S_ISREG(info.st_mode):
+                    continue  # symlinks and other non-regular entries are never opened
+                size = info.st_size
                 if size > MAX_FILE_SIZE:
                     continue
 
@@ -928,100 +974,156 @@ class GraphBuilder:
     # ------------------------------------------------------------------
 
     def incremental_update(self, changed_files: list[str]) -> dict:
-        """Re-index only changed files. Returns stats."""
+        """Re-index the exact changed-file set as one atomic batch.
+
+        The whole batch is normalized, de-duplicated, and containment-checked
+        before anything mutates, then every read and parse is staged, and the
+        file/symbol/import/graph state is replaced in a single commit followed
+        by exactly one import-edge rebuild.  Any operational failure (stat,
+        read, parse, or commit) leaves the previous state exactly intact —
+        including arbitrary edge attributes written by later phases — and
+        reports zero work rather than a partially applied batch.  A repository
+        escape raises, and it raises only after that same exact state is intact.
+        """
+        planned = self._planned_incremental_paths(changed_files)
         stats = {"updated": 0, "symbols_added": 0}
-
-        for rel_path in changed_files:
-            full_path = os.path.join(self._repo_path, rel_path)
-            if not os.path.exists(full_path):
-                # File deleted — remove from graph
-                if rel_path in self._nx_graph:
-                    self._nx_graph.remove_node(rel_path)
-                self._symbols = [s for s in self._symbols if s["file"] != rel_path]
-                self._files = [f for f in self._files if f["path"] != rel_path]
-                continue
-
-            # Remove old edges for this file
-            if rel_path in self._nx_graph:
-                edges_to_remove = list(self._nx_graph.edges(rel_path))
-                self._nx_graph.remove_edges_from(edges_to_remove)
-
-            # Re-parse the file
-            ext = os.path.splitext(rel_path)[1]
-            lang = LANG_MAP.get(ext, "")
-            if not lang:
-                continue
-
-            try:
+        staged: list[tuple[str, dict | None, list[dict], list[dict]]] = []
+        try:
+            for rel_path, full_path in planned:
+                if not os.path.exists(full_path):
+                    staged.append((rel_path, None, [], []))
+                    continue
+                ext = os.path.splitext(rel_path)[1]
+                lang = LANG_MAP.get(ext, "")
+                if not lang:
+                    continue
                 with open(full_path, "rb") as fh:
                     content = fh.read()
                 result = parse_file(content, lang)
-
-                # Ensure the file node exists in the graph
-                if rel_path not in self._nx_graph:
-                    try:
-                        size = os.path.getsize(full_path)
-                    except OSError:
-                        size = 0
-                    self._nx_graph.add_node(
-                        rel_path,
-                        path=rel_path,
-                        name=os.path.basename(rel_path),
-                        extension=ext,
-                        size_bytes=size,
-                    )
-                    # Update _files list too
-                    self._files = [f for f in self._files if f["path"] != rel_path]
-                    self._files.append(
-                        {
-                            "path": rel_path,
-                            "full_path": full_path,
-                            "name": os.path.basename(rel_path),
-                            "extension": ext,
-                            "size_bytes": size,
-                        }
-                    )
-
-                # Remove old symbols for this file
-                self._symbols = [s for s in self._symbols if s["file"] != rel_path]
-
-                # Add new symbols
-                for func in result.functions:
-                    self._symbols.append(
-                        {
-                            "name": func.name,
-                            "kind": func.kind,
-                            "file": rel_path,
-                            "line_start": func.line_start,
-                            "line_end": func.line_end,
-                            "language": lang,
-                        }
-                    )
-                    stats["symbols_added"] += 1
-
-                for cls in result.classes:
-                    self._symbols.append(
-                        {
-                            "name": cls.name,
-                            "kind": "class",
-                            "file": rel_path,
-                            "line_start": cls.line_start,
-                            "line_end": cls.line_end,
-                            "language": lang,
-                        }
-                    )
-                    stats["symbols_added"] += 1
-
-                # Rebuild import edges for this file
-                self._build_import_edges()
+                size = os.path.getsize(full_path)
+                file_record = {
+                    "path": rel_path,
+                    "full_path": full_path,
+                    "name": os.path.basename(rel_path),
+                    "extension": ext,
+                    "size_bytes": size,
+                }
+                replacement_symbols = [
+                    {
+                        "name": item.name,
+                        "kind": item.kind,
+                        "file": rel_path,
+                        "line_start": item.line_start,
+                        "line_end": item.line_end,
+                        "language": lang,
+                    }
+                    for item in result.functions
+                ]
+                replacement_symbols.extend(
+                    {
+                        "name": item.name,
+                        "kind": "class",
+                        "file": rel_path,
+                        "line_start": item.line_start,
+                        "line_end": item.line_end,
+                        "language": lang,
+                    }
+                    for item in result.classes
+                )
+                replacement_imports = [
+                    {
+                        "from_file": rel_path,
+                        "module": item.module,
+                        "name": item.name,
+                        "language": lang,
+                    }
+                    for item in result.imports
+                ]
+                staged.append((rel_path, file_record, replacement_symbols, replacement_imports))
                 stats["updated"] += 1
-            except Exception as exc:
-                logger.debug("Incremental update failed for %s: %s", rel_path, exc)
+                stats["symbols_added"] += len(replacement_symbols)
+        except Exception as exc:
+            logger.debug("Incremental update staging failed; prior state preserved: %s", exc)
+            return {"updated": 0, "symbols_added": 0}
 
+        prior = (self._files, self._symbols, self._imports, self._nx_graph)
+        try:
+            self._commit_incremental(staged)
+        except Exception as exc:
+            self._files, self._symbols, self._imports, self._nx_graph = prior
+            logger.debug("Incremental update commit failed; prior state restored: %s", exc)
+            return {"updated": 0, "symbols_added": 0}
         return stats
+
+    def _planned_incremental_paths(self, changed_files: list[str]) -> list[tuple[str, str]]:
+        """Normalize, validate, and de-duplicate the batch before any mutation."""
+        planned: list[tuple[str, str]] = []
+        seen: set[str] = set()
+        for raw_path in changed_files:
+            rel_path = os.path.normpath(raw_path).replace(os.sep, "/")
+            if rel_path == ".." or rel_path.startswith("../") or os.path.isabs(rel_path):
+                raise ValueError(f"incremental path escapes repository: {rel_path}")
+            full_path = self._contained_path(rel_path, allow_missing=True)
+            if rel_path in seen:
+                continue
+            seen.add(rel_path)
+            planned.append((rel_path, full_path))
+        return planned
+
+    def _commit_incremental(self, staged: list[tuple[str, dict | None, list[dict], list[dict]]]) -> None:
+        """Apply the fully staged batch to detached containers, then publish it."""
+        graph = self._nx_graph.copy()
+        files = list(self._files)
+        symbols = list(self._symbols)
+        imports = list(self._imports)
+        for rel_path, file_record, replacement_symbols, replacement_imports in staged:
+            old_symbol_nodes = [node for node in graph if isinstance(node, str) and node.startswith(f"{rel_path}::")]
+            graph.remove_nodes_from(old_symbol_nodes)
+            files = [item for item in files if item["path"] != rel_path]
+            symbols = [item for item in symbols if item["file"] != rel_path]
+            imports = [item for item in imports if item["from_file"] != rel_path]
+            if file_record is None:
+                if rel_path in graph:
+                    graph.remove_node(rel_path)
+                continue
+            if rel_path in graph:
+                graph.remove_edges_from(list(graph.edges(rel_path)))
+            files.append(file_record)
+            graph.add_node(rel_path, **{key: value for key, value in file_record.items() if key != "full_path"})
+            for symbol in replacement_symbols:
+                symbols.append(symbol)
+                symbol_id = f"{rel_path}::{symbol['name']}"
+                graph.add_node(symbol_id, node_type="symbol", **symbol)
+                graph.add_edge(rel_path, symbol_id, edge_type="contains")
+            imports.extend(replacement_imports)
+        self._files, self._symbols, self._imports, self._nx_graph = files, symbols, imports, graph
+        self._build_import_edges()
+
+    def _contained_path(self, rel_path: str, *, allow_missing: bool = False) -> str:
+        candidate = os.path.join(self._repo_path, rel_path)
+        resolved = os.path.realpath(candidate)
+        root = os.path.realpath(self._repo_path)
+        try:
+            contained = os.path.commonpath((root, resolved)) == root
+        except ValueError:
+            contained = False
+        if not contained:
+            raise ValueError(f"incremental path escapes repository: {rel_path}")
+        if not allow_missing and not os.path.exists(resolved):
+            raise ValueError(f"phase-one state path is missing: {rel_path}")
+        return resolved
 
     def _build_import_edges(self) -> None:
         """Build rough dependency edges from parsed import data."""
+        for source, target, data in list(self._nx_graph.edges(data=True)):
+            if data.get("edge_type") != "imports":
+                continue
+            preserved = {key: value for key, value in data.items() if key not in {"edge_type", "symbol"}}
+            if preserved:
+                self._nx_graph[source][target].clear()
+                self._nx_graph[source][target].update(preserved)
+            else:
+                self._nx_graph.remove_edge(source, target)
         # Index: symbol name → list of files that define it
         symbol_files: dict[str, list[str]] = {}
         for s in self._symbols:
@@ -1054,3 +1156,13 @@ class GraphBuilder:
                         edge_type="imports",
                         symbol=imp["module"],
                     )
+
+    def _rebuild_phase1_graph(self) -> None:
+        self._nx_graph = nx.DiGraph()
+        for item in self._files:
+            self._nx_graph.add_node(item["path"], **{key: value for key, value in item.items() if key != "full_path"})
+        for symbol in self._symbols:
+            symbol_id = f"{symbol['file']}::{symbol['name']}"
+            self._nx_graph.add_node(symbol_id, node_type="symbol", **symbol)
+            self._nx_graph.add_edge(symbol["file"], symbol_id, edge_type="contains")
+        self._build_import_edges()

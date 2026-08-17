@@ -9,6 +9,18 @@ import re
 import time
 from contextlib import asynccontextmanager
 
+from core.engine.code_intelligence.impact import (
+    IMPACT_MAX_PATH_CHARS,
+    IMPACT_MAX_REF_CHARS,
+    ImpactSelectorRejected,
+    bound_fetched_rows,
+    capability_query,
+    function_query,
+    impact_payload,
+    importer_query,
+    project_code_impact,
+    validate_impact_selector,
+)
 from core.engine.core.config import settings
 from core.engine.core.db import parse_one, parse_record_ids, parse_rows, pool, serialize_record
 from core.engine.core.metrics import mcp_tool_duration as _mcp_tool_duration
@@ -746,13 +758,63 @@ async def _find_graph_file(db, file_path: str, graph_id: str) -> dict | None:
     return parse_one(result)
 
 
+_IMPACT_GRAPH_ID = "default"
+
+
+def _admit_impact_selector(value, field: str, limit: int, *, rule=None, requirement: str = "") -> str:
+    """Admit one MCP selector against the shared Code bounds, before any DB call.
+
+    An MCP argument arrives from a model, so it is not merely untrusted, it is
+    unshaped: a list, an int, or a several-megabyte string are all plausible
+    arrivals. Each is refused here — as a ``ValidationError``, the type this
+    tool boundary already raises — before a connection is opened.
+
+    ``rule`` restates, per field, the same shape ``_validate_mcp_params``
+    enforces for every tool. It is restated rather than delegated so that the
+    refusal a model reads back names the field and its requirement and never
+    echoes the value: the shared checker interpolates the rejected input, which
+    would put arbitrary model-supplied text into a tool response that the same
+    model then reads. The shared checker still runs behind these.
+    """
+
+    from core.engine.core.exceptions import ValidationError
+
+    try:
+        admitted = validate_impact_selector(value, field=field, limit=limit)
+    except ImpactSelectorRejected as exc:
+        raise ValidationError(str(exc)) from exc
+    if rule is not None and not rule(admitted):
+        raise ValidationError(f"{field} {requirement}")
+    return admitted
+
+
 async def ace_impact(file_path: str, product_id: str = "product:platform") -> dict:
-    """What breaks if I delete or change this file?"""
+    """Bounded observed dependent graph for one file, within one product.
+
+    Returns the files observed to import this one, the functions it is observed
+    to define, and the capabilities that declare it. This adapter does not read
+    co-change edges, which is why the returned observation names its evidence
+    basis as importer-only rather than implying a co-change count of zero.
+    """
+    file_path = _admit_impact_selector(
+        file_path,
+        "file_path",
+        IMPACT_MAX_PATH_CHARS,
+        rule=lambda value: ".." not in value,
+        requirement="must not contain '..'",
+    )
+    product_id = _admit_impact_selector(
+        product_id,
+        "product_id",
+        IMPACT_MAX_REF_CHARS,
+        rule=lambda value: ":" in value,
+        requirement="must be a record id of the form table:id",
+    )
     _validate_mcp_params(file_path=file_path, product_id=product_id)
     async with pool.connection() as db:
         file_result = await db.query(
-            "SELECT id, path, name, language, change_frequency FROM graph_file WHERE path = $path AND graph_id = 'default' LIMIT 1",
-            {"path": file_path},
+            "SELECT id, path, name, language, change_frequency FROM graph_file WHERE path = $path AND graph_id = $gid LIMIT 1",
+            {"path": file_path, "gid": _IMPACT_GRAPH_ID},
         )
         file_node = parse_one(file_result)
         if not file_node:
@@ -760,44 +822,43 @@ async def ace_impact(file_path: str, product_id: str = "product:platform") -> di
 
         file_id = str(serialize_record(file_node["id"]))
 
-        importers = [
-            serialize_record(r)
-            for r in parse_rows(
-                await db.query(
-                    f"SELECT path, name, language FROM ({file_id})<-imports<-graph_file WHERE graph_id = 'default'"
-                )
-            )
-        ]
+        # Both traversals and the capability lookup carry the shared Code
+        # contract's `LIMIT bound + 1`, so this tool can never serialize an
+        # unbounded number of database rows into an MCP response.
+        importer_rows = bound_fetched_rows(
+            [
+                serialize_record(r)
+                for r in parse_rows(await db.query(importer_query(file_id), {"gid": _IMPACT_GRAPH_ID}))
+            ],
+            "importers",
+        )
+        function_rows = bound_fetched_rows(
+            [
+                serialize_record(r)
+                for r in parse_rows(await db.query(function_query(file_id), {"gid": _IMPACT_GRAPH_ID}))
+            ],
+            "functions",
+        )
+        capability_rows = bound_fetched_rows(
+            [
+                serialize_record(c)
+                for c in parse_rows(await db.query(capability_query(), {"path": file_path, "product": product_id}))
+            ],
+            "capabilities",
+        )
 
-        functions = [
-            serialize_record(r)
-            for r in parse_rows(
-                await db.query(
-                    f"SELECT name, kind, line_start, line_end FROM ({file_id})->depends_on->graph_function WHERE graph_id = 'default'"
-                )
-            )
-        ]
-
-        caps = [
-            serialize_record(c)
-            for c in parse_rows(
-                await db.query(
-                    "SELECT slug, name FROM capability WHERE reality.files CONTAINS $path AND product = <record>$product",
-                    {"path": file_path, "product": product_id},
-                )
-            )
-        ]
-
-    return {
-        "file": file_path,
-        "importers": importers,
-        "importer_count": len(importers),
-        "functions": functions,
-        "function_count": len(functions),
-        "capabilities": caps,
-        "safe_to_delete": len(importers) == 0,
-        "summary": f"{'SAFE' if not importers else 'BREAKING'}: {len(importers)} file(s) import this, {len(functions)} function(s) defined",
-    }
+    observation = project_code_impact(
+        graph_id=_IMPACT_GRAPH_ID,
+        product_ref=product_id,
+        target_path=file_path,
+        target_node_id=file_id,
+        importer_rows=importer_rows,
+        function_rows=function_rows,
+        capability_rows=capability_rows,
+        cochange_observed=False,
+    )
+    # `file` stays the requested path string this tool has always returned.
+    return {"file": file_path, **impact_payload(observation)}
 
 
 async def ace_history(file_path: str, graph_id: str = "default") -> str:

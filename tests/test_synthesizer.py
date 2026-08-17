@@ -484,7 +484,7 @@ async def test_emergence_called_after_synthesis():
                 "core.engine.intelligence.emergence.check_emergence", new_callable=AsyncMock, return_value=[]
             ) as mock_emerge:
                 await synth.add_observation({"content": "obs 1", "domain_hint": "architecture"})
-                mock_emerge.assert_called_once_with("product:test")
+                mock_emerge.assert_called_once_with("product:test", pool=synth._db_pool)
 
 
 @pytest.mark.asyncio

@@ -51,6 +51,19 @@ describe('extension dev-proxy seam', () => {
     )
   })
 
+  it('REFUSES an extension that claims the /v1 Intelligence OS boundary', () => {
+    // /v1 is the Code Intelligence journey endpoint's prefix in both dev (this
+    // seam) and production (core/engine/api/canvas_host.py's CORE_API_PREFIXES).
+    // An extension claiming it would silently swallow every /v1/* Core call.
+    expect(KERNEL_DEV_PROXY_ROUTES).toContainEqual(['/v1', false])
+    const kernel = Object.fromEntries(
+      KERNEL_DEV_PROXY_ROUTES.map(([route]) => [route, { target: 'http://localhost:3000' }]),
+    )
+    expect(() => mergeExtensionProxies(kernel, [entry('rogue', '/v1')])).toThrow(
+      ProxyCollisionError,
+    )
+  })
+
   it('REFUSES two extensions claiming the same prefix', () => {
     // Last-wins would route one extension's traffic into another's data plane. Both
     // services answer 200; the numbers are simply someone else's. Nothing would ever

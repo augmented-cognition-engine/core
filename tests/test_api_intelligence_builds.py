@@ -15,10 +15,10 @@ from ace.intelligence.contracts.resource_plane import (
 from ace.testing import InMemoryImmutableRecordStore
 from core.engine.api.intelligence_builds import router
 from core.engine.core.auth import get_current_user
+from core.engine.core.intelligence_activation_authority import RecordedIntelligenceActivationAuthority
 from core.engine.core.intelligence_build import (
     AuthorizedIntelligenceBuild,
     IntelligenceBuildHttpRuntime,
-    IntelligenceBuildUnavailable,
     intelligence_build_runtime,
 )
 
@@ -261,10 +261,9 @@ async def test_start_build_rejects_activation_approval_subject_mismatch() -> Non
 
 
 @pytest.mark.asyncio
-async def test_default_runtime_has_no_implicit_activation_approval_authority() -> None:
+async def test_default_runtime_uses_recorded_activation_approval_authority() -> None:
     runtime = intelligence_build_runtime()
-    with pytest.raises(IntelligenceBuildUnavailable, match="no reviewed activation approval resolver"):
-        await runtime.activation_authority.resolve_approval()
+    assert isinstance(runtime.activation_authority, RecordedIntelligenceActivationAuthority)
 
 
 @pytest.mark.asyncio

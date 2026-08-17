@@ -82,7 +82,7 @@
     "installed_product_application": {
       "owner": "application",
       "treatment": "installed optional product surface over public ACE services; never a source of truth or authority",
-      "packages": ["atrium"]
+      "packages": ["atrium", "code_intelligence"]
     },
     "legacy_product_application": {
       "owner": "application",

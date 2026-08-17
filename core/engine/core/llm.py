@@ -2160,10 +2160,12 @@ class OpenAICompatProvider(ModelMapMixin):
         api_key: str | None = None,
         default_model: str = "gpt-5.6-terra",
         model_map: dict[str, str] | None = None,
+        timeout: float = 120.0,
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._api_key = api_key
         self._default_model = default_model
+        self._timeout = timeout
         # Exact-hostname gate, not a substring match: "api.openai.com" as a
         # substring would also match api.openai.com.evil.tld or a path that
         # merely contains the string.
@@ -2235,11 +2237,18 @@ class OpenAICompatProvider(ModelMapMixin):
         choices = data.get("choices") or []
         if not choices:
             return ""
-        # `content` may be null (refusals / tool-only turns) — yield "".
-        return (choices[0].get("message") or {}).get("content") or ""
+        message = choices[0].get("message") or {}
+        content = message.get("content")
+        if isinstance(content, str) and content:
+            return content
+        # Some reasoning-capable OpenAI-compatible servers put the final
+        # answer in this nonstandard field. Recover it only when ordinary
+        # content is empty, and never leak arbitrary non-string wire values.
+        reasoning_content = message.get("reasoning_content")
+        return reasoning_content if isinstance(reasoning_content, str) else ""
 
     async def _post_chat(self, payload: dict) -> dict:
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=self._timeout) as client:
             resp = await client.post(
                 f"{self._base_url}/chat/completions",
                 json=payload,
@@ -2401,7 +2410,7 @@ class OpenAICompatProvider(ModelMapMixin):
 
     async def _stream_chat(self, payload: dict) -> AsyncIterator[str]:
         """SSE streaming: `data:` lines carrying delta chunks, `[DONE]` terminator."""
-        async with httpx.AsyncClient(timeout=120.0) as client:
+        async with httpx.AsyncClient(timeout=self._timeout) as client:
             async with client.stream(
                 "POST",
                 f"{self._base_url}/chat/completions",
@@ -2880,6 +2889,7 @@ def _resolve_llm() -> "LLMProvider":
                 api_key=settings.openai_compat_api_key,
                 default_model=settings.openai_compat_model,
                 model_map=getattr(settings, "openai_compat_model_map", None),
+                timeout=settings.openai_compat_timeout,
             ),
             4,
             "explicit_openai_compat_base_url",
@@ -3035,6 +3045,7 @@ def _resolve_llm() -> "LLMProvider":
                 api_key=settings.openai_compat_api_key,
                 default_model=settings.openai_compat_model,
                 model_map=getattr(settings, "openai_compat_model_map", None),
+                timeout=settings.openai_compat_timeout,
             ),
             10,
             "ambient_openai_compat_api_key",

@@ -51,6 +51,12 @@ from ace.intelligence.contracts.feedback import (
     FeedbackPolicyV1,
     FeedbackProposalIntentV1Alpha1,
     FeedbackProposalV1Alpha1,
+    OutcomeProvenanceReturnV1Alpha1,
+)
+from ace.intelligence.contracts.resource_plane import (
+    IntelligenceResourceAvailability,
+    IntelligenceResourceRecordV1Alpha1,
+    IntelligenceResourceReferenceV1Alpha1,
 )
 from ace.intelligence.contracts.resources import IntelligenceResourceMode
 from ace.intelligence.packs.runtime import (
@@ -68,6 +74,17 @@ class GovernedActionAuthorizer(Protocol):
         self,
         request: GovernedActionAuthorizationRequestV1Alpha1,
     ) -> GovernedActionAuthorizationProjection: ...
+
+
+class ConsumedIntelligenceResourcePort(Protocol):
+    """Resolve one exact public Intelligence revision without granting authority."""
+
+    async def load_exact(
+        self,
+        reference: IntelligenceResourceReferenceV1Alpha1,
+        *,
+        evaluated_at: datetime,
+    ) -> IntelligenceResourceRecordV1Alpha1 | None: ...
 
 
 class PreparedDecisionFeedbackError(RuntimeError):
@@ -92,6 +109,8 @@ class PreparedDecisionAdmission:
 class PreparedOutcomeAdmission:
     outcome: OutcomeV1Alpha1
     record: ImmutableRecordReferenceV1
+    provenance_return: OutcomeProvenanceReturnV1Alpha1
+    provenance_record: ImmutableRecordReferenceV1
     authorization: GovernedActionAuthorizationProjection
     transaction_receipt: AppendOnlyTransactionReceiptV1
     mode: Literal[IntelligenceResourceMode.PREPARED] = IntelligenceResourceMode.PREPARED
@@ -151,6 +170,7 @@ def _record(
     record_key: str,
     as_of: datetime,
     available_at: datetime,
+    processing_order: int = 0,
 ) -> ImmutableRecordV1:
     return ImmutableRecordV1(
         product_id=product_id,
@@ -161,7 +181,7 @@ def _record(
         payload=value.model_dump(mode="python"),
         as_of=as_of,
         available_at=available_at,
-        processing_order=0,
+        processing_order=processing_order,
     )
 
 
@@ -177,6 +197,7 @@ class PreparedDecisionFeedbackService:
         authority: CoreAuthorityResolver,
         authorizer: GovernedActionAuthorizer,
         operation_binding: GovernedOperationBindingV1Alpha1,
+        intelligence_resources: ConsumedIntelligenceResourcePort,
         clock: Callable[[], datetime],
     ) -> None:
         try:
@@ -196,6 +217,7 @@ class PreparedDecisionFeedbackService:
         self.operation_binding = GovernedOperationBindingV1Alpha1.model_validate(
             operation_binding.model_dump(mode="python")
         )
+        self.intelligence_resources = intelligence_resources
         self.clock = clock
         if self.operation_binding.product_id != self.product_id:
             raise PreparedDecisionFeedbackError("operation binding crossed the committed product scope")
@@ -244,6 +266,63 @@ class PreparedDecisionFeedbackService:
         if stored.payload_contract != str(value.contract):
             raise PreparedDecisionFeedbackError(f"{record_kind} envelope does not match its exact payload contract")
         return value
+
+    async def _require_consumed_intelligence(
+        self,
+        references: tuple[IntelligenceResourceReferenceV1Alpha1, ...],
+        *,
+        decided_at: datetime,
+    ) -> tuple[IntelligenceResourceReferenceV1Alpha1, ...]:
+        if not references:
+            raise PreparedDecisionFeedbackError("Outcome provenance return requires consumed Intelligence")
+        try:
+            exact = tuple(
+                IntelligenceResourceReferenceV1Alpha1.model_validate(item.model_dump(mode="python"))
+                for item in references
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise PreparedDecisionFeedbackError("consumed Intelligence references failed exact revalidation") from exc
+        keys = tuple(
+            (item.resource_kind.value, item.resource_id, item.revision, item.resource_digest) for item in exact
+        )
+        if len(keys) != len(set(keys)):
+            raise PreparedDecisionFeedbackError("consumed Intelligence references must be unique")
+        ordered = tuple(
+            sorted(
+                exact,
+                key=lambda item: (
+                    item.resource_kind.value,
+                    item.resource_id,
+                    item.revision,
+                    item.resource_digest,
+                ),
+            )
+        )
+        for reference in ordered:
+            if (
+                reference.product_id != self.product_id
+                or reference.as_of > decided_at
+                or reference.available_at > decided_at
+            ):
+                raise PreparedDecisionFeedbackError(
+                    "consumed Intelligence crossed product scope or Decision availability"
+                )
+            try:
+                record = await self.intelligence_resources.load_exact(
+                    reference,
+                    evaluated_at=decided_at,
+                )
+            except Exception as exc:
+                raise PreparedDecisionFeedbackError("consumed Intelligence exact load failed closed") from exc
+            if (
+                record is None
+                or record.reference != reference
+                or record.availability is not IntelligenceResourceAvailability.AVAILABLE
+            ):
+                raise PreparedDecisionFeedbackError(
+                    "consumed Intelligence exact revision is unavailable or not available"
+                )
+        return ordered
 
     async def _authorize(
         self,
@@ -330,6 +409,52 @@ class PreparedDecisionFeedbackService:
         value = await self._load_exact(reference, record_kind=record_kind, model=model)
         return value, reference, receipt
 
+    async def _load_outcome_replay(
+        self,
+        *,
+        transaction_key: str,
+    ) -> (
+        tuple[
+            OutcomeV1Alpha1,
+            ImmutableRecordReferenceV1,
+            OutcomeProvenanceReturnV1Alpha1,
+            ImmutableRecordReferenceV1,
+            AppendOnlyTransactionReceiptV1,
+        ]
+        | None
+    ):
+        try:
+            receipt = await self.record_store.load_transaction_receipt(
+                product_id=self.product_id,
+                record_space=PREPARED_FEEDBACK_RECORD_SPACE,
+                transaction_key=transaction_key,
+            )
+        except Exception as exc:
+            raise PreparedDecisionFeedbackError("outcome replay receipt load failed closed") from exc
+        if receipt is None:
+            return None
+        by_kind = {item.record_kind: item for item in receipt.records}
+        if len(receipt.records) != 2 or set(by_kind) != {"outcome", "outcome_provenance_return"}:
+            raise PreparedDecisionFeedbackReplayConflict("outcome replay transaction has an invalid exact shape")
+        outcome_ref = by_kind["outcome"]
+        provenance_ref = by_kind["outcome_provenance_return"]
+        outcome = await self._load_exact(outcome_ref, record_kind="outcome", model=OutcomeV1Alpha1)
+        provenance = await self._load_exact(
+            provenance_ref,
+            record_kind="outcome_provenance_return",
+            model=OutcomeProvenanceReturnV1Alpha1,
+        )
+        if (
+            provenance.outcome != outcome_ref
+            or provenance.decision != outcome.intent.decision
+            or provenance.actor_ref != outcome.intent.authenticated_context.actor_ref
+            or provenance.returned_at != outcome.authorization.authorized_at
+        ):
+            raise PreparedDecisionFeedbackReplayConflict(
+                "outcome provenance replay does not bind the exact Outcome, Decision, actor, and authorization"
+            )
+        return outcome, outcome_ref, provenance, provenance_ref, receipt
+
     async def record_decision(
         self,
         intent: DecisionIntentV1Alpha1,
@@ -399,6 +524,7 @@ class PreparedDecisionFeedbackService:
         intent: OutcomeIntentV1Alpha1,
         *,
         policy_id: str,
+        consumed_intelligence: tuple[IntelligenceResourceReferenceV1Alpha1, ...],
     ) -> PreparedOutcomeAdmission:
         try:
             validated = OutcomeIntentV1Alpha1.model_validate(intent.model_dump(mode="python"))
@@ -410,6 +536,10 @@ class PreparedDecisionFeedbackService:
             record_kind="decision",
             model=DecisionV1Alpha1,
         )
+        exact_consumed = await self._require_consumed_intelligence(
+            consumed_intelligence,
+            decided_at=decision.intent.decided_at,
+        )
         if (
             decision.intent.actor_role_ref != policy.persona_id
             or decision.intent.decision_type != policy.decision_type
@@ -420,20 +550,18 @@ class PreparedDecisionFeedbackService:
         ):
             raise PreparedDecisionFeedbackError("Outcome is outside exact pack-declared PREPARED feedback eligibility")
         transaction_key = f"outcome_intent:{validated.intent_id}"
-        replay = await self._load_single_record_replay(
-            transaction_key=transaction_key,
-            record_kind="outcome",
-            model=OutcomeV1Alpha1,
-        )
+        replay = await self._load_outcome_replay(transaction_key=transaction_key)
         if replay is not None:
-            outcome, record, receipt = replay
-            if outcome.intent != validated:
+            outcome, record, provenance, provenance_record, receipt = replay
+            if outcome.intent != validated or provenance.consumed_intelligence != exact_consumed:
                 raise PreparedDecisionFeedbackReplayConflict(
-                    "stable Outcome intent identity already binds different material"
+                    "stable Outcome intent identity already binds different Outcome or provenance material"
                 )
             return PreparedOutcomeAdmission(
                 outcome=outcome,
                 record=record,
+                provenance_return=provenance,
+                provenance_record=provenance_record,
                 authorization=outcome.authorization,
                 transaction_receipt=receipt,
             )
@@ -446,17 +574,52 @@ class PreparedDecisionFeedbackService:
             requested_at=validated.recorded_at,
         )
         outcome = OutcomeV1Alpha1(intent=validated, authorization=authorization)
-        record, receipt = await self._append(
+        outcome_record = _record(
             outcome,
+            product_id=self.product_id,
             record_kind="outcome",
             record_key=str(outcome.outcome_id),
             as_of=validated.observed_at,
-            authorization=authorization,
-            transaction_key=transaction_key,
+            available_at=authorization.authorized_at,
         )
+        provenance = OutcomeProvenanceReturnV1Alpha1(
+            product_id=self.product_id,
+            actor_ref=validated.authenticated_context.actor_ref,
+            decision=validated.decision,
+            outcome=outcome_record.reference(),
+            consumed_intelligence=exact_consumed,
+            returned_at=authorization.authorized_at,
+        )
+        provenance_record = _record(
+            provenance,
+            product_id=self.product_id,
+            record_kind="outcome_provenance_return",
+            record_key=str(provenance.return_id),
+            as_of=validated.observed_at,
+            available_at=authorization.authorized_at,
+            processing_order=1,
+        )
+        append_request = AppendOnlyTransactionRequestV1(
+            product_id=self.product_id,
+            record_space=PREPARED_FEEDBACK_RECORD_SPACE,
+            transaction_key=transaction_key,
+            records=(outcome_record, provenance_record),
+            submitted_at=authorization.authorized_at,
+            governed_state_preconditions=authorization.state_preconditions,
+        )
+        try:
+            receipt = await self.record_store.append(append_request)
+        except Exception as exc:
+            raise PreparedDecisionFeedbackError("authorized Outcome provenance append failed closed") from exc
+        if receipt != append_request.receipt():
+            raise PreparedDecisionFeedbackReplayConflict(
+                "authorized Outcome provenance append returned divergent receipt material"
+            )
         return PreparedOutcomeAdmission(
             outcome=outcome,
-            record=record,
+            record=outcome_record.reference(),
+            provenance_return=provenance,
+            provenance_record=provenance_record.reference(),
             authorization=authorization,
             transaction_receipt=receipt,
         )

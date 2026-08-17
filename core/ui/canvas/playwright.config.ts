@@ -6,6 +6,7 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   reporter: 'list',
+  preserveOutput: process.env.ACE_CAPTURE_ATRIUM === '1' ? 'always' : 'failures-only',
   globalSetup: './tests/e2e/_global-setup.ts',
   globalTeardown: './tests/e2e/_global-teardown.ts',
   use: {
@@ -26,6 +27,10 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev -- --port 5176',
     url: 'http://localhost:5176',
+    env: {
+      VITE_INTELLIGENCE_CAPABILITY_BINDINGS_JSON: '[]',
+      VITE_INTELLIGENCE_AUTHORITY_BINDINGS_JSON: '[]',
+    },
     reuseExistingServer: true,
     timeout: 30000,
   },

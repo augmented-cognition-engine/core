@@ -349,7 +349,7 @@ async def load_outside_view_baseline(
             )
             predictions = parse_rows(
                 await db.query(
-                    """SELECT id, horizon_days FROM decision_prediction
+                    """SELECT id, horizon_days, created_at FROM decision_prediction
                        WHERE product = <record>$product AND closed = true
                        ORDER BY created_at DESC LIMIT $limit""",
                     {"product": product_id, "limit": MAX_CANDIDATES},

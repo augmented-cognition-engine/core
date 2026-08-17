@@ -222,6 +222,7 @@ async def sentinel_status(
 
     return {
         "scheduler_running": _scheduler.running if _scheduler else False,
+        "scheduler_state": _scheduler.startup_state if _scheduler else None,
         "engines": engine_status,
     }
 

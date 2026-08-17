@@ -67,8 +67,8 @@ manifest = resource(
 
 pack = compile_pack_document(manifest, {"modules/ontology.json": ontology})
 
-print(pack.metadata.pack_id)          # example_domain
-print(pack.pack_digest)               # sha256:...  stable across key order and whitespace
+print(pack.metadata.pack_id)  # example_domain
+print(pack.pack_digest)  # sha256:...  stable across key order and whitespace
 print([m.module_id for m in pack.modules])
 ```
 
@@ -110,11 +110,11 @@ request = AppendOnlyTransactionRequestV1(
 async def main() -> None:
     store = InMemoryImmutableRecordStore()
     receipt = await store.append(request)
-    replayed = await store.append(request)      # exact replay, not a second write
+    replayed = await store.append(request)  # exact replay, not a second write
     assert receipt == replayed
 
-    print(record.storage_id)                    # immutable_record:<stable digest>
-    print(record.material_hash)                 # sha256:<canonical material>
+    print(record.storage_id)  # immutable_record:<stable digest>
+    print(record.material_hash)  # sha256:<canonical material>
 
 
 asyncio.run(main())

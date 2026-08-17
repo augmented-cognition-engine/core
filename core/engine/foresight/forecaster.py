@@ -147,6 +147,9 @@ async def attach_prediction(
     Called immediately after create_decision. Non-blocking: any failure returns None
     without raising. The prediction is linked to the decision via a `predicts` edge.
     """
+    if not settings.foresight_enabled:
+        logger.debug("Forecaster disabled; skipping decision %s", decision_id)
+        return None
     if pool is None:
         pool = default_pool
     try:

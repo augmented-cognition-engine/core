@@ -48,6 +48,10 @@ class ActorClass(StrEnum):
     HUMAN = "human"
     MODEL = "model"
     SYSTEM = "system"
+    # Additive: an authenticated, registered, product-scoped SERVICE principal
+    # acting under pre-existing delegated grants. It is never coerced to HUMAN
+    # and never satisfies the human-authority check below.
+    SERVICE = "service"
 
 
 class ProposalState(StrEnum):

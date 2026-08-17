@@ -8,7 +8,7 @@ on:
       tag:
         description: Git tag to publish
         required: true
-        default: v1.0.3
+        default: v1.1.0
 
 permissions:
   contents: read
@@ -61,7 +61,7 @@ jobs:
               pathlib.Path("adapters/reference_workspace_action/pyproject.toml").read_text()
           )["project"]
           assert project["name"] == "ace-reference-workspace-action"
-          assert project["dependencies"] == ["ace-core>=0.8.0,<1.1"]
+          assert project["dependencies"] == ["ace-core>=0.8.0,<1.2"]
           PY
 
       - name: Install build tooling

@@ -102,13 +102,18 @@ def test_governed_state_migrations_are_additive_and_append_only() -> None:
                 assert " IF NOT EXISTS" in normalized
 
 
-def test_host_adapters_are_the_only_core_engine_edge_into_public_ace() -> None:
-    allowed = {
+def test_only_host_adapters_and_installed_product_applications_import_public_ace() -> None:
+    host_adapters = {
         "core/engine/core/governed_state.py",
         "core/engine/core/immutable_records.py",
         "core/engine/core/intelligence_resource_plane.py",
+        "core/engine/core/intelligence_resource_feedback.py",
+        "core/engine/core/intelligence_subscriptions.py",
         "core/engine/core/intelligence_build.py",
+        "core/engine/core/intelligence_activation_authority.py",
+        "core/engine/core/intelligence_builder_activation_plan.py",
         "core/engine/core/intelligence_build_plan.py",
+        "core/engine/core/intelligence_build_resource_state.py",
         "core/engine/core/installed_intelligence_catalog.py",
         "core/engine/core/intelligence_build_executor_registry.py",
         "core/engine/core/intelligence_build_planner_registry.py",
@@ -120,7 +125,32 @@ def test_host_adapters_are_the_only_core_engine_edge_into_public_ace() -> None:
         "core/engine/core/agent_composition_lifecycle_runtime.py",
         "core/engine/core/external_operations.py",
         "core/engine/core/structured_reasoning_provider.py",
+        # JWT verification is a host boundary. It derives one public
+        # authentication receipt from verified claims without exposing the
+        # public application contract to API route modules.
+        "core/engine/core/auth.py",
+        # Slice 7: delegated headless governed-cognition review/activation. This
+        # is the only module that performs governed-state and immutable-record
+        # I/O for the delegated path.
+        "core/engine/core/cognition_delegated_authority.py",
+        # Durable cognition persistence is the transaction adapter that writes
+        # the public append-only record vocabulary in the same Surreal commit.
+        "core/engine/cognition/governance_persistence.py",
     }
+    governed_authority_contracts = {
+        # Slice 7: the delegated request envelope and its receipts bind the
+        # public Core authority vocabulary (principal kind, authority class,
+        # capability artifact identity) by design. The module performs no I/O;
+        # the host adapter above owns every durable read and write.
+        "core/engine/cognition/delegated_activation.py",
+    }
+    installed_product_applications = {
+        # The disposition owns this as the optional Code application's adapter;
+        # generic Core reaches it only through the extension registry factory.
+        "core/engine/code_intelligence/resource_plane.py",
+        "core/engine/code_intelligence/incident_source.py",
+    }
+    allowed = host_adapters | governed_authority_contracts | installed_product_applications
     offenders = sorted(
         str(path.relative_to(REPO))
         for path in (LEGACY_CORE / "engine").rglob("*.py")
@@ -129,6 +159,28 @@ def test_host_adapters_are_the_only_core_engine_edge_into_public_ace() -> None:
         and any(name == "ace" or name.startswith("ace.") for name in _imports(path))
     )
     assert offenders == []
+
+
+def test_slice7_public_contract_imports_stop_at_exact_host_adapters() -> None:
+    expected = {
+        "core/engine/core/auth.py": {"ace.application.agent_composition_runtime"},
+        "core/engine/cognition/governance_persistence.py": {"ace.core.records"},
+    }
+    for relative, public_imports in expected.items():
+        imports = _imports(REPO / relative)
+        assert {name for name in imports if name == "ace" or name.startswith("ace.")} == public_imports
+
+    api_imports = _imports(REPO / "core/engine/api/cognition.py")
+    assert not any(name == "ace" or name.startswith("ace.") for name in api_imports)
+
+
+def test_generic_resource_plane_host_does_not_import_code_solution_adapter() -> None:
+    imports = _imports(LEGACY_CORE / "engine/core/intelligence_resource_plane.py")
+    assert not any(name.startswith("core.engine.code_intelligence") for name in imports)
+
+
+def test_code_resource_application_does_not_live_in_core_implementation_namespace() -> None:
+    assert list((LEGACY_CORE / "engine/core").glob("code_intelligence*.py")) == []
 
 
 def test_extension_disabled_kernel_starts_without_live_composition() -> None:

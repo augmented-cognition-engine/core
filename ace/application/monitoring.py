@@ -370,6 +370,50 @@ class MonitoringLifecycleService(_MonitoringStoreService):
             raise MonitoringLifecycleError("later lifecycle transaction unexpectedly rewrote its anchor")
         return MonitoringLifecycleAdmission(receipt=receipt, transaction_receipt=transaction, replayed=True)
 
+    async def lookup_transition(
+        self,
+        *,
+        product_id: str,
+        transition_key: str,
+    ) -> MonitoringLifecycleAdmission | None:
+        """Load one stable transition for transport-level idempotent replay.
+
+        The transition key is only an idempotency coordinate.  Callers must
+        still compare the returned exact owner, target, action, sequence, and
+        prior receipt with the authenticated request before returning it.
+        """
+
+        transaction_key = _transaction_key("monitoring_lifecycle", transition_key)
+        try:
+            transaction = await self.store.load_transaction_receipt(
+                product_id=product_id,
+                record_space=LIVE_MONITORING_RECORD_SPACE,
+                transaction_key=transaction_key,
+            )
+        except Exception:
+            raise MonitoringLifecycleError("monitoring lifecycle transaction load failed closed") from None
+        if transaction is None:
+            return None
+        if not transaction.records or transaction.records[-1].record_kind != MONITORING_LIFECYCLE_RECORD_KIND:
+            raise MonitoringLifecycleError("monitoring transaction does not contain one exact lifecycle append")
+        reference = transaction.records[-1]
+        try:
+            record = await self._load_record(
+                product_id=product_id,
+                kind=MONITORING_LIFECYCLE_RECORD_KIND,
+                reference=reference.record_key,
+            )
+            receipt = MonitoringLifecycleReceiptV1Alpha1.model_validate(record.payload)
+        except Exception:
+            raise MonitoringLifecycleError("monitoring transition failed exact replay") from None
+        if record.reference() != reference or receipt.receipt_id != reference.record_key:
+            raise MonitoringLifecycleError("monitoring transaction crossed its exact lifecycle receipt")
+        return await self._replay(
+            product_id=product_id,
+            transition_key=transition_key,
+            expected=receipt.reference(),
+        )
+
     async def transition(
         self,
         *,

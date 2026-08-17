@@ -442,3 +442,22 @@ async def test_attach_prediction_creates_predicts_edge():
     assert args[0] == "predicts"
     assert "decision_prediction" in args[1]
     assert args[2] == "decision:d1"
+
+
+@pytest.mark.asyncio
+async def test_attach_prediction_gate_disables_all_database_and_model_work(monkeypatch):
+    from core.engine.foresight.forecaster import attach_prediction
+
+    pool = MagicMock()
+    monkeypatch.setattr("core.engine.foresight.forecaster.settings.foresight_enabled", False)
+    with patch("core.engine.foresight.forecaster.llm") as mock_llm:
+        result = await attach_prediction(
+            decision_id="decision:disabled",
+            decision_content="No automatic forecast",
+            product_id="product:test",
+            pool=pool,
+        )
+
+    assert result is None
+    pool.connection.assert_not_called()
+    mock_llm.complete_json.assert_not_called()

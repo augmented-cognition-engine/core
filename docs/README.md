@@ -25,6 +25,9 @@ Point-in-time release and acceptance records live in the
 - [Architecture](architecture.md) — the as-built system map and responsibility boundaries.
 - [Frequently asked questions](faq.md) — failure behavior, provenance, confidence, and operating
   boundaries.
+- [Code Intelligence governed resource admission](design/code-intelligence-resource-admission-v1.md)
+  — body-free append-only lens revisions, exact authorization and lineage, explicit governed host
+  dispatch, and the journey's separate no-product-history-write boundary.
 
 ## Use ACE
 
@@ -68,6 +71,8 @@ Point-in-time release and acceptance records live in the
 - [Extension API](extension-api.md) — stable and experimental extension-author contracts.
 - [Governed cognition builder journey](governed-cognition-builder.md) — teach, inspect, approve,
   use, attribute, and retire reusable cognition through supported interfaces.
+- [Governed cognition operations](governed-cognition-operations.md) — human review credentials,
+  bounded headless SERVICE provisioning/tokens, recovery, rollback, and security handoff.
 
 ## Project
 

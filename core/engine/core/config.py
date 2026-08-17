@@ -7,9 +7,11 @@ route-specific and are validated by provider selection and diagnostics.
 Field validators enforce non-empty strings and valid enum values.
 """
 
-from typing import Literal
+import os
+from pathlib import Path
+from typing import Literal, Self
 
-from pydantic import AliasChoices, Field, field_validator
+from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -34,6 +36,16 @@ class Settings(BaseSettings):
 
     # API authentication (separate from JWT signing secret)
     api_key: str = ""
+
+    # Code Intelligence reads exactly one explicitly configured local Git
+    # repository for one explicitly configured product.  The API never accepts
+    # either coordinate from a caller and fails closed while either is absent.
+    code_intelligence_repository_root: str = ""
+    code_intelligence_product_ref: str = ""
+    code_intelligence_index_store_root: str = "~/.ace/code-intelligence"
+    # Required only for explicit governed admission. This stable product-scoped
+    # coordinate is never inferred from a local path, Git remote, or caller input.
+    code_intelligence_repository_ref: str = ""
 
     # LLM
     # Empty/default means "no Anthropic API credential"; explicit local,
@@ -74,6 +86,12 @@ class Settings(BaseSettings):
     # composition prompts. Keep the bound explicit and operator-configurable while
     # preserving subprocess termination/reaping when the provider really stalls.
     claude_cli_timeout_seconds: float = 300.0
+
+    # Automatic intelligence lifecycle hooks. Both remain enabled by default
+    # for compatibility, while operators running a constrained/local brain can
+    # suppress their additional model work independently.
+    emergence_enabled: bool = True
+    foresight_enabled: bool = True
 
     # Opt-in for the UNDOCUMENTED OAuth-as-API slot: lifting the Claude.ai / Claude
     # Code subscription OAuth access token from the local credentials store and
@@ -242,6 +260,13 @@ class Settings(BaseSettings):
         default="gpt-5.6-terra",
         validation_alias=AliasChoices("OPENAI_COMPAT_MODEL", "OPENAI_MODEL"),
     )
+    openai_compat_timeout: float = Field(
+        default=120.0,
+        gt=0.0,
+        le=3_600.0,
+        allow_inf_nan=False,
+        validation_alias="OPENAI_COMPAT_TIMEOUT",
+    )
 
     # Per-provider model-tier maps (caller vocabulary stays Anthropic): ACE call
     # sites pass llm_budget_model / llm_model / llm_reasoning_model verbatim, and
@@ -293,6 +318,13 @@ class Settings(BaseSettings):
     embedding_provider: str = "onnx"  # "onnx" | "codesage" | "none"; intelligence RAG requires ONNX's 768 dims
     embedding_model: str = "CodeRankEmbed"
     ace_model_dir: str = "~/.ace/models"
+    rag_vector_max_distance: float = Field(
+        default=0.45,
+        ge=0.0,
+        le=2.0,
+        allow_inf_nan=False,
+        validation_alias="RAG_VECTOR_MAX_DISTANCE",
+    )
 
     # Demo basic auth (optional — protects demo.querylabs.ai)
     demo_user: str = ""
@@ -355,6 +387,37 @@ class Settings(BaseSettings):
         if v not in allowed:
             raise ValueError(f"environment must be one of {sorted(allowed)}, got {v!r}")
         return v
+
+    @model_validator(mode="after")
+    def validate_code_intelligence_index_cache_containment(self) -> Self:
+        """Refuse a local index cache root at or under the inspected repository.
+
+        The cache is writable; the repository is read-only evidence whose exact
+        revision and working-tree identity the journey reports. Both the lexical
+        (``normpath``, no symlink traversal) and resolved (symlinks and platform
+        aliases followed) forms are compared, so a link or alias cannot place
+        cache writes inside the scanned tree. Only a configured pair is checked;
+        the HTTP boundary re-checks before creating or reading either directory.
+        """
+
+        repository_root = self.code_intelligence_repository_root
+        store_root = self.code_intelligence_index_store_root
+        if not repository_root.strip() or not store_root.strip():
+            return self
+        repository = Path(repository_root).expanduser()
+        store = Path(store_root).expanduser()
+        try:
+            repository_forms = {Path(os.path.normpath(repository)), repository.resolve()}
+            store_forms = {Path(os.path.normpath(store)), store.resolve()}
+        except (OSError, RuntimeError) as exc:
+            raise ValueError("code_intelligence_index_store_root cannot be resolved safely") from exc
+        for store_form in store_forms:
+            for repository_form in repository_forms:
+                if store_form == repository_form or repository_form in store_form.parents:
+                    raise ValueError(
+                        "code_intelligence_index_store_root must be outside code_intelligence_repository_root"
+                    )
+        return self
 
 
 settings = Settings()

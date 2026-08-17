@@ -9,9 +9,9 @@ creates grants nor changes any public task or MCP contract.
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Iterable, Literal, Self
+from typing import Iterable, Literal
 
-from pydantic import ConfigDict, Field, field_validator, model_validator
+from pydantic import ConfigDict, Field
 
 from ace.application.agent_composition_runtime import (
     CompositionAuthorityResolutionReceiptV1Alpha1,
@@ -43,6 +43,7 @@ from ace.core.agent_composition import (
     validate_run_receipt_against_manifest,
 )
 from ace.core.contracts import FrozenContract, canonical_hash
+from ace.core.delegated_cognition import GRANT_PAYLOAD_CONTRACT, CompositionAuthorityGrantMaterial
 from ace.core.reasoning import REASONING_CONFIGURATION_STATE_KIND, ReasoningExecutionBindingV1Alpha1
 from ace.core.records import AppendOnlyTransactionRequestV1, ImmutableRecordStore, ImmutableRecordV1
 from ace.core.runtime_use import (
@@ -64,7 +65,6 @@ from ace.core.state import (
 
 COMPOSITION_RECORD_SPACE = "governed_agent_composition"
 AUTH_PAYLOAD_CONTRACT = "ace.host.task-authentication-evidence/v1alpha1"
-GRANT_PAYLOAD_CONTRACT = "ace.host.composition-authority-grant/v1alpha1"
 CAPABILITY_PAYLOAD_CONTRACT = "ace.host.composition-capability-state/v1alpha1"
 CONFIGURATION_PAYLOAD_CONTRACT = "ace.host.reasoning-composition-configuration/v1alpha1"
 
@@ -81,47 +81,6 @@ def _aware(value: datetime, name: str) -> datetime:
     if value.tzinfo is None or value.utcoffset() is None:
         raise ValueError(f"{name} must include a timezone")
     return value.astimezone(UTC)
-
-
-class CompositionAuthorityGrantMaterial(_Payload):
-    contract: Literal["ace.host.composition-authority-grant/v1alpha1"] = GRANT_PAYLOAD_CONTRACT
-    grant_ref: str
-    product_id: str
-    actor_ref: str
-    participant_principal_ref: str
-    delegator_ref: str | None = None
-    authority_class: AuthorityClass
-    operations: tuple[str, ...] = Field(min_length=1, max_length=32)
-    scope_ref: str
-    policy_ref: str
-    grant_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
-    lifecycle: Literal["active", "revoked", "expired"]
-    effective_at: datetime
-    expires_at: datetime | None = None
-    revoked_at: datetime | None = None
-    delegation_ceiling: tuple[AuthorityClass, ...] = ()
-
-    @field_validator("effective_at", "expires_at", "revoked_at")
-    @classmethod
-    def validate_times(cls, value: datetime | None, info) -> datetime | None:
-        return _aware(value, info.field_name) if value is not None else None
-
-    @field_validator("operations")
-    @classmethod
-    def normalize_operations(cls, value: tuple[str, ...]) -> tuple[str, ...]:
-        if len(value) != len(set(value)):
-            raise ValueError("grant operations must be unique")
-        return tuple(sorted(value))
-
-    @model_validator(mode="after")
-    def validate_lifecycle(self) -> Self:
-        if self.expires_at is not None and self.expires_at <= self.effective_at:
-            raise ValueError("grant expiry must follow its effective time")
-        if self.lifecycle == "revoked" and self.revoked_at is None:
-            raise ValueError("revoked grant requires revoked_at")
-        if self.delegator_ref is not None and self.authority_class not in self.delegation_ceiling:
-            raise ValueError("delegated grant exceeds its declared delegation ceiling")
-        return self
 
 
 class CompositionCapabilityStateMaterial(_Payload):
@@ -250,6 +209,14 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
             grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("authority grant payload failed exact validation") from exc
+        expected_grant_hash = canonical_hash(grant.model_dump(mode="json", exclude={"grant_hash"}))
+        if (
+            grant.grant_hash != expected_grant_hash
+            or canonical_hash(grant.model_dump(mode="json")) != material.revision.material_hash
+        ):
+            raise GovernedCompositionAuthorityError(
+                "authority grant payload no longer matches its admitted material hash"
+            )
         if (
             grant.grant_ref != grant_ref
             or grant.product_id != context.product_id
@@ -300,9 +267,18 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
         if material.revision.payload_contract != CAPABILITY_PAYLOAD_CONTRACT:
             raise GovernedCompositionAuthorityError("capability state uses an unsupported private payload")
         try:
-            state = CompositionCapabilityStateMaterial.model_validate(material.revision.payload)
+            # See load_grant: durable stores return JSON-shaped values (lists in
+            # place of tuples, enum strings, decoded datetimes) rather than the
+            # strict Python construction shape. Normalize that wire representation
+            # before the exact artifact, lifecycle, and configuration comparisons
+            # below fail closed.
+            state = CompositionCapabilityStateMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("capability-state payload failed exact validation") from exc
+        if canonical_hash(state.model_dump(mode="json")) != material.revision.material_hash:
+            raise GovernedCompositionAuthorityError(
+                "capability-state payload no longer matches its admitted material hash"
+            )
         if (
             state.product_id != context.product_id
             or state.artifact != artifact
@@ -350,6 +326,14 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
             grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("authority grant payload failed exact validation") from exc
+        expected_grant_hash = canonical_hash(grant.model_dump(mode="json", exclude={"grant_hash"}))
+        if (
+            grant.grant_hash != expected_grant_hash
+            or canonical_hash(grant.model_dump(mode="json")) != material.revision.material_hash
+        ):
+            raise GovernedCompositionAuthorityError(
+                "authority grant payload no longer matches its admitted material hash"
+            )
         if (
             grant.product_id != context.product_id
             or grant.actor_ref != context.actor_ref

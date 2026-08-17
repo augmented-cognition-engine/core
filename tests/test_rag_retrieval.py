@@ -164,6 +164,62 @@ async def test_distant_vector_candidates_are_not_returned_for_no_answer_query() 
 
 
 @pytest.mark.asyncio
+async def test_widened_vector_cutoff_recalls_candidate_and_receipt_matches(monkeypatch) -> None:
+    db = _DB()
+
+    async def distant_query(statement: str, params: dict | None = None):
+        db.queries.append((statement, params or {}))
+        if "vector::distance::knn()" in statement:
+            return [
+                {
+                    "id": "insight:widened",
+                    "content": "relevant prose outside the compatibility cutoff",
+                    "vector_distance": 0.65,
+                }
+            ]
+        return []
+
+    db.query = distant_query
+    monkeypatch.setattr("core.engine.search.intelligence.settings.rag_vector_max_distance", 0.7)
+
+    result = await search_intelligence(
+        "prose corpus concept",
+        "product:widened",
+        db_pool=_Pool(db),
+        embedder=_Embedder(),
+    )
+
+    assert [row["id"] for row in result["results"]] == ["insight:widened"]
+    assert result["retrieval"]["signals"]["vector"]["maximum_distance"] == 0.7
+    assert result["retrieval"]["signals"]["vector"]["distance_omitted"] == 0
+
+
+@pytest.mark.asyncio
+async def test_vector_queries_remain_product_scoped_when_cutoff_is_widened(monkeypatch) -> None:
+    db = _DB()
+    monkeypatch.setattr("core.engine.search.intelligence.settings.rag_vector_max_distance", 2.0)
+
+    result = await search_intelligence(
+        "webhook retry policy",
+        "product:isolated",
+        db_pool=_Pool(db),
+        embedder=_Embedder(),
+    )
+
+    retrieval_queries = [
+        (statement, params)
+        for statement, params in db.queries
+        if "FROM insight" in statement and ("search::score(0)" in statement or "vector::distance::knn()" in statement)
+    ]
+    assert len(retrieval_queries) == 2
+    for statement, params in retrieval_queries:
+        assert "product = <record>$product" in statement
+        assert params["product"] == "product:isolated"
+    assert result["retrieval"]["product_id"] == "product:isolated"
+    assert result["retrieval"]["signals"]["vector"]["maximum_distance"] == 2.0
+
+
+@pytest.mark.asyncio
 async def test_invalid_search_inputs_fail_before_database_access() -> None:
     db = _DB()
     with pytest.raises(ValidationError, match="query must be non-empty"):

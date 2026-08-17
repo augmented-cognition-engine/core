@@ -136,6 +136,55 @@ def test_empty_preconditions_serialize_out_and_preserve_legacy_identity_material
     assert "governed_state_preconditions" not in implicit.receipt().model_dump(mode="json")
 
 
+@pytest.mark.asyncio
+async def test_governed_state_resolves_exact_historical_receipt_by_revision() -> None:
+    from core.engine.core.db import parse_record_id
+    from core.engine.core.governed_state import SurrealGovernedStateStore
+
+    revision = GovernedStateRevisionV1(
+        state_kind="runtime_state",
+        product_id=PRODUCT,
+        state_id="runtime_state:history",
+        sequence=1,
+        revision_id="runtime_state_revision:history-1",
+        material_hash="a" * 64,
+        approval_subject_ref="approval_subject:history",
+        payload_contract="example.runtime-state/v1",
+        payload={"status": "ready"},
+    )
+    receipt = GovernedStateCommitRequestV1(
+        revision=revision,
+        actor_ref="principal:operator",
+        approval=ResolvedApprovalReceiptV1(
+            receipt_ref="approval:history",
+            product_id=PRODUCT,
+            subject_ref=revision.approval_subject_ref,
+            actor_ref="principal:operator",
+            receipt_hash="b" * 64,
+            approved_at=NOW,
+        ),
+        committed_at=NOW,
+    ).receipt()
+
+    class _Connection:
+        async def query(self, query, params):
+            assert "revision_id = $revision_id" in query
+            assert params["revision_id"] == revision.revision_id
+            assert params["product"] == parse_record_id(PRODUCT)
+            return [{"payload": receipt.model_dump(mode="python")}]
+
+    class _Pool:
+        @asynccontextmanager
+        async def connection(self):
+            yield _Connection()
+
+    loaded = await SurrealGovernedStateStore(_Pool()).load_receipt_for_revision(
+        revision.revision_id,
+        product_id=PRODUCT,
+    )
+    assert loaded == receipt
+
+
 def test_preconditions_are_canonical_and_each_head_identity_is_unique() -> None:
     first = GovernedStateHeadPreconditionV1Alpha1.from_head(_head())
     second = GovernedStateHeadPreconditionV1Alpha1.from_head(_head("source_definition", "source_definition:primary"))

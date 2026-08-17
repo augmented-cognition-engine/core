@@ -659,9 +659,12 @@ document/path teaching, writable execution, scheduled automation, or a new MCP t
 3. **Inspect semantic diff.** Compare against the exact active recipe revision. Show activation,
    phases/order, instruments/frameworks/tools/perspectives, authority, constraints, outputs,
    resources, budgets, and success measures. Unknown base revision fails closed.
-4. **Approve immutable revision.** An authenticated human with product cognition-review authority
-   approves the exact material hash. One transaction creates the revision, review receipt,
-   activation event, and new head generation. A model-authored approval attempt is rejected.
+4. **Approve immutable revision.** The interactive path requires an authenticated human with
+   product cognition-review authority. The only non-human sibling is a separately human/admin-
+   provisioned SERVICE acting through exact product/scope-bound review and internal-activation
+   grants. It has no lifecycle, source, reasoning, delivery, external-effect, renewal, widening, or
+   transfer authority. One transaction creates the revision, review receipt, activation event, and
+   new head generation. A model-authored approval attempt is rejected.
 5. **Select and materially use in a fresh invocation.** A fresh client/process discovers the new
    active revision, records considered/selected/omitted candidates, loads within budget, and
    executes at least one changed phase/instrument. A matched no-revision control demonstrates an

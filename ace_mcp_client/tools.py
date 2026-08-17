@@ -28,6 +28,28 @@ def _slugify_path(file_path: str) -> str:
     return slug
 
 
+_ACE_IMPACT_MAX_FILE_PATH_CHARS = 4096
+_ACE_IMPACT_MAX_GRAPH_ID_CHARS = 512
+
+
+def _reject_thin_selector(value: object, *, field: str, limit: int) -> str | None:
+    """Admit one thin-adapter argument, or name why it is refused.
+
+    Returns ``None`` when `value` is admissible. A non-string, empty, or
+    overlong argument is refused here — before `_slugify_path` or any HTTP
+    call — and the refusal names the field and its limit without echoing the
+    value: the caller already knows what it passed, and reflecting arbitrary
+    or oversized material back is its own disclosure surface.
+    """
+    if isinstance(value, bool) or not isinstance(value, str):
+        return f"{field} must be a string"
+    if not value:
+        return f"{field} must not be empty"
+    if len(value) > limit:
+        return f"{field} must be at most {limit} characters"
+    return None
+
+
 # ---------------------------------------------------------------------------
 # 1. ace_start — session pre-flight
 # ---------------------------------------------------------------------------
@@ -293,15 +315,29 @@ async def ace_briefing(
 
 
 # ---------------------------------------------------------------------------
-# 9. ace_impact — what breaks if you change this file?
+# 9. ace_impact — bounded observed dependent graph for a file
 # ---------------------------------------------------------------------------
 
 
 async def ace_impact(file_path: str, graph_id: str = "default") -> str:
-    """Analyze the impact of changing a file.
+    """Traverse the observed dependent graph for a file.
 
-    Returns dependents, functions, decisions, fragility score — formatted as markdown.
+    Calls the bounded `/graph/impact/{node_id}` traversal, which walks
+    depends_on, tests, breaks, and imports edges inward to a fixed depth and
+    node limit, and renders the nodes it reached as markdown.
+
+    That traversal returns a subgraph, not an assessment. It does not establish
+    what breaks, how fragile the file is, whether the file is safe to delete, or
+    which recent decisions touched it — this function must not claim otherwise.
     """
+    for value, field, limit in (
+        (file_path, "file_path", _ACE_IMPACT_MAX_FILE_PATH_CHARS),
+        (graph_id, "graph_id", _ACE_IMPACT_MAX_GRAPH_ID_CHARS),
+    ):
+        problem = _reject_thin_selector(value, field=field, limit=limit)
+        if problem:
+            return f"**Error traversing the dependent graph:** {problem}."
+
     c = _get_client()
     slug = _slugify_path(file_path)
     node_id = f"graph_file:{slug}"
@@ -309,9 +345,9 @@ async def ace_impact(file_path: str, graph_id: str = "default") -> str:
     try:
         r = await c.get(f"/graph/impact/{node_id}", params={"graph_id": graph_id})
     except Exception as exc:
-        return f"**Error analyzing impact:** {exc}"
+        return f"**Error traversing the dependent graph:** {exc}"
 
-    return _format_traverse_result(r, file_path, "Impact Analysis")
+    return _format_traverse_result(r, file_path, "Observed Dependent Graph (bounded traversal)")
 
 
 # ---------------------------------------------------------------------------

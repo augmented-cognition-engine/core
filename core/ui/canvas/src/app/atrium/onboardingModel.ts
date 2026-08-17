@@ -76,6 +76,8 @@ export interface IntelligenceBuilderSession {
   readonly block_reason: string | null
   readonly resume_stage: IntelligenceBuilderStage | null
   readonly safe_diagnostic: string | null
+  /** Full exact revision retained only when the resource payload supplies every retry field. */
+  readonly exact_revision?: Readonly<Record<string, unknown>> | null
 }
 
 const FALLBACK_PROFILE: IntelligenceOnboardingProfile = {
@@ -332,6 +334,15 @@ export function parseBuilderSession(value: unknown): IntelligenceBuilderSession 
       ? value.resume_stage as IntelligenceBuilderStage
       : null
   const diagnostic = value.safe_diagnostic === null || typeof value.safe_diagnostic === 'string' ? value.safe_diagnostic : null
+  const exactRevision = (
+    typeof value.product_id === 'string'
+    && typeof value.correlation_id === 'string'
+    && typeof value.transition_authority === 'string'
+    && typeof value.transition_actor_ref === 'string'
+    && typeof value.occurred_at === 'string'
+    && typeof value.revision_id === 'string'
+    && typeof value.revision_digest === 'string'
+  ) ? value : null
   return {
     session_id: value.session_id,
     goal_ref: value.goal_ref,
@@ -341,6 +352,7 @@ export function parseBuilderSession(value: unknown): IntelligenceBuilderSession 
     block_reason: blockReason ?? null,
     resume_stage: resumeStage,
     safe_diagnostic: diagnostic ?? null,
+    exact_revision: exactRevision,
   }
 }
 

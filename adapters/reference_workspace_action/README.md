@@ -14,7 +14,7 @@ install it, construct it, and register its exact artifact identity explicitly. T
 workflow builds it independently and attaches its wheel and source distribution to the matching
 GitHub Release; only the Core distribution is sent to PyPI.
 
-Distribution 0.4.1 targets `ace-core>=0.8.0,<1.1`. The executable implementation is unchanged from
+Distribution 0.4.1 targets `ace-core>=0.8.0,<1.2`. The executable implementation is unchanged from
 0.1.0, so its public capability artifact identity remains 0.1.0 rather than manufacturing a new
 implementation identity for dependency metadata alone. Installation grants no execution authority;
 the host must still register and authorize the exact adapter and operation.

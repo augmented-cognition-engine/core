@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from pydantic_core import to_jsonable_python
 
 from ace.application.agent_composition_lifecycle import (
     LIFECYCLE_STAGE_PROFILES,
@@ -145,7 +146,7 @@ async def _commit(
         state_id=state_id,
         sequence=sequence,
         revision_id=revision_id,
-        material_hash=canonical_hash({"state_kind": state_kind, "state_id": state_id, "sequence": sequence}),
+        material_hash=canonical_hash(to_jsonable_python(payload)),
         prior_revision_id=prior_revision_id,
         approval_subject_ref=subject,
         payload_contract=payload_contract,
@@ -167,13 +168,11 @@ async def _seed(
     store: InMemoryGovernedStateStore,
     stage: LifecycleStage,
     *,
-    grant_hash: str | None = None,
     grant_sequence: int = 1,
     lifecycle: str = "active",
 ) -> tuple[str, str, CapabilityArtifactIdentityV1Alpha1]:
     profile, principal_ref, grant_ref, configuration_ref, artifact = _coordinates(stage)
-    grant_hash = grant_hash or canonical_hash({"grant": stage.value, "sequence": grant_sequence})
-    grant = CompositionAuthorityGrantMaterial(
+    grant_fields = dict(
         grant_ref=grant_ref,
         product_id=PRODUCT,
         actor_ref=ACTOR,
@@ -182,12 +181,17 @@ async def _seed(
         operations=(profile.operation,),
         scope_ref=SCOPE_REF,
         policy_ref=POLICY_REF,
-        grant_hash=grant_hash,
         lifecycle=lifecycle,
-        effective_at=NOW - timedelta(minutes=1),
+        # Rotation changes admitted content; its hash is always derived from
+        # that content rather than injected as a test-only label.
+        effective_at=NOW - timedelta(minutes=grant_sequence),
         expires_at=NOW + timedelta(hours=1),
         revoked_at=NOW + timedelta(seconds=8) if lifecycle == "revoked" else None,
     )
+    provisional = CompositionAuthorityGrantMaterial(**grant_fields, grant_hash="0" * 64)
+    grant_hash = canonical_hash(provisional.model_dump(mode="json", exclude={"grant_hash"}))
+    grant = CompositionAuthorityGrantMaterial(**grant_fields, grant_hash=grant_hash)
+    assert grant.grant_hash == canonical_hash(grant.model_dump(mode="json", exclude={"grant_hash"}))
     resolved = ResolvedAuthorityGrantV1(
         grant_ref=grant_ref,
         product_id=PRODUCT,
@@ -590,7 +594,7 @@ async def test_current_grant_rotation_between_plan_and_run_is_rejected() -> None
         policy_ref=POLICY_REF,
         now=NOW + timedelta(seconds=5),
     )
-    await _seed(governed, stage, grant_hash="f" * 64, grant_sequence=2)
+    await _seed(governed, stage, grant_sequence=2)
     with pytest.raises(LifecycleCompositionError, match="rotated"):
         await bridge.execute(
             prepared=prepared,

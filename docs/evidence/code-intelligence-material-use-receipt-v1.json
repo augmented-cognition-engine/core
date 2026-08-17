@@ -1,0 +1,192 @@
+{
+  "contract": "ace.code-intelligence.material-use-evidence/v1alpha1",
+  "receipt_ref": "code_intelligence_material_use:ace_impact-static-import-calibration-v1",
+  "status": "candidate_local_observed",
+  "profile": {
+    "language": "python",
+    "repository_topology": "one_local_git_repository",
+    "repository_revision": "d73906b5a7e0923be66f8f070df15b52e88bc25f",
+    "working_tree_dirty": true
+  },
+  "durable_replay_artifact": {
+    "path": "docs/evidence/artifacts/code-intelligence-material-use-replay-v1.tar.gz",
+    "byte_count": 58505,
+    "sha256": "fffafe306c6cc078a178b76920f74f7712386b2029067f92161e3d6dcfe58681",
+    "members": [
+      {
+        "path": "ace-code-dogfood-v3-current.json",
+        "byte_count": 153846,
+        "sha256": "880ff888a2665245b1138950de318bc179d997c383b45ee05aa22662a1a653bd"
+      },
+      {
+        "path": "ace-code-material-use-prechange.json",
+        "byte_count": 89681,
+        "sha256": "88c5abf618d69c0485513b571d0dde20a61d3b5869f12ce2a0fb60ebc152d7c0"
+      },
+      {
+        "path": "ace-code-material-use-postchange.json",
+        "byte_count": 92151,
+        "sha256": "3bec49c41f394f7436f35004eaeea8cdf27eaff147ddd0a60ab28f4a7a1419df"
+      },
+      {
+        "path": "ace-code-material-use-return.json",
+        "byte_count": 2200,
+        "sha256": "6da9bff25ce60b29ee1593a6119e09d1ae26d77466bc7e39415d6faa6cbb95c3"
+      },
+      {
+        "path": "ace-code-material-use-return-receipt.json",
+        "byte_count": 4432,
+        "sha256": "c92d390f25d0bb3ebd0d67177cca46af3c1dd4f4c2f6a6aa78d8db7f4b3d33cd"
+      }
+    ]
+  },
+  "recommendation_evidence": {
+    "ace_role": "bounded_context_and_impact_recommendation",
+    "finding": "Direct static-import reachability is useful impact evidence but cannot establish safe deletion.",
+    "frozen_ace_on_ace_journey": {
+      "path_at_capture": "/tmp/ace-code-dogfood-v3-current.json",
+      "byte_count": 153846,
+      "sha256": "880ff888a2665245b1138950de318bc179d997c383b45ee05aa22662a1a653bd",
+      "index_id": "code_index:01d1873349306bbacf4c339201c4971d",
+      "lens_id": "atrium_code_lens:5a9ff70ffc8dd1f131505cf1097f3705",
+      "manifest_id": "code_context_manifest:db7ca117ccfc704eec5f9b678c2c9297",
+      "handoff_id": "coding_agent_handoff:d958a2c56b81afebd41213ee6fdd7976",
+      "source_block_id": "code_context_block:7e28baaaaa927b4b2cb694f9dcd7ac4c",
+      "source_block_digest": "sha256:78be5f5f52bd33d5c734fda0140cc6fd53112e66e5caaae43dbdeb19b1161f19",
+      "observed_pre_change_behavior": "safe_to_delete was true when importer_count was zero and the summary asserted SAFE"
+    },
+    "bounded_change_packet": {
+      "path_at_capture": "/tmp/ace-code-material-use-prechange.json",
+      "byte_count": 89681,
+      "sha256": "88c5abf618d69c0485513b571d0dde20a61d3b5869f12ce2a0fb60ebc152d7c0",
+      "working_tree_digest": "sha256:fe17db5c35c930b0db748d8acae506b06fbd4355b52919f033a26e93ce61a52a",
+      "index_id": "code_index:3ab54b8a720b2ba056a364a8fb4925c1",
+      "lens_id": "atrium_code_lens:968d98fc5a8e1091abd99823d7808c27",
+      "manifest_id": "code_context_manifest:e5211e1608efeb1a0cfb2237468650ba",
+      "handoff_id": "coding_agent_handoff:cdf20e1b0abc4ef97351803ae5a81041"
+    }
+  },
+  "coding_agent_execution": {
+    "actor": "coding-agent:provider-neutral",
+    "ace_granted_execution_authority": false,
+    "execution_boundary_revalidated_from_user_delegation": true,
+    "changed_paths": [
+      "core/engine/mcp/tools.py",
+      "core/engine/mcp/server.py",
+      "tests/test_mcp_graph_tools.py"
+    ],
+    "change": {
+      "safe_to_delete": false,
+      "deletion_safety": "not_assessed",
+      "impact_evidence_basis": "direct_static_importers",
+      "uncertainty_exposed": true,
+      "summary_claims_safe_or_breaking": false,
+      "rendered_output_claims_safe_or_breaking": false
+    },
+    "return": {
+      "path_at_capture": "/tmp/ace-code-material-use-return.json",
+      "byte_count": 2200,
+      "sha256": "6da9bff25ce60b29ee1593a6119e09d1ae26d77466bc7e39415d6faa6cbb95c3",
+      "return_id": "coding_agent_return:1ecd53df9e5aed75ab71626ba2efc370"
+    },
+    "return_validation": {
+      "path_at_capture": "/tmp/ace-code-material-use-return-receipt.json",
+      "byte_count": 4432,
+      "sha256": "c92d390f25d0bb3ebd0d67177cca46af3c1dd4f4c2f6a6aa78d8db7f4b3d33cd",
+      "receipt_id": "coding_agent_return_receipt:bc637d1da686f67801f77b62f491e46f",
+      "chain_validated": true,
+      "validated_at": "2026-08-15T01:39:54.246798Z"
+    }
+  },
+  "delivery_observation": {
+    "local_worktree_change_present": true,
+    "source_sha256": "6e3a86c71d0b5008530d1652f67a7620325019b37056e84c0583afd08e5b3dbc",
+    "formatter_sha256": "ca7c403a0e21dae513a9d5afc84f866aa2b2ecb17bce18001d4a650ca0e92b2e",
+    "test_sha256": "d7bf6ccf6b9658437749c6c3f69b83e5f4f7118ce2e997d5ef62df5235ab666a",
+    "committed": false,
+    "pushed": false,
+    "published": false,
+    "deployed": false,
+    "external_delivery_observed": false
+  },
+  "effect_observation": {
+    "focused_tests": {
+      "command_scope": "tests/test_mcp_graph_tools.py tests/test_mcp_client.py tests/test_mcp_server.py",
+      "passed": 46,
+      "failed": 0
+    },
+    "behavioral_observation": "The zero-importer test now observes safe_to_delete=false, deletion_safety=not_assessed, a direct_static_importers evidence basis, explicit dynamic-runtime uncertainty, and rendered output that claims neither SAFE nor BREAKING.",
+    "post_change_journey": {
+      "path_at_capture": "/tmp/ace-code-material-use-postchange.json",
+      "byte_count": 92151,
+      "sha256": "3bec49c41f394f7436f35004eaeea8cdf27eaff147ddd0a60ab28f4a7a1419df",
+      "working_tree_digest": "sha256:d80762002d612ca02af722be9e0197d20fbb4590cd50c2972ad935fe7cadd6ae",
+      "index_id": "code_index:6bd472e16e7b89c99e314e26a2cf6b4c",
+      "lens_id": "atrium_code_lens:371a0cb36563ad102d08605dfb7fa80a"
+    },
+    "deployed_runtime_effect_observed": false,
+    "user_or_business_outcome_observed": false,
+    "causal_benefit_claimed": false
+  },
+  "material_use": {
+    "observed": true,
+    "basis": "The ACE lens limitation directly changed a pre-existing response assertion, its returned fields, summary wording, and regression expectations.",
+    "recommendation_was_executed_verbatim": false,
+    "coding_agent_independent_judgment_required": true,
+    "matched_control_or_benefit_evaluation": false
+  },
+  "independent_review_closure": {
+    "rest_impact_path": {
+      "path": "core/engine/api/graph_traverse.py",
+      "sha256": "ccf15f0a5580534eb65829292b9ef6c8f06b5c96d4d9311f6c3f6820ffda45a8",
+      "safe_to_delete": false,
+      "deletion_safety": "not_assessed",
+      "summary_claims_safe_or_breaking": false,
+      "note": "The independently found duplicate REST behavior is now calibrated to the same fail-closed vocabulary; it remains a separate implementation from the MCP tool."
+    },
+    "mcp_formatter": {
+      "path": "core/engine/mcp/server.py",
+      "sha256": "ca7c403a0e21dae513a9d5afc84f866aa2b2ecb17bce18001d4a650ca0e92b2e",
+      "consumes_actual_functions_shape": true,
+      "consumes_structured_capability_rows": true
+    },
+    "return_boundary": {
+      "contract_path": "core/engine/code_intelligence/contracts.py",
+      "contract_sha256": "bfb9378ed7d0e09c94247fdd85de19306125ccd7c95796fde8078b7765478ea8",
+      "verifier_path": "scripts/verify_code_intelligence_return.py",
+      "verifier_sha256": "812bfb4b3cd641fe675ae5c34c5294339136a9090663053a29c5b94ff1eb283f",
+      "serialized_json_max_bytes": 131072,
+      "pre_parse_byte_limit": true,
+      "field_and_list_bounds": true,
+      "extra_fields_forbidden": true,
+      "authority_true_rejected": true,
+      "identity_and_out_of-scope_tampering_fail_closed": true
+    },
+    "verification": {
+      "focused_command_scope": "tests/test_mcp_graph_tools.py tests/test_graph_traverse.py tests/test_code_intelligence_journey.py tests/test_code_intelligence_return_verifier.py tests/test_mcp_client.py tests/test_mcp_server.py",
+      "passed": 94,
+      "failed": 0,
+      "thin_mcp_tool_count": 11,
+      "ruff": "passed",
+      "diff_check": "passed"
+    }
+  },
+  "authority": {
+    "source_authority": false,
+    "reasoning_authority": false,
+    "change_authority": false,
+    "approval_authority": false,
+    "delivery_authority": false,
+    "execution_authority": false,
+    "effect_authority": false
+  },
+  "limitations": [
+    "This is a local dirty-worktree material-use receipt, not a commit, pull request, release, publication, or deployment receipt.",
+    "The focused tests use mocked graph queries and demonstrate response behavior only.",
+    "No dynamic imports, runtime dispatch, generated code, reflection, or external consumers were resolved.",
+    "The pre-change packet bounded the changed paths, but its tools.py excerpt did not contain ace_impact; the earlier frozen ACE-on-ACE handoff supplied the exact function body. Both exact artifacts are preserved in the durable replay archive.",
+    "The archived post-change journey proves the original MCP material-use observation and predates the independent REST/formatter/return-boundary closure, which is bound separately by source digests and focused tests in this receipt.",
+    "The return verifier caps serialized JSON at 131072 bytes and bounds contract fields and lists; this is a local validation boundary, not sandboxing or trust isolation for an external coding agent.",
+    "This receipt shows attributable influence and observed tests, not universal code understanding, safe deletion, causal benefit, or production effect."
+  ]
+}

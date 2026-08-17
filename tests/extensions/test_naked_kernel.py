@@ -23,10 +23,12 @@ def test_disable_extensions_env_skips_all_discovery(monkeypatch):
     monkeypatch.setattr(loader, "_ensured", False)
     monkeypatch.setattr(registry, "_task_actions", {})
     monkeypatch.setattr(registry, "_grounded_state_adapters", {})
+    monkeypatch.setattr(registry, "_intelligence_resource_projection_providers", {})
     assert loader.load_extensions() == []
     assert loader.loaded_extensions() == []
     assert registry.registered_task_actions() == {}
     assert registry.registered_grounded_state_adapters() == {}
+    assert registry.registered_intelligence_resource_projection_providers() == ()
 
 
 @pytest.mark.unit
@@ -42,10 +44,8 @@ def test_extensions_load_normally_without_env(monkeypatch):
     # sync — true for anything that loads through the loader. If a future
     # test registers extension content directly on Registry() without going
     # through load_extensions(), add a registry reset fixture instead.
-    # Assert only what is true in BOTH trees: "product" is the reference
-    # extension and ships publicly; any private extensions would make this
-    # test fail-by-construction under the exported tree, where only "product"
-    # is installed. The real intent — the kill switch off means built-ins
-    # load — is preserved by asserting product loads.
+    # Assert only public built-ins. The kill switch off means installed
+    # product/solution contributions load through the same entry-point seam.
     loaded = loader.load_extensions()
+    assert "code-intelligence" in loaded
     assert "product" in loaded

@@ -190,4 +190,6 @@ def test_recovery_cli_exposes_bounded_backup_and_restore_commands():
     assert result.exit_code == 0
     assert "backup" in result.output
     assert "restore" in result.output
+    assert "prepare-surreal32" in result.output
+    assert "upgrade-assertion-history" in result.output
     assert "connector credentials" in result.output

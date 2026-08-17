@@ -25,10 +25,25 @@ def _mock_pool(edge_rows, created):
     conn = MagicMock()
 
     async def q(query, params=None):
-        if "FROM causes " in query:  # one edge type carries the clique; others empty
-            return [edge_rows]
-        if query.lstrip().startswith("SELECT in, out"):
-            return [[]]
+        if "FROM operational_relationship" in query:
+            rows = []
+            for index, edge in enumerate(edge_rows):
+                rows.append(
+                    {
+                        "id": f"operational_relationship:edge_{index}",
+                        "in": edge["in"],
+                        "out": edge["out"],
+                        "predicate": "causes",
+                        "assertion_id": f"relationship_assertion:edge_{index}",
+                        "assertion_product": params["product"],
+                        "assertion_status": "accepted",
+                        "assertion_projection_eligible": True,
+                        "assertion_subject": edge["in"],
+                        "assertion_object": edge["out"],
+                        "assertion_predicate": "causes",
+                    }
+                )
+            return [rows]
         if "FROM insight" in query:
             return [[{"content": f"knowledge item {i}"} for i in range(6)]]
         if query.lstrip().startswith("DELETE community_summary"):

@@ -27,6 +27,7 @@ AUTHORITIES = [
     "administer_lifecycle",
     "cognition-review",
     "deliver_export",
+    "derive_propose",
     "intelligence_build",
     "observe_read",
 ]
@@ -95,7 +96,7 @@ def _owner() -> dict:
 
 
 @pytest.mark.asyncio
-async def test_bootstrap_creates_then_verifies_four_fixed_product_scoped_grants():
+async def test_bootstrap_creates_then_verifies_fixed_product_scoped_grants():
     store = InMemoryGovernedStateStore()
 
     created = await bootstrap_local_owner_authority(user=_owner(), store=store, approved_at=NOW)
@@ -105,9 +106,9 @@ async def test_bootstrap_creates_then_verifies_four_fixed_product_scoped_grants(
         approved_at=NOW + timedelta(hours=1),
     )
 
-    assert [item.status for item in created.grants] == ["created"] * 4
-    assert [item.status for item in verified.grants] == ["verified"] * 4
-    assert len(store.heads) == 4
+    assert [item.status for item in created.grants] == ["created"] * len(LOCAL_OWNER_GRANTS)
+    assert [item.status for item in verified.grants] == ["verified"] * len(LOCAL_OWNER_GRANTS)
+    assert len(store.heads) == len(LOCAL_OWNER_GRANTS)
     for spec in LOCAL_OWNER_GRANTS:
         head = store.heads[("authority_grant", LOCAL_OWNER_PRODUCT_ID, spec.grant_ref)]
         revision = store.revisions[(LOCAL_OWNER_PRODUCT_ID, head.revision_id)]
@@ -135,9 +136,9 @@ async def test_bootstrap_verifies_grants_after_durable_json_round_trip():
         approved_at=NOW + timedelta(hours=1),
     )
 
-    assert [item.status for item in created.grants] == ["created"] * 4
-    assert [item.status for item in verified.grants] == ["verified"] * 4
-    assert len(store.heads) == 4
+    assert [item.status for item in created.grants] == ["created"] * len(LOCAL_OWNER_GRANTS)
+    assert [item.status for item in verified.grants] == ["verified"] * len(LOCAL_OWNER_GRANTS)
+    assert len(store.heads) == len(LOCAL_OWNER_GRANTS)
 
 
 @pytest.mark.asyncio
@@ -199,9 +200,9 @@ def test_http_bootstrap_uses_only_the_verified_local_owner_and_is_idempotent():
         app.dependency_overrides.clear()
 
     assert created.status_code == 200
-    assert [item["status"] for item in created.json()["grants"]] == ["created"] * 4
+    assert [item["status"] for item in created.json()["grants"]] == ["created"] * len(LOCAL_OWNER_GRANTS)
     assert verified.status_code == 200
-    assert [item["status"] for item in verified.json()["grants"]] == ["verified"] * 4
+    assert [item["status"] for item in verified.json()["grants"]] == ["verified"] * len(LOCAL_OWNER_GRANTS)
 
 
 def test_http_bootstrap_rejects_demo_claims_without_creating_grants():

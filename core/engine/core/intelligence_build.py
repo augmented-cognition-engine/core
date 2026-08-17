@@ -35,6 +35,11 @@ from core.engine.core.agent_composition_runtime import (
 from core.engine.core.db import pool
 from core.engine.core.governed_state import SurrealGovernedStateStore
 from core.engine.core.immutable_records import SurrealImmutableRecordStore
+from core.engine.core.intelligence_activation_authority import (
+    IntelligenceActivationApprovalDenied,
+    IntelligenceActivationApprovalUnavailable,
+    RecordedIntelligenceActivationAuthority,
+)
 from core.engine.core.intelligence_build_executor_registry import (
     IntelligenceBuildExecutorRegistryError,
     resolve_intelligence_build_executor,
@@ -115,14 +120,6 @@ class IntelligenceBuildContractConflict(IntelligenceBuildError):
     """A host result did not preserve the authorized request."""
 
 
-class _UnavailableActivationAuthority:
-    async def resolve_approval(self, **_request):
-        raise IntelligenceBuildUnavailable("no reviewed activation approval resolver is registered")
-
-    async def resolve_grant(self, **_request):
-        raise IntelligenceBuildUnavailable("no reviewed activation approval resolver is registered")
-
-
 class _InstalledIntelligenceBuildExecutor:
     async def start(
         self, build: AuthorizedIntelligenceBuild, host_services: IntelligenceBuildHostServices
@@ -142,10 +139,14 @@ def intelligence_build_runtime() -> IntelligenceBuildHttpRuntime:
     records = SurrealImmutableRecordStore(pool)
     governed_state = SurrealGovernedStateStore(pool)
     authority = GovernedStateRuntimeUseResolver(governed_state=governed_state)
+    activation_authority = RecordedIntelligenceActivationAuthority(
+        records=records,
+        governed_state=governed_state,
+    )
     return IntelligenceBuildHttpRuntime(
         records=records,
         authority=authority,
-        activation_authority=_UnavailableActivationAuthority(),
+        activation_authority=activation_authority,
         executor=_InstalledIntelligenceBuildExecutor(),
         host_composer=DurableIntelligenceBuildHostComposer(
             governed_state=governed_state,
@@ -298,6 +299,10 @@ async def start_intelligence_build(
         )
     except GovernedCompositionAuthorityError as exc:
         raise IntelligenceBuildDenied("current Core grant denied the build") from exc
+    except IntelligenceActivationApprovalDenied as exc:
+        raise IntelligenceBuildDenied("reviewed activation approval or authority denied the build") from exc
+    except IntelligenceActivationApprovalUnavailable as exc:
+        raise IntelligenceBuildUnavailable("reviewed activation authority is unavailable") from exc
     except (ValidationError, TypeError, ValueError) as exc:
         raise IntelligenceBuildContractConflict("Intelligence build result failed exact validation") from exc
     except IntelligenceBuildError:

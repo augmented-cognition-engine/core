@@ -4,6 +4,9 @@
 # handling) moved to the provider conformance suite: tests/llm/conformance.py
 # wired via tests/llm/test_claude_provider.py. Don't re-add it here.
 
+import pytest
+from pydantic import ValidationError as PydanticValidationError
+
 # ---------------------------------------------------------------------------
 # Subscription-path realignment (Task 4b) — OAuth bearer shape + resolution chain.
 # These scrub the auth environment and assert the NEW slot order and opt-in gate,
@@ -22,10 +25,14 @@ _COMPAT_ENV_NAMES = (
     "OPENAI_COMPAT_API_KEY",
     "OPENAI_COMPAT_MODEL",
     "OPENAI_COMPAT_MODEL_MAP",
+    "OPENAI_COMPAT_TIMEOUT",
     "OPENAI_BASE_URL",
     "OPENAI_API_KEY",
     "OPENAI_MODEL",
     "OPENAI_MODEL_MAP",
+    "RAG_VECTOR_MAX_DISTANCE",
+    "EMERGENCE_ENABLED",
+    "FORESIGHT_ENABLED",
 )
 
 
@@ -303,6 +310,58 @@ def test_canonical_compat_base_url_env_activates_slot_4(monkeypatch):
 
     assert isinstance(provider, llm_mod.OpenAICompatProvider)
     assert provider._base_url == "https://api.groq.com/openai/v1"
+
+
+def test_hardening_settings_defaults_are_compatible_and_gates_are_on(monkeypatch):
+    settings = _fresh_settings(monkeypatch)
+
+    assert settings.rag_vector_max_distance == 0.45
+    assert settings.openai_compat_timeout == 120.0
+    assert settings.emergence_enabled is True
+    assert settings.foresight_enabled is True
+
+
+def test_hardening_settings_read_canonical_environment(monkeypatch):
+    settings = _fresh_settings(
+        monkeypatch,
+        RAG_VECTOR_MAX_DISTANCE="0.7",
+        OPENAI_COMPAT_TIMEOUT="240.5",
+        EMERGENCE_ENABLED="false",
+        FORESIGHT_ENABLED="0",
+    )
+
+    assert settings.rag_vector_max_distance == 0.7
+    assert settings.openai_compat_timeout == 240.5
+    assert settings.emergence_enabled is False
+    assert settings.foresight_enabled is False
+
+
+@pytest.mark.parametrize("value", ["-0.01", "2.01", "nan", "inf"])
+def test_rag_vector_max_distance_rejects_invalid_environment(monkeypatch, value):
+    with pytest.raises(PydanticValidationError):
+        _fresh_settings(monkeypatch, RAG_VECTOR_MAX_DISTANCE=value)
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "3600.01", "nan", "inf"])
+def test_openai_compat_timeout_rejects_invalid_environment(monkeypatch, value):
+    with pytest.raises(PydanticValidationError):
+        _fresh_settings(monkeypatch, OPENAI_COMPAT_TIMEOUT=value)
+
+
+def test_openai_compat_timeout_env_wires_resolved_provider(monkeypatch):
+    llm_mod = _scrub_auth(monkeypatch)
+    configured = _fresh_settings(
+        monkeypatch,
+        OPENAI_COMPAT_BASE_URL="https://compat.example/v1",
+        OPENAI_COMPAT_TIMEOUT="33.25",
+    )
+    monkeypatch.setattr(llm_mod.settings, "openai_compat_base_url", configured.openai_compat_base_url)
+    monkeypatch.setattr(llm_mod.settings, "openai_compat_timeout", configured.openai_compat_timeout)
+
+    provider = llm_mod.get_llm()
+
+    assert isinstance(provider, llm_mod.OpenAICompatProvider)
+    assert provider._timeout == 33.25
 
 
 def test_legacy_base_url_alias_still_activates_slot_4(monkeypatch):
