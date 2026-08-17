@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ace-local-csv-source"
+version = "0.1.0"
+description = "Thin CSV structural source adapter for ACE Personal Intelligence"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+dependencies = ["ace-core>=1.1.0,<2"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ace_local_csv_source*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
