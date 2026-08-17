@@ -39,7 +39,14 @@
 - **`delete_graph` and `scan_status` lack product scoping.** `DELETE /scanner/scan/{graph_id}`
   destroys any product's graph, and `scan_status` enumerates any graph's existence and metadata —
   both undermining the non-confirming-404 isolation the traversal path enforces. Pre-existing, and
-  a distinct defect class (unauthorized delete/enumerate). → own 1.1.x issue with its own tests.
+  a distinct defect class (unauthorized delete/enumerate). → **Fixed** on
+  `codex/ace-1.1.x-graph-authorization` (stacked on this branch): both endpoints now require the
+  principal's product and refuse a missing, unbound, or foreign graph with a non-confirming 404
+  via a shared `_load_owned_graph` helper, before returning metadata or deleting anything.
+  Residual, noted: `scan_status`'s in-memory running-scan path still returns a metadata-free
+  `running`/`failed` status to any caller who guesses the exact ephemeral graph_id, because a
+  durable ownership record does not exist until the scan binds the graph on completion. Low
+  severity (no counts, paths, or content); a future owner-tracking map would close it.
 - **`init_project.py` conditioned rebind can miss.** Its `WHERE graph_id='default' AND repo_path=…`
   can match zero rows after a different checkout is scanned into `default`, failing silently at
   debug level. Related to the deferred altitude work; folded into that issue.

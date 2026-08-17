@@ -9,7 +9,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi import HTTPException
 
-from core.engine.api.scanner import ScanRequest, _running_scans, scan_repository
+from core.engine.api.scanner import (
+    ScanRequest,
+    _running_scans,
+    delete_graph,
+    scan_repository,
+    scan_status,
+)
 
 
 @pytest.fixture
@@ -146,3 +152,63 @@ class TestScanBinding:
         params = binding_calls[0].args[1]
         assert params.get("product") == "product:platform"
         assert params.get("gid") == "t_bind"
+
+
+class TestScanStatusAuthorization:
+    @pytest.mark.asyncio
+    async def test_status_requires_product(self, mock_pool):
+        user = {"sub": "user:test", "product": ""}
+        with patch("core.engine.api.scanner.pool", mock_pool), pytest.raises(HTTPException) as exc:
+            await scan_status("g_np", user=user)
+        assert exc.value.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_status_refuses_graph_owned_by_another_product(self, mock_pool, mock_db, mock_user):
+        """A completed graph bound to a different product must not leak its metadata."""
+        _running_scans.pop("g_foreign", None)
+        mock_db.query = AsyncMock(return_value=[{"product": "product:competitor", "node_count": 5, "edge_count": 2}])
+        with patch("core.engine.api.scanner.pool", mock_pool), pytest.raises(HTTPException) as exc:
+            await scan_status("g_foreign", user=mock_user)
+        assert exc.value.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_status_returns_owned_graph_metadata(self, mock_pool, mock_db, mock_user):
+        _running_scans.pop("g_mine", None)
+        mock_db.query = AsyncMock(return_value=[{"product": "product:platform", "node_count": 5, "edge_count": 2}])
+        with patch("core.engine.api.scanner.pool", mock_pool):
+            result = await scan_status("g_mine", user=mock_user)
+        assert result["status"] == "completed"
+        assert result["node_count"] == 5
+
+
+class TestDeleteGraphAuthorization:
+    @pytest.mark.asyncio
+    async def test_delete_requires_product(self, mock_pool):
+        user = {"sub": "user:test", "product": ""}
+        with patch("core.engine.api.scanner.pool", mock_pool), pytest.raises(HTTPException) as exc:
+            await delete_graph("g_np", user=user)
+        assert exc.value.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_delete_still_refuses_default(self, mock_pool, mock_user):
+        with patch("core.engine.api.scanner.pool", mock_pool), pytest.raises(HTTPException) as exc:
+            await delete_graph("default", user=mock_user)
+        assert exc.value.status_code == 400
+
+    @pytest.mark.asyncio
+    async def test_delete_refuses_foreign_graph_without_deleting(self, mock_pool, mock_db, mock_user):
+        mock_db.query = AsyncMock(return_value=[{"product": "product:competitor"}])
+        with patch("core.engine.api.scanner.pool", mock_pool), pytest.raises(HTTPException) as exc:
+            await delete_graph("g_foreign", user=mock_user)
+        assert exc.value.status_code == 404
+        delete_calls = [c for c in mock_db.query.await_args_list if "DELETE" in c.args[0].upper()]
+        assert not delete_calls, "a foreign graph must not be deleted"
+
+    @pytest.mark.asyncio
+    async def test_delete_owned_graph(self, mock_pool, mock_db, mock_user):
+        mock_db.query = AsyncMock(return_value=[{"product": "product:platform"}])
+        with patch("core.engine.api.scanner.pool", mock_pool):
+            result = await delete_graph("g_mine", user=mock_user)
+        assert result["status"] == "deleted"
+        delete_calls = [c for c in mock_db.query.await_args_list if "DELETE" in c.args[0].upper()]
+        assert delete_calls, "an owned graph must be deleted"

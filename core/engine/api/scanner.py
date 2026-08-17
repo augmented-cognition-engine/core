@@ -129,10 +129,48 @@ async def scan_repository(body: ScanRequest, user: dict = Depends(get_current_us
     )
 
 
+def _require_principal_product(user: dict) -> str:
+    """Resolve the product a request may act on, from the authenticated principal.
+
+    A caller-supplied graph_id is an assertion, not authorization. Every graph
+    is bound to exactly one product, so a request that can act on a graph must
+    come from a principal that carries a product binding.
+    """
+    product_ref = str(user.get("product") or "")
+    if not product_ref:
+        raise HTTPException(status_code=403, detail="Authenticated principal has no product binding")
+    return product_ref
+
+
+async def _load_owned_graph(db, graph_id: str, product_ref: str) -> dict:
+    """Load a graph row only if it is bound to the principal's product.
+
+    A missing graph, an unbound graph, or a graph bound to a different product
+    is refused with a non-confirming 404 — the same refusal the traversal
+    boundary uses — so the endpoint never leaks another product's graph or its
+    metadata, and never acts on one.
+    """
+    row = parse_one(
+        await db.query(
+            "SELECT * FROM graph WHERE graph_id = $gid LIMIT 1",
+            {"gid": graph_id},
+        )
+    )
+    bound = str(row.get("product")) if row else ""
+    if not row or not bound or bound != product_ref:
+        raise HTTPException(status_code=404, detail="Not found")
+    return row
+
+
 @router.get("/scan/{graph_id}/status")
 async def scan_status(graph_id: str, user: dict = Depends(get_current_user)):
     """Check scan progress."""
-    # Check if task is tracked in memory
+    product_ref = _require_principal_product(user)
+
+    # Check if task is tracked in memory. A running scan is metadata-free
+    # (no node counts or repo path) and keyed by an exact graph_id, so it is
+    # served without a durable ownership record, which does not yet exist
+    # until the scan binds the graph on completion.
     if graph_id in _running_scans:
         task = _running_scans[graph_id]
         if not task.done():
@@ -145,15 +183,9 @@ async def scan_status(graph_id: str, user: dict = Depends(get_current_user)):
         result = task.result()
         return {"graph_id": graph_id, "status": "completed", "result": result}
 
-    # Check database for graph
+    # Completed graph: return metadata only to the product that owns it.
     async with pool.connection() as db:
-        result = await db.query(
-            "SELECT * FROM graph WHERE graph_id = $gid LIMIT 1",
-            {"gid": graph_id},
-        )
-    row = parse_one(result)
-    if not row:
-        raise HTTPException(status_code=404, detail=f"Graph not found: {graph_id}")
+        row = await _load_owned_graph(db, graph_id, product_ref)
 
     return {
         "graph_id": graph_id,
@@ -167,10 +199,16 @@ async def scan_status(graph_id: str, user: dict = Depends(get_current_user)):
 @router.delete("/scan/{graph_id}")
 async def delete_graph(graph_id: str, user: dict = Depends(get_current_user)):
     """Delete a graph and all its nodes/edges."""
+    product_ref = _require_principal_product(user)
+
     if graph_id == "default":
         raise HTTPException(status_code=400, detail="Cannot delete the default graph")
 
     async with pool.connection() as db:
+        # Refuse to destroy a graph this principal's product does not own,
+        # before any DELETE runs.
+        await _load_owned_graph(db, graph_id, product_ref)
+
         # Delete all nodes scoped to this graph_id
         for table in [
             "graph_file",
