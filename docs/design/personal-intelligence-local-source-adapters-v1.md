@@ -48,8 +48,29 @@ citation locator grammar can resolve every citation to an exact span:
 Adapters never emit a recorded-source record, a digest, or a freshness claim — those belong to the
 governed acquisition port.
 
+## Future formats (docx, pptx, xlsx, …)
+
+Office and other document formats are **out of ACE 1.2 scope** by construction: the 1.2 acceptance
+gate (issue #195) is frozen to local Markdown/Obsidian, PDF, CSV, and JSON, and 1.2 does not
+promise a universal connector catalog. Adding a format to 1.2 would break that frozen gate.
+
+The whole point of this architecture is that they drop in later without touching Core or the
+governed acquisition port. Each new format is another thin sibling adapter package with:
+
+- the same `(bytes, format) -> structured document + anchors` shape;
+- its own anchor grammar — docx: heading/paragraph path; pptx: slide number; xlsx: sheet + cell
+  reference; and
+- its own isolated parser dependency (`python-docx`, `python-pptx`, `openpyxl`), so a user pulls a
+  parser only for a format they actually connect.
+
+The governed acquisition port dispatches to an adapter by file extension; adding a format is a new
+package plus one registration, never a change to the trust boundary. Which formats to build, and
+when, is an adapter-ecosystem decision driven by demonstrated Solution Bundle need — not a 1.2
+commitment.
+
 ## Scope of this document
 
-This records the PI2/PI3 boundary and the four-package shape. It does not implement PI3 (the
+This records the PI2/PI3 boundary and the four-package shape for 1.2. It does not implement PI3 (the
 acquisition port) or PI4 (the mapping/locator grammar); each lands under its own slice. PI2 begins
-with the Markdown/Obsidian adapter, which is stdlib-only and adds no dependency.
+with the Markdown/Obsidian adapter, which is stdlib-only and adds no dependency; only the PDF
+adapter carries a parser dependency (pypdf).
