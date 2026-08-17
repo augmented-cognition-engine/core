@@ -244,7 +244,7 @@ marked **reviewed — no change required**. The exact closeout checklist lives i
 | 0.8.0 | Intelligence OS Realignment | **Passed** | Public Core 0.8.0 unifies the governed resource plane and Atrium experience over the released Builder, composition, memory, action, and outcome foundations; independent World/Market proofs reproduce the same contract without domain branches | [#40](https://github.com/augmented-cognition-engine/core/issues/40) |
 | 0.9.0 | Single-user Intelligence Builder | **Passed** | The personal install → choose → connect → map → watch → first cited Brief → continuous update journey is implemented through Atrium, with local ownership, recovery, and World/Market proof | [#41](https://github.com/augmented-cognition-engine/core/issues/41) |
 | 1.0.0 | Personal Intelligence Operating System | **Passed** | Public Core 1.0.3, World 0.13.0, and Market 0.8.0 artifacts reproduce the supported single-user loop, exact owner authority, provider-neutral model setup, recovery, continuously updating cited Briefs, and bounded direction-package/outcome return without requiring collaboration or managed infrastructure | [#42](https://github.com/augmented-cognition-engine/core/issues/42) |
-| 1.1 | Code Intelligence | **Passed** | Public Core 1.1.0 reproduces the repository-to-reasoning graph, bounded downstream impact, untrusted-repository handoff, governed improvement loops, delegated review/activation, SurrealDB 3.2/v179 recovery, exact eleven-tool surface, and checkout-free public-index install | [#194](https://github.com/augmented-cognition-engine/core/issues/194) |
+| 1.1 | Code Intelligence | **Passed** | Public Core 1.1.0 reproduces the repository-to-reasoning graph, bounded downstream impact, untrusted-repository handoff, the governed improvement-loop contracts, delegated review/activation, SurrealDB 3.2/v179 recovery, exact eleven-tool surface, and checkout-free public-index install. The public release delivers bounded read-only reasoning and handoff; active loop execution is sequenced later (linked repair in 1.3, future-work learning in 1.6) | [#194](https://github.com/augmented-cognition-engine/core/issues/194) |
 | 1.2 | Personal Intelligence | **Now** | A durable personal intelligence environment beginning with read-only local Markdown/Obsidian, PDF, CSV, and JSON sources; at most one remote knowledge source follows only after the local journey passes. The bundle binds exact independently released adapter versions without owning them or requiring a universal connector catalog | [#195](https://github.com/augmented-cognition-engine/core/issues/195) |
 | 1.3 | Intelligence Operations and Safe Evolution | **Later** | Version discovery, Atrium update experience, compatibility-aware upgrade plans, migration receipts, backup, rollback, health, and recovery so upgrades improve the experience without surprising users | [#196](https://github.com/augmented-cognition-engine/core/issues/196) |
 | 1.4 | Intelligence Pack Kit and Topic Intelligence | **Later** | A supported kit for organizational, domain, and focused Topic packs with reusable concepts, semantics, policies, tests, demos, and packaging over the same graph substrate | [#197](https://github.com/augmented-cognition-engine/core/issues/197) |
@@ -702,7 +702,9 @@ without transferring source, reasoning, delivery, or effect authority. This does
 language coverage, safe-deletion proof, or omniscient impact prediction. The public contract and
 acceptance gate live in [issue #194](https://github.com/augmented-cognition-engine/core/issues/194).
 
-The 1.1 improvement model contains three separately governed loops:
+The 1.1 improvement model freezes three separately governed loops as contracts. The public 1.1
+release delivers bounded read-only reasoning and handoff; active execution of these loops is
+sequenced across later releases as noted below.
 
 1. **Complete the current change.** Reconcile an approved Decision against the current repository
    and impact graph; identify omitted APIs, schemas, consumers, tests, migrations, documentation,
@@ -723,7 +725,10 @@ notify, pause, steer, cancel, replan, and integration dispositions. Git remains 
 commits and merges; the IDE or coding agent owns its editing session; ACE owns the Decision,
 impact, participant, context, handoff, integration, and Outcome lineage.
 
-The reference acceptance program is **ACE Builds ACE**: freeze a real 1.1 roadmap Decision, compare
+The reference acceptance program is **ACE Builds ACE**. By owner decision (2026-08-17) it is
+executed in ACE 1.2 with bounded 1.2 implementation Decisions as its subject, using shipped 1.1
+capabilities only; it was not part of the public 1.1 release. The program: freeze a real roadmap
+Decision, compare
 the same coding agent with and without ACE under equivalent models, tools, task, and authority,
 exercise concurrent participants and at least one stale-context event, produce a propagation result,
 linked repair or explicit complete coverage, architecture opportunity or justified no-opportunity,

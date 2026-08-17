@@ -60,6 +60,26 @@ Legend: **1.1.x** = narrowly scoped maintenance patch under the published 1.1 pr
 
 ## 5. Owner decisions required (no record owns these today)
 
+### Resolved by owner 2026-08-17
+
+- **Improvement loops 1–2** — the public 1.1 release delivered bounded read-only reasoning and
+  handoff, not active loops (per `ace-1.1.0-public-release-v1.md`). ROADMAP:247, the 1.1
+  improvement-model section, and `governed-code-improvement-loop-v1.md`'s 1.1 roadmap-fit are
+  reconciled: 1.1 freezes the loop **contracts**; active linked repair is sequenced to 1.3 and
+  future-work learning to 1.6.
+- **`ACE Builds ACE`** — executed in ACE 1.2 with bounded 1.2 Decisions as its subject (decision
+  13 / #220), not 1.1. ROADMAP and the improvement-loop design doc now say so.
+- **SI1–SI4** — the general two-external-pack gate targets a post-1.2 milestone; ACE 1.2 delivers
+  the bounded SI1 slice (as-of isolation, no future leakage) via PI7 (#215). Recorded on #47; the
+  ROADMAP phase-8 row was corrected in PI1.
+- **World-to-Code demonstration** — **deferred** until after the 1.2 local journey passes; it is a
+  top-of-funnel demo that blocks nothing. Revisit at 1.2 close.
+- **F2 naming collision** — the two "F2"s are in distinct registers (0.6 foresight consequence
+  broadening vs. #49 security observability). Disambiguated by a note on #49; no rename, to avoid
+  breaking the F-series references.
+
+The remaining rows below stay open pending an owner call.
+
 | Item | Where recorded | Tension |
 |---|---|---|
 | **World-to-Code demonstration** — promised "after the repository journey passes"; that journey passed | issue #194 scope | Candidate marketing deliverable; needs a home or an explicit drop |

@@ -322,9 +322,11 @@ insufficient-evidence results and compare later governed revisions against froze
 
 ### 1.1 — Code Intelligence
 
-Productizes change-impact coverage, concurrent work reconciliation, stale-context and overlap
-detection, integrated verification, propagation-gap findings, architecture opportunities, bounded
-coding-agent handoffs, and the `ACE Builds ACE` reference program.
+Freezes the governed improvement-loop contracts and productizes change-impact coverage,
+concurrent-work reconciliation, stale-context and overlap detection, propagation-gap findings, and
+bounded coding-agent handoffs. The public 1.1 release delivers bounded read-only reasoning and
+handoff; active linked repair is sequenced to 1.3 and future-work learning to 1.6. The
+`ACE Builds ACE` reference program is executed in 1.2 by owner decision (2026-08-17), not 1.1.
 
 ### 1.2 — Personal Intelligence
 
