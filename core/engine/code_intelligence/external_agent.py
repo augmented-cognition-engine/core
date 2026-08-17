@@ -260,6 +260,7 @@ def validate_external_agent_invocation(
     cli_version: str,
     model: str,
     repository_root: Path,
+    replay_macos_tmp_alias: bool = False,
 ) -> tuple[str, ...]:
     """Parse one exact, no-bypass Codex invocation envelope."""
 
@@ -294,10 +295,14 @@ def validate_external_agent_invocation(
         "-",
     ]
     normalized = list(argv)
+    comparable_expected = list(expected)
     if len(normalized) == len(expected):
         for index in (11, 13, 15):
             normalized[index] = str(Path(normalized[index]).resolve())
-    if normalized != expected:
+            if replay_macos_tmp_alias:
+                normalized[index] = _normalize_macos_tmp_alias(normalized[index])
+                comparable_expected[index] = _normalize_macos_tmp_alias(comparable_expected[index])
+    if normalized != comparable_expected:
         raise ValueError("external-agent invocation differs from the exact no-bypass Codex argv")
     return tuple(argv)
 
@@ -690,6 +695,7 @@ def validate_external_coding_agent_acceptance(
     normalized_return: bytes,
     repository_diff: bytes,
     repository_root: Path,
+    replay_macos_tmp_alias: bool = False,
 ) -> ExternalCodingAgentAcceptanceRunV1Alpha1:
     """Rebuild delivery coordinates from raw envelopes and revalidate the return."""
 
@@ -700,11 +706,13 @@ def validate_external_coding_agent_acceptance(
         cli_version=delivery.cli_version,
         model=delivery.model,
         repository_root=repository_root,
+        replay_macos_tmp_alias=replay_macos_tmp_alias,
     )
     session_id, first_event_type, event_count, _, _, _, message_text = derive_external_agent_transcript(
         transcript,
         repository_root,
         accepted.change_set.path,
+        replay_macos_tmp_alias=replay_macos_tmp_alias,
     )
     byte_checks = (
         (delivery.transcript_digest, raw_digest(transcript), delivery.transcript_byte_count, len(transcript)),

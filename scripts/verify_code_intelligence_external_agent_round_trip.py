@@ -650,6 +650,7 @@ def replay_external_agent_archive(
         normalized_return=members["exchange/normalized-return.json"],
         repository_diff=members["observations/repository.diff"],
         repository_root=Path(expectation.workspace_root),
+        replay_macos_tmp_alias=True,
     )
     exact_contract_members = {
         "control/live-handoff.json": _pretty(journey.handoff),
