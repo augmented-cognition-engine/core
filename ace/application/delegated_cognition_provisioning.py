@@ -26,6 +26,14 @@ from ace.application.agent_governance import (
 from ace.core.agent_composition import AgentPrincipalV1Alpha1, AuthorityClass, PrincipalKind, PrincipalLifecycle
 from ace.core.agent_governance import AgentGovernanceCoordinateV1Alpha1
 from ace.core.contracts import FrozenContract, canonical_hash
+from ace.core.delegated_cognition import (
+    ACTIVATION_AUTHORITY_CLASS,
+    ACTIVATION_OPERATION,
+    GRANT_PAYLOAD_CONTRACT,
+    REVIEW_AUTHORITY_CLASS,
+    REVIEW_OPERATION,
+    CompositionAuthorityGrantMaterial,
+)
 from ace.core.records import (
     AppendOnlyTransactionRequestV1,
     ImmutableRecordV1,
@@ -41,16 +49,6 @@ from ace.intelligence.contracts.agent_governance import (
     AgentPrincipalLifecycleRevisionV1Alpha1,
     PrincipalLifecycleState,
     exact_registration_reference,
-)
-from core.engine.cognition.delegated_activation import (
-    ACTIVATION_AUTHORITY_CLASS,
-    ACTIVATION_OPERATION,
-    REVIEW_AUTHORITY_CLASS,
-    REVIEW_OPERATION,
-)
-from core.engine.core.agent_composition_runtime import (
-    GRANT_PAYLOAD_CONTRACT,
-    CompositionAuthorityGrantMaterial,
 )
 
 DELEGATED_COGNITION_PROVISIONING_REQUEST_VERSION = "ace.cognition.delegated-service-provisioning-request/v1alpha1"

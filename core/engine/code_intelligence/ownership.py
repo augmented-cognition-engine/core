@@ -333,9 +333,9 @@ class GitHubCodeownersAdapter:
             raise ValueError("target path must use one canonical repository-relative spelling")
         if self._contains_symlink(lexical):
             raise ValueError("target path must not traverse a symlink")
+        self._require_exact_component_spelling(canonical)
         if not self._is_regular_file(candidate):
             raise ValueError(f"target file does not exist: {target_path}")
-        self._require_exact_component_spelling(canonical)
         return canonical
 
     def _require_exact_component_spelling(self, canonical: str) -> None:
@@ -347,7 +347,9 @@ class GitHubCodeownersAdapter:
             except OSError as exc:
                 raise ValueError(f"target file does not exist: {canonical}") from exc
             if part not in entries:
-                raise ValueError("target path must use the exact component spelling recorded in the repository")
+                if any(entry.casefold() == part.casefold() for entry in entries):
+                    raise ValueError("target path must use the exact component spelling recorded in the repository")
+                raise ValueError(f"target file does not exist: {canonical}")
             current = current / part
 
     def _tracked_source(self) -> tuple[str | None, Any | None, str | None]:

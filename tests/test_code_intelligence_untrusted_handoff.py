@@ -444,6 +444,9 @@ def test_casefold_collision_in_head_tree_fails_closed(tmp_path: Path) -> None:
         commit_date="2000-01-01 00:00:01 +0000",
         skip_hooks=True,
     )
+    alias = source / "pkg/Service.py"
+    if not alias.exists():
+        alias.write_bytes((source / _TARGET).read_bytes())
     _refresh_index(repo)
     with pytest.raises(ValueError, match="path_invalid"):
         _prepare(source, tmp_path / "filtered")

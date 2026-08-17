@@ -637,6 +637,7 @@ def replay_external_agent_archive(
         members["logs/codex-events.jsonl"],
         Path(expectation.workspace_root),
         accepted.change_set.path,
+        replay_macos_tmp_alias=True,
     )
     validate_external_coding_agent_acceptance(
         journey,

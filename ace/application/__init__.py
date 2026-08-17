@@ -225,6 +225,17 @@ from ace.application.decision_feedback import (
     PreparedFeedbackProposalAdmission,
     PreparedOutcomeAdmission,
 )
+from ace.application.delegated_cognition_provisioning import (
+    DELEGATED_COGNITION_PROVISIONING_RECEIPT_VERSION,
+    DELEGATED_COGNITION_PROVISIONING_RECORD_KIND,
+    DELEGATED_COGNITION_PROVISIONING_REQUEST_VERSION,
+    DELEGATED_COGNITION_SERVICE_PROTOCOL,
+    DelegatedCognitionProvisioningError,
+    DelegatedCognitionProvisioningReceiptV1Alpha1,
+    DelegatedCognitionProvisioningRequestV1Alpha1,
+    DelegatedCognitionProvisioningService,
+    delegated_cognition_service_token_claims,
+)
 from ace.application.domain_activation import (
     CommittedActivationBinding,
     CommittedDomainActivation,
@@ -485,6 +496,11 @@ from ace.application.intelligence_resource_projection import (
     LiveSourceResourceProjectionReader,
     MonitoringResourceProjectionReader,
     RecordedSourceReadinessResourceProjectionReader,
+)
+from ace.application.intelligence_system_projection import (
+    DOMAIN_HEALTH_RESOURCE_KINDS,
+    project_intelligence_system_plan,
+    project_intelligence_system_resource_state,
 )
 from ace.application.live_intelligence_bridge import (
     LiveBriefAdmission,
@@ -1128,5 +1144,17 @@ __all__ = [
     "supersession_impact_record",
     "validate_bundle_for_manifest",
     "delivery_payload_digest",
+    "DELEGATED_COGNITION_PROVISIONING_RECEIPT_VERSION",
+    "DELEGATED_COGNITION_PROVISIONING_RECORD_KIND",
+    "DELEGATED_COGNITION_PROVISIONING_REQUEST_VERSION",
+    "DELEGATED_COGNITION_SERVICE_PROTOCOL",
+    "DelegatedCognitionProvisioningError",
+    "DelegatedCognitionProvisioningReceiptV1Alpha1",
+    "DelegatedCognitionProvisioningRequestV1Alpha1",
+    "DelegatedCognitionProvisioningService",
+    "delegated_cognition_service_token_claims",
+    "DOMAIN_HEALTH_RESOURCE_KINDS",
     "export_manifest_checksum",
+    "project_intelligence_system_plan",
+    "project_intelligence_system_resource_state",
 ]

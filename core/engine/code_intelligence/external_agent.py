@@ -8,6 +8,7 @@ observation grants the external agent any ACE authority.
 from __future__ import annotations
 
 import json
+import posixpath
 import re
 from datetime import datetime
 from pathlib import Path
@@ -41,6 +42,15 @@ _TRANSCRIPT_EVENT_COUNT = 10
 
 
 _COMMAND_LIKE_KEYS = ("command", "cmd")
+
+
+def _normalize_macos_tmp_alias(path: str) -> str:
+    """Normalize only macOS's documented ``/private/tmp`` alias."""
+
+    normalized = posixpath.normpath(path)
+    if normalized == "/private/tmp" or normalized.startswith("/private/tmp/"):
+        return normalized.removeprefix("/private")
+    return normalized
 
 
 def _is_legitimate_command_position(container: dict[str, Any], key: str) -> bool:
@@ -137,6 +147,8 @@ def derive_external_agent_transcript(
     transcript: bytes,
     repository_root: Path,
     target_path: str,
+    *,
+    replay_macos_tmp_alias: bool = False,
 ) -> tuple[str, str, int, tuple[str, ...], tuple[str, ...], tuple[str, ...], str]:
     """Derive session, commands, exact writes, and the sole return message.
 
@@ -197,11 +209,20 @@ def derive_external_agent_transcript(
         raise ValueError("external-agent file_change item does not contain exactly one exact change")
     change = changes[0]
     path = change.get("path") if isinstance(change, dict) else None
-    if not isinstance(path, str) or str(Path(path).resolve()) != expected_write:
+    observed_write = str(Path(path).resolve()) if isinstance(path, str) else None
+    audited_write = expected_write
+    if replay_macos_tmp_alias:
+        # Historical macOS receipts observe ``/tmp`` while pathlib records the
+        # same filesystem location as ``/private/tmp``. Normalize only during
+        # immutable archive replay; live validation retains exact host paths.
+        expected_write = _normalize_macos_tmp_alias(expected_write)
+        if observed_write is not None:
+            observed_write = _normalize_macos_tmp_alias(observed_write)
+    if observed_write != expected_write:
         raise ValueError("external-agent file_change path differs from the exact target")
     if not isinstance(change, dict) or change.get("kind") != "update":
         raise ValueError("external-agent file_change kind is not update")
-    writes = ((expected_write, "update"),)
+    writes = ((audited_write, "update"),)
 
     check_command, date_command = _ALLOWED_COMMANDS
     _exact_command_pair(events[4], events[5], item_id=_CHECK_COMMAND_ITEM_ID, command=check_command)

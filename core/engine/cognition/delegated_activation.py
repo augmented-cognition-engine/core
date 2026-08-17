@@ -27,6 +27,12 @@ from ace.core.agent_composition import (
     PrincipalKind,
 )
 from ace.core.contracts import FrozenContract, canonical_hash
+from ace.core.delegated_cognition import (
+    ACTIVATION_AUTHORITY_CLASS,
+    ACTIVATION_OPERATION,
+    REVIEW_AUTHORITY_CLASS,
+    REVIEW_OPERATION,
+)
 from ace.core.runtime_use import CapabilityArtifactIdentityV1Alpha1
 
 DELEGATED_ACTIVATION_REQUEST_VERSION = "ace.cognition.delegated-activation-request/v1alpha1"
@@ -37,10 +43,6 @@ DELEGATED_ACTIVATION_RECEIPT_VERSION = "ace.cognition.delegated-activation-recei
 
 DELEGATED_ACTIVATION_POLICY = "ace.cognition.delegated-activation-policy/v1alpha1"
 
-REVIEW_OPERATION = "review_governed_cognition_capture"
-ACTIVATION_OPERATION = "activate_governed_cognition_revision"
-REVIEW_AUTHORITY_CLASS = AuthorityClass.DECIDE_APPROVE
-ACTIVATION_AUTHORITY_CLASS = AuthorityClass.MUTATE_INTERNAL
 CONSEQUENCE_CLASS = "internal_cognition_selection_no_external_effect"
 
 DELEGATED_RECORD_SPACE = "governed_cognition_delegation"

@@ -1,6 +1,7 @@
 # tests/test_mcp_graph_tools.py
 """Tests for MCP graph tools — ace_impact, ace_history, ace_related."""
 
+import re
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -332,7 +333,8 @@ async def test_ace_impact_refuses_unshaped_arguments_before_any_db_call(kwargs, 
         assert mock_conn.query.await_args_list == []
 
     message = str(excinfo.value)
-    assert message.startswith(expected)
+    unwrapped = re.sub(r"^\[[0-9a-f]{12}\] ", "", message)
+    assert unwrapped.startswith(expected)
     # Bounded and non-echoing: the refusal names the field and its rule, and
     # never reflects the rejected value back into a response the model reads.
     assert len(message) < 120
