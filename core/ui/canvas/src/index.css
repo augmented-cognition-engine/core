@@ -220,44 +220,120 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
-/* Atrium is ACE's always-on command center. It uses a tighter midnight
- * surface ladder than the deliberation and canvas routes while preserving
- * the shared ACE semantic tokens. Keeping this scoped prevents a domain or
- * command-center preference from becoming a kernel-wide theme decision. */
+/* Atrium uses a neutral, high-contrast surface ladder. The logo spectrum is
+ * reserved for identity and focus; semantic colors retain literal meaning. */
 .atrium-command-center.dark {
-    --background: #070A10;
-    --foreground: #F2F5FA;
-    --card: #101620;
-    --card-foreground: #F2F5FA;
-    --popover: #141B27;
-    --popover-foreground: #F2F5FA;
-    --primary: #7597FF;
-    --primary-foreground: #071020;
-    --secondary: #1A2230;
-    --secondary-foreground: #F2F5FA;
-    --muted: #141B25;
-    --muted-foreground: #9CA9BC;
-    --accent: #1C2636;
-    --accent-foreground: #F2F5FA;
-    --border: #263248;
-    --input: #33425A;
-    --ring: #7597FF;
-    --brand: #7597FF;
-    --brand-foreground: #071020;
-    --live: #55D6E6;
-    --live-foreground: #071020;
-    --success: #48C77A;
+    color-scheme: dark;
+    --background: #050506;
+    --foreground: #F4F3EF;
+    --card: #0D0E10;
+    --card-foreground: #F4F3EF;
+    --popover: #121416;
+    --popover-foreground: #F4F3EF;
+    --primary: #F2F1ED;
+    --primary-foreground: #09090A;
+    --secondary: #151719;
+    --secondary-foreground: #F4F3EF;
+    --muted: #111315;
+    --muted-foreground: #A1A1A6;
+    --accent: #1A1D20;
+    --accent-foreground: #F4F3EF;
+    --border: #2A2E31;
+    --input: #34383C;
+    --ring: #8A6CFF;
+    --brand: #8A6CFF;
+    --brand-foreground: #09090A;
+    --live: #65AEB8;
+    --live-foreground: #061012;
+    --success: #5DCB82;
     --success-foreground: #07140C;
-    --anchor: #111B32;
-    --anchor-foreground: #F2F5FA;
-    --sidebar: #090D14;
-    --sidebar-foreground: #EAF0F8;
-    --sidebar-primary: #7597FF;
-    --sidebar-primary-foreground: #071020;
-    --sidebar-accent: #161E2B;
-    --sidebar-accent-foreground: #F2F5FA;
-    --sidebar-border: #222D40;
-    --sidebar-ring: #7597FF;
+    --warning: #E5AA55;
+    --warning-foreground: #171006;
+    --destructive: #E56A6A;
+    --destructive-foreground: #170707;
+    --anchor: #161719;
+    --anchor-foreground: #F4F3EF;
+    --sidebar: #08090A;
+    --sidebar-foreground: #EDECE8;
+    --sidebar-primary: #F2F1ED;
+    --sidebar-primary-foreground: #09090A;
+    --sidebar-accent: #181A1C;
+    --sidebar-accent-foreground: #F4F3EF;
+    --sidebar-border: #25282B;
+    --sidebar-ring: #8A6CFF;
+}
+
+.atrium-maintenance-weave {
+    position: absolute;
+    right: -0.5rem;
+    top: 0.5rem;
+    width: min(16rem, 42%);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.atrium-maintenance-weave svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+.atrium-maintenance-weave path {
+    fill: none;
+    stroke: color-mix(in srgb, var(--foreground) 14%, transparent);
+    stroke-width: 0.8;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.atrium-maintenance-weave path:nth-child(2) {
+    stroke: color-mix(in srgb, var(--foreground) 11%, transparent);
+}
+
+.atrium-maintenance-weave path:nth-child(3) {
+    stroke: color-mix(in srgb, var(--foreground) 9%, transparent);
+}
+
+.atrium-maintenance-weave[data-active="true"] path {
+    animation: atrium-weave-breathe 18s ease-in-out infinite;
+}
+
+.atrium-maintenance-weave[data-active="true"] path:nth-child(2) {
+    animation-delay: -6s;
+}
+
+.atrium-maintenance-weave[data-active="true"] path:nth-child(3) {
+    animation-delay: -12s;
+}
+
+@keyframes atrium-weave-breathe {
+    0%, 100% { opacity: 0.35; transform: scale(0.985); }
+    50% { opacity: 0.8; transform: scale(1); }
+}
+
+@media (max-width: 767px) {
+    .atrium-maintenance-weave {
+        right: -2rem;
+        top: 1rem;
+        width: 12rem;
+        opacity: 0.32;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .atrium-command-center,
+    .atrium-command-center *,
+    .atrium-command-center *::before,
+    .atrium-command-center *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .atrium-maintenance-weave[data-active="true"] path {
+        animation: none;
+    }
 }
 
 @layer base {

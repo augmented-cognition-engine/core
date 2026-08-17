@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
@@ -33,6 +34,15 @@ from ace.intelligence.contracts.activation import (
 )
 from ace.intelligence.contracts.intelligence_builder_presentation import IntelligenceOnboardingProfileV1Alpha1
 from ace.intelligence.contracts.pack import AuthorityRequestV1, CapabilityRequirementV1, CompiledDomainPackV1
+from ace.intelligence.contracts.system_projection import (
+    DOMAIN_HEALTH_DIMENSION_ORDER,
+    INITIALIZATION_STAGE_ORDER,
+    BlueprintElementKind,
+    IntelligenceSystemProjectionV1Alpha1,
+    PermissionReadinessState,
+    ProjectionSupport,
+    SourceBindingState,
+)
 from ace.intelligence.packs.compiler import compile_pack_document_with_report
 from core.engine.api.intelligence_builds import router
 from core.engine.core.auth import get_current_user
@@ -248,6 +258,89 @@ async def test_prepare_returns_exact_review_material_without_authority_or_execut
 
 
 @pytest.mark.asyncio
+async def test_projection_exposes_complete_truthful_product_contract_without_changing_plan() -> None:
+    response, _ = await _request(planner=_Planner())
+    plan = IntelligenceBuildPlanV1Alpha3.model_validate_json(response.content)
+    original_plan_json = plan.model_dump_json()
+    packs = _PackResolver()
+    app = FastAPI()
+    app.include_router(router)
+    app.dependency_overrides[get_current_user] = _claims
+    app.dependency_overrides[intelligence_build_plan_runtime] = lambda: IntelligenceBuildPlanHttpRuntime(
+        profiles=(INSTALLED_PROFILE,),
+        packs=packs,
+        planners=_PlannerResolution(_Planner()),
+    )
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        projected = await client.post(
+            "/v1/intelligence/builds/projection",
+            json={"plan": plan.model_dump(mode="json")},
+        )
+
+    assert projected.status_code == 200, projected.text
+    projection = IntelligenceSystemProjectionV1Alpha1.model_validate_json(projected.content)
+    assert plan.model_dump_json() == original_plan_json
+    assert projection.product_id == PRODUCT
+    assert projection.plan.reference == plan.plan_id
+    assert projection.plan.digest == plan.plan_digest
+    assert projection.pack == PACK_REFERENCE
+    assert projection.projection_id.startswith("intelligence_system_projection:")
+    blueprint_kinds = {item.kind for item in projection.blueprint.elements}
+    assert {
+        BlueprintElementKind.ENTITY,
+        BlueprintElementKind.EVENT,
+        BlueprintElementKind.SIGNAL,
+        BlueprintElementKind.QUESTION,
+        BlueprintElementKind.UPDATE,
+        BlueprintElementKind.OUTPUT,
+    }.issubset(blueprint_kinds)
+    assert len(projection.changes) == len(projection.blueprint.elements)
+    assert all(item.requires_review for item in projection.changes)
+    assert len(projection.source_bindings) == 1
+    binding = projection.source_bindings[0]
+    assert binding.binding_state is SourceBindingState.PROPOSED
+    assert binding.permission_state is PermissionReadinessState.NOT_EVALUATED
+    assert binding.readiness_state is PermissionReadinessState.NOT_EVALUATED
+    assert binding.requirements.support is ProjectionSupport.UNSUPPORTED
+    assert projection.coverage
+    assert all(item.predicted.support is ProjectionSupport.UNSUPPORTED for item in projection.coverage)
+    assert all(item.observed.support is ProjectionSupport.UNSUPPORTED for item in projection.coverage)
+    assert tuple(item.stage for item in projection.initialization) == INITIALIZATION_STAGE_ORDER
+    assert projection.derivations.availability.support is ProjectionSupport.UNSUPPORTED
+    assert not projection.derivations.items
+    assert tuple(item.dimension for item in projection.domain_health) == DOMAIN_HEALTH_DIMENSION_ORDER
+    assert all(item.value.support is ProjectionSupport.UNSUPPORTED for item in projection.domain_health)
+    incomplete = projection.model_dump(mode="python", exclude={"projection_id", "projection_digest"})
+    incomplete["coverage"] = incomplete["coverage"][:-1]
+    with pytest.raises(ValueError, match="every blueprint entity, event, and signal"):
+        IntelligenceSystemProjectionV1Alpha1.model_validate(incomplete)
+    assert packs.calls == [PACK_REFERENCE]
+
+
+@pytest.mark.asyncio
+async def test_projection_rejects_tampered_or_foreign_review_material() -> None:
+    response, _ = await _request(planner=_Planner())
+    plan_json = IntelligenceBuildPlanV1Alpha3.model_validate_json(response.content).model_dump(mode="json")
+    app = FastAPI()
+    app.include_router(router)
+    app.dependency_overrides[get_current_user] = _claims
+    app.dependency_overrides[intelligence_build_plan_runtime] = lambda: IntelligenceBuildPlanHttpRuntime(
+        profiles=(INSTALLED_PROFILE,),
+        packs=_PackResolver(),
+        planners=_PlannerResolution(_Planner()),
+    )
+    tampered = deepcopy(plan_json)
+    tampered["request"]["subject"] = "A materially different intelligence subject"
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        invalid = await client.post("/v1/intelligence/builds/projection", json={"plan": tampered})
+        app.dependency_overrides[get_current_user] = lambda: {"sub": "user:other", "product": PRODUCT}
+        foreign = await client.post("/v1/intelligence/builds/projection", json={"plan": plan_json})
+
+    assert invalid.status_code == 422
+    assert foreign.status_code == 401
+
+
+@pytest.mark.asyncio
 async def test_bound_execution_identity_is_byte_for_byte_the_existing_start_identity() -> None:
     response, _ = await _request(planner=_Planner())
     plan = IntelligenceBuildPlanV1Alpha3.model_validate_json(response.content)
@@ -350,6 +443,11 @@ def test_prepare_openapi_exposes_stable_request_and_plan_contracts() -> None:
     bind_response = bind_operation["responses"]["200"]["content"]["application/json"]["schema"]
     assert bind_request["$ref"].removesuffix("-Input").endswith("IntelligenceBuildPlanBindRequestV1Alpha1")
     assert bind_response["$ref"].removesuffix("-Output").endswith("BoundIntelligenceBuildPlanV1Alpha1")
+    projection_operation = app.openapi()["paths"]["/v1/intelligence/builds/projection"]["post"]
+    projection_request = projection_operation["requestBody"]["content"]["application/json"]["schema"]
+    projection_response = projection_operation["responses"]["200"]["content"]["application/json"]["schema"]
+    assert projection_request["$ref"].removesuffix("-Input").endswith("IntelligenceBuildProjectionRequestV1")
+    assert projection_response["$ref"].removesuffix("-Output").endswith("IntelligenceSystemProjectionV1Alpha1")
 
 
 def _pack_with_reviewed_requirements() -> CompiledDomainPackV1:

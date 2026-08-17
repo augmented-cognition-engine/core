@@ -47,6 +47,11 @@ export const KERNEL_DEV_PROXY_ROUTES = [
   ['/sentinels', false],
   ['/tasks', false],
   ['/extension-invocations', false],
+  // The Intelligence OS boundary (core/engine/api/canvas_host.py's
+  // CORE_API_PREFIXES carries the same prefix in production) — every
+  // `/v1/...` route an installed solution's UI calls as its own kernel-hosted
+  // API surface.
+  ['/v1', false],
 ] as const
 
 /** What an extension is allowed to declare in `ui/canvas/canvas_proxy.json`. */

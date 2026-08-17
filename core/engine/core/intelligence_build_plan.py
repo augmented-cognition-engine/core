@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -29,6 +30,10 @@ from ace.application.intelligence_build_planning import (
     validate_intelligence_build_planner_v1alpha3_registration,
 )
 from ace.application.intelligence_build_review import project_intelligence_build_review
+from ace.application.intelligence_system_projection import (
+    IntelligenceSystemProjectionV1Alpha1,
+    project_intelligence_system_plan,
+)
 from core.engine.core.installed_intelligence_catalog import (
     InstalledIntelligenceCatalogError,
     InstalledOnboardingProfile,
@@ -71,6 +76,17 @@ class IntelligenceBuildPlanPrepareV1Alpha2(BaseModel):
     cadence_id: str = Field(min_length=1, max_length=240)
     proposed_effects: tuple[IntelligenceBuildEffect, ...] = REQUIRED_INTELLIGENCE_BUILD_EFFECTS
     requested_at: datetime
+
+
+class IntelligenceBuildProjectionRequestV1(BaseModel):
+    """JSON transport envelope for one strict, content-addressed reviewed plan."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    plan: dict[str, Any]
+
+    def exact_plan(self) -> IntelligenceBuildPlanV1Alpha3:
+        return IntelligenceBuildPlanV1Alpha3.model_validate_json(json.dumps(self.plan))
 
 
 class IntelligenceBuildPlannerResolutionPort(Protocol):
@@ -296,6 +312,70 @@ async def bind_intelligence_build_plan(
         raise IntelligenceBuildPlanConflict(str(exc)) from exc
 
 
+async def project_intelligence_build_plan(
+    *,
+    plan: IntelligenceBuildPlanV1Alpha3,
+    user: dict,
+    runtime: IntelligenceBuildPlanHttpRuntime,
+) -> IntelligenceSystemProjectionV1Alpha1:
+    """Project exact reviewed material without changing or authorizing the plan."""
+
+    actor_ref, product_id = _verified_claims(user)
+    if plan.request.product_id != product_id or plan.request.actor_ref != actor_ref:
+        raise IntelligenceBuildPlanUnauthenticated("reviewed plan crossed verified product or actor scope")
+    prepare_request = IntelligenceBuildPlanPrepareV1Alpha2(
+        client_request_id=plan.request.client_request_id,
+        profile_id=plan.request.profile_id,
+        profile_digest=plan.request.profile_digest,
+        subject=plan.request.subject,
+        outcome_id=plan.request.outcome_id,
+        source_group_ids=plan.request.source_group_ids,
+        cadence_id=plan.request.cadence_id,
+        proposed_effects=plan.request.proposed_effects,
+        requested_at=plan.request.requested_at,
+    )
+    installed_profile = _profile_for_request(request=prepare_request, runtime=runtime)
+    try:
+        planner = runtime.planners.resolve(plan.request.profile_id)
+    except IntelligenceBuildPlannerRegistryError as exc:
+        raise IntelligenceBuildPlanUnavailable("installed Intelligence build planners are ambiguous") from exc
+    if planner is None:
+        raise IntelligenceBuildPlanUnavailable(
+            f"no Intelligence build planner is registered for profile: {plan.request.profile_id}"
+        )
+    try:
+        pack_reference, planner_artifact = validate_intelligence_build_planner_v1alpha3_registration(
+            planner,
+            profile_id=plan.request.profile_id,
+        )
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise IntelligenceBuildPlanUnavailable("installed Intelligence build planner identity is invalid") from exc
+    if plan.pack_reference != pack_reference or plan.planner_artifact != planner_artifact:
+        raise IntelligenceBuildPlanConflict("reviewed plan is stale for the installed planner")
+    try:
+        artifact = await runtime.packs.resolve_exact(reference=pack_reference)
+    except InstalledPackArtifactError as exc:
+        raise IntelligenceBuildPlanUnavailable("installed Intelligence Pack failed exact resolution") from exc
+    if artifact is None:
+        raise IntelligenceBuildPlanUnavailable("planned Intelligence Pack is not installed at the exact version")
+    if (
+        plan.activation_proposal.pack != pack_reference
+        or plan.activation_proposal.capability_requirement_ids
+        != tuple(item.requirement_id for item in artifact.pack.capability_requirements)
+        or plan.activation_proposal.authority_request_ids
+        != tuple(item.request_id for item in artifact.pack.authority_requests)
+    ):
+        raise IntelligenceBuildPlanConflict("reviewed plan changed exact installed projection material")
+    try:
+        return project_intelligence_system_plan(
+            plan=plan,
+            profile=installed_profile.profile,
+            pack=artifact.pack,
+        )
+    except (TypeError, ValueError, ValidationError) as exc:
+        raise IntelligenceBuildPlanConflict("Intelligence system projection is invalid") from exc
+
+
 __all__ = [
     "BoundIntelligenceBuildPlanV1Alpha1",
     "IntelligenceBuildPlanConflict",
@@ -304,6 +384,7 @@ __all__ = [
     "IntelligenceBuildPlanNotFound",
     "IntelligenceBuildPlanPrepareV1",
     "IntelligenceBuildPlanPrepareV1Alpha2",
+    "IntelligenceBuildProjectionRequestV1",
     "IntelligenceBuildPlanBindRequestV1Alpha1",
     "IntelligenceBuildPlanUnauthenticated",
     "IntelligenceBuildPlanUnavailable",
@@ -314,4 +395,5 @@ __all__ = [
     "bind_intelligence_build_plan",
     "intelligence_build_plan_runtime",
     "prepare_intelligence_build_plan",
+    "project_intelligence_build_plan",
 ]

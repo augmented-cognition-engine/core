@@ -12,7 +12,7 @@ from ace.core.state import (
     GovernedStateHeadV1,
     GovernedStateRevisionV1,
 )
-from core.engine.core.db import parse_one, parse_record_id
+from core.engine.core.db import parse_one, parse_record_id, parse_rows
 
 
 class GovernedStatePersistenceError(RuntimeError):
@@ -143,6 +143,33 @@ class SurrealGovernedStateStore:
                     },
                 )
             )
+        return (
+            GovernedStateCommitReceiptV1.model_validate(row["payload"])
+            if row and isinstance(row.get("payload"), dict)
+            else None
+        )
+
+    async def load_receipt_for_revision(
+        self,
+        revision_id: str,
+        *,
+        product_id: str,
+    ) -> GovernedStateCommitReceiptV1 | None:
+        """Resolve one exact historical commit without treating it as current authority."""
+
+        async with self.pool.connection() as db:
+            rows = await db.query(
+                "SELECT payload FROM governed_state_commit_receipt "
+                "WHERE product = $product AND revision_id = $revision_id LIMIT 2",
+                {
+                    "product": parse_record_id(product_id),
+                    "revision_id": revision_id,
+                },
+            )
+        result = parse_rows(rows)
+        if len(result) > 1:
+            raise GovernedStateReplayConflict("one revision resolved to multiple governed commit receipts")
+        row = result[0] if result else None
         return (
             GovernedStateCommitReceiptV1.model_validate(row["payload"])
             if row and isinstance(row.get("payload"), dict)

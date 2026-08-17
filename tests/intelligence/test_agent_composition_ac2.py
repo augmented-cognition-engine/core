@@ -4,6 +4,7 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from pydantic_core import to_jsonable_python
 
 from ace.application.agent_composition_runtime import TaskAuthenticationReceiptV1Alpha1
 from ace.application.briefing_agent_contracts import FIRST_BRIEFING_PREVIEW_VERSION
@@ -141,7 +142,7 @@ async def _commit(
         state_id=state_id,
         sequence=sequence,
         revision_id=revision_id,
-        material_hash=canonical_hash({"state_kind": state_kind, "state_id": state_id, "sequence": sequence}),
+        material_hash=canonical_hash(to_jsonable_python(payload)),
         prior_revision_id=prior_revision_id,
         approval_subject_ref=subject,
         payload_contract=payload_contract,
@@ -159,8 +160,8 @@ async def _commit(
     )
 
 
-async def _seed(store: InMemoryGovernedStateStore, *, grant_hash: str = "b" * 64, sequence: int = 1) -> None:
-    grant = CompositionAuthorityGrantMaterial(
+async def _seed(store: InMemoryGovernedStateStore, *, sequence: int = 1) -> None:
+    grant_fields = dict(
         grant_ref=GRANT_REF,
         product_id=PRODUCT,
         actor_ref=ACTOR,
@@ -169,11 +170,16 @@ async def _seed(store: InMemoryGovernedStateStore, *, grant_hash: str = "b" * 64
         operations=("structured_reasoning",),
         scope_ref=SCOPE_REF,
         policy_ref=POLICY_REF,
-        grant_hash=grant_hash,
         lifecycle="active",
-        effective_at=NOW - timedelta(minutes=1),
+        # A later sequence is a genuine re-issue with different content, not
+        # an arbitrary caller-supplied hash label.
+        effective_at=NOW - timedelta(minutes=sequence),
         expires_at=NOW + timedelta(hours=1),
     )
+    provisional = CompositionAuthorityGrantMaterial(**grant_fields, grant_hash="0" * 64)
+    grant_hash = canonical_hash(provisional.model_dump(mode="json", exclude={"grant_hash"}))
+    grant = CompositionAuthorityGrantMaterial(**grant_fields, grant_hash=grant_hash)
+    assert grant.grant_hash == canonical_hash(grant.model_dump(mode="json", exclude={"grant_hash"}))
     resolved = ResolvedAuthorityGrantV1(
         grant_ref=GRANT_REF,
         product_id=PRODUCT,
@@ -486,7 +492,7 @@ async def test_grant_rotation_between_plan_and_run_fails_closed_and_retry_requir
         agent_configs=[AgentConfig(role="analyst")],
         now=NOW + timedelta(seconds=5),
     )
-    await _seed(governed, grant_hash="c" * 64, sequence=2)
+    await _seed(governed, sequence=2)
     with pytest.raises(GovernedCompositionBridgeError, match="rotated"):
         await bridge.authorize_execution(
             prepared=prepared,
@@ -534,15 +540,33 @@ async def test_missing_foreign_stale_and_revoked_governed_lineage_fail_closed() 
         await _prepare_one(bridge, auth, task_ref="task:stale-head")
     governed.heads[grant_key] = original_head
     revision = governed.revisions[(PRODUCT, original_head.revision_id)]
-    revoked = CompositionAuthorityGrantMaterial.model_validate(
-        {
-            **revision.payload,
-            "lifecycle": "revoked",
-            "revoked_at": NOW,
-        }
+    revoked_fields = {
+        **revision.payload,
+        "lifecycle": "revoked",
+        "revoked_at": NOW,
+    }
+    revoked_fields.pop("grant_hash")
+    provisional = CompositionAuthorityGrantMaterial(**revoked_fields, grant_hash="0" * 64)
+    revoked = CompositionAuthorityGrantMaterial(
+        **revoked_fields,
+        grant_hash=canonical_hash(provisional.model_dump(mode="json", exclude={"grant_hash"})),
     )
-    governed.revisions[(PRODUCT, original_head.revision_id)] = revision.model_copy(
-        update={"payload": revoked.model_dump(mode="python")}
+    await _commit(
+        governed,
+        state_kind="authority_grant",
+        state_id=GRANT_REF,
+        payload_contract=GRANT_PAYLOAD_CONTRACT,
+        payload=revoked.model_dump(mode="python"),
+        sequence=2,
+        prior_revision_id=original_head.revision_id,
+        resolved_grant=ResolvedAuthorityGrantV1(
+            grant_ref=GRANT_REF,
+            product_id=PRODUCT,
+            authority="derive_propose",
+            grant_hash=revision.payload["grant_hash"],
+            effective_at=revision.payload["effective_at"],
+            expires_at=revision.payload["expires_at"],
+        ),
     )
     with pytest.raises(GovernedCompositionAuthorityError, match="revoked"):
         await _prepare_one(bridge, auth, task_ref="task:revoked-head")

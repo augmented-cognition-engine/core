@@ -12,7 +12,8 @@ the result instead of becoming infrastructure every product team must recreate.
 
 > **Generation is abundant. Continuity of judgment is not.**
 
-![version 1.0.3](https://img.shields.io/badge/version-1.0.3-blue)
+![published version 1.0.3](https://img.shields.io/badge/published-1.0.3-blue)
+![local candidate 1.1.0](https://img.shields.io/badge/local%20candidate-1.1.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: stable single-user](https://img.shields.io/badge/status-stable%20single--user-green)
@@ -23,10 +24,10 @@ the result instead of becoming infrastructure every product team must recreate.
 
 ---
 
-![Atrium — the ACE Intelligence OS command center](https://raw.githubusercontent.com/augmented-cognition-engine/core/main/docs/assets/atrium-intelligence-os-v1.jpg)
+![ACE 1.1 Code Intelligence — Ask ACE in Atrium](https://raw.githubusercontent.com/augmented-cognition-engine/core/main/docs/assets/atrium-intelligence-os-v1.jpg)
 
-*Atrium using the recorded ACE 1.0 demonstration: one governed view of source coverage, Ask ACE,
-a cited Brief, attention, and decision openings.*
+*ACE 1.1 Code Intelligence in Atrium: ask what changed, inspect the supported answer and its
+governed evidence, and see why it matters.*
 
 ## What ACE does
 
@@ -57,6 +58,10 @@ Choose Intelligence → Connect → Map → Watch → cited Brief → Activate �
 Builders do not need to hand-author Domain Pack JSON or learn compiler mechanics before receiving
 first intelligence value. Generated material passes the same fail-closed compatibility,
 conformance, authority, and activation boundaries as expert-built material.
+
+The current published stable package and public-index install is `ace-core==1.0.3`. This source tree
+is the local `ace-core==1.1.0` **ACE 1.1 Code Intelligence release candidate**; it has passed its
+local candidate gate but has not yet been tagged or published.
 
 ### Two connected loops
 
@@ -151,9 +156,10 @@ authority model.
 
 ## Code Intelligence: ACE’s first recursive proof
 
-Code Intelligence is **Now** in the 1.1 roadmap. Software makes the complete ACE loop measurable:
-Decisions connect to repositories, symbols, dependencies, tests, reviews, releases, incidents, and
-later Outcomes.
+Code Intelligence has **passed for a local 1.1 release candidate**. Issue #194 and publication
+remain open, and the Release Spine Project stays Now until the public four-record closeout.
+Software makes the complete ACE loop measurable: Decisions connect to repositories, symbols,
+dependencies, tests, reviews, releases, incidents, and later Outcomes.
 
 ACE separates three improvement loops:
 
@@ -203,6 +209,10 @@ python -c "import ace; print(ace.__version__)"
 ace --help
 ```
 
+This repository currently identifies a local `ace-core==1.1.0` release candidate. Do not request
+1.1.0 from the public index until its tag, publication, clean-install reproduction, issue #194,
+Project state, release evidence, and ROADMAP have been reconciled.
+
 Or run the complete self-hosted Intelligence OS. You need macOS or Linux, Git, Python 3.12, `uv`,
 Docker Engine with Compose v2, and credentials for one supported provider.
 
@@ -230,7 +240,7 @@ patch release.**
 | Status | Product boundary |
 |---|---|
 | **Stable 1.0.3** | One local owner, one documented single-node deployment, guided Intelligence Builder, Atrium, authorized resource plane, public Core/Intelligence/Application packages, provider-neutral setup, durable state and receipts, World and Market proof |
-| **Active 1.1** | Code Intelligence: repository-to-reasoning graph, change impact, Code lens, and bounded coding-agent handoffs |
+| **Local 1.1 candidate** | Code Intelligence: repository-to-reasoning graph, change impact, Code lens, bounded coding-agent handoffs, and governed improvement loops; publication and four-record closeout remain open |
 | **Later 1.x** | Personal Intelligence, safe upgrades, Topic and Pack Kit, connected organizational intelligence, governed self-improving agents, portability, and interoperability |
 | **2.0 direction** | Permission-sensitive collaborative organizational intelligence across teams and external participants |
 

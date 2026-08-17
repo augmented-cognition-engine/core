@@ -10,7 +10,8 @@ from __future__ import annotations
 import logging
 
 from core.engine.core.config import settings
-from core.engine.core.db import pool
+from core.engine.core.db import parse_rows
+from core.engine.core.db import pool as default_pool
 from core.engine.core.exceptions import ValidationError
 from core.engine.core.llm import llm
 
@@ -29,15 +30,24 @@ def _validate_emergence_inputs(product_id: str) -> None:
         raise ValidationError(f"Invalid product_id for emergence check: {product_id!r}")
 
 
-async def check_emergence(product_id: str) -> list[dict]:
+async def check_emergence(product_id: str, *, pool=None) -> list[dict]:
     """Check for specialty emergence across all subdomains. Returns list of created specialties.
 
     Raises ValidationError if product_id is malformed.
     """
+    if not settings.emergence_enabled:
+        logger.debug("Emergence disabled; skipping product %s", product_id)
+        return []
     _validate_emergence_inputs(product_id)
+    if pool is None:
+        pool = default_pool
     logger.info("Emergence check started: product=%s threshold=%d", product_id, _EMERGENCE_THRESHOLD)
     emerged = []
 
+    # Load bounded prompt inputs under the caller's pool, then release the
+    # connection before awaiting the model. A slow model must never consume a
+    # scarce database connection.
+    candidates: list[tuple[str, list[dict]]] = []
     async with pool.connection() as db:
         # Find subdomains with unparented insight clusters
         clusters = await db.query(
@@ -52,7 +62,7 @@ async def check_emergence(product_id: str) -> list[dict]:
             {"product": product_id},
         )
 
-        rows = clusters[0] if clusters and isinstance(clusters[0], list) else (clusters or [])
+        rows = parse_rows(clusters)
         # Filter by threshold in Python (SurrealDB v3 has no HAVING clause)
         rows = [r for r in rows if (r.get("count") or 0) >= _EMERGENCE_THRESHOLD]
 
@@ -67,50 +77,62 @@ async def check_emergence(product_id: str) -> list[dict]:
             domain_hint = cluster.get("source_domain")
             if not domain_hint:
                 continue
+            insights = await db.query(
+                """
+                SELECT id, content, insight_type, confidence
+                FROM insight
+                WHERE product = <record>$product
+                  AND status = 'active'
+                  AND specialty = NONE
+                  AND source_domain = $hint
+                ORDER BY confidence DESC
+                LIMIT 20
+                """,
+                {"product": product_id, "hint": domain_hint},
+            )
+            insight_list = parse_rows(insights)
+            if len(insight_list) >= _EMERGENCE_THRESHOLD:
+                candidates.append((str(domain_hint), insight_list))
 
-            try:
-                # Fetch the unparented insights for this cluster
-                insights = await db.query(
-                    """
-                    SELECT id, content, insight_type, confidence
-                    FROM insight
-                    WHERE product = <record>$product
-                      AND status = 'active'
-                      AND specialty = NONE
-                      AND source_domain = $hint
-                    ORDER BY confidence DESC
-                    LIMIT 20
-                    """,
-                    {"product": product_id, "hint": domain_hint},
-                )
-
-                insight_list = insights[0] if insights and isinstance(insights[0], list) else (insights or [])
-                if len(insight_list) < _EMERGENCE_THRESHOLD:
-                    continue
-
-                # LLM proposes specialty name
-                insight_text = "\n".join(f"- {i.get('content', '')}" for i in insight_list[:10])
-                proposal = await llm.complete_json(
-                    f"""These insights cluster in {domain_hint}. Propose a specialty name.
+    for domain_hint, insight_list in candidates:
+        try:
+            insight_text = "\n".join(f"- {i.get('content', '')}" for i in insight_list[:10])
+            proposal = await llm.complete_json(
+                f"""These insights cluster in {domain_hint}. Propose a specialty name.
 
 Insights:
 {insight_text}
 
 Return JSON:
 {{"name": "Human-readable Name", "slug": "kebab-case-slug"}}""",
-                    model=settings.llm_budget_model,
+                model=settings.llm_budget_model,
+            )
+
+            name = proposal.get("name", domain_hint.split(".")[-1])
+            slug = proposal.get("slug", name.lower().replace(" ", "-"))
+
+            # Reacquire only for a short, product-scoped eligibility check and
+            # persistence phase. Another worker may have claimed the cluster
+            # while the model was running; fewer than five unparented rows means
+            # this candidate is now stale and must be dropped.
+            async with pool.connection() as db:
+                current_insights = parse_rows(
+                    await db.query(
+                        """
+                        SELECT id
+                        FROM insight
+                        WHERE product = <record>$product
+                          AND status = 'active'
+                          AND specialty = NONE
+                          AND source_domain = $hint
+                        LIMIT 20
+                        """,
+                        {"product": product_id, "hint": domain_hint},
+                    )
                 )
+                if len(current_insights) < _EMERGENCE_THRESHOLD:
+                    continue
 
-                name = proposal.get("name", domain_hint.split(".")[-1])
-                slug = proposal.get("slug", name.lower().replace(" ", "-"))
-
-                # Create specialty — `product` is required (record<product>). The
-                # field was named `org` until v059→v061 migration which dropped
-                # `org` and made `product` the canonical name; the comment here
-                # was stale. SCHEMAFULL CREATE fails silently when the wrong
-                # field name is used, which is why the engine log was filling
-                # with "Failed to create specialty for X: no id in result" on
-                # every emergence attempt.
                 result = await db.query(
                     """
                     CREATE specialty SET
@@ -128,12 +150,8 @@ Return JSON:
                     {"product": product_id, "name": name, "slug": slug},
                 )
 
-                spec_rows = (
-                    result[0]
-                    if result and isinstance(result[0], list)
-                    else (result if isinstance(result, list) else [result])
-                )
-                spec_row = spec_rows[0] if spec_rows and isinstance(spec_rows[0], dict) else None
+                spec_rows = parse_rows(result)
+                spec_row = spec_rows[0] if spec_rows else None
                 spec_id = spec_row.get("id") if spec_row else None
 
                 if not spec_id:
@@ -152,17 +170,17 @@ Return JSON:
                     {"spec": spec_id, "product": product_id, "hint": domain_hint},
                 )
 
-                logger.info(
-                    "Specialty emerged: slug=%r name=%r domain=%r (product=%s)",
-                    slug,
-                    name,
-                    domain_hint,
-                    product_id,
-                )
-                emerged.append({"id": str(spec_id), "name": name, "slug": slug, "domain_hint": domain_hint})
-            except Exception as exc:
-                logger.warning("Emergence failed for cluster %s: %s", domain_hint, exc)
-                continue
+            logger.info(
+                "Specialty emerged: slug=%r name=%r domain=%r (product=%s)",
+                slug,
+                name,
+                domain_hint,
+                product_id,
+            )
+            emerged.append({"id": str(spec_id), "name": name, "slug": slug, "domain_hint": domain_hint})
+        except Exception as exc:
+            logger.warning("Emergence failed for cluster %s: %s", domain_hint, exc)
+            continue
 
     logger.info("Emergence check complete: product=%s specialties_created=%d", product_id, len(emerged))
     return emerged

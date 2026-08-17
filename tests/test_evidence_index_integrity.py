@@ -69,6 +69,7 @@ def test_evidence_readme_indexes_manifesto_and_new_platform_records() -> None:
         "platform-p2f-supersession-impact-projection-v1.md",
         "context-manifest-code-context-v1.md",
         "productized-state-golden-journey-v1.md",
+        "ace-1.1.0-local-release-candidate-v1.md",
     ]
     links = set(_local_links(text))
     missing = [target for target in required_targets if target not in links]
@@ -139,6 +140,7 @@ def test_every_evidence_markdown_file_referenced_from_this_pr_is_indexed() -> No
         "gc1-public-external-consumer-v1.md",
         "reasoning-into-action-v0.5.0-release-readiness.md",
         "measured-intelligence-v0.6.0-release-closeout-v1.md",
+        "ace-1.1.0-local-release-candidate-v1.md",
     }
     for name in newly_added:
         assert (EVIDENCE_DIR / name).is_file(), f"expected fixture file missing: {name}"

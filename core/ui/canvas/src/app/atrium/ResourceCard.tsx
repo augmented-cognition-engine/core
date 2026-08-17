@@ -1,4 +1,8 @@
-import { ArrowUpRight, CircleAlert, GitBranch, ShieldCheck } from 'lucide-react'
+import {
+  ArrowUpRight,
+  CircleAlert,
+  CircleMinus,
+} from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 import { Badge } from '@/design/shadcn/ui/badge'
@@ -15,12 +19,15 @@ import {
 import { Separator } from '@/design/shadcn/ui/separator'
 
 import { compactReference, kindLabel } from './intelligenceModel'
+import { ATRIUM_ACTION_ICONS, atriumIconForResourceKind } from './atriumIcons'
 import {
   type IntelligenceStorySection,
   intelligenceStoryForRecord,
   payloadNumber,
   payloadText,
 } from './experienceModel'
+
+const EvidenceLineageIcon = ATRIUM_ACTION_ICONS.evidenceLineage
 
 function availabilityLabel(record: IntelligenceResourceRecord): string {
   if (record.availability === 'degraded') return 'Needs context'
@@ -55,6 +62,7 @@ export function ResourceCard({
   const confidencePercent = confidence !== null && confidence >= 0 && confidence <= 1
     ? Math.round(confidence * 100)
     : null
+  const RecordIcon = atriumIconForResourceKind(record.reference.resource_kind)
 
   return (
     <Sheet>
@@ -71,10 +79,16 @@ export function ResourceCard({
                   className={
                     record.availability === 'degraded'
                       ? 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-warning/15 text-warning'
-                      : 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border border-brand/20 bg-brand/10 text-brand'
+                      : record.availability === 'tombstoned'
+                        ? 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-destructive/10 text-destructive'
+                        : 'mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md border border-border bg-muted text-foreground/70'
                   }
                 >
-                  {record.availability === 'degraded' ? <CircleAlert className="size-3.5" /> : <ShieldCheck className="size-3.5" />}
+                  {record.availability === 'degraded'
+                    ? <CircleAlert className="size-3.5" aria-hidden="true" />
+                    : record.availability === 'tombstoned'
+                      ? <CircleMinus className="size-3.5" aria-hidden="true" />
+                      : <RecordIcon className="size-3.5" aria-hidden="true" />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className={compact ? 'mb-1.5 flex flex-wrap items-center gap-2' : 'mb-2 flex flex-wrap items-center gap-2'}>
@@ -137,9 +151,9 @@ export function ResourceCard({
                     </div>
                   )}
                   <div className={compact ? 'mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground' : 'mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground'}>
-                    <GitBranch className="size-3" />
+                    <EvidenceLineageIcon className="size-3" aria-hidden="true" />
                     <span>{record.provenance.length} evidence link{record.provenance.length === 1 ? '' : 's'}</span>
-                    <ArrowUpRight className="ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
+                    <ArrowUpRight aria-hidden="true" className="ml-auto size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
                   </div>
                 </div>
               </div>
@@ -147,7 +161,7 @@ export function ResourceCard({
           </Card>
         </button>
       </SheetTrigger>
-      <SheetContent className="w-full overflow-y-auto p-0 sm:max-w-xl">
+      <SheetContent className="atrium-command-center dark w-full overflow-y-auto bg-popover p-0 text-foreground sm:max-w-xl">
         <SheetHeader className="border-b p-6 text-left">
           <div className="mb-2 flex items-center gap-2">
             <Badge variant="secondary">{kindLabel(record.reference.resource_kind)}</Badge>
@@ -224,7 +238,7 @@ export function ResourceCard({
                     className="rounded-lg border bg-muted/30 p-3"
                   >
                     <div className="flex items-center gap-2">
-                      <GitBranch className="size-3.5 text-brand" />
+                      <EvidenceLineageIcon className="size-3.5 text-brand" aria-hidden="true" />
                       <span className="text-xs font-medium">{kindLabel(reference.resource_kind)}</span>
                       <span className="ml-auto font-mono text-[10px] text-muted-foreground">
                         r{reference.revision}
@@ -249,7 +263,7 @@ export function ResourceCard({
                 <ul className="space-y-2">
                   {record.degraded_reason_refs.map((reason) => (
                     <li key={reason} className="flex items-start gap-2 text-xs text-muted-foreground">
-                      <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
+                      <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
                       <span>{compactReference(reason)}</span>
                     </li>
                   ))}

@@ -29,13 +29,13 @@ NOW = datetime.now(UTC).replace(microsecond=0)
 PRODUCT = "product:reference-action"
 
 
-def test_distribution_targets_core_08_through_10_without_rekeying_unchanged_implementation() -> None:
+def test_distribution_targets_core_08_through_11_without_rekeying_unchanged_implementation() -> None:
     project = tomllib.loads((Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8"))[
         "project"
     ]
 
     assert project["version"] == "0.4.1"
-    assert project["dependencies"] == ["ace-core>=0.8.0,<1.1"]
+    assert project["dependencies"] == ["ace-core>=0.8.0,<1.2"]
     assert ADAPTER_ARTIFACT.implementation_version == "0.1.0"
 
 

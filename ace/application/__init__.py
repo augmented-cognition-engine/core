@@ -215,6 +215,7 @@ from ace.application.composition_policy_admission import (
     CompositionPolicyAdmissionService,
 )
 from ace.application.decision_feedback import (
+    ConsumedIntelligenceResourcePort,
     EffectivePreparedFeedback,
     PreparedDecisionAdmission,
     PreparedDecisionFeedbackError,
@@ -244,6 +245,7 @@ from ace.application.domain_activation_plan import (
     DomainActivationPlanAdmissionService,
     activation_commit_reference,
     prepare_activation_onboarding_handoff,
+    resolve_live_activation_revision_for_session,
     validate_activation_commit_reference,
 )
 from ace.application.domain_activation_plan_contracts import (
@@ -390,6 +392,7 @@ from ace.application.intelligence_builder import (
     ConnectionAgentStaleProposal,
     ConnectionScopeAdmission,
     IntelligenceBuilderArtifactAdmission,
+    IntelligenceBuilderArtifactNotFoundError,
     IntelligenceBuilderSessionAdmission,
     IntelligenceBuilderSessionError,
     IntelligenceBuilderSessionReplayConflict,
@@ -399,9 +402,14 @@ from ace.application.intelligence_builder import (
 from ace.application.intelligence_builder_activation import (
     BuilderActivationBootstrapOutcome,
     BuilderActivationPlanAdmission,
+    DomainActivationPlanNotAdmittedError,
     ExactCompiledPackResolver,
+    ExactInstalledPackConformanceResolver,
+    IntelligenceBuilderActivationDependencyNotReadyError,
     IntelligenceBuilderActivationError,
+    IntelligenceBuilderActivationPlanCoordinator,
     IntelligenceBuilderActivationService,
+    prepare_initial_domain_activation_plan,
 )
 from ace.application.intelligence_builder_activation_contracts import (
     BUILDER_ACTIVATION_PLAN_ARTIFACT_VERSION,
@@ -441,6 +449,19 @@ from ace.application.intelligence_ledger import (
     PreparedIntelligenceLedgerService,
     PreparedResourceSetAdmission,
 )
+from ace.application.intelligence_resource_feedback import (
+    RESOURCE_FEEDBACK_AUTHORITY,
+    RESOURCE_FEEDBACK_OPERATION,
+    RESOURCE_FEEDBACK_RECORD_KIND,
+    RESOURCE_FEEDBACK_RECORD_SPACE,
+    IntelligenceResourceFeedbackAuthorizationPort,
+    IntelligenceResourceFeedbackDenied,
+    IntelligenceResourceFeedbackError,
+    IntelligenceResourceFeedbackReplayConflict,
+    IntelligenceResourceFeedbackService,
+    IntelligenceResourceFeedbackTargetPort,
+    IntelligenceResourceFeedbackUnavailable,
+)
 from ace.application.intelligence_resource_plane import (
     RESOURCE_QUERY_AUTHORITY,
     RESOURCE_QUERY_OPERATION,
@@ -453,6 +474,7 @@ from ace.application.intelligence_resource_plane import (
     IntelligenceResourceProjectionBatch,
     IntelligenceResourceProjectionReader,
     IntelligenceResourceQueryV1Alpha1,
+    IntelligenceResourceReferenceV1Alpha1,
 )
 from ace.application.intelligence_resource_projection import (
     CompositeIntelligenceResourceProjectionReader,
@@ -588,6 +610,13 @@ from ace.application.supersession_impact import (
     SupersessionImpactService,
     supersession_impact_record,
 )
+from ace.intelligence.contracts.resource_feedback import (
+    CORRECTABLE_RESOURCE_KINDS,
+    IntelligenceResourceCorrectionIntent,
+    IntelligenceResourceFeedbackAdmissionV1Alpha1,
+    IntelligenceResourceFeedbackReceiptV1Alpha1,
+    IntelligenceResourceFeedbackRequestV1Alpha1,
+)
 
 __all__ = [
     "ACTIVATION_GOLDEN_FIXTURE_PATH",
@@ -621,6 +650,23 @@ __all__ = [
     "IntelligenceResourceProjectionBatch",
     "IntelligenceResourceProjectionReader",
     "IntelligenceResourceQueryV1Alpha1",
+    "IntelligenceResourceReferenceV1Alpha1",
+    "RESOURCE_FEEDBACK_AUTHORITY",
+    "RESOURCE_FEEDBACK_OPERATION",
+    "RESOURCE_FEEDBACK_RECORD_KIND",
+    "RESOURCE_FEEDBACK_RECORD_SPACE",
+    "IntelligenceResourceFeedbackAuthorizationPort",
+    "IntelligenceResourceFeedbackDenied",
+    "IntelligenceResourceFeedbackError",
+    "IntelligenceResourceFeedbackReplayConflict",
+    "IntelligenceResourceFeedbackService",
+    "IntelligenceResourceFeedbackTargetPort",
+    "IntelligenceResourceFeedbackUnavailable",
+    "CORRECTABLE_RESOURCE_KINDS",
+    "IntelligenceResourceCorrectionIntent",
+    "IntelligenceResourceFeedbackAdmissionV1Alpha1",
+    "IntelligenceResourceFeedbackReceiptV1Alpha1",
+    "IntelligenceResourceFeedbackRequestV1Alpha1",
     "IntelligenceLedgerProjectionError",
     "IntelligenceLedgerResourceProjectionReader",
     "IntelligenceResourceProjectionContributor",
@@ -836,6 +882,7 @@ __all__ = [
     "CaseBriefSynthesisService",
     "CommittedActivationBinding",
     "CommittedDomainActivation",
+    "ConsumedIntelligenceResourcePort",
     "CommittedDomainActivationPlan",
     "ConceptAttributeV1",
     "ConceptCitationV1",
@@ -884,15 +931,21 @@ __all__ = [
     "IMPACT_PROPOSAL_DISPOSITION_DECISION_TYPE",
     "IMPACT_PROPOSAL_DISPOSITION_RECORD_KIND",
     "IntelligenceBuilderArtifactAdmission",
+    "IntelligenceBuilderArtifactNotFoundError",
     "BuilderActivationBootstrapOutcome",
     "BuilderActivationPlanAdmission",
     "BuilderActivationPlanArtifactV1",
     "BuilderActivationReceiptArtifactV1",
     "BUILDER_ACTIVATION_PLAN_ARTIFACT_VERSION",
     "BUILDER_ACTIVATION_RECEIPT_ARTIFACT_VERSION",
+    "DomainActivationPlanNotAdmittedError",
     "ExactCompiledPackResolver",
+    "ExactInstalledPackConformanceResolver",
+    "IntelligenceBuilderActivationDependencyNotReadyError",
     "IntelligenceBuilderActivationError",
+    "IntelligenceBuilderActivationPlanCoordinator",
     "IntelligenceBuilderActivationService",
+    "prepare_initial_domain_activation_plan",
     "IntelligenceBuilderSessionAdmission",
     "IntelligenceBuilderSessionError",
     "IntelligenceBuilderSessionReplayConflict",
@@ -1066,6 +1119,7 @@ __all__ = [
     "activation_commit_reference",
     "adapt_initial_activation_to_canonical_v1alpha1",
     "prepare_activation_onboarding_handoff",
+    "resolve_live_activation_revision_for_session",
     "validate_activation_commit_reference",
     "concept_model_semantic_diff",
     "exact_reference",

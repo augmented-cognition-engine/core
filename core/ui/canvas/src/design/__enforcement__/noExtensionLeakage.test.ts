@@ -19,7 +19,7 @@
 //   `defaults`), not by an enumerated list of names. A leak anywhere ELSE in
 //   src/ still trips. In the public tree the shims are subtracted at export, so
 //   src/app/ext/ holds only the seam + defaults and the exemption matches
-//   nothing — the canvas mounts kernel routes alone.
+//   nothing. Kernel routes and installed public solutions remain available.
 //
 // WHY BRAND NAMES ARE NOT SCANNED HERE
 //   The authoritative brand/secret gate is scripts/export/leak_scan.py — it

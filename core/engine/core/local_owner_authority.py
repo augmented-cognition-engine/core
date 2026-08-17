@@ -8,6 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
+from ace.application.intelligence_resource_feedback import RESOURCE_FEEDBACK_OPERATION
 from ace.application.intelligence_resource_plane import RESOURCE_QUERY_OPERATION
 from ace.application.recorded_source_admission import INTELLIGENCE_BUILD_OPERATION
 from ace.core.agent_composition import AuthorityClass
@@ -52,6 +53,11 @@ LOCAL_OWNER_GRANTS = (
         grant_ref="authority_grant:atrium-observe-read",
         authority_class=AuthorityClass.OBSERVE_READ,
         operations=(RESOURCE_QUERY_OPERATION,),
+    ),
+    LocalOwnerGrantSpec(
+        grant_ref="authority_grant:atrium-resource-feedback",
+        authority_class=AuthorityClass.DERIVE_PROPOSE,
+        operations=(RESOURCE_FEEDBACK_OPERATION,),
     ),
     LocalOwnerGrantSpec(
         grant_ref="authority_grant:personal-export",

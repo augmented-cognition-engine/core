@@ -40,6 +40,7 @@ def test_login_accepts_api_key():
             "administer_lifecycle",
             "cognition-review",
             "deliver_export",
+            "derive_propose",
             "intelligence_build",
             "observe_read",
         ]

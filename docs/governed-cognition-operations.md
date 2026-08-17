@@ -8,6 +8,62 @@ lifecycle routes. Treat it as a production secret and expose it only to authoriz
 `DEMO_PASS` tokens never receive review authority. Refresh and same-tenant product switching preserve
 the bounded signed authority set; neither operation grants new authority.
 
+## Headless service provisioning
+
+The supported headless exception is deliberately narrower than the interactive human route. A
+trusted human/admin control plane constructs one
+`DelegatedCognitionProvisioningRequestV1Alpha1` and passes it to
+`DelegatedCognitionProvisioningService`, which reuses `AgentGovernanceService` to register and
+activate the exact product-scoped `PrincipalKind.SERVICE` identity. It then records exactly two
+scope-bound grants:
+
+- `decide_approve` for `review_governed_cognition_capture`; and
+- `mutate_internal` for `activate_governed_cognition_revision`.
+
+The request binds the immutable principal snapshot, distinct service token actor, product, exact
+capture/proposal-derived scope, policy, two grant IDs, human administrator, current
+`administer_lifecycle` grant, and four distinct approval receipts. Provisioning writes a durable
+`ace.cognition.delegated-service-provisioning-receipt/v1alpha1` record. Retain that receipt with the
+deployment change record and verify it after restore before enabling the service.
+
+Provisioning has no update operation. Exact retries only verify already identical material.
+Different existing principal or grant material fails closed: there is no self-provisioning,
+renewal, widening, transfer, or replacement path. The two grants carry no merge, release, deploy,
+promotion, source, reasoning, delivery/export, lifecycle-administration, or external-effect
+authority. Grant or principal revocation takes effect at the next point-of-use check; a previously
+issued token cannot override it.
+
+### Service token
+
+After provisioning, the trusted operator derives claims with
+`delegated_cognition_service_token_claims(receipt)` and signs them with the existing trusted host
+issuer (`create_access_token`). Do this only in the operator/control-plane process. Never expose
+`API_KEY`, `JWT_SECRET`, the human token, or token-signing access to the service. The exact claims are:
+
+```json
+{
+  "sub": "service:<deployment-specific-actor>",
+  "product": "product:<exact-product>",
+  "authorities": [],
+  "local_owner": false,
+  "principal_kind": "service",
+  "agent_principal": "agent_principal:<exact-content-derived-id>"
+}
+```
+
+Store the resulting bearer token in the deployment's secret manager, inject it only into the
+delegated activation worker, and use it only on `/cognition/delegated/reviews` followed by
+`/cognition/delegated/activations`. There is no service-facing mint or refresh endpoint and no new
+MCP tool. To rotate credentials, a human operator may issue a new short-lived JWT with the same
+receipt-derived claims; this does not renew or change the durable principal or either grant. To
+change product, principal, scope, policy, or authority, revoke the old principal/grants and perform
+a new human-reviewed provisioning under new stable identities.
+
+Recovery verification must reload the provisioning receipt, active principal lifecycle head, both
+grant heads, and the cognition capability head from the restored store. Then run one fresh
+review/activation and one fresh-process selection/use. A missing, moved, expired, revoked, or
+mismatched head is a denial, not a reason to recreate or widen authority automatically.
+
 ## Signals
 
 Monitor:
@@ -41,7 +97,8 @@ successful cognition use.
 ## Backup and restore
 
 Before schema/package rollout, take a database backup using the deployment's supported SurrealDB
-backup procedure. Restore into a clean isolated database, apply schema through v171, and reconcile:
+backup procedure. Restore into a clean isolated database, apply the complete schema packaged with
+the release (v179 for ACE 1.1), and reconcile:
 
 1. identity/revision/head/activation counts and hashes;
 2. proposal, human review, lifecycle, import/quarantine, selection, use, and effectiveness receipts;

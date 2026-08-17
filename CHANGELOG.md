@@ -2,6 +2,61 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.1.0
+
+### ACE 1.1 Code Intelligence
+
+- Add the read-only repository-to-reasoning journey for architecture, symbols, tests, bounded
+  downstream impact, provenance, omissions, and uncertainty. Snapshot identity is continuous from
+  governed admission through resource queries and later use; Atrium and the machine boundary
+  consume the same governed records.
+- Harden the untrusted-repository handoff around immutable tracked Git `HEAD` blobs and a
+  deterministic isolated `python -I` helper. The body-free bounded return grants no repository,
+  network, provider, persistence, delivery, or effect authority and does not claim universal
+  language coverage, safe-deletion proof, or hostile-code isolation.
+- Add delegated headless review and activation under an exact product, SERVICE principal,
+  capability, and pre-existing grants. Review and activation remain separate, exact replay and
+  restart remain durable, and revocation denies current use without rewriting historical receipts.
+- Converge the official **ACE 1.1 Code Intelligence** API, activation/resource contracts, Atrium
+  navigation, responsive layout, accessibility, and browser behavior. Delimiter-safe navigation
+  identity now drives both active styling and `aria-current`.
+
+### Nine-item release hardening and upgrade packet
+
+- Replace stale Cognify-v1 edge reads with one bounded, deterministic, product-scoped
+  `operational_relationship` reader that retains acceptance, projection eligibility, predicate,
+  and provenance semantics; persist `product` on orchestration runs and retain product isolation.
+- Start Sentinel against one explicitly configured existing product and expose disabled or
+  degraded zero-job state for missing/fresh installs. SurrealDB 3.2 record identifiers are bound as
+  typed values so valid hyphenated products are not falsely reported missing.
+- Carry exact provider/runtime admission, provenance, failure, and no-silent-fallback behavior
+  through the installed artifact and public boundaries while preserving exactly eleven MCP tools.
+- Add bounded SurrealDB 3.2 preparation, current schema-v179 recovery guidance, backup/restore
+  commands, and the explicit `<=v135` assertion-history inventory, reviewed mapping, quarantine,
+  apply, restart, receipt, and rollback path. Packaging now includes the operational guides used by
+  those commands.
+- Close the remaining release-layer integrity seams: deterministic archives, safe unique members,
+  wheel `RECORD`/CRC verification, installed-origin checks, delimiter-safe Atrium navigation, and
+  public-safe evidence manifests. These changes constitute the audited nine-item packet; they do
+  not expand topology, authority, or the public MCP surface.
+
+### Evidence, compatibility, and recovery boundaries
+
+- Add the canonical Atrium Explore screenshot evidence for ACE 1.1 Code Intelligence. Its Markdown
+  evidence is installed with the package; the JPEG remains a source-release asset rather than a
+  wheel data file.
+- Keep the reference workspace-action adapter at distribution 0.4.1 and implementation identity
+  0.1.0, while widening only its declared Core compatibility ceiling to
+  `ace-core>=0.8.0,<1.2`. Installing the adapter still grants no operation authority.
+- Support remains bounded to Python 3.12, one documented single-node ACE/SurrealDB deployment,
+  SurrealDB 3.2, and schema head v179. Upgrade operators must take and verify a backup first;
+  rollback is restoration of the verified pre-upgrade backup. This release does not claim managed
+  hosting, collaboration, distributed availability, universal connectors, autonomous policy
+  application, or safe execution of hostile repositories.
+- This source state is a **local release candidate**, not evidence of a tag, GitHub Release, PyPI
+  publication, or clean public-index installation. Issue #194 and the public four-record closeout
+  remain open until those publication checks are reconciled.
+
 ## 1.0.3
 
 ### Quiet clean-runtime heartbeat

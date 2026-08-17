@@ -270,6 +270,10 @@ async def test_loader_queries_and_preserves_product_scope() -> None:
     for call in db.query.await_args_list:
         assert "product = <record>$product" in call.args[0]
         assert call.args[1]["product"] == "product:platform"
+        assert call.args[1]["limit"] == 200
+    prediction_statement = db.query.await_args_list[1].args[0]
+    assert "SELECT id, horizon_days, created_at FROM decision_prediction" in prediction_statement
+    assert "ORDER BY created_at DESC LIMIT $limit" in prediction_statement
 
 
 @pytest.mark.asyncio

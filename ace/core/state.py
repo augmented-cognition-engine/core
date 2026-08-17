@@ -284,6 +284,13 @@ class GovernedStateStore(Protocol):
 
     async def load_receipt(self, receipt_id: str, *, product_id: str) -> GovernedStateCommitReceiptV1 | None: ...
 
+    async def load_receipt_for_revision(
+        self,
+        revision_id: str,
+        *,
+        product_id: str,
+    ) -> GovernedStateCommitReceiptV1 | None: ...
+
 
 __all__ = [
     "CoreAuthorityResolver",

@@ -36,6 +36,7 @@ from ace.intelligence.contracts.monitoring import (
     MonitoringLifecycleState,
     MonitoringTargetKind,
 )
+from ace.intelligence.contracts.resource_feedback import IntelligenceResourceFeedbackReceiptV1Alpha1
 from ace.intelligence.contracts.resource_plane import (
     IntelligenceResourceAvailability,
     IntelligenceResourceCursorV1Alpha1,
@@ -519,7 +520,13 @@ _DECISION_RESOURCE_MODELS: dict[
     tuple[
         tuple[
             str,
-            type[DecisionV1Alpha1 | OutcomeV1Alpha1 | FeedbackProposalV1Alpha1 | ImpactGovernanceProposalV1Alpha1],
+            type[
+                DecisionV1Alpha1
+                | OutcomeV1Alpha1
+                | FeedbackProposalV1Alpha1
+                | ImpactGovernanceProposalV1Alpha1
+                | IntelligenceResourceFeedbackReceiptV1Alpha1
+            ],
         ],
         ...,
     ],
@@ -529,6 +536,7 @@ _DECISION_RESOURCE_MODELS: dict[
     IntelligenceResourceKind.FEEDBACK: (
         ("feedback_proposal", FeedbackProposalV1Alpha1),
         ("impact_governance_proposal", ImpactGovernanceProposalV1Alpha1),
+        ("resource_feedback", IntelligenceResourceFeedbackReceiptV1Alpha1),
     ),
 }
 
@@ -571,7 +579,13 @@ def _decision_loop_projection(
     record: ImmutableRecordV1,
     *,
     kind: IntelligenceResourceKind,
-    value: DecisionV1Alpha1 | OutcomeV1Alpha1 | FeedbackProposalV1Alpha1 | ImpactGovernanceProposalV1Alpha1,
+    value: (
+        DecisionV1Alpha1
+        | OutcomeV1Alpha1
+        | FeedbackProposalV1Alpha1
+        | ImpactGovernanceProposalV1Alpha1
+        | IntelligenceResourceFeedbackReceiptV1Alpha1
+    ),
     decision_subject: IntelligenceResourceReferenceV1Alpha1 | None = None,
 ) -> IntelligenceResourceRecordV1Alpha1:
     payload = CanonicalJsonValueV1Alpha1(value_json=canonical_json(value.model_dump(mode="json")))
@@ -620,7 +634,7 @@ def _decision_loop_projection(
             value.intent.outcome.record_key,
             value.intent.policy_id,
         )
-    else:
+    elif isinstance(value, ImpactGovernanceProposalV1Alpha1):
         if value.target.record_kind == IntelligenceRecordKind.BRIEF.value:
             provenance = (_record_reference(value.target, kind=IntelligenceResourceKind.BRIEF),)
         else:
@@ -632,6 +646,14 @@ def _decision_loop_projection(
         subject_refs = (
             value.evaluation_id,
             value.target.record_key,
+        )
+    else:
+        provenance = (value.request.target, *value.request.evidence)
+        title = f"Correction proposal: {value.request.correction_intent.value.replace('_', ' ')}"
+        summary = value.request.note
+        subject_refs = (
+            value.request.authenticated_context.actor_ref,
+            value.request.target.resource_id,
         )
     return IntelligenceResourceRecordV1Alpha1(
         reference=_immutable_reference(record, kind=kind),
@@ -649,8 +671,30 @@ def _decision_loop_envelope_is_exact(
     record: ImmutableRecordV1,
     *,
     kind: IntelligenceResourceKind,
-    value: DecisionV1Alpha1 | OutcomeV1Alpha1 | FeedbackProposalV1Alpha1 | ImpactGovernanceProposalV1Alpha1,
+    value: (
+        DecisionV1Alpha1
+        | OutcomeV1Alpha1
+        | FeedbackProposalV1Alpha1
+        | ImpactGovernanceProposalV1Alpha1
+        | IntelligenceResourceFeedbackReceiptV1Alpha1
+    ),
 ) -> bool:
+    if isinstance(value, IntelligenceResourceFeedbackReceiptV1Alpha1):
+        return (
+            kind is IntelligenceResourceKind.FEEDBACK
+            and record.product_id == value.request.product_id
+            and record.record_space == "feedback"
+            and record.record_kind == "resource_feedback"
+            and record.record_key == value.request.feedback_id
+            and record.payload_contract == value.contract
+            and record.as_of == value.request.target.as_of
+            and record.available_at == value.recorded_at
+            and value.disposition == "recorded_proposal_only"
+            and value.changes_target is False
+            and value.changes_source_trust is False
+            and value.changes_ranking is False
+            and value.triggers_recalculation is False
+        )
     if isinstance(value, ImpactGovernanceProposalV1Alpha1):
         return (
             kind is IntelligenceResourceKind.FEEDBACK

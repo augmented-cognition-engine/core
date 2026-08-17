@@ -15,6 +15,8 @@ while the consume-side integration lands incrementally.
 from __future__ import annotations
 
 import re
+import sys
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from importlib.util import find_spec
@@ -68,11 +70,78 @@ GroundedStateAdapterIdentity = tuple[str, str]
 _grounded_state_adapters: dict[GroundedStateAdapterIdentity, Any] = {}
 _grounded_state_adapter_sources: dict[GroundedStateAdapterIdentity, "RegisteredGroundedStateAdapterSource"] = {}
 MAX_GROUNDED_STATE_ADAPTERS = 50
+MAX_INTELLIGENCE_RESOURCE_PROJECTION_PROVIDERS = 32
+IntelligenceResourceProjectionProviderIdentity = tuple[str, str]
+_intelligence_resource_projection_providers: dict[
+    IntelligenceResourceProjectionProviderIdentity, "RegisteredIntelligenceResourceProjectionProvider"
+] = {}
 _ADAPTER_NAME = re.compile(r"^[a-z0-9][a-z0-9._-]{0,119}$")
 _COGNITION_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
 _COGNITION_DECLARATION = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,239}$")
 _RESOURCE_PATH = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]{0,499}$")
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
+
+
+@contextmanager
+def atomic_extension_registration():
+    """Rollback every Registry-owned mutation when one extension fails.
+
+    Extension registration is a single transaction even though the stable
+    facade delegates instruments and sentinels to their established stores.
+    Shallow snapshots are sufficient because Registry operations add or replace
+    entries; they never mutate an existing registered value in place.
+    """
+
+    dict_stores = (
+        _recipes,
+        _recipe_metadata,
+        _recipe_disciplines,
+        _recipe_task_types,
+        _committees,
+        _task_actions,
+        _grounded_state_adapters,
+        _grounded_state_adapter_sources,
+        _intelligence_resource_projection_providers,
+    )
+    list_stores = (
+        _personas,
+        _frameworks,
+        _tools,
+        _schema_paths,
+        _unsupported_registrations,
+        _briefing_sections,
+        _verify_checks,
+    )
+    dict_snapshots = tuple((store, dict(store)) for store in dict_stores)
+    list_snapshots = tuple((store, list(store)) for store in list_stores)
+    delegated_snapshots: dict[str, tuple[tuple[str, dict], ...]] = {}
+    delegated_store_names = {
+        "core.engine.cognition.instrument_registry": ("_REGISTRY", "_REGISTRATION_METADATA"),
+        "core.engine.sentinel.registry": ("engine_registry",),
+    }
+    for module_name, store_names in delegated_store_names.items():
+        module = sys.modules.get(module_name)
+        delegated_snapshots[module_name] = tuple(
+            (store_name, dict(getattr(module, store_name))) for store_name in store_names if module is not None
+        )
+    try:
+        yield
+    except BaseException:
+        for store, snapshot in dict_snapshots:
+            store.clear()
+            store.update(snapshot)
+        for store, snapshot in list_snapshots:
+            store[:] = snapshot
+        for module_name, store_names in delegated_store_names.items():
+            module = sys.modules.get(module_name)
+            if module is None:
+                continue
+            snapshots = dict(delegated_snapshots[module_name])
+            for store_name in store_names:
+                store = getattr(module, store_name)
+                store.clear()
+                store.update(snapshots.get(store_name, {}))
+        raise
 
 
 def _bounded_declarations(values: list[str] | None, *, field: str) -> tuple[str, ...]:
@@ -174,6 +243,25 @@ class RegisteredGroundedStateAdapterSource:
 
     def public_manifest(self) -> dict[str, Any]:
         return asdict(self)
+
+
+@dataclass(frozen=True)
+class RegisteredIntelligenceResourceProjectionProvider:
+    """One extension-owned factory for a disjoint generic resource projection."""
+
+    extension_id: str
+    extension_version: str
+    provider_name: str
+    supported_kinds: tuple[str, ...]
+    factory: Callable[[Any], Any]
+
+    def public_manifest(self) -> dict[str, Any]:
+        return {
+            "extension_id": self.extension_id,
+            "extension_version": self.extension_version,
+            "provider_name": self.provider_name,
+            "supported_kinds": list(self.supported_kinds),
+        }
 
 
 @dataclass(frozen=True)
@@ -423,6 +511,55 @@ class Registry:
             primary_model_calls=int(getattr(adapter, "primary_model_calls", 0)),
         )
 
+    def register_intelligence_resource_projection_provider(
+        self,
+        name: str,
+        factory: Callable[[Any], Any],
+        *,
+        supported_kinds: frozenset[str],
+    ) -> None:
+        """Register a solution-owned reader factory on the generic resource plane.
+
+        Kinds remain strings at this extension boundary so domain vocabulary
+        cannot enter Core contracts.  The compatibility host validates them
+        against the public resource enum before constructing the composite.
+        """
+
+        if not self._extension_id or not self._extension_version:
+            raise RuntimeError(
+                "register_intelligence_resource_projection_provider requires an extension-scoped Registry"
+            )
+        if not _ADAPTER_NAME.fullmatch(name):
+            raise ValueError("intelligence resource projection provider name must be a bounded lowercase stable token")
+        if not callable(factory):
+            raise TypeError("intelligence resource projection provider factory must be callable")
+        if (
+            not isinstance(supported_kinds, frozenset)
+            or not supported_kinds
+            or len(supported_kinds) > 32
+            or any(not isinstance(kind, str) or not _ADAPTER_NAME.fullmatch(kind) for kind in supported_kinds)
+        ):
+            raise ValueError(
+                "intelligence resource projection supported kinds must be a nonempty immutable bounded set"
+            )
+        identity = (self._extension_id, name)
+        if identity in _intelligence_resource_projection_providers:
+            raise RuntimeError(
+                f"Intelligence resource projection provider '{self._extension_id}:{name}' is already registered"
+            )
+        if len(_intelligence_resource_projection_providers) >= MAX_INTELLIGENCE_RESOURCE_PROJECTION_PROVIDERS:
+            raise RuntimeError(
+                "Intelligence resource projection provider registry is limited to "
+                f"{MAX_INTELLIGENCE_RESOURCE_PROJECTION_PROVIDERS} entries"
+            )
+        _intelligence_resource_projection_providers[identity] = RegisteredIntelligenceResourceProjectionProvider(
+            extension_id=self._extension_id,
+            extension_version=self._extension_version,
+            provider_name=name,
+            supported_kinds=tuple(sorted(supported_kinds)),
+            factory=factory,
+        )
+
     def register_sentinel(
         self,
         name: str,
@@ -668,6 +805,21 @@ def registered_grounded_state_adapter_manifests() -> list[dict[str, Any]]:
 def registered_grounded_state_adapter(extension_id: str, name: str) -> Any | None:
     _ensure_extensions_loaded()
     return _grounded_state_adapters.get((extension_id, name))
+
+
+def registered_intelligence_resource_projection_providers() -> tuple[
+    RegisteredIntelligenceResourceProjectionProvider, ...
+]:
+    """Return installed provider definitions in deterministic name order."""
+
+    _ensure_extensions_loaded()
+    return tuple(
+        _intelligence_resource_projection_providers[key] for key in sorted(_intelligence_resource_projection_providers)
+    )
+
+
+def registered_intelligence_resource_projection_provider_manifests() -> tuple[dict[str, Any], ...]:
+    return tuple(item.public_manifest() for item in registered_intelligence_resource_projection_providers())
 
 
 def registered_task_action(extension_id: str, action: str) -> RegisteredTaskAction | None:

@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import copy
-from datetime import datetime
-from typing import Any, Literal
+import json
+from datetime import UTC, datetime
+from typing import Annotated, Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path, Request
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, Field
+from fastapi.routing import APIRoute
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 from core.engine.cognition import composer as composer_module
 from core.engine.cognition.catalog import build_default_catalog
@@ -21,6 +23,10 @@ from core.engine.cognition.contracts import (
     OwnerKind,
     ScopeKind,
     canonical_hash,
+)
+from core.engine.cognition.delegated_activation import (
+    DelegatedCognitionActivationRequestV1Alpha1,
+    DelegatedCognitionAuthorityError,
 )
 from core.engine.cognition.discovery import DurableCognitionDiscovery
 from core.engine.cognition.governance import (
@@ -38,10 +44,71 @@ from core.engine.cognition.governance_persistence import (
     DurableCognitionGovernanceService,
 )
 from core.engine.cognition.legacy_adapters import meta_skill_from_body
-from core.engine.core.auth import get_current_user
+from core.engine.core.agent_composition_runtime import GovernedStateRuntimeUseResolver
+from core.engine.core.auth import (
+    delegated_authentication_receipt,
+    get_current_user,
+    get_header_current_user,
+    is_human_principal,
+    service_principal_ref,
+)
+from core.engine.core.cognition_delegated_authority import (
+    DelegatedCognitionActivationService,
+    DelegatedCognitionAuthority,
+    parse_delegated_inputs,
+)
 from core.engine.core.db import parse_one, parse_record_id, pool
+from core.engine.core.governed_state import SurrealGovernedStateStore
+from core.engine.core.immutable_records import SurrealImmutableRecordStore
 
-router = APIRouter(prefix="/cognition", tags=["cognition"])
+MAX_DELEGATED_REQUEST_BODY_BYTES = 64 * 1024
+_DELEGATED_MUTATION_PATHS = frozenset({"/cognition/delegated/reviews", "/cognition/delegated/activations"})
+
+
+class _DelegatedBodyLimitRoute(APIRoute):
+    """Enforce the delegated mutation bound before JSON/Pydantic parsing."""
+
+    def get_route_handler(self):
+        original_handler = super().get_route_handler()
+
+        async def limited_handler(request: Request):
+            if request.method == "POST" and request.url.path in _DELEGATED_MUTATION_PATHS:
+                content_length = request.headers.get("content-length")
+                if content_length is not None:
+                    try:
+                        declared = int(content_length)
+                    except ValueError as exc:
+                        raise HTTPException(
+                            status_code=413,
+                            detail={"code": "delegated_request_too_large"},
+                        ) from exc
+                    if declared < 0 or declared > MAX_DELEGATED_REQUEST_BODY_BYTES:
+                        raise HTTPException(
+                            status_code=413,
+                            detail={"code": "delegated_request_too_large"},
+                        )
+                original_receive = request._receive
+                received = 0
+
+                async def bounded_receive():
+                    nonlocal received
+                    message = await original_receive()
+                    if message.get("type") == "http.request":
+                        received += len(message.get("body", b""))
+                        if received > MAX_DELEGATED_REQUEST_BODY_BYTES:
+                            raise HTTPException(
+                                status_code=413,
+                                detail={"code": "delegated_request_too_large"},
+                            )
+                    return message
+
+                request._receive = bounded_receive
+            return await original_handler(request)
+
+        return limited_handler
+
+
+router = APIRouter(prefix="/cognition", tags=["cognition"], route_class=_DelegatedBodyLimitRoute)
 
 
 class TeachFromTaskRequest(BaseModel):
@@ -78,6 +145,11 @@ def _product(user: dict[str, Any]) -> str:
 
 
 def _actor(user: dict[str, Any], *, proposal: bool = False) -> ReviewActorV1:
+    # A non-human token is never coerced into HUMAN merely because it carries a
+    # string authority. Trusted human/local-owner proof and the delegated
+    # service flow are distinct paths with distinct evidence.
+    if not is_human_principal(user):
+        raise HTTPException(status_code=403, detail={"code": "human_authority_required"})
     raw_authorities = user.get("authorities")
     authorities = tuple(sorted({str(item) for item in raw_authorities})) if isinstance(raw_authorities, list) else ()
     if proposal:
@@ -95,6 +167,7 @@ async def teach_from_task(
     user: dict[str, Any] = Depends(get_current_user),
 ):
     product_id = _product(user)
+    proposal_actor = _actor(user, proposal=True)
     async with pool.connection() as db:
         task = parse_one(
             await db.query(
@@ -156,7 +229,7 @@ async def teach_from_task(
         body_schema_version=RECIPE_BODY_VERSION,
         draft_body=draft,
         dependencies=template.dependencies,
-        created_by=_actor(user, proposal=True),
+        created_by=proposal_actor,
     )
     service = DurableCognitionGovernanceService(CognitionGovernanceStore(pool))
     stored = await service.propose(proposal)
@@ -276,4 +349,182 @@ async def get_use_receipt(receipt_id: str, user: dict[str, Any] = Depends(get_cu
     receipt = await DurableCognitionDiscovery(pool).load_use(receipt_id, product_id=product_id)
     if receipt is None:
         raise HTTPException(status_code=404, detail={"code": "use_receipt_not_found"})
+    return receipt
+
+
+# ---------------------------------------------------------------------------
+# Delegated headless governed cognition (Slice 7).
+#
+# Separate, explicit, header-only endpoints. The human routes above are
+# unchanged for human tokens. These routes grant nothing on their own: every
+# decision resolves pre-existing, exact, product-scoped governed grants.
+# ---------------------------------------------------------------------------
+
+
+def _strict_delegated_request(value: object) -> DelegatedCognitionActivationRequestV1Alpha1:
+    if isinstance(value, DelegatedCognitionActivationRequestV1Alpha1):
+        return value
+    if not isinstance(value, dict) or not value.get("request_id") or not value.get("request_digest"):
+        raise ValueError("delegated request requires supplied content identities")
+    try:
+        encoded = json.dumps(value, allow_nan=False, separators=(",", ":"))
+        return DelegatedCognitionActivationRequestV1Alpha1.model_validate_json(encoded, strict=True)
+    except (RecursionError, TypeError, ValueError) as exc:
+        raise ValueError("delegated request failed strict wire validation") from exc
+
+
+class DelegatedAgentPrincipalBody(BaseModel):
+    """Strict JSON shape; the host adapter revalidates content identity."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    contract: Literal["ace.core.agent-principal/v1alpha1"]
+    product_id: str = Field(min_length=1, max_length=240)
+    principal_key: str = Field(min_length=1, max_length=240)
+    principal_kind: Literal["service"]
+    owner_ref: str = Field(min_length=1, max_length=240)
+    implementation_ref: str = Field(min_length=1, max_length=240)
+    supported_protocol_versions: list[str] = Field(min_length=1, max_length=256)
+    lifecycle: Literal["active", "suspended", "retired"]
+    lifecycle_revision: int = Field(ge=1)
+    principal_id: str = Field(min_length=1, max_length=240)
+    principal_digest: str = Field(pattern=r"^sha256:[a-f0-9]{64}$")
+
+
+class DelegatedCognitionBody(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    request: Annotated[DelegatedCognitionActivationRequestV1Alpha1, BeforeValidator(_strict_delegated_request)]
+    principal: DelegatedAgentPrincipalBody
+
+
+_DELEGATED_STATUS: dict[str, int] = {
+    "delegated_replay_conflict": 409,
+    "delegated_head_precondition_failed": 409,
+    "delegated_proposal_mismatch": 404,
+    "delegated_approval_unavailable": 404,
+}
+
+
+def _delegated_denial(exc: DelegatedCognitionAuthorityError) -> HTTPException:
+    return HTTPException(
+        status_code=_DELEGATED_STATUS.get(exc.code.value, 403),
+        detail={"code": exc.code.value},
+    )
+
+
+def _delegated_inputs(body: DelegatedCognitionBody, user: dict[str, Any]):
+    """Validate product, principal, and envelope before any repository effect."""
+
+    principal_ref = service_principal_ref(user)
+    if principal_ref is None:
+        raise HTTPException(status_code=403, detail={"code": "human_review_required"})
+    product_id = user.get("product")
+    if not isinstance(product_id, str) or not product_id.startswith("product:"):
+        raise HTTPException(status_code=403, detail={"code": "delegated_request_mismatch"})
+    try:
+        request, principal = parse_delegated_inputs(
+            body.request.model_dump(mode="json"),
+            body.principal.model_dump(mode="json"),
+        )
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail={"code": "delegated_request_invalid"}) from exc
+    if request.request_id is None or request.request_digest is None:
+        raise HTTPException(status_code=422, detail={"code": "delegated_request_invalid"})
+    if request.model_participant is not None:
+        raise HTTPException(status_code=422, detail={"code": "delegated_participant_unverifiable"})
+    authentication = delegated_authentication_receipt(user, evaluated_at=datetime.now(UTC))
+    context = authentication.runtime_context()
+    if (
+        request.product_id != product_id
+        or principal.product_id != product_id
+        or request.service_principal.principal_ref != principal_ref
+        or str(principal.principal_id) != principal_ref
+        or request.authenticated_actor_ref != str(user.get("sub") or "")
+        or request.authentication_receipt_ref != context.authentication_receipt_ref
+        or request.authentication_receipt_digest != context.authentication_receipt_digest
+        or request.authenticated_at != context.authenticated_at
+        or request.authentication_expires_at != context.expires_at
+    ):
+        raise HTTPException(status_code=403, detail={"code": "delegated_request_mismatch"})
+    return request, principal
+
+
+def _delegated_service() -> DelegatedCognitionActivationService:
+    return DelegatedCognitionActivationService(
+        store=CognitionGovernanceStore(pool),
+        authority=DelegatedCognitionAuthority(
+            runtime_use=GovernedStateRuntimeUseResolver(governed_state=SurrealGovernedStateStore(pool)),
+        ),
+        records=SurrealImmutableRecordStore(pool),
+    )
+
+
+@router.post("/delegated/reviews", status_code=201)
+async def delegated_review(
+    body: DelegatedCognitionBody,
+    user: dict[str, Any] = Depends(get_header_current_user),
+):
+    """Stage one: approval-only evidence. Nothing is activated here."""
+
+    request, principal = _delegated_inputs(body, user)
+    try:
+        receipt = await _delegated_service().review(
+            request,
+            principal=principal,
+            evaluated_at=datetime.now(UTC),
+        )
+    except DelegatedCognitionAuthorityError as exc:
+        raise _delegated_denial(exc) from exc
+    except CognitionScopeError as exc:
+        raise HTTPException(status_code=404, detail={"code": "proposal_not_found"}) from exc
+    except CognitionPersistenceError as exc:
+        raise HTTPException(status_code=409, detail={"code": str(exc).split(":", 1)[0]}) from exc
+    return {"delegated_approval_receipt": receipt, "activated": False}
+
+
+@router.post("/delegated/activations", status_code=201)
+async def delegated_activation(
+    body: DelegatedCognitionBody,
+    user: dict[str, Any] = Depends(get_header_current_user),
+):
+    """Stage two: re-resolve authority at point of use and commit atomically."""
+
+    request, principal = _delegated_inputs(body, user)
+    try:
+        receipt, replayed = await _delegated_service().activate(
+            request,
+            principal=principal,
+            evaluated_at=datetime.now(UTC),
+        )
+    except DelegatedCognitionAuthorityError as exc:
+        raise _delegated_denial(exc) from exc
+    except CognitionScopeError as exc:
+        raise HTTPException(status_code=404, detail={"code": "proposal_not_found"}) from exc
+    except CognitionPersistenceError as exc:
+        raise HTTPException(status_code=409, detail={"code": str(exc).split(":", 1)[0]}) from exc
+    return {"delegated_activation_receipt": receipt, "activated": True, "replayed": replayed}
+
+
+@router.get("/delegated/approvals/{receipt_id}")
+async def get_delegated_approval(
+    receipt_id: str = Path(min_length=1, max_length=240, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,239}$"),
+    user: dict[str, Any] = Depends(get_current_user),
+):
+    product_id = _product(user)
+    receipt = await CognitionGovernanceStore(pool).load_delegated_approval(receipt_id, product_id=product_id)
+    if receipt is None:
+        raise HTTPException(status_code=404, detail={"code": "delegated_approval_not_found"})
+    return receipt
+
+
+@router.get("/delegated/activations/{receipt_id}")
+async def get_delegated_activation(
+    receipt_id: str = Path(min_length=1, max_length=240, pattern=r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,239}$"),
+    user: dict[str, Any] = Depends(get_current_user),
+):
+    product_id = _product(user)
+    receipt = await CognitionGovernanceStore(pool).load_delegated_activation(receipt_id, product_id=product_id)
+    if receipt is None:
+        raise HTTPException(status_code=404, detail={"code": "delegated_activation_not_found"})
     return receipt

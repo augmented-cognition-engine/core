@@ -1,14 +1,18 @@
 import { useMemo, useState } from 'react'
-import { ArrowRight, CircleAlert, Clock3, GitBranch, Search, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowRight, CircleAlert, Clock3, Search } from 'lucide-react'
 
 import type { IntelligenceResourceRecord } from '@/api/intelligenceResourcesApi'
 import { Badge } from '@/design/shadcn/ui/badge'
 import { Button } from '@/design/shadcn/ui/button'
-import { Card, CardContent } from '@/design/shadcn/ui/card'
 import { Input } from '@/design/shadcn/ui/input'
 
 import { answerQuestionFromResources } from './askAceModel'
+import { ATRIUM_ACTION_ICONS } from './atriumIcons'
 import { kindLabel } from './intelligenceModel'
+
+const AskIcon = ATRIUM_ACTION_ICONS.ask
+const GovernedEvidenceIcon = ATRIUM_ACTION_ICONS.governedEvidence
+const EvidenceLineageIcon = ATRIUM_ACTION_ICONS.evidenceLineage
 
 const SUGGESTIONS = [
   'What changed most recently?',
@@ -32,25 +36,25 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
   }
 
   return (
-    <Card className="overflow-hidden border-brand/20 bg-anchor text-anchor-foreground">
-      <CardContent className="p-4 md:p-5">
+    <section className="border-y border-border bg-anchor text-anchor-foreground">
+      <div className="p-4 md:p-5">
         <div className="flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-md border border-brand/30 bg-brand/10 text-brand">
-            <Sparkles className="size-3.5" />
+            <AskIcon className="size-3.5" aria-hidden="true" />
           </div>
           <div>
             <div className="text-sm font-semibold">Ask ACE</div>
             <div className="text-[11px] text-muted-foreground">A sourced answer from the intelligence currently in view</div>
           </div>
-          <Badge variant="outline" className="ml-auto hidden border-brand/25 bg-brand/5 text-brand sm:inline-flex">
-            <ShieldCheck className="mr-1 size-3" />
+          <Badge variant="outline" className="ml-auto hidden border-border bg-background/35 text-muted-foreground sm:inline-flex">
+            <GovernedEvidenceIcon className="mr-1 size-3" aria-hidden="true" />
             governed sources
           </Badge>
         </div>
 
         <div className="mt-3 flex gap-2">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
@@ -70,7 +74,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
             disabled={draft.trim().length === 0}
             aria-label="Ask ACE"
           >
-            <ArrowRight className="size-4" />
+            <ArrowRight className="size-4" aria-hidden="true" />
           </Button>
         </div>
 
@@ -93,7 +97,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
           <div
             role="region"
             aria-label="Ask ACE answer"
-            className="mt-4 rounded-lg border border-brand/20 bg-background/75 p-4 text-foreground"
+            className="mt-4 border-t border-border bg-background/50 pt-4 text-foreground"
           >
             <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               Intelligence answer · {answer?.evidence.length ?? 0} cited record{answer?.evidence.length === 1 ? '' : 's'}
@@ -106,48 +110,48 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
               <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,0.85fr)]">
                 <div className="space-y-4">
                   <div>
-                    <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Answer</div>
-                    <p className="mt-2 border-l-2 border-brand pl-3 text-[15px] font-medium leading-6 text-foreground">
+                    <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Answer</div>
+                    <p className="mt-2 border-l-2 border-foreground/35 pl-3 text-[15px] font-medium leading-6 text-foreground">
                       {answer.conclusion}
                     </p>
                   </div>
 
                   {(answer.whyItMatters !== null || answer.whenItChanged !== null) && (
-                    <div className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2">
+                    <div className="space-y-3 border-t border-border pt-3">
                       {answer.whyItMatters !== null && (
-                        <div className="bg-card p-3">
-                          <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">Why it matters</div>
+                        <div>
+                          <div className="font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-foreground/70">Why it matters</div>
                           <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whyItMatters}</p>
                         </div>
                       )}
                       {answer.whenItChanged !== null && (
-                        <div className="bg-card p-3">
-                          <div className="flex items-center gap-1.5 font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-brand">
-                            <Clock3 className="size-3" /> When
+                        <div className="flex items-start gap-2 border-t border-border/70 pt-3">
+                          <div className="flex shrink-0 items-center gap-1.5 font-mono text-[8px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                            <Clock3 className="size-3" aria-hidden="true" /> When
                           </div>
-                          <p className="mt-1.5 text-xs leading-5 text-foreground/85">{answer.whenItChanged}</p>
+                          <p className="text-[10px] leading-4 text-foreground/75">{answer.whenItChanged}</p>
                         </div>
                       )}
                     </div>
                   )}
 
                   <div className="flex items-start gap-2 border-t border-border/70 pt-3 text-[11px] leading-5 text-muted-foreground">
-                    <CircleAlert className="mt-0.5 size-3.5 shrink-0" />
+                    <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
                     <span>{answer.limitation}</span>
                   </div>
                 </div>
 
-                <aside className="rounded-lg border bg-card/70 p-3.5" aria-label="Evidence used for this answer">
+                <aside className="border-t border-border pt-4 lg:border-l lg:border-t-0 lg:pl-4 lg:pt-0" aria-label="Evidence used for this answer">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                      <GitBranch className="size-3" /> Evidence used
+                      <EvidenceLineageIcon className="size-3" aria-hidden="true" /> Evidence used
                     </div>
                     <Badge variant="outline" className="rounded-sm font-mono text-[8px]">{answer.evidence.length} records</Badge>
                   </div>
                   <div className="divide-y divide-border/70">
                     {answer.evidence.slice(0, 4).map((match, index) => (
                       <div key={`${match.reference.resource_id}:${match.reference.revision}`} className="flex gap-3 py-3 first:pt-0 last:pb-0">
-                        <span className="font-mono text-[10px] text-brand">[{index + 1}]</span>
+                        <span className="font-mono text-[10px] text-foreground/65">[{index + 1}]</span>
                         <div className="min-w-0">
                           <div className="text-xs font-medium leading-snug">{match.title}</div>
                           <div className="mt-1.5 font-mono text-[9px] text-muted-foreground">
@@ -162,7 +166,7 @@ export function AskAce({ items }: { readonly items: readonly IntelligenceResourc
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   )
 }

@@ -1,6 +1,6 @@
 """Sentinel engine: Community Summarizer — GraphRAG community summaries for briefings.
 
-Runs Louvain community detection (graph/cluster.py) over the cognify insight edges, LLM-summarizes the
+Runs Louvain community detection (graph/cluster.py) over canonical operational insight edges, LLM-summarizes the
 largest communities (the recurring themes in accumulated knowledge), and writes one community_summary
 row per community. The briefing surfaces them so the partner sees the SHAPE of what's been learned, not
 just counts.
@@ -40,23 +40,22 @@ async def run_community_summarizer(product_id: str = "product:platform", budget:
     """Detect knowledge communities and summarize the largest; replace prior summaries for the product."""
     _validate(product_id, budget)
 
-    from core.engine.capture.cognify import EDGE_TYPES
     from core.engine.graph.cluster import build_graph, detect_clusters
+    from core.engine.graph.ontology import RELATIONSHIPS
+    from core.engine.graph.operational_relationships import load_operational_relationships
 
     edges: list[dict] = []
     async with pool.connection() as db:
-        for edge_type in EDGE_TYPES:
-            rows = parse_rows(
-                await db.query(
-                    f"SELECT in, out FROM {edge_type} "
-                    "WHERE source = 'cognify' AND in.product = <record>$product LIMIT 1000",
-                    {"product": product_id},
-                )
-            )
-            for r in rows:
-                src, tgt = str(r.get("in", "")), str(r.get("out", ""))
-                if src and tgt and src != tgt:
-                    edges.append({"from": src, "to": tgt, "type": edge_type})
+        rows = await load_operational_relationships(
+            product_id,
+            predicates=RELATIONSHIPS,
+            limit=1_000,
+            db=db,
+        )
+        for r in rows:
+            src, tgt = str(r.get("in", "")), str(r.get("out", ""))
+            if src and tgt and src != tgt:
+                edges.append({"from": src, "to": tgt, "type": r["predicate"]})
 
     if not edges:
         return {"summarized": 0, "reason": "no_cognify_edges"}

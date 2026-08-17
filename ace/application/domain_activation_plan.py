@@ -30,6 +30,7 @@ from ace.application.intelligence_builder_contracts import (
     OnboardingArtifactKind,
     OnboardingStage,
 )
+from ace.core.contracts import canonical_hash
 from ace.core.state import (
     CoreAuthorityResolver,
     GovernedStateCommitReceiptV1,
@@ -40,6 +41,7 @@ from ace.core.state import (
 from ace.intelligence.contracts.conformance import DomainPackConformanceReceiptV1
 from ace.intelligence.contracts.diagnostics import PackCompatibilityStatus
 from ace.intelligence.contracts.pack import CompiledDomainPackV1
+from ace.intelligence.contracts.resources import ActivationRevisionReferenceV1Alpha1
 from ace.intelligence.packs.activation import prepare_domain_activation
 from ace.intelligence.packs.compiler import negotiate_pack_compatibility
 
@@ -49,6 +51,7 @@ class DomainActivationPlanAdmissionError(RuntimeError):
 
 
 DOMAIN_ACTIVATION_PLAN_STATE_KIND = "domain_activation_plan_v1alpha2"
+MAX_ACTIVATION_HISTORY_REVISIONS = 512
 
 
 @dataclass(frozen=True, slots=True)
@@ -670,40 +673,204 @@ class DomainActivationPlanAdmissionService:
         product_id: str,
         activation_key: str,
     ) -> CommittedDomainActivationPlan | None:
-        from ace.core.contracts import canonical_hash
+        return await _reload_domain_activation_plan(
+            store=self.store,
+            product_id=product_id,
+            activation_key=activation_key,
+        )
 
-        activation_id = f"domain_activation:{canonical_hash([product_id, activation_key])[:32]}"
-        head = await self.store.load_head(
-            state_kind=DOMAIN_ACTIVATION_PLAN_STATE_KIND,
+    async def load_history(
+        self,
+        *,
+        product_id: str,
+        activation_key: str,
+    ) -> tuple[CommittedDomainActivationPlan, ...]:
+        """Read one exact append-only activation chain, newest first.
+
+        Historical commits are lineage only. Loading them neither re-resolves
+        current grants nor makes an earlier revision live.
+        """
+
+        return await load_domain_activation_plan_history(
+            store=self.store,
+            product_id=product_id,
+            activation_key=activation_key,
+        )
+
+    async def resolve_live_for_session(
+        self,
+        *,
+        product_id: str,
+        activation_key: str,
+        session: IntelligenceBuilderSessionRevisionV1,
+    ) -> ActivationRevisionReferenceV1Alpha1 | None:
+        """Resolve the exact live activation revision bound to one accepted session."""
+
+        return await resolve_live_activation_revision_for_session(
+            store=self.store,
+            product_id=product_id,
+            activation_key=activation_key,
+            session=session,
+        )
+
+
+async def load_domain_activation_plan_history(
+    *,
+    store: GovernedStateStore,
+    product_id: str,
+    activation_key: str,
+) -> tuple[CommittedDomainActivationPlan, ...]:
+    """Read one exact append-only v1alpha2 activation chain, newest first."""
+
+    current = await _reload_domain_activation_plan(
+        store=store,
+        product_id=product_id,
+        activation_key=activation_key,
+    )
+    if current is None:
+        return ()
+    history: list[CommittedDomainActivationPlan] = []
+    seen: set[str] = set()
+    expected = current.revision
+    while True:
+        revision_id = str(expected.revision_id)
+        if revision_id in seen:
+            raise DomainActivationPlanAdmissionError("activation history contains a revision cycle")
+        if len(history) >= MAX_ACTIVATION_HISTORY_REVISIONS:
+            raise DomainActivationPlanAdmissionError("activation history exceeds the bounded read limit")
+        seen.add(revision_id)
+        receipt = (
+            current.commit_receipt
+            if not history
+            else await store.load_receipt_for_revision(revision_id, product_id=product_id)
+        )
+        if receipt is None:
+            raise DomainActivationPlanAdmissionError("activation history has an incomplete commit chain")
+        history.append(_validate_committed_pair(expected, receipt))
+        prior_id = expected.prior_revision_id
+        if prior_id is None:
+            if expected.revision != 1:
+                raise DomainActivationPlanAdmissionError("activation history terminated before revision one")
+            break
+        envelope = await store.load_revision(prior_id, product_id=product_id)
+        if envelope is None:
+            raise DomainActivationPlanAdmissionError("activation history has an incomplete revision chain")
+        prior = _parse_persisted_revision(envelope)
+        if (
+            prior.activation_id != current.revision.activation_id
+            or prior.plan.spec.product_id != product_id
+            or prior.plan.spec.activation_key != activation_key
+            or prior.revision != expected.revision - 1
+            or prior.revision_id != prior_id
+        ):
+            raise DomainActivationPlanAdmissionError("activation history crossed exact scope or sequence")
+        expected = prior
+    return tuple(history)
+
+
+async def _reload_domain_activation_plan(
+    *,
+    store: GovernedStateStore,
+    product_id: str,
+    activation_key: str,
+) -> CommittedDomainActivationPlan | None:
+    activation_id = f"domain_activation:{canonical_hash([product_id, activation_key])[:32]}"
+    head = await store.load_head(
+        state_kind=DOMAIN_ACTIVATION_PLAN_STATE_KIND,
+        product_id=product_id,
+        state_id=activation_id,
+    )
+    if head is None:
+        head = await store.load_head(
+            state_kind=LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
             product_id=product_id,
             state_id=activation_id,
         )
-        if head is None:
-            head = await self.store.load_head(
-                state_kind=LEGACY_DOMAIN_ACTIVATION_STATE_KIND,
-                product_id=product_id,
-                state_id=activation_id,
-            )
-        if head is None:
-            return None
-        envelope = await self.store.load_revision(head.revision_id, product_id=product_id)
-        receipt = await self.store.load_receipt(
-            head.commit_receipt_id,
-            product_id=product_id,
+    if head is None:
+        return None
+    envelope = await store.load_revision(head.revision_id, product_id=product_id)
+    receipt = await store.load_receipt(
+        head.commit_receipt_id,
+        product_id=product_id,
+    )
+    if envelope is None or receipt is None:
+        raise DomainActivationPlanAdmissionError("persisted activation head has an incomplete commit chain")
+    revision = _parse_persisted_revision(envelope)
+    if (
+        revision.plan.spec.product_id != product_id
+        or revision.plan.spec.activation_key != activation_key
+        or head.revision_id != revision.revision_id
+        or head.commit_receipt_id != receipt.receipt_id
+    ):
+        raise DomainActivationPlanAdmissionError("persisted activation head crossed exact product or activation scope")
+    return _validate_committed_pair(revision, receipt)
+
+
+def _activation_revision_reference(
+    revision: DomainActivationRevisionV1Alpha2,
+) -> ActivationRevisionReferenceV1Alpha1:
+    return ActivationRevisionReferenceV1Alpha1(
+        product_id=revision.plan.spec.product_id,
+        activation_key=revision.plan.spec.activation_key,
+        activation_id=str(revision.activation_id),
+        revision=revision.revision,
+        revision_id=str(revision.revision_id),
+        revision_digest=str(revision.revision_digest),
+    )
+
+
+async def resolve_live_activation_revision_for_session(
+    *,
+    store: GovernedStateStore,
+    product_id: str,
+    activation_key: str,
+    session: IntelligenceBuilderSessionRevisionV1,
+) -> ActivationRevisionReferenceV1Alpha1 | None:
+    """Resolve the exact live activation revision bound to one accepted session.
+
+    This is the durable accepted-session-to-activation-revision association:
+    it reuses the existing append-only v1alpha2 activation chain and the
+    exact ``onboarding_handoff`` every committed revision already embeds. It
+    introduces no second activation, session, or persistence model.
+
+    The caller must already hold the exact ``activation_key`` (never inferred
+    from a Pack ID or UI state) and an exactly reloaded ``session`` revision.
+    Resolution fails closed to ``None`` — never a guess — when: no activation
+    has been committed yet, the current activation is not ``ACTIVE``, or the
+    current activation's bound onboarding handoff does not name this exact
+    session identity (stale, superseded, or a different session). A crossed
+    product scope or an unrevalidatable session raises instead of guessing.
+    """
+
+    try:
+        exact_session = IntelligenceBuilderSessionRevisionV1.model_validate(session.model_dump(mode="python"))
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise DomainActivationPlanAdmissionError("session failed exact revalidation") from exc
+    if exact_session.product_id != product_id:
+        raise DomainActivationPlanAdmissionError(
+            "session product scope does not match the requested activation product"
         )
-        if envelope is None or receipt is None:
-            raise DomainActivationPlanAdmissionError("persisted activation head has an incomplete commit chain")
-        revision = _parse_persisted_revision(envelope)
-        if (
-            revision.plan.spec.product_id != product_id
-            or revision.plan.spec.activation_key != activation_key
-            or head.revision_id != revision.revision_id
-            or head.commit_receipt_id != receipt.receipt_id
-        ):
-            raise DomainActivationPlanAdmissionError(
-                "persisted activation head crossed exact product or activation scope"
-            )
-        return _validate_committed_pair(revision, receipt)
+    if exact_session.revision_id is None or exact_session.revision_digest is None:
+        raise DomainActivationPlanAdmissionError("session is missing its exact durable revision identity")
+
+    current = await _reload_domain_activation_plan(
+        store=store,
+        product_id=product_id,
+        activation_key=activation_key,
+    )
+    if current is None:
+        return None
+    revision = current.revision
+    if revision.state is not ActivationRuntimeState.ACTIVE:
+        return None
+    handoff = revision.plan.onboarding_handoff
+    if (
+        handoff.session_id != exact_session.session_id
+        or handoff.session_revision_id != exact_session.revision_id
+        or handoff.session_revision_digest != exact_session.revision_digest
+    ):
+        return None
+    return _activation_revision_reference(revision)
 
 
 __all__ = [
@@ -711,7 +878,10 @@ __all__ = [
     "DomainActivationPlanAdmissionError",
     "DomainActivationPlanAdmissionService",
     "DOMAIN_ACTIVATION_PLAN_STATE_KIND",
+    "MAX_ACTIVATION_HISTORY_REVISIONS",
     "activation_commit_reference",
+    "load_domain_activation_plan_history",
     "prepare_activation_onboarding_handoff",
+    "resolve_live_activation_revision_for_session",
     "validate_activation_commit_reference",
 ]

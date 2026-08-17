@@ -1,10 +1,10 @@
 [project]
 name = "ace-core"
-version = "1.0.3"
+version = "1.1.0"
 description = "Open Intelligence Operating System with a guided Intelligence Builder"
 readme = "README.md"
 license = "Apache-2.0"
-license-files = ["LICENSE", "NOTICE"]
+license-files = ["LICENSE", "NOTICE", "LICENSE.keep-network-tbtc-9651d53-MIT"]
 authors = [{ name = "Eamirian" }]
 requires-python = ">=3.12,<3.13"
 classifiers = [
@@ -146,6 +146,7 @@ include = ["ace", "ace.*", "ace_mcp_client*", "core*", "extensions*", "scripts*"
 "core.engine.onboarding" = ["*.json"]
 "core.engine.runtime" = ["*.yml", "*.example"]
 "core.engine.grounded_state" = ["fixtures/*.json"]
+"core.engine.code_intelligence" = ["fixtures/*.json", "fixtures/*.b64"]
 "core.engine.cognition.recipes" = ["*.yaml"]
 "core.engine.generation" = ["templates/*.j2"]
 "core.engine.reports" = ["templates/*.html", "templates/*.css", "static/*.js"]
@@ -171,11 +172,15 @@ include = ["ace", "ace.*", "ace_mcp_client*", "core*", "extensions*", "scripts*"
 "share/doc/ace/docs/design" = [
     "docs/design/*.md",
 ]
+"share/doc/ace/docs/operations" = [
+    "docs/operations/*.md",
+]
 
 # Extensions discovered by core.engine.extensions.load_extensions().
 # Built-in extensions are declared here; external extensions ship their own
 # ace.extensions entry point (see docs/build-your-first-extension.md).
 [project.entry-points."ace.extensions"]
+code-intelligence = "core.engine.code_intelligence.solution:CodeIntelligenceSolution"
 product = "extensions.reference.extension:ProductExtension"
 
 [dependency-groups]

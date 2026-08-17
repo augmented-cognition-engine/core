@@ -369,6 +369,7 @@ async def _persist_events(
             await db.query(
                 """
                 CREATE orchestration_run SET
+                    product = <record>$product,
                     run_id = $run_id,
                     pattern = $pattern,
                     status = $status,

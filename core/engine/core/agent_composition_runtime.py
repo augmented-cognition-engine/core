@@ -250,6 +250,14 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
             grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("authority grant payload failed exact validation") from exc
+        expected_grant_hash = canonical_hash(grant.model_dump(mode="json", exclude={"grant_hash"}))
+        if (
+            grant.grant_hash != expected_grant_hash
+            or canonical_hash(grant.model_dump(mode="json")) != material.revision.material_hash
+        ):
+            raise GovernedCompositionAuthorityError(
+                "authority grant payload no longer matches its admitted material hash"
+            )
         if (
             grant.grant_ref != grant_ref
             or grant.product_id != context.product_id
@@ -300,9 +308,18 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
         if material.revision.payload_contract != CAPABILITY_PAYLOAD_CONTRACT:
             raise GovernedCompositionAuthorityError("capability state uses an unsupported private payload")
         try:
-            state = CompositionCapabilityStateMaterial.model_validate(material.revision.payload)
+            # See load_grant: durable stores return JSON-shaped values (lists in
+            # place of tuples, enum strings, decoded datetimes) rather than the
+            # strict Python construction shape. Normalize that wire representation
+            # before the exact artifact, lifecycle, and configuration comparisons
+            # below fail closed.
+            state = CompositionCapabilityStateMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("capability-state payload failed exact validation") from exc
+        if canonical_hash(state.model_dump(mode="json")) != material.revision.material_hash:
+            raise GovernedCompositionAuthorityError(
+                "capability-state payload no longer matches its admitted material hash"
+            )
         if (
             state.product_id != context.product_id
             or state.artifact != artifact
@@ -350,6 +367,14 @@ class GovernedStateRuntimeUseResolver(RuntimeUseResolver):
             grant = CompositionAuthorityGrantMaterial.model_validate(material.revision.payload, strict=False)
         except ValueError as exc:
             raise GovernedCompositionAuthorityError("authority grant payload failed exact validation") from exc
+        expected_grant_hash = canonical_hash(grant.model_dump(mode="json", exclude={"grant_hash"}))
+        if (
+            grant.grant_hash != expected_grant_hash
+            or canonical_hash(grant.model_dump(mode="json")) != material.revision.material_hash
+        ):
+            raise GovernedCompositionAuthorityError(
+                "authority grant payload no longer matches its admitted material hash"
+            )
         if (
             grant.product_id != context.product_id
             or grant.actor_ref != context.actor_ref

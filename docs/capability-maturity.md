@@ -1,11 +1,11 @@
-# ACE 1.0 capability maturity
+# ACE capability maturity
 
 ACE 1.0 is stable for the documented single-user, single-node topology. This page distinguishes
 that supported public contract from implemented surfaces that remain experimental.
 
-Code Intelligence and its three governed improvement loops are the active 1.1 target. They are
-described in the roadmap and architecture so their boundaries can shape implementation, but they
-are not included in the 1.0 capability claim below.
+Code Intelligence and its three governed improvement loops have passed the local 1.1
+release-candidate gate. They remain outside the published 1.0 capability claim below until the
+public four-record release closeout is complete.
 
 ## Supported 1.0 contract
 
@@ -16,13 +16,17 @@ install ace-core → configure SurrealDB and an optional provider → start ACE 
 → connect → map → watch → receive a cited brief → activate → inspect resources → stop cleanly
 ```
 
-The 1.0 identities are:
+The published stable 1.0 identities are:
 
 - Python distribution: `ace-core`
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `1.0.3` (recommended 1.0 patch)
+- version: `1.0.3` (current public release and public-index install)
+
+This source tree carries package version 1.1.0 for the local ACE 1.1 Code Intelligence release
+candidate described below. It is not a published stable version or a public-index install until the
+four-record release closeout completes.
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -43,9 +47,9 @@ The thin MCP surface contains exactly eleven tools:
 The CLI, thin MCP adapter, public Core/Intelligence/Application packages, authorized Intelligence
 resource plane, inert Domain Pack boundary, persistence migrations, reference extension mechanism,
 and documented provider routes are the compatibility focus for the 1.0 line.
-Atrium is the supported optional repository-delivered interface over the same resource plane. It
-remains outside the Python wheel and never becomes a second persistence, policy, or authority path.
-Changes to these surfaces receive migration notes when needed.
+Atrium is the supported optional interface over the same resource plane. Its compiled static UI is
+packaged in both the Python wheel and source distribution; it never becomes a second persistence,
+policy, or authority path. Changes to these surfaces receive migration notes when needed.
 
 The supported personal journey selects World, Market, or Custom Intelligence; reviews exact source
 material and required permissions; records activation, readiness, and health; produces and reopens
@@ -65,6 +69,30 @@ assertion states, evidence, provenance, uncertainty, history, decisions, correct
 without adding an MCP tool or any write, execution, extension, or model-inference authority. Its
 [read contract](living-product-graph.md) freezes ordering, bounds, absence, failure, redaction, and
 0.3.x compatibility behavior.
+
+## ACE 1.1 Code Intelligence — local release candidate maturity
+
+ACE 1.1 Code Intelligence has passed the bounded local release-candidate gate. It adds a read-only,
+snapshot-bound repository journey for architecture, symbols, tests, calibrated downstream impact,
+provenance, omissions, and uncertainty; Atrium and the machine boundary consume the same governed
+records. The untrusted-repository handoff returns a deterministic body-free context from immutable
+tracked Git `HEAD` blobs without transferring source, repository, network, provider, persistence,
+delivery, or effect authority.
+
+Delegated headless review and activation require an exact product, SERVICE principal, capability,
+and pre-existing grants. Review and activation remain separate; exact replay survives restart;
+revocation denies current use without rewriting historical receipts. The release hardening packet
+adds product-scoped operational-relationship reads, explicit orchestration-run product identity,
+configured-product Sentinel startup, typed SurrealDB 3.2 record identifiers, bounded database and
+assertion-history upgrade/recovery, packaged operations guidance, archive integrity, and Atrium
+navigation/accessibility corrections. Schema head is v179 and the public MCP surface remains
+exactly eleven tools.
+
+This maturity label is local candidate evidence only. It does not claim a `v1.1.0` tag, GitHub
+Release, PyPI publication, clean public-index installation, universal language support,
+safe-deletion proof, hostile-code isolation, managed hosting, collaboration, distributed
+availability, or autonomous authority. Issue #194 remains open and the Release Spine Project stays
+Now until publication and all four release records agree; 1.2 remains Next.
 
 ## Supported governed-cognition boundary
 
@@ -274,11 +302,11 @@ all-controls interval rule. L1 is therefore passed for the frozen executable-wor
 human, customer, external-product, provider, and general real-world benefit remain unsupported. See the
 [L1 evidence gate](evidence/l1-foresight-impact-evidence.md).
 
-Atrium is a supported repository-delivered workspace for the 1.0 single-user journey. It consumes
+Atrium is a supported packaged workspace for the 1.0 single-user journey. It consumes
 the same authorized Intelligence resource plane as machine clients and is covered by repository
-tests, production-build acceptance, and the public 1.0 release closeout. It remains optional, is
-not included in the Python wheel or sdist, and is never an authoritative state, policy, or effect
-path.
+tests, production-build acceptance, and the public 1.0 release closeout. Its compiled static UI is
+included in both the Python wheel and sdist. It remains optional and is never an authoritative
+state, policy, or effect path.
 
 ## Promotion rule
 

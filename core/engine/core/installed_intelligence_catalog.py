@@ -8,13 +8,33 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from importlib import metadata
 from pathlib import Path, PurePosixPath
-from typing import Iterable, Protocol
+from typing import Iterable, Literal, Protocol
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
+from ace import __version__ as ace_version
 from ace.application import IntelligenceOnboardingProfileV1Alpha1
+from ace.application.domain_activation_plan import (
+    DomainActivationPlanAdmissionError,
+    load_domain_activation_plan_history,
+)
+from ace.application.domain_activation_plan_contracts import (
+    ActivationPlanAction,
+    ActivationRuntimeState,
+    CompiledOverlayV1,
+    CompiledPackRefV1,
+)
+from ace.application.installed_pack_artifacts import (
+    DomainPackManifestV1,
+    discover_installed_domain_pack_previews,
+)
+from ace.core.state import GovernedStateStore
+from ace_mcp_client import __version__ as mcp_client_version
+from core.engine.core.db import pool
+from core.engine.core.governed_state import SurrealGovernedStateStore
 
 MAX_ONBOARDING_PROFILE_BYTES = 1_000_000
 ONBOARDING_PROFILE_FILENAME = "onboarding_profile.json"
@@ -43,6 +63,120 @@ class InstalledOnboardingProfile:
     distribution_version: str
     resource_path: str
     profile: IntelligenceOnboardingProfileV1Alpha1
+
+
+class DomainPackActivationRevisionProjectionV1(BaseModel):
+    """Exact governed Pack/overlay material from one append-only revision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    revision: int
+    revision_id: str
+    revision_digest: str
+    action: ActivationPlanAction
+    state: ActivationRuntimeState
+    pack: CompiledPackRefV1
+    overlay: CompiledOverlayV1
+    plan_id: str
+    plan_digest: str
+    approval_receipt_ref: str
+    approval_receipt_digest: str
+    actor_ref: str
+    occurred_at: datetime
+    commit_receipt_id: str
+    commit_receipt_digest: str
+    committed_at: datetime
+
+
+class DomainPackActivationHistoryProjectionV1(BaseModel):
+    """Authenticated read projection; historical material grants no live authority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    contract: Literal["ace.http.domain-pack-activation-history/v1alpha1"] = (
+        "ace.http.domain-pack-activation-history/v1alpha1"
+    )
+    authority_stage: Literal["historical_reference"] = "historical_reference"
+    live_authority: Literal[False] = False
+    product_id: str
+    activation_key: str
+    activation_id: str
+    current: DomainPackActivationRevisionProjectionV1
+    history: tuple[DomainPackActivationRevisionProjectionV1, ...]
+
+
+class DomainPackActivationHistoryDenied(RuntimeError):
+    """Verified identity lacks lifecycle-administration authority."""
+
+
+class DomainPackActivationHistoryUnauthenticated(RuntimeError):
+    """Verified identity omitted exact product scope."""
+
+
+class DomainPackActivationHistoryNotFound(RuntimeError):
+    """No exact v1alpha2 activation exists for the supplied activation key."""
+
+
+class DomainPackActivationHistoryUnavailable(RuntimeError):
+    """Persisted activation history failed exact reconstruction."""
+
+
+def domain_pack_activation_store() -> GovernedStateStore:
+    return SurrealGovernedStateStore(pool)
+
+
+async def read_domain_pack_activation_history(
+    *,
+    activation_key: str,
+    user: dict,
+    store: GovernedStateStore,
+) -> DomainPackActivationHistoryProjectionV1:
+    product_id = user.get("product")
+    actor_ref = user.get("sub")
+    if not isinstance(product_id, str) or not product_id.startswith("product:") or not isinstance(actor_ref, str):
+        raise DomainPackActivationHistoryUnauthenticated("verified token lacks exact product scope")
+    authorities = user.get("authorities")
+    if not isinstance(authorities, list) or "administer_lifecycle" not in authorities:
+        raise DomainPackActivationHistoryDenied("Pack activation history requires administer_lifecycle authority")
+    try:
+        committed = await load_domain_activation_plan_history(
+            store=store,
+            product_id=product_id,
+            activation_key=activation_key,
+        )
+    except (AttributeError, TypeError, ValueError, DomainActivationPlanAdmissionError) as exc:
+        raise DomainPackActivationHistoryUnavailable("exact Pack activation history is unavailable") from exc
+    if not committed:
+        raise DomainPackActivationHistoryNotFound("no activation exists for the exact activation key")
+    rows = tuple(
+        DomainPackActivationRevisionProjectionV1(
+            revision=item.revision.revision,
+            revision_id=str(item.revision.revision_id),
+            revision_digest=str(item.revision.revision_digest),
+            action=item.revision.plan.action,
+            state=item.revision.state,
+            pack=item.revision.plan.spec.pack,
+            overlay=item.revision.plan.spec.overlay,
+            plan_id=str(item.revision.plan.plan_id),
+            plan_digest=str(item.revision.plan.plan_digest),
+            approval_receipt_ref=item.revision.approval_receipt_ref,
+            approval_receipt_digest=f"sha256:{item.commit_receipt.approval.receipt_hash}",
+            actor_ref=item.revision.actor_ref,
+            occurred_at=item.revision.occurred_at,
+            commit_receipt_id=str(item.commit_receipt.receipt_id),
+            commit_receipt_digest=f"sha256:{item.commit_receipt.receipt_hash}",
+            committed_at=item.commit_receipt.committed_at,
+        )
+        for item in committed
+    )
+    current = rows[0]
+    return DomainPackActivationHistoryProjectionV1(
+        product_id=product_id,
+        activation_key=activation_key,
+        activation_id=str(committed[0].revision.activation_id),
+        current=current,
+        history=rows,
+    )
 
 
 def _distribution_name(distribution: InstalledDistribution) -> str:
@@ -119,8 +253,20 @@ def discover_installed_onboarding_profiles(
 
 
 __all__ = [
+    "DomainPackActivationHistoryDenied",
+    "DomainPackActivationHistoryNotFound",
+    "DomainPackActivationHistoryProjectionV1",
+    "DomainPackActivationHistoryUnavailable",
+    "DomainPackActivationHistoryUnauthenticated",
+    "DomainPackActivationRevisionProjectionV1",
+    "DomainPackManifestV1",
     "InstalledIntelligenceCatalogError",
     "InstalledOnboardingProfile",
     "IntelligenceOnboardingProfileV1Alpha1",
+    "ace_version",
+    "discover_installed_domain_pack_previews",
     "discover_installed_onboarding_profiles",
+    "domain_pack_activation_store",
+    "mcp_client_version",
+    "read_domain_pack_activation_history",
 ]

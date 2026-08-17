@@ -1,0 +1,184 @@
+{
+  "accepted": true,
+  "authority": {
+    "approval": false,
+    "change": false,
+    "delivery": false,
+    "effect": false,
+    "execution": false,
+    "reasoning": false,
+    "source": false
+  },
+  "contract": "ace.code-intelligence.single-chain-living-run-evidence/v1alpha1",
+  "focused_verification": {
+    "broader_passed": 205,
+    "failed": 0,
+    "focused_passed": 30,
+    "ruff": "passed"
+  },
+  "fresh_process_reopen": {
+    "fresh_python_process": true,
+    "full_rescan_permitted": false,
+    "generation": 2,
+    "handoff_id": "coding_agent_handoff:03a85c8b4d99414d5b8711a0c96dd3e5",
+    "incremental_rescan_permitted": false,
+    "index_id": "code_index:f717a3db9419311910c3cc5d60c1e728",
+    "lens_id": "atrium_code_lens:5d6d60f80a72672081376d02ef7ec704",
+    "manifest_id": "code_context_manifest:a2ade666d864c1653a9f55cc508dac99",
+    "provider_environment_present": false,
+    "provider_import_permitted": false,
+    "provider_invocation_permitted": false,
+    "snapshot_digest": "sha256:8cf9d89618434d14f45db5b17c60541ab4ca44336b0d1cbc021a367e75e92566",
+    "snapshot_id": "code_index_snapshot:8cf9d89618434d14f45db5b17c60541a",
+    "source_block_id": "code_context_block:065bf938b9129b7bb85a846321d5fc2e",
+    "source_body_digest": "sha256:5200ac9419260cc8eff3ddde11f6f71c305f0d381dc97c2d1965be9230e181b0",
+    "source_file_digest": "sha256:47f80352745bf6ae10dab910c91e611d02e3bbb47ee20b4cd23b186b7ec9b9de",
+    "source_path": "pkg/service.py",
+    "source_symbol": "transform",
+    "source_symbol_span": [4, 6]
+  },
+  "identities": {
+    "living_update_id": "code_living_update:2d4dfe7e4a953311e1b63c707315551a",
+    "mutation_id": "code_file_mutation:4e6dc3b66f06ef34afbbddd992b48a00",
+    "return_id": "coding_agent_return:020c2ad41b08415e8b65ea5d9956e521",
+    "return_receipt_id": "coding_agent_return_receipt:8aced5f8054b77918b7fd776eceb6d94",
+    "run_id": "code_living_run:070d336c7419eb435b9963e1c196d4b5",
+    "verification_id": "code_verification:bfc4f454e1c155a6b7fe59792109b509"
+  },
+  "immutable_history": {
+    "old_snapshot_digest_unchanged": true,
+    "old_snapshot_still_readable": true,
+    "snapshot_count": 2
+  },
+  "initial": {
+    "generation": 1,
+    "handoff_id": "coding_agent_handoff:83b3c783bf18b5ad7c05f845c7ab6f3c",
+    "index_id": "code_index:b8428dae79e3b2d48b39acf3dcbcb603",
+    "lens_id": "atrium_code_lens:be37633a7977bb220795eba0646b6093",
+    "manifest_id": "code_context_manifest:5f6b06c217f5de7f9d62de9b648eb1d5",
+    "scan_stats": {
+      "classes": 0,
+      "files": 3,
+      "functions": 3,
+      "imports": 2
+    },
+    "snapshot_digest": "sha256:bd9a2b487c2ab8dbe14d20a8a15b96033736c76bf9dbf0409548504d1bd7e8de",
+    "snapshot_id": "code_index_snapshot:bd9a2b487c2ab8dbe14d20a8a15b9603",
+    "source_block_id": "code_context_block:3bb91bae21a29483b81bc4184cfc325f",
+    "source_body_digest": "sha256:916a4f60829837688645e4c16351360c7b5495a5ac0f5c275c842208b84e350f",
+    "source_context_span": [1, 6],
+    "source_symbol": "transform",
+    "source_symbol_span": [4, 6],
+    "source_symbol_body_digest": "sha256:9932dda83c3c50a43fd8a5dae95357c4ba05b01f8fbc6c09a6d3252bba4dd676"
+  },
+  "limitations": [
+    "Acceptance covers Python in one disposable local Git repository and one exact dirty-tree identity.",
+    "The independently observed subprocess proves only the fixture behavior it executes.",
+    "The caller supplies the exact changed-path set; this packet adds no watcher, LSP, compiler, or language profile.",
+    "Provider and full-rescan paths are forbidden during fresh-process reopen; no coding provider is invoked.",
+    "A deserialized verification observation and its output digests are structurally bound but do not self-authenticate command execution; verifier replay is required.",
+    "Semantic return-receipt reconstruction excludes validated_at because replay is a new observation; paired archive validation separately requires the externally recorded exact receipt ID and validated_at.",
+    "The exact before/after and deterministic patch material records a harness-applied local mutation, not coding-agent delivery or external effect.",
+    "The local immutable snapshot chain is not deployment, backup, rollback, recovery UX, or production effect evidence."
+  ],
+  "mutation": {
+    "after_byte_count": 136,
+    "after_digest": "sha256:47f80352745bf6ae10dab910c91e611d02e3bbb47ee20b4cd23b186b7ec9b9de",
+    "before_byte_count": 136,
+    "before_digest": "sha256:c0eca19cf8cac8d0b15e026f54978a170b0e147a0202ca2a7f88f1002ff16ab2",
+    "external_delivery_observed": false,
+    "harness_applied_mutation": true,
+    "mutation_id": "code_file_mutation:4e6dc3b66f06ef34afbbddd992b48a00",
+    "patch_byte_count": 175,
+    "patch_digest": "sha256:c00200ef4b5a4808815d044795d3a496403a9f32f1142ec686f034bf8c65b38f",
+    "path": "pkg/service.py"
+  },
+  "predecessor_evidence": [
+    {
+      "byte_count": 5284,
+      "path": "docs/evidence/code-intelligence-installed-wheel-acceptance-v1.md",
+      "sha256": "284005cde84c9d232b4307b2574eda3e9890f042ce387a2a586b50e5ec153b53"
+    },
+    {
+      "byte_count": 8456,
+      "path": "docs/evidence/code-intelligence-installed-wheel-acceptance-v2.md",
+      "sha256": "4bdb7bcb3ccea59e130d9fd77e1a0ea2e62978010ec7ed2c7a1a7323d522691e"
+    },
+    {
+      "byte_count": 18369,
+      "path": "docs/evidence/code-intelligence-installed-wheel-acceptance-v3.md",
+      "sha256": "4b3cb2d4a772eb4682b19fe94c2f9011a84ec77dbc3359f8538a762fe1aec2ef"
+    },
+    {
+      "byte_count": 14183,
+      "path": "docs/evidence/code-intelligence-installed-wheel-acceptance-v4.md",
+      "sha256": "d9ba419189cd4f3602939beb9e8047d8b778ef131a77888f3c115483cc56d756"
+    }
+  ],
+  "provider_neutral_return": {
+    "changed_paths": ["pkg/service.py"],
+    "claims_delivery_authority": false,
+    "claims_effect_authority": false,
+    "claims_reasoning_authority": false,
+    "claims_source_authority": false,
+    "consumed_block_ids": [
+      "code_context_block:3bb91bae21a29483b81bc4184cfc325f",
+      "code_context_block:816bc61e7f636b59a18a33e0c5af2fd7",
+      "code_context_block:43cf0608faf9f991e71d3eadf7e3a0f4"
+    ],
+    "receiver_ref": "coding-agent:provider-neutral"
+  },
+  "durable_replay_artifact": {
+    "byte_count": 9029,
+    "members": [
+      {
+        "byte_count": 63092,
+        "path": "code-intelligence-single-chain-living-run-v1-raw.json",
+        "sha256": "5c3dab839c0f207345760e9ee2be855adc94d890d97d698078f237457a66a28d"
+      }
+    ],
+    "path": "docs/evidence/artifacts/code-intelligence-single-chain-living-run-replay-v1.tar.gz",
+    "sha256": "696548f0ea3322cddf1a66914499a12a87a09921c3cac1ee62119788a4ffe7a5"
+  },
+  "replay_expectation": {
+    "contract": "ace.code-intelligence.replay-expectation/v1alpha1",
+    "initial_snapshot_digest": "sha256:bd9a2b487c2ab8dbe14d20a8a15b96033736c76bf9dbf0409548504d1bd7e8de",
+    "initial_snapshot_id": "code_index_snapshot:bd9a2b487c2ab8dbe14d20a8a15b9603",
+    "post_restart_lens_id": "atrium_code_lens:5d6d60f80a72672081376d02ef7ec704",
+    "raw_member_digest": "sha256:5c3dab839c0f207345760e9ee2be855adc94d890d97d698078f237457a66a28d",
+    "return_receipt_id": "coding_agent_return_receipt:8aced5f8054b77918b7fd776eceb6d94",
+    "return_receipt_validated_at": "2026-08-15T04:37:29.922375Z",
+    "run_id": "code_living_run:070d336c7419eb435b9963e1c196d4b5",
+    "updated_snapshot_digest": "sha256:8cf9d89618434d14f45db5b17c60541ab4ca44336b0d1cbc021a367e75e92566",
+    "updated_snapshot_id": "code_index_snapshot:8cf9d89618434d14f45db5b17c60541a"
+  },
+  "update": {
+    "changed_paths": ["pkg/service.py"],
+    "generation": 2,
+    "incremental_stats": {
+      "symbols_added": 2,
+      "updated": 1
+    },
+    "parent_snapshot_digest": "sha256:bd9a2b487c2ab8dbe14d20a8a15b96033736c76bf9dbf0409548504d1bd7e8de",
+    "parent_snapshot_id": "code_index_snapshot:bd9a2b487c2ab8dbe14d20a8a15b9603",
+    "post_restart_lens_id": "atrium_code_lens:5d6d60f80a72672081376d02ef7ec704",
+    "updated_index_id": "code_index:f717a3db9419311910c3cc5d60c1e728",
+    "updated_snapshot_digest": "sha256:8cf9d89618434d14f45db5b17c60541ab4ca44336b0d1cbc021a367e75e92566",
+    "updated_snapshot_id": "code_index_snapshot:8cf9d89618434d14f45db5b17c60541a"
+  },
+  "verification": {
+    "command": [
+      "/Users/eamirian/.codex/worktrees/17ae/ace-core/.venv/bin/python",
+      "-c",
+      "from pkg.service import transform; assert transform(1) == 3"
+    ],
+    "exit_code": 0,
+    "independent_of_coding_agent_claims": true,
+    "observer_ref": "ace-local-subprocess:independent-observer",
+    "self_authenticates_command_execution": false,
+    "status": "passed",
+    "stderr_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verifier_replay_required": true
+  }
+}

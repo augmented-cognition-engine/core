@@ -229,12 +229,14 @@ from ace.intelligence.contracts.external_agent import (
     ExternalAgentProtocolIdentityV1Alpha1,
 )
 from ace.intelligence.contracts.feedback import (
+    OUTCOME_PROVENANCE_RETURN_VERSION,
     DecisionOutcomesModuleV1,
     FeedbackPolicyStateV1Alpha1,
     FeedbackPolicyV1,
     FeedbackProposalIntentV1Alpha1,
     FeedbackProposalV1Alpha1,
     OutcomeAdjustmentV1,
+    OutcomeProvenanceReturnV1Alpha1,
 )
 from ace.intelligence.contracts.impact import (
     IMPACT_CONDITIONS_VERSION,
@@ -373,6 +375,16 @@ from ace.intelligence.contracts.personas import (
     PersonasModuleV1,
     SignalRoutingRuleV1,
 )
+from ace.intelligence.contracts.resource_feedback import (
+    CORRECTABLE_RESOURCE_KINDS,
+    RESOURCE_FEEDBACK_ADMISSION_VERSION,
+    RESOURCE_FEEDBACK_RECEIPT_VERSION,
+    RESOURCE_FEEDBACK_REQUEST_VERSION,
+    IntelligenceResourceCorrectionIntent,
+    IntelligenceResourceFeedbackAdmissionV1Alpha1,
+    IntelligenceResourceFeedbackReceiptV1Alpha1,
+    IntelligenceResourceFeedbackRequestV1Alpha1,
+)
 from ace.intelligence.contracts.resource_plane import (
     MAX_RESOURCE_PLANE_PAGE_SIZE,
     RESOURCE_PLANE_CURSOR_VERSION,
@@ -498,6 +510,14 @@ __all__ = [
     "IntelligenceResourceQueryV1Alpha1",
     "IntelligenceResourceRecordV1Alpha1",
     "IntelligenceResourceReferenceV1Alpha1",
+    "CORRECTABLE_RESOURCE_KINDS",
+    "RESOURCE_FEEDBACK_ADMISSION_VERSION",
+    "RESOURCE_FEEDBACK_RECEIPT_VERSION",
+    "RESOURCE_FEEDBACK_REQUEST_VERSION",
+    "IntelligenceResourceCorrectionIntent",
+    "IntelligenceResourceFeedbackAdmissionV1Alpha1",
+    "IntelligenceResourceFeedbackReceiptV1Alpha1",
+    "IntelligenceResourceFeedbackRequestV1Alpha1",
     "ActivatedMemoryConstraintsV1Alpha1",
     "AssertionFamilyV1Alpha1",
     "AssertionLifecycle",
@@ -816,6 +836,8 @@ __all__ = [
     "NumericDeltaRuleV1",
     "ObservationV1Alpha1",
     "OutcomeAdjustmentV1",
+    "OUTCOME_PROVENANCE_RETURN_VERSION",
+    "OutcomeProvenanceReturnV1Alpha1",
     "OrganizationOverlayV1",
     "OverlaySlotDeclarationV1",
     "OverlayValueKind",

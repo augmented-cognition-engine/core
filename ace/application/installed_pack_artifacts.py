@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from hashlib import sha256
 from importlib import metadata
 from pathlib import Path, PurePosixPath
 from typing import Iterable, Protocol
@@ -58,6 +59,17 @@ class InstalledCompiledPackArtifact:
     pack: CompiledDomainPackV1
     compilation: StablePackCompilationResultV1
     conformance_receipts: tuple[DomainPackConformanceReceiptV1, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class InstalledDomainPackPreview:
+    """Validated installed manifest material that grants no activation authority."""
+
+    distribution: str
+    distribution_version: str
+    manifest_resource_path: str
+    manifest_digest: str
+    manifest: DomainPackManifestV1
 
 
 @dataclass(frozen=True, slots=True)
@@ -247,6 +259,23 @@ def _index_installed_pack_roots(
     return tuple(sorted(roots, key=lambda item: item.manifest.metadata.pack_id))
 
 
+def discover_installed_domain_pack_previews(
+    distributions: Iterable[InstalledDistribution] | None = None,
+) -> tuple[InstalledDomainPackPreview, ...]:
+    """List exact installed manifests without compiling, conforming, or activating Packs."""
+
+    return tuple(
+        InstalledDomainPackPreview(
+            distribution=item.distribution_name,
+            distribution_version=item.distribution_version,
+            manifest_resource_path=item.manifest_path.as_posix(),
+            manifest_digest=f"sha256:{sha256(item.manifest_document).hexdigest()}",
+            manifest=DomainPackManifestV1.model_validate(item.manifest.model_dump(mode="python")),
+        )
+        for item in _index_installed_pack_roots(distributions)
+    )
+
+
 class InstalledCompiledPackArtifactResolver:
     """Exact immutable resolver over one freshly discovered installed set."""
 
@@ -341,5 +370,7 @@ __all__ = [
     "ACTIVATION_GOLDEN_FIXTURE_PATH",
     "InstalledCompiledPackArtifact",
     "InstalledCompiledPackArtifactResolver",
+    "InstalledDomainPackPreview",
     "InstalledPackArtifactError",
+    "discover_installed_domain_pack_previews",
 ]

@@ -5,7 +5,7 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The current-release assertions preserve published 1.0.3 while keeping the stable 1.0 claim
+# The current-release assertions preserve published 1.0.3 while keeping the local 1.1.0 candidate
 # bounded. Historical 0.4.1 GI2,
 # 0.4.2 builder-surface, 0.4.4 GC1, 0.5.0 T1/B1, and P1/P2 identities remain exact point-in-time
 # evidence. Keep these aligned with test_evidence_index_integrity.py.
@@ -26,6 +26,12 @@ def test_current_release_and_passed_milestone_are_reconciled() -> None:
     assert "| 0.8.0 | Intelligence OS Realignment | **Passed** |" in ROADMAP
     assert "| 0.9.0 | Single-user Intelligence Builder | **Passed** |" in ROADMAP
     assert "| 1.0.0 | Personal Intelligence Operating System | **Passed** |" in ROADMAP
+    assert "| 1.1 | Code Intelligence | **Candidate — local gate passed** |" in ROADMAP
+    assert "| 1.2 | Personal Intelligence | **Next after 1.1 closeout** |" in ROADMAP
+    assert "Issue [#194]" in ROADMAP
+    assert "remains open" in ROADMAP
+    assert "Release Spine Project stays **Now** pending publication" in ROADMAP
+    assert "not yet a Git tag, GitHub Release, PyPI publication" in ROADMAP_ONE_LINE
 
 
 def test_090_and_100_are_complete_single_user_products() -> None:
@@ -34,7 +40,7 @@ def test_090_and_100_are_complete_single_user_products() -> None:
     assert "### 1.0.0 — Personal Intelligence Operating System" in ROADMAP
     assert "Multi-user collaboration" in ROADMAP
     assert "## Current 1.x release direction" in ROADMAP
-    assert "### Active milestone: 1.1 Code Intelligence" in ROADMAP
+    assert "### Release candidate milestone: 1.1 Code Intelligence" in ROADMAP
     assert "do not gate the first stable personal Intelligence OS" in ROADMAP_ONE_LINE
 
 

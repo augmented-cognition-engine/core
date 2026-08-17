@@ -156,6 +156,65 @@ class TestOpenAICompatProviderConformance(LLMConformanceSuite):
         headers = self._client.post.call_args.kwargs["headers"]
         assert "Authorization" not in headers
 
+    async def test_configured_timeout_applies_to_nonstreaming_and_streaming_clients(self):
+        provider = OpenAICompatProvider(
+            base_url=BASE_URL,
+            api_key="test-key",
+            default_model=self.default_model,
+            timeout=37.5,
+        )
+        self.respond_text("ok")
+        await provider.complete("hi")
+        assert self._client.post.await_count == 1
+
+        self.respond_stream(["streamed"])
+        assert [chunk async for chunk in provider.stream("hi")] == ["streamed"]
+
+        from core.engine.core import llm as llm_mod
+
+        assert llm_mod.httpx.AsyncClient.call_args_list[0].kwargs["timeout"] == 37.5
+        assert llm_mod.httpx.AsyncClient.call_args_list[1].kwargs["timeout"] == 37.5
+
+    @pytest.mark.parametrize("content", [None, ""])
+    async def test_reasoning_content_recovers_only_when_content_is_empty(self, content):
+        provider = self.make_provider()
+        body = _completion_body(content)
+        body["choices"][0]["message"]["reasoning_content"] = "recovered answer"
+        self._client.post.return_value = _json_response(body)
+
+        assert await provider.complete("hi") == "recovered answer"
+
+    async def test_nonempty_content_wins_over_reasoning_content(self):
+        provider = self.make_provider()
+        body = _completion_body("ordinary answer")
+        body["choices"][0]["message"]["reasoning_content"] = "hidden reasoning"
+        self._client.post.return_value = _json_response(body)
+
+        assert await provider.complete("hi") == "ordinary answer"
+
+    @pytest.mark.parametrize(
+        ("content", "reasoning_content"),
+        [([], "fallback"), (None, {"not": "text"}), (42, ["not", "text"])],
+    )
+    async def test_non_string_wire_values_never_escape(self, content, reasoning_content):
+        provider = self.make_provider()
+        body = _completion_body(content)
+        body["choices"][0]["message"]["reasoning_content"] = reasoning_content
+        self._client.post.return_value = _json_response(body)
+
+        expected = reasoning_content if isinstance(reasoning_content, str) else ""
+        assert await provider.complete("hi") == expected
+
+    async def test_reasoning_content_supports_existing_json_format_fallback(self):
+        provider = self.make_provider()
+        recovered = _completion_body(None)
+        recovered["choices"][0]["message"]["reasoning_content"] = '{"key": "value"}'
+        self._client.post.side_effect = [_rejected_response(400), _json_response(recovered)]
+
+        assert await provider.complete_json("give json") == {"key": "value"}
+        assert self._client.post.call_count == 2
+        assert "response_format" not in self._client.post.call_args.kwargs["json"]
+
     def test_gpt56_semantic_effort_is_sent_only_when_explicit(self):
         provider = self.make_provider()
 

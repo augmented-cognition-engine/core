@@ -39,7 +39,11 @@ Inspection is read-only. The diff binds the proposed material to its base revisi
 
 ## 3. Approve, reject, or request changes
 
-Only an authenticated human with `cognition-review` authority can disposition a proposal.
+The supported interactive route remains human-only: an authenticated human with
+`cognition-review` authority can disposition a proposal. A separately provisioned headless
+SERVICE may use only the sibling delegated two-stage route described in the
+[operations guide](governed-cognition-operations.md#headless-service-provisioning). That exception
+does not change this command, its contracts, or its human authority checks.
 `--review-request-id` is a caller-stable idempotency identity, and
 `--expected-generation` prevents a stale review from replacing a newer head.
 
@@ -77,6 +81,7 @@ ace cognition head cognition_head:HEAD
 ## 5. Govern the active head
 
 Lifecycle changes require the same explicit human authority and an exact expected generation.
+Delegated services cannot roll back, reactivate, disable, expire, or retire cognition.
 
 ```bash
 ace cognition lifecycle cognition_head:HEAD \

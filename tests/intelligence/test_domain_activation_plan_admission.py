@@ -19,6 +19,7 @@ from ace.application.domain_activation_plan import (
     DomainActivationPlanAdmissionService,
     activation_commit_reference,
     prepare_activation_onboarding_handoff,
+    resolve_live_activation_revision_for_session,
     validate_activation_commit_reference,
 )
 from ace.application.domain_activation_plan_contracts import (
@@ -47,6 +48,7 @@ from ace.intelligence.contracts.activation import (
     CapabilityBindingV1,
     OrganizationOverlayV1,
 )
+from ace.intelligence.contracts.resources import ActivationRevisionReferenceV1Alpha1
 from ace.intelligence.packs.activation import (
     compile_overlay,
     prepare_activation_revision,
@@ -56,6 +58,7 @@ from ace.intelligence.packs.compiler import compile_pack_document
 from ace.testing import run_domain_pack_conformance
 from ace.testing.watch_brief import exercise_watch_brief_restart
 from core.engine.core.governed_state import GovernedStateHeadConflict
+from core.engine.core.installed_intelligence_catalog import read_domain_pack_activation_history
 
 pytestmark = pytest.mark.unit
 
@@ -91,8 +94,8 @@ def _stub_handoff() -> ActivationOnboardingHandoffV1Alpha2:
     )
 
 
-async def _watch_material():
-    watch = await exercise_watch_brief_restart()
+async def _watch_material(*, store=None):
+    watch = await exercise_watch_brief_restart(store=store)
     handoff = prepare_activation_onboarding_handoff(
         session=watch.briefing.session.revision,
         observations=watch.observations.observation_set,
@@ -309,7 +312,7 @@ def _pack_material():
     return _encoded(manifest), resources, _encoded(fixture)
 
 
-def _activation_material(*, product_id="product:activation-fixture"):
+def _activation_material(*, product_id="product:activation-fixture", activation_key="fixture"):
     manifest, resources, fixture = _pack_material()
     pack = compile_pack_document(manifest, resources)
     conformance = run_domain_pack_conformance(
@@ -342,7 +345,7 @@ def _activation_material(*, product_id="product:activation-fixture"):
     )
     spec = prepare_domain_activation(
         product_id=product_id,
-        activation_key="fixture",
+        activation_key=activation_key,
         pack=pack,
         overlay=overlay,
         compilation_receipt_ref=conformance.compilation_result_id,
@@ -484,6 +487,15 @@ class _MemoryStore:
 
     async def load_receipt(self, receipt_id, *, product_id):
         return self.receipts.get((product_id, receipt_id))
+
+    async def load_receipt_for_revision(self, revision_id, *, product_id):
+        matches = [
+            receipt
+            for (scope, _), receipt in self.receipts.items()
+            if scope == product_id and receipt.revision_id == revision_id
+        ]
+        assert len(matches) <= 1
+        return matches[0] if matches else None
 
 
 @pytest.mark.asyncio
@@ -882,6 +894,35 @@ async def test_upgrade_suspend_reactivate_and_rollback_require_new_exact_plans()
 
     assert committed.revision.plan.action is ActivationPlanAction.ROLLBACK
     assert committed.revision.plan.rollback_target_revision_id == first.revision_id
+    history = await service.load_history(product_id=initial_spec.product_id, activation_key=initial_spec.activation_key)
+    assert [item.revision.plan.action for item in history] == [
+        ActivationPlanAction.ROLLBACK,
+        ActivationPlanAction.REACTIVATE,
+        ActivationPlanAction.SUSPEND,
+        ActivationPlanAction.UPGRADE,
+        ActivationPlanAction.INITIAL_ACTIVATION,
+    ]
+    assert history[0].revision.plan.spec.overlay == initial_spec.overlay
+    assert history[1].revision.plan.spec.overlay == upgraded_overlay
+    assert len({item.commit_receipt.receipt_id for item in history}) == 5
+    assert all(item.live_authority is False for item in history)
+    projection = await read_domain_pack_activation_history(
+        activation_key=initial_spec.activation_key,
+        user={
+            "product": initial_spec.product_id,
+            "sub": "principal:operator",
+            "authorities": ["administer_lifecycle"],
+        },
+        store=store,
+    )
+    assert projection.current.action is ActivationPlanAction.ROLLBACK
+    assert projection.current.pack == initial_spec.pack
+    assert projection.current.overlay == initial_spec.overlay
+    assert projection.current.approval_receipt_ref == "approval:rollback"
+    assert projection.current.approval_receipt_digest == "sha256:" + "c" * 64
+    assert [item.revision for item in projection.history] == [5, 4, 3, 2, 1]
+    assert projection.authority_stage == "historical_reference"
+    assert projection.live_authority is False
     assert (
         len(
             {
@@ -1100,4 +1141,172 @@ async def test_reference_only_lineage_rejects_forgery_mismatch_widening_and_auth
             spec=reference,  # type: ignore[arg-type]
             requested_effects=(ActivationRequestedEffect.PACK_ACTIVATION,),
             created_at=start,
+        )
+
+
+@pytest.mark.asyncio
+async def test_resolve_live_activation_revision_matches_exact_accepted_session():
+    watch, handoff, watch_admission = await _watch_material()
+    pack, conformance, spec = _activation_material(product_id=watch.briefing.session.revision.product_id)
+    start = datetime(2026, 8, 11, 12, tzinfo=UTC)
+    plan = _plan(
+        spec=spec,
+        action=ActivationPlanAction.INITIAL_ACTIVATION,
+        created_at=start,
+        handoff=handoff,
+    )
+    revision = _revision(plan=plan, revision=1, occurred_at=start + timedelta(minutes=1))
+    store = _MemoryStore()
+    service = DomainActivationPlanAdmissionService(store=store, authority=_Authority())
+    committed = await service.admit(
+        revision,
+        pack=pack,
+        conformance_receipts=(conformance,),
+        committed_at=revision.occurred_at + timedelta(seconds=1),
+        **watch_admission,
+    )
+    session = watch.briefing.session.revision
+
+    resolved = await resolve_live_activation_revision_for_session(
+        store=store,
+        product_id=spec.product_id,
+        activation_key=spec.activation_key,
+        session=session,
+    )
+
+    expected = ActivationRevisionReferenceV1Alpha1(
+        product_id=spec.product_id,
+        activation_key=spec.activation_key,
+        activation_id=str(committed.revision.activation_id),
+        revision=committed.revision.revision,
+        revision_id=str(committed.revision.revision_id),
+        revision_digest=str(committed.revision.revision_digest),
+    )
+    assert resolved == expected
+    # The service method is a thin wrapper over the same durable read.
+    rewrapped = await service.resolve_live_for_session(
+        product_id=spec.product_id,
+        activation_key=spec.activation_key,
+        session=session,
+    )
+    assert rewrapped == expected
+
+
+@pytest.mark.asyncio
+async def test_resolve_live_activation_revision_fails_closed_when_no_activation_exists():
+    watch, _, _ = await _watch_material()
+    _, _, spec = _activation_material(product_id=watch.briefing.session.revision.product_id)
+    store = _MemoryStore()
+
+    resolved = await resolve_live_activation_revision_for_session(
+        store=store,
+        product_id=spec.product_id,
+        activation_key=spec.activation_key,
+        session=watch.briefing.session.revision,
+    )
+
+    assert resolved is None
+
+
+@pytest.mark.asyncio
+async def test_resolve_live_activation_revision_fails_closed_for_stale_session_revision():
+    watch, handoff, watch_admission = await _watch_material()
+    pack, conformance, spec = _activation_material(product_id=watch.briefing.session.revision.product_id)
+    start = datetime(2026, 8, 11, 12, tzinfo=UTC)
+    plan = _plan(
+        spec=spec,
+        action=ActivationPlanAction.INITIAL_ACTIVATION,
+        created_at=start,
+        handoff=handoff,
+    )
+    revision = _revision(plan=plan, revision=1, occurred_at=start + timedelta(minutes=1))
+    store = _MemoryStore()
+    service = DomainActivationPlanAdmissionService(store=store, authority=_Authority())
+    await service.admit(
+        revision,
+        pack=pack,
+        conformance_receipts=(conformance,),
+        committed_at=revision.occurred_at + timedelta(seconds=1),
+        **watch_admission,
+    )
+    # Same session_id, an earlier (superseded) durable revision of it.
+    stale_session = watch.approved.session.revision
+    assert stale_session.session_id == watch.briefing.session.revision.session_id
+    assert stale_session.revision_id != watch.briefing.session.revision.revision_id
+
+    resolved = await resolve_live_activation_revision_for_session(
+        store=store,
+        product_id=spec.product_id,
+        activation_key=spec.activation_key,
+        session=stale_session,
+    )
+
+    assert resolved is None
+
+
+@pytest.mark.asyncio
+async def test_resolve_live_activation_revision_fails_closed_for_suspended_activation():
+    watch, handoff, watch_admission = await _watch_material()
+    pack, conformance, spec = _activation_material(product_id=watch.briefing.session.revision.product_id)
+    start = datetime(2026, 8, 11, 12, tzinfo=UTC)
+    store = _MemoryStore()
+    service = DomainActivationPlanAdmissionService(store=store, authority=_Authority())
+
+    first_plan = _plan(
+        spec=spec,
+        action=ActivationPlanAction.INITIAL_ACTIVATION,
+        created_at=start,
+        handoff=handoff,
+    )
+    first = _revision(plan=first_plan, revision=1, occurred_at=start + timedelta(minutes=1))
+    await service.admit(
+        first,
+        pack=pack,
+        conformance_receipts=(conformance,),
+        committed_at=first.occurred_at + timedelta(seconds=1),
+        **watch_admission,
+    )
+    suspend_plan = _plan(
+        spec=spec,
+        action=ActivationPlanAction.SUSPEND,
+        expected_head=first.revision_id,
+        created_at=start + timedelta(minutes=2),
+        handoff=handoff,
+    )
+    suspend = _revision(
+        plan=suspend_plan,
+        revision=2,
+        occurred_at=start + timedelta(minutes=3),
+        approval="approval:suspend",
+    )
+    await service.admit(
+        suspend,
+        pack=pack,
+        conformance_receipts=(conformance,),
+        committed_at=suspend.occurred_at + timedelta(seconds=1),
+        **watch_admission,
+    )
+
+    resolved = await resolve_live_activation_revision_for_session(
+        store=store,
+        product_id=spec.product_id,
+        activation_key=spec.activation_key,
+        session=watch.briefing.session.revision,
+    )
+
+    assert resolved is None
+
+
+@pytest.mark.asyncio
+async def test_resolve_live_activation_revision_rejects_crossed_product_session():
+    _, _, spec = _activation_material()
+    watch, _, _ = await _watch_material()
+    store = _MemoryStore()
+
+    with pytest.raises(DomainActivationPlanAdmissionError, match="session product scope"):
+        await resolve_live_activation_revision_for_session(
+            store=store,
+            product_id="product:other",
+            activation_key=spec.activation_key,
+            session=watch.briefing.session.revision,
         )

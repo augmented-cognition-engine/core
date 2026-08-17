@@ -73,9 +73,32 @@ def _edge_pool(edges_by_type):
     conn = MagicMock()
 
     async def q(query, params=None):
-        for et in ("breaks", "reverts", "causes"):
-            if f"FROM {et}" in query:
-                return [edges_by_type.get(et, [])]
+        if "FROM operational_relationship" in query:
+            rows = []
+            for edge_type in params["predicates"]:
+                for index, edge in enumerate(edges_by_type.get(edge_type, [])):
+                    edge_in = f"insight:{edge.get('a', index)}"
+                    edge_out = f"insight:{edge.get('b', index)}"
+                    rows.append(
+                        {
+                            "id": f"operational_relationship:{edge_type}_{index}",
+                            "in": edge_in,
+                            "out": edge_out,
+                            "predicate": edge_type,
+                            "assertion_id": f"relationship_assertion:{edge_type}_{index}",
+                            "assertion_product": params["product"],
+                            "assertion_status": "accepted",
+                            "assertion_projection_eligible": True,
+                            "assertion_subject": edge_in,
+                            "assertion_object": edge_out,
+                            "assertion_predicate": edge_type,
+                            "in_source_domain": edge.get("a"),
+                            "out_source_domain": edge.get("b"),
+                            "in_domain_path": edge.get("ap"),
+                            "out_domain_path": edge.get("bp"),
+                        }
+                    )
+            return [rows]
         return [[]]
 
     conn.query = q

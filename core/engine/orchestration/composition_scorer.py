@@ -531,7 +531,7 @@ _TENSION_EDGE_TYPES = ("breaks", "reverts", "causes")
 async def graph_tension_lenses(classification: dict, product_id: str, *, cap: int = 2) -> list[str]:
     """Disciplines in LIVE graph tension with the task's discipline → lenses to convene.
 
-    The membership-side of Graph Tensions: scan the Cognify tension/consequence edges
+    The membership-side of Graph Tensions: scan canonical tension/consequence edges
     (breaks/reverts/causes) that touch the task's discipline, and return the DISTINCT disciplines on the
     OTHER side — those lenses must convene to deliberate the contradiction (e.g. a `testing` task with a
     `breaks` edge to `dependency_management` convenes that lens too). Queries the edges directly (small,
@@ -546,28 +546,26 @@ async def graph_tension_lenses(classification: dict, product_id: str, *, cap: in
             return []
 
         out: list[str] = []
+        from core.engine.graph.operational_relationships import load_operational_relationships
+
         async with pool.connection() as db:
-            for edge_type in _TENSION_EDGE_TYPES:
-                rows = parse_rows(
-                    await db.query(
-                        f"""SELECT in.source_domain AS a, out.source_domain AS b,
-                                   in.domain_path AS ap, out.domain_path AS bp
-                            FROM {edge_type}
-                            WHERE source = 'cognify' AND in.product = <record>$product""",
-                        {"product": product_id},
-                    )
-                )
-                for r in rows:
-                    a = _discipline_of(r.get("a") or r.get("ap"))
-                    b = _discipline_of(r.get("b") or r.get("bp"))
-                    if a == primary and b and b != primary:
-                        other = b
-                    elif b == primary and a and a != primary:
-                        other = a
-                    else:
-                        continue
-                    if _is_discipline_like(other) and other not in out:
-                        out.append(other)
+            rows = await load_operational_relationships(
+                product_id,
+                predicates=_TENSION_EDGE_TYPES,
+                limit=1_000,
+                db=db,
+            )
+            for r in rows:
+                a = _discipline_of(r.get("in_source_domain") or r.get("in_domain_path"))
+                b = _discipline_of(r.get("out_source_domain") or r.get("out_domain_path"))
+                if a == primary and b and b != primary:
+                    other = b
+                elif b == primary and a and a != primary:
+                    other = a
+                else:
+                    continue
+                if _is_discipline_like(other) and other not in out:
+                    out.append(other)
         return out[:cap]
     except Exception:
         logger.warning("graph_tension_lenses failed (non-fatal); no tension lenses", exc_info=True)

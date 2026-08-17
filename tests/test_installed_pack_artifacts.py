@@ -10,6 +10,7 @@ import pytest
 from ace.application.installed_pack_artifacts import (
     InstalledCompiledPackArtifactResolver,
     InstalledPackArtifactError,
+    discover_installed_domain_pack_previews,
 )
 from ace.intelligence.contracts.activation import CompiledPackRefV1
 from ace.intelligence.packs.compiler import compile_pack_document_with_report
@@ -203,6 +204,22 @@ def _reference(resources: dict[str, bytes], *, pack_id: str = "neutral_measureme
         compiled_pack_id=pack.compiled_pack_id,
         pack_digest=pack.pack_digest,
     )
+
+
+def test_previews_exact_installed_manifest_without_loading_activation_material(tmp_path: Path) -> None:
+    resources = _pack()
+    resources.pop("domain_packs/neutral_measurement/conformance/activation_golden_fixture.json")
+    distribution = _Distribution(tmp_path / "preview", "preview-pack", resources, version="4.2.0")
+
+    previews = discover_installed_domain_pack_previews([distribution])
+
+    assert len(previews) == 1
+    preview = previews[0]
+    assert preview.distribution == "preview-pack"
+    assert preview.distribution_version == "4.2.0"
+    assert preview.manifest.metadata.pack_id == "neutral_measurement"
+    assert preview.manifest.metadata.version == "1.0.0"
+    assert preview.manifest_digest == _digest(resources["domain_packs/neutral_measurement/manifest.json"])
 
 
 @pytest.mark.asyncio

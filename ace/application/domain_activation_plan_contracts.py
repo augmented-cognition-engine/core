@@ -17,6 +17,8 @@ from ace.core.contracts import FrozenContract, canonical_hash
 from ace.intelligence.contracts.activation import (
     AuthorityBindingV1,
     CapabilityBindingV1,
+    CompiledOverlayV1,
+    CompiledPackRefV1,
     DomainActivationSpecV1,
 )
 from ace.intelligence.contracts.common import (
@@ -478,6 +480,8 @@ __all__ = [
     "ActivationOnboardingHandoffV1Alpha2",
     "ActivationRequestedEffect",
     "ActivationRuntimeState",
+    "CompiledOverlayV1",
+    "CompiledPackRefV1",
     "DomainActivationCommitReferenceV1Alpha2",
     "DomainActivationRevisionV1Alpha2",
     "IntelligenceActivationPlanV1Alpha2",

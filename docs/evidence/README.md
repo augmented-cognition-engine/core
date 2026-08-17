@@ -101,6 +101,43 @@ superseded by later work and is kept for audit trail only.
 - [State Engine K1-K3 extension-first product closeout](state-engine-k1-k3-product-journey-v1.md)
 - [Productized State integrated public journey](productized-state-journey-v1.md)
 
+## Code Intelligence
+
+- [ACE 1.1.0 local release candidate v1](ace-1.1.0-local-release-candidate-v1.md)
+  — public-source-safe local candidate disposition, compatibility/recovery boundaries, four-record
+  reconciliation draft, and exact next public action; not a tag, publication, or #194 closeout
+- [ACE 1.1 Atrium Explore screenshot v1](ace-1.1-atrium-explore-screenshot-v1.md)
+  — canonical Ask ACE publication image, exact asset hash, deterministic supported-answer state,
+  focused UI gate, and visual inspection record
+- [Code Intelligence installed-wheel acceptance v1](code-intelligence-installed-wheel-acceptance-v1.md)
+  — historical, local; point-in-time checkout-free local-cache packaging and continuity receipt for
+  its exact wheel
+- [Code Intelligence installed-wheel acceptance v2](code-intelligence-installed-wheel-acceptance-v2.md)
+  — historical, local; immutable point-in-time checkout-free local-cache receipt predating later
+  source changes
+- [Code Intelligence installed-wheel acceptance v3](code-intelligence-installed-wheel-acceptance-v3.md)
+  — historical, local; immutable pre-material-use candidate for the product-isolated wheel; not
+  deployed, published, or #194 closeout
+- [Code Intelligence installed-wheel acceptance v4](code-intelligence-installed-wheel-acceptance-v4.md)
+  — historical, local; immutable pre-evidence/current-source candidate after the calibrated MCP/REST
+  material-use packet; kept as the historical installed replay of record; not deployed, published,
+  or #194 closeout
+- [Code Intelligence single-chain living run v1](code-intelligence-single-chain-living-run-v1.md)
+  and [machine-readable receipt](code-intelligence-single-chain-living-run-v1.json), with its
+  [detached replay archive](artifacts/code-intelligence-single-chain-living-run-replay-v1.tar.gz)
+  — current installed compatibility replay, archived subprocess not rerun or self-authenticated;
+  not installed as fresh execution, deployed, published, or #194 closeout
+- [Code Intelligence external-agent round trip v1](code-intelligence-external-agent-round-trip-v1.md)
+  and [machine trust root](code-intelligence-external-agent-round-trip-v1.json), with its
+  [detached base64 archive](artifacts/code-intelligence-external-agent-round-trip-v1.tar.gz.b64)
+  — historical observed local event; current installed paired replay only; no renewed delivery,
+  actor causation, cryptographic read isolation, authority, deployment, publication, or #194
+  closeout
+- [Code Intelligence material-use receipt v1](code-intelligence-material-use-receipt-v1.json), with
+  its [detached replay archive](artifacts/code-intelligence-material-use-replay-v1.tar.gz) —
+  historical point-in-time bytes/receipt; not replayable as a full current Slice 5 journey and not
+  current material influence
+
 ## Governed cognition
 
 The [GC1 public external-consumer closeout](gc1-public-external-consumer-v1.md) composes the public
