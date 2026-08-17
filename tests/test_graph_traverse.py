@@ -137,10 +137,20 @@ class TestTraverseRequestValidation:
         req = TraverseRequest(start="graph_file:engine_core_db_py")
         assert req.start == "graph_file:engine_core_db_py"
 
-    def test_start_valid_with_dots_and_slashes(self):
-        """Record IDs with dots or slashes (path-derived) should be accepted."""
-        req = TraverseRequest(start="graph_file:engine/core/db.py")
-        assert req.start == "graph_file:engine/core/db.py"
+    def test_start_valid_with_slugified_record_id(self):
+        """The scanner slugifies paths to word characters, so `engine/core/db.py`
+        is stored as `graph_file:engine_core_db_py`; that slug form is valid."""
+        req = TraverseRequest(start="graph_file:engine_core_db_py")
+        assert req.start == "graph_file:engine_core_db_py"
+
+    def test_start_rejects_path_style_record_id(self):
+        """A path-style record ID with dots/slashes is not a real node ID and must be
+        rejected — it would otherwise reach the unquoted SurrealQL start-node SELECT."""
+        import pytest as _pytest
+        from pydantic import ValidationError as _VE
+
+        with _pytest.raises(_VE):
+            TraverseRequest(start="graph_file:engine/core/db.py")
 
 
 # ---------------------------------------------------------------------------
@@ -1222,3 +1232,54 @@ class TestGraphStats:
         assert "edges" in result
         assert "total_nodes" in result
         assert "total_edges" in result
+
+
+class TestMalformedNodeIdRefusal:
+    """A malformed node ID must be refused with a 4xx, never a 500.
+
+    `get_impact`/`get_history`/`get_related` construct a TraverseRequest from a
+    caller-supplied path segment; a value that fails `validate_start` (for
+    example a URL-encoded file path with no `table:` prefix) is caller error,
+    not a server fault.
+    """
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("shortcut", ["get_impact", "get_history", "get_related"])
+    async def test_pathlike_node_id_is_refused_with_422(self, mock_user, shortcut):
+        import core.engine.api.graph_traverse as gt
+
+        endpoint = getattr(gt, shortcut)
+        with pytest.raises(HTTPException) as exc_info:
+            await endpoint("core/engine/core/config.py", graph_id="default", user=mock_user)
+        assert exc_info.value.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_unknown_node_table_is_refused_with_422(self, mock_user):
+        from core.engine.api.graph_traverse import get_impact
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_impact("not_a_table:abc", graph_id="default", user=mock_user)
+        assert exc_info.value.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_hyphenated_record_id_is_refused_with_422_not_500(self, mock_user):
+        """A record ID containing characters no real node ID carries (hyphen, dot, slash)
+        must be refused, not interpolated into the SurrealQL start-node SELECT where `--`
+        would comment out the graph_id isolation fence."""
+        from core.engine.api.graph_traverse import get_impact
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_impact("graph_file:foo-bar", graph_id="default", user=mock_user)
+        assert exc_info.value.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_bad_graph_id_names_graph_id_not_node_id(self, mock_user):
+        """When graph_id fails validation on the history/related shortcuts, the 422 must name
+        graph_id — not blame the caller's valid node_id."""
+        from core.engine.api.graph_traverse import get_history
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_history("graph_file:x", graph_id="x" * 5000, user=mock_user)
+        assert exc_info.value.status_code == 422
+        assert "graph_id" in exc_info.value.detail
+        assert "node_id" not in exc_info.value.detail
