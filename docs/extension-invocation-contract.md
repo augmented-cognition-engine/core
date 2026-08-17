@@ -5,6 +5,14 @@ Date: 2026-07-22
 Outcome: **experimental contract verified; Phase 5 candidate SDK acceptance is recorded
 separately; E1 remains not ready**
 
+> **Current status (as of Core 1.1.0).** The dated outcome line above is preserved as written.
+> Roadmap outcome **E1 has since passed** for the exact ace-core 0.3.0 release (see
+> [capability maturity](capability-maturity.md) and [ROADMAP](../ROADMAP.md)), and the
+> extension-invocation lifecycle is documented as as-built in [architecture](architecture.md).
+> The authenticated `extension-invocation-v1` HTTP envelope described here **remains an
+> experimental surface** and is not part of the supported contract. For current supported state,
+> use capability maturity; for current outcome state, use the roadmap.
+
 ## Frozen boundary
 
 ACE extensions can register a domain-owned task action that resolves structured references into
