@@ -5,14 +5,13 @@ from pathlib import Path
 ROADMAP = (Path(__file__).resolve().parents[1] / "ROADMAP.md").read_text(encoding="utf-8")
 ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
-# The current-release assertions preserve published 1.0.3 while keeping the local 1.1.0 candidate
-# bounded. Historical 0.4.1 GI2,
+# The current-release assertions preserve the bounded public 1.1.0 closeout. Historical 0.4.1 GI2,
 # 0.4.2 builder-surface, 0.4.4 GC1, 0.5.0 T1/B1, and P1/P2 identities remain exact point-in-time
 # evidence. Keep these aligned with test_evidence_index_integrity.py.
 
 
 def test_current_release_and_passed_milestone_are_reconciled() -> None:
-    assert "latest published release is [`ace-core` 1.0.3]" in ROADMAP
+    assert "latest published release is [`ace-core` 1.1.0]" in ROADMAP
     assert "passed 0.8.2 patch adds the Atrium Intelligence Catalog" in ROADMAP
     assert "The 1.0 public-artifact acceptance is **passed**" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
@@ -22,16 +21,16 @@ def test_current_release_and_passed_milestone_are_reconciled() -> None:
     assert "| 0.6.0 | Measured Intelligence | **Passed** |" in ROADMAP
     assert "| 0.7.0 | Intelligence Builder Foundation | **Passed** |" in ROADMAP
     readme = (Path(__file__).resolve().parents[1] / "README.md").read_text(encoding="utf-8")
-    assert "ACE 1.0 is stable for the documented single-user, single-node topology" in " ".join(readme.split())
+    assert "ACE 1.1 is stable for the documented single-user, single-node topology" in " ".join(readme.split())
     assert "| 0.8.0 | Intelligence OS Realignment | **Passed** |" in ROADMAP
     assert "| 0.9.0 | Single-user Intelligence Builder | **Passed** |" in ROADMAP
     assert "| 1.0.0 | Personal Intelligence Operating System | **Passed** |" in ROADMAP
-    assert "| 1.1 | Code Intelligence | **Candidate — local gate passed** |" in ROADMAP
-    assert "| 1.2 | Personal Intelligence | **Next after 1.1 closeout** |" in ROADMAP
-    assert "Issue [#194]" in ROADMAP
-    assert "remains open" in ROADMAP
-    assert "Release Spine Project stays **Now** pending publication" in ROADMAP
-    assert "not yet a Git tag, GitHub Release, PyPI publication" in ROADMAP_ONE_LINE
+    assert "| 1.1 | Code Intelligence | **Passed** |" in ROADMAP
+    assert "| 1.2 | Personal Intelligence | **Now** |" in ROADMAP
+    assert "| [#194](https://github.com/augmented-cognition-engine/core/issues/194) |" in ROADMAP
+    assert "now closed by the tagged release" in ROADMAP_ONE_LINE
+    assert "records Code Intelligence as complete" in ROADMAP
+    assert "public artifact digests" in ROADMAP
 
 
 def test_090_and_100_are_complete_single_user_products() -> None:
@@ -40,7 +39,7 @@ def test_090_and_100_are_complete_single_user_products() -> None:
     assert "### 1.0.0 — Personal Intelligence Operating System" in ROADMAP
     assert "Multi-user collaboration" in ROADMAP
     assert "## Current 1.x release direction" in ROADMAP
-    assert "### Release candidate milestone: 1.1 Code Intelligence" in ROADMAP
+    assert "### Completed milestone: 1.1 Code Intelligence" in ROADMAP
     assert "do not gate the first stable personal Intelligence OS" in ROADMAP_ONE_LINE
 
 

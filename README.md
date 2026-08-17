@@ -12,8 +12,7 @@ the result instead of becoming infrastructure every product team must recreate.
 
 > **Generation is abundant. Continuity of judgment is not.**
 
-![published version 1.0.3](https://img.shields.io/badge/published-1.0.3-blue)
-![local candidate 1.1.0](https://img.shields.io/badge/local%20candidate-1.1.0-blue)
+![published version 1.1.0](https://img.shields.io/badge/published-1.1.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: stable single-user](https://img.shields.io/badge/status-stable%20single--user-green)
@@ -59,9 +58,8 @@ Builders do not need to hand-author Domain Pack JSON or learn compiler mechanics
 first intelligence value. Generated material passes the same fail-closed compatibility,
 conformance, authority, and activation boundaries as expert-built material.
 
-The current published stable package and public-index install is `ace-core==1.0.3`. This source tree
-is the local `ace-core==1.1.0` **ACE 1.1 Code Intelligence release candidate**; it has passed its
-local candidate gate but has not yet been tagged or published.
+The current published stable package and public-index install is `ace-core==1.1.0`, the bounded
+**ACE 1.1 Code Intelligence** release.
 
 ### Two connected loops
 
@@ -146,7 +144,7 @@ of content-generation point solutions.
 | Intelligence system | What ACE keeps coherent | What stays downstream |
 |---|---|---|
 | **World and Market Intelligence** | Sources, actors, entities, claims, shifts, uncertainty, Briefs, Decisions, and Outcomes | Data providers, research sources, publishing, analysis, and execution tools |
-| **Code Intelligence — active 1.1 milestone** | Intent, architecture, symbols, affected tests, concurrent work, handoffs, release evidence, incidents, and outcomes | IDEs, Git, coding agents, CI, and deployment systems |
+| **Code Intelligence — passed in 1.1** | Intent, architecture, symbols, affected tests, concurrent work, handoffs, release evidence, incidents, and outcomes | IDEs, Git, coding agents, CI, and deployment systems |
 | **Personal Intelligence — 1.2** | Notes, files, projects, decisions, evolving interests, and local or approved remote sources | Filesystems, knowledge tools, cloud drives, databases, and warehouses |
 | **Product, Design, and Organizational Intelligence — 1.5** | Needs, research, rationale, ownership, systems, policy, dependencies, experiments, and outcomes | Figma, product tools, CRM, BI, ERP, and each team's systems of record |
 
@@ -156,8 +154,8 @@ authority model.
 
 ## Code Intelligence: ACE’s first recursive proof
 
-Code Intelligence has **passed for a local 1.1 release candidate**. Issue #194 and publication
-remain open, and the Release Spine Project stays Now until the public four-record closeout.
+Code Intelligence has **passed in the public ACE 1.1.0 release**. The tagged release, trusted PyPI
+publication, clean public-index installation, release evidence, and four public records agree.
 Software makes the complete ACE loop measurable: Decisions connect to repositories, symbols,
 dependencies, tests, reviews, releases, incidents, and later Outcomes.
 
@@ -180,7 +178,7 @@ authority.
 
 ## Useful for one. Compounding for many.
 
-ACE 1.0.3 is stable for the documented single-user, single-node topology. The same semantic kernel
+ACE 1.1.0 is stable for the documented single-user, single-node topology. The same semantic kernel
 is designed to grow from a private workspace into shared and federated intelligence:
 
 ```text
@@ -204,14 +202,12 @@ Decisions, memory, ownership, or receipts.
 Install the stable package:
 
 ```bash
-python -m pip install ace-core==1.0.3
+python -m pip install ace-core==1.1.0
 python -c "import ace; print(ace.__version__)"
 ace --help
 ```
 
-This repository currently identifies a local `ace-core==1.1.0` release candidate. Do not request
-1.1.0 from the public index until its tag, publication, clean-install reproduction, issue #194,
-Project state, release evidence, and ROADMAP have been reconciled.
+The public-index package, GitHub Release, and this source tree now identify `ace-core==1.1.0`.
 
 Or run the complete self-hosted Intelligence OS. You need macOS or Linux, Git, Python 3.12, `uv`,
 Docker Engine with Compose v2, and credentials for one supported provider.
@@ -234,13 +230,12 @@ uv run ace atrium
 
 ## What is real today
 
-**ACE 1.0 is stable for the documented single-user, single-node topology; 1.0.3 is the recommended
-patch release.**
+**ACE 1.1 is stable for the documented single-user, single-node topology; 1.1.0 is the recommended
+release.**
 
 | Status | Product boundary |
 |---|---|
-| **Stable 1.0.3** | One local owner, one documented single-node deployment, guided Intelligence Builder, Atrium, authorized resource plane, public Core/Intelligence/Application packages, provider-neutral setup, durable state and receipts, World and Market proof |
-| **Local 1.1 candidate** | Code Intelligence: repository-to-reasoning graph, change impact, Code lens, bounded coding-agent handoffs, and governed improvement loops; publication and four-record closeout remain open |
+| **Stable 1.1.0** | The bounded 1.0 personal Intelligence OS plus Code Intelligence: repository-to-reasoning graph, change impact, Code lens, untrusted-repository admission, bounded coding-agent handoffs, governed improvement loops, SurrealDB 3.2/v179 recovery, and product-scoped delegated cognition review |
 | **Later 1.x** | Personal Intelligence, safe upgrades, Topic and Pack Kit, connected organizational intelligence, governed self-improving agents, portability, and interoperability |
 | **2.0 direction** | Permission-sensitive collaborative organizational intelligence across teams and external participants |
 
@@ -248,7 +243,7 @@ The stable 1.0 claim is deliberately bounded. ACE does not claim distributed ope
 extension isolation, arbitrary web access, autonomous authority, universal connectors, managed
 hosting, or beneficial impact beyond its frozen evaluation evidence.
 
-[See exact capability maturity →](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md) · [Inspect 1.0 public acceptance →](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/personal-intelligence-os-v1.0-public-acceptance-v1.md)
+[See exact capability maturity →](https://github.com/augmented-cognition-engine/core/blob/main/docs/capability-maturity.md) · [Inspect 1.1 public release evidence →](https://github.com/augmented-cognition-engine/core/blob/main/docs/evidence/ace-1.1.0-public-release-v1.md)
 
 ## Choose your path
 
