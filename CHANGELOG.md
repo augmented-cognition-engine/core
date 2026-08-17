@@ -53,9 +53,9 @@ Notable user- and contributor-visible changes are recorded here.
   rollback is restoration of the verified pre-upgrade backup. This release does not claim managed
   hosting, collaboration, distributed availability, universal connectors, autonomous policy
   application, or safe execution of hostile repositories.
-- This source state is a **local release candidate**, not evidence of a tag, GitHub Release, PyPI
-  publication, or clean public-index installation. Issue #194 and the public four-record closeout
-  remain open until those publication checks are reconciled.
+- The `v1.1.0` GitHub Release, trusted publication workflow, public PyPI wheel and source archive,
+  checkout-free Python 3.12 installation, exact eleven-tool inspection, and four-record closeout
+  are bound by the [public release evidence](docs/evidence/ace-1.1.0-public-release-v1.md).
 
 ## 1.0.3
 

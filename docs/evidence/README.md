@@ -103,9 +103,11 @@ superseded by later work and is kept for audit trail only.
 
 ## Code Intelligence
 
+- [ACE 1.1.0 public release v1](ace-1.1.0-public-release-v1.md)
+  — public, passed; exact tag, merge, trusted publication run, PyPI wheel/source digests,
+  checkout-free Python 3.12 install, dependency check, and eleven-tool inspection
 - [ACE 1.1.0 local release candidate v1](ace-1.1.0-local-release-candidate-v1.md)
-  — public-source-safe local candidate disposition, compatibility/recovery boundaries, four-record
-  reconciliation draft, and exact next public action; not a tag, publication, or #194 closeout
+  — historical pre-publication candidate superseded by the public release record above
 - [ACE 1.1 Atrium Explore screenshot v1](ace-1.1-atrium-explore-screenshot-v1.md)
   — canonical Ask ACE publication image, exact asset hash, deterministic supported-answer state,
   focused UI gate, and visual inspection record

@@ -1,13 +1,9 @@
 # ACE capability maturity
 
-ACE 1.0 is stable for the documented single-user, single-node topology. This page distinguishes
+ACE 1.1 is stable for the documented single-user, single-node topology. This page distinguishes
 that supported public contract from implemented surfaces that remain experimental.
 
-Code Intelligence and its three governed improvement loops have passed the local 1.1
-release-candidate gate. They remain outside the published 1.0 capability claim below until the
-public four-record release closeout is complete.
-
-## Supported 1.0 contract
+## Supported 1.1 contract
 
 The supported self-hosted path is:
 
@@ -22,11 +18,10 @@ The published stable 1.0 identities are:
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `1.0.3` (current public release and public-index install)
+- version: `1.1.0` (current public release and public-index install)
 
-This source tree carries package version 1.1.0 for the local ACE 1.1 Code Intelligence release
-candidate described below. It is not a published stable version or a public-index install until the
-four-record release closeout completes.
+The tagged GitHub Release, trusted PyPI publication, and this source tree carry package version
+1.1.0 for ACE 1.1 Code Intelligence.
 
 The thin MCP surface contains exactly eleven tools:
 
@@ -70,9 +65,9 @@ without adding an MCP tool or any write, execution, extension, or model-inferenc
 [read contract](living-product-graph.md) freezes ordering, bounds, absence, failure, redaction, and
 0.3.x compatibility behavior.
 
-## ACE 1.1 Code Intelligence — local release candidate maturity
+## ACE 1.1 Code Intelligence — supported maturity
 
-ACE 1.1 Code Intelligence has passed the bounded local release-candidate gate. It adds a read-only,
+ACE 1.1 Code Intelligence passed the bounded public release gate. It adds a read-only,
 snapshot-bound repository journey for architecture, symbols, tests, calibrated downstream impact,
 provenance, omissions, and uncertainty; Atrium and the machine boundary consume the same governed
 records. The untrusted-repository handoff returns a deterministic body-free context from immutable
@@ -88,11 +83,11 @@ assertion-history upgrade/recovery, packaged operations guidance, archive integr
 navigation/accessibility corrections. Schema head is v179 and the public MCP surface remains
 exactly eleven tools.
 
-This maturity label is local candidate evidence only. It does not claim a `v1.1.0` tag, GitHub
-Release, PyPI publication, clean public-index installation, universal language support,
+The [public release evidence](evidence/ace-1.1.0-public-release-v1.md) binds the `v1.1.0` tag,
+GitHub Release, trusted PyPI publication, public digests, checkout-free installation, and exact
+eleven-tool inspection. This maturity label does not claim universal language support,
 safe-deletion proof, hostile-code isolation, managed hosting, collaboration, distributed
-availability, or autonomous authority. Issue #194 remains open and the Release Spine Project stays
-Now until publication and all four release records agree; 1.2 remains Next.
+availability, or autonomous authority.
 
 ## Supported governed-cognition boundary
 
