@@ -1222,3 +1222,31 @@ class TestGraphStats:
         assert "edges" in result
         assert "total_nodes" in result
         assert "total_edges" in result
+
+
+class TestMalformedNodeIdRefusal:
+    """A malformed node ID must be refused with a 4xx, never a 500.
+
+    `get_impact`/`get_history`/`get_related` construct a TraverseRequest from a
+    caller-supplied path segment; a value that fails `validate_start` (for
+    example a URL-encoded file path with no `table:` prefix) is caller error,
+    not a server fault.
+    """
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("shortcut", ["get_impact", "get_history", "get_related"])
+    async def test_pathlike_node_id_is_refused_with_422(self, mock_user, shortcut):
+        import core.engine.api.graph_traverse as gt
+
+        endpoint = getattr(gt, shortcut)
+        with pytest.raises(HTTPException) as exc_info:
+            await endpoint("core/engine/core/config.py", graph_id="default", user=mock_user)
+        assert exc_info.value.status_code == 422
+
+    @pytest.mark.asyncio
+    async def test_unknown_node_table_is_refused_with_422(self, mock_user):
+        from core.engine.api.graph_traverse import get_impact
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_impact("not_a_table:abc", graph_id="default", user=mock_user)
+        assert exc_info.value.status_code == 422

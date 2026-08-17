@@ -40,8 +40,10 @@ async def scan_repository(body: ScanRequest, user: dict = Depends(get_current_us
     if not os.path.isdir(repo_path):
         raise HTTPException(status_code=400, detail=f"Directory not found: {repo_path}")
 
+    # A linked worktree keeps `.git` as a file pointing at the shared gitdir,
+    # so repository admission must accept either layout.
     git_dir = os.path.join(repo_path, ".git")
-    if not os.path.isdir(git_dir):
+    if not os.path.exists(git_dir):
         raise HTTPException(status_code=400, detail=f"Not a git repository: {repo_path}")
 
     graph_id = body.graph_id or f"scan_{uuid.uuid4().hex[:12]}"
@@ -54,14 +56,30 @@ async def scan_repository(body: ScanRequest, user: dict = Depends(get_current_us
             message="Scan already in progress",
         )
 
+    # The traversal boundary only admits graphs bound to the principal's
+    # product, so a completed scan must record that binding or the new graph
+    # is unreadable. The binding target is the authenticated principal's own
+    # product — a caller assertion is never accepted here.
+    product_ref = str(user.get("product") or "")
+
     async def _run_scan():
         from core.engine.scanner.scanner import scan_repo
 
         try:
-            return await scan_repo(repo_path, graph_id)
+            result = await scan_repo(repo_path, graph_id)
         except Exception as exc:
             logger.error("Scan failed for %s: %s", repo_path, exc)
             raise
+        if product_ref:
+            try:
+                async with pool.connection() as db:
+                    await db.query(
+                        "UPDATE graph SET product = <record>$product WHERE graph_id = $gid",
+                        {"product": product_ref, "gid": graph_id},
+                    )
+            except Exception as exc:
+                logger.error("Graph product binding failed for %s: %s", graph_id, exc)
+        return result
 
     task = logged_task(_run_scan(), label="scanner.scan")
     _running_scans[graph_id] = task

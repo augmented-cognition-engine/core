@@ -5,7 +5,7 @@ import logging
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ValidationError, field_validator
 
 from core.engine.code_intelligence.impact import (
     IMPACT_MAX_PATH_CHARS,
@@ -436,7 +436,7 @@ async def get_impact(
     graph_id = _admit_impact_selector(graph_id, "graph_id", IMPACT_MAX_REF_CHARS)
     _bound_product_to_principal("", user)
 
-    body = TraverseRequest(
+    body = _admitted_traverse_request(
         start=node_id,
         depth=2,
         edge_types=["depends_on", "tests", "breaks", "imports"],
@@ -467,6 +467,23 @@ def _bound_product_to_principal(requested: str, user: dict) -> str:
         # confirms that some other product's capability exists.
         raise HTTPException(status_code=404, detail="Not found")
     return principal_product
+
+
+def _admitted_traverse_request(**kwargs) -> TraverseRequest:
+    """Build a TraverseRequest from caller-supplied selectors.
+
+    The shortcut endpoints construct the request themselves, so `TraverseRequest`
+    validation failures there are caller errors, not server faults — a node ID
+    that is not a `table:record_id` reference is refused with 422, never 500.
+    The refusal names the shape without echoing the value.
+    """
+    try:
+        return TraverseRequest(**kwargs)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="node_id must be a valid node reference of the form table:record_id",
+        ) from exc
 
 
 def _admit_impact_selector(value: str, field: str, limit: int, *, allow_empty: bool = False) -> str:
@@ -625,7 +642,7 @@ async def get_history(
 
     Traverses informed_by, produced, improves edges in both directions.
     """
-    body = TraverseRequest(
+    body = _admitted_traverse_request(
         start=node_id,
         depth=2,
         edge_types=["informed_by", "produced", "improves"],
@@ -643,7 +660,7 @@ async def get_related(
     user: dict = Depends(get_current_user),
 ):
     """What is connected to this node? All edge types, depth 1."""
-    body = TraverseRequest(
+    body = _admitted_traverse_request(
         start=node_id,
         depth=1,
         edge_types=None,  # all edges
