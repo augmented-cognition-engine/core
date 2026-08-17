@@ -492,9 +492,7 @@ def _admitted_traverse_request(**kwargs) -> TraverseRequest:
     except ValidationError as exc:
         loc = exc.errors()[0].get("loc") if exc.errors() else ()
         field = loc[0] if loc else ""
-        detail = _TRAVERSE_FIELD_DETAIL.get(
-            field, "request contains an invalid node_id or graph_id selector"
-        )
+        detail = _TRAVERSE_FIELD_DETAIL.get(field, "request contains an invalid node_id or graph_id selector")
         raise HTTPException(status_code=422, detail=detail) from exc
 
 
