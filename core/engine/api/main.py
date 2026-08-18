@@ -662,6 +662,7 @@ async def api_version():
 from core.engine.api.capture import router as capture_router
 from core.engine.api.extension_invocations import router as extension_invocations_router
 from core.engine.api.foresight import router as foresight_router
+from core.engine.api.grounded_ask import router as grounded_ask_router
 from core.engine.api.intel import router as intel_router
 from core.engine.api.intelligence_builds import router as intelligence_builds_router
 from core.engine.api.intelligence_catalog import router as intelligence_catalog_router
@@ -680,6 +681,7 @@ app.include_router(intel_router)
 app.include_router(intelligence_builds_router)
 app.include_router(intelligence_catalog_router)
 app.include_router(intelligence_resources_router)
+app.include_router(grounded_ask_router)
 app.include_router(intelligence_subscriptions_router)
 app.include_router(personal_ownership_router)
 app.include_router(landscape_router)
