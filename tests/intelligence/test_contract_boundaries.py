@@ -59,6 +59,8 @@ def test_intelligence_initializer_exports_contracts_and_pure_interpreters_only()
         "ace.intelligence.detection",
         "ace.intelligence.epistemic",
         "ace.intelligence.impact",
+        "ace.intelligence.local_source_locator",
+        "ace.intelligence.local_source_mapping",
         "ace.intelligence.measured_composition",
         "ace.intelligence.routing",
         "ace.intelligence.source_mapping",

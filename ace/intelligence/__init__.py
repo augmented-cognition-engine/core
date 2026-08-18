@@ -42,6 +42,8 @@ from ace.intelligence.epistemic import (
     derive_claim_epistemic_statuses_with_families,
 )
 from ace.intelligence.impact import ResolvedImpactEvidence, evaluate_measured_impact
+from ace.intelligence.local_source_locator import LocalSourceLocator, format_locator, parse_locator
+from ace.intelligence.local_source_mapping import MappedObservation, SourceUnit, map_document_units
 from ace.intelligence.measured_composition import compare_measured_composition
 from ace.intelligence.routing import (
     EligibleSignalRoute,
@@ -93,6 +95,12 @@ __all__ = [
     "DerivationFamilyError",
     "IMPACT_RELATIONS",
     "ResolvedImpactEvidence",
+    "LocalSourceLocator",
+    "MappedObservation",
+    "SourceUnit",
+    "format_locator",
+    "map_document_units",
+    "parse_locator",
     "ImpactedResource",
     "SUPERSEDING_RELATION",
     "SUPERSESSION_IMPACT_POLICY",
