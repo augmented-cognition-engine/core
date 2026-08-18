@@ -11,9 +11,16 @@
 
 ## 1. Purpose and freeze rule
 
-This harness is the preregistered instrument for the PI12 comparison: the same coding agent
-implementing bounded 1.2 packet Decisions with and without ACE, under equivalent model, tools,
-task, and authority. Per packet decision 15, every measured element — agent, model, tool
+This harness is the preregistered instrument for the PI12 comparison: the same coding-agent
+harness implementing bounded 1.2 packet Decisions across a model-tier ladder, under equivalent
+tools, task, and authority. It preregisters two claims:
+
+1. **Within-tier lift** — the mid-tier model with ACE beats the same bare mid-tier model.
+2. **Tier jump** — the mid-tier model with ACE approaches or matches the bare top-tier model.
+
+The second claim is the evidence wager's strong form: activated domain intelligence substitutes
+for raw model capability, which is what makes the intelligence an asset rather than a
+model-version accessory. Per packet decision 15, every measured element — agent, model, tool
 allowlist, budgets, metric definitions, subject eligibility, and analysis rules — freezes before
 the first subject run. A run collected before the freeze, or under any configuration that differs
 from the frozen digest, is labeled **exploratory**, reported with its exclusion reason, and
@@ -24,8 +31,15 @@ before collection does not count afterward.
 
 | Arm | Definition | Disposition of output |
 |---|---|---|
-| **Baseline** | The pinned coding agent in a fresh session, in an isolated worktree at the subject's frozen repository head, with the subject Decision text and repository access only. No ACE context package, no ACE tools. | Evidence only. The baseline implementation is never merged, cherry-picked, or reused. |
-| **ACE-assisted** | The same agent, same model, same tool allowlist plus the shipped 1.1 Code Intelligence journey: Topic orientation, bounded context package, propagation verification, and receipts. | The production path. Its output proceeds through ordinary review and merge. |
+| **A — bare top-tier** | `claude-fable-5` in a fresh session, isolated worktree at the subject's frozen repository head, subject Decision text and repository access only. No ACE. The reference ceiling. | Evidence only. Never merged, cherry-picked, or reused. |
+| **B — bare mid-tier** | `claude-sonnet-5`, identical setup. No ACE. The floor control — without it, a lift cannot be attributed to ACE. | Evidence only. Same rule. |
+| **C — mid-tier + ACE** | `claude-sonnet-5` plus the shipped 1.1 Code Intelligence journey: Topic orientation, bounded context package, propagation verification, and receipts. The tested claim. | The production path. Its output proceeds through ordinary review and merge. |
+
+An optional **exploratory arm D** (`claude-fable-5` + ACE — the headroom probe: does ACE still add
+value at the top tier?) may run on at most one subject; it is labeled exploratory and never enters
+the comparative result. A Haiku-tier arm is explicitly deferred: implementing a full PI slice sits
+below a sensible floor for this program, and a failed capability arm would spend a scarce subject
+to learn nothing about ACE. A Haiku probe belongs to a later, smaller-scoped round.
 
 Protocol rules, all preregistered:
 
@@ -33,15 +47,16 @@ Protocol rules, all preregistered:
    arm. Session identifiers are recorded in the evidence record.
 2. **Isolated worktrees.** Each arm works in its own worktree at the identical frozen repository
    head recorded for the subject Decision.
-3. **Fixed arm order, disclosed.** Baseline runs first. This is a known limitation (the human
-   operator sees the baseline before the ACE arm), mitigated by rule 4 and disclosed in the
-   evidence record rather than hidden.
+3. **Fixed arm order, disclosed.** Bare arms run first (B, then A), the ACE arm last. This is a
+   known limitation (the human operator sees the bare runs before the ACE arm), mitigated by rule
+   4 and disclosed in the evidence record rather than hidden.
 4. **Minimal-intervention operation.** The operator issues the subject Decision prompt and the
    frozen follow-up prompts only. Every unscripted human intervention is logged, counted, and
    reported as a measure; the intervention log is part of the evidence record.
-5. **Asymmetric stakes, disclosed.** Only the ACE arm merges. The evidence record states this
-   asymmetry explicitly; it is a design consequence of refusing to merge unreviewed baseline
-   work, not a concealed advantage.
+5. **Asymmetric stakes, disclosed.** Only arm C merges. The evidence record states this
+   asymmetry explicitly; it is a design consequence of refusing to merge duplicate
+   implementations, not a concealed advantage. That the production path runs on the mid-tier
+   model is itself part of the dogfood claim: 1.2 slices ship built by Sonnet-with-ACE.
 6. **Authority parity.** Neither arm holds approval, merge, release, deploy, or promotion
    authority. Both produce work that a human reviews. This is also the no-self-authority proof
    surface required by PI12.
@@ -64,7 +79,8 @@ as such and never as actual spend.
 |---|---|---|
 | Coding agent | Claude Code | One agent for both arms. |
 | Agent version | 2.1.224 | Recorded exactly; a version change mid-program is configuration drift (§7). |
-| Model | `claude-fable-5` | Identical in both arms; no substitution mid-program. |
+| Top-tier reference model | `claude-fable-5` | Arm A (and optional exploratory arm D); no substitution mid-program. |
+| Mid-tier model | `claude-sonnet-5` | Arms B and C; the like-for-like pair. Its tokenizer meters differently than Fable's — token figures are compared within tier, never across tiers. |
 | Base tool allowlist | Read, Write, Edit, Bash, Glob, Grep, TodoWrite — no web tools, no MCP | Web search is excluded to reduce run-to-run variance; the exclusion applies identically to both arms. The ACE arm adds only the shipped eleven-tool 1.1 Code Intelligence MCP surface. |
 | Token budget per arm-run | 30,000,000 total metered tokens | Exhaustion is a recorded terminal state, not grounds for a quiet rerun. |
 | Wall-clock budget per arm-run | 8 hours | Same rule. |
@@ -113,9 +129,15 @@ run time.
 
 - Results are **descriptive, per subject**. With two to six subjects there is no statistical
   claim, and the evidence record says so in those words.
-- **Better**: the ACE arm improves a majority of primary measures on a subject and materially
-  worsens none. **Worse**: the inverse. **Mixed**: anything else. The program-level result is the
-  per-subject tally, reported without aggregation into a single score.
+- **Within-tier verdict (C vs B)** — **better**: arm C improves a majority of primary measures
+  and materially worsens none; **worse**: the inverse; **mixed**: anything else.
+- **Tier-jump verdict (C vs A)** — **tier jump**: arm C matches or exceeds bare Fable on a
+  majority of primary measures and is materially worse on none; **partial lift**: C beats bare
+  Sonnet but falls short of bare Fable; **no lift**: anything else. Token and latency figures are
+  never compared across tiers (different tokenizers and speeds); tier-jump rests on the quality
+  measures.
+- The program-level result is both per-subject tallies, reported without aggregation into a
+  single score.
 - The program additionally reports the **intelligence-curve projection** of §8.1 — the per-slice
   time series of capture records. The curve is a reporting artifact derived from the same frozen
   records; it does not alter or replace the per-subject tally.

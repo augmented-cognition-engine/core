@@ -162,8 +162,10 @@ turns it into issue updates.
 13. **ACE builds ACE 1.2.** By owner decision (2026-08-17), the `ACE Builds ACE` matched reference
     program carried over from the 1.1 narrative is executed inside this milestone, with bounded
     1.2 implementation work as its subject: real frozen packet Decisions are implemented through
-    the shipped 1.1 Code Intelligence journey, compared against a coding-agent-only baseline under
-    equivalent model, tools, task, and authority. The program uses shipped 1.1 capabilities only —
+    the shipped 1.1 Code Intelligence journey and compared, under equivalent tools, task, and
+    authority, against coding-agent-only baselines across the decision 15 model-tier ladder — a
+    like-for-like bare run on the same mid-tier model and a bare top-tier reference run, so the
+    program tests both within-tier lift and the tier-jump claim. The program uses shipped 1.1 capabilities only —
     it pulls no unreleased Code Intelligence expansion into 1.2 — and grants ACE no approval,
     merge, release, deploy, or promotion authority over itself. Its evidence ships with the 1.2
     release; an honest negative or mixed result is a valid outcome and does not block the J1–J10
@@ -184,7 +186,7 @@ turns it into issue updates.
 15. **The PI12 comparison harness is preregistered.** The baseline comparison is measured by a
     versioned harness frozen before the first subject Decision run, following the L1 v7 rule that
     controls freeze before collection. The harness pins the coding agent and its exact version,
-    the model, the tool allowlist, workspace and repository heads, token/cost/time budgets, the
+    the model-tier ladder, the tool allowlist, workspace and repository heads, token/time budgets, the
     metric definitions from the PI12 report list, subject-Decision eligibility, and the analysis
     rules for declaring better, worse, or mixed. A run collected before the harness freeze, or
     under a drifted configuration, is reported as exploratory and excluded from the comparative
@@ -235,7 +237,7 @@ These are the substrate. The packet reuses them unchanged wherever the contract 
 | PI9 — ownership depth | Export and deletion truthfully covering bundle-derived artifacts; restart continuity across the whole journey; write-quiescence during confirmed deletion documented or implemented | Core |
 | PI10 — Solution Bundle machinery | Bundle manifest with exact pack, overlay, adapter, Atrium-module, and policy bindings; preview before activation; deterministic resolution receipt; atomic activate/deactivate; the Personal and Code Intelligence bundles co-install and co-activate on one workspace without conflict, leakage, or either requiring the other | Core + Application |
 | PI11 — public release proof | Clean-machine public-artifact run of J1–J10 by a clean user; evidence record; four-record release reconciliation | Core |
-| PI12 — `ACE Builds ACE` reference program | The preregistered comparison harness of decision 15 and the experience-capture record shape of decision 16 frozen, versioned, and digest-bound **before** the first subject run; then at least two bounded PI-slice Decisions implemented through the shipped 1.1 Code Intelligence journey with ≥2 concurrent participants, ≥1 stale-context event, propagation verification, linked repair (recorded against the frozen 1.1 contracts with human or coding-agent execution per decision 13) or explicit complete coverage, and architecture-opportunity review or justified no-opportunity; compared against a coding-agent-only baseline under equivalent model, tools, task, and authority through the frozen harness; reports orientation time, context, coverage, unsupported claims, acceptance criteria, review findings, rework, verification, latency, tokens, cost, failures, degraded states, and later material use; proves ACE cannot approve, merge, release, deploy, or promote itself | Core |
+| PI12 — `ACE Builds ACE` reference program | The preregistered comparison harness of decision 15 and the experience-capture record shape of decision 16 frozen, versioned, and digest-bound **before** the first subject run; then at least two bounded PI-slice Decisions implemented through the shipped 1.1 Code Intelligence journey with ≥2 concurrent participants, ≥1 stale-context event, propagation verification, linked repair (recorded against the frozen 1.1 contracts with human or coding-agent execution per decision 13) or explicit complete coverage, and architecture-opportunity review or justified no-opportunity; compared through the frozen harness against coding-agent-only baselines across the decision 15 model-tier ladder (bare mid-tier floor, bare top-tier reference) under equivalent tools, task, and authority; reports orientation time, context, coverage, unsupported claims, acceptance criteria, review findings, rework, verification, latency, tokens, cost, failures, degraded states, and later material use; proves ACE cannot approve, merge, release, deploy, or promote itself | Core |
 
 Sequencing: PI1 clears the record debts first; PI2–PI5 unblock J3/J5; PI6–PI7 unblock J4/J6; PI8
 unblocks J7/J8; PI9 unblocks J9/J10; PI10 packages (gated on issue #49 F3 per §3); PI11 proves.
