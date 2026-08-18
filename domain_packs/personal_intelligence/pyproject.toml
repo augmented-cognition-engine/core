@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ace-personal-intelligence-pack"
+version = "0.1.0"
+description = "Declarative Personal Intelligence Domain Pack for ACE 1.2"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+
+# Ship the inert pack tree at the exact wheel path the installed-pack discovery
+# scans: domain_packs/personal_intelligence/{manifest.json,modules,conformance}.
+[tool.hatch.build.targets.wheel.force-include]
+"manifest.json" = "domain_packs/personal_intelligence/manifest.json"
+"modules" = "domain_packs/personal_intelligence/modules"
+"conformance" = "domain_packs/personal_intelligence/conformance"
+"README.md" = "domain_packs/personal_intelligence/README.md"
+
+[tool.hatch.build.targets.sdist]
+include = ["manifest.json", "modules", "conformance", "README.md", "pyproject.toml"]
