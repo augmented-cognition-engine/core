@@ -519,6 +519,8 @@ from ace.application.live_source_ingress import (
     LiveSourceIngressReplayConflict,
     LiveSourceIngressService,
 )
+from ace.application.local_source_acquisition import AcquiredLocalFile, acquire_local_folder
+from ace.application.local_source_change import AcquisitionChangeSet, diff_acquisitions
 from ace.application.measured_composition import (
     COMPOSITION_EVALUATION_AUTHORITY_RESOLUTION_VERSION,
     CONDITION_ASSIGNMENT_RECORD_KIND,
@@ -654,6 +656,10 @@ __all__ = [
     "IntelligenceBuilderResourceProjectionReader",
     "IntelligenceOnboardingProfileV1Alpha1",
     "IntelligenceOnboardingProfileAdmission",
+    "AcquiredLocalFile",
+    "AcquisitionChangeSet",
+    "acquire_local_folder",
+    "diff_acquisitions",
     "ActionResourceProjectionReader",
     "RESOURCE_QUERY_AUTHORITY",
     "RESOURCE_QUERY_OPERATION",
