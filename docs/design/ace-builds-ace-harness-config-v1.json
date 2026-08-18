@@ -1,0 +1,74 @@
+{
+  "harness": "ace-builds-ace-harness-v1",
+  "status": "DRAFT — digest is meaningless until every OWNER_DECISION_REQUIRED value is pinned and the owner records the freeze per spec §9",
+  "spec": "docs/design/ace-builds-ace-harness-v1.md",
+  "evidence_destination": "docs/evidence/ace-builds-ace-v1.md",
+  "arms": {
+    "baseline": {
+      "description": "pinned coding agent, fresh session, isolated worktree, subject Decision text and repository access only; output is evidence-only and never merges",
+      "ace_surface": "none"
+    },
+    "ace_assisted": {
+      "description": "same agent, model, and base tool allowlist plus the shipped 1.1 Code Intelligence journey; production path through ordinary review and merge",
+      "ace_surface": "shipped-1.1-code-intelligence-only",
+      "concurrent_participants_min": 2,
+      "stale_context_events_min": 1
+    }
+  },
+  "pins": {
+    "coding_agent": "OWNER_DECISION_REQUIRED",
+    "coding_agent_version": "OWNER_DECISION_REQUIRED",
+    "model_id": "OWNER_DECISION_REQUIRED",
+    "base_tool_allowlist": "OWNER_DECISION_REQUIRED",
+    "token_budget_per_arm_run": "OWNER_DECISION_REQUIRED",
+    "wall_clock_budget_per_arm_run": "OWNER_DECISION_REQUIRED",
+    "cost_ceiling_per_subject": "OWNER_DECISION_REQUIRED"
+  },
+  "subjects": {
+    "eligible_slices": ["PI5", "PI6", "PI7", "PI8", "PI9", "PI10"],
+    "minimum_count": 2,
+    "registration": "scope, acceptance criteria, repository heads, and answer key frozen before either arm runs",
+    "withdrawal": "reported, never silently replaced"
+  },
+  "measures": {
+    "primary": [
+      "acceptance_criteria_coverage",
+      "review_findings",
+      "rework_cycles",
+      "unsupported_claims",
+      "propagation_result"
+    ],
+    "secondary": [
+      "orientation_time",
+      "context_volume",
+      "latency",
+      "tokens",
+      "cost",
+      "failures_and_degraded_states"
+    ],
+    "deferred": ["later_material_use", "release_outcome_linkage"]
+  },
+  "analysis": {
+    "granularity": "descriptive, per subject; no statistical claim",
+    "better": "ACE arm improves a majority of primary measures and materially worsens none",
+    "worse": "inverse of better; secondary savings never convert a worse quality result",
+    "mixed": "anything else",
+    "program_result": "per-subject tally, no aggregate score",
+    "negative_result_policy": "valid outcome, ships in evidence, does not gate J1-J10"
+  },
+  "exclusion": {
+    "exploratory_if": [
+      "configuration differs from frozen digest",
+      "rerun after budget exhaustion",
+      "scope change mid-run",
+      "unscripted intervention materially redirecting implementation"
+    ],
+    "deletion": "not an available action"
+  },
+  "experience_capture": {
+    "contract": "spec section 8",
+    "append_only": true,
+    "activation_in_1_2": "forbidden",
+    "no_learning_is_valid": true
+  }
+}
