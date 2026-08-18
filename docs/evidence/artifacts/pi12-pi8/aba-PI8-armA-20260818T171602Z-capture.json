@@ -1,0 +1,90 @@
+{
+  "capture_id": "aba-PI8-armA-20260818T171602Z-capture-v1",
+  "subject_decision_id": "PI8",
+  "arm": "A",
+  "harness": "ace-builds-ace-harness-v1",
+  "harness_digest": "5ec835f197ebfb8c9e81e72b506ff119b1e77e0ab795139fd39b7ab5c8a18130",
+  "run_ids": ["aba-PI8-armA-20260818T171602Z"],
+  "participant_ids": ["claude-fable-5 (subject, cc 2.1.224 headless)", "claude-fable-5 (operator session, no subject authorship)"],
+  "session_ids": ["7025fded-1861-487f-801a-793b01db973f"],
+  "context_manifest_refs": [],
+  "corrections": [],
+  "failures": [
+    {
+      "kind": "provider_api_error_void_launch",
+      "run_id": "aba-PI8-armA-20260818T162907Z",
+      "detail": "API 500 at session start (0 tokens, 1 turn). Ruled void. Coincides with documented Anthropic multi-model incident from 16:20Z."
+    },
+    {
+      "kind": "provider_api_error_void_launch",
+      "run_id": "aba-PI8-armA-20260818T163245Z",
+      "detail": "API 'server error mid-response' at 12.3 min / 42 turns / $7.42; worktree had zero changes (still exploring). Ruled void: incident-terminated before any work product. Worktree left in place; records in repo root."
+    }
+  ],
+  "interventions": [
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "Same as arm B record: timeout shim + prompt mirror (pinned runner unmodified, prompt bytes cmp-verified), owner CLI repin to 2.1.224."
+    },
+    {
+      "kind": "owner_directed_launch_timing",
+      "detail": "Counted run launched at Edwin's direction while the status-page incident was still open (indicator: minor). Run completed without provider error."
+    }
+  ],
+  "rework_count": 0,
+  "review_findings": {
+    "acceptance_criteria_coverage": "4/6 PASS, 2/6 PARTIAL at first review (criteria 1 and 4)",
+    "overall": "COMPLETE-WITH-DEFECTS",
+    "findings": [
+      {
+        "severity": "major",
+        "detail": "Architectural boundary regression: core/engine/core/grounded_ask.py:33 imports ace.intelligence.contracts.resource_plane from a Core host module, failing the pre-existing unconditional gate test_core_never_imports_intelligence_bounded_context (plus one allowlist gate). Subject never ran the existing boundary gates. Only fix is removing the import."
+      },
+      {
+        "severity": "major",
+        "detail": "Answer-key reuse violation: correction path reimplements proposal-only feedback machinery in parallel (~180 lines of new contracts/service/receipts) reusing only the IntelligenceResourceCorrectionIntent enum, instead of composing with the existing IntelligenceResourceFeedbackService as the key instructs and as arm B did."
+      },
+      {
+        "severity": "minor",
+        "detail": "Default BriefClaimSelectionComposer only answers over Brief-shaped payloads with embedded claims/citations (evidence_kinds hardcoded to BRIEF); narrower capability than the key's 'authorized intelligence resources', not disclosed as a limitation in the final summary."
+      },
+      {
+        "severity": "process_note",
+        "detail": "Subject committed locally (branch pi8-grounded-ask-correction, 688b5ab) rather than leaving a dirty worktree; no scoring impact."
+      }
+    ],
+    "unsupported_claims": "1 significant: commit message claims 'reusing the proposal-only feedback machinery' but only the intent enum is reused; the machinery is a parallel reimplementation. Other summary claims (double-layer grounding enforcement, digest-bound corrections, MCP surface unchanged) verified TRUE.",
+    "scope_creep": "parallel feedback plumbing duplication (~180 lines) counted under findings",
+    "fail_open_defects": "none"
+  },
+  "verification_results": {
+    "operator_ran": "uv run pytest on subject's 3 new test files: 20 passed in 0.81s; ruff clean on changed files; tests/test_public_core_boundaries.py: 2 FAILED (boundary regression above); tests/intelligence/test_intelligence_resource_plane.py passes",
+    "mcp_surface": "unchanged (11 public tools); entry surface is HTTP router /v1/intelligence/ask",
+    "contracts": "no pre-existing contract file touched (parallel new contracts module); zero removed lines anywhere"
+  },
+  "costs": {
+    "wall_clock_min": 25.0,
+    "turns": 103,
+    "tokens": {
+      "input": 142,
+      "output": 117193,
+      "cache_read": 12130578,
+      "cache_creation": 242883
+    },
+    "usd_list_rate_equivalent_labeled_accounting": 22.85,
+    "void_launch_costs_usd_labeled": 7.42
+  },
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "proposal": {
+    "kind": "no_learning",
+    "evidence_refs": ["aba-PI8-armA-20260818T171602Z-result.json", "aba-PI8-armA-20260818T171602Z-meta.txt", "armB-review agent arm A score report (in registration run log)"],
+    "eligible_scope": "none - reference-ceiling control arm, evidence-only, never merges",
+    "expected_effect": "n/a",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "Reference ceiling (bare Fable). Tokens/latency never compared across tiers (harness §6). At first review arm A scored below arm B on the quality measures: 4/6 vs 6/6 criteria, 2 major findings vs 1 minor. Worktree preserved at $TMPDIR/aba-PI8-armA-20260818T171602Z-zxhv, change committed on local branch pi8-grounded-ask-correction (688b5ab)."
+}

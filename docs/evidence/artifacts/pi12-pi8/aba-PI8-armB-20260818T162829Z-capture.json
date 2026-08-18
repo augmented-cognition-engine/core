@@ -1,0 +1,72 @@
+{
+  "capture_id": "aba-PI8-armB-20260818T162829Z-capture-v1",
+  "subject_decision_id": "PI8",
+  "arm": "B",
+  "harness": "ace-builds-ace-harness-v1",
+  "harness_digest": "5ec835f197ebfb8c9e81e72b506ff119b1e77e0ab795139fd39b7ab5c8a18130",
+  "run_ids": ["aba-PI8-armB-20260818T162829Z"],
+  "participant_ids": ["claude-sonnet-5 (subject, cc 2.1.224 headless)", "claude-fable-5 (operator session, no subject authorship)"],
+  "session_ids": ["001506bc-5d72-4cf5-9844-c4766f139f32"],
+  "context_manifest_refs": [],
+  "corrections": [],
+  "failures": [
+    {
+      "kind": "instrument_misfire_void_launch",
+      "run_id": "aba-PI8-armB-20260818T162429Z",
+      "detail": "exit 127 at GNU `timeout` lookup (absent on host) before claude started; zero tokens, no session, clean worktree removed. Ruled void, not a counted run or rerun. Records archived in runs/."
+    }
+  ],
+  "interventions": [
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "python3 GNU-timeout shim on PATH (host lacks coreutils) and byte-identical prompt mirror at the runner's doubled $OLDPWD path (run-arm.sh:82 bug). Pinned runner script unmodified; no mid-run redirection; subject prompt bytes cmp-verified identical."
+    },
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "CLI auto-update drift 2.1.224->2.1.234 post-handoff; owner manually repinned via `claude install 2.1.224` before launch; version verified at launch."
+    }
+  ],
+  "rework_count": 0,
+  "review_findings": {
+    "acceptance_criteria_coverage": "6/6 PASS at first review",
+    "overall": "COMPLETE-WITH-DEFECTS",
+    "findings": [
+      {
+        "severity": "minor",
+        "detail": "Default LexicalGroundedAskAnswerer is a keyword-overlap heuristic validated against itself (test_grounded_ask_core.py:135-163), not an independent oracle; claim-relevance quality unverified beyond term overlap. Explicitly documented as swappable placeholder (core/engine/core/grounded_ask.py:152-158)."
+      }
+    ],
+    "unsupported_claims": "None found in the change; subject's final summary was never delivered (session ended waiting on a background-task notification), so plan/report claims are limited to in-transcript statements.",
+    "scope_creep": "none",
+    "fail_open_defects": "none"
+  },
+  "verification_results": {
+    "operator_ran": "uv run pytest on 6 new + 2 touched test files: 72 passed in 4.37s; uv run ruff check on changed area: all checks passed",
+    "mcp_surface": "unchanged (11 public tools); entry surface is HTTP router /v1/intelligence/ask on existing FastAPI app",
+    "contracts": "resource_plane.py +1 enum member, resource_feedback.py additive Optional fields only, zero removed lines"
+  },
+  "costs": {
+    "wall_clock_min": 39.0,
+    "turns": 187,
+    "tokens": {
+      "input": 2128,
+      "output": 153307,
+      "cache_read": 50063241,
+      "cache_creation": 388341
+    },
+    "usd_list_rate_equivalent_labeled_accounting": 19.66
+  },
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "proposal": {
+    "kind": "no_learning",
+    "evidence_refs": ["aba-PI8-armB-20260818T162829Z-result.json", "aba-PI8-armB-20260818T162829Z-meta.txt", "armB-review score report (in registration run log)"],
+    "eligible_scope": "none - bare control arm, evidence-only, never merges",
+    "expected_effect": "n/a",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "Floor control (bare Sonnet). Ran through the 2026-08-18 16:20Z Anthropic multi-model incident without erroring. Worktree preserved at $TMPDIR/aba-PI8-armB-20260818T162829Z-S3w6 for verdict-stage comparison."
+}

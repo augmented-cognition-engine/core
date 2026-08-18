@@ -1,0 +1,81 @@
+{
+  "capture_id": "aba-PI8-armC-20260818T193907Z-capture-v1",
+  "subject_decision_id": "PI8",
+  "arm": "C",
+  "harness": "ace-builds-ace-harness-v1",
+  "harness_digest": "5ec835f197ebfb8c9e81e72b506ff119b1e77e0ab795139fd39b7ab5c8a18130",
+  "run_ids": ["aba-PI8-armC-20260818T193907Z"],
+  "participant_ids": ["claude-sonnet-5 (subject, cc 2.1.224 headless, ACE 1.1 MCP available, rerun 1 of 1)", "claude-fable-5 (operator session, no subject authorship)"],
+  "session_ids": ["6fce6fd9-3c63-494d-aebe-e6b2a7655a02"],
+  "context_manifest_refs": [],
+  "corrections": [],
+  "failures": [
+    {
+      "kind": "degraded_zero_ace_adoption",
+      "detail": "Second consecutive zero-ACE-call run: 143 turns / 28.8 min, all 11 tools registered and error-free, 0 non-scanner API requests. Confirmed by transcript parse, API log, and live monitor. Ruled degraded/invalid as the C measurement; no further reruns per operator commitment. PI8 program finding: availability without adoption."
+    }
+  ],
+  "interventions": [
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "Identical frozen conditions to run 1 (same backend, graph, prompt, pins). No mid-run intervention; supervisor performed zero API restarts during the run."
+    }
+  ],
+  "rework_count": 0,
+  "review_findings": {
+    "acceptance_criteria_coverage": "6/6 PASS at first review (as bare-Sonnet work product; not a C measurement)",
+    "overall": "COMPLETE-WITH-DEFECTS",
+    "findings": [
+      {
+        "severity": "mechanical",
+        "detail": "Two new Core host files not registered in test_only_host_adapters_...'s allowlist; that gate fails. Import discipline itself verified correct (unconditional core-never-imports-ace.intelligence gate PASSES). Two-line test edit."
+      },
+      {
+        "severity": "process",
+        "detail": "Subject's own committed verification plan (Task 7) omitted tests/test_public_core_boundaries.py — self-verification blind spot for exactly the gate that caught the omission."
+      },
+      {
+        "severity": "minor",
+        "detail": "Correction binding embeds claim_id/citation_id in the feedback note string ([claim:..][citation:..] convention) rather than typed fields; verified injection-safe via existing reference regex, but not database-queryable."
+      },
+      {
+        "severity": "minor_design_disclosed",
+        "detail": "Ask limited to re-serving pre-existing CITED claims from Brief resources (no fresh grounding from raw Observations); no durable Ask-event record. Both disclosed in the committed plan doc."
+      },
+      {
+        "severity": "note",
+        "detail": "Committed plan doc is 2,638 lines — larger than code+tests; trim/relocate before merge."
+      }
+    ],
+    "unsupported_claims": "None — all commit-message claims verified TRUE, including 'reuses the existing proposal-only feedback machinery verbatim' (only arm to reuse the existing target-resolution port class itself).",
+    "scope_creep": "none",
+    "fail_open_defects": "none"
+  },
+  "verification_results": {
+    "operator_ran": "uv run pytest on its 6 new test files: 52/52 pass; ruff clean; unconditional core boundary gate PASSES; one allowlist gate fails (registry omission)",
+    "mcp_surface": "unchanged (11 public tools); HTTP router entry /v1/intelligence/ask",
+    "contracts": "zero pre-existing contract/service files touched; zero ace/core files touched; reuses BRIEF kind — most conservative posture of the three arms"
+  },
+  "costs": {
+    "wall_clock_min": 28.8,
+    "turns": 143,
+    "tokens": {
+      "input": 280,
+      "output": 157999
+    },
+    "usd_list_rate_equivalent_labeled_accounting": 16.23
+  },
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "proposal": {
+    "kind": "context",
+    "evidence_refs": ["aba-PI8-armC-20260818T193907Z-result.json", "aba-PI8-armC-20260818T193907Z-meta.txt", "reviewer three-way ranking (registration run log)"],
+    "eligible_scope": "ACE 1.2/1.3 session-start experience and MCP tool descriptions",
+    "expected_effect": "Same adoption-fix proposal as run 1's record: make the first ACE call not depend on agent election. Measure in PI9/PI10.",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "Reviewer three-way shipping ranking: C-rerun > B > A. C-rerun recommended as the base for ordinary 1.2 delivery (with the two-line allowlist fix); widening Ask to ground fresh claims from raw Observations (arm B's design) is a later strict-superset product decision. Worktree preserved at $TMPDIR/aba-PI8-armC-20260818T193907Z-lGee, commit abf4950."
+}
