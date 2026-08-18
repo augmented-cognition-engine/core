@@ -1,9 +1,9 @@
 # ACE Builds ACE comparison harness v1
 
 - Date: 2026-08-17
-- Status: **draft for owner review; not frozen.** The freeze event is the owner approving this
-  document and the pinned configuration, then recording the configuration digest per §9. Until
-  that digest exists, no PI12 subject run is preregistered.
+- Status: **proposed pins for owner review; not frozen.** Merging the amendment PR is the owner's
+  approval of the pinned configuration; the freeze completes when the merged config's digest is
+  recorded per §9. Until that digest exists, no PI12 subject run is preregistered.
 - Authority: [ACE 1.2 work packet](personal-intelligence-v1.2-work-packet-v1.md) decisions 13, 15,
   and 16; [governed Code Intelligence improvement loop](governed-code-improvement-loop-v1.md)
   `ACE Builds ACE` acceptance program; [issue #195](https://github.com/augmented-cognition-engine/core/issues/195).
@@ -50,17 +50,26 @@ Protocol rules, all preregistered:
 
 The normative pinned values live in
 [`ace-builds-ace-harness-config-v1.json`](ace-builds-ace-harness-config-v1.json); the freeze
-digest is computed over that file. Values marked `OWNER_DECISION_REQUIRED` must be pinned by the
-owner at freeze time — the digest cannot be computed around them.
+digest is computed over that file. The values below are the proposed pins; the owner approves
+them by merging the amendment, and the freeze completes when the merged config's digest is
+recorded per §9.
+
+**Billing context, disclosed:** program runs execute under the owner's Claude subscription, not
+metered API billing. There is therefore no marginal dollar spend to cap, and the harness enforces
+**no dollar ceiling**. Enforcement caps are tokens and wall-clock; dollar figures appear in the
+evidence record only as **list-rate-equivalent accounting** for cross-arm comparability, labeled
+as such and never as actual spend.
 
 | Element | Pin | Notes |
 |---|---|---|
-| Coding agent + exact version | `OWNER_DECISION_REQUIRED` | One agent for both arms. Candidates: Claude Code, Codex. The version string is recorded, not a floating "latest". |
-| Model + exact identifier | `OWNER_DECISION_REQUIRED` | Identical in both arms; provider-neutral substitution is not permitted mid-program. |
-| Tool allowlist | `OWNER_DECISION_REQUIRED` | Identical base allowlist; the ACE arm adds only the shipped 1.1 Code Intelligence surface. |
-| Token budget per arm-run | `OWNER_DECISION_REQUIRED` | Exhaustion is a recorded terminal state, not grounds for a quiet rerun. |
-| Wall-clock budget per arm-run | `OWNER_DECISION_REQUIRED` | Same rule. |
-| Cost ceiling per subject | `OWNER_DECISION_REQUIRED` | Covers both arms plus reruns; exceeding it ends collection for that subject with the partial state reported. |
+| Coding agent | Claude Code | One agent for both arms. |
+| Agent version | 2.1.224 | Recorded exactly; a version change mid-program is configuration drift (§7). |
+| Model | `claude-fable-5` | Identical in both arms; no substitution mid-program. |
+| Base tool allowlist | Read, Write, Edit, Bash, Glob, Grep, TodoWrite — no web tools, no MCP | Web search is excluded to reduce run-to-run variance; the exclusion applies identically to both arms. The ACE arm adds only the shipped eleven-tool 1.1 Code Intelligence MCP surface. |
+| Token budget per arm-run | 30,000,000 total metered tokens | Exhaustion is a recorded terminal state, not grounds for a quiet rerun. |
+| Wall-clock budget per arm-run | 8 hours | Same rule. |
+| Reruns | At most 1 per arm per subject, reason recorded | Replaces a dollar ceiling as the collection bound; a second failure ends collection for that subject with the partial state reported. |
+| Cost accounting | List-rate-equivalent USD, reported only | Computed from metered tokens at published list rates for comparability; not enforced, not actual spend. |
 | Concurrent participants (ACE arm) | ≥ 2, per PI12 | At least one stale-context event must occur or be induced; the induction method is recorded. |
 | Repository head per subject | Frozen at subject registration | Recorded as exact commits for repo and packet docs. |
 
@@ -139,9 +148,9 @@ corpus for ACE 1.6 and for the corrected issue #199 dependency (packet §3).
 
 ## 9. Freeze procedure
 
-1. Owner pins every `OWNER_DECISION_REQUIRED` value in the config file.
-2. Owner approves this document and the config in the amendment PR.
-3. The SHA-256 of `ace-builds-ace-harness-config-v1.json` at the merged commit is recorded as the
+1. Owner approves this document and the pinned config by merging the amendment PR (or requests
+   value changes on the PR first).
+2. The SHA-256 of `ace-builds-ace-harness-config-v1.json` at the merged commit is recorded as the
    opening entry of `docs/evidence/ace-builds-ace-v1.md`.
-4. From that moment, configuration changes require a `-v2` harness with its own digest; v1 runs
+3. From that moment, configuration changes require a `-v2` harness with its own digest; v1 runs
    remain reported under v1.

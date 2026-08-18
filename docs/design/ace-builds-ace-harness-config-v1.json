@@ -1,8 +1,9 @@
 {
   "harness": "ace-builds-ace-harness-v1",
-  "status": "DRAFT — digest is meaningless until every OWNER_DECISION_REQUIRED value is pinned and the owner records the freeze per spec §9",
+  "status": "PROPOSED — owner approval is merging the amendment PR; freeze completes when this file's SHA-256 at the merged commit is recorded per spec section 9",
   "spec": "docs/design/ace-builds-ace-harness-v1.md",
   "evidence_destination": "docs/evidence/ace-builds-ace-v1.md",
+  "billing_context": "runs execute under the owner's Claude subscription, not metered API billing; no dollar cap is enforced; dollar figures are list-rate-equivalent accounting only",
   "arms": {
     "baseline": {
       "description": "pinned coding agent, fresh session, isolated worktree, subject Decision text and repository access only; output is evidence-only and never merges",
@@ -16,13 +17,18 @@
     }
   },
   "pins": {
-    "coding_agent": "OWNER_DECISION_REQUIRED",
-    "coding_agent_version": "OWNER_DECISION_REQUIRED",
-    "model_id": "OWNER_DECISION_REQUIRED",
-    "base_tool_allowlist": "OWNER_DECISION_REQUIRED",
-    "token_budget_per_arm_run": "OWNER_DECISION_REQUIRED",
-    "wall_clock_budget_per_arm_run": "OWNER_DECISION_REQUIRED",
-    "cost_ceiling_per_subject": "OWNER_DECISION_REQUIRED"
+    "coding_agent": "claude-code",
+    "coding_agent_version": "2.1.224",
+    "model_id": "claude-fable-5",
+    "base_tool_allowlist": ["Read", "Write", "Edit", "Bash", "Glob", "Grep", "TodoWrite"],
+    "web_tools": "excluded in both arms",
+    "mcp_baseline_arm": "none",
+    "mcp_ace_arm": "shipped eleven-tool ACE Code Intelligence surface only",
+    "token_budget_per_arm_run": 30000000,
+    "wall_clock_budget_per_arm_run_hours": 8,
+    "reruns_per_arm_per_subject_max": 1,
+    "cost_enforcement": "none — tokens and wall-clock are the caps",
+    "cost_accounting": "list-rate-equivalent USD from metered tokens at published list rates, reported only"
   },
   "subjects": {
     "eligible_slices": ["PI5", "PI6", "PI7", "PI8", "PI9", "PI10"],
@@ -43,7 +49,7 @@
       "context_volume",
       "latency",
       "tokens",
-      "cost",
+      "cost_list_rate_equivalent",
       "failures_and_degraded_states"
     ],
     "deferred": ["later_material_use", "release_outcome_linkage"]
@@ -58,8 +64,8 @@
   },
   "exclusion": {
     "exploratory_if": [
-      "configuration differs from frozen digest",
-      "rerun after budget exhaustion",
+      "configuration differs from frozen digest, including agent version drift",
+      "second rerun after the single permitted rerun",
       "scope change mid-run",
       "unscripted intervention materially redirecting implementation"
     ],
