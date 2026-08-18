@@ -4,7 +4,9 @@
 - Public contract: [issue #195 — Roadmap: ACE 1.2 — Personal Intelligence](https://github.com/augmented-cognition-engine/core/issues/195)
 - Baseline: `origin/main` commit `eab2aa211fbee18d8aa1b828522830e3d9b95396` — published `ace-core` 1.1.0,
   schema head v179, exactly eleven public MCP tools, ACE 1.1 Code Intelligence closed and reconciled
-- Packet status: **frozen for owner review; implementation not started**
+- Packet status: **frozen for owner review; PI2–PI4 merged** (amendment 2026-08-17: decisions
+  15–16, the issue #199 dependency debt in §3, and the PI12 harness-freeze prerequisite added for
+  owner review; no previously frozen scope was narrowed)
 - Predecessor rule: ACE 1.1 is closed and immutable. An urgent defect ships as a narrowly scoped
   1.1.x patch under the published promise; it never reopens 1.1 scope or borrows 1.2 scope. Normal
   development proceeds on this packet.
@@ -70,6 +72,12 @@ turns it into issue updates.
   not ready" vs E1 passed), `docs/capability-maturity.md` 1.0-line/0.3.x fragments,
   `docs/README.md` "active 1.1 milestone", the `agent-memory-roadmap.md` AM1 status header, and
   `ROADMAP.md`'s "complete by 1.0.0" target for continuous situational intelligence.
+- Issue #199 (ACE 1.6) declares its dependency as issue #198 (ACE 1.5). Its substantive
+  prerequisites are the 1.3 operations substrate — run event spine, matched evaluation, rollback —
+  plus the experience corpus PI12 begins capturing under decision 16; the organizational scope of
+  #198 is not required for a workspace-of-one proof and contradicts the scale-invariant rule that
+  every capability proves first in a minimally administered scope. PI1 records the corrected
+  dependency (#196, with #198 required only for organizational extension) on issue #199.
 
 **Hard preconditions inherited by 1.2:**
 
@@ -157,7 +165,11 @@ turns it into issue updates.
     it pulls no unreleased Code Intelligence expansion into 1.2 — and grants ACE no approval,
     merge, release, deploy, or promotion authority over itself. Its evidence ships with the 1.2
     release; an honest negative or mixed result is a valid outcome and does not block the J1–J10
-    gate.
+    gate. Within the program, "linked repair" means the frozen 1.1 contract objects only: ACE
+    records the propagation finding, the governing Decision, and the bounded repair lineage, while
+    a human or the coding-agent participant performs the repair itself under ordinary review.
+    Active ACE-executed linked repair remains ACE 1.3 scope and is not pulled forward by this
+    program.
 14. **Code Intelligence composes; it is not embedded in Core and not required.** By owner
     direction (2026-08-17), Code Intelligence is treated as a composable System capability any
     bundle or Topic may co-activate over the shared graph, while remaining a standalone Solution
@@ -167,6 +179,22 @@ turns it into issue updates.
     documents are Personal sources and the 1.2 implementation is the repository. Personal
     Intelligence must never *require* Code Intelligence for its J1–J10 journey, and typed
     cross-pack relation grammar beyond what 1.1 shipped remains ACE 1.5.
+15. **The PI12 comparison harness is preregistered.** The baseline comparison is measured by a
+    versioned harness frozen before the first subject Decision run, following the L1 v7 rule that
+    controls freeze before collection. The harness pins the coding agent and its exact version,
+    the model, the tool allowlist, workspace and repository heads, token/cost/time budgets, the
+    metric definitions from the PI12 report list, subject-Decision eligibility, and the analysis
+    rules for declaring better, worse, or mixed. A run collected before the harness freeze, or
+    under a drifted configuration, is reported as exploratory and excluded from the comparative
+    result. The frozen harness configuration and its digest are bound into the `ACE Builds ACE`
+    evidence record.
+16. **PI12 experience is captured for ACE 1.6, proposal-only.** Before PI12's first subject run,
+    the minimal experience-capture record shape is frozen so every preserved improvement proposal
+    binds the exact subject Decision, run and participant identities, Context Manifests,
+    corrections, failures, rework, verification results, costs, and later Outcome linkage that
+    ACE 1.6 requires for matched evaluation. Capture is append-only and proposal-only: nothing in
+    1.2 evaluates, approves, activates, or retires such a proposal, and a justified no-learning
+    result is a valid capture.
 
 ## 5. Reuse map (already on the 1.1.0 baseline)
 
@@ -200,12 +228,15 @@ These are the substrate. The packet reuses them unchanged wherever the contract 
 | PI9 — ownership depth | Export and deletion truthfully covering bundle-derived artifacts; restart continuity across the whole journey; write-quiescence during confirmed deletion documented or implemented | Core |
 | PI10 — Solution Bundle machinery | Bundle manifest with exact pack, overlay, adapter, Atrium-module, and policy bindings; preview before activation; deterministic resolution receipt; atomic activate/deactivate; the Personal and Code Intelligence bundles co-install and co-activate on one workspace without conflict, leakage, or either requiring the other | Core + Application |
 | PI11 — public release proof | Clean-machine public-artifact run of J1–J10 by a clean user; evidence record; four-record release reconciliation | Core |
-| PI12 — `ACE Builds ACE` reference program | At least two bounded PI-slice Decisions implemented through the shipped 1.1 Code Intelligence journey with ≥2 concurrent participants, ≥1 stale-context event, propagation verification, linked repair or explicit complete coverage, and architecture-opportunity review or justified no-opportunity; compared against a coding-agent-only baseline under equivalent model, tools, task, and authority; reports orientation time, context, coverage, unsupported claims, acceptance criteria, review findings, rework, verification, latency, tokens, cost, failures, degraded states, and later material use; proves ACE cannot approve, merge, release, deploy, or promote itself | Core |
+| PI12 — `ACE Builds ACE` reference program | The preregistered comparison harness of decision 15 and the experience-capture record shape of decision 16 frozen, versioned, and digest-bound **before** the first subject run; then at least two bounded PI-slice Decisions implemented through the shipped 1.1 Code Intelligence journey with ≥2 concurrent participants, ≥1 stale-context event, propagation verification, linked repair (recorded against the frozen 1.1 contracts with human or coding-agent execution per decision 13) or explicit complete coverage, and architecture-opportunity review or justified no-opportunity; compared against a coding-agent-only baseline under equivalent model, tools, task, and authority through the frozen harness; reports orientation time, context, coverage, unsupported claims, acceptance criteria, review findings, rework, verification, latency, tokens, cost, failures, degraded states, and later material use; proves ACE cannot approve, merge, release, deploy, or promote itself | Core |
 
 Sequencing: PI1 clears the record debts first; PI2–PI5 unblock J3/J5; PI6–PI7 unblock J4/J6; PI8
 unblocks J7/J8; PI9 unblocks J9/J10; PI10 packages (gated on issue #49 F3 per §3); PI11 proves.
 PI12 runs *through* the other slices — it selects its subject Decisions from PI2–PI10 work and
-closes after its comparison evidence is complete. Slices may land in parallel where contracts are
+closes after its comparison evidence is complete. Because PI2–PI4 are already merged, PI12's
+eligible subjects are the remaining PI5–PI10 slices; the decision 15 harness and decision 16
+capture shape must therefore freeze before the next slice implementation begins, or those subjects
+are spent as unpreregistered exploratory runs. Slices may land in parallel where contracts are
 frozen first.
 
 ## 7. Explicitly out of scope
@@ -237,9 +268,12 @@ frozen first.
   (`docs/evidence/personal-intelligence-v1.2-public-acceptance-v1.md`) binding artifact digests,
   environment, deviations, and limitations.
 - PI12 produces the `ACE Builds ACE` evidence record (`docs/evidence/ace-builds-ace-v1.md`)
-  binding the subject Decisions, baseline and ACE-assisted run identities, the full comparison
-  measures, and the no-self-authority proof. Improvement *proposals* the program surfaces are
-  preserved as inputs to ACE 1.6; none activates in 1.2.
+  binding the frozen harness configuration and digest (decision 15), the subject Decisions,
+  baseline and ACE-assisted run identities, the full comparison measures, any excluded exploratory
+  runs with the exclusion reason, and the no-self-authority proof. Improvement *proposals* the
+  program surfaces are preserved as decision 16 experience-capture records — inputs to ACE 1.6
+  matched evaluation; none activates in 1.2, and a justified no-learning result is recorded rather
+  than discarded.
 - Release closeout requires the four-record reconciliation: `ROADMAP.md`, issue #195, the ACE
   Public Roadmap Project, and the release evidence/published release must agree before ACE 1.2 is
   declared passed and 1.3 becomes **Now**.
