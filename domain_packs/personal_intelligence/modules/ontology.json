@@ -1,0 +1,399 @@
+{
+  "contract": "ace.intelligence.ontology/v1alpha1",
+  "module_id": "personal_ontology",
+  "entity_types": [
+    {
+      "entity_type_id": "note",
+      "display_name": "Note",
+      "attributes": [
+        {
+          "attribute_id": "note_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "title",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "body",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "created_at",
+          "value_type": "datetime"
+        },
+        {
+          "attribute_id": "updated_at",
+          "value_type": "datetime"
+        },
+        {
+          "attribute_id": "origin_ref",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "captured_at",
+          "value_type": "datetime"
+        },
+        {
+          "attribute_id": "tags",
+          "value_type": "string",
+          "many": true
+        }
+      ]
+    },
+    {
+      "entity_type_id": "document",
+      "display_name": "Document",
+      "attributes": [
+        {
+          "attribute_id": "document_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "title",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "body",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "media_type",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "created_at",
+          "value_type": "datetime"
+        },
+        {
+          "attribute_id": "origin_ref",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "captured_at",
+          "value_type": "datetime"
+        }
+      ]
+    },
+    {
+      "entity_type_id": "concept",
+      "display_name": "Concept",
+      "attributes": [
+        {
+          "attribute_id": "concept_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "name",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "definition",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "aliases",
+          "value_type": "string",
+          "many": true
+        }
+      ]
+    },
+    {
+      "entity_type_id": "person",
+      "display_name": "Person",
+      "attributes": [
+        {
+          "attribute_id": "person_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "display_name",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "email",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "role",
+          "value_type": "string"
+        }
+      ]
+    },
+    {
+      "entity_type_id": "project",
+      "display_name": "Project",
+      "attributes": [
+        {
+          "attribute_id": "project_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "name",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "description",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "status",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "started_at",
+          "value_type": "datetime"
+        }
+      ]
+    },
+    {
+      "entity_type_id": "decision",
+      "display_name": "Decision",
+      "attributes": [
+        {
+          "attribute_id": "decision_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "title",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "rationale",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "status",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "decided_at",
+          "value_type": "datetime"
+        }
+      ]
+    },
+    {
+      "entity_type_id": "commitment",
+      "display_name": "Commitment",
+      "attributes": [
+        {
+          "attribute_id": "commitment_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "statement",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "owner_ref",
+          "value_type": "entity_ref"
+        },
+        {
+          "attribute_id": "status",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "due_at",
+          "value_type": "datetime"
+        },
+        {
+          "attribute_id": "created_at",
+          "value_type": "datetime"
+        }
+      ]
+    },
+    {
+      "entity_type_id": "revision",
+      "display_name": "Revision",
+      "attributes": [
+        {
+          "attribute_id": "revision_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "revised_at",
+          "value_type": "datetime",
+          "required": true
+        },
+        {
+          "attribute_id": "summary",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "author_ref",
+          "value_type": "entity_ref"
+        }
+      ]
+    },
+    {
+      "entity_type_id": "source",
+      "display_name": "Source",
+      "attributes": [
+        {
+          "attribute_id": "source_ref",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "source_kind",
+          "value_type": "string",
+          "required": true
+        },
+        {
+          "attribute_id": "sensitivity",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "retention_policy",
+          "value_type": "string"
+        },
+        {
+          "attribute_id": "allowed_use",
+          "value_type": "string",
+          "many": true
+        },
+        {
+          "attribute_id": "trust_tier",
+          "value_type": "integer"
+        }
+      ]
+    }
+  ],
+  "relation_types": [
+    {
+      "relation_type_id": "note_references_concept",
+      "source_entity_types": [
+        "note"
+      ],
+      "target_entity_types": [
+        "concept"
+      ]
+    },
+    {
+      "relation_type_id": "note_about_project",
+      "source_entity_types": [
+        "note"
+      ],
+      "target_entity_types": [
+        "project"
+      ]
+    },
+    {
+      "relation_type_id": "document_mentions_person",
+      "source_entity_types": [
+        "document"
+      ],
+      "target_entity_types": [
+        "person"
+      ]
+    },
+    {
+      "relation_type_id": "concept_relates_to_concept",
+      "source_entity_types": [
+        "concept"
+      ],
+      "target_entity_types": [
+        "concept"
+      ]
+    },
+    {
+      "relation_type_id": "person_member_of_project",
+      "source_entity_types": [
+        "person"
+      ],
+      "target_entity_types": [
+        "project"
+      ]
+    },
+    {
+      "relation_type_id": "decision_affects_project",
+      "source_entity_types": [
+        "decision"
+      ],
+      "target_entity_types": [
+        "project"
+      ]
+    },
+    {
+      "relation_type_id": "commitment_owned_by_person",
+      "source_entity_types": [
+        "commitment"
+      ],
+      "target_entity_types": [
+        "person"
+      ]
+    },
+    {
+      "relation_type_id": "commitment_supports_decision",
+      "source_entity_types": [
+        "commitment"
+      ],
+      "target_entity_types": [
+        "decision"
+      ]
+    },
+    {
+      "relation_type_id": "authored_by",
+      "source_entity_types": [
+        "note",
+        "document",
+        "decision"
+      ],
+      "target_entity_types": [
+        "person"
+      ]
+    },
+    {
+      "relation_type_id": "revises",
+      "source_entity_types": [
+        "revision"
+      ],
+      "target_entity_types": [
+        "note",
+        "document",
+        "decision",
+        "commitment",
+        "concept",
+        "project"
+      ],
+      "attributes": [
+        {
+          "attribute_id": "sequence",
+          "value_type": "integer"
+        }
+      ]
+    },
+    {
+      "relation_type_id": "derived_from",
+      "source_entity_types": [
+        "note",
+        "document"
+      ],
+      "target_entity_types": [
+        "source"
+      ],
+      "attributes": [
+        {
+          "attribute_id": "captured_at",
+          "value_type": "datetime"
+        }
+      ]
+    }
+  ]
+}

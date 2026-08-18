@@ -1,0 +1,55 @@
+{
+  "contract": "ace.intelligence.domain-pack-manifest/v1",
+  "metadata": {
+    "pack_id": "personal_intelligence",
+    "version": "1.0.0",
+    "display_name": "Personal Intelligence",
+    "description": "Declarative domain pack for personal knowledge: notes, documents, concepts, people, projects, decisions, commitments, their relationships, revisions, provenance, and governed source policy."
+  },
+  "compatibility": {
+    "compiler_minimum": "ace.intelligence.pack-compiler/v1alpha1",
+    "compiler_maximum_exclusive": "ace.intelligence.pack-compiler/v2",
+    "intelligence_minimum": "ace.intelligence.runtime/v1alpha1",
+    "intelligence_maximum_exclusive": "ace.intelligence.runtime/v2"
+  },
+  "resources": [
+    {
+      "resource_id": "personal_ontology",
+      "path": "modules/ontology.json",
+      "digest": "sha256:db2189e38b2621620dcfae03dd15d1b8b0f71e582a3302f35d4799143b0efde0"
+    },
+    {
+      "resource_id": "personal_local_sources",
+      "path": "modules/source_mapping.json",
+      "digest": "sha256:0d2953287eb7ac6ecbe3eb30f076e8041fb7fcae207ef0ed609194249ec11d40"
+    }
+  ],
+  "modules": [
+    {
+      "module_id": "personal_ontology",
+      "contract": "ace.intelligence.ontology/v1alpha1",
+      "resource_id": "personal_ontology"
+    },
+    {
+      "module_id": "personal_local_sources",
+      "contract": "ace.intelligence.source-mapping/v1alpha1",
+      "resource_id": "personal_local_sources",
+      "depends_on": [
+        "personal_ontology"
+      ]
+    }
+  ],
+  "capability_requirements": [
+    {
+      "requirement_id": "local_source_snapshot",
+      "capability": "source_snapshot",
+      "contract": "ace.source.snapshot/v1alpha1"
+    }
+  ],
+  "authority_requests": [
+    {
+      "request_id": "local_source_read",
+      "authority": "source_read"
+    }
+  ]
+}
