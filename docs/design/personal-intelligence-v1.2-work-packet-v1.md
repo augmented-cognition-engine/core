@@ -4,7 +4,7 @@
 - Public contract: [issue #195 — Roadmap: ACE 1.2 — Personal Intelligence](https://github.com/augmented-cognition-engine/core/issues/195)
 - Baseline: `origin/main` commit `eab2aa211fbee18d8aa1b828522830e3d9b95396` — published `ace-core` 1.1.0,
   schema head v179, exactly eleven public MCP tools, ACE 1.1 Code Intelligence closed and reconciled
-- Packet status: **frozen for owner review; PI2–PI5 merged** (amendment 2026-08-17: decisions
+- Packet status: **frozen for owner review; PI2–PI7 merged** (amendment 2026-08-17: decisions
   15–16, the issue #199 dependency debt in §3, and the PI12 harness-freeze prerequisite added for
   owner review; decision 16 extended same-day with intelligence-curve capture — retrieval
   shortcuts, per-slice points, prior-slice provenance, retrospective labeling. No previously
@@ -242,12 +242,12 @@ These are the substrate. The packet reuses them unchanged wherever the contract 
 Sequencing: PI1 clears the record debts first; PI2–PI5 unblock J3/J5; PI6–PI7 unblock J4/J6; PI8
 unblocks J7/J8; PI9 unblocks J9/J10; PI10 packages (gated on issue #49 F3 per §3); PI11 proves.
 PI12 runs *through* the other slices — it selects its subject Decisions from PI2–PI10 work and
-closes after its comparison evidence is complete. Because PI2–PI5 are already merged, PI12's
-eligible preregistered subjects are the remaining PI6–PI10 slices; the decision 15 harness and
-decision 16 capture shape must therefore freeze before the next slice implementation begins, or
-those subjects too are spent as unpreregistered runs. PI2–PI5 may be annotated retrospectively
-under decision 16's labeling rule only. Slices may land in parallel where contracts are frozen
-first.
+closes after its comparison evidence is complete. Because PI2–PI7 are already merged, PI12's
+eligible preregistered subjects are the remaining PI8–PI10 slices — exactly enough above the
+two-subject minimum to tolerate one withdrawal; the decision 15 harness and decision 16 capture
+shape must therefore freeze before PI8 implementation begins, or the program loses its
+preregistered pool entirely. PI2–PI7 may be annotated retrospectively under decision 16's
+labeling rule only. Slices may land in parallel where contracts are frozen first.
 
 ## 7. Explicitly out of scope
 

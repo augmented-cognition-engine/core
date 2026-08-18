@@ -58,8 +58,6 @@
   },
   "subjects": {
     "eligible_slices": [
-      "PI6",
-      "PI7",
       "PI8",
       "PI9",
       "PI10"
@@ -69,7 +67,9 @@
         "PI2",
         "PI3",
         "PI4",
-        "PI5"
+        "PI5",
+        "PI6",
+        "PI7"
       ],
       "policy": "retrospective annotation only, marked retrospective:true, excluded from the preregistered comparative result; unannotated gaps are valid and reported (spec section 8.2)"
     },
@@ -124,5 +124,7 @@
     "prior_slice_provenance": "material-use receipt refs of earlier-slice beliefs; required for a point to count as compounding evidence",
     "retrospective_flag": "false for preregistered runs; true only for pre-freeze slice annotations"
   },
-  "arm_order": "B, then A, then C (D last if run); disclosed operator-learning limitation per spec section 2"
+  "arm_order": "B, then A, then C (D last if run); disclosed operator-learning limitation per spec section 2",
+  "operator": "any model/session; registers subjects, launches fresh arm sessions, reviews, merges arm C, emits capture records; never authors mergeable subject code (spec section 2 rule 7)",
+  "production_safety_valve": "arm C failing review beyond the single rerun is recorded honestly; production reverts to an ordinary non-arm implementation, disclosed; the experiment never blocks 1.2 delivery (spec section 2 rule 8)"
 }

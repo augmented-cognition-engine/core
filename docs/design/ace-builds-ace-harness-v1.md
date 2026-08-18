@@ -57,9 +57,20 @@ Protocol rules, all preregistered:
    asymmetry explicitly; it is a design consequence of refusing to merge duplicate
    implementations, not a concealed advantage. That the production path runs on the mid-tier
    model is itself part of the dogfood claim: 1.2 slices ship built by Sonnet-with-ACE.
-6. **Authority parity.** Neither arm holds approval, merge, release, deploy, or promotion
-   authority. Both produce work that a human reviews. This is also the no-self-authority proof
-   surface required by PI12.
+6. **Authority parity.** No arm holds approval, merge, release, deploy, or promotion authority.
+   Every arm produces work that a human reviews. This is also the no-self-authority proof surface
+   required by PI12.
+7. **The operator is not an arm.** The program operator — any model or session, including a
+   Fable-tier session — registers subjects, freezes answer keys, launches the fresh arm sessions
+   in order, reviews output, performs the arm-C merge mechanics, and emits capture records. The
+   operator never authors mergeable subject code directly; a long-running session that previously
+   built slices becomes the operator for preregistered subjects, not a builder. Operator
+   interventions are logged per rule 4.
+8. **Production safety valve.** If arm C's output fails review beyond the single permitted rerun,
+   the subject's verdicts record that outcome honestly (that is data, not a problem to hide), and
+   production for that slice reverts to an ordinary non-arm implementation by any model, disclosed
+   in the evidence record. The arm-C artifact remains evidence. The experiment must never block
+   1.2 delivery.
 
 ## 3. Pinned configuration
 
@@ -91,10 +102,10 @@ as such and never as actual spend.
 
 ## 4. Subject eligibility
 
-- A subject is a bounded Decision from the remaining 1.2 slices **PI6–PI10**, frozen (scope,
-  acceptance criteria, repository heads) before either arm runs. PI2–PI5 merged before this
-  harness froze and are not eligible as preregistered subjects; they may be annotated
-  retrospectively under §8.2 only.
+- A subject is a bounded Decision from the remaining 1.2 slices **PI8–PI10**, frozen (scope,
+  acceptance criteria, repository heads) before any arm runs. PI2–PI7 merged before this harness
+  froze and are not eligible as preregistered subjects; they may be annotated retrospectively
+  under §8.2 only.
 - PI12 requires at least two subjects. Each subject registers an **answer key** at freeze time:
   the governing contracts, the files expected to change, and the acceptance criteria — used to
   score orientation and coverage without post-hoc judgment.
@@ -190,7 +201,7 @@ keep the curve honest:
 
 ### 8.2 Pre-freeze slices: labeled retrospective annotation only
 
-PI2–PI5 merged before this harness froze — an uninstrumented window this section closes
+PI2–PI7 merged before this harness froze — an uninstrumented window this section closes
 explicitly rather than silently. Their transcripts, PRs, and receipts **may** be annotated into
 capture records marked `retrospective: true`. Retrospective records appear on the curve as
 clearly-labeled retrospective points and are **excluded from the preregistered comparative
