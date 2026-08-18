@@ -133,6 +133,11 @@ def test_only_host_adapters_and_installed_product_applications_import_public_ace
         # is the only module that performs governed-state and immutable-record
         # I/O for the delegated path.
         "core/engine/core/cognition_delegated_authority.py",
+        # PI8: grounded Ask and claim-bound correction host adapters. Both
+        # delegate durable reads/writes to the existing resource-plane and
+        # feedback services through the public application contracts.
+        "core/engine/core/grounded_ask.py",
+        "core/engine/core/claim_bound_correction.py",
         # Durable cognition persistence is the transaction adapter that writes
         # the public append-only record vocabulary in the same Surreal commit.
         "core/engine/cognition/governance_persistence.py",

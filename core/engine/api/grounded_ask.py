@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from ace.application import AskAnswerV1Alpha1, AskNoAnswerV1Alpha1
 from core.engine.core.auth import get_current_user
 from core.engine.core.claim_bound_correction import (
     ClaimCorrectionAdmissionV1Alpha1,
@@ -18,12 +17,14 @@ from core.engine.core.claim_bound_correction import (
     correct_claim_bound_ask_answer,
 )
 from core.engine.core.grounded_ask import (
+    AskAnswerV1Alpha1,
     AskGroundedQuestionHttpConflict,
     AskGroundedQuestionHttpDenied,
     AskGroundedQuestionHttpRequestV1,
     AskGroundedQuestionHttpRuntime,
     AskGroundedQuestionHttpUnauthenticated,
     AskGroundedQuestionHttpUnavailable,
+    AskNoAnswerV1Alpha1,
     ask_grounded_question,
     ask_grounded_question_runtime,
 )
