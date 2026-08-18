@@ -78,8 +78,26 @@ OUT="${RUN_ID}-result.json"; META="${RUN_ID}-meta.txt"
 } > "$META"
 
 # 8h wall-clock cap (spec section 3). Exit 124 = timeout, a recorded terminal state.
+# Portable timeout: GNU timeout, then gtimeout (macOS + coreutils), else a python3
+# shim with GNU-compatible semantics (kills the child, exits 124 on expiry) — bare
+# macOS has no `timeout`, which void-launched with exit 127 during arm B.
+WALL_CLOCK_SECS=28800
+if command -v timeout >/dev/null 2>&1; then
+  TIMEOUT_CMD=(timeout "$WALL_CLOCK_SECS")
+elif command -v gtimeout >/dev/null 2>&1; then
+  TIMEOUT_CMD=(gtimeout "$WALL_CLOCK_SECS")
+else
+  TIMEOUT_CMD=(python3 -c 'import subprocess,sys
+try:
+    sys.exit(subprocess.run(sys.argv[2:], timeout=float(sys.argv[1])).returncode)
+except subprocess.TimeoutExpired:
+    sys.exit(124)' "$WALL_CLOCK_SECS")
+fi
+
 set +e
-( cd "$WT" && timeout 28800 claude "${ARGS[@]}" < "$OLDPWD/$PROMPT_FILE" ) > "$OUT"
+# PROMPT_FILE is already absolute (resolved at the top) — read it directly. Never
+# prefix with $OLDPWD: that doubled the path and ENOENT'd (arm-B runtime defect).
+( cd "$WT" && "${TIMEOUT_CMD[@]}" claude "${ARGS[@]}" < "$PROMPT_FILE" ) > "$OUT"
 STATUS=$?
 set -e
 {
