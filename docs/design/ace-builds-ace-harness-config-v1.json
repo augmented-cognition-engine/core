@@ -1,0 +1,130 @@
+{
+  "harness": "ace-builds-ace-harness-v1",
+  "status": "PROPOSED \u2014 owner approval is merging the amendment PR; freeze completes when this file's SHA-256 at the merged commit is recorded per spec section 9",
+  "spec": "docs/design/ace-builds-ace-harness-v1.md",
+  "evidence_destination": "docs/evidence/ace-builds-ace-v1.md",
+  "billing_context": "runs execute under the owner's Claude subscription, not metered API billing; no dollar cap is enforced; dollar figures are list-rate-equivalent accounting only",
+  "arms": {
+    "A_bare_top_tier": {
+      "model": "claude-fable-5",
+      "ace_surface": "none",
+      "disposition": "evidence only, never merges",
+      "role": "reference ceiling"
+    },
+    "B_bare_mid_tier": {
+      "model": "claude-sonnet-5",
+      "ace_surface": "none",
+      "disposition": "evidence only, never merges",
+      "role": "floor control"
+    },
+    "C_mid_tier_plus_ace": {
+      "model": "claude-sonnet-5",
+      "ace_surface": "shipped-1.1-code-intelligence-only",
+      "disposition": "production path through ordinary review and merge",
+      "concurrent_participants_min": 2,
+      "stale_context_events_min": 1,
+      "role": "tested claim"
+    },
+    "D_optional_exploratory": {
+      "model": "claude-fable-5",
+      "ace_surface": "shipped-1.1-code-intelligence-only",
+      "disposition": "at most one subject, labeled exploratory, never in the comparative result",
+      "role": "headroom probe"
+    }
+  },
+  "pins": {
+    "coding_agent": "claude-code",
+    "coding_agent_version": "2.1.224",
+    "base_tool_allowlist": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep",
+      "TodoWrite"
+    ],
+    "web_tools": "excluded in both arms",
+    "mcp_baseline_arm": "none",
+    "mcp_ace_arm": "shipped eleven-tool ACE Code Intelligence surface only",
+    "token_budget_per_arm_run": 30000000,
+    "wall_clock_budget_per_arm_run_hours": 8,
+    "reruns_per_arm_per_subject_max": 1,
+    "cost_enforcement": "none \u2014 tokens and wall-clock are the caps",
+    "cost_accounting": "list-rate-equivalent USD from metered tokens at published list rates, reported only",
+    "top_tier_reference_model": "claude-fable-5",
+    "mid_tier_model": "claude-sonnet-5",
+    "cross_tier_token_comparison": "forbidden \u2014 different tokenizers; token/latency compared within tier only"
+  },
+  "subjects": {
+    "eligible_slices": [
+      "PI8",
+      "PI9",
+      "PI10"
+    ],
+    "pre_freeze_slices": {
+      "slices": [
+        "PI2",
+        "PI3",
+        "PI4",
+        "PI5",
+        "PI6",
+        "PI7"
+      ],
+      "policy": "retrospective annotation only, marked retrospective:true, excluded from the preregistered comparative result; unannotated gaps are valid and reported (spec section 8.2)"
+    },
+    "minimum_count": 2,
+    "registration": "scope, acceptance criteria, repository heads, and answer key frozen before either arm runs",
+    "withdrawal": "reported, never silently replaced"
+  },
+  "measures": {
+    "primary": [
+      "acceptance_criteria_coverage",
+      "review_findings",
+      "rework_cycles",
+      "unsupported_claims",
+      "propagation_result"
+    ],
+    "secondary": [
+      "orientation_time",
+      "context_volume",
+      "latency",
+      "tokens",
+      "cost_list_rate_equivalent",
+      "failures_and_degraded_states"
+    ],
+    "deferred": [
+      "later_material_use",
+      "release_outcome_linkage"
+    ]
+  },
+  "analysis": {
+    "granularity": "descriptive, per subject; no statistical claim",
+    "program_result": "both per-subject tallies plus the section 8.1 curve projection; no aggregate score",
+    "negative_result_policy": "valid outcome, ships in evidence, does not gate J1-J10",
+    "within_tier_verdict_C_vs_B": "better: C improves majority of primary measures, materially worsens none; worse: inverse; mixed: else",
+    "tier_jump_verdict_C_vs_A": "tier_jump: C matches or exceeds bare top-tier on majority of primary measures, materially worse on none; partial_lift: C beats bare mid-tier but short of top-tier; no_lift: else; quality measures only"
+  },
+  "exclusion": {
+    "exploratory_if": [
+      "configuration differs from frozen digest, including agent version drift",
+      "second rerun after the single permitted rerun",
+      "scope change mid-run",
+      "unscripted intervention materially redirecting implementation"
+    ],
+    "deletion": "not an available action"
+  },
+  "experience_capture": {
+    "contract": "spec section 8",
+    "append_only": true,
+    "activation_in_1_2": "forbidden",
+    "no_learning_is_valid": true,
+    "retrieval_shortcut_events": "first-class: retrieved item identity, work replaced, cycle-time saved in wall-clock and tokens",
+    "curve_projection": "per-subject per-slice time series derived from capture records; reporting artifact, does not alter the per-subject tally",
+    "prior_slice_provenance": "material-use receipt refs of earlier-slice beliefs; required for a point to count as compounding evidence",
+    "retrospective_flag": "false for preregistered runs; true only for pre-freeze slice annotations"
+  },
+  "arm_order": "B, then A, then C (D last if run); disclosed operator-learning limitation per spec section 2",
+  "operator": "any model/session; registers subjects, launches fresh arm sessions, reviews, merges arm C, emits capture records; never authors mergeable subject code (spec section 2 rule 7)",
+  "production_safety_valve": "arm C failing review beyond the single rerun is recorded honestly; production reverts to an ordinary non-arm implementation, disclosed; the experiment never blocks 1.2 delivery (spec section 2 rule 8)"
+}
