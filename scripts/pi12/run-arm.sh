@@ -14,7 +14,13 @@ set -euo pipefail
 SUBJECT=${1:?subject id}; ARM=${2:?arm A|B|C}; HEAD=${3:?frozen head sha}
 PROMPT_FILE=${4:?prompt file}; MCP_CONFIG=${5:-}
 
+# Resolve the prompt file to an absolute path up front — the run cd's into the
+# arm worktree, so a relative path would silently resolve against the wrong tree.
+case "$PROMPT_FILE" in /*) ;; *) PROMPT_FILE="$PWD/$PROMPT_FILE" ;; esac
+[ -r "$PROMPT_FILE" ] || { echo "ABORT: prompt file not readable: $PROMPT_FILE" >&2; exit 2; }
+
 PINNED_VERSION="2.1.224"
+# Observed output format on the pinned build: "2.1.224 (Claude Code)" — version is field 1.
 ACTUAL_VERSION=$(claude --version | awk '{print $1}')
 if [ "$ACTUAL_VERSION" != "$PINNED_VERSION" ]; then
   echo "ABORT: claude version $ACTUAL_VERSION != pinned $PINNED_VERSION (drift -> exploratory)" >&2
@@ -29,6 +35,22 @@ case "$ARM" in
 esac
 if [ "$ACE" = 1 ] && [ -z "$MCP_CONFIG" ]; then
   echo "arm C requires the ACE MCP config path" >&2; exit 2
+fi
+
+# Arm C preflight: a live, correct-version ACE backend is an OPERATOR PRECONDITION
+# (the runner never provisions it — provisioning carries credentials and state that
+# don't belong in the instrument). The runner's job is to FAIL CLOSED: a dead or
+# wrong-version backend would silently degrade arm C to bare Sonnet and invalidate
+# the C-vs-B claim. Operator must export:
+#   ACE_HEALTH_URL              e.g. http://127.0.0.1:PORT/health
+#   ACE_EXPECTED_VERSION_REGEX  default '1\.1\.' (the shipped 1.1 CI journey)
+if [ "$ACE" = 1 ]; then
+  : "${ACE_HEALTH_URL:?ABORT: arm C requires ACE_HEALTH_URL (live 1.1.x ACE backend precondition)}"
+  ACE_EXPECTED_VERSION_REGEX=${ACE_EXPECTED_VERSION_REGEX:-'1\.1\.'}
+  HEALTH=$(curl -fsS --max-time 10 "$ACE_HEALTH_URL") || {
+    echo "ABORT: ACE backend health check failed at $ACE_HEALTH_URL" >&2; exit 4; }
+  echo "$HEALTH" | grep -Eq "$ACE_EXPECTED_VERSION_REGEX" || {
+    echo "ABORT: ACE backend version does not match /$ACE_EXPECTED_VERSION_REGEX/ — got: $HEALTH" >&2; exit 4; }
 fi
 
 RUN_ID="aba-${SUBJECT}-arm${ARM}-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -63,6 +85,22 @@ set -e
 {
   echo "ended_utc=$(date -u +%FT%TZ)"; echo "exit_status=$STATUS (124=wall-clock cap)"
 } >> "$META"
+
+# Arm C post-run check: verify the ACE MCP tools were actually exercised. Zero ACE
+# tool calls means the arm silently degraded to bare Sonnet — flagged in meta; the
+# operator rules the run degraded/invalid per spec section 7, never quietly keeps it.
+if [ "$ACE" = 1 ]; then
+  SESSION_ID=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("session_id",""))' "$OUT" 2>/dev/null || echo "")
+  ACE_CALLS=0
+  if [ -n "$SESSION_ID" ]; then
+    TRANSCRIPT=$(ls "$HOME"/.claude/projects/*/"$SESSION_ID".jsonl 2>/dev/null | head -1 || true)
+    [ -n "$TRANSCRIPT" ] && ACE_CALLS=$(grep -c '"mcp__' "$TRANSCRIPT" 2>/dev/null || echo 0)
+  fi
+  echo "ace_mcp_calls=$ACE_CALLS" >> "$META"
+  if [ "$ACE_CALLS" = "0" ]; then
+    echo "WARNING: arm C made ZERO ACE MCP calls — treat as degraded (silent bare-Sonnet fallback)" | tee -a "$META" >&2
+  fi
+fi
 
 # Token budget (30M) is operator-monitored from the result usage, not hard-enforced:
 # disclosed limitation -- CC has no native token-ceiling flag. Session id + usage
