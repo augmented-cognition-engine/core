@@ -30,7 +30,9 @@ EVIDENCE = ROOT / "docs/evidence/state-engine-tp0-runtime-baseline-v1.md"
 ROADMAP = ROOT / "docs/design/state-engine-roadmap.md"
 CORPUS_HASH = "4b029bff64564abc226d431b373a3d75cbf971c66aa6bb53e2cf29c7198c4b09"
 FROZEN_SURFACE_HASH = "7bf2e0959cf19a9aa65d1b53d64e940346ddcc564eccee2d218ee0c616c9662c"
-CURRENT_SURFACE_HASH = "bb22c0530e849fb2688272b5319c7f54678c03e49816a3f071018aadcb4b8508"
+# Re-pinned for the PI8 adoption fix: task-shaped instructions and trigger
+# clauses on the thin-client surface (same 11 tools, no behavior change).
+CURRENT_SURFACE_HASH = "305dd59f00827f2ff76430886c42d3d04e4ff354de95b0285ea6506217afaf3c"
 ADAPTER_HASH = "b42ec0dd7a25810ec2c923e3adf6811dbb84db22b9313f3abc86d6c2c6c9b88d"
 UTC = timezone.utc
 

@@ -815,3 +815,36 @@ def test_zero_engine_imports():
             elif isinstance(node, ast.ImportFrom):
                 if node.module and node.module.startswith("engine"):
                     raise AssertionError(f"{py_file.name} imports from '{node.module}'")
+
+
+# ---------------------------------------------------------------------------
+# Task-shaped surface — PI8 arm C adoption finding
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_thin_client_surface_is_task_shaped_for_coding_agents():
+    """PI8 arm C (PI12 'ACE Builds ACE') found total non-adoption: with all 11
+    tools registered and a scanned graph reachable, a coding agent made zero ACE
+    calls across two clean runs, because the surface spoke product vocabulary
+    ('organizational intelligence') while the agent made code-task tool choices.
+    The instructions and the graph tools must name the moment in a code task
+    when each applies — without promising more than observed records."""
+    from ace_mcp_client.server import mcp
+
+    instructions = (mcp.instructions or "").lower()
+    # A staged workflow, not a slogan: session start, orientation before manual
+    # exploration, dependents before modification, capture on learning.
+    assert "ace_start once at session start" in instructions
+    assert "before manual exploration" in instructions
+    assert "before modifying, moving, or deleting a file" in instructions
+    assert "ace_capture" in instructions
+    # Calibration survives the adoption rewrite.
+    assert "never claims more than what was scanned or captured" in instructions
+
+    tools = {t.name: t for t in await mcp.list_tools()}
+    assert "before modifying, moving, or deleting a file" in (tools["ace_impact"].description or "").lower()
+    assert "before working in it" in (tools["ace_related"].description or "").lower()
+    assert "before manual grep/glob exploration" in (tools["ace_search"].description or "").lower()
+    assert "before working in that area" in (tools["ace_load"].description or "").lower()
+    assert "start of every session" in (tools["ace_start"].description or "").lower()
