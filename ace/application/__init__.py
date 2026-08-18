@@ -206,6 +206,11 @@ from ace.application.case_brief_synthesis import (
     PreparedCaseBriefAppendAdmission,
     ResolvedCaseClosure,
 )
+from ace.application.claim_bound_correction import (
+    ClaimBoundCorrectionError,
+    ClaimBoundCorrectionNotFound,
+    ClaimBoundCorrectionService,
+)
 from ace.application.composition_policy_admission import (
     ADMINISTER_COMPOSITION_POLICY_AUTHORITY,
     COMPOSITION_POLICY_RECORD_SPACE,
@@ -285,6 +290,7 @@ from ace.application.external_operations import (
     delivery_payload_digest,
     export_manifest_checksum,
 )
+from ace.application.grounded_ask import ASK_MAX_CANDIDATE_BRIEFS, GroundedAskError, GroundedAskService
 from ace.application.installed_pack_artifacts import (
     ACTIVATION_GOLDEN_FIXTURE_PATH,
     InstalledCompiledPackArtifact,
@@ -625,6 +631,15 @@ from ace.application.supersession_impact import (
     SupersessionImpactReplayConflict,
     SupersessionImpactService,
     supersession_impact_record,
+)
+from ace.intelligence.contracts.claim_correction import (
+    ClaimCorrectionAdmissionV1Alpha1,
+    ClaimCorrectionRequestV1Alpha1,
+)
+from ace.intelligence.contracts.grounded_ask import (
+    AskAnswerV1Alpha1,
+    AskNoAnswerV1Alpha1,
+    AskQuestionV1Alpha1,
 )
 from ace.intelligence.contracts.resource_feedback import (
     CORRECTABLE_RESOURCE_KINDS,
@@ -1157,4 +1172,15 @@ __all__ = [
     "export_manifest_checksum",
     "project_intelligence_system_plan",
     "project_intelligence_system_resource_state",
+    "ClaimBoundCorrectionError",
+    "ClaimBoundCorrectionNotFound",
+    "ClaimBoundCorrectionService",
+    "ClaimCorrectionAdmissionV1Alpha1",
+    "ClaimCorrectionRequestV1Alpha1",
+    "ASK_MAX_CANDIDATE_BRIEFS",
+    "GroundedAskError",
+    "GroundedAskService",
+    "AskAnswerV1Alpha1",
+    "AskNoAnswerV1Alpha1",
+    "AskQuestionV1Alpha1",
 ]

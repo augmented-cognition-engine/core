@@ -179,6 +179,12 @@ from ace.intelligence.contracts.agent_memory_recall import (
     RetrievalTier,
     StructuredQuestionKind,
 )
+from ace.intelligence.contracts.claim_correction import (
+    CLAIM_CORRECTION_ADMISSION_VERSION,
+    CLAIM_CORRECTION_REQUEST_VERSION,
+    ClaimCorrectionAdmissionV1Alpha1,
+    ClaimCorrectionRequestV1Alpha1,
+)
 from ace.intelligence.contracts.composition_policy import (
     COMPOSITION_POLICY_ADMISSION_PLAN_VERSION,
     COMPOSITION_POLICY_ADMISSION_RECEIPT_VERSION,
@@ -237,6 +243,15 @@ from ace.intelligence.contracts.feedback import (
     FeedbackProposalV1Alpha1,
     OutcomeAdjustmentV1,
     OutcomeProvenanceReturnV1Alpha1,
+)
+from ace.intelligence.contracts.grounded_ask import (
+    ASK_ANSWER_VERSION,
+    ASK_NO_ANSWER_VERSION,
+    ASK_QUESTION_VERSION,
+    MAX_ASK_CLAIMS,
+    AskAnswerV1Alpha1,
+    AskNoAnswerV1Alpha1,
+    AskQuestionV1Alpha1,
 )
 from ace.intelligence.contracts.impact import (
     IMPACT_CONDITIONS_VERSION,
@@ -978,4 +993,15 @@ __all__ = [
     "ReviewableProjectionChangeV1Alpha1",
     "SourceBindingProjectionV1Alpha1",
     "SourceBindingState",
+    "CLAIM_CORRECTION_ADMISSION_VERSION",
+    "CLAIM_CORRECTION_REQUEST_VERSION",
+    "ClaimCorrectionAdmissionV1Alpha1",
+    "ClaimCorrectionRequestV1Alpha1",
+    "ASK_ANSWER_VERSION",
+    "ASK_NO_ANSWER_VERSION",
+    "ASK_QUESTION_VERSION",
+    "MAX_ASK_CLAIMS",
+    "AskAnswerV1Alpha1",
+    "AskNoAnswerV1Alpha1",
+    "AskQuestionV1Alpha1",
 ]
