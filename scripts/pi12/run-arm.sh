@@ -112,7 +112,27 @@ if [ "$ACE" = 1 ]; then
   ACE_CALLS=0
   if [ -n "$SESSION_ID" ]; then
     TRANSCRIPT=$(ls "$HOME"/.claude/projects/*/"$SESSION_ID".jsonl 2>/dev/null | head -1 || true)
-    [ -n "$TRANSCRIPT" ] && ACE_CALLS=$(grep -c '"mcp__' "$TRANSCRIPT" 2>/dev/null || echo 0)
+    # Count actual mcp__ tool_use blocks, never raw '"mcp__' lines: the session's
+    # tools-available attachment lists every registered tool name on one line, so a
+    # line grep reports >=1 for a run that made ZERO calls — exactly the silent
+    # degradation this check exists to catch (arm-C runtime defect, PI8).
+    [ -n "$TRANSCRIPT" ] && ACE_CALLS=$(python3 - "$TRANSCRIPT" 2>/dev/null <<'PY' || echo 0
+import json, sys
+n = 0
+for line in open(sys.argv[1]):
+    try:
+        d = json.loads(line)
+    except Exception:
+        continue
+    content = (d.get("message") or {}).get("content")
+    if not isinstance(content, list):
+        continue
+    for c in content:
+        if isinstance(c, dict) and c.get("type") == "tool_use" and str(c.get("name", "")).startswith("mcp__"):
+            n += 1
+print(n)
+PY
+)
   fi
   echo "ace_mcp_calls=$ACE_CALLS" >> "$META"
   if [ "$ACE_CALLS" = "0" ]; then
