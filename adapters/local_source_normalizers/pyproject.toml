@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ace-local-source-normalizers"
+version = "0.1.0"
+description = "Host-side format normalizers composing the ACE Personal Intelligence local-source pipeline"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+dependencies = [
+    "ace-core>=1.1.0,<2",
+    "ace-local-markdown-source>=0.1.0",
+    "ace-local-csv-source>=0.1.0",
+    "ace-local-json-source>=0.1.0",
+    "ace-local-pdf-source>=0.1.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ace_local_source_normalizers*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# ace-core (repo root), this package's src, and the four sibling adapter srcs, so the
+# multi-package spine is importable without installing anything.
+pythonpath = [
+    "../..",
+    "src",
+    "../local_markdown_source/src",
+    "../local_csv_source/src",
+    "../local_json_source/src",
+    "../local_pdf_source/src",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pypdf>=4,<6"]
