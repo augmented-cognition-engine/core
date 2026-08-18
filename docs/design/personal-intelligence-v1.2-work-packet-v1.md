@@ -4,9 +4,11 @@
 - Public contract: [issue #195 — Roadmap: ACE 1.2 — Personal Intelligence](https://github.com/augmented-cognition-engine/core/issues/195)
 - Baseline: `origin/main` commit `eab2aa211fbee18d8aa1b828522830e3d9b95396` — published `ace-core` 1.1.0,
   schema head v179, exactly eleven public MCP tools, ACE 1.1 Code Intelligence closed and reconciled
-- Packet status: **frozen for owner review; PI2–PI4 merged** (amendment 2026-08-17: decisions
+- Packet status: **frozen for owner review; PI2–PI5 merged** (amendment 2026-08-17: decisions
   15–16, the issue #199 dependency debt in §3, and the PI12 harness-freeze prerequisite added for
-  owner review; no previously frozen scope was narrowed)
+  owner review; decision 16 extended same-day with intelligence-curve capture — retrieval
+  shortcuts, per-slice points, prior-slice provenance, retrospective labeling. No previously
+  frozen scope was narrowed)
 - Predecessor rule: ACE 1.1 is closed and immutable. An urgent defect ships as a narrowly scoped
   1.1.x patch under the published promise; it never reopens 1.1 scope or borrows 1.2 scope. Normal
   development proceeds on this packet.
@@ -194,7 +196,12 @@ turns it into issue updates.
     corrections, failures, rework, verification results, costs, and later Outcome linkage that
     ACE 1.6 requires for matched evaluation. Capture is append-only and proposal-only: nothing in
     1.2 evaluates, approves, activates, or retires such a proposal, and a justified no-learning
-    result is a valid capture.
+    result is a valid capture. The shape additionally serves the intelligence-curve evidence
+    outcome: each subject contributes a per-slice comparison point carrying retrieval-shortcut
+    events and provenance links to earlier-slice material use, so the program yields a time
+    series, not only a closeout verdict. Slices merged before the freeze may be annotated only as
+    clearly-labeled retrospective records excluded from the preregistered comparative result;
+    silent backfill is not an available action.
 
 ## 5. Reuse map (already on the 1.1.0 baseline)
 
@@ -233,11 +240,12 @@ These are the substrate. The packet reuses them unchanged wherever the contract 
 Sequencing: PI1 clears the record debts first; PI2–PI5 unblock J3/J5; PI6–PI7 unblock J4/J6; PI8
 unblocks J7/J8; PI9 unblocks J9/J10; PI10 packages (gated on issue #49 F3 per §3); PI11 proves.
 PI12 runs *through* the other slices — it selects its subject Decisions from PI2–PI10 work and
-closes after its comparison evidence is complete. Because PI2–PI4 are already merged, PI12's
-eligible subjects are the remaining PI5–PI10 slices; the decision 15 harness and decision 16
-capture shape must therefore freeze before the next slice implementation begins, or those subjects
-are spent as unpreregistered exploratory runs. Slices may land in parallel where contracts are
-frozen first.
+closes after its comparison evidence is complete. Because PI2–PI5 are already merged, PI12's
+eligible preregistered subjects are the remaining PI6–PI10 slices; the decision 15 harness and
+decision 16 capture shape must therefore freeze before the next slice implementation begins, or
+those subjects too are spent as unpreregistered runs. PI2–PI5 may be annotated retrospectively
+under decision 16's labeling rule only. Slices may land in parallel where contracts are frozen
+first.
 
 ## 7. Explicitly out of scope
 

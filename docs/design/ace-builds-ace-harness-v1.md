@@ -75,8 +75,10 @@ as such and never as actual spend.
 
 ## 4. Subject eligibility
 
-- A subject is a bounded Decision from the remaining 1.2 slices **PI5–PI10**, frozen (scope,
-  acceptance criteria, repository heads) before either arm runs.
+- A subject is a bounded Decision from the remaining 1.2 slices **PI6–PI10**, frozen (scope,
+  acceptance criteria, repository heads) before either arm runs. PI2–PI5 merged before this
+  harness froze and are not eligible as preregistered subjects; they may be annotated
+  retrospectively under §8.2 only.
 - PI12 requires at least two subjects. Each subject registers an **answer key** at freeze time:
   the governing contracts, the files expected to change, and the acceptance criteria — used to
   score orientation and coverage without post-hoc judgment.
@@ -114,6 +116,9 @@ run time.
 - **Better**: the ACE arm improves a majority of primary measures on a subject and materially
   worsens none. **Worse**: the inverse. **Mixed**: anything else. The program-level result is the
   per-subject tally, reported without aggregation into a single score.
+- The program additionally reports the **intelligence-curve projection** of §8.1 — the per-slice
+  time series of capture records. The curve is a reporting artifact derived from the same frozen
+  records; it does not alter or replace the per-subject tally.
 - Secondary measures never convert a quality result: an ACE arm that is cheaper but produces a
   worse change is **worse**.
 - A negative or mixed result is a valid program outcome, ships in the evidence record, and does
@@ -138,13 +143,38 @@ Every PI12 arm-run appends one experience-capture record. The shape is frozen wi
 | `context_manifest_refs` | ACE arm: the manifests actually resolved, with selection/omission receipts |
 | `corrections`, `failures`, `interventions` | What went wrong and who redirected it |
 | `rework_count`, `review_findings`, `verification_results` | Quality trail |
-| `costs` | Tokens, cost, wall-clock |
+| `costs` | Tokens, wall-clock; USD only as list-rate-equivalent labeled accounting (§3) |
+| `retrieval_shortcuts` | Events where recalled knowledge or beliefs measurably shortcut the work: the retrieved item's identity, the work it replaced, and estimated cycle-time saved in wall-clock and tokens |
+| `prior_slice_provenance` | Material-use receipt references for beliefs captured or promoted in **earlier** slices that were load-bearing in this run |
+| `retrospective` | `false` for preregistered runs; `true` only for pre-freeze slice annotations (§8.2) |
 | `outcome_ref` | Attached at closeout; empty until then |
 | `proposal` | Kind (`agent`, `procedure`, `context`, `routing`, `verification`, `no_learning`), evidence refs, eligible scope, expected effect, conflicts, expiry |
 
 Records are append-only. Nothing in 1.2 evaluates, approves, activates, or retires a proposal; a
 well-supported `no_learning` record is a valid and expected outcome. These records are the input
 corpus for ACE 1.6 and for the corrected issue #199 dependency (packet §3).
+
+### 8.1 The curve is the artifact
+
+Each subject contributes one per-slice comparison point, so the program yields an
+**intelligence-curve time series** over the PI sequence, not only a closeout verdict. Two rules
+keep the curve honest:
+
+- A curve point counts as **compounding** evidence only when its `prior_slice_provenance`
+  resolves to actual material-use receipts of earlier-slice beliefs — that linkage is what
+  distinguishes "the substrate compounds" from "the agent got lucky."
+- `retrieval_shortcuts` quantify the compounding in the units this program enforces (wall-clock,
+  tokens); USD appears only as the §3 labeled accounting.
+
+### 8.2 Pre-freeze slices: labeled retrospective annotation only
+
+PI2–PI5 merged before this harness froze — an uninstrumented window this section closes
+explicitly rather than silently. Their transcripts, PRs, and receipts **may** be annotated into
+capture records marked `retrospective: true`. Retrospective records appear on the curve as
+clearly-labeled retrospective points and are **excluded from the preregistered comparative
+result**. Silent backfill is not an available action; an unannotated pre-freeze slice is simply a
+gap in the curve, and a gap is a valid, reported state. This mirrors the L1 rule: pre-freeze
+material is preserved and labeled, never promoted.
 
 ## 9. Freeze procedure
 

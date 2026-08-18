@@ -31,7 +31,11 @@
     "cost_accounting": "list-rate-equivalent USD from metered tokens at published list rates, reported only"
   },
   "subjects": {
-    "eligible_slices": ["PI5", "PI6", "PI7", "PI8", "PI9", "PI10"],
+    "eligible_slices": ["PI6", "PI7", "PI8", "PI9", "PI10"],
+    "pre_freeze_slices": {
+      "slices": ["PI2", "PI3", "PI4", "PI5"],
+      "policy": "retrospective annotation only, marked retrospective:true, excluded from the preregistered comparative result; unannotated gaps are valid and reported (spec section 8.2)"
+    },
     "minimum_count": 2,
     "registration": "scope, acceptance criteria, repository heads, and answer key frozen before either arm runs",
     "withdrawal": "reported, never silently replaced"
@@ -75,6 +79,10 @@
     "contract": "spec section 8",
     "append_only": true,
     "activation_in_1_2": "forbidden",
-    "no_learning_is_valid": true
+    "no_learning_is_valid": true,
+    "retrieval_shortcut_events": "first-class: retrieved item identity, work replaced, cycle-time saved in wall-clock and tokens",
+    "curve_projection": "per-subject per-slice time series derived from capture records; reporting artifact, does not alter the per-subject tally",
+    "prior_slice_provenance": "material-use receipt refs of earlier-slice beliefs; required for a point to count as compounding evidence",
+    "retrospective_flag": "false for preregistered runs; true only for pre-freeze slice annotations"
   }
 }
