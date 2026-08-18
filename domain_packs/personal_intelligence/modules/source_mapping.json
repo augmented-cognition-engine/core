@@ -1,0 +1,33 @@
+{
+  "contract": "ace.intelligence.source-mapping/v1alpha1",
+  "module_id": "personal_local_sources",
+  "mappings": [
+    {
+      "mapping_id": "local_markdown_note",
+      "source_definition_ref": "local_markdown_notes",
+      "source_type_ref": "markdown.note",
+      "capability_requirement_id": "local_source_snapshot",
+      "authority_request_id": "local_source_read",
+      "allowed_uri_schemes": [
+        "file"
+      ],
+      "subject_binding_id": "note_subject",
+      "entity_type_id": "note",
+      "attribute_mappings": [
+        {
+          "attribute_id": "note_ref",
+          "source_pointer": "/id"
+        },
+        {
+          "attribute_id": "title",
+          "source_pointer": "/title"
+        },
+        {
+          "attribute_id": "body",
+          "source_pointer": "/content"
+        }
+      ],
+      "static_confidence": 0.9
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "contract": "ace.intelligence.domain-pack-golden-fixture/v1",
+  "fixture_id": "personal_intelligence_golden",
+  "fixture_version": "1.0.0",
+  "observations": [
+    {
+      "case_id": "note_revision",
+      "entity_type_id": "note",
+      "entity_ref": "entity:note-one",
+      "baseline_attributes_json": "{\"body\":\"draft\",\"note_ref\":\"note-one\",\"title\":\"Draft\"}",
+      "current_attributes_json": "{\"body\":\"final\",\"note_ref\":\"note-one\",\"title\":\"Final\"}",
+      "baseline_as_of": "2026-08-11T00:00:00Z",
+      "current_as_of": "2026-08-11T01:00:00Z",
+      "confidence": 0.9,
+      "expected": []
+    }
+  ]
+}
