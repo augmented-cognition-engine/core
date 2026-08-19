@@ -24,7 +24,9 @@ from surrealdb import RecordID
 from core.engine.core.db import parse_rows, pool
 from core.engine.scanner.scanner import scan_repo
 
-pytestmark = [pytest.mark.integration, pytest.mark.asyncio]
+# `db_pool` (conftest) validates the connection and pytest.skips when SurrealDB is unreachable, so
+# these integration tests skip cleanly in CI jobs that don't run a database instead of erroring.
+pytestmark = [pytest.mark.integration, pytest.mark.asyncio, pytest.mark.usefixtures("db_pool")]
 
 
 def _gid(tmp_path) -> str:
