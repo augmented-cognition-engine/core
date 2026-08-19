@@ -32,11 +32,11 @@ from ace.core.state import (
 from ace.intelligence.contracts.solution_bundle import (
     BundleActivationAction,
     BundleActivationRuntimeState,
+    InstalledSolutionComponentsV1,
     SolutionBundleActivationRevisionV1,
     SolutionBundleManifestV1,
     SolutionBundleResolutionReceiptV1,
 )
-from ace.intelligence.contracts.solution_bundle import InstalledSolutionComponentsV1
 from ace.intelligence.packs.bundle_activation import resolve_solution_bundle
 
 BUNDLE_ACTIVATION_STATE_KIND = "solution_bundle_activation_v1alpha1"
