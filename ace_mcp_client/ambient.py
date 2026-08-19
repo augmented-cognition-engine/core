@@ -223,6 +223,40 @@ def repo_graph_in_scope(target_path: str) -> bool:
         return False
 
 
+_PATH_TOKEN = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./-]*")
+
+
+def derive_repository_target(prompt: str, repo_root: str) -> str | None:
+    """The first prompt token naming an existing repository-relative file, or None.
+
+    The shipped 1.1 journey endpoint is file-scoped: ``target_path`` must be a canonical
+    repository-relative path to an existing file — never an absolute path, a directory, or
+    ``.``. A turn payload carries only a prompt and a cwd, so the target is derived from the
+    prompt and validated against the repository root with the same rules the endpoint applies
+    (inside the root, canonical spelling, existing file). Fail-closed: when no token
+    qualifies, the caller injects nothing.
+    """
+
+    try:
+        root = Path(repo_root).resolve()
+    except (OSError, RuntimeError):
+        return None
+    for token in _PATH_TOKEN.findall(prompt):
+        candidate = token[2:] if token.startswith("./") else token
+        if not candidate or "/" not in candidate and "." not in candidate:
+            continue
+        try:
+            resolved = (root / candidate).resolve()
+            relative = resolved.relative_to(root)
+        except (OSError, RuntimeError, ValueError):
+            continue
+        if candidate != relative.as_posix():
+            continue
+        if resolved.is_file():
+            return candidate
+    return None
+
+
 def journey_via_client(client, *, receiver_ref: str = "coding-agent:provider-neutral"):
     """Build a ``journey(query, target_path)`` caller that queries the System A journey over ACE HTTP.
 
@@ -262,6 +296,7 @@ __all__ = [
     "ambient_context_for_turn",
     "gate",
     "journey_via_client",
+    "derive_repository_target",
     "repo_graph_in_scope",
     "surface_code_intelligence",
 ]
