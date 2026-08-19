@@ -1,0 +1,348 @@
+{
+  "$defs": {
+    "AdapterBindingV1": {
+      "additionalProperties": false,
+      "description": "One exact, independently versioned adapter artifact bound by a bundle (Decision 3).",
+      "properties": {
+        "adapter_id": {
+          "title": "Adapter Id",
+          "type": "string"
+        },
+        "adapter_version": {
+          "title": "Adapter Version",
+          "type": "string"
+        },
+        "artifact_digest": {
+          "title": "Artifact Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "adapter_id",
+        "adapter_version",
+        "artifact_digest"
+      ],
+      "title": "AdapterBindingV1",
+      "type": "object"
+    },
+    "AtriumModuleBindingV1": {
+      "additionalProperties": false,
+      "description": "One exact, independently versioned Atrium-module artifact bound by a bundle.",
+      "properties": {
+        "artifact_digest": {
+          "title": "Artifact Digest",
+          "type": "string"
+        },
+        "module_id": {
+          "title": "Module Id",
+          "type": "string"
+        },
+        "module_version": {
+          "title": "Module Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "module_id",
+        "module_version",
+        "artifact_digest"
+      ],
+      "title": "AtriumModuleBindingV1",
+      "type": "object"
+    },
+    "CompiledOverlayV1": {
+      "additionalProperties": false,
+      "properties": {
+        "compiled_overlay_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Compiled Overlay Id"
+        },
+        "contract": {
+          "const": "ace.intelligence.compiled-overlay/v1alpha1",
+          "default": "ace.intelligence.compiled-overlay/v1alpha1",
+          "title": "Contract",
+          "type": "string"
+        },
+        "overlay_digest": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Overlay Digest"
+        },
+        "overlay_id": {
+          "title": "Overlay Id",
+          "type": "string"
+        },
+        "pack_digest": {
+          "title": "Pack Digest",
+          "type": "string"
+        },
+        "pack_id": {
+          "title": "Pack Id",
+          "type": "string"
+        },
+        "pack_version": {
+          "title": "Pack Version",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "$ref": "#/$defs/OverlayValueV1"
+          },
+          "maxItems": 256,
+          "title": "Values",
+          "type": "array"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "overlay_id",
+        "version",
+        "pack_id",
+        "pack_version",
+        "pack_digest"
+      ],
+      "title": "CompiledOverlayV1",
+      "type": "object"
+    },
+    "CompiledPackRefV1": {
+      "additionalProperties": false,
+      "properties": {
+        "compiled_pack_id": {
+          "title": "Compiled Pack Id",
+          "type": "string"
+        },
+        "pack_digest": {
+          "title": "Pack Digest",
+          "type": "string"
+        },
+        "pack_id": {
+          "title": "Pack Id",
+          "type": "string"
+        },
+        "pack_version": {
+          "title": "Pack Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pack_id",
+        "pack_version",
+        "compiled_pack_id",
+        "pack_digest"
+      ],
+      "title": "CompiledPackRefV1",
+      "type": "object"
+    },
+    "OverlayValueV1": {
+      "additionalProperties": false,
+      "properties": {
+        "slot_id": {
+          "title": "Slot Id",
+          "type": "string"
+        },
+        "value_json": {
+          "maxLength": 32000,
+          "minLength": 1,
+          "title": "Value Json",
+          "type": "string"
+        }
+      },
+      "required": [
+        "slot_id",
+        "value_json"
+      ],
+      "title": "OverlayValueV1",
+      "type": "object"
+    },
+    "PolicyBindingV1": {
+      "additionalProperties": false,
+      "description": "One exact, independently versioned policy bound by a bundle.",
+      "properties": {
+        "policy_digest": {
+          "title": "Policy Digest",
+          "type": "string"
+        },
+        "policy_id": {
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "policy_version": {
+          "title": "Policy Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "policy_id",
+        "policy_version",
+        "policy_digest"
+      ],
+      "title": "PolicyBindingV1",
+      "type": "object"
+    },
+    "SolutionBundleManifestV1": {
+      "additionalProperties": false,
+      "description": "Exact pack, overlay, adapter, Atrium-module, and policy bindings for one bundle.",
+      "properties": {
+        "adapters": {
+          "items": {
+            "$ref": "#/$defs/AdapterBindingV1"
+          },
+          "maxItems": 256,
+          "minItems": 1,
+          "title": "Adapters",
+          "type": "array"
+        },
+        "atrium_modules": {
+          "items": {
+            "$ref": "#/$defs/AtriumModuleBindingV1"
+          },
+          "maxItems": 256,
+          "title": "Atrium Modules",
+          "type": "array"
+        },
+        "bundle_id": {
+          "title": "Bundle Id",
+          "type": "string"
+        },
+        "bundle_version": {
+          "title": "Bundle Version",
+          "type": "string"
+        },
+        "contract": {
+          "const": "ace.intelligence.solution-bundle-manifest/v1alpha1",
+          "default": "ace.intelligence.solution-bundle-manifest/v1alpha1",
+          "title": "Contract",
+          "type": "string"
+        },
+        "manifest_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Hash"
+        },
+        "manifest_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manifest Id"
+        },
+        "overlay": {
+          "$ref": "#/$defs/CompiledOverlayV1"
+        },
+        "pack": {
+          "$ref": "#/$defs/CompiledPackRefV1"
+        },
+        "policy": {
+          "$ref": "#/$defs/PolicyBindingV1"
+        },
+        "product_id": {
+          "maxLength": 240,
+          "minLength": 1,
+          "title": "Product Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "product_id",
+        "bundle_id",
+        "bundle_version",
+        "pack",
+        "overlay",
+        "adapters",
+        "policy"
+      ],
+      "title": "SolutionBundleManifestV1",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Deterministic, side-effect-free resolution of one exact bundle manifest.\n\nPure derivation of the manifest's material: the same manifest always\nresolves to a byte-identical receipt. ``authority_stage`` is baked into\nthe published schema as a non-overridable constant so resolution can\nnever be mistaken for a live activation authority.",
+  "properties": {
+    "authority_stage": {
+      "const": "resolved",
+      "default": "resolved",
+      "title": "Authority Stage",
+      "type": "string"
+    },
+    "bundle_state_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Bundle State Id"
+    },
+    "contract": {
+      "const": "ace.intelligence.solution-bundle-resolution-receipt/v1alpha1",
+      "default": "ace.intelligence.solution-bundle-resolution-receipt/v1alpha1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "manifest": {
+      "$ref": "#/$defs/SolutionBundleManifestV1"
+    },
+    "resolution_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resolution Hash"
+    },
+    "resolution_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resolution Id"
+    }
+  },
+  "required": [
+    "manifest"
+  ],
+  "title": "SolutionBundleResolutionReceiptV1",
+  "type": "object"
+}
