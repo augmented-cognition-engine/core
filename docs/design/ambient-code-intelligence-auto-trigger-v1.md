@@ -1,8 +1,9 @@
 # Baked-in code intelligence: a governed self-improving loop (v1)
 
-- **Status:** Candidate decision — proposed **Decision 15** for the ACE 1.2 Personal Intelligence
-  work packet. Not yet four-record reconciled (ROADMAP, milestone issue, Project, evidence); not
-  frozen. A systems-theory stability review is **complete** (2026-08-18): the safe initial envelope is
+- **Status:** Candidate decision — proposed **Decision 17** for the ACE 1.2 Personal Intelligence
+  work packet (numbered 17 because packet Decisions 15 and 16 are already taken by the PI12 harness
+  and capture-record shape; an earlier draft mislabeled this 15). Not yet four-record reconciled
+  (ROADMAP, milestone issue, Project, evidence); not frozen. A systems-theory stability review is **complete** (2026-08-18): the safe initial envelope is
   **A0 / propose-only in full plus one A1 cell (`embedding_reconciler`)**; loop-driven A1 beyond that
   is gated on the prerequisites recorded in §4 and [autonomy matrix §9](ace-autonomy-matrix-v1.md).
   Adoption still requires owner sign-off and reconciliation.
@@ -174,9 +175,9 @@ The hard pieces already exist; this decision *connects* them.
 - **Improvement theater.** A proposal that is never verified is a guess. Prove-improvement-or-revert
   is what separates a self-improving engine from one that merely churns.
 
-## 7. Candidate Decision 15 (proposed packet wording)
+## 7. Candidate Decision 17 (proposed packet wording)
 
-> **15. Intelligence is a governed self-improving loop, baked into the runtime.** ACE code
+> **17. Intelligence is a governed self-improving loop, baked into the runtime.** ACE code
 > intelligence (the driving case; the pattern general to all forms) is surfaced ambiently as the
 > sensing and diagnosis stage of a closed loop — sense → diagnose → **propose** → governed activate
 > → verify → learn. A gated runtime trigger consults the governed Ask service (Decision 7) on
@@ -205,10 +206,10 @@ The hard pieces already exist; this decision *connects* them.
 | Decision 7 — governed Ask service | The sense/diagnose **engine** the loop calls | Implemented (PI8) |
 | Sentinel + feedback/review/activation spine | The governed **actuators** the loop proposes to | Exists |
 | #237 — task-shaped tool descriptions | **Soft** trigger; on-demand ceiling | Merged; unmeasured |
-| **This note — ambient loop middleware** | **Hard** trigger + governed loop; the guaranteed floor | Candidate (Decision 15) |
+| **This note — ambient loop middleware** | **Hard** trigger + governed loop; the guaranteed floor | Candidate (Decision 17) |
 | Decision 14 — composition | What co-activates; this note governs **when/how** it fires | Frozen |
 
-**Kept separate from PI12 — structurally, not stylistically.** Decision 15 is a product/architecture
+**Kept separate from PI12 — structurally, not stylistically.** Decision 17 is a product/architecture
 capability; PI12 is an observational meta-experiment.
 
 - **PI12's result is allowed to be null.** Decision 13 states the ACE-Builds-ACE result "does not
@@ -221,12 +222,12 @@ capability; PI12 is an observational meta-experiment.
   on the verify stage.
 - **PI12 stays an independent observer.** A shipped loop will incidentally raise PI12's "later
   material use" and reduce its rework metrics; PI12 may report that as one datum among many, but it
-  neither owns nor gates Decision 15. Neither a null PI12 nor a null loop result invalidates the
+  neither owns nor gates Decision 17. Neither a null PI12 nor a null loop result invalidates the
   other.
 - **Slice placement:** a product-track capability (its own slice or an extension of the PI8
   service-caller layer, assigned at reconciliation); explicitly **not** a PI12 deliverable.
 
-Recommended order: (a) reconcile Decision 15 into the packet; (b) systems-theory stability review of
+Recommended order: (a) reconcile Decision 17 into the packet; (b) systems-theory stability review of
 the loop (§9); (c) build the L1→L2 loop as a caller of the Decision 7 service + feedback spine, with
 gate + citation + safety-envelope contracts; (d) verify on the product track.
 

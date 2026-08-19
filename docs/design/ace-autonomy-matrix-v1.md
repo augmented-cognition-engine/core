@@ -1,7 +1,7 @@
 # ACE autonomy matrix — governance model for autonomous action (v1)
 
 - **Status:** Candidate governance decision — companion to the self-improving loop note
-  ([baked-in code intelligence](ambient-code-intelligence-auto-trigger-v1.md), proposed Decision 15).
+  ([baked-in code intelligence](ambient-code-intelligence-auto-trigger-v1.md), proposed Decision 17).
   General primitive: it governs **all** autonomous action in ACE, not only the loop. Not four-record
   reconciled; not frozen. A systems-theory stability review is complete (see next block); its
   prerequisites gate any tier above A0 plus one cell.
@@ -138,7 +138,7 @@ Every cell above A0 declares, as policy:
 
 ## 8. Relationship to the self-improving loop and to Sentinel
 
-- The loop (Decision 15) is **one client** of this matrix: its `sense → diagnose → propose →
+- The loop (Decision 17) is **one client** of this matrix: its `sense → diagnose → propose →
   activate → verify` stages request actions whose tier the matrix sets. The loop defines *when* it
   fires; the matrix defines *what autonomy* each resulting action may have.
 - **Sentinel already operates at A1** (autonomous reconciliation of derived artifacts). This
