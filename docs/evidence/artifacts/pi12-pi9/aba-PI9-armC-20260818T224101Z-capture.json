@@ -1,0 +1,49 @@
+{
+  "capture_id": "aba-PI9-armC-20260818T224101Z-capture-v1",
+  "subject_decision_id": "PI9",
+  "arm": "C",
+  "harness": "ace-builds-ace-harness-v1",
+  "harness_digest": "5ec835f197ebfb8c9e81e72b506ff119b1e77e0ab795139fd39b7ab5c8a18130",
+  "run_ids": ["aba-PI9-armC-20260818T224101Z"],
+  "participant_ids": ["claude-sonnet-5 (subject, cc 2.1.224 headless, ACE 1.1 MCP with task-shaped surface, sanctioned rerun 1 of 1)", "claude-fable-5 (operator, no subject authorship)"],
+  "session_ids": ["296da3d6-e136-44f2-8136-24afbe4d2b72"],
+  "context_manifest_refs": [],
+  "corrections": [],
+  "failures": [
+    {"kind": "degraded_zero_ace_adoption", "detail": "Second consecutive PI9 zero: ace_mcp_calls=0 (repaired counter), zero API traffic, monitor-confirmed. No further reruns. PROGRAM FINDING AT FULL STRENGTH: zero adoption in 4/4 arm-C runs across 2 subjects and 2 tool surfaces under preregistered conditions."}
+  ],
+  "interventions": [
+    {"kind": "operator_environment_pre_launch", "detail": "Identical frozen conditions to PI9 run 1; backend + CLI preflight verified; zero supervisor restarts during run."}
+  ],
+  "rework_count": 0,
+  "review_findings": {
+    "acceptance_criteria_coverage": "6/7 PASS + 1 PARTIAL (export sub-requirement) as bare work product",
+    "overall": "COMPLETE-WITH-DEFECTS",
+    "findings": [
+      {"severity": "completeness", "detail": "Hardcoded disclosure default with no host-override port; no per-class export checksums or control-plane exclusion disclosure; write-quiescence on proof only (not preview); no CLI surfacing."},
+      {"severity": "weak_test", "detail": "In-memory restart test reuses same store object (weakest restart test of the three PI9 arms); compensated by a REAL subprocess-boundary integration test (operator-verified EXECUTED, not skipped) — narrower than arm B's DB-server kill/respawn but genuine."},
+      {"severity": "highlight", "detail": "Novel asset: AST-based architectural-boundary regression test (test_personal_intelligence_derived_artifact_boundary.py) that keeps the no-derived-artifact-pipeline claim executable under future code drift — reviewer-recommended as defense-in-depth in the composed delivery."}
+    ],
+    "unsupported_claims": "None made in writing (uncommitted work, no evidence doc — itself noted as a gap: no design-tradeoff trail).",
+    "scope_creep": "none",
+    "fail_open_defects": "none"
+  },
+  "verification_results": {
+    "operator_ran": "37 tests pass incl. both boundary suites; ruff clean repo-wide; integration restart test verified executed against live DB",
+    "contracts": "additive; always-populated disclosure fields (third distinct wire-compat posture among the arms)"
+  },
+  "costs": {"wall_clock_min": 25.4, "turns": 118, "tokens": {"input": null, "output": 88284}, "usd_list_rate_equivalent_labeled_accounting": 10.98},
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "proposal": {
+    "kind": "context",
+    "evidence_refs": ["aba-PI9-armC-20260818T224101Z-result.json", "PI9 registration run log", "reviewer delivery ranking"],
+    "eligible_scope": "same as run 1's proposal (ambient/push delivery or host-side workflow instruction); delivery composition per reviewer ranking (arm A base + arm B restart e2e + this arm's boundary test)",
+    "expected_effect": "see run 1 capture record",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "Sanctioned rerun. Zero-adoption x4 finalized. Its boundary-regression test is the one component of this arm carried into the reviewer-recommended composed delivery."
+}

@@ -1,0 +1,37 @@
+{
+  "capture_id": "aba-PI9-armA-20260818T213417Z-capture-v1",
+  "subject_decision_id": "PI9",
+  "arm": "A",
+  "harness": "ace-builds-ace-harness-v1",
+  "harness_digest": "5ec835f197ebfb8c9e81e72b506ff119b1e77e0ab795139fd39b7ab5c8a18130",
+  "run_ids": ["aba-PI9-armA-20260818T213417Z"],
+  "participant_ids": ["claude-fable-5 (subject, cc 2.1.224 headless)", "claude-fable-5 (operator, no subject authorship)"],
+  "session_ids": ["68896c74-68de-438a-bbcc-e6a8eaee47a3"],
+  "context_manifest_refs": [],
+  "corrections": [],
+  "failures": [],
+  "interventions": [],
+  "rework_count": 0,
+  "review_findings": {
+    "acceptance_criteria_coverage": "7/7 PASS at first review",
+    "overall": "COMPLETE",
+    "findings": [
+      {"severity": "minor", "detail": "Restart-continuity evidence is an honest in-memory canonical-JSON round-trip, categorically weaker than arm B's real DB kill/respawn (accurately disclosed, no overclaim)."}
+    ],
+    "unsupported_claims": "None. All 9 deleted lines verified as refactor noise (no compat regression).",
+    "scope_creep": "none",
+    "fail_open_defects": "none",
+    "highlight": "First unqualified COMPLETE of the program. Real product-fenced QUERY-based enumeration of all four derived-artifact classes plus ACTIVE erasure with post-erasure verification; fails closed with no port attached; stale-preview check extended to derived-artifact drift; per-class export checksums + named control-plane exclusions; wire-level backward compat via the repo's own exclude_if pattern; avoided the allowlist trap by construction; disclosed the qdrant vector copy no other arm mentioned."
+  },
+  "verification_results": {
+    "operator_ran": "All gates green: its 4 test files + FULL test_public_core_boundaries.py (10/10) + test_contract_boundaries.py; ruff clean",
+    "contracts": "additive; -9 lines verified refactor-only"
+  },
+  "costs": {"wall_clock_min": 36.2, "turns": 104, "tokens": {"input": null, "output": 120914}, "usd_list_rate_equivalent_labeled_accounting": 33.18},
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "proposal": {"kind": "no_learning", "evidence_refs": ["aba-PI9-armA-20260818T213417Z-result.json", "PI9 registration run log"], "eligible_scope": "none - ceiling control, evidence-only", "expected_effect": "n/a", "conflicts": [], "expiry": ""},
+  "notes": "Reference ceiling. Single commit 4187017, 14 files, +1537/-9. Reviewer-recommended BASE design for the composed PI9 delivery. Tier observation: A > B on PI9 (inverts PI8); program tier story mixed 1-1, reported without aggregation per section 6."
+}

@@ -104,3 +104,41 @@ registration pins the repaired runner.
 
 **Retrospective PI2–PI7 (§8.2):** not yet annotated — reported as gaps, which the spec treats as
 a valid state. Any future annotation appends here labeled `retrospective: true`.
+
+### PI9 — ownership depth (J9/J10) — 2026-08-18/19
+
+Second preregistered subject, run under harness v1 (same frozen digest). Frozen head
+`45b48b80789214c4f5de9f443fa0bb208171d890` — the first head carrying PR #237's task-shaped
+thin-client surface, making PI9 the preregistered before/after test of the PI8 adoption finding.
+Runner: repaired `codex/pi12-arm-runner` @ `e88ae86`; CC 2.1.224. No voids, no incidents.
+Registration and one §8 capture record per arm-run:
+[`artifacts/pi12-pi9/`](artifacts/pi12-pi9/).
+
+| Arm-run | Model / config | Outcome |
+|---|---|---|
+| `aba-PI9-armB-20260818T213359Z` | bare claude-sonnet-5 | **Completed**, 185 turns / 33.4 min. Review: 7/7 PASS, COMPLETE-WITH-DEFECTS — sole defect a boundary-allowlist registry omission; contains the program's strongest single test (real SurrealDB kill/respawn restart-continuity e2e). |
+| `aba-PI9-armA-20260818T213417Z` | bare claude-fable-5 | **Completed**, 104 turns / 36.2 min. Review: 7/7 PASS, **COMPLETE — first unqualified COMPLETE of the program**; product-fenced query-verified enumeration + active erasure with post-erasure verification; all boundary gates passed by construction. |
+| `aba-PI9-armC-20260818T221001Z` | claude-sonnet-5 + ACE MCP (task-shaped surface) | **Degraded/invalid (§7): ZERO ACE MCP calls** (repaired tool_use counter + API log + live monitor). Transcript forensics: the tools never entered deliberation at all. |
+| `aba-PI9-armC-20260818T224101Z` | same (sanctioned rerun 1 of 1) | **Degraded/invalid again: ZERO ACE MCP calls.** As bare work product: 6/7 PASS + 1 PARTIAL; contributes an AST boundary-regression test idea. |
+
+**Verdicts (§6):**
+
+- **C vs B and C vs A: no valid arm C measurement — vacant.** The recorded arm C result is the
+  adoption finding at full strength: **zero adoption in 4/4 arm-C runs across two subjects and
+  two tool surfaces (pre- and post-#237)**. Intervention 1 (task-shaped tool descriptions,
+  PR #237) is measured and falsified as a standalone adoption fix; the binding constraint is
+  election/attention, not description quality.
+- **B vs A (descriptive):** arm A outscored arm B (COMPLETE vs COMPLETE-WITH-DEFECTS) —
+  inverting PI8's ordering. Program tier story after two subjects: mixed, reported without
+  aggregation.
+- **Intelligence-curve point:** provisioned-but-unadopted ×2. The capture records' `context`
+  proposal (remove the election step) was implemented as ordinary work — the A0 ambient trigger
+  (PR #240) — and harness **v2** (PR #242, digest recorded per §9) preregisters arm **C′** and
+  the adoption metric to measure the 0→N flip on the next subject.
+
+**Delivery (rule 8):** PI9 shipped as ordinary work in two merged halves — #241 (additive
+surviving-derivative disclosure) and #244 (derivative coverage: product-fenced enumeration,
+fail-closed erasure port, deterministic replay-safe proof report, payload-filter vector
+deletion, kill-respawn restart e2e). The three-arm evidence base materially informed #244's
+design; the arms' work products are archived with the registration. The experiment did not
+block 1.2 delivery.
