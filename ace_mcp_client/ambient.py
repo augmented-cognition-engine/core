@@ -138,13 +138,19 @@ def _no_answer(query: str, missing_coverage: str) -> AmbientResult:
 def _format_context(target_path: str, lens: dict, provenance: str, gaps: tuple[str, ...]) -> str:
     nodes = lens.get("nodes") or ()
     edges = lens.get("edges") or ()
-    evidence = lens.get("evidence") or ()
+    impact = lens.get("impact") or {}
+    dependents = tuple(impact.get("direct_dependents") or ())
+    affected_tests = tuple(impact.get("affected_tests") or ())
     disclosed = "; ".join(gaps) if gaps else "none disclosed"
-    return (
-        f"ACE code intelligence for {lens.get('target_path', target_path)} (index {provenance}): "
-        f"{len(nodes)} nodes, {len(edges)} edges, {len(evidence)} cited evidence anchors. "
-        f"Known gaps: {disclosed}."
-    )
+    parts = [f"ACE code intelligence for {lens.get('target_path', target_path)} (index {provenance})"]
+    if nodes or edges:
+        parts.append(f"{len(nodes)} nodes, {len(edges)} edges")
+    if dependents:
+        parts.append("direct dependents: " + ", ".join(dependents[:8]))
+    if affected_tests:
+        parts.append("affected tests: " + ", ".join(affected_tests[:8]))
+    parts.append(f"known gaps: {disclosed}")
+    return ". ".join(parts) + "."
 
 
 async def surface_code_intelligence(decision: GateDecision, target_path: str, *, journey) -> AmbientResult:
@@ -176,12 +182,19 @@ async def surface_code_intelligence(decision: GateDecision, target_path: str, *,
         return _no_answer(decision.query, "no cited code-intelligence projection available")
 
     nodes = lens.get("nodes") or ()
+    impact = lens.get("impact") or {}
+    # A real lens routinely carries its value in `impact` (dependents / affected tests) with empty
+    # `nodes`, so "has content" must consider both — not nodes alone.
+    has_impact = bool(
+        impact.get("direct_dependents") or impact.get("transitive_dependents") or impact.get("affected_tests")
+    )
     gaps = (
         tuple(lens.get("omissions") or ())
         + tuple(lens.get("degraded_reasons") or ())
+        + tuple(impact.get("known_coverage_gaps") or ())
         + tuple(response.get("limitations") or ())
     )
-    if not nodes:
+    if not nodes and not has_impact:
         return _no_answer(decision.query, "; ".join(gaps) or "code intelligence found no relevant projection")
 
     provenance = f"{snapshot}@gen{response.get('index_generation', '?')}"
