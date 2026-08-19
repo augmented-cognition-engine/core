@@ -30,6 +30,16 @@ BACKUP_NON_REAPPEARANCE_LIMITATION = (
     "ACE verifies removal from the configured primary immutable-record store only; "
     "pre-existing backups, exports, caches, and external copies must be expired or purged separately."
 )
+# Additive disclosure (Decision 9): explicitly enumerate the derivative kinds that survive if present,
+# so a person can tell exactly what is NOT removed. Kept as a new, defaulted field (never by editing
+# the persisted backup_limitation Literal) and excluded from the record identity digest, so archived
+# previews/proofs written before this field revalidate identically.
+SURVIVING_DERIVATIVE_DISCLOSURE = (
+    "Derivatives held outside the primary immutable-record store are NOT reached by this deletion and "
+    "survive until purged separately: external embeddings and vector material, external graph rows and "
+    "edges, search indexes, caches, native database backups, prior exports, and connector- or "
+    "externally-held copies."
+)
 
 _DIGEST_PATTERN = r"^sha256:[a-f0-9]{64}$"
 
@@ -213,6 +223,12 @@ class PersonalIntelligenceDeletePreviewV1Alpha1(_StrictFrozen):
         "ACE verifies removal from the configured primary immutable-record store only; "
         "pre-existing backups, exports, caches, and external copies must be expired or purged separately."
     ] = BACKUP_NON_REAPPEARANCE_LIMITATION
+    surviving_derivative_disclosure: Literal[
+        "Derivatives held outside the primary immutable-record store are NOT reached by this deletion and "
+        "survive until purged separately: external embeddings and vector material, external graph rows and "
+        "edges, search indexes, caches, native database backups, prior exports, and connector- or "
+        "externally-held copies."
+    ] = SURVIVING_DERIVATIVE_DISCLOSURE
     preview_id: str | None = None
     preview_digest: str | None = Field(default=None, pattern=_DIGEST_PATTERN)
     confirmation_digest: str | None = Field(default=None, pattern=_DIGEST_PATTERN)
@@ -245,7 +261,7 @@ class PersonalIntelligenceDeletePreviewV1Alpha1(_StrictFrozen):
             prefix="personal_intelligence_delete_preview",
             id_field="preview_id",
             digest_field="preview_digest",
-            exclude={"confirmation_digest"},
+            exclude={"confirmation_digest", "surviving_derivative_disclosure"},
         )
         confirmation_material = {
             "preview_id": self.preview_id,
@@ -318,6 +334,12 @@ class PersonalIntelligenceDeletionProofV1Alpha1(_StrictFrozen):
         "ACE verifies removal from the configured primary immutable-record store only; "
         "pre-existing backups, exports, caches, and external copies must be expired or purged separately."
     ] = BACKUP_NON_REAPPEARANCE_LIMITATION
+    surviving_derivative_disclosure: Literal[
+        "Derivatives held outside the primary immutable-record store are NOT reached by this deletion and "
+        "survive until purged separately: external embeddings and vector material, external graph rows and "
+        "edges, search indexes, caches, native database backups, prior exports, and connector- or "
+        "externally-held copies."
+    ] = SURVIVING_DERIVATIVE_DISCLOSURE
     proof_id: str | None = None
     proof_digest: str | None = Field(default=None, pattern=_DIGEST_PATTERN)
 
@@ -338,12 +360,14 @@ class PersonalIntelligenceDeletionProofV1Alpha1(_StrictFrozen):
             prefix="personal_intelligence_deletion_proof",
             id_field="proof_id",
             digest_field="proof_digest",
+            exclude={"surviving_derivative_disclosure"},
         )
         return self
 
 
 __all__ = [
     "BACKUP_NON_REAPPEARANCE_LIMITATION",
+    "SURVIVING_DERIVATIVE_DISCLOSURE",
     "PERSONAL_INTELLIGENCE_DELETE_CONFIRMATION_VERSION",
     "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_REQUEST_VERSION",
     "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_VERSION",
