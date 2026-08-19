@@ -141,6 +141,10 @@ def test_only_host_adapters_and_installed_product_applications_import_public_ace
         # Durable cognition persistence is the transaction adapter that writes
         # the public append-only record vocabulary in the same Surreal commit.
         "core/engine/cognition/governance_persistence.py",
+        # PI9 delivery: workspace derivative erasure host adapter. Bridges the ownership
+        # deletion journey's Core contracts to the scanner graph rows and Qdrant vectors;
+        # imports ace.core contract shapes only, never ace.intelligence.
+        "core/engine/core/personal_intelligence_derivative_erasure.py",
     }
     governed_authority_contracts = {
         # Slice 7: the delegated request envelope and its receipts bind the

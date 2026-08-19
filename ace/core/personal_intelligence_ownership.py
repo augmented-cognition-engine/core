@@ -14,6 +14,7 @@ from typing import Literal, Self
 
 from pydantic import ConfigDict, Field, field_validator, model_validator
 
+from ace.core.agent_memory_lifecycle import DependencyKind
 from ace.core.contracts import FrozenContract, canonical_hash
 from ace.core.records import ImmutableRecordReferenceV1, ImmutableRecordV1
 from ace.core.runtime_use import AuthenticatedRuntimeContextV1Alpha1
@@ -39,6 +40,20 @@ SURVIVING_DERIVATIVE_DISCLOSURE = (
     "survive until purged separately: external embeddings and vector material, external graph rows and "
     "edges, search indexes, caches, native database backups, prior exports, and connector- or "
     "externally-held copies."
+)
+
+DERIVED_ARTIFACT_COVERAGE_VERSION = "ace.core.personal-intelligence-derived-artifact-coverage/v1alpha1"
+DERIVED_ARTIFACT_ERASURE_ENTRY_VERSION = "ace.core.personal-intelligence-derived-artifact-erasure-entry/v1alpha1"
+
+# Delivery half of Decision 9: the workspace derivative kinds a deletion must cover or explicitly
+# prove surviving. The vocabulary is the AM4 dependency closure's, not a parallel invention.
+WORKSPACE_DERIVED_ARTIFACT_KINDS: tuple[str, ...] = (
+    DependencyKind.EMBEDDING.value,
+    DependencyKind.VECTOR_MATERIAL.value,
+    DependencyKind.GRAPH_PROJECTION.value,
+    DependencyKind.GRAPH_EDGE.value,
+    DependencyKind.CACHE.value,
+    DependencyKind.SUMMARY.value,
 )
 
 _DIGEST_PATTERN = r"^sha256:[a-f0-9]{64}$"
@@ -88,6 +103,129 @@ def _derive_identity(
         raise ValueError(f"{digest_field} does not match exact contract material")
     object.__setattr__(value, id_field, expected_id)
     object.__setattr__(value, digest_field, expected_digest)
+
+
+class DerivedArtifactCoverageV1Alpha1(_StrictFrozen):
+    """One workspace derivative kind's exact pre-deletion count and disposition.
+
+    Carried on the delete PREVIEW so the person reviews, before confirming, what
+    the deletion will remove (covered=True) and what will survive with a concrete
+    per-kind reason (covered=False). The generic catch-all disclosure is not an
+    acceptable reason here — that boundary belongs to SURVIVING_DERIVATIVE_DISCLOSURE.
+    """
+
+    contract: Literal["ace.core.personal-intelligence-derived-artifact-coverage/v1alpha1"] = (
+        DERIVED_ARTIFACT_COVERAGE_VERSION
+    )
+    artifact_kind: str
+    store: str
+    enumerated_count: int = Field(ge=0)
+    covered: bool
+    surviving_reason: str | None = None
+
+    @field_validator("artifact_kind")
+    @classmethod
+    def validate_kind(cls, value: str) -> str:
+        if value not in WORKSPACE_DERIVED_ARTIFACT_KINDS:
+            raise ValueError("artifact_kind must be one of the workspace derived-artifact kinds")
+        return value
+
+    @field_validator("store")
+    @classmethod
+    def validate_store(cls, value: str) -> str:
+        return _bounded(value, name="store")
+
+    @model_validator(mode="after")
+    def validate_disposition(self) -> Self:
+        if self.covered:
+            if self.surviving_reason is not None:
+                raise ValueError("a covered derivative kind carries no surviving reason")
+        else:
+            if self.surviving_reason is None:
+                raise ValueError("a surviving derivative kind requires a concrete reason")
+            _bounded(self.surviving_reason, name="surviving_reason")
+            if self.surviving_reason == SURVIVING_DERIVATIVE_DISCLOSURE:
+                raise ValueError("surviving_reason must be concrete per kind, not the generic disclosure")
+        return self
+
+
+class DerivedArtifactErasureEntryV1Alpha1(_StrictFrozen):
+    """One workspace derivative kind's per-deletion erasure outcome on the proof.
+
+    Derived deterministically from the reviewed preview coverage (see
+    derive_erasure_entries) so an idempotent confirmation replay reproduces the
+    byte-identical proof; the erasure step's job is to make this report true or
+    fail closed before the proof is appended.
+    """
+
+    contract: Literal["ace.core.personal-intelligence-derived-artifact-erasure-entry/v1alpha1"] = (
+        DERIVED_ARTIFACT_ERASURE_ENTRY_VERSION
+    )
+    artifact_kind: str
+    store: str
+    enumerated_count: int = Field(ge=0)
+    removed_count: int = Field(ge=0)
+    surviving_count: int = Field(ge=0)
+    verified_absent: bool
+    surviving_reason: str | None = None
+
+    @field_validator("artifact_kind")
+    @classmethod
+    def validate_kind(cls, value: str) -> str:
+        if value not in WORKSPACE_DERIVED_ARTIFACT_KINDS:
+            raise ValueError("artifact_kind must be one of the workspace derived-artifact kinds")
+        return value
+
+    @field_validator("store")
+    @classmethod
+    def validate_store(cls, value: str) -> str:
+        return _bounded(value, name="store")
+
+    @model_validator(mode="after")
+    def validate_outcome(self) -> Self:
+        if self.removed_count + self.surviving_count != self.enumerated_count:
+            raise ValueError("removed_count and surviving_count must partition enumerated_count exactly")
+        if self.surviving_count == 0:
+            if not self.verified_absent:
+                raise ValueError("a fully-removed derivative kind must be probe-verified absent")
+            if self.surviving_reason is not None:
+                raise ValueError("a fully-removed derivative kind carries no surviving reason")
+        else:
+            if self.verified_absent:
+                raise ValueError("a kind with survivors cannot claim verified absence")
+            if self.surviving_reason is None:
+                raise ValueError("surviving derivatives require a concrete reason")
+            _bounded(self.surviving_reason, name="surviving_reason")
+            if self.surviving_reason == SURVIVING_DERIVATIVE_DISCLOSURE:
+                raise ValueError("surviving_reason must be concrete per kind, not the generic disclosure")
+        return self
+
+
+def derive_erasure_entries(
+    coverage: tuple[DerivedArtifactCoverageV1Alpha1, ...],
+) -> tuple[DerivedArtifactErasureEntryV1Alpha1, ...]:
+    """The deterministic erasure report one exact preview coverage promises."""
+
+    return tuple(
+        DerivedArtifactErasureEntryV1Alpha1(
+            artifact_kind=item.artifact_kind,
+            store=item.store,
+            enumerated_count=item.enumerated_count,
+            removed_count=item.enumerated_count if item.covered else 0,
+            surviving_count=0 if item.covered else item.enumerated_count,
+            verified_absent=item.covered,
+            surviving_reason=None if item.covered else item.surviving_reason,
+        )
+        for item in coverage
+    )
+
+
+def _unique_kinds(
+    entries: tuple[DerivedArtifactCoverageV1Alpha1, ...] | tuple[DerivedArtifactErasureEntryV1Alpha1, ...],
+) -> None:
+    kinds = [entry.artifact_kind for entry in entries]
+    if len(kinds) != len(set(kinds)):
+        raise ValueError("derived-artifact entries must name each kind at most once")
 
 
 def _record_set_digest(records: tuple[ImmutableRecordReferenceV1, ...]) -> str:
@@ -229,6 +367,9 @@ class PersonalIntelligenceDeletePreviewV1Alpha1(_StrictFrozen):
         "edges, search indexes, caches, native database backups, prior exports, and connector- or "
         "externally-held copies."
     ] = SURVIVING_DERIVATIVE_DISCLOSURE
+    # Decision 9 delivery half: exact per-kind pre-deletion counts and dispositions, reviewed
+    # before confirming. Additive and digest-excluded so pre-change previews revalidate identically.
+    derived_artifacts: tuple[DerivedArtifactCoverageV1Alpha1, ...] = ()
     preview_id: str | None = None
     preview_digest: str | None = Field(default=None, pattern=_DIGEST_PATTERN)
     confirmation_digest: str | None = Field(default=None, pattern=_DIGEST_PATTERN)
@@ -256,12 +397,13 @@ class PersonalIntelligenceDeletePreviewV1Alpha1(_StrictFrozen):
             raise ValueError("delete preview records must be unique and sorted by storage identity")
         if self.record_set_digest != _record_set_digest(self.records):
             raise ValueError("record_set_digest does not bind the exact delete preview")
+        _unique_kinds(self.derived_artifacts)
         _derive_identity(
             self,
             prefix="personal_intelligence_delete_preview",
             id_field="preview_id",
             digest_field="preview_digest",
-            exclude={"confirmation_digest", "surviving_derivative_disclosure"},
+            exclude={"confirmation_digest", "surviving_derivative_disclosure", "derived_artifacts"},
         )
         confirmation_material = {
             "preview_id": self.preview_id,
@@ -340,6 +482,10 @@ class PersonalIntelligenceDeletionProofV1Alpha1(_StrictFrozen):
         "edges, search indexes, caches, native database backups, prior exports, and connector- or "
         "externally-held copies."
     ] = SURVIVING_DERIVATIVE_DISCLOSURE
+    # Decision 9 delivery half: the per-kind erasure report this deletion made true, derived
+    # deterministically from the reviewed preview coverage. Additive and digest-excluded so
+    # pre-change proofs revalidate identically and idempotent replay reproduces the same proof.
+    derived_artifact_erasure: tuple[DerivedArtifactErasureEntryV1Alpha1, ...] = ()
     proof_id: str | None = None
     proof_digest: str | None = Field(default=None, pattern=_DIGEST_PATTERN)
 
@@ -355,19 +501,26 @@ class PersonalIntelligenceDeletionProofV1Alpha1(_StrictFrozen):
 
     @model_validator(mode="after")
     def derive_identity(self) -> Self:
+        _unique_kinds(self.derived_artifact_erasure)
         _derive_identity(
             self,
             prefix="personal_intelligence_deletion_proof",
             id_field="proof_id",
             digest_field="proof_digest",
-            exclude={"surviving_derivative_disclosure"},
+            exclude={"surviving_derivative_disclosure", "derived_artifact_erasure"},
         )
         return self
 
 
 __all__ = [
     "BACKUP_NON_REAPPEARANCE_LIMITATION",
+    "DERIVED_ARTIFACT_COVERAGE_VERSION",
+    "DERIVED_ARTIFACT_ERASURE_ENTRY_VERSION",
     "SURVIVING_DERIVATIVE_DISCLOSURE",
+    "WORKSPACE_DERIVED_ARTIFACT_KINDS",
+    "DerivedArtifactCoverageV1Alpha1",
+    "DerivedArtifactErasureEntryV1Alpha1",
+    "derive_erasure_entries",
     "PERSONAL_INTELLIGENCE_DELETE_CONFIRMATION_VERSION",
     "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_REQUEST_VERSION",
     "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_VERSION",

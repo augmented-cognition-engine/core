@@ -65,6 +65,64 @@ class VectorStore:
         )
         logger.debug("Upserted vector id=%s dim=%d", id, len(vector))
 
+    async def count_by_payload(self, key: str, values: list[str]) -> int:
+        import asyncio
+
+        self._validate_payload_selector(key, values, "count_by_payload")
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self._sync_count_by_payload, key, values)
+
+    def _sync_count_by_payload(self, key: str, values: list[str]) -> int:
+        self._ensure_client()
+        result = self._client.count(
+            collection_name=_COLLECTION,
+            count_filter=self._payload_filter(key, values),
+            exact=True,
+        )
+        return int(result.count)
+
+    async def delete_by_payload(self, key: str, values: list[str]) -> int:
+        """Delete every point whose payload field `key` matches one of `values`.
+
+        Deletion is payload-filter based by necessity: point ids are derived from
+        a per-process salted hash (see _sync_upsert) and cannot be reconstructed
+        by a later process. Returns the number of matching points removed,
+        counted exactly before the delete.
+        """
+        import asyncio
+
+        self._validate_payload_selector(key, values, "delete_by_payload")
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self._sync_delete_by_payload, key, values)
+
+    def _sync_delete_by_payload(self, key: str, values: list[str]) -> int:
+        from qdrant_client.models import FilterSelector
+
+        self._ensure_client()
+        selector = self._payload_filter(key, values)
+        matched = int(self._client.count(collection_name=_COLLECTION, count_filter=selector, exact=True).count)
+        if matched:
+            self._client.delete(
+                collection_name=_COLLECTION,
+                points_selector=FilterSelector(filter=selector),
+                wait=True,
+            )
+        logger.debug("Deleted %d vectors where %s in %d values", matched, key, len(values))
+        return matched
+
+    @staticmethod
+    def _validate_payload_selector(key: str, values: list[str], operation: str) -> None:
+        if not key or not key.strip():
+            raise ValueError(f"VectorStore.{operation}: key must be a non-empty string")
+        if not values or any(not item or not item.strip() for item in values):
+            raise ValueError(f"VectorStore.{operation}: values must be non-empty strings")
+
+    @staticmethod
+    def _payload_filter(key: str, values: list[str]):
+        from qdrant_client.models import FieldCondition, Filter, MatchAny
+
+        return Filter(must=[FieldCondition(key=key, match=MatchAny(any=list(values)))])
+
     async def search(self, vector: list[float], limit: int = 10) -> list[dict]:
         import asyncio
 

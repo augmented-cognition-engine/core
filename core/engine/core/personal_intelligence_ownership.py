@@ -13,6 +13,7 @@ from ace.application import (
     PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE,
     PersonalIntelligenceDeletePreviewStale,
     PersonalIntelligenceDeletionResult,
+    PersonalIntelligenceDerivativeErasurePort,
     PersonalIntelligenceOwnershipError,
     PersonalIntelligenceOwnershipService,
 )
@@ -40,6 +41,7 @@ from core.engine.core.agent_composition_runtime import (
 from core.engine.core.db import pool
 from core.engine.core.governed_state import SurrealGovernedStateStore
 from core.engine.core.immutable_records import SurrealImmutableRecordStore
+from core.engine.core.personal_intelligence_derivative_erasure import SurrealWorkspaceDerivativeErasure
 
 EXPORT_OPERATION = "export_personal_intelligence"
 PREVIEW_DELETE_OPERATION = "preview_personal_intelligence_deletion"
@@ -79,6 +81,7 @@ class PersonalOwnershipHttpDeletionResultV1(BaseModel):
 class PersonalOwnershipHttpRuntime:
     records: ImmutableRecordStore
     authority: RuntimeUseResolver
+    derivatives: PersonalIntelligenceDerivativeErasurePort | None = None
 
 
 class PersonalOwnershipHttpUnauthenticated(RuntimeError):
@@ -102,6 +105,7 @@ def personal_ownership_runtime() -> PersonalOwnershipHttpRuntime:
     return PersonalOwnershipHttpRuntime(
         records=records,
         authority=GovernedStateRuntimeUseResolver(governed_state=SurrealGovernedStateStore(pool)),
+        derivatives=SurrealWorkspaceDerivativeErasure(pool=pool),
     )
 
 
@@ -244,6 +248,7 @@ async def _service(
                 grant_ref=selector_grant_ref,
                 token_authorities=tuple(user.get("authorities", ())),
             ),
+            derivatives=runtime.derivatives,
         ),
         context,
     )
