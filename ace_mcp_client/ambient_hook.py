@@ -16,7 +16,12 @@ import asyncio
 import json
 import sys
 
-from ace_mcp_client.ambient import ambient_context_for_turn, journey_via_client, repo_graph_in_scope
+from ace_mcp_client.ambient import (
+    ambient_context_for_turn,
+    derive_repository_target,
+    journey_via_client,
+    repo_graph_in_scope,
+)
 
 
 async def run_hook(payload: dict, *, client) -> str:
@@ -30,9 +35,14 @@ async def run_hook(payload: dict, *, client) -> str:
     cwd = str(payload.get("cwd") or ".")
     if not prompt:
         return ""
+    # The 1.1 journey is file-scoped; derive a repository-relative existing file from the
+    # prompt (fail-closed: no qualifying file, no injection, no journey call).
+    target = derive_repository_target(prompt, cwd)
+    if not target:
+        return ""
     result = await ambient_context_for_turn(
         prompt,
-        cwd,
+        target,
         journey=journey_via_client(client),
         graph_in_scope=repo_graph_in_scope(cwd),
     )
