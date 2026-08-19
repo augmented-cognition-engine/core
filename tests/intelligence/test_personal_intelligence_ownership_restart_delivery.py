@@ -34,7 +34,10 @@ from ace.core.records import AppendOnlyTransactionRequestV1, ImmutableRecordV1
 from ace.core.runtime_use import AuthenticatedRuntimeContextV1Alpha1
 from core.engine.core.db import parse_record_id
 from core.engine.core.immutable_records import SurrealImmutableRecordStore
-from core.engine.core.personal_intelligence_derivative_erasure import SurrealWorkspaceDerivativeErasure
+from core.engine.core.personal_intelligence_derivative_erasure import (
+    SurrealWorkspaceDerivativeErasure,
+    WorkspaceDerivativeErasureError,
+)
 from core.engine.core.recovery import DatabaseTarget
 from core.engine.search.vector_store import VectorStore
 
@@ -323,6 +326,56 @@ async def test_confirmed_deletion_covers_derivatives_and_survives_a_real_restart
         replay = await replay_service.confirm_delete(confirmation)
         assert replay.proof == result.proof
         assert replay.transaction_receipt_ref == result.transaction_receipt_ref
+    finally:
+        if pool is not None:
+            await pool.close()
+        await _stop(process)
+        log.close()
+
+
+@pytest.mark.asyncio
+async def test_erase_fails_closed_when_vectors_are_not_actually_deleted(tmp_path):
+    # Finding 1 regression: the post-erasure re-probe must re-check vectors against the ORIGINAL
+    # selectors captured before the graph delete. A delete that silently under-removes (payload
+    # mismatch / partial delete) must be caught and fail closed — never attested as complete erasure
+    # of vectors that still exist.
+    surreal = os.environ.get("ACE_SURREAL_BIN") or shutil.which("surreal")
+    if not surreal:
+        pytest.skip("surreal binary is unavailable")
+
+    class _NonDeletingVectorStore(VectorStore):
+        async def delete_by_payload(self, field, values):  # report success, delete nothing
+            return
+
+    port = _port()
+    data_dir = tmp_path / "store"
+    log = (tmp_path / "surreal.log").open("w")
+    target = DatabaseTarget(
+        endpoint=f"ws://127.0.0.1:{port}",
+        namespace="ace_pi9_neg",
+        database="ace_pi9_neg",
+        username="root",
+        password="root",
+    )
+    process: subprocess.Popen | None = None
+    pool: _SingleConnectionPool | None = None
+    vectors = _NonDeletingVectorStore(dimensions=4)
+    try:
+        process = _surreal_process(surreal, port, data_dir, log)
+        await _wait_port(port, process)
+        pool = _SingleConnectionPool(target)
+        await pool.open()
+        await _define_tables(pool)
+        await _seed_workspace(pool, vectors)
+
+        adapter = SurrealWorkspaceDerivativeErasure(pool=pool, vector_store=vectors)
+        coverage = await adapter.enumerate_derivatives(product_id=PRODUCT)
+
+        with pytest.raises(WorkspaceDerivativeErasureError, match="not complete"):
+            await adapter.erase_derivatives(product_id=PRODUCT, coverage=coverage)
+
+        # The vectors genuinely survived the sabotaged delete — the re-probe had to see them to fail.
+        assert await vectors.count_by_payload("graph_id", [GRAPH_ID]) >= 1
     finally:
         if pool is not None:
             await pool.close()

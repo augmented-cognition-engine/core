@@ -189,9 +189,25 @@ class SurrealWorkspaceDerivativeErasure:
         if snapshot.graph_ids:
             await vectors.delete_by_payload("graph_id", snapshot.graph_ids)
         if snapshot.file_paths:
+            # Single-product-per-store invariant: function vectors carry no product/graph scope in
+            # their payload (embed_hook writes only {file, name, kind}), so this delete is by relative
+            # `file` path alone. On a Qdrant collection shared across products it would over-delete
+            # identically-named files of another product. ACE 1.2 is single-node / single-product per
+            # store, so this holds; per-payload product scoping is a tracked follow-up before any
+            # multi-product deployment.
             await vectors.delete_by_payload("file", snapshot.file_paths)
+        # Re-probe. Graph/edge counts come from the now-empty SurrealDB tables (correct). Vector
+        # counts MUST be re-checked against the ORIGINAL selectors captured before the graph delete —
+        # re-deriving them from the emptied graph tables always yields 0 and would silently attest
+        # deletion of vectors that still exist.
         probe = await self._snapshot(product_id=product_id)
-        if probe.node_count or probe.edge_count or probe.file_vectors or probe.function_vectors:
+        remaining_file_vectors = (
+            await vectors.count_by_payload("graph_id", snapshot.graph_ids) if snapshot.graph_ids else 0
+        )
+        remaining_function_vectors = (
+            await vectors.count_by_payload("file", snapshot.file_paths) if snapshot.file_paths else 0
+        )
+        if probe.node_count or probe.edge_count or remaining_file_vectors or remaining_function_vectors:
             raise WorkspaceDerivativeErasureError(
                 "post-erasure derivative probe found remaining workspace artifacts; deletion is not complete"
             )
