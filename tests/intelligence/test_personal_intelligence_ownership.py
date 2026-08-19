@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -16,6 +17,7 @@ from ace.core.contracts import canonical_json
 from ace.core.personal_intelligence_ownership import (
     BACKUP_NON_REAPPEARANCE_LIMITATION,
     PORTABILITY_SCOPE,
+    SURVIVING_DERIVATIVE_DISCLOSURE,
     PersonalIntelligenceDeleteConfirmationV1Alpha1,
     PersonalIntelligenceDeletePreviewRequestV1Alpha1,
     PersonalIntelligenceExportRequestV1Alpha1,
@@ -245,3 +247,40 @@ async def test_atomic_erasure_failure_preserves_all_content_and_no_proof() -> No
     remaining = await store.scan_product_records(product_id=PRODUCT_ID)
     assert {item.storage_id for item in remaining} == {first.storage_id, second.storage_id}
     assert all(item.record_space != PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE for item in remaining)
+
+
+def test_surviving_derivative_disclosure_enumerates_decision_9_kinds():
+    # Decision 9: deletion must cover OR explicitly enumerate as surviving every derived artifact —
+    # embeddings, graph rows, caches, indexes. The additive disclosure names them explicitly so a
+    # person can tell exactly what is not removed.
+    text = SURVIVING_DERIVATIVE_DISCLOSURE.lower()
+    for kind in ("embedding", "graph", "index", "cache"):
+        assert kind in text, f"disclosure must explicitly name '{kind}' as possibly surviving (Decision 9)"
+
+
+@pytest.mark.asyncio
+async def test_pre_field_records_revalidate_to_identical_identity():
+    # Backward-compat (PR #241 review): a preview/proof written BEFORE the additive disclosure field
+    # — i.e. whose stored JSON lacks it — must revalidate to the SAME identity digest. The field is
+    # defaulted and excluded from identity derivation, so replaying a pre-#241 record does not fail
+    # (unlike editing the persisted backup_limitation Literal, which would break replay).
+    store = InMemoryImmutableRecordStore()
+    await _seed(store, _record(key="brief:1", secret="alpha"))
+    service = _service(store)
+    preview = await service.preview_delete(_preview_request())
+    proof = (await service.confirm_delete(_confirmation(preview))).proof
+
+    for instance in (preview, proof):
+        # Records are stored and re-loaded as JSON, so simulate an old record by round-tripping
+        # through JSON with the field removed (the contract is strict; model_validate_json is the
+        # real replay path).
+        raw = json.loads(instance.model_dump_json())
+        assert raw["surviving_derivative_disclosure"] == SURVIVING_DERIVATIVE_DISCLOSURE
+        del raw["surviving_derivative_disclosure"]  # simulate a record persisted before the field
+
+        revalidated = type(instance).model_validate_json(json.dumps(raw))
+
+        # The default fills in on load, and the identity is unchanged (field excluded from the digest),
+        # so the whole record — id and digest included — reopens identically.
+        assert revalidated.surviving_derivative_disclosure == SURVIVING_DERIVATIVE_DISCLOSURE
+        assert json.loads(revalidated.model_dump_json(exclude={"surviving_derivative_disclosure"})) == raw
