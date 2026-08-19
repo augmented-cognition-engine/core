@@ -1,0 +1,58 @@
+{
+  "subject_decision_id": "PI10",
+  "harness": "ace-builds-ace-harness-v2",
+  "harness_digest": "08fe233c26a798657530a146b4ad66ef624d5abb7f0cb8cfa6be0cb6e64bb48c",
+  "context_manifest_refs": [],
+  "corrections": [],
+  "rework_count": 0,
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "capture_id": "aba-PI10-armC-20260819T202209Z-capture-v1",
+  "arm": "C",
+  "run_ids": [
+    "aba-PI10-armC-20260819T202209Z"
+  ],
+  "participant_ids": [
+    "claude-sonnet-5 + ACE MCP (election control, v2 evidence-only role) (subject, cc 2.1.224 headless)",
+    "claude-fable-5 (operator, no subject authorship)",
+    "scripted participant-2 (stale-context induction)"
+  ],
+  "session_ids": [
+    "8e4f81c9-c149-4f0a-9404-c18cda4fca76"
+  ],
+  "failures": [],
+  "interventions": [
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "Hardened detached launches (external task-sweep anomaly, owner-confirmed not-them); runner v3 36980ef5; for C-prime: index-store wipe immediately pre-launch (single-shot journey defect protocol)."
+    }
+  ],
+  "review_findings": {
+    "overall": "Election-control role: not fully scored; spot-check comparable. Boundary gates 24/24; registered all __init__ surfaces; published schemas; unique explicit co-installation conflict validator; 6 commits, 3,883 lines incl. an 1,841-line plan doc."
+  },
+  "verification_results": {
+    "operator_ran": "consultations: 0 (fifth consecutive election zero program-wide) \u2014 the baseline measurement. Participant-2 induction fired T+10:05, POST /observations 201 (API-log recorded; runner meta-echo mispath noted as v3 defect)."
+  },
+  "costs": {
+    "wall_clock_min": 33.9,
+    "turns": 121,
+    "tokens": {
+      "output": null
+    },
+    "usd_list_rate_equivalent_labeled_accounting": 11.34
+  },
+  "proposal": {
+    "kind": "no_learning",
+    "evidence_refs": [
+      "aba-PI10-armC-20260819T202209Z-result.json",
+      "PI10 registration run log"
+    ],
+    "eligible_scope": "none",
+    "expected_effect": "n/a",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "The election baseline for the C-prime comparison. Valid per v2 (evidence-only on adoption subjects)."
+}

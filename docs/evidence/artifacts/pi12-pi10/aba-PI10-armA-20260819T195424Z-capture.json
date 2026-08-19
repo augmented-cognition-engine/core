@@ -1,0 +1,57 @@
+{
+  "subject_decision_id": "PI10",
+  "harness": "ace-builds-ace-harness-v2",
+  "harness_digest": "08fe233c26a798657530a146b4ad66ef624d5abb7f0cb8cfa6be0cb6e64bb48c",
+  "context_manifest_refs": [],
+  "corrections": [],
+  "rework_count": 0,
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "capture_id": "aba-PI10-armA-20260819T195424Z-capture-v1",
+  "arm": "A",
+  "run_ids": [
+    "aba-PI10-armA-20260819T195424Z"
+  ],
+  "participant_ids": [
+    "claude-fable-5 bare (subject, cc 2.1.224 headless)",
+    "claude-fable-5 (operator, no subject authorship)"
+  ],
+  "session_ids": [
+    "8d89d041-141c-4e01-bb2b-011751975f4d"
+  ],
+  "failures": [],
+  "interventions": [
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "Hardened detached launches (external task-sweep anomaly, owner-confirmed not-them); runner v3 36980ef5; for C-prime: index-store wipe immediately pre-launch (single-shot journey defect protocol)."
+    }
+  ],
+  "review_findings": {
+    "overall": "7/7 PASS, COMPLETE-WITH-DEFECTS (registry omission only). Most precisely answer-key-mapped test suite of the program: golden-digest determinism pin; injected mid-commit failure with store post-condition; zero-I/O preview proof; all three co-activation sub-claims independently tested; InstalledSolutionComponents fail-closed check (unique among the four arms); typed 240-char bounded failure reports; tightest commit message of the program."
+  },
+  "verification_results": {
+    "operator_ran": "14/14 own tests; ruff clean; public-core+kernel pass; 1 loaded-by-public-surface failure"
+  },
+  "costs": {
+    "wall_clock_min": 20.9,
+    "turns": 57,
+    "tokens": {
+      "output": 73410
+    },
+    "usd_list_rate_equivalent_labeled_accounting": 18.55
+  },
+  "proposal": {
+    "kind": "no_learning",
+    "evidence_refs": [
+      "aba-PI10-armA-20260819T195424Z-result.json",
+      "PI10 registration run log"
+    ],
+    "eligible_scope": "none",
+    "expected_effect": "n/a",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "Reference ceiling. Commit 60f8729, 3 files +1629. Its installed-check + golden-pin designs were grafted into the shipped delivery (#247)."
+}

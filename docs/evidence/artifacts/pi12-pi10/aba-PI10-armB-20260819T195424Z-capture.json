@@ -1,0 +1,57 @@
+{
+  "subject_decision_id": "PI10",
+  "harness": "ace-builds-ace-harness-v2",
+  "harness_digest": "08fe233c26a798657530a146b4ad66ef624d5abb7f0cb8cfa6be0cb6e64bb48c",
+  "context_manifest_refs": [],
+  "corrections": [],
+  "rework_count": 0,
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "capture_id": "aba-PI10-armB-20260819T195424Z-capture-v1",
+  "arm": "B",
+  "run_ids": [
+    "aba-PI10-armB-20260819T195424Z"
+  ],
+  "participant_ids": [
+    "claude-sonnet-5 bare (subject, cc 2.1.224 headless)",
+    "claude-fable-5 (operator, no subject authorship)"
+  ],
+  "session_ids": [
+    "f074b85b-fd8b-42ac-9541-c6191778a61f"
+  ],
+  "failures": [],
+  "interventions": [
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "Hardened detached launches (external task-sweep anomaly, owner-confirmed not-them); runner v3 36980ef5; for C-prime: index-store wipe immediately pre-launch (single-shot journey defect protocol)."
+    }
+  ],
+  "review_findings": {
+    "overall": "7/7 PASS, COMPLETE-WITH-DEFECTS. MATERIAL: no installed-component cross-check (resolution purely manifest-derived). Registry omission x2 (one masked by transitive import). Strengths: real compiler-pipeline fixtures; executable Decision-1 noun-boundary test; deactivation-injected-failure atomicity; full-content leakage scan."
+  },
+  "verification_results": {
+    "operator_ran": "its 4 test files 25/25; ruff clean; public-core+kernel pass; 1 contract-boundaries loaded-by-public-surface failure"
+  },
+  "costs": {
+    "wall_clock_min": 24.3,
+    "turns": 109,
+    "tokens": {
+      "output": 103605
+    },
+    "usd_list_rate_equivalent_labeled_accounting": 9.74
+  },
+  "proposal": {
+    "kind": "no_learning",
+    "evidence_refs": [
+      "aba-PI10-armB-20260819T195424Z-result.json",
+      "PI10 registration run log"
+    ],
+    "eligible_scope": "none",
+    "expected_effect": "n/a",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "Floor control. Uncommitted, 8 files. Its Decision-1 boundary-test design was grafted into the shipped delivery (#247)."
+}
