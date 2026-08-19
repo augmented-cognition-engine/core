@@ -1,0 +1,150 @@
+{
+  "harness": "ace-builds-ace-harness-v2",
+  "status": "PROPOSED — owner approval is merging the amendment PR; freeze completes when this file's SHA-256 at the merged commit is recorded in docs/evidence/ace-builds-ace-v1.md per v1 spec section 9",
+  "spec": "docs/design/ace-builds-ace-harness-v2.md",
+  "amends": "ace-builds-ace-harness-v1 — all v1 config values carry forward unchanged except the deltas below; v1 arm-A/B/C runs (PI8) remain reported under v1 and are never relabeled",
+  "evidence_destination": "docs/evidence/ace-builds-ace-v1.md",
+  "dependency": "arm C_prime requires PR #240 (the ambient trigger) merged before it can be registered, since C_prime installs the ambient hook into the arm session",
+  "billing_context": "runs execute under the owner's Claude subscription, not metered API billing; no dollar cap is enforced; dollar figures are list-rate-equivalent accounting only",
+  "arms": {
+    "A_bare_top_tier": {
+      "model": "claude-fable-5",
+      "ace_surface": "none",
+      "disposition": "evidence only, never merges",
+      "role": "reference ceiling"
+    },
+    "B_bare_mid_tier": {
+      "model": "claude-sonnet-5",
+      "ace_surface": "none",
+      "disposition": "evidence only, never merges",
+      "role": "floor control"
+    },
+    "C_mid_tier_plus_ace": {
+      "model": "claude-sonnet-5",
+      "ace_surface": "shipped-1.1-code-intelligence-only via the eleven-tool MCP surface (pull; the model must elect to call)",
+      "disposition": "on subjects where the adoption comparison is measured, retained as the election control (evidence only); on other subjects, the production path as in v1",
+      "concurrent_participants_min": 2,
+      "stale_context_events_min": 1,
+      "role": "election baseline (arm C's PI8 value for code-intelligence consultation was ~0)"
+    },
+    "C_prime_mid_tier_ambient_ace": {
+      "model": "claude-sonnet-5",
+      "ace_surface": "shipped-1.1-code-intelligence over the SAME backend as arm C, reached via the ambient hook (gated, fail-closed, auto-firing the journey on relevant turns) installed in the session config; differs from arm C in exactly this one pinned element",
+      "ambient_hook": "ace_mcp_client.ambient_hook, pinned by commit; adds no MCP tool (ordinary governed HTTP call to /v1/code-intelligence/journey)",
+      "disposition": "production path through ordinary review and merge on adoption-comparison subjects; the single arm whose output merges there (preserves v1 rule: only one implementation merges)",
+      "concurrent_participants_min": 2,
+      "stale_context_events_min": 1,
+      "role": "adoption-mechanism claim — ambient (push) vs election (pull), within-tier vs arm C"
+    },
+    "D_optional_exploratory": {
+      "model": "claude-fable-5",
+      "ace_surface": "shipped-1.1-code-intelligence-only",
+      "disposition": "at most one subject, labeled exploratory, never in the comparative result; an optional D_prime ambient variant may pair under the same rule",
+      "role": "headroom probe"
+    }
+  },
+  "pins": {
+    "coding_agent": "claude-code",
+    "coding_agent_version": "2.1.224",
+    "base_tool_allowlist": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep",
+      "TodoWrite"
+    ],
+    "web_tools": "excluded in both arms",
+    "mcp_baseline_arm": "none",
+    "mcp_ace_arm": "arm C: shipped eleven-tool ACE Code Intelligence surface only",
+    "ambient_ace_arm": "arm C_prime: the ambient hook auto-fires the journey; adds no MCP tool, the eleven-tool public surface stays fixed",
+    "token_budget_per_arm_run": 30000000,
+    "wall_clock_budget_per_arm_run_hours": 8,
+    "reruns_per_arm_per_subject_max": 1,
+    "cost_enforcement": "none — tokens and wall-clock are the caps",
+    "cost_accounting": "list-rate-equivalent USD from metered tokens at published list rates, reported only",
+    "top_tier_reference_model": "claude-fable-5",
+    "mid_tier_model": "claude-sonnet-5",
+    "cross_tier_token_comparison": "forbidden — different tokenizers; token/latency compared within tier only"
+  },
+  "subjects": {
+    "eligible_slices": [
+      "PI8",
+      "PI9",
+      "PI10"
+    ],
+    "adoption_comparison_subjects": {
+      "policy": "C and C_prime both run (C = election control, C_prime = ambient, C_prime merges) on at least PI9 and one of PI10 to get a two-point within-tier adoption series; owner confirms per-subject",
+      "timing": "this amendment must freeze before PI10; if PR #240 is not merged by PI9 registration, either hold the v2 freeze or register C_prime only from the first subject after #240 merges (earlier subjects run under v1)"
+    },
+    "pre_freeze_slices": {
+      "slices": [
+        "PI2",
+        "PI3",
+        "PI4",
+        "PI5",
+        "PI6",
+        "PI7"
+      ],
+      "policy": "retrospective annotation only, marked retrospective:true, excluded from the preregistered comparative result; unannotated gaps are valid and reported (v1 spec section 8.2)"
+    },
+    "minimum_count": 2,
+    "registration": "scope, acceptance criteria, repository heads, and answer key frozen before any arm runs",
+    "withdrawal": "reported, never silently replaced"
+  },
+  "measures": {
+    "primary": [
+      "acceptance_criteria_coverage",
+      "review_findings",
+      "rework_cycles",
+      "unsupported_claims",
+      "propagation_result",
+      "code_intelligence_consultation"
+    ],
+    "code_intelligence_consultation_definition": "per arm-run: count of code-intelligence consultations and how many were load-bearing (resolved context the accepted change used). A consultation is an MCP-tool invocation (arm C / A-with-MCP) or an ambient-injection event (arm C_prime). Arm C's v1 PI8 value was 0; this makes the 0->N flip a first-class preregistered quantity. Load-bearing consultations reuse the v1 section 8 retrieval_shortcuts accounting",
+    "secondary": [
+      "orientation_time",
+      "context_volume",
+      "latency",
+      "tokens",
+      "cost_list_rate_equivalent",
+      "failures_and_degraded_states"
+    ],
+    "deferred": [
+      "later_material_use",
+      "release_outcome_linkage"
+    ]
+  },
+  "analysis": {
+    "granularity": "descriptive, per subject; no statistical claim",
+    "program_result": "both per-subject tallies plus the section 8.1 curve projection; no aggregate score",
+    "negative_result_policy": "valid outcome, ships in evidence, does not gate J1-J10",
+    "within_tier_verdict_C_vs_B": "better: C improves majority of primary measures, materially worsens none; worse: inverse; mixed: else",
+    "tier_jump_verdict_C_vs_A": "tier_jump: C matches or exceeds bare top-tier on majority of primary measures, materially worse on none; partial_lift: C beats bare mid-tier but short of top-tier; no_lift: else; quality measures only",
+    "adoption_mechanism_verdict_C_prime_vs_C": "adopted_and_better: C_prime raises code-intelligence consultation above C's near-zero baseline AND improves a majority of the primary quality measures while materially worsening none; adopted_but_neutral: consultation rises but quality is unchanged (adoption was not the bottleneck); no_adoption: the ambient path did not raise consultation (hook/gate defect, recorded as such); worse: C_prime materially worsens a primary measure. Within-tier only; reported SEPARATELY from the unchanged C-vs-B and C-vs-A verdicts, which continue to use arm C for cross-tier comparability with the v1 series"
+  },
+  "exclusion": {
+    "exploratory_if": [
+      "configuration differs from frozen digest, including agent version drift",
+      "second rerun after the single permitted rerun",
+      "scope change mid-run",
+      "unscripted intervention materially redirecting implementation"
+    ],
+    "deletion": "not an available action"
+  },
+  "experience_capture": {
+    "contract": "v1 spec section 8; a C_prime run appends the same record shape, its context_manifest_refs capturing the ambient injections' selection/omission receipts",
+    "append_only": true,
+    "activation_in_1_2": "forbidden",
+    "no_learning_is_valid": true,
+    "retrieval_shortcut_events": "first-class: retrieved item identity, work replaced, cycle-time saved in wall-clock and tokens",
+    "curve_projection": "per-subject per-slice time series derived from capture records; reporting artifact, does not alter the per-subject tally",
+    "prior_slice_provenance": "material-use receipt refs of earlier-slice beliefs; required for a point to count as compounding evidence",
+    "retrospective_flag": "false for preregistered runs; true only for pre-freeze slice annotations"
+  },
+  "arm_order": "B, then A, then C, then C_prime (D/D_prime last if run); the fixed order and its operator-learning limitation are disclosed per v1 spec section 2 rule 3, extended to the added ACE arm",
+  "operator": "any model/session; registers subjects, launches fresh arm sessions, reviews, merges the sole merging arm, emits capture records; never authors mergeable subject code (v1 spec section 2 rule 7)",
+  "authority_parity": "no arm — including C_prime — holds approve, merge, release, deploy, or promotion authority; the ambient hook only surfaces cited context, it activates nothing (v1 spec section 2 rule 6)",
+  "production_safety_valve": "the merging ACE arm failing review beyond the single rerun is recorded honestly; production reverts to an ordinary non-arm implementation, disclosed; the experiment never blocks 1.2 delivery (v1 spec section 2 rule 8)"
+}
