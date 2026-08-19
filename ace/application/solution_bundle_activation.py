@@ -36,6 +36,7 @@ from ace.intelligence.contracts.solution_bundle import (
     SolutionBundleManifestV1,
     SolutionBundleResolutionReceiptV1,
 )
+from ace.intelligence.contracts.solution_bundle import InstalledSolutionComponentsV1
 from ace.intelligence.packs.bundle_activation import resolve_solution_bundle
 
 BUNDLE_ACTIVATION_STATE_KIND = "solution_bundle_activation_v1alpha1"
@@ -105,9 +106,19 @@ def _parse_persisted_revision(envelope: GovernedStateRevisionV1) -> SolutionBund
 class SolutionBundleActivationAdmissionService:
     """Preview, resolve, and atomically commit Solution Bundle activations."""
 
-    def __init__(self, *, store: GovernedStateStore, authority: CoreAuthorityResolver) -> None:
+    def __init__(
+        self,
+        *,
+        store: GovernedStateStore,
+        authority: CoreAuthorityResolver,
+        installed: InstalledSolutionComponentsV1 | None = None,
+    ) -> None:
         self.store = store
         self.authority = authority
+        # Host-supplied co-installed component inventory. When present, every
+        # resolution — preview and admission alike — fails closed on a manifest
+        # declaring components the workspace does not actually offer.
+        self.installed = installed
 
     def preview(self, manifest: SolutionBundleManifestV1) -> SolutionBundleResolutionReceiptV1:
         """Read-only: resolve exactly what activating ``manifest`` would produce.
@@ -116,7 +127,7 @@ class SolutionBundleActivationAdmissionService:
         activation authority and has no side effect on any store.
         """
 
-        return resolve_solution_bundle(manifest)
+        return resolve_solution_bundle(manifest, installed=self.installed)
 
     async def _current(self, *, product_id: str, activation_id: str) -> SolutionBundleActivationRevisionV1 | None:
         head = await self.store.load_head(
@@ -172,7 +183,7 @@ class SolutionBundleActivationAdmissionService:
             raise SolutionBundleActivationError("commit time must include a timezone")
         if validated.occurred_at > committed_at:
             raise SolutionBundleActivationError("commit cannot predate the approved bundle activation transition")
-        if resolve_solution_bundle(validated.manifest) != validated.resolution_receipt:
+        if resolve_solution_bundle(validated.manifest, installed=self.installed) != validated.resolution_receipt:
             raise SolutionBundleActivationError("bundle activation does not bind its exact current resolution receipt")
 
         await self._validate_transition(validated)

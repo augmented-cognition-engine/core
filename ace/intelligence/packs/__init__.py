@@ -6,6 +6,7 @@ from ace.intelligence.packs.activation import (
     prepare_domain_activation,
 )
 from ace.intelligence.packs.bundle_activation import (
+    SolutionBundleResolutionError,
     preview_solution_bundle_activation,
     resolve_solution_bundle,
 )
@@ -53,5 +54,6 @@ __all__ = [
     "resolve_source_mapping_rule",
     "resolve_source_mapping_policy",
     "preview_solution_bundle_activation",
+    "SolutionBundleResolutionError",
     "resolve_solution_bundle",
 ]

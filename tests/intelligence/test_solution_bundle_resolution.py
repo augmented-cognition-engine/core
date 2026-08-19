@@ -102,9 +102,14 @@ def test_preview_is_read_only_and_matches_resolve() -> None:
 
 
 def test_preview_signature_accepts_no_store_or_authority() -> None:
-    """Preview cannot have a store side effect: no store/authority can even be passed in."""
+    """Preview cannot have a store side effect: no store/authority can even be passed in.
+
+    The optional ``installed`` inventory (review graft) is discovery evidence — a
+    pure value compared against the manifest — not a store or an authority, so the
+    invariant this pin protects is unchanged.
+    """
 
     import inspect
 
     parameters = inspect.signature(preview_solution_bundle_activation).parameters
-    assert set(parameters) == {"manifest"}
+    assert set(parameters) == {"manifest", "installed"}

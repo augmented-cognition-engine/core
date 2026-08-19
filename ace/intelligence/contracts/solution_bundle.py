@@ -31,6 +31,7 @@ from ace.intelligence.contracts.common import (
 SOLUTION_BUNDLE_MANIFEST_VERSION = "ace.intelligence.solution-bundle-manifest/v1alpha1"
 SOLUTION_BUNDLE_RESOLUTION_RECEIPT_VERSION = "ace.intelligence.solution-bundle-resolution-receipt/v1alpha1"
 SOLUTION_BUNDLE_ACTIVATION_REVISION_VERSION = "ace.intelligence.solution-bundle-activation-revision/v1alpha1"
+INSTALLED_SOLUTION_COMPONENTS_VERSION = "ace.intelligence.installed-solution-components/v1alpha1"
 
 
 class AdapterBindingV1(FrozenContract):
@@ -100,6 +101,39 @@ class PolicyBindingV1(FrozenContract):
     @classmethod
     def validate_policy_digest(cls, value: str) -> str:
         return validate_digest(value)
+
+
+class InstalledSolutionComponentsV1(FrozenContract):
+    """Exact co-installed component coordinates one workspace host offers.
+
+    Discovery evidence, not authority: listing a component here never activates
+    it. Resolution compares manifest bindings against this inventory by full
+    value equality, so a version or digest drift fails closed rather than
+    activating a bundle whose declared artifacts were never actually compiled
+    or installed on the workspace.
+    """
+
+    contract: Literal["ace.intelligence.installed-solution-components/v1alpha1"] = INSTALLED_SOLUTION_COMPONENTS_VERSION
+    packs: tuple[CompiledPackRefV1, ...] = Field(default_factory=tuple, max_length=MAX_DECLARATIONS)
+    overlays: tuple[CompiledOverlayV1, ...] = Field(default_factory=tuple, max_length=MAX_DECLARATIONS)
+    adapters: tuple[AdapterBindingV1, ...] = Field(default_factory=tuple, max_length=MAX_DECLARATIONS)
+    atrium_modules: tuple[AtriumModuleBindingV1, ...] = Field(default_factory=tuple, max_length=MAX_DECLARATIONS)
+    policies: tuple[PolicyBindingV1, ...] = Field(default_factory=tuple, max_length=MAX_DECLARATIONS)
+
+    @field_validator("adapters")
+    @classmethod
+    def normalize_adapters(cls, value: tuple[AdapterBindingV1, ...]) -> tuple[AdapterBindingV1, ...]:
+        return sorted_unique(value, key=lambda item: item.adapter_id, label="installed adapters")
+
+    @field_validator("atrium_modules")
+    @classmethod
+    def normalize_atrium_modules(cls, value: tuple[AtriumModuleBindingV1, ...]) -> tuple[AtriumModuleBindingV1, ...]:
+        return sorted_unique(value, key=lambda item: item.module_id, label="installed Atrium modules")
+
+    @field_validator("policies")
+    @classmethod
+    def normalize_policies(cls, value: tuple[PolicyBindingV1, ...]) -> tuple[PolicyBindingV1, ...]:
+        return sorted_unique(value, key=lambda item: item.policy_id, label="installed policies")
 
 
 class SolutionBundleManifestV1(FrozenContract):
