@@ -197,6 +197,8 @@ from ace.core.external_operations import (
 )
 from ace.core.personal_intelligence_ownership import (
     BACKUP_NON_REAPPEARANCE_LIMITATION,
+    DERIVED_ARTIFACT_COVERAGE_VERSION,
+    DERIVED_ARTIFACT_ERASURE_ENTRY_VERSION,
     PERSONAL_INTELLIGENCE_DELETE_CONFIRMATION_VERSION,
     PERSONAL_INTELLIGENCE_DELETE_PREVIEW_REQUEST_VERSION,
     PERSONAL_INTELLIGENCE_DELETE_PREVIEW_VERSION,
@@ -204,12 +206,17 @@ from ace.core.personal_intelligence_ownership import (
     PERSONAL_INTELLIGENCE_EXPORT_ARTIFACT_VERSION,
     PERSONAL_INTELLIGENCE_EXPORT_REQUEST_VERSION,
     PORTABILITY_SCOPE,
+    SURVIVING_DERIVATIVE_DISCLOSURE,
+    WORKSPACE_DERIVED_ARTIFACT_KINDS,
+    DerivedArtifactCoverageV1Alpha1,
+    DerivedArtifactErasureEntryV1Alpha1,
     PersonalIntelligenceDeleteConfirmationV1Alpha1,
     PersonalIntelligenceDeletePreviewRequestV1Alpha1,
     PersonalIntelligenceDeletePreviewV1Alpha1,
     PersonalIntelligenceDeletionProofV1Alpha1,
     PersonalIntelligenceExportArtifactV1Alpha1,
     PersonalIntelligenceExportRequestV1Alpha1,
+    derive_erasure_entries,
 )
 from ace.core.reasoning import (
     GOVERNED_OPERATION_BINDING_VERSION,
@@ -284,6 +291,13 @@ from ace.core.state import (
 
 __all__ = [
     "BACKUP_NON_REAPPEARANCE_LIMITATION",
+    "DERIVED_ARTIFACT_COVERAGE_VERSION",
+    "DERIVED_ARTIFACT_ERASURE_ENTRY_VERSION",
+    "SURVIVING_DERIVATIVE_DISCLOSURE",
+    "WORKSPACE_DERIVED_ARTIFACT_KINDS",
+    "DerivedArtifactCoverageV1Alpha1",
+    "DerivedArtifactErasureEntryV1Alpha1",
+    "derive_erasure_entries",
     "PERSONAL_INTELLIGENCE_DELETE_CONFIRMATION_VERSION",
     "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_REQUEST_VERSION",
     "PERSONAL_INTELLIGENCE_DELETE_PREVIEW_VERSION",

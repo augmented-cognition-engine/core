@@ -9,12 +9,16 @@ from typing import Protocol
 
 from ace.core.contracts import canonical_hash
 from ace.core.personal_intelligence_ownership import (
+    WORKSPACE_DERIVED_ARTIFACT_KINDS,
+    DerivedArtifactCoverageV1Alpha1,
+    DerivedArtifactErasureEntryV1Alpha1,
     PersonalIntelligenceDeleteConfirmationV1Alpha1,
     PersonalIntelligenceDeletePreviewRequestV1Alpha1,
     PersonalIntelligenceDeletePreviewV1Alpha1,
     PersonalIntelligenceDeletionProofV1Alpha1,
     PersonalIntelligenceExportArtifactV1Alpha1,
     PersonalIntelligenceExportRequestV1Alpha1,
+    derive_erasure_entries,
 )
 from ace.core.records import (
     AppendOnlyTransactionReceiptV1,
@@ -48,6 +52,27 @@ class PersonalIntelligenceOwnershipStore(ImmutableRecordStore, Protocol):
         expected_records: tuple[ImmutableRecordReferenceV1, ...],
         receipt_request: AppendOnlyTransactionRequestV1,
     ) -> AppendOnlyTransactionReceiptV1: ...
+
+
+class PersonalIntelligenceDerivativeErasurePort(Protocol):
+    """Host-owned enumeration and erasure of workspace derivative artifacts.
+
+    enumerate_derivatives returns exactly one coverage entry per workspace
+    derived-artifact kind (embeddings, vector material, graph projections,
+    graph edges, caches, summaries) with the exact live count and a
+    covered/surviving disposition. erase_derivatives must make the preview's
+    coverage true — remove every covered artifact and re-probe absence — and
+    return the attested erasure entries, or raise.
+    """
+
+    async def enumerate_derivatives(self, *, product_id: str) -> tuple[DerivedArtifactCoverageV1Alpha1, ...]: ...
+
+    async def erase_derivatives(
+        self,
+        *,
+        product_id: str,
+        coverage: tuple[DerivedArtifactCoverageV1Alpha1, ...],
+    ) -> tuple[DerivedArtifactErasureEntryV1Alpha1, ...]: ...
 
 
 class PersonalIntelligenceOwnershipAuthorizationPort(Protocol):
@@ -99,10 +124,30 @@ class PersonalIntelligenceOwnershipService:
         *,
         store: PersonalIntelligenceOwnershipStore,
         authorization: PersonalIntelligenceOwnershipAuthorizationPort,
+        derivatives: PersonalIntelligenceDerivativeErasurePort | None = None,
     ) -> None:
         self.store = store
         self.authorization = authorization
+        self.derivatives = derivatives
         self._deletion_lock = asyncio.Lock()
+
+    async def _derivative_coverage(self, *, product_id: str) -> tuple[DerivedArtifactCoverageV1Alpha1, ...]:
+        """Enumerate live derivative coverage, requiring every workspace kind exactly once."""
+
+        if self.derivatives is None:
+            return ()
+        try:
+            coverage = await self.derivatives.enumerate_derivatives(product_id=product_id)
+        except Exception as exc:
+            raise PersonalIntelligenceOwnershipError(
+                "derivative-artifact enumeration failed; deletion cannot state exact counts"
+            ) from exc
+        kinds = tuple(entry.artifact_kind for entry in coverage)
+        if sorted(kinds) != sorted(WORKSPACE_DERIVED_ARTIFACT_KINDS):
+            raise PersonalIntelligenceOwnershipError(
+                "derivative-artifact enumeration must name every workspace kind exactly once"
+            )
+        return coverage
 
     async def export(
         self,
@@ -155,6 +200,7 @@ class PersonalIntelligenceOwnershipService:
             raise PersonalIntelligenceOwnershipError(
                 "personal Intelligence delete preview found no removable immutable records"
             )
+        coverage = await self._derivative_coverage(product_id=request.authenticated_context.product_id)
         references = _references(records)
         return PersonalIntelligenceDeletePreviewV1Alpha1(
             request_ref=str(request.request_id),
@@ -165,6 +211,7 @@ class PersonalIntelligenceOwnershipService:
             record_set_digest=_record_set_digest(references),
             created_at=request.requested_at,
             expires_at=request.expires_at,
+            derived_artifacts=coverage,
         )
 
     async def confirm_delete(
@@ -201,6 +248,7 @@ class PersonalIntelligenceOwnershipService:
                 raise PersonalIntelligenceDeletePreviewStale(
                     "immutable records changed after preview; request and review a new delete preview"
                 )
+            await self._erase_derivatives(confirmation)
             transaction_request = AppendOnlyTransactionRequestV1(
                 product_id=confirmation.preview.product_id,
                 record_space=PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE,
@@ -228,6 +276,44 @@ class PersonalIntelligenceOwnershipService:
                 transaction_receipt_ref=str(transaction.receipt_id),
             )
 
+    async def _erase_derivatives(
+        self,
+        confirmation: PersonalIntelligenceDeleteConfirmationV1Alpha1,
+    ) -> None:
+        """Make the reviewed preview's derivative coverage true, or fail closed.
+
+        Runs BEFORE the primary atomic erasure: derivative erasure is idempotent,
+        so a failure here leaves every primary record (and the proof) unwritten,
+        while a primary failure after this point is retried through a fresh
+        preview whose counts honestly reflect the already-erased derivatives.
+        """
+
+        promised = confirmation.preview.derived_artifacts
+        if not promised:
+            return
+        if self.derivatives is None:
+            raise PersonalIntelligenceOwnershipError(
+                "the reviewed preview promises derivative coverage but no erasure port is wired"
+            )
+        live = await self._derivative_coverage(product_id=confirmation.preview.product_id)
+        if live != promised:
+            raise PersonalIntelligenceDeletePreviewStale(
+                "derivative artifacts changed after preview; request and review a new delete preview"
+            )
+        try:
+            attested = await self.derivatives.erase_derivatives(
+                product_id=confirmation.preview.product_id,
+                coverage=promised,
+            )
+        except Exception as exc:
+            raise PersonalIntelligenceOwnershipError(
+                "derivative-artifact erasure failed closed before any primary record was removed"
+            ) from exc
+        if attested != derive_erasure_entries(promised):
+            raise PersonalIntelligenceOwnershipError(
+                "derivative-artifact erasure could not attest the reviewed preview's exact coverage"
+            )
+
     @staticmethod
     def _proof(
         confirmation: PersonalIntelligenceDeleteConfirmationV1Alpha1,
@@ -247,6 +333,7 @@ class PersonalIntelligenceOwnershipService:
             removed_record_set_digest=confirmation.preview.record_set_digest,
             removal_evidence_digest=removal_evidence_digest,
             completed_at=confirmation.confirmed_at,
+            derived_artifact_erasure=derive_erasure_entries(confirmation.preview.derived_artifacts),
         )
 
     @staticmethod
@@ -303,6 +390,7 @@ __all__ = [
     "PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE",
     "PersonalIntelligenceDeletePreviewStale",
     "PersonalIntelligenceDeletionResult",
+    "PersonalIntelligenceDerivativeErasurePort",
     "PersonalIntelligenceOwnershipError",
     "PersonalIntelligenceOwnershipAuthorizationPort",
     "PersonalIntelligenceOwnershipService",
