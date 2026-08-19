@@ -1,0 +1,39 @@
+{
+  "capture_id": "aba-PI9-armB-20260818T213359Z-capture-v1",
+  "subject_decision_id": "PI9",
+  "arm": "B",
+  "harness": "ace-builds-ace-harness-v1",
+  "harness_digest": "5ec835f197ebfb8c9e81e72b506ff119b1e77e0ab795139fd39b7ab5c8a18130",
+  "run_ids": ["aba-PI9-armB-20260818T213359Z"],
+  "participant_ids": ["claude-sonnet-5 (subject, cc 2.1.224 headless)", "claude-fable-5 (operator, no subject authorship)"],
+  "session_ids": ["0dd296ce-9870-4715-9247-c90fd2515446"],
+  "context_manifest_refs": [],
+  "corrections": [],
+  "failures": [],
+  "interventions": [],
+  "rework_count": 0,
+  "review_findings": {
+    "acceptance_criteria_coverage": "7/7 PASS at first review",
+    "overall": "COMPLETE-WITH-DEFECTS",
+    "findings": [
+      {"severity": "mechanical", "detail": "New core host file core/engine/core/personal_intelligence_derived_artifacts.py not registered in the boundary-test allowlist (recurring trap: 4th bare-arm occurrence across PI8+PI9). Import discipline verified correct."},
+      {"severity": "correctness_risk_comparative", "detail": "Production derived-artifact port hardcodes covered=True/count=0 for all four classes without querying; factually false if a product shares Personal + Code Intelligence footprints (flagged in arm A comparative review)."},
+      {"severity": "minor", "detail": "AM4/Agent Memory adjacency not cross-referenced in the disclosure prose (reviewer independently verified out of scope)."}
+    ],
+    "unsupported_claims": "None — most conservatively worded evidence packet of the program; reviewer independently verified its architectural claims.",
+    "scope_creep": "none",
+    "fail_open_defects": "none",
+    "highlight": "Strongest single test across PI8+PI9: genuine e2e restart-continuity test killing and respawning a real SurrealDB process against the same on-disk store, asserting byte-identical reopen of sources, Briefs, corrections, ownership receipts."
+  },
+  "verification_results": {
+    "operator_ran": "50 tests pass (5 new test files + contract boundaries); ruff clean; 1 allowlist gate failure (registry omission)",
+    "contracts": "purely additive fields on existing ownership contracts; disclosures bound into content-hash identity (tamper-evident); write-quiescence shipped as typed documented limitation"
+  },
+  "costs": {"wall_clock_min": 33.4, "turns": 185, "tokens": {"input": null, "output": 147172}, "usd_list_rate_equivalent_labeled_accounting": 23.55},
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "proposal": {"kind": "no_learning", "evidence_refs": ["aba-PI9-armB-20260818T213359Z-result.json", "PI9 registration run log"], "eligible_scope": "none - floor control, evidence-only", "expected_effect": "n/a", "conflicts": [], "expiry": ""},
+  "notes": "Floor control. 7 commits, 15 files, +2355/-1. Its kill/respawn restart e2e test is the reviewer-recommended graft into the composed PI9 delivery."
+}
