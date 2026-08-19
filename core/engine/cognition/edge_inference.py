@@ -1,11 +1,14 @@
-"""Edge inference — derive causal links between journey_event rows.
+"""Edge inference — derive TEMPORAL CO-OCCURRENCE links between journey_event rows.
 
 Runs as a periodic sentinel sweeper (every 5 minutes); journey API may also
 trigger on-demand inference if the latest sweeper run is stale (>5 min).
 
-Inference rules look at journey_event timing + payload + provenance to infer
-causal edges. The reasoning_edge UNIQUE index makes inference idempotent —
-duplicate writes silently skip.
+Each rule emits an edge when a ``to_event`` followed a ``from_event`` within a
+time window with a matching payload field. This is temporal succession, NOT
+causation: the edges carry no causal model. The stored ``edge_type`` (e.g.
+``"triggered"``) is a succession label, and consumers must not present these
+edges as causal — see ``reasoning_edge_relation_semantics()``. The reasoning_edge
+UNIQUE index makes inference idempotent — duplicate writes silently skip.
 """
 
 from __future__ import annotations
@@ -15,6 +18,29 @@ import math
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+
+# --- Honest relation semantics (System C) ------------------------------------
+# Inferred reasoning_edges are temporal co-occurrence, not causal. Pinned as an explicit contract so
+# no consumer (e.g. a future ambient surfacer) can present them as causation without a deliberate,
+# reviewed change. Renaming the stored "triggered" edge_type is a data migration, handled separately.
+REASONING_EDGE_RELATION_SEMANTICS = "temporal_cooccurrence"
+REASONING_EDGE_IS_CAUSAL = False
+
+
+def reasoning_edge_relation_semantics() -> dict[str, object]:
+    """Honest semantics of an inferred reasoning_edge, for any consumer that might surface it.
+
+    An edge means ``to_event`` followed ``from_event`` within a time window with a matching payload
+    field — temporal succession, NOT causation. The stored ``edge_type`` (e.g. ``"triggered"``) reads
+    as causal but carries no causal model; renaming it is a data migration, not done here. Consumers
+    MUST NOT present these edges as causal claims.
+    """
+    return {
+        "semantics": REASONING_EDGE_RELATION_SEMANTICS,
+        "is_causal": REASONING_EDGE_IS_CAUSAL,
+        "stored_edge_type_note": ('stored edge_type "triggered" is a temporal-succession label, not a causal claim'),
+    }
 
 
 # Inference rule definitions. Each rule produces edges where to_event matches

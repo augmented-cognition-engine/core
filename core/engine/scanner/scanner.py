@@ -15,6 +15,7 @@ from surrealdb import RecordID
 
 from core.engine.core.db import parse_rows, pool
 from core.engine.core.exceptions import ScannerError
+from core.engine.graph.edge_writer import create_edge
 from core.engine.scanner.ast_parser import parse_file
 from core.engine.scanner.import_parser import (
     parse_python_imports,
@@ -454,6 +455,26 @@ def _get_changed_files_since(repo_path: str, since: object) -> set[str]:
         return set()
 
 
+async def clear_scanner_edges(db, edge_type: str, in_node_ids) -> None:
+    """Delete scanner-written edges of one type originating from the given nodes.
+
+    Makes a re-scan converge instead of accumulating duplicate edges (System B idempotency, ST1):
+    nodes are already idempotent via ``UPSERT``, but edges were written with bare ``RELATE`` and so
+    piled up on every re-scan.  Scoped by the exact originating nodes AND ``source = 'scanner'`` so
+    it never removes another graph's edges, the live-events writer's edges (a different source), or
+    the edges of nodes not being reprocessed this scan (safe for incremental scans).  Callers pass
+    the node ids whose outgoing edges this scan will rewrite — for ``imports``, the files processed.
+    Reuses the proven ``WHERE in IN $ids`` shape already used for ``realizes`` edges in this module.
+    """
+    ids = list(in_node_ids)
+    if not ids:
+        return
+    await db.query(
+        f"DELETE {edge_type} WHERE in IN $ids AND source = 'scanner'",
+        {"ids": ids},
+    )
+
+
 async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
     """Scan a git repository and build the knowledge graph.
 
@@ -547,6 +568,18 @@ async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
                 return stats
         else:
             process_files = file_list
+
+        # Idempotent re-scan (ST1): clear this scan's files' prior scanner ``imports`` edges before
+        # they are rewritten below, so a re-scan converges instead of piling up duplicates. Scoped to
+        # the files being processed (full: all; incremental: changed) and to scanner-written edges,
+        # so unchanged files' edges and the live-events writer's edges are untouched. `related_to`
+        # (global co-change recompute) and `produced`/`improves` (per-commit) have different
+        # reprocessing scopes and are separate follow-ups requiring live-backend verification.
+        await clear_scanner_edges(
+            db,
+            "imports",
+            [RecordID("graph_file", repo_files[f["path"]]) for f in process_files],
+        )
 
         _BATCH = 50
 
@@ -829,37 +862,28 @@ async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
                 )
                 stats["decisions_created"] += 1
 
-                # --- produced edge: user -> decision ---
-                await db.query(
-                    """
-                    RELATE $from -> produced -> $to SET
-                        source = 'scanner'
-                    """,
-                    {
-                        "from": RecordID("graph_user", user_slug),
-                        "to": RecordID("graph_decision", decision_slug),
-                    },
+                # --- produced edge: user -> decision (dedup-on-write: idempotent re-scan) ---
+                await create_edge(
+                    "produced",
+                    str(RecordID("graph_user", user_slug)),
+                    str(RecordID("graph_decision", decision_slug)),
+                    metadata={"source": "scanner"},
+                    pool=pool,
                 )
 
-                # --- improves edges: decision -> files changed ---
+                # --- improves edges: decision -> files changed (dedup-on-write) ---
                 commit_files.append(changed_paths)
 
                 for changed_path in changed_paths:
                     if changed_path in repo_files:
                         file_slug = repo_files[changed_path]
-                        try:
-                            await db.query(
-                                """
-                                RELATE $from -> improves -> $to SET
-                                    source = 'scanner'
-                                """,
-                                {
-                                    "from": RecordID("graph_decision", decision_slug),
-                                    "to": RecordID("graph_file", file_slug),
-                                },
-                            )
-                        except Exception:
-                            pass
+                        await create_edge(
+                            "improves",
+                            str(RecordID("graph_decision", decision_slug)),
+                            str(RecordID("graph_file", file_slug)),
+                            metadata={"source": "scanner"},
+                            pool=pool,
+                        )
 
                     # Accumulate for step 5
                     file_change_count[changed_path] += 1
@@ -981,15 +1005,12 @@ async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
                     )
                     stats["decisions_created"] += 1
 
-                    await db.query(
-                        """
-                        RELATE $from -> produced -> $to SET
-                            source = 'scanner'
-                        """,
-                        {
-                            "from": RecordID("graph_user", user_slug),
-                            "to": RecordID("graph_decision", decision_slug),
-                        },
+                    await create_edge(
+                        "produced",
+                        str(RecordID("graph_user", user_slug)),
+                        str(RecordID("graph_decision", decision_slug)),
+                        metadata={"source": "scanner"},
+                        pool=pool,
                     )
 
                     changed_files_gp = list(commit.stats.files.keys())
@@ -998,19 +1019,13 @@ async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
                     for changed_path in changed_files_gp:
                         if changed_path in repo_files:
                             file_slug = repo_files[changed_path]
-                            try:
-                                await db.query(
-                                    """
-                                    RELATE $from -> improves -> $to SET
-                                        source = 'scanner'
-                                    """,
-                                    {
-                                        "from": RecordID("graph_decision", decision_slug),
-                                        "to": RecordID("graph_file", file_slug),
-                                    },
-                                )
-                            except Exception:
-                                pass
+                            await create_edge(
+                                "improves",
+                                str(RecordID("graph_decision", decision_slug)),
+                                str(RecordID("graph_file", file_slug)),
+                                metadata={"source": "scanner"},
+                                pool=pool,
+                            )
 
                         file_change_count[changed_path] += 1
                         file_authors[changed_path][author_name] += 1
@@ -1065,30 +1080,26 @@ async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
                     pair = tuple(sorted([f1, f2]))
                     co_change[pair] += 1
 
+        # Idempotent re-scan (ST1): dedup-on-write, NOT bulk-clear. Unlike `imports` (rewritten
+        # exactly per processed file, so safely bulk-cleared), co-change is recomputed only over the
+        # commits this scan processed, so a pair can fall below threshold and not be rewritten on an
+        # incremental scan — a bulk clear would then delete an edge the scan never rewrites (data
+        # loss). `create_edge` skips an existing (in, out) edge, so re-scans converge without deleting.
         for (f1, f2), count in co_change.items():
             if count < 3:
                 continue
             slug1 = repo_files[f1]
             slug2 = repo_files[f2]
             strength = min(1.0, count / 20.0)  # Normalize: 20+ co-changes = 1.0
-            try:
-                await db.query(
-                    """
-                    RELATE $from -> related_to -> $to SET
-                        strength = $strength,
-                        source = 'scanner',
-                        confidence = $confidence
-                    """,
-                    {
-                        "from": RecordID("graph_file", slug1),
-                        "to": RecordID("graph_file", slug2),
-                        "strength": strength,
-                        "confidence": min(0.9, count / 10.0),
-                    },
-                )
+            created = await create_edge(
+                "related_to",
+                str(RecordID("graph_file", slug1)),
+                str(RecordID("graph_file", slug2)),
+                metadata={"strength": strength, "source": "scanner", "confidence": min(0.9, count / 10.0)},
+                pool=pool,
+            )
+            if created is not None:
                 stats["related_edges_created"] += 1
-            except Exception as exc:
-                logger.debug("Failed to create related_to edge %s <-> %s: %s", f1, f2, exc)
 
         # ------------------------------------------------------------------
         # Step 7: Update graph with counts
