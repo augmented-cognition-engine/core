@@ -1,0 +1,8 @@
+{
+  "contract": "ace.intelligence.solution-bundle-schema-index/v1",
+  "manifest_schema": "solution-bundle-manifest-v1.schema.json",
+  "resolution_receipt_schema": "solution-bundle-resolution-receipt-v1.schema.json",
+  "supported_manifest_contracts": [
+    "ace.intelligence.solution-bundle-manifest/v1alpha1"
+  ]
+}

@@ -628,6 +628,12 @@ from ace.application.recorded_source_selection import (
     RecordedSourceSelectionReferenceV1Alpha1,
     RecordedSourceSelectionV1Alpha1,
 )
+from ace.application.solution_bundle_activation import (
+    BUNDLE_ACTIVATION_STATE_KIND,
+    CommittedSolutionBundleActivation,
+    SolutionBundleActivationAdmissionService,
+    SolutionBundleActivationError,
+)
 from ace.application.supersession_impact import (
     SupersessionImpactAdmission,
     SupersessionImpactAdmissionError,
@@ -1150,6 +1156,10 @@ __all__ = [
     "SuppressionGroupingRuleV1",
     "WatchTargetKind",
     "WatchTargetV1",
+    "BUNDLE_ACTIVATION_STATE_KIND",
+    "CommittedSolutionBundleActivation",
+    "SolutionBundleActivationAdmissionService",
+    "SolutionBundleActivationError",
     "SupersessionImpactAdmission",
     "SupersessionImpactAdmissionError",
     "SupersessionImpactReplayConflict",
