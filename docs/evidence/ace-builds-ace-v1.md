@@ -28,6 +28,32 @@ require a `-v2` harness with its own digest; v1 runs remain reported under v1.
 - Pre-existing exploratory material: `docs/evidence/ace-1.2-pi12-code-intelligence-smoke-v1.md`
   predates this freeze and is exploratory, not an arm run.
 
+## Amendment freeze record (v2, per harness spec §9)
+
+- Date: 2026-08-19
+- Harness: `ace-builds-ace-harness-v2` (amends v1; all v1 values carry forward)
+- Frozen at: commit `0a133c3253fd156ba3abbac57c62ad06b7d9dd39` (squash merge of PR #242,
+  owner-approved)
+- Config digest (SHA-256 of `docs/design/ace-builds-ace-harness-config-v2.json` at the frozen
+  commit): `08fe233c26a798657530a146b4ad66ef624d5abb7f0cb8cfa6be0cb6e64bb48c`
+- Spec: [`docs/design/ace-builds-ace-harness-v2.md`](../design/ace-builds-ace-harness-v2.md) at the
+  same commit.
+
+**From this entry forward, the v2 configuration is frozen.** v2 adds **arm C′** (`claude-sonnet-5`
++ ACE via the ambient hook, differing from arm C only in the ACE-access mechanism) and the
+**code-intelligence-consultation** primary measure with the within-tier **C′-vs-C** verdict, so the
+0→N adoption flip is preregistered rather than exploratory. v1 arm runs (PI8) remain reported under
+v1 and are never relabeled; runs under any configuration whose digest differs from the value above
+are exploratory (spec §7). Arm C′ depends on the ambient trigger merged in PR #240 (commit
+`f4a3f24f25322e2407c9f2710086f32f1544789f`).
+
+### v2 preregistered scope
+- Adoption-comparison subjects: PI9 and/or PI10 run **both** C (election control, evidence-only) and
+  C′ (ambient; the single merging arm), per owner confirmation; must be registered before the
+  subject's arms run.
+- New within-tier verdict: **C′ vs C** — adopted_and_better / adopted_but_neutral / no_adoption /
+  worse — reported separately from the unchanged C-vs-B and C-vs-A verdicts.
+
 ## Run log
 
 ### PI8 — Grounded Ask and correction (J7/J8) — 2026-08-18
