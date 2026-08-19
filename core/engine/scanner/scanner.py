@@ -569,18 +569,6 @@ async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
         else:
             process_files = file_list
 
-        # Idempotent re-scan (ST1): clear this scan's files' prior scanner ``imports`` edges before
-        # they are rewritten below, so a re-scan converges instead of piling up duplicates. Scoped to
-        # the files being processed (full: all; incremental: changed) and to scanner-written edges,
-        # so unchanged files' edges and the live-events writer's edges are untouched. `related_to`
-        # (global co-change recompute) and `produced`/`improves` (per-commit) have different
-        # reprocessing scopes and are separate follow-ups requiring live-backend verification.
-        await clear_scanner_edges(
-            db,
-            "imports",
-            [RecordID("graph_file", repo_files[f["path"]]) for f in process_files],
-        )
-
         _BATCH = 50
 
         _file_coros = [
@@ -639,6 +627,19 @@ async def scan_repo(repo_path: str, graph_id: str = "default") -> dict:
             return results, skipped
 
         _parsed_files, _skipped_files = await asyncio.to_thread(_parse_all)
+
+        # Idempotent re-scan (ST1): clear prior scanner ``imports`` edges ONLY for files that parsed
+        # successfully this scan — exactly the files whose imports are rewritten below. A file that
+        # fails to parse (unreadable/unparseable) is left untouched, so its real edges are preserved
+        # rather than deleted-and-not-rewritten. Scoped to scanner edges, so unchanged files and the
+        # live-events writer are never affected. (related_to/produced/improves use dedup-on-write —
+        # different reprocessing scopes.)
+        await clear_scanner_edges(
+            db,
+            "imports",
+            [RecordID("graph_file", repo_files[f["path"]]) for (f, _parsed, _content) in _parsed_files],
+        )
+
         if _skipped_files:
             # Log skipped files at WARNING — they're not in the graph and the
             # operator should be able to diagnose why without code-diving.

@@ -143,6 +143,35 @@ async def test_rescan_reprocesses_without_duplicating_imports(tmp_path, monkeypa
     )
 
 
+async def test_parse_failure_preserves_prior_imports(tmp_path, monkeypatch):
+    # Regression (PR #240 review, finding 1): the imports clear must run only for files that parsed
+    # this scan. A file that fails to parse on re-scan must keep its existing edges, not have them
+    # deleted-and-not-rewritten.
+    _patch_out_commit_classifier(monkeypatch)
+    await pool.init()
+    await _clear_imports()
+    gid = _gid(tmp_path)
+    repo = _make_fixture_repo(tmp_path)
+
+    await scan_repo(str(repo), graph_id=gid)
+    before = await _count_imports()
+    assert before >= 1, "expected an imports edge from the first scan"
+
+    # Make every file fail to parse on the next scan.
+    import core.engine.scanner.scanner as scanner_mod
+
+    def _boom(*args, **kwargs):
+        raise ValueError("parse failure")
+
+    monkeypatch.setattr(scanner_mod, "parse_file", _boom)
+
+    await _force_full_rescan(gid)
+    await scan_repo(str(repo), graph_id=gid)
+    after = await _count_imports()
+
+    assert after == before, f"parse failure deleted imports: {before} -> {after} (edge-loss regression)"
+
+
 async def test_full_rescan_does_not_duplicate_related_to(tmp_path, monkeypatch):
     _patch_out_commit_classifier(monkeypatch)
     await pool.init()

@@ -89,6 +89,19 @@ async def test_injects_cited_context_with_disclosed_gaps():
 
 
 @pytest.mark.asyncio
+async def test_fails_closed_on_malformed_lens_shape():
+    # A response whose fields are truthy but the wrong type (int nodes, str impact) must not raise
+    # into the caller — the fail-closed contract covers the whole mapping, not just the engine call.
+    async def journey(query, target):
+        return {"index_snapshot_id": "idx", "lens": {"nodes": 5, "impact": "oops"}}
+
+    result = await surface_code_intelligence(_fired(), _TARGET, journey=journey)
+
+    assert result.answered is False
+    assert result.context == ""
+
+
+@pytest.mark.asyncio
 async def test_skipped_gate_never_calls_engine():
     called = False
 

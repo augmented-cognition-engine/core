@@ -166,45 +166,47 @@ async def surface_code_intelligence(decision: GateDecision, target_path: str, *,
     if not decision.fire or not decision.query:
         return _no_answer(decision.query or "", "gate did not fire")
 
+    # Fail-closed spine: the whole mapping (not just the engine call) is guarded, so any engine
+    # error OR malformed response shape yields a no-answer — never a raise into the caller's turn,
+    # never a fabricated or uncited injection.
     try:
         response = await journey(decision.query, target_path)
+
+        if not isinstance(response, dict):
+            return _no_answer(decision.query, "code-intelligence returned no usable projection")
+
+        snapshot = response.get("index_snapshot_id")
+        lens = response.get("lens")
+        if not snapshot or not isinstance(lens, dict):
+            # No provenance → never inject uncited material.
+            return _no_answer(decision.query, "no cited code-intelligence projection available")
+
+        nodes = lens.get("nodes") or ()
+        impact = lens.get("impact") if isinstance(lens.get("impact"), dict) else {}
+        # A real lens routinely carries its value in `impact` (dependents / affected tests) with
+        # empty `nodes`, so "has content" must consider both — not nodes alone.
+        has_impact = bool(
+            impact.get("direct_dependents") or impact.get("transitive_dependents") or impact.get("affected_tests")
+        )
+        gaps = (
+            tuple(lens.get("omissions") or ())
+            + tuple(lens.get("degraded_reasons") or ())
+            + tuple(impact.get("known_coverage_gaps") or ())
+            + tuple(response.get("limitations") or ())
+        )
+        if not nodes and not has_impact:
+            return _no_answer(decision.query, "; ".join(gaps) or "code intelligence found no relevant projection")
+
+        provenance = f"{snapshot}@gen{response.get('index_generation', '?')}"
+        return AmbientResult(
+            answered=True,
+            query=decision.query,
+            context=_format_context(target_path, lens, provenance, gaps),
+            provenance=provenance,
+            honest_gaps=gaps,
+        )
     except Exception:
-        # Fail-closed: an engine error must never break the caller's turn or fabricate an answer.
-        return _no_answer(decision.query, "code-intelligence engine unavailable (failed closed)")
-
-    if not isinstance(response, dict):
-        return _no_answer(decision.query, "code-intelligence returned no usable projection")
-
-    snapshot = response.get("index_snapshot_id")
-    lens = response.get("lens")
-    if not snapshot or not isinstance(lens, dict):
-        # No provenance → never inject uncited material.
-        return _no_answer(decision.query, "no cited code-intelligence projection available")
-
-    nodes = lens.get("nodes") or ()
-    impact = lens.get("impact") or {}
-    # A real lens routinely carries its value in `impact` (dependents / affected tests) with empty
-    # `nodes`, so "has content" must consider both — not nodes alone.
-    has_impact = bool(
-        impact.get("direct_dependents") or impact.get("transitive_dependents") or impact.get("affected_tests")
-    )
-    gaps = (
-        tuple(lens.get("omissions") or ())
-        + tuple(lens.get("degraded_reasons") or ())
-        + tuple(impact.get("known_coverage_gaps") or ())
-        + tuple(response.get("limitations") or ())
-    )
-    if not nodes and not has_impact:
-        return _no_answer(decision.query, "; ".join(gaps) or "code intelligence found no relevant projection")
-
-    provenance = f"{snapshot}@gen{response.get('index_generation', '?')}"
-    return AmbientResult(
-        answered=True,
-        query=decision.query,
-        context=_format_context(target_path, lens, provenance, gaps),
-        provenance=provenance,
-        honest_gaps=gaps,
-    )
+        return _no_answer(decision.query, "code-intelligence unavailable (failed closed)")
 
 
 def repo_graph_in_scope(target_path: str) -> bool:
