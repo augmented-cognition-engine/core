@@ -2,6 +2,32 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.2.1
+
+### Journey-start fixes from the 1.2.0 public acceptance run
+
+The 1.2.0 clean-context acceptance run (gate amendment recorded on issue #195) proved the
+published artifacts could not start the Personal Intelligence journey. 1.2.1 is the narrowly
+scoped repair, with every fix regression-guarded:
+
+- Ship the journey's ignition (#252): the Personal onboarding profile now ships in the
+  `ace-personal-intelligence-pack` wheel at the installed-catalog discovery path, and the
+  first-party Personal Intelligence build planner registers through the
+  `ace.intelligence_build_planners` entry point declared by `ace-core`, so `builds/prepare`
+  plans the journey instead of failing 503.
+- A fresh package-only install runs before configuration exists (#253): `ace --help` and
+  `ace setup` no longer traceback without a `.env`; every actual use of the JWT signing secret
+  still fails fast with an actionable message.
+- `ace setup` never claims or mutates a foreign stack (#254): the API port is configurable
+  (`ACE_API_PORT`), a live health probe alone never proves an API is ours, and a SurrealDB that
+  already contains ACE schema is refused without `--adopt-existing-database` or the
+  installation's own provisioning marker.
+- The getting-started guide is checkout-free (#255) and documents the isolation variables.
+- The release build gains a journey-start smoke gate: the built core, pack, bundle, and adapter
+  wheels are installed into a bare venv and must run `ace --help` unconfigured, offer the
+  Personal profile in the catalog, and load a validating build planner — a release whose journey
+  cannot start now fails its own build.
+
 ## 1.2.0
 
 ### ACE 1.2 Personal Intelligence release engineering (PI11)

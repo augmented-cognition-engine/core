@@ -11,7 +11,7 @@ ROADMAP_ONE_LINE = " ".join(ROADMAP.split())
 
 
 def test_current_release_and_passed_milestone_are_reconciled() -> None:
-    assert "latest published release is [`ace-core` 1.2.0]" in ROADMAP
+    assert "latest published release is [`ace-core` 1.2.1]" in ROADMAP
     assert "passed 0.8.2 patch adds the Atrium Intelligence Catalog" in ROADMAP
     assert "The 1.0 public-artifact acceptance is **passed**" in ROADMAP
     assert ROADMAP.count("| 0.4.x | Governed Cognition | **Passed** |") == 1
