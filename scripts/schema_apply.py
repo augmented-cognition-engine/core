@@ -186,5 +186,21 @@ async def apply_schema() -> None:
     )
 
 
+async def print_current_version() -> None:
+    """Read-only probe used by `ace setup` before it agrees to migrate."""
+
+    db = AsyncSurreal(settings.surreal_url)
+    await db.connect()
+    await db.signin({"username": settings.surreal_user, "password": settings.surreal_pass})
+    await db.use(settings.surreal_ns, settings.surreal_db)
+    try:
+        print(f"current_schema_version={await get_current_version(db)}")
+    finally:
+        await db.close()
+
+
 if __name__ == "__main__":
-    asyncio.run(apply_schema())
+    if "--current-version" in sys.argv[1:]:
+        asyncio.run(print_current_version())
+    else:
+        asyncio.run(apply_schema())
