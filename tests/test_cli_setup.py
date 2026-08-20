@@ -182,7 +182,7 @@ def test_setup_starts_runtime_and_logs_in_without_exposing_api_key(tmp_path, mon
     monkeypatch.setenv("OLLAMA_HOST", "http://localhost:11434")
     captured: dict[str, object] = {}
 
-    def fake_start(project_root, values):
+    def fake_start(project_root, values, **kwargs):
         captured["root"] = project_root
         captured["values"] = values
 
@@ -486,13 +486,21 @@ def test_codex_preflight_requires_an_authenticated_cli():
         _provider_preflight("codex", {"SUBSCRIPTION_PROVIDER": "codex"})
 
 
+def _probe_aware_run(*args, **kwargs):
+    command = args[0] if args else kwargs.get("args", [])
+    if "--current-version" in command:
+        return MagicMock(returncode=0, stdout="current_schema_version=0\n")
+    return MagicMock(returncode=0)
+
+
 def test_runtime_reports_port_collision_before_launching_api(tmp_path):
     root = _project(tmp_path)
     with (
         patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
-        patch("core.engine.cli.commands.setup.subprocess.run"),
+        patch("core.engine.cli.commands.setup.subprocess.run", side_effect=_probe_aware_run),
         patch("core.engine.cli.commands.setup._api_is_ready", return_value=False),
         patch("core.engine.cli.commands.setup._api_port_is_occupied", return_value=True),
+        patch("core.engine.cli.commands.setup._managed_api_pid", return_value=None),
         patch("core.engine.cli.commands.setup.subprocess.Popen") as popen,
         pytest.raises(click.ClickException, match="Port 3000"),
     ):
@@ -505,8 +513,9 @@ def test_runtime_start_passes_saved_isolation_to_compose(tmp_path):
     root = _project(tmp_path)
     with (
         patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
-        patch("core.engine.cli.commands.setup.subprocess.run") as run,
+        patch("core.engine.cli.commands.setup.subprocess.run", side_effect=_probe_aware_run) as run,
         patch("core.engine.cli.commands.setup._api_is_ready", return_value=True),
+        patch("core.engine.cli.commands.setup._managed_api_pid", return_value=4242),
     ):
         _start_local_runtime(
             root,
@@ -520,7 +529,9 @@ def test_runtime_start_passes_saved_isolation_to_compose(tmp_path):
     compose_call = run.call_args_list[0]
     assert compose_call.kwargs["env"]["COMPOSE_PROJECT_NAME"] == "ace_r4_clean_replay"
     assert compose_call.kwargs["env"]["ACE_SURREAL_HOST_PORT"] == "18041"
-    migration_call = run.call_args_list[1]
+    probe_call = run.call_args_list[1]
+    assert probe_call.args[0][1:] == ["-m", "scripts.schema_apply", "--current-version"]
+    migration_call = run.call_args_list[2]
     assert migration_call.args[0][1:] == ["-m", "scripts.schema_apply"]
 
 
@@ -529,7 +540,7 @@ def test_runtime_timeout_points_to_supported_log_command(tmp_path):
     process = MagicMock(pid=1234)
     with (
         patch("core.engine.cli.commands.setup._compose_command", return_value=["docker", "compose"]),
-        patch("core.engine.cli.commands.setup.subprocess.run"),
+        patch("core.engine.cli.commands.setup.subprocess.run", side_effect=_probe_aware_run),
         patch("core.engine.cli.commands.setup._api_is_ready", return_value=False),
         patch("core.engine.cli.commands.setup._api_port_is_occupied", return_value=False),
         patch("core.engine.cli.commands.setup._managed_api_pid", return_value=None),

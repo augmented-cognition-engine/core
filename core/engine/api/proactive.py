@@ -16,7 +16,7 @@ import jwt
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
 from core.engine.core.auth import get_current_user
-from core.engine.core.config import settings
+from core.engine.core.config import require_jwt_secret, settings
 from core.engine.core.db import pool
 from core.engine.proactive.aggregator import aggregate, compute_current
 from core.engine.proactive.models import ProactiveLine
@@ -85,7 +85,7 @@ async def proactive_websocket(websocket: WebSocket, product_id: str) -> None:
         return
 
     try:
-        jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        jwt.decode(token, require_jwt_secret(), algorithms=[settings.jwt_algorithm])
     except Exception:
         await websocket.close(code=1008)
         return

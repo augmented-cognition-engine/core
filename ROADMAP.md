@@ -88,7 +88,7 @@ Roadmap outcome states are used strictly:
 
 ## Current release checkpoint
 
-The latest published release is [`ace-core` 1.2.0](https://github.com/augmented-cognition-engine/core/releases/tag/v1.2.0)
+The latest published release is [`ace-core` 1.2.1](https://github.com/augmented-cognition-engine/core/releases/tag/v1.2.1)
 on PyPI and GitHub. ACE 1.1 Code Intelligence is **passed** for the documented Python 3.12,
 SurrealDB 3.2, schema-v179, single-node topology. Trusted publication, public artifact digests, a
 checkout-free public-index install, exact eleven-tool inspection, issue #194, the Release Spine

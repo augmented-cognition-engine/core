@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from core.engine.capture.pipeline import CapturePipeline
 from core.engine.capture.watchers import SessionImportWatcher, StreamEvent
 from core.engine.core.auth import get_current_user
-from core.engine.core.config import settings
+from core.engine.core.config import require_jwt_secret, settings
 from core.engine.core.db import parse_one, parse_record_id, pool
 from core.engine.core.tasks import logged_task
 from core.engine.foresight.contracts import (
@@ -720,7 +720,7 @@ async def capture_websocket(websocket: WebSocket):
         return
 
     try:
-        user = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        user = jwt.decode(token, require_jwt_secret(), algorithms=[settings.jwt_algorithm])
     except InvalidTokenError:
         await websocket.close(code=1008)
         return

@@ -10,7 +10,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import InvalidTokenError
 
 from ace.application.agent_composition_runtime import TaskAuthenticationReceiptV1Alpha1
-from core.engine.core.config import settings
+from core.engine.core.config import require_jwt_secret, settings
 
 _bearer = HTTPBearer(auto_error=False)
 _AUTHORITY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,119}$")
@@ -182,7 +182,7 @@ def create_access_token(
     expire = issued_at + (expires_delta or timedelta(minutes=settings.jwt_expire_minutes))
     payload.setdefault("iat", int(issued_at.timestamp()))
     payload["exp"] = expire
-    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
+    return jwt.encode(payload, require_jwt_secret(), algorithm=settings.jwt_algorithm)
 
 
 def verify_token(token: str) -> dict:
@@ -190,7 +190,7 @@ def verify_token(token: str) -> dict:
         return _validate_claims(
             jwt.decode(
                 token,
-                settings.jwt_secret,
+                require_jwt_secret(),
                 algorithms=[settings.jwt_algorithm],
             )
         )

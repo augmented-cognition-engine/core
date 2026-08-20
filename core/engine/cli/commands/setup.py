@@ -32,7 +32,71 @@ from core.engine.cli.auth import get_config_path, get_headers, save_config
 from core.engine.cli.commands.run import _submit_and_wait
 from core.engine.cli.display import console, print_task_result
 
-_API_URL = "http://localhost:3000"
+_DEFAULT_API_PORT = 3000
+
+
+def _api_port() -> int:
+    """The API port, overridable via ACE_API_PORT (issue #254)."""
+
+    raw = os.environ.get("ACE_API_PORT", "").strip()
+    if not raw:
+        return _DEFAULT_API_PORT
+    try:
+        port = int(raw)
+    except ValueError as exc:
+        raise click.ClickException("ACE_API_PORT must be an integer from 1 to 65535.") from exc
+    if not 1 <= port <= 65535:
+        raise click.ClickException("ACE_API_PORT must be an integer from 1 to 65535.")
+    return port
+
+
+def _api_url() -> str:
+    return f"http://localhost:{_api_port()}"
+
+
+def _api_launch_command() -> list[str]:
+    return [
+        sys.executable,
+        "-m",
+        "uvicorn",
+        "core.engine.api.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(_api_port()),
+    ]
+
+
+def _treat_ready_api_as_ours(*, api_ready: bool, managed_pid: int | None) -> bool:
+    """A live health probe alone never proves the API is ours (incident I1).
+
+    Only a ready API backed by a process this setup manages counts; anything
+    else answering on our port is foreign and setup must fail closed rather
+    than authenticate against it or claim it as already running.
+    """
+
+    return api_ready and managed_pid is not None
+
+
+def _assert_database_adoptable(*, current_version: int, adopt_existing: bool) -> None:
+    """Refuse to migrate a database that already carries ACE schema (incident I1).
+
+    A fresh database (version 0) is always adoptable. A database with existing
+    schema belongs to some installation; migrating it silently mutates state
+    setup does not own. The operator either passes --adopt-existing-database
+    deliberately, or isolates this installation with ACE_SURREAL_HOST_PORT and
+    COMPOSE_PROJECT_NAME and reruns setup against its own database.
+    """
+
+    if current_version and not adopt_existing:
+        raise click.ClickException(
+            f"The configured SurrealDB already contains ACE schema (v{current_version}). "
+            "Refusing to migrate a database this setup does not own. Rerun with "
+            "--adopt-existing-database to adopt it deliberately, or isolate this "
+            "installation with ACE_SURREAL_HOST_PORT and COMPOSE_PROJECT_NAME."
+        )
+
+
 _QUICKSTART_URL = "https://github.com/augmented-cognition-engine/core#start-here-get-a-product-recommendation"
 _PLACEHOLDERS = {
     "",
@@ -492,15 +556,17 @@ def _managed_api_pid(pid_file: Path) -> int | None:
     return None
 
 
-def _api_is_ready(url: str = _API_URL) -> bool:
+def _api_is_ready(url: str | None = None) -> bool:
+    url = url or _api_url()
     try:
         return httpx.get(f"{url}/health/live", timeout=1).status_code == 200
     except httpx.HTTPError:
         return False
 
 
-def _api_port_is_occupied(url: str = _API_URL) -> bool:
+def _api_port_is_occupied(url: str | None = None) -> bool:
     """Return true when something answers on the API origin but is not ACE."""
+    url = url or _api_url()
     try:
         httpx.get(url, timeout=1)
         return True
@@ -508,7 +574,7 @@ def _api_port_is_occupied(url: str = _API_URL) -> bool:
         return False
 
 
-def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
+def _start_local_runtime(root: Path, env_values: Mapping[str, str], *, adopt_existing_database: bool = False) -> None:
     compose = _compose_command()
     if not compose:
         raise click.ClickException(
@@ -533,6 +599,33 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
             "then rerun `ace setup`; your saved configuration will be reused."
         ) from exc
 
+    # Never migrate a database this setup does not own (incident I1). The
+    # probe is read-only; a database that already carries ACE schema requires
+    # either the explicit adoption flag or the marker this setup wrote when it
+    # provisioned that database itself on an earlier run.
+    console.print("Checking the configured database…")
+    try:
+        probe = subprocess.run(
+            [sys.executable, "-m", "scripts.schema_apply", "--current-version"],
+            cwd=root,
+            env=runtime_env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        current_version = int(probe.stdout.strip().rsplit("=", 1)[-1])
+    except (subprocess.CalledProcessError, ValueError) as exc:
+        raise click.ClickException(
+            "Could not read the configured database's schema state. SurrealDB is running "
+            "but the read-only probe failed; check SURREAL_URL and credentials, then rerun `ace setup`."
+        ) from exc
+    marker = env_values.get("ACE_SETUP_DB_MARKER", "")
+    surreal_url = env_values.get("SURREAL_URL", "")
+    _assert_database_adoptable(
+        current_version=current_version,
+        adopt_existing=adopt_existing_database or (bool(marker) and marker == surreal_url),
+    )
+
     console.print("Applying the ACE schema…")
     try:
         subprocess.run(
@@ -547,17 +640,17 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
             "rerun `ace setup`."
         ) from exc
 
-    if _api_is_ready():
+    pid_file, log_file = _runtime_paths()
+    if _treat_ready_api_as_ours(api_ready=_api_is_ready(), managed_pid=_managed_api_pid(pid_file)):
         console.print("ACE API is already running.")
         return
 
     if _api_port_is_occupied():
         raise click.ClickException(
-            "Port 3000 is already used by another application. Stop that application or set up ACE on a free port, "
-            "then rerun `ace setup`."
+            f"Port {_api_port()} is answering but is not an ACE API this setup manages. "
+            "Stop that application, or choose a free port with ACE_API_PORT, then rerun `ace setup`."
         )
 
-    pid_file, log_file = _runtime_paths()
     if _managed_api_pid(pid_file):
         console.print("Waiting for the existing ACE API process…")
     else:
@@ -565,16 +658,7 @@ def _start_local_runtime(root: Path, env_values: Mapping[str, str]) -> None:
         log_handle = log_file.open("ab")
         try:
             process = subprocess.Popen(
-                [
-                    sys.executable,
-                    "-m",
-                    "uvicorn",
-                    "core.engine.api.main:app",
-                    "--host",
-                    "127.0.0.1",
-                    "--port",
-                    "3000",
-                ],
+                _api_launch_command(),
                 cwd=root,
                 env=runtime_env,
                 stdin=subprocess.DEVNULL,
@@ -638,21 +722,21 @@ def _stop_local_runtime(root: Path) -> None:
 
 def _login_local(api_key: str) -> str:
     try:
-        response = httpx.post(f"{_API_URL}/auth/token", json={"api_key": api_key}, timeout=10)
+        response = httpx.post(f"{_api_url()}/auth/token", json={"api_key": api_key}, timeout=10)
         response.raise_for_status()
         token = response.json().get("token")
     except (httpx.HTTPError, ValueError) as exc:
         raise click.ClickException(f"ACE started, but automatic login failed: {exc}") from exc
     if not token:
         raise click.ClickException("ACE started, but automatic login returned no bearer token.")
-    save_config(_API_URL, str(token))
+    save_config(_api_url(), str(token))
     return str(token)
 
 
 def _bootstrap_local_owner(token: str) -> None:
     try:
         response = httpx.post(
-            f"{_API_URL}/auth/local-owner/bootstrap",
+            f"{_api_url()}/auth/local-owner/bootstrap",
             headers={"Authorization": f"Bearer {token}"},
             timeout=10,
         )
@@ -669,7 +753,7 @@ def _run_first_task(description: str) -> tuple[bool, float]:
     started = time.monotonic()
     console.print("\n[bold]ACE is assembling the right perspectives for your decision…[/bold]")
     result, error = _submit_and_wait(
-        _API_URL,
+        _api_url(),
         {"description": description, "workspace_id": "workspace:default"},
         get_headers(),
     )
@@ -716,6 +800,11 @@ def _configured_project(project_dir: Path | None) -> tuple[Path, dict[str, str]]
     is_flag=True,
     help="Record self-reported maintainer-help and architecture-knowledge evidence",
 )
+@click.option(
+    "--adopt-existing-database",
+    is_flag=True,
+    help="Deliberately migrate a SurrealDB that already contains ACE schema from another installation",
+)
 def setup(
     project_dir: Path | None,
     provider: str | None,
@@ -724,6 +813,7 @@ def setup(
     first_task: str | None,
     skip_first_task: bool,
     onboarding_trial: bool,
+    adopt_existing_database: bool,
 ) -> None:
     """Configure and start a usable local ACE installation.
 
@@ -812,7 +902,13 @@ def setup(
         stage = "provider_preflight"
         _provider_preflight(selected_provider, {**configured, **os.environ})
         stage = "local_services"
-        _start_local_runtime(root, configured)
+        _start_local_runtime(root, configured, adopt_existing_database=adopt_existing_database)
+        if configured.get("ACE_SETUP_DB_MARKER", "") != configured.get("SURREAL_URL", ""):
+            # Record that this installation provisioned/adopted this database,
+            # so idempotent reruns of `ace setup` never trip the adoption guard.
+            marker_text = _update_env(env_path.read_text(), {"ACE_SETUP_DB_MARKER": configured.get("SURREAL_URL", "")})
+            env_path.write_text(marker_text)
+            env_path.chmod(0o600)
         stage = "authentication"
         token = _login_local(configured["API_KEY"])
         stage = "owner_authority"
@@ -909,10 +1005,10 @@ def service_status() -> None:
     managed_pid = _managed_api_pid(pid_file)
     if ready:
         ownership = f"managed process {managed_pid}" if managed_pid else "externally managed process"
-        console.print(f"[green]ACE API is ready[/green] at {_API_URL} ({ownership}).")
+        console.print(f"[green]ACE API is ready[/green] at {_api_url()} ({ownership}).")
         console.print(f"Logs: {log_file}")
         return
-    console.print(f"[red]ACE API is not reachable[/red] at {_API_URL}.")
+    console.print(f"[red]ACE API is not reachable[/red] at {_api_url()}.")
     raise SystemExit(1)
 
 

@@ -152,7 +152,7 @@ async def canvas_websocket(websocket: WebSocket, product_id: str) -> None:
     """
     import jwt
 
-    from core.engine.core.config import settings
+    from core.engine.core.config import require_jwt_secret, settings
 
     # Authenticate
     token = websocket.query_params.get("token")
@@ -161,7 +161,7 @@ async def canvas_websocket(websocket: WebSocket, product_id: str) -> None:
         return
 
     try:
-        jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
+        jwt.decode(token, require_jwt_secret(), algorithms=[settings.jwt_algorithm])
     except Exception:
         await websocket.close(code=1008)
         return

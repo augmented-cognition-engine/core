@@ -12,7 +12,7 @@ the result instead of becoming infrastructure every product team must recreate.
 
 > **Generation is abundant. Continuity of judgment is not.**
 
-![published version 1.2.0](https://img.shields.io/badge/published-1.2.0-blue)
+![published version 1.2.1](https://img.shields.io/badge/published-1.2.1-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: stable single-user](https://img.shields.io/badge/status-stable%20single--user-green)
@@ -58,7 +58,7 @@ Builders do not need to hand-author Domain Pack JSON or learn compiler mechanics
 first intelligence value. Generated material passes the same fail-closed compatibility,
 conformance, authority, and activation boundaries as expert-built material.
 
-The current published stable package and public-index install is `ace-core==1.2.0`, the bounded
+The current published stable package and public-index install is `ace-core==1.2.1`, the bounded
 **ACE 1.1 Code Intelligence** release.
 
 ### Two connected loops
@@ -202,12 +202,12 @@ Decisions, memory, ownership, or receipts.
 Install the stable package:
 
 ```bash
-python -m pip install ace-core==1.2.0
+python -m pip install ace-core==1.2.1
 python -c "import ace; print(ace.__version__)"
 ace --help
 ```
 
-The public-index package, GitHub Release, and this source tree now identify `ace-core==1.2.0`.
+The public-index package, GitHub Release, and this source tree now identify `ace-core==1.2.1`.
 
 Or run the complete self-hosted Intelligence OS. You need macOS or Linux, Git, Python 3.12, `uv`,
 Docker Engine with Compose v2, and credentials for one supported provider.
@@ -230,12 +230,12 @@ uv run ace atrium
 
 ## What is real today
 
-**ACE 1.2 is stable for the documented single-user, single-node topology; 1.2.0 is the recommended
+**ACE 1.2 is stable for the documented single-user, single-node topology; 1.2.1 is the recommended
 release.**
 
 | Status | Product boundary |
 |---|---|
-| **Stable 1.2.0** | The bounded personal Intelligence OS plus Code Intelligence, plus Personal Intelligence as a Solution Bundle: read-only local knowledge (Markdown/Obsidian, PDF, CSV, JSON) with cited Briefs, append-only change revisions, grounded Ask with claim-bound corrections, truthful export/deletion, and exact bundle activation over the shared substrate |
+| **Stable 1.2.1** | The bounded personal Intelligence OS plus Code Intelligence, plus Personal Intelligence as a Solution Bundle: read-only local knowledge (Markdown/Obsidian, PDF, CSV, JSON) with cited Briefs, append-only change revisions, grounded Ask with claim-bound corrections, truthful export/deletion, and exact bundle activation over the shared substrate |
 | **Later 1.x** | Safe upgrades and intelligence operations, Topic and Pack Kit, connected organizational intelligence, governed self-improving agents, portability, and interoperability |
 | **2.0 direction** | Permission-sensitive collaborative organizational intelligence across teams and external participants |
 

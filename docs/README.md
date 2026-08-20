@@ -13,7 +13,7 @@ Point-in-time release and acceptance records live in the
   value, scale model, and success measures.
 - [ACE manifesto](../MANIFESTO.md) — the Intelligence Builder promise, constitutional boundaries,
   and open Intelligence Operating System direction.
-- [Getting started](getting-started.md) — install ACE 1.0.3 and reach a first useful result.
+- [Getting started](getting-started.md) — install ACE 1.2 checkout-free and reach a first useful result.
 - [Intelligence OS and Builder](intelligence-os.md) — the complete guided journey, connected loops,
   Core/Intelligence shape, Solution Bundles, and Domain Packs.
 - [ACE 1.0 announcement](ace-1.0-announcement.md) — the stable single-user product promise,
