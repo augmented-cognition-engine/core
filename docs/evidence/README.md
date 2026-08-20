@@ -103,6 +103,10 @@ superseded by later work and is kept for audit trail only.
 
 ## Code Intelligence
 
+- [ACE 1.2.0 local release candidate v1](ace-1.2.0-local-release-candidate-v1.md)
+  — pre-publication candidate disposition for ACE 1.2 Personal Intelligence: local reconciliation
+  gate, artifact inventory, and the exact publication, acceptance, and reconciliation steps that
+  remain before 1.2 is declared passed
 - [ACE 1.1.0 public release v1](ace-1.1.0-public-release-v1.md)
   — public, passed; exact tag, merge, trusted publication run, PyPI wheel/source digests,
   checkout-free Python 3.12 install, dependency check, and eleven-tool inspection

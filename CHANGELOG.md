@@ -2,7 +2,7 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
-## Unreleased
+## 1.2.0
 
 ### ACE 1.2 Personal Intelligence release engineering (PI11)
 

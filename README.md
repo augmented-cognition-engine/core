@@ -12,7 +12,7 @@ the result instead of becoming infrastructure every product team must recreate.
 
 > **Generation is abundant. Continuity of judgment is not.**
 
-![published version 1.1.0](https://img.shields.io/badge/published-1.1.0-blue)
+![published version 1.2.0](https://img.shields.io/badge/published-1.2.0-blue)
 ![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![License Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-green)
 ![status: stable single-user](https://img.shields.io/badge/status-stable%20single--user-green)
@@ -58,7 +58,7 @@ Builders do not need to hand-author Domain Pack JSON or learn compiler mechanics
 first intelligence value. Generated material passes the same fail-closed compatibility,
 conformance, authority, and activation boundaries as expert-built material.
 
-The current published stable package and public-index install is `ace-core==1.1.0`, the bounded
+The current published stable package and public-index install is `ace-core==1.2.0`, the bounded
 **ACE 1.1 Code Intelligence** release.
 
 ### Two connected loops
@@ -178,7 +178,7 @@ authority.
 
 ## Useful for one. Compounding for many.
 
-ACE 1.1.0 is stable for the documented single-user, single-node topology. The same semantic kernel
+ACE 1.2.0 is stable for the documented single-user, single-node topology. The same semantic kernel
 is designed to grow from a private workspace into shared and federated intelligence:
 
 ```text
@@ -202,12 +202,12 @@ Decisions, memory, ownership, or receipts.
 Install the stable package:
 
 ```bash
-python -m pip install ace-core==1.1.0
+python -m pip install ace-core==1.2.0
 python -c "import ace; print(ace.__version__)"
 ace --help
 ```
 
-The public-index package, GitHub Release, and this source tree now identify `ace-core==1.1.0`.
+The public-index package, GitHub Release, and this source tree now identify `ace-core==1.2.0`.
 
 Or run the complete self-hosted Intelligence OS. You need macOS or Linux, Git, Python 3.12, `uv`,
 Docker Engine with Compose v2, and credentials for one supported provider.
@@ -230,13 +230,13 @@ uv run ace atrium
 
 ## What is real today
 
-**ACE 1.1 is stable for the documented single-user, single-node topology; 1.1.0 is the recommended
+**ACE 1.2 is stable for the documented single-user, single-node topology; 1.2.0 is the recommended
 release.**
 
 | Status | Product boundary |
 |---|---|
-| **Stable 1.1.0** | The bounded 1.0 personal Intelligence OS plus Code Intelligence: repository-to-reasoning graph, change impact, Code lens, untrusted-repository admission, bounded coding-agent handoffs, governed improvement loops, SurrealDB 3.2/v179 recovery, and product-scoped delegated cognition review |
-| **Later 1.x** | Personal Intelligence, safe upgrades, Topic and Pack Kit, connected organizational intelligence, governed self-improving agents, portability, and interoperability |
+| **Stable 1.2.0** | The bounded personal Intelligence OS plus Code Intelligence, plus Personal Intelligence as a Solution Bundle: read-only local knowledge (Markdown/Obsidian, PDF, CSV, JSON) with cited Briefs, append-only change revisions, grounded Ask with claim-bound corrections, truthful export/deletion, and exact bundle activation over the shared substrate |
+| **Later 1.x** | Safe upgrades and intelligence operations, Topic and Pack Kit, connected organizational intelligence, governed self-improving agents, portability, and interoperability |
 | **2.0 direction** | Permission-sensitive collaborative organizational intelligence across teams and external participants |
 
 The stable 1.0 claim is deliberately bounded. ACE does not claim distributed operation, hostile
