@@ -15,12 +15,14 @@ from pathlib import Path
 
 import pytest
 
+from ace.application.installed_bundle_artifacts import discover_installed_solution_bundle_manifests
 from ace.intelligence.contracts.solution_bundle import SolutionBundleManifestV1
 from ace.intelligence.packs.bundle_activation import resolve_solution_bundle
 from ace.intelligence.packs.compiler import compile_pack_document_with_report
 from scripts.build_solution_bundle_manifest import (
     adapter_source_tree_digest,
     build_personal_intelligence_bundle_manifest,
+    local_adapter_dirs,
     render_bundle_document,
 )
 
@@ -28,13 +30,6 @@ pytestmark = pytest.mark.unit
 
 REPO = Path(__file__).resolve().parents[1]
 BUNDLE_DIR = REPO / "solution_bundles" / "personal_intelligence"
-LOCAL_ADAPTER_DIRS = (
-    "local_csv_source",
-    "local_json_source",
-    "local_markdown_source",
-    "local_pdf_source",
-    "local_source_normalizers",
-)
 
 
 def _shipped_manifest() -> SolutionBundleManifestV1:
@@ -64,8 +59,10 @@ def test_pack_binding_matches_a_fresh_compile_of_the_shipped_pack() -> None:
 def test_adapter_bindings_pin_the_exact_local_adapter_family() -> None:
     manifest = _shipped_manifest()
     bound = {item.adapter_id: item for item in manifest.adapters}
+    family = local_adapter_dirs(REPO)
+    assert family, "local-source adapter family missing"
     expected_ids = set()
-    for directory in LOCAL_ADAPTER_DIRS:
+    for directory in family:
         adapter_dir = REPO / "adapters" / directory
         project = tomllib.loads((adapter_dir / "pyproject.toml").read_text())["project"]
         expected_ids.add(project["name"])
@@ -101,3 +98,43 @@ def test_distribution_ships_the_manifest_at_the_discovery_path() -> None:
     force_include = project["tool"]["hatch"]["build"]["targets"]["wheel"]["force-include"]
     assert force_include["bundle.json"] == "solution_bundles/personal_intelligence/bundle.json"
     assert force_include["policy"] == "solution_bundles/personal_intelligence/policy"
+
+
+class _StagedMetadata:
+    def __init__(self, name: str) -> None:
+        self._name = name
+
+    def get(self, key: str):
+        return self._name if key == "Name" else None
+
+
+class _StagedDistribution:
+    """The shipped bundle staged exactly as an installed wheel would declare it."""
+
+    def __init__(self, root: Path, *, declared_prefix: str = "") -> None:
+        self.root = root
+        self.metadata = _StagedMetadata("ace-personal-intelligence-bundle")
+        self.version = "0.1.0"
+        wheel_path = "solution_bundles/personal_intelligence/bundle.json"
+        staged = root / wheel_path
+        staged.parent.mkdir(parents=True)
+        staged.write_bytes((BUNDLE_DIR / "bundle.json").read_bytes())
+        self.files = (f"{declared_prefix}{wheel_path}",)
+
+    def locate_file(self, path) -> Path:
+        return self.root / str(path)
+
+
+def test_shipped_bundle_is_discoverable_through_installed_bundle_artifacts(tmp_path: Path) -> None:
+    artifacts = discover_installed_solution_bundle_manifests([_StagedDistribution(tmp_path / "plain")])
+    assert [item.manifest.bundle_id for item in artifacts] == ["personal_intelligence"]
+    assert artifacts[0].manifest.manifest_id == _shipped_manifest().manifest_id
+
+
+def test_discovery_tolerates_dot_prefixed_declared_record_paths(tmp_path: Path) -> None:
+    # A RECORD written with a ./ prefix must not make a declared bundle
+    # undiscoverable: the declared original is used verbatim, never re-derived.
+    artifacts = discover_installed_solution_bundle_manifests(
+        [_StagedDistribution(tmp_path / "dotted", declared_prefix="./")]
+    )
+    assert [item.manifest.bundle_id for item in artifacts] == ["personal_intelligence"]

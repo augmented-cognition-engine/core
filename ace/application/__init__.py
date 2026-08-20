@@ -292,6 +292,7 @@ from ace.application.external_operations import (
 )
 from ace.application.grounded_ask import ASK_MAX_CANDIDATE_BRIEFS, GroundedAskError, GroundedAskService
 from ace.application.installed_bundle_artifacts import (
+    MAX_BUNDLE_MANIFEST_BYTES,
     InstalledBundleArtifactError,
     InstalledSolutionBundleArtifact,
     discover_installed_solution_bundle_manifests,
@@ -667,9 +668,10 @@ __all__ = [
     "ACTIVATION_GOLDEN_FIXTURE_PATH",
     "InstalledCompiledPackArtifact",
     "InstalledCompiledPackArtifactResolver",
-    "InstalledPackArtifactError",
     "InstalledBundleArtifactError",
+    "InstalledPackArtifactError",
     "InstalledSolutionBundleArtifact",
+    "MAX_BUNDLE_MANIFEST_BYTES",
     "discover_installed_solution_bundle_manifests",
     "PERSONAL_INTELLIGENCE_DELETION_PROOF_RECORD_KIND",
     "PERSONAL_INTELLIGENCE_OWNERSHIP_RECORD_SPACE",

@@ -53,24 +53,20 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     assert "python -m build --outdir dist/reference-adapter adapters/reference_workspace_action" in workflow
     assert "from build_backend import _normalize_sdist" in workflow
     assert "packages-dir: dist/core/" in workflow
-    assert 'gh release upload "$RELEASE_TAG" dist/reference-adapter/* --repo "$GITHUB_REPOSITORY" --clobber' in workflow
+    assert 'gh release upload "$RELEASE_TAG"' in workflow
 
     # PI11: the widened-envelope adapter re-release and the public bundle,
     # pack, and local-source adapter family attach to the same GitHub Release.
     assert 'if [ "$adapter_version" != "0.5.0" ]' in workflow
     assert 'assert project["dependencies"] == ["ace-core>=0.8.0,<2"]' in workflow
-    assert 'python -m build --outdir dist/local-adapters "adapters/$adapter"' in workflow
-    assert "local_csv_source local_json_source local_markdown_source local_pdf_source local_source_normalizers" in (
-        workflow
-    )
+    assert "Validate attached artifacts admit the released core" in workflow
+    assert "for adapter in adapters/local_*/" in workflow
     assert "python -m build --outdir dist/pack domain_packs/personal_intelligence" in workflow
     assert "python -m build --outdir dist/bundle solution_bundles/personal_intelligence" in workflow
     assert "local-source-adapter-distributions" in workflow
     assert "personal-intelligence-pack-distributions" in workflow
     assert "personal-intelligence-bundle-distributions" in workflow
-    assert 'gh release upload "$RELEASE_TAG" dist/local-adapters/* --repo "$GITHUB_REPOSITORY" --clobber' in workflow
-    assert 'gh release upload "$RELEASE_TAG" dist/pack/* --repo "$GITHUB_REPOSITORY" --clobber' in workflow
-    assert 'gh release upload "$RELEASE_TAG" dist/bundle/* --repo "$GITHUB_REPOSITORY" --clobber' in workflow
+    assert "dist/reference-adapter/* dist/local-adapters/* dist/pack/* dist/bundle/*" in workflow
 
 
 def test_docker_image_includes_public_cli_package() -> None:

@@ -24,9 +24,13 @@ promise):
   `pack_digest`) of the shipped `domain_packs/personal_intelligence` pack.
 - Each **adapter** binding pins the adapter's distribution name, exact version,
   and a canonical source-tree digest: a sorted mapping of relative path to
-  sha256-of-bytes over the adapter's shipped files, canonically hashed. Any
-  drift in an adapter's shipped bytes changes the binding and fails resolution
-  closed.
+  sha256-of-bytes over the adapter's installable material (`pyproject.toml`,
+  `README.md`, `src/**` — tests, caches, build outputs, and dotfiles excluded;
+  symbolic links refused), canonically hashed. Any drift in the installable
+  bytes changes the binding and fails resolution closed. This convention is
+  normative: a host constructing an installed-component inventory must derive
+  adapter digests the same way (wheel-hash pinning may join at a later
+  release).
 - The **policy** binding pins the policy document's exact bytes.
 
 `bundle.json` is generated — never hand-edited — by

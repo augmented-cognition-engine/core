@@ -9,8 +9,9 @@ artifacts and writes ``solution_bundles/personal_intelligence/bundle.json``:
 - the overlay is the default empty-values overlay over that exact pack;
 - each adapter binding pins the adapter's declared distribution name, exact
   version, and a canonical source-tree digest (sorted relative path to
-  sha256-of-bytes mapping, canonically hashed) so drift in any shipped adapter
-  file changes the binding;
+  sha256-of-bytes mapping over the installable material, canonically hashed)
+  so drift in the adapter bytes a distribution is built from changes the
+  binding;
 - the policy binding pins the shipped policy document's exact bytes.
 
 Deterministic by construction: no clock, no environment, no network. Rerunning
@@ -21,6 +22,7 @@ enforces exactly that.
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tomllib
 from hashlib import sha256
@@ -35,26 +37,48 @@ from ace.intelligence.contracts.solution_bundle import (
 )
 from ace.intelligence.packs.compiler import compile_pack_document_with_report
 
-LOCAL_ADAPTER_DIRS = (
-    "local_csv_source",
-    "local_json_source",
-    "local_markdown_source",
-    "local_pdf_source",
-    "local_source_normalizers",
-)
-_EXCLUDED_TREE_PARTS = {"__pycache__", ".venv", "dist", "build", ".pytest_cache"}
+
+def local_adapter_dirs(repo_root: Path) -> tuple[str, ...]:
+    """The local-source adapter family, discovered from the repository itself."""
+
+    return tuple(sorted(path.name for path in (repo_root / "adapters").glob("local_*") if path.is_dir()))
+
+
+_EXCLUDED_TREE_PARTS = {"__pycache__", "dist", "build", "tests"}
+
+
+def _digest_tree_paths(adapter_dir: Path) -> list[Path]:
+    """Walk only the installable material, pruning excluded subtrees before descent."""
+
+    result: list[Path] = []
+    for current, directories, files in os.walk(adapter_dir):
+        directories[:] = sorted(
+            name
+            for name in directories
+            if name not in _EXCLUDED_TREE_PARTS and not name.endswith(".egg-info") and not name.startswith(".")
+        )
+        for name in sorted(files):
+            if name.startswith("."):
+                continue
+            result.append(Path(current) / name)
+    return result
 
 
 def adapter_source_tree_digest(adapter_dir: Path) -> str:
-    """Canonical digest over every shipped file in one adapter's source tree."""
+    """Canonical digest over one adapter's installable source material.
+
+    Covers ``pyproject.toml``, ``README.md``, and ``src/**`` — the bytes an
+    adapter distribution is built from — and deliberately excludes tests,
+    caches, build outputs, and dotfiles so unrelated developer activity never
+    perturbs the bundle identity. Symbolic links fail closed rather than being
+    silently dropped from the digest.
+    """
 
     mapping: dict[str, str] = {}
-    for path in sorted(adapter_dir.rglob("*")):
-        if not path.is_file() or path.is_symlink():
-            continue
+    for path in _digest_tree_paths(adapter_dir):
+        if path.is_symlink():
+            raise ValueError(f"adapter source tree may not contain symbolic links: {path}")
         relative = path.relative_to(adapter_dir)
-        if any(part in _EXCLUDED_TREE_PARTS or part.endswith(".egg-info") for part in relative.parts):
-            continue
         mapping[relative.as_posix()] = sha256(path.read_bytes()).hexdigest()
     if not mapping:
         raise ValueError(f"adapter source tree is empty: {adapter_dir}")
@@ -77,7 +101,7 @@ def _compiled_pack_reference(repo_root: Path) -> CompiledPackRefV1:
 
 def _adapter_bindings(repo_root: Path) -> tuple[AdapterBindingV1, ...]:
     bindings = []
-    for directory in LOCAL_ADAPTER_DIRS:
+    for directory in local_adapter_dirs(repo_root):
         adapter_dir = repo_root / "adapters" / directory
         project = tomllib.loads((adapter_dir / "pyproject.toml").read_text())["project"]
         bindings.append(

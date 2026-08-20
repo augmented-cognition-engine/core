@@ -68,24 +68,22 @@ def _declared_paths(distribution: InstalledDistribution) -> dict[str, object]:
     return result
 
 
-def _bundle_manifest_paths(declared: dict[str, object]) -> tuple[object, ...]:
+def _bundle_manifest_paths(declared: dict[str, object]) -> tuple[tuple[PurePosixPath, object], ...]:
+    """Yield (normalized path, declared original) pairs so lookups never round-trip."""
+
     matches = []
     for normalized, original in declared.items():
         path = PurePosixPath(normalized)
         if len(path.parts) == 3 and path.parts[0] == "solution_bundles" and path.name == "bundle.json":
-            matches.append(original)
-    return tuple(sorted(matches, key=str))
+            matches.append((PurePosixPath(*path.parts), original))
+    return tuple(sorted(matches, key=lambda item: str(item[0])))
 
 
 def _safe_bytes(
     *,
     distribution: InstalledDistribution,
-    declared: dict[str, object],
-    resource_path: PurePosixPath,
+    original: object,
 ) -> bytes:
-    original = declared.get(resource_path.as_posix())
-    if original is None:
-        raise InstalledBundleArtifactError(f"installed bundle omitted declared manifest: {resource_path}")
     try:
         distribution_root = Path(distribution.locate_file(""))
         path = Path(distribution.locate_file(original))
@@ -108,12 +106,21 @@ def _safe_bytes(
 
 
 def _manifest(document: bytes) -> SolutionBundleManifestV1:
-    if not document or len(document) > MAX_BUNDLE_MANIFEST_BYTES:
+    if not document:
+        raise InstalledBundleArtifactError("installed bundle manifest is empty")
+    if len(document) > MAX_BUNDLE_MANIFEST_BYTES:
         raise InstalledBundleArtifactError("installed bundle manifest exceeded its bounded size")
     try:
         return SolutionBundleManifestV1.model_validate(json.loads(document))
     except (UnicodeDecodeError, json.JSONDecodeError, ValidationError, TypeError, ValueError) as exc:
         raise InstalledBundleArtifactError("installed bundle manifest failed exact validation") from exc
+
+
+def _distribution_version(distribution: InstalledDistribution) -> str:
+    value = distribution.version
+    if not isinstance(value, str) or not value.strip():
+        raise InstalledBundleArtifactError("installed distribution omitted its canonical version")
+    return value.strip()
 
 
 def discover_installed_solution_bundle_manifests(
@@ -126,22 +133,12 @@ def discover_installed_solution_bundle_manifests(
 
         distributions = metadata.distributions()
     artifacts: list[InstalledSolutionBundleArtifact] = []
-    seen_roots: set[tuple[str, str]] = set()
     seen_bundle_ids: set[str] = set()
     for distribution in sorted(distributions, key=lambda item: _distribution_name(item).lower()):
         name = _distribution_name(distribution)
         declared = _declared_paths(distribution)
-        for manifest_path_value in _bundle_manifest_paths(declared):
-            manifest_path = PurePosixPath(str(manifest_path_value).replace("\\", "/"))
-            root_key = (name.lower(), manifest_path.parent.as_posix())
-            if root_key in seen_roots:
-                raise InstalledBundleArtifactError("installed bundle root is declared more than once")
-            seen_roots.add(root_key)
-            document = _safe_bytes(
-                distribution=distribution,
-                declared=declared,
-                resource_path=manifest_path,
-            )
+        for manifest_path, original in _bundle_manifest_paths(declared):
+            document = _safe_bytes(distribution=distribution, original=original)
             manifest = _manifest(document)
             if manifest.bundle_id in seen_bundle_ids:
                 raise InstalledBundleArtifactError("installed bundle identifiers are ambiguous")
@@ -149,10 +146,10 @@ def discover_installed_solution_bundle_manifests(
             artifacts.append(
                 InstalledSolutionBundleArtifact(
                     distribution=name,
-                    distribution_version=str(distribution.version),
+                    distribution_version=_distribution_version(distribution),
                     manifest_resource_path=manifest_path.as_posix(),
                     manifest_digest=f"sha256:{sha256(document).hexdigest()}",
-                    manifest=manifest,
+                    manifest=SolutionBundleManifestV1.model_validate(manifest.model_dump(mode="python")),
                 )
             )
     return tuple(sorted(artifacts, key=lambda item: item.manifest.bundle_id))

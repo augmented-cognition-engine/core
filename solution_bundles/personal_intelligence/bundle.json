@@ -3,35 +3,35 @@
     {
       "adapter_id": "ace-local-csv-source",
       "adapter_version": "0.1.0",
-      "artifact_digest": "sha256:bf185ae0ea648f647514134f122b38a5e41c6ee88f18100ea7ebff99f66db8e9"
+      "artifact_digest": "sha256:b503d57779a7dc66239195b7525b3b7ff548ab2bfadee551a8a695e22eeee8bf"
     },
     {
       "adapter_id": "ace-local-json-source",
       "adapter_version": "0.1.0",
-      "artifact_digest": "sha256:432100b12a41e99fd58561e19bde90939d587cdd7d41c188f2382f97a8939c79"
+      "artifact_digest": "sha256:d15a165fe8c4591b212f1d9ad43544f7633945543c4972a68a424ea9645f054d"
     },
     {
       "adapter_id": "ace-local-markdown-source",
       "adapter_version": "0.1.0",
-      "artifact_digest": "sha256:6015e4e7904a4bf6b9708b30ed2b5364b780af95133714c9e46461fb96c62b29"
+      "artifact_digest": "sha256:8b71bf1a9d66690581e35e0d653c8c09f539e27006db7479d27d0e7b40fb4e39"
     },
     {
       "adapter_id": "ace-local-pdf-source",
       "adapter_version": "0.1.0",
-      "artifact_digest": "sha256:793613673c04a3cf30e6379059e15ac481eee5dec580aa36086d0f9dc84e0ee6"
+      "artifact_digest": "sha256:c4114ad0d4aab9ea63ed44af00366e489ae3a28ce115ad2b1101110b1041360f"
     },
     {
       "adapter_id": "ace-local-source-normalizers",
       "adapter_version": "0.1.0",
-      "artifact_digest": "sha256:5947535090436572a65f034dc4ab15bf068d6aaaae8dabf66a13c96ba7b8a2d6"
+      "artifact_digest": "sha256:2427ad1bb0dcf268fb541c8b348260da346703be9e50ab42fc33971aac1edf39"
     }
   ],
   "atrium_modules": [],
   "bundle_id": "personal_intelligence",
   "bundle_version": "1.2.0",
   "contract": "ace.intelligence.solution-bundle-manifest/v1alpha1",
-  "manifest_hash": "sha256:e6134a961a4c7f057b3acb1064ac8ec4d6da0c65ea80bb768795eb0a86cdda57",
-  "manifest_id": "solution_bundle_manifest:e6134a961a4c7f057b3acb1064ac8ec4",
+  "manifest_hash": "sha256:9788a722e45c075d9836cb97dde3cb189832c3d00c94d2b51199ecde570fe4b3",
+  "manifest_id": "solution_bundle_manifest:9788a722e45c075d9836cb97dde3cb18",
   "overlay": {
     "compiled_overlay_id": "overlay_ir:5f741a65d9deccc23089591965e676d2",
     "contract": "ace.intelligence.compiled-overlay/v1alpha1",
