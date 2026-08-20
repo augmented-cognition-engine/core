@@ -41,6 +41,22 @@ def test_release_candidate_evidence_record_exists_and_stays_honest() -> None:
     assert "/private/tmp" not in evidence
 
 
+def test_getting_started_is_checkout_free_and_current() -> None:
+    # D1 from the 1.2.0 acceptance run: the public getting-started path
+    # described 1.0.3 and required a git clone the acceptance rules forbid.
+    guide = (ROOT / "docs" / "getting-started.md").read_text(encoding="utf-8")
+    index = (ROOT / "docs" / "README.md").read_text(encoding="utf-8")
+
+    assert "1.0.3" not in guide
+    quickstart = guide.split("## Contributor", 1)[0]
+    assert "git clone" not in quickstart, "the supported quickstart must not require a source checkout"
+    assert "pip install ace-core==1.2" in quickstart
+    assert "ace-personal-intelligence-bundle" in guide
+    assert "ACE_API_PORT" in guide
+    assert "ACE_SURREAL_HOST_PORT" in guide
+    assert "install ACE 1.0.3" not in index
+
+
 def test_release_workflow_defaults_to_the_new_tag() -> None:
     workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
     assert "default: v1.2.0" in workflow
