@@ -68,6 +68,12 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     assert "personal-intelligence-bundle-distributions" in workflow
     assert "dist/reference-adapter/* dist/local-adapters/* dist/pack/* dist/bundle/*" in workflow
 
+    # 1.2.1 (#252): artifacts that cannot start the journey must never publish.
+    assert "Journey-start smoke from built artifacts" in workflow
+    assert "ace --help" in workflow
+    assert "intelligence_onboarding_profile:personal" in workflow
+    assert "ace.intelligence_build_planners" in workflow
+
 
 def test_docker_image_includes_public_cli_package() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
