@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ace-personal-intelligence-bundle"
+version = "0.1.0"
+description = "Public Personal Intelligence Solution Bundle manifest for ACE 1.2"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+dependencies = ["ace-core>=1.2.0rc0,<2"]
+
+# Ship the inert bundle manifest at the exact wheel path the installed-bundle
+# discovery scans: solution_bundles/personal_intelligence/bundle.json. The
+# distribution carries no importable code; the manifest is pure data.
+[tool.hatch.build.targets.wheel.force-include]
+"bundle.json" = "solution_bundles/personal_intelligence/bundle.json"
+"policy" = "solution_bundles/personal_intelligence/policy"
+
+[tool.hatch.build.targets.sdist]
+include = ["bundle.json", "policy", "README.md", "pyproject.toml"]

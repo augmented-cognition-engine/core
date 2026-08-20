@@ -1,0 +1,19 @@
+{
+  "contract": "ace.application.solution-bundle-policy/v1alpha1",
+  "policy_id": "personal_local_read_only",
+  "version": "1.0.0",
+  "display_name": "Personal local read-only sources",
+  "statements": [
+    "Every bundle source is a local, explicitly authorized file or folder.",
+    "Access is read-only; the bundle never requests write authority over any source.",
+    "Local reads are admitted under the labeled local acquisition mode with canonical content digests.",
+    "No source material leaves the machine as a requirement of this bundle.",
+    "Deletion previews disclose every surviving derived artifact; exclusions are never hidden."
+  ],
+  "authority_requests": [
+    {
+      "request_id": "local_source_read",
+      "authority": "source_read"
+    }
+  ]
+}
