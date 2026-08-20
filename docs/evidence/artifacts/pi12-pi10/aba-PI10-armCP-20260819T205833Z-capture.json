@@ -1,0 +1,58 @@
+{
+  "subject_decision_id": "PI10",
+  "harness": "ace-builds-ace-harness-v2",
+  "harness_digest": "08fe233c26a798657530a146b4ad66ef624d5abb7f0cb8cfa6be0cb6e64bb48c",
+  "context_manifest_refs": [],
+  "corrections": [],
+  "rework_count": 0,
+  "retrieval_shortcuts": [],
+  "prior_slice_provenance": [],
+  "retrospective": false,
+  "outcome_ref": "",
+  "capture_id": "aba-PI10-armCP-20260819T205833Z-capture-v1",
+  "arm": "C_prime",
+  "run_ids": [
+    "aba-PI10-armCP-20260819T205833Z"
+  ],
+  "participant_ids": [
+    "claude-sonnet-5 + ACE via ambient hook (v2 adoption-mechanism arm; the merging arm) (subject, cc 2.1.224 headless)",
+    "claude-fable-5 (operator, no subject authorship)",
+    "scripted participant-2 (stale-context induction)"
+  ],
+  "session_ids": [
+    "db74ea33-65ba-4611-a953-e22d925d8f32"
+  ],
+  "failures": [],
+  "interventions": [
+    {
+      "kind": "operator_environment_pre_launch",
+      "detail": "Hardened detached launches (external task-sweep anomaly, owner-confirmed not-them); runner v3 36980ef5; for C-prime: index-store wipe immediately pre-launch (single-shot journey defect protocol)."
+    }
+  ],
+  "review_findings": {
+    "overall": "7/7 PASS, COMPLETE-WITH-DEFECTS \u2014 cleanest integration of the four arms: only work product with ALL boundary gates green at first review; schema publication with live-contract sync tests; strongest bounded-failure discipline (fixed phrases, no exception interpolation); unique concurrent-deactivation race test. Shares the installed-component gap (grafted in review); lacked golden pin and Decision-1 test (grafted in review)."
+  },
+  "verification_results": {
+    "operator_ran": "consultations: 1 \u2014 ambient journey injection at T+6s (HTTP 200; grounded cited context for ace/intelligence/packs/activation.py). FIRST NON-ZERO ACE CONSULTATION OF THE PROGRAM. MCP election 0 as designed. Induction fired (2nd observations POST 201). Gates 31/31 own + 28/28 boundary + ruff/format clean."
+  },
+  "costs": {
+    "wall_clock_min": 22.6,
+    "turns": 99,
+    "tokens": {
+      "output": null
+    },
+    "usd_list_rate_equivalent_labeled_accounting": 9.81
+  },
+  "proposal": {
+    "kind": "context",
+    "evidence_refs": [
+      "aba-PI10-armCP-20260819T205833Z-result.json",
+      "PI10 registration run log"
+    ],
+    "eligible_scope": "ACE 1.3 ambient enrichment (per-turn/per-edit triggers)",
+    "expected_effect": "adopted_but_neutral says the mechanism works and one static injection is insufficient; next value test is richer injection surfaces",
+    "conflicts": [],
+    "expiry": ""
+  },
+  "notes": "PREREGISTERED C-PRIME-VS-C VERDICT: adopted_but_neutral \u2014 adoption by mechanism PROVEN (0->1); no measurable quality lift over the election control on this subject (reviewer falsified the operator's uniqueness framing by direct inspection of C \u2014 both ACE arms cleared the registry trap; all four program bare arms did not). MERGED as PR #247 base commit + review grafts per the v2 single-merging-arm rule."
+}

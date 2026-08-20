@@ -142,3 +142,65 @@ fail-closed erasure port, deterministic replay-safe proof report, payload-filter
 deletion, kill-respawn restart e2e). The three-arm evidence base materially informed #244's
 design; the arms' work products are archived with the registration. The experiment did not
 block 1.2 delivery.
+
+### PI10 — Solution Bundle machinery — 2026-08-19 (harness v2)
+
+Third and final preregistered subject; the first (and only) run under the **v2** amendment with
+arm **C′** and the code-intelligence-consultation measure. Frozen head
+`e2e5e739479a4951f355bd39b1b6199cfe02b921` (contains the A0 repository-relative-target fix,
+PR #246, found and fixed in this subject's own pre-flight). Runner v3 (`36980ef5…`): arm C′
+ambient-hook install from the frozen worktree; scripted participant-2 stale-context induction
+for the ACE arms (a v1 §3 requirement disclosed as unimplemented in PI8/PI9's arm C runs).
+Registration — including the dc91c49 exposure disclosure, isolation record, §7 exploratory
+entry, and three live-verified 1.1.0 defects (single-shot journey index, incremental-scan
+counter clobber, journey/index state divergence) — and one §8 capture record per arm-run:
+[`artifacts/pi12-pi10/`](artifacts/pi12-pi10/).
+
+| Arm-run | Config | Outcome |
+|---|---|---|
+| `aba-PI10-armB-…195424Z` | bare claude-sonnet-5 | Completed. 7/7 PASS, COMPLETE-WITH-DEFECTS; material gap: no installed-component cross-check; contributed the executable Decision-1 boundary-test design. |
+| `aba-PI10-armA-…195424Z` | bare claude-fable-5 | Completed. 7/7 PASS, COMPLETE-WITH-DEFECTS (registry omission only); the program's most precisely key-mapped test suite; contributed the installed-component fail-closed check and golden-digest pin. |
+| `aba-PI10-armC-…202209Z` | + ACE via MCP (election control) | Completed, valid in its v2 evidence-only role. **Consultations: 0 — the fifth consecutive election zero program-wide.** Induction fired T+10:05 (201). |
+| `aba-PI10-armCP-…205833Z` | + ACE via ambient hook (the merging arm) | Completed. **Consultations: 1 — the ambient injection fired at T+6s (journey 200): the program's first non-zero ACE consultation.** 7/7 PASS, COMPLETE-WITH-DEFECTS; the only work product of the program's seven with all boundary gates green at first review. |
+
+**Verdicts (v2):**
+
+- **C′ vs C (preregistered adoption-mechanism verdict): `adopted_but_neutral`.** Adoption by
+  mechanism is proven — push (ambient injection) consulted where election never did, 1 vs 0
+  against five election zeros. Quality did not measurably lift: the election control
+  independently matched the candidate injection fingerprints (the reviewer falsified the
+  operator's uniqueness framing by direct inspection — recorded as the adversarial process
+  working), and the work products are comparably complete.
+- **C′ vs B / C′ vs A:** comparable quality; descriptive only. **B vs A:** both 7/7 with
+  complementary strengths; tier series ends mixed (PI8 B>A, PI9 A>B, PI10 ≈).
+- **Delivery:** per the v2 single-merging-arm rule, C′'s work product merged as **PR #247**
+  (base commit + operator review grafts closing the three cross-arm gaps: installed-component
+  fail-closed check and golden-digest pin from arm A's design, executable Decision-1 boundary
+  test from arm B's). The dc91c49 exploratory implementation (§7, Decision 16 retrospective)
+  was not needed as a fallback and never merged.
+
+## PI12 program result (three subjects complete)
+
+Per §6, descriptive per-subject tallies, no aggregation — and in §6's own words: with three
+subjects there is no statistical claim.
+
+- **The adoption arc is the program's headline.** Election-based ACE consultation was zero in
+  five of five ACE-arm runs across all three subjects and two tool surfaces (pre- and
+  post-#237's task-shaped descriptions — intervention 1, measured and falsified). The ambient
+  mechanism (A0, PR #240, repaired by #246) consulted on its first preregistered attempt.
+  **Push solves adoption; election does not happen.**
+- **Value is not yet demonstrated:** one static session-start injection produced
+  `adopted_but_neutral` — no measurable quality lift on a bounded, well-specified subject
+  against a strong same-model control. The capture records' `context` proposal moves the value
+  test to richer injection surfaces (per-turn/per-edit triggers, scoped in the A0 design doc)
+  and to subjects where prior-session knowledge is the binding constraint.
+- **Comparative quality:** C-vs-B and C-vs-A were vacant on PI8/PI9 (zero adoption) and
+  C′-vs-C neutral on PI10. Bare-tier observation: mixed (B>A, A>B, ≈) — no tier claim.
+- **The method finding:** across seven scored work products, one calibrated adversarial
+  reviewer caught a latent correctness risk (PI9 arm B's hardcoded counts), falsified two
+  operator framings, and drove three merged deliveries composed from complementary arm designs
+  (#236, #244, #247). Multi-arm generation + adversarial review + composed delivery repeatedly
+  produced better-than-any-single-arm results — independent of the ACE adoption question.
+- **Instrument integrity:** every void, drift event, environment anomaly, operator error, and
+  defect (eight 1.1.x product defects, four instrument defects) is recorded in the
+  registrations. Deleting a run was never an available action; none was deleted.
