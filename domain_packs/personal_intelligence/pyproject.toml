@@ -20,4 +20,11 @@ license = "Apache-2.0"
 "README.md" = "domain_packs/personal_intelligence/README.md"
 
 [tool.hatch.build.targets.sdist]
-include = ["manifest.json", "modules", "conformance", "README.md", "pyproject.toml"]
+include = [
+    "manifest.json",
+    "onboarding_profile.json",
+    "modules",
+    "conformance",
+    "README.md",
+    "pyproject.toml",
+]

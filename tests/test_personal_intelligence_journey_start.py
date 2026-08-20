@@ -61,6 +61,12 @@ class TestShippedOnboardingProfile:
         project = tomllib.loads((PACK_ROOT / "pyproject.toml").read_text())
         force_include = project["tool"]["hatch"]["build"]["targets"]["wheel"]["force-include"]
         assert force_include["onboarding_profile.json"] == "domain_packs/personal_intelligence/onboarding_profile.json"
+        # `python -m build` builds the wheel FROM the sdist, so every
+        # wheel-force-included file must also be in the sdist include list —
+        # the v1.2.1 release build failed exactly here.
+        sdist_include = project["tool"]["hatch"]["build"]["targets"]["sdist"]["include"]
+        for source in force_include:
+            assert source in sdist_include, f"{source} is wheel-included but missing from the sdist"
 
     def test_profile_source_groups_cover_the_four_local_kinds(self):
         profile = _shipped_profile()
