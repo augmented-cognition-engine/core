@@ -103,6 +103,10 @@ superseded by later work and is kept for audit trail only.
 
 ## Code Intelligence
 
+- [ACE 1.2 Personal Intelligence public acceptance v1](personal-intelligence-v1.2-public-acceptance-v1.md)
+  — **not passed**; clean-context acceptance runs against v1.2.0 and v1.2.1 under the amended
+  gate, the per-step verdicts, the repairs shipped, and the PI13 journey-integration
+  continuation; sanitized run logs under `artifacts/personal-acceptance-1.2/`
 - [ACE 1.2.0 local release candidate v1](ace-1.2.0-local-release-candidate-v1.md)
   — pre-publication candidate disposition for ACE 1.2 Personal Intelligence: local reconciliation
   gate, artifact inventory, and the exact publication, acceptance, and reconciliation steps that
