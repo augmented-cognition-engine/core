@@ -1,0 +1,73 @@
+{
+  "contract": "ace.intelligence.onboarding-profile/v1alpha1",
+  "profile_id": "intelligence_onboarding_profile:personal",
+  "topic_id": "personal_knowledge",
+  "domain_label": "Personal Intelligence",
+  "topic_label": "Your own knowledge",
+  "display_name": "Personal Intelligence",
+  "prompt": "What in your own notes and documents should stay in view?",
+  "description": "A cited view of what currently matters in your own authorized, read-only local knowledge: a Markdown or Obsidian folder plus PDF, CSV, and JSON files. Nothing leaves your machine as a requirement of this profile.",
+  "starter_prompts": [
+    "Brief me on what currently matters in my notes.",
+    "What changed in my documents since the last Brief?"
+  ],
+  "outcomes": [
+    {
+      "outcome_id": "personal_orientation",
+      "label": "Stay oriented in your own material",
+      "description": "A cited first Brief over your corpus, append-only change revisions, and grounded answers with honest no-answers.",
+      "icon_hint": "compass",
+      "recommended_watch_ids": [],
+      "recommended_intelligence_ids": [],
+      "recommended_topic_labels": [],
+      "recommended_intelligence_labels": []
+    }
+  ],
+  "source_groups": [
+    {
+      "source_group_id": "personal_local_sources",
+      "label": "Your local knowledge",
+      "description": "A Markdown/Obsidian folder plus PDF, CSV, and JSON files you explicitly authorize, read-only, with the exact scope shown before any read.",
+      "evidence_role": "primary_evidence",
+      "source_ids": [
+        "local_markdown_folder",
+        "local_pdf_document",
+        "local_csv_table",
+        "local_json_document"
+      ],
+      "source_labels": [
+        "Markdown/Obsidian folder",
+        "PDF document",
+        "CSV table",
+        "JSON document"
+      ],
+      "access_label": "Read-only local files",
+      "default_selected": true
+    }
+  ],
+  "cadences": [
+    {
+      "cadence_id": "on_change",
+      "label": "When sources change",
+      "description": "An append-only revision whenever an authorized source changes."
+    },
+    {
+      "cadence_id": "daily",
+      "label": "Daily",
+      "description": "A daily orientation over your corpus."
+    }
+  ],
+  "default_cadence_id": "on_change",
+  "first_value": {
+    "public_sources_first": false,
+    "private_sources_optional": false,
+    "completion_label": "Open your first Brief"
+  },
+  "guardrails": {
+    "declarative_only": true,
+    "authorizes_connections": false,
+    "authorizes_monitors": false,
+    "proposed_sources_are_not_connected": true,
+    "feedback_may_reweight_relevance_not_authority": true
+  }
+}

@@ -103,6 +103,9 @@ any-llm = [
     "any-llm-sdk>=1.17",  # Mozilla AI, Apache-2.0 — license-matched second router
 ]
 
+[project.entry-points."ace.intelligence_build_planners"]
+personal_intelligence = "core.engine.personal_intelligence.build_planner:load_personal_intelligence_build_planner"
+
 [project.scripts]
 ace = "core.engine.cli.main:cli"
 ace-mcp = "core.engine.mcp.server:main"

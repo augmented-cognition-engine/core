@@ -158,6 +158,11 @@ def test_only_host_adapters_and_installed_product_applications_import_public_ace
         # generic Core reaches it only through the extension registry factory.
         "core/engine/code_intelligence/resource_plane.py",
         "core/engine/code_intelligence/incident_source.py",
+        # 1.2.1 (issue #252): the first-party Personal Intelligence build
+        # planner; generic Core reaches it only through the dedicated
+        # ace.intelligence_build_planners entry-point group, and it imports
+        # intelligence contracts solely through public ace.application surfaces.
+        "core/engine/personal_intelligence/build_planner.py",
     }
     allowed = host_adapters | governed_authority_contracts | installed_product_applications
     offenders = sorted(

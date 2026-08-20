@@ -14,6 +14,7 @@ license = "Apache-2.0"
 # scans: domain_packs/personal_intelligence/{manifest.json,modules,conformance}.
 [tool.hatch.build.targets.wheel.force-include]
 "manifest.json" = "domain_packs/personal_intelligence/manifest.json"
+"onboarding_profile.json" = "domain_packs/personal_intelligence/onboarding_profile.json"
 "modules" = "domain_packs/personal_intelligence/modules"
 "conformance" = "domain_packs/personal_intelligence/conformance"
 "README.md" = "domain_packs/personal_intelligence/README.md"
