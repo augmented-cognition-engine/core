@@ -3,6 +3,9 @@ from __future__ import annotations
 import tomllib
 from pathlib import Path
 
+from packaging.requirements import Requirement
+from packaging.version import Version
+
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_PATH = ROOT / "docs" / "evidence" / "ace-1.1.0-local-release-candidate-v1.md"
 PUBLIC_EVIDENCE_PATH = ROOT / "docs" / "evidence" / "ace-1.1.0-public-release-v1.md"
@@ -55,12 +58,16 @@ def test_public_release_evidence_closes_the_four_records() -> None:
 
 
 def test_reference_adapter_compatibility_includes_110_without_rekeying() -> None:
+    # The published 1.1-era distribution was 0.4.1 with `ace-core>=0.8.0,<1.2`.
+    # The 1.2 packet's hard precondition widens that envelope in a NEW release
+    # (PI11), so the live claim is inclusion of 1.1.0, not the frozen snapshot.
     adapter = tomllib.loads(
         (ROOT / "adapters" / "reference_workspace_action" / "pyproject.toml").read_text(encoding="utf-8")
     )["project"]
 
-    assert adapter["version"] == "0.4.1"
-    assert adapter["dependencies"] == ["ace-core>=0.8.0,<1.2"]
+    assert Version(adapter["version"]) >= Version("0.4.1")
+    (ace_core,) = [Requirement(item) for item in adapter["dependencies"] if item.startswith("ace-core")]
+    assert ace_core.specifier.contains(Version("1.1.0"), prereleases=False)
 
 
 def test_capability_maturity_publishes_bounded_11() -> None:

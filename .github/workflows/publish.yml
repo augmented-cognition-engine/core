@@ -46,8 +46,8 @@ jobs:
             exit 1
           fi
           adapter_version="$(python -c 'import pathlib, tomllib; print(tomllib.loads(pathlib.Path("adapters/reference_workspace_action/pyproject.toml").read_text())["project"]["version"])')"
-          if [ "$adapter_version" != "0.4.1" ]; then
-            echo "Reference workspace adapter version must be 0.4.1; found $adapter_version" >&2
+          if [ "$adapter_version" != "0.5.0" ]; then
+            echo "Reference workspace adapter version must be 0.5.0; found $adapter_version" >&2
             exit 1
           fi
 
@@ -61,7 +61,37 @@ jobs:
               pathlib.Path("adapters/reference_workspace_action/pyproject.toml").read_text()
           )["project"]
           assert project["name"] == "ace-reference-workspace-action"
-          assert project["dependencies"] == ["ace-core>=0.8.0,<1.2"]
+          assert project["dependencies"] == ["ace-core>=0.8.0,<2"]
+          PY
+
+      - name: Validate attached artifacts admit the released core
+        run: |
+          python -m pip install --disable-pip-version-check packaging==25.0
+          python - <<'PY'
+          import pathlib
+          import tomllib
+
+          from packaging.requirements import Requirement
+          from packaging.utils import canonicalize_name
+          from packaging.version import Version
+
+          release = Version(tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["version"])
+          for pyproject in sorted(
+              [
+                  *pathlib.Path("adapters").glob("*/pyproject.toml"),
+                  *pathlib.Path("domain_packs").glob("*/pyproject.toml"),
+                  *pathlib.Path("solution_bundles").glob("*/pyproject.toml"),
+              ]
+          ):
+              project = tomllib.loads(pyproject.read_text())["project"]
+              for item in project.get("dependencies", ()):
+                  requirement = Requirement(item)
+                  if canonicalize_name(requirement.name) != "ace-core":
+                      continue
+                  assert requirement.specifier.contains(release, prereleases=True), (
+                      f"{pyproject} pins {requirement.specifier}, which refuses the ace-core {release} "
+                      "being released beside it"
+                  )
           PY
 
       - name: Install build tooling
@@ -76,22 +106,33 @@ jobs:
         run: |
           python -m build --outdir dist/core
           python -m build --outdir dist/reference-adapter adapters/reference_workspace_action
+          for adapter in adapters/local_*/; do
+            python -m build --outdir dist/local-adapters "$adapter"
+          done
+          python -m build --outdir dist/pack domain_packs/personal_intelligence
+          python -m build --outdir dist/bundle solution_bundles/personal_intelligence
 
-          # The root project uses build_backend.py directly. The independently packaged adapter
-          # uses setuptools, so normalize its completed sdist through the same fixed-epoch helper
-          # before validation and upload.
+          # The root project uses build_backend.py directly. The independently packaged
+          # setuptools projects (the reference adapter and the local-source adapter family)
+          # need their completed sdists normalized through the same fixed-epoch helper before
+          # validation and upload; the hatchling-built pack and bundle honor
+          # SOURCE_DATE_EPOCH natively.
           python - <<'PY'
           import os
           from pathlib import Path
 
           from build_backend import _normalize_sdist
 
-          archives = sorted(Path("dist/reference-adapter").glob("*.tar.gz"))
-          assert len(archives) == 1, archives
-          _normalize_sdist(archives[0], int(os.environ["SOURCE_DATE_EPOCH"]))
+          reference = sorted(Path("dist/reference-adapter").glob("*.tar.gz"))
+          assert len(reference) == 1, reference
+          local = sorted(Path("dist/local-adapters").glob("*.tar.gz"))
+          expected = sorted(item.name for item in Path("adapters").glob("local_*") if item.is_dir())
+          assert len(local) == len(expected), (local, expected)
+          for archive in reference + local:
+              _normalize_sdist(archive, int(os.environ["SOURCE_DATE_EPOCH"]))
           PY
 
-          python -m twine check dist/core/* dist/reference-adapter/*
+          python -m twine check dist/core/* dist/reference-adapter/* dist/local-adapters/* dist/pack/* dist/bundle/*
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -102,6 +143,21 @@ jobs:
         with:
           name: reference-workspace-action-distributions
           path: dist/reference-adapter/
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: local-source-adapter-distributions
+          path: dist/local-adapters/
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: personal-intelligence-pack-distributions
+          path: dist/pack/
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: personal-intelligence-bundle-distributions
+          path: dist/bundle/
 
   publish:
     name: Publish distributions
@@ -124,7 +180,7 @@ jobs:
           packages-dir: dist/core/
 
   release-reference-adapter:
-    name: Attach reference action adapter
+    name: Attach independently packaged artifacts
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -135,8 +191,26 @@ jobs:
           name: reference-workspace-action-distributions
           path: dist/reference-adapter/
 
-      - name: Attach independently packaged adapter to the GitHub Release
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: local-source-adapter-distributions
+          path: dist/local-adapters/
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: personal-intelligence-pack-distributions
+          path: dist/pack/
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: personal-intelligence-bundle-distributions
+          path: dist/bundle/
+
+      - name: Attach independently packaged artifacts to the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
-        run: gh release upload "$RELEASE_TAG" dist/reference-adapter/* --repo "$GITHUB_REPOSITORY" --clobber
+        run: >-
+          gh release upload "$RELEASE_TAG"
+          dist/reference-adapter/* dist/local-adapters/* dist/pack/* dist/bundle/*
+          --repo "$GITHUB_REPOSITORY" --clobber

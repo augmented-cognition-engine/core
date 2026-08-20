@@ -1,0 +1,58 @@
+{
+  "adapters": [
+    {
+      "adapter_id": "ace-local-csv-source",
+      "adapter_version": "0.1.0",
+      "artifact_digest": "sha256:b503d57779a7dc66239195b7525b3b7ff548ab2bfadee551a8a695e22eeee8bf"
+    },
+    {
+      "adapter_id": "ace-local-json-source",
+      "adapter_version": "0.1.0",
+      "artifact_digest": "sha256:d15a165fe8c4591b212f1d9ad43544f7633945543c4972a68a424ea9645f054d"
+    },
+    {
+      "adapter_id": "ace-local-markdown-source",
+      "adapter_version": "0.1.0",
+      "artifact_digest": "sha256:8b71bf1a9d66690581e35e0d653c8c09f539e27006db7479d27d0e7b40fb4e39"
+    },
+    {
+      "adapter_id": "ace-local-pdf-source",
+      "adapter_version": "0.1.0",
+      "artifact_digest": "sha256:c4114ad0d4aab9ea63ed44af00366e489ae3a28ce115ad2b1101110b1041360f"
+    },
+    {
+      "adapter_id": "ace-local-source-normalizers",
+      "adapter_version": "0.1.0",
+      "artifact_digest": "sha256:2427ad1bb0dcf268fb541c8b348260da346703be9e50ab42fc33971aac1edf39"
+    }
+  ],
+  "atrium_modules": [],
+  "bundle_id": "personal_intelligence",
+  "bundle_version": "1.2.0",
+  "contract": "ace.intelligence.solution-bundle-manifest/v1alpha1",
+  "manifest_hash": "sha256:9788a722e45c075d9836cb97dde3cb189832c3d00c94d2b51199ecde570fe4b3",
+  "manifest_id": "solution_bundle_manifest:9788a722e45c075d9836cb97dde3cb18",
+  "overlay": {
+    "compiled_overlay_id": "overlay_ir:5f741a65d9deccc23089591965e676d2",
+    "contract": "ace.intelligence.compiled-overlay/v1alpha1",
+    "overlay_digest": "sha256:5f741a65d9deccc23089591965e676d2d55710a97cc570bdf3d71dd9a27bef11",
+    "overlay_id": "personal_defaults",
+    "pack_digest": "sha256:11a4cb0ebd7f211343eed4630b7df00adf1dd22ae87aec412521493dca77aec2",
+    "pack_id": "personal_intelligence",
+    "pack_version": "1.0.0",
+    "values": [],
+    "version": "1.0.0"
+  },
+  "pack": {
+    "compiled_pack_id": "pack_ir:11a4cb0ebd7f211343eed4630b7df00a",
+    "pack_digest": "sha256:11a4cb0ebd7f211343eed4630b7df00adf1dd22ae87aec412521493dca77aec2",
+    "pack_id": "personal_intelligence",
+    "pack_version": "1.0.0"
+  },
+  "policy": {
+    "policy_digest": "sha256:fdcf4209214a6707bae678dfce57f853a0bc971b14fdc9bf61794cd09aec75eb",
+    "policy_id": "personal_local_read_only",
+    "policy_version": "1.0.0"
+  },
+  "product_id": "product:personal-intelligence"
+}

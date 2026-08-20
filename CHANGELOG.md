@@ -2,6 +2,24 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## Unreleased
+
+### ACE 1.2 Personal Intelligence release engineering (PI11)
+
+- Package the public **Personal Intelligence Solution Bundle** as the pure-data
+  `ace-personal-intelligence-bundle` distribution: exact pack, overlay, adapter, and policy
+  bindings generated deterministically from the repository's real artifacts
+  (`scripts/build_solution_bundle_manifest.py`) and discovered checkout-free from installed
+  distributions (`ace.application.installed_bundle_artifacts`).
+- Re-release the reference workspace-action adapter as **0.5.0** with the widened
+  `ace-core>=0.8.0,<2` envelope (the published 0.4.1 pinned `<1.2`, which the 1.2.0 release
+  would break). The executable implementation is unchanged; its capability artifact identity
+  remains 0.1.0.
+- The release build now also builds, validates, and attaches the five local-source adapter
+  distributions, the Personal Intelligence pack distribution, and the bundle distribution to the
+  GitHub Release, and gates every attached artifact's `ace-core` envelope against the core
+  version being released beside it.
+
 ## 1.1.0
 
 ### ACE 1.1 Code Intelligence
