@@ -29,8 +29,11 @@ class Settings(BaseSettings):
     surreal_user: str = "root"
     surreal_pass: str = "root"
 
-    # JWT
-    jwt_secret: str
+    # JWT. Empty by default so a fresh package-only install can run `ace
+    # --help` and `ace setup` before any configuration exists (issue #253);
+    # every actual use of the signing secret goes through require_jwt_secret,
+    # which fails fast with an actionable message when it is unset.
+    jwt_secret: str = ""
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24  # 24 hours
 
@@ -373,11 +376,9 @@ class Settings(BaseSettings):
 
     @field_validator("jwt_secret")
     @classmethod
-    def validate_required_secrets(cls, v: str, info) -> str:
-        """Fail fast if required secrets are empty — prevents silent auth failures."""
-        if not v or not v.strip():
-            raise ValueError(f"{info.field_name} must be set (check .env or environment variables)")
-        return v
+    def normalize_jwt_secret(cls, v: str) -> str:
+        """Normalize whitespace; emptiness is gated at use via require_jwt_secret."""
+        return v.strip()
 
     @field_validator("environment")
     @classmethod
@@ -418,6 +419,24 @@ class Settings(BaseSettings):
                         "code_intelligence_index_store_root must be outside code_intelligence_repository_root"
                     )
         return self
+
+
+def require_jwt_secret(config: "Settings | None" = None) -> str:
+    """The signing secret, or a fail-fast operational error when unconfigured.
+
+    Every mint or verification of a token must call this instead of reading
+    ``settings.jwt_secret`` directly, so a missing secret keeps the original
+    fail-fast property exactly where it protects authentication — without
+    crashing configuration-free commands like ``ace --help`` (issue #253).
+    """
+
+    value = (config or settings).jwt_secret
+    if not value:
+        raise RuntimeError(
+            "JWT_SECRET is not configured. Run `ace setup` to generate one, "
+            "or set JWT_SECRET in the environment or .env file."
+        )
+    return value
 
 
 settings = Settings()
