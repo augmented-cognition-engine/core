@@ -99,9 +99,13 @@ class TestPersonalPlanner:
             "core.engine.personal_intelligence.build_planner:PersonalIntelligenceBuildPlanner"
         )
 
-    def test_planner_loads_through_the_production_registry_path(self):
+    def test_planner_loads_through_the_production_registry_path(self, monkeypatch):
         # The exact seam builds/prepare uses — never a hand-rolled equivalent
         # (the v1.2.1 smoke gate invoked the factory manually and missed F3).
+        # The naked-kernel lane sets ACE_DISABLE_EXTENSIONS=1, under which the
+        # registry loads nothing by design; this test exercises the loading
+        # mechanism itself, so the kill switch is cleared for its duration.
+        monkeypatch.delenv("ACE_DISABLE_EXTENSIONS", raising=False)
         from core.engine.core import intelligence_build_planner_registry as registry
         from core.engine.personal_intelligence.build_planner import PersonalIntelligenceBuildPlanner
 
