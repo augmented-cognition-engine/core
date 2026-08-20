@@ -11,22 +11,15 @@ EVIDENCE_PATH = ROOT / "docs" / "evidence" / "ace-1.1.0-local-release-candidate-
 PUBLIC_EVIDENCE_PATH = ROOT / "docs" / "evidence" / "ace-1.1.0-public-release-v1.md"
 
 
-def test_current_release_surfaces_are_110_without_rewriting_published_history() -> None:
-    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+def test_110_published_history_is_never_rewritten() -> None:
+    # The current-surface assertions moved to test_ace_120_release_candidate.py
+    # when 1.2.0 became the release being cut; 1.1's published history stays.
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    roadmap = (ROOT / "ROADMAP.md").read_text(encoding="utf-8")
 
-    assert project["version"] == "1.1.0"
-    assert "![published version 1.1.0]" in readme
-    assert "python -m pip install ace-core==1.1.0" in readme
-    assert "current published stable package and public-index install is `ace-core==1.1.0`" in readme
     assert "local candidate 1.1.0" not in readme
-    assert "Do not request\n1.1.0 from the public index" not in readme
     assert "SurrealDB migrations (head: v177)" not in readme
     assert changelog.index("## 1.1.0") < changelog.index("## 1.0.3")
-    assert "latest published release is [`ace-core` 1.1.0]" in roadmap
-    assert "Personal Intelligence 1.2 is now **Now**" in " ".join(roadmap.split())
 
 
 def test_release_candidate_evidence_is_public_safe_and_four_record_bounded() -> None:
@@ -73,8 +66,6 @@ def test_reference_adapter_compatibility_includes_110_without_rekeying() -> None
 def test_capability_maturity_publishes_bounded_11() -> None:
     maturity = (ROOT / "docs" / "capability-maturity.md").read_text(encoding="utf-8")
 
-    assert "## Supported 1.1 contract" in maturity
-    assert "version: `1.1.0` (current public release and public-index install)" in maturity
     assert "## ACE 1.1 Code Intelligence — supported maturity" in maturity
     assert "Schema head is v179" in maturity
     assert "public release evidence" in maturity

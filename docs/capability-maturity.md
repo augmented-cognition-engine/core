@@ -1,9 +1,17 @@
 # ACE capability maturity
 
-ACE 1.1 is stable for the documented single-user, single-node topology. This page distinguishes
+ACE 1.2 is stable for the documented single-user, single-node topology. This page distinguishes
 that supported public contract from implemented surfaces that remain experimental.
 
-## Supported 1.1 contract
+## Supported 1.2 contract
+
+ACE 1.2 adds **Personal Intelligence** as a Solution Bundle over the unchanged substrate: the
+`ace-personal-intelligence-bundle` distribution binds the exact Personal Intelligence domain pack,
+the read-only local-source adapter family (Markdown/Obsidian folder, PDF, CSV, JSON), and the
+local read-only source policy. Personal meaning arrives only through the bundle's packs, overlays,
+and adapters; nothing personal enters Core ontology, all 1.2 sources are read-only and local, and
+the bundle never requires any other bundle. The supported journey is the J1–J10 public acceptance
+journey frozen in the 1.2 work packet; its public acceptance record binds the release evidence.
 
 The supported self-hosted path is:
 
@@ -18,10 +26,10 @@ The published stable 1.0 identities are:
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `1.1.0` (current public release and public-index install)
+- version: `1.2.0` (current public release and public-index install)
 
 The tagged GitHub Release, trusted PyPI publication, and this source tree carry package version
-1.1.0 for ACE 1.1 Code Intelligence.
+1.2.0 for ACE 1.2 Personal Intelligence.
 
 The thin MCP surface contains exactly eleven tools:
 
