@@ -2,6 +2,25 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.2.2
+
+### Planner registration repair from the v1.2.1 acceptance rerun
+
+- The Personal Intelligence build planner entry point now targets the zero-arg-constructible
+  planner class, matching the registry's real loading contract (it instantiates classes only);
+  the v1.2.1 factory-function target was registered uninvoked and every `builds/prepare`
+  returned 503 (rerun finding F3).
+- Planner registry failures surface their real diagnosis instead of a blanket "planners are
+  ambiguous" (rerun finding F4).
+- The release build's journey-start smoke gate now exercises the exact production registry path
+  (`load_installed_intelligence_build_planners` / `resolve_intelligence_build_planner`) rather
+  than invoking entry points by hand — the gap that let v1.2.1 pass its own gate while the
+  production path was broken.
+- The v1.2.1 acceptance rerun's remaining findings (F5–F10: the unintegrated Personal journey
+  runtime — snapshot capability provider, adapter and acquisition wiring, build executor,
+  Atrium journey, and full source-kind mapping) are out of patch scope and tracked as the
+  scoped continuation on issue #195.
+
 ## 1.2.1
 
 ### Journey-start fixes from the 1.2.0 public acceptance run

@@ -1,6 +1,6 @@
 [project]
 name = "ace-core"
-version = "1.2.1"
+version = "1.2.2"
 description = "Open Intelligence Operating System with a guided Intelligence Builder"
 readme = "README.md"
 license = "Apache-2.0"
@@ -104,7 +104,7 @@ any-llm = [
 ]
 
 [project.entry-points."ace.intelligence_build_planners"]
-personal_intelligence = "core.engine.personal_intelligence.build_planner:load_personal_intelligence_build_planner"
+personal_intelligence = "core.engine.personal_intelligence.build_planner:PersonalIntelligenceBuildPlanner"
 
 [project.scripts]
 ace = "core.engine.cli.main:cli"
