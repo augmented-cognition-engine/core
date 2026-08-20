@@ -12,7 +12,7 @@ The distribution is `ace-core`; it provides the `ace` import package, the `ace` 
 Atrium workspace, and the `ace-mcp-client` command.
 
 ```bash
-python -m pip install ace-core==1.2.1
+python -m pip install ace-core==1.2.2
 python -c "import ace; print(ace.__version__)"
 ace --help
 ```

@@ -186,7 +186,9 @@ async def prepare_intelligence_build_plan(
     try:
         planner = runtime.planners.resolve(request.profile_id)
     except IntelligenceBuildPlannerRegistryError as exc:
-        raise IntelligenceBuildPlanUnavailable("installed Intelligence build planners are ambiguous") from exc
+        # Surface the registry's real diagnosis (rerun finding F4): a load or
+        # validation failure is not the same operator problem as ambiguity.
+        raise IntelligenceBuildPlanUnavailable(f"Intelligence build planner registry failed closed: {exc}") from exc
     if planner is None:
         raise IntelligenceBuildPlanUnavailable(
             f"no Intelligence build planner is registered for profile: {request.profile_id}"

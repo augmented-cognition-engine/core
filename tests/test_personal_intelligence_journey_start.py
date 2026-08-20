@@ -88,12 +88,39 @@ class TestPersonalPlanner:
         assert pack_reference.compiled_pack_id == compiled.compiled_pack_id
         assert artifact.implementation_id
 
-    def test_entry_point_is_declared_by_ace_core(self):
+    def test_entry_point_is_declared_by_ace_core_as_a_class(self):
+        # The registry invokes classes only (`loaded() if isinstance(loaded, type)`);
+        # the v1.2.1 factory-function entry point was registered uninvoked and
+        # every builds/prepare 503ed (rerun finding F3). The target must be the
+        # zero-arg-constructible class, matching the registry's real contract.
         project = tomllib.loads((REPO / "pyproject.toml").read_text())
         group = project["project"]["entry-points"]["ace.intelligence_build_planners"]
         assert group["personal_intelligence"] == (
-            "core.engine.personal_intelligence.build_planner:load_personal_intelligence_build_planner"
+            "core.engine.personal_intelligence.build_planner:PersonalIntelligenceBuildPlanner"
         )
+
+    def test_planner_loads_through_the_production_registry_path(self):
+        # The exact seam builds/prepare uses — never a hand-rolled equivalent
+        # (the v1.2.1 smoke gate invoked the factory manually and missed F3).
+        from core.engine.core import intelligence_build_planner_registry as registry
+        from core.engine.personal_intelligence.build_planner import PersonalIntelligenceBuildPlanner
+
+        class _EntryPoint:
+            name = "personal_intelligence"
+
+            @staticmethod
+            def load():
+                return PersonalIntelligenceBuildPlanner
+
+        registry._reset_intelligence_build_planner_registry_for_tests()
+        try:
+            loaded = registry.load_installed_intelligence_build_planners(entry_points=[_EntryPoint()])
+            assert loaded == (PERSONAL_PROFILE_ID,)
+            planner = registry.resolve_intelligence_build_planner(PERSONAL_PROFILE_ID)
+            assert planner is not None
+            assert planner.pack_reference.pack_id == "personal_intelligence"
+        finally:
+            registry._reset_intelligence_build_planner_registry_for_tests()
 
     @pytest.mark.asyncio
     async def test_prepare_produces_a_reviewable_activation_neutral_plan(self):

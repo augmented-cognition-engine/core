@@ -8,7 +8,7 @@ on:
       tag:
         description: Git tag to publish
         required: true
-        default: v1.2.1
+        default: v1.2.2
 
 permissions:
   contents: read
@@ -149,20 +149,24 @@ jobs:
           # The installed catalog must offer the Personal profile, and the
           # planner entry point must load and validate against it.
           env -i PATH="$PWD/../smoke-venv/bin:/usr/bin:/bin" HOME="$PWD" ../smoke-venv/bin/python - <<'PY'
-          from importlib.metadata import entry_points
-
+          # Exercise the EXACT production seams builds/prepare uses — never a
+          # hand-rolled equivalent. The v1.2.1 smoke invoked the entry-point
+          # factory manually and passed while the registry path was broken.
           from core.engine.core.installed_intelligence_catalog import discover_installed_onboarding_profiles
+          from core.engine.core.intelligence_build_planner_registry import (
+              load_installed_intelligence_build_planners,
+              resolve_intelligence_build_planner,
+          )
 
           profiles = {item.profile.profile_id for item in discover_installed_onboarding_profiles()}
           assert "intelligence_onboarding_profile:personal" in profiles, profiles
 
-          installed = list(entry_points(group="ace.intelligence_build_planners"))
-          assert installed, "no Intelligence build planner entry point is installed"
-          planners = {point.name: point.load()() for point in installed}
-          personal = planners["personal_intelligence"]
-          assert personal.profile_id == "intelligence_onboarding_profile:personal"
-          assert personal.pack_reference.pack_id == "personal_intelligence"
-          print("journey-start smoke: catalog profile and planner are live from built artifacts")
+          loaded = load_installed_intelligence_build_planners()
+          assert "intelligence_onboarding_profile:personal" in loaded, loaded
+          planner = resolve_intelligence_build_planner("intelligence_onboarding_profile:personal")
+          assert planner is not None
+          assert planner.pack_reference.pack_id == "personal_intelligence"
+          print("journey-start smoke: catalog profile and planner are live through the production registry path")
           PY
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

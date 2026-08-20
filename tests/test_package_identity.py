@@ -20,7 +20,7 @@ def test_distribution_import_cli_and_version_identities() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
     assert project["name"] == "ace-core"
-    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "1.2.1"
+    assert project["version"] == ace.__version__ == ace_mcp_client.__version__ == VERSION == "1.2.2"
     assert "Development Status :: 5 - Production/Stable" in project["classifiers"]
     assert ProductExtension.version == project["version"]
     assert project["scripts"]["ace"] == "core.engine.cli.main:cli"
@@ -44,7 +44,7 @@ def test_package_copy_and_public_links_are_release_ready() -> None:
 def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     workflow = (ROOT / ".github" / "workflows" / "publish.yml").read_text(encoding="utf-8")
 
-    assert "default: v1.2.1" in workflow
+    assert "default: v1.2.2" in workflow
     assert "Validate release tag matches package version" in workflow
     assert 'if [ "$RELEASE_TAG" != "v$package_version" ]' in workflow
     assert "ace-core-python-distributions" in workflow
@@ -72,20 +72,21 @@ def test_release_workflow_defaults_to_and_guards_current_version() -> None:
     assert "Journey-start smoke from built artifacts" in workflow
     assert "ace --help" in workflow
     assert "intelligence_onboarding_profile:personal" in workflow
-    assert "ace.intelligence_build_planners" in workflow
+    assert "load_installed_intelligence_build_planners" in workflow
+    assert "resolve_intelligence_build_planner" in workflow
 
 
 def test_docker_image_includes_public_cli_package() -> None:
     dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
     assert "COPY ace/ ace/" in dockerfile
     assert "README.md ROADMAP.md VISION.md MANIFESTO.md" in dockerfile
-    assert "ARG ACE_VERSION=1.2.1" in dockerfile
+    assert "ARG ACE_VERSION=1.2.2" in dockerfile
     assert 'org.opencontainers.image.version="${ACE_VERSION}"' in dockerfile
     assert "uv sync --frozen --no-dev --no-editable --no-cache" in dockerfile
 
     compose = (ROOT / "infra" / "docker-compose.yml").read_text(encoding="utf-8")
-    assert compose.count('ACE_VERSION: "1.2.1"') == 3
-    assert compose.count('org.opencontainers.image.version: "1.2.1"') == 2
+    assert compose.count('ACE_VERSION: "1.2.2"') == 3
+    assert compose.count('org.opencontainers.image.version: "1.2.2"') == 2
 
 
 def test_lock_tracks_the_distribution_identity() -> None:
@@ -93,7 +94,7 @@ def test_lock_tracks_the_distribution_identity() -> None:
     local = [package for package in lock["package"] if package.get("source") == {"editable": "."}]
 
     assert [package["name"] for package in local] == ["ace-core"]
-    assert [package["version"] for package in local] == ["1.2.1"]
+    assert [package["version"] for package in local] == ["1.2.2"]
 
 
 def test_release_inventory_reads_ace_core_requirements(monkeypatch) -> None:

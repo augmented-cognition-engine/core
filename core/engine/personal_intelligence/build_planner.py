@@ -80,11 +80,16 @@ def _resolve_personal_pack_reference() -> CompiledPackRefV1:
 
 
 class PersonalIntelligenceBuildPlanner:
-    """Authority-neutral planner for the shipped Personal onboarding profile."""
+    """Authority-neutral planner for the shipped Personal onboarding profile.
 
-    def __init__(self, pack_reference: CompiledPackRefV1) -> None:
+    Zero-arg constructible: the planner registry instantiates entry-point
+    classes with no arguments (rerun finding F3), so the constructor resolves
+    the exact co-installed pack identity itself and fails closed without it.
+    """
+
+    def __init__(self, pack_reference: CompiledPackRefV1 | None = None) -> None:
         self.profile_id = PERSONAL_PROFILE_ID
-        self.pack_reference = pack_reference
+        self.pack_reference = pack_reference if pack_reference is not None else _resolve_personal_pack_reference()
         self.artifact_identity = CapabilityArtifactIdentityV1Alpha1(
             capability=INTELLIGENCE_BUILD_PLANNING_CAPABILITY,
             contract=INTELLIGENCE_BUILD_PLANNER_V1ALPHA3_CONTRACT,
