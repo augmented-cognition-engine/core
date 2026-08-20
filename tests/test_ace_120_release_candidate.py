@@ -21,7 +21,12 @@ def test_current_release_surfaces_are_120_without_rewriting_published_history() 
     assert "current published stable package and public-index install is `ace-core==1.2.2`" in readme
     assert "**Stable 1.2.2**" in readme
     assert "1.2.2 is the recommended" in " ".join(readme.split())
-    assert changelog.index("## 1.2.2") < changelog.index("## 1.2.1") < changelog.index("## 1.2.0") < changelog.index("## 1.1.0")
+    assert (
+        changelog.index("## 1.2.2")
+        < changelog.index("## 1.2.1")
+        < changelog.index("## 1.2.0")
+        < changelog.index("## 1.1.0")
+    )
     assert "## Unreleased" not in changelog
     assert "latest published release is [`ace-core` 1.2.2]" in roadmap
     # Published history stays intact: the 1.1 sections and records remain.
