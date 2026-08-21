@@ -2,6 +2,49 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
+## 1.2.3 — prepared, not released
+
+The version bump, README badge, and ROADMAP published-release line move together at publication, so
+this source tree still identifies `1.2.2` until that release is made.
+
+### The Personal Intelligence journey runs end to end
+
+1.2.0 through 1.2.2 shipped the Personal Intelligence substrate; the public acceptance runs proved
+the journey those parts were meant to compose did not exist. Nothing accepted a folder, no build
+executor was registered, and no Brief could be produced from a corpus. This release closes that.
+
+An owner can now install ACE, choose Personal Intelligence, **name a folder and see exactly what ACE
+would read before anything is read**, connect it read-only, inspect the resulting inventory, and get a
+first Brief whose every material claim cites an exact span in their own files — across Markdown,
+PDF, CSV, and JSON. They can ask questions and get cited answers or an honest refusal, correct a
+claim against its citation, restart without losing identity, and export or delete everything with
+proof.
+
+- **Connect.** A local snapshot capability provider, an acquisition path that records the authorized
+  selection, and `connect/preview` + `connect/authorize`: the exact scope and read-only mode are
+  disclosed before any read, and a missing or false consent reads nothing.
+- **Build.** Seven local-owner Builder routes drive the existing Connection, Ontology, Intelligence,
+  and Briefing agents through their separate exact approvals, and the activation-plan path carries the
+  same session to `ACTIVE`.
+- **All four source kinds map.** PDF, CSV, and JSON join Markdown, each citing the span its adapter
+  really produces — page number, one-based row index, JSON pointer. The kinds the onboarding profile
+  advertises and the kinds the pack maps are now identical, and a test holds them so.
+- **Ask refuses honestly.** Claim matching ignores ordinary function words, so a shared "the" no
+  longer answers a question the corpus cannot support. This narrowing can only make ACE refuse more
+  often; it can never fabricate.
+- **A journey-depth gate.** CI now builds the public artifacts, installs them into a bare virtual
+  environment, stands up a disposable database, and walks the whole journey, reporting every step.
+  Six defects that only appear against real installed artifacts were found and fixed this way,
+  including durable payloads that failed strict validation because a real database returns JSON.
+
+### Known gap, disclosed
+
+**Continuous update is not in the public Personal journey.** Change detection is complete — ACE can
+tell that a document was revised and route an append-only Brief revision — but no public surface
+admits a second capture of an edited source, so nothing reaches it yet. Continuous update lands in
+1.3 (Intelligence Operations and Safe Evolution), where the file watcher belongs. Every other step of
+the journey passes from installed artifacts.
+
 ## 1.2.2
 
 ### Planner registration repair from the v1.2.1 acceptance rerun
