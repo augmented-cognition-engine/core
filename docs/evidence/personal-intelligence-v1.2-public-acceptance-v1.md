@@ -1,6 +1,6 @@
 # ACE 1.2 Personal Intelligence public acceptance v1
 
-Status: **not passed — journey integration continuation in progress (PI13)**
+Status: **not passed as a public release acceptance — PI13 continuation complete for nine of ten steps; unlanded and unpublished; J6 deferred to 1.3**
 
 This record binds the public J1–J10 acceptance evidence for ACE 1.2 Personal Intelligence. Its
 verdict is honest and current: the released substrate demonstrates real integrity on every surface
@@ -102,3 +102,70 @@ a journey-depth CI gate first, then the six integration workstreams, with the cl
 runner as the per-landing iteration loop. Release closeout rules are unchanged: ACE 1.2 is
 declared passed only by a full J1–J10 clean-context pass, maintainer concurrence, and the
 four-record reconciliation.
+
+## PI13 continuation status (2026-08-21) — candidate evidence, not a public run
+
+This section records where the continuation reached. It is **candidate evidence and nothing more**: the
+runs below execute freshly built local wheels from the unlanded `pi13-continuation` branch, not published
+artifacts, so under the packet's own rules (§5) they can never constitute public release acceptance.
+
+### What the journey-depth lane reports
+
+The WS0 lane builds Core, the Personal pack and bundle, and all local adapter distributions; installs only
+those wheels into a bare virtual environment outside the checkout; stands up an ephemeral memory-only
+SurrealDB at schema v179; and walks the public route sequence end to end —
+`/auth/token`, `/auth/local-owner/bootstrap`, Connect preview and authorize over the fixture corpus,
+`/prepare`, `/bind`, `/bootstrap/local-first-run`, `/session/associate`, the seven Builder progression
+routes, `/activation-plan/prepare|approve|activate`, `/start`, and `resources/query`. Its provider is
+deterministic but never injected: it is selected through the production `get_llm()` path.
+
+| Step | Run 3 (v1.2.2, published) | PI13 lane (unpublished) |
+|---|---|---|
+| J1 Install | Pass with defects #259, #260 | **PASS** — #259 fixed; #260 corrected |
+| J2 Choose | Pass | **PASS** |
+| J3 Connect | Fail (F5–F7) | **PASS** — installed snapshot binding, both exact routes, consent-before-read with zero provider calls |
+| J4 Inventory | Blocked | **PASS** — `source_health=5 entity=5 observation=5`, every observation resolving to an admitted source across csv/json/md/pdf |
+| J5 First Brief | Blocked | **PASS** — 1 Brief, 6 cited claims, 0 uncited, 0 unresolved citations, spanning all four kinds |
+| J6 Change | Blocked | **BLOCKED — deferred to 1.3** (packet §12) |
+| J7 Ask | Partial | **PASS** — cited answers *and* an honest refusal, after the §11 refusal narrowing |
+| J8 Correct | Partial | **PASS** — a correction bound to one exact cited claim, recorded as a proposal only |
+| J9 Restart | Pass (scoped) | **PASS** — all 16 resources reopened with exact identities (scope: reopened connection pool, not a service restart with a persisted volume) |
+| J10 Own | Pass (scoped) | **PASS** — 84 records exported, 84 previewed, exact deletion proof, zero survivors |
+
+### The one step that did not close, and why it is disclosed rather than worked around
+
+J6 remains blocked. Change detection is complete and proven — Core's content-revision detector family,
+Core-resolved `prior_snapshot` baselines, the Personal Pack's declared detectors, and the executor's
+append-only Brief-revision routing — but no public surface admits a second capture of an edited source.
+A second PREPARED build cannot carry new material without loosening the rule that an ACTIVE Builder
+session binds one exact activation approval, which is the reason the build path can be trusted. The
+substrate's continuous-update path is live source ingress, which has no public route and which the
+Personal journey does not compose. Packet §12 moves it to 1.3 — *Intelligence Operations and Safe
+Evolution* — where a watcher belongs. **Continuous update is therefore not in the public Personal
+journey for 1.2, and this record says so plainly.**
+
+### Defects this continuation found that no unit test could
+
+Each was reproduced against real installed artifacts and a real database, and each was fixed test-first:
+
+- `scripts.schema_apply` duplicated a `sys.path` entry, so `importlib.metadata` enumerated every
+  distribution twice and installed-Pack discovery broke process-wide;
+- the installed-Pack resolver read one twice-enumerated dist-info as two ambiguous Packs;
+- recorded-source admission replay and the resource-projection recorded-source decoders validated durable
+  payloads strictly, but SurrealDB returns JSON, so every real replay and the whole `source_health`
+  projection failed closed;
+- the build cognition resolver rejected the build's own product-scoped record-store fence, which
+  production `/start` always supplies;
+- the OpenAI-compatible provider never recorded usage into the in-process accumulator, so every governed
+  structured call failed closed for missing telemetry;
+- `BriefV1Alpha1` compared a citation's ingestion instant against the Brief's validity cut, which refused
+  every orientation over a historical corpus;
+- grounded Ask scored claims on unfiltered token overlap, so one shared common word answered anything and
+  the honest-no-answer guarantee held only while a corpus was empty.
+
+### What acceptance still requires
+
+Unchanged and owner-held: a clean-context J1–J10 run against **published** artifacts, the maintainer
+cross-check, and the four-record reconciliation closing. The external-user acceptance run remains a
+carried follow-up. Until the continuation lands and is published, this record's verdict stays **not
+passed**, and the reconciliation continues to carry that status.
