@@ -344,23 +344,43 @@ deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to W
 
   J6 has **not** moved yet: the capability exists and is declared, but nothing re-ingests an edited
   corpus to produce the second snapshot a comparison needs.
+- **2026-08-21 — WS5c: Core now honours the `prior_snapshot` baseline it declares:** Wiring re-ingest
+  exposed a second, smaller gap of the same kind. Every detector rule carries
+  `baseline="prior_snapshot"`, but that string appeared only in the contracts and JSON schemas — no code
+  resolved it, so each caller had to supply an exact baseline reference. A product executor holding only
+  the material it just admitted cannot do that, and nothing else offered a prior-snapshot lookup.
+
+  `CorePreparedShiftSignalDerivationService.derive_against_prior_snapshot` now selects the latest durably
+  admitted Entity Snapshot for the same entity, entity type, and bound activation revision whose `as_of`
+  strictly precedes the current one, with content identity as a deterministic tie-break, then derives
+  through the existing exact path so every governed precondition, replay rule, and atomic-admission
+  behaviour is unchanged. A first admission returns `None` — a truthful absence, neither a Shift nor an
+  error — and writes nothing, asserted by comparing durable record counts. The narrow host port protocol
+  gained the same method. Commit `307662e`; 24 derivation tests and 893 intelligence/executor/composition
+  tests pass, Ruff and diff hygiene clean.
+
+  This completes an existing declaration rather than adding vocabulary, so it did not need a packet
+  amendment; §10's authorization of the WS5 re-ingest wiring covers it.
 
 ## Current gate
 
-**WS5 continues at re-ingest.** Change detection is available and declared; the remaining WS5 work is
-the wiring that gives it something to compare:
+**WS5 remaining: the Personal executor's re-ingest branch, then J6.** Every capability WS5 needs now
+exists and is declared; what is missing is the product-side sequencing:
 
-1. **Re-ingest** — a second authorized capture of an edited corpus, producing a second EntitySnapshot
-   for the same entity so `PreparedShiftSignalDerivationRequestV1Alpha1` has an ordered baseline/current
-   pair. The WS0 lane must preserve its database across two runs with an edit between them; today
-   `run_gate.sh` restarts a memory-only container each run, so this is the first journey-depth scenario
-   that is not a single pass.
-2. **Append-only Brief revision with semantic diff** — flips **J6**.
-3. **Claim-bound correction re-derivation** on a real Brief — the positive half of **J8**, and what
-   makes J7's connected cited answers exercisable.
+1. **Executor re-ingest branch** — on a build whose admitted entities already have prior snapshots, call
+   `derive_against_prior_snapshot` with the Personal detector for that entity type
+   (`note` → `personal_note_revised`, `document` → `personal_document_revised`) instead of producing a
+   second initial-corpus orientation. Where a Shift is material, create the routed Brief through the
+   existing `create_first_brief` path, whose request binds the derivation key and attention receipt the
+   derivation admission returns. Where nothing changed, the build must say so rather than invent a
+   revision.
+2. **WS0 multi-pass lane** — preserve the database across two runs with a corpus edit between them.
+   `run_gate.sh` restarts a memory-only container each run today, so this is the first journey-depth
+   scenario that is not a single pass. Only this can flip **J6**.
+3. **Claim-bound correction re-derivation** on a real Brief — the positive half of **J8**.
 
 Carried, unchanged: the strict-durable-payload defect class remains latent at two reader sites
 (`MonitoringLifecycleReceiptV1Alpha1` and the decision-loop decoder in
 `ace/application/intelligence_resource_projection.py`), and no public route returns a session's
-authorized observation set. This tracker remains local; the `pi13-continuation` branch has no upstream,
-and no merge, push, GitHub write, tag, publish, or release is authorized.
+authorized observation set. The `pi13-continuation` branch now holds six commits with no upstream; no
+merge, push, GitHub write, tag, publish, or release is authorized.
