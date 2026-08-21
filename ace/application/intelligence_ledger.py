@@ -863,6 +863,9 @@ class PreparedIntelligenceLedgerService:
 
 __all__ = [
     "PREPARED_RECORD_SPACE",
+    # Re-exported so host adapters can name an exact admitted resource without
+    # reaching into the ace.intelligence bounded context.
+    "resource_reference",
     "LedgerValue",
     "PreparedIntelligenceAdmission",
     "PreparedIntelligenceAdmissionError",

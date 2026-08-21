@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from importlib.metadata import EntryPoint
+from types import SimpleNamespace
 
 import pytest
 
@@ -322,6 +323,57 @@ class _FailingRecordedSources(_FakeRecordedSources):
         raise AssertionError("bind_subject must not be called when a guard should fail closed")
 
 
+class _FakeDerivations:
+    """The narrow prepared-derivation port, recording how the executor asks."""
+
+    def __init__(self, *, outcomes=None, events=None) -> None:
+        self.calls: list[dict] = []
+        self.outcomes = outcomes or {}
+        self.events = events if events is not None else []
+
+    async def derive(self, request):  # pragma: no cover - the executor uses the baseline-resolving call
+        raise AssertionError("the executor must let Core resolve the declared prior_snapshot baseline")
+
+    async def derive_against_prior_snapshot(self, **kwargs):
+        self.calls.append(kwargs)
+        self.events.append("derive")
+        return self.outcomes.get(kwargs["current_snapshot"].resource_id)
+
+
+class _MaterialOutcome:
+    """Stand-in for a material PreparedShiftSignalDerivationOutcome."""
+
+    material_shift = True
+
+    def __init__(self, *, derivation_key: str, receipt_id: str) -> None:
+        self.request = SimpleNamespace(derivation_key=derivation_key)
+        self.admission = SimpleNamespace(
+            attention_receipt=SimpleNamespace(
+                receipt_id=receipt_id,
+                receipt_digest="sha256:" + "c" * 64,
+            )
+        )
+
+
+class _UnchangedOutcome:
+    material_shift = False
+    admission = None
+    request = SimpleNamespace(derivation_key="prepared_derivation:unchanged")
+
+
+class _RoutedFirstBrief(_FakeFirstBrief):
+    """Records both Brief paths so a test can prove which one the build used."""
+
+    def __init__(self, *, events=None) -> None:
+        super().__init__(events=events)
+        self.routed_requests = []
+
+    async def create_first_brief(self, request):
+        self.routed_requests.append(request)
+        self.events.append("routed_brief")
+        return "routed-brief-outcome"
+
+
 class _FakeResources:
     def __init__(self, *, events=None) -> None:
         self.query_calls = []
@@ -338,13 +390,16 @@ class _FailingLoader(LocalSourceConnectRecordRepository):
         raise RuntimeError("simulated capture loader failure")
 
 
-def _host_services(*, records, recorded_sources=None, resources=None, first_brief=None):
+def _host_services(*, records, recorded_sources=None, resources=None, first_brief=None, prepared_derivations=None):
     return IntelligenceBuildHostServices(
         records=records,
         resources=resources if resources is not None else _FakeResources(),
         activation_authority=object(),
         recorded_sources=recorded_sources,
         first_brief=first_brief,
+        # A first read is exactly "the port reports no prior snapshot", so the
+        # default double answers None rather than being absent.
+        prepared_derivations=prepared_derivations if prepared_derivations is not None else _FakeDerivations(),
     )
 
 
@@ -590,3 +645,108 @@ async def test_first_brief_failure_is_fail_closed_before_query() -> None:
             ),
         )
     assert resources.query_calls == []
+
+
+# --- WS5: re-ingest over an already-admitted corpus ---
+
+
+async def _reingest_setup(*, outcome_factory):
+    """One admitted capture whose entity already has a prior snapshot."""
+
+    store = InMemoryImmutableRecordStore()
+    authorized_at = datetime(2026, 8, 20, 11, tzinfo=UTC)
+    capture = await _persist_one_capture(store, authorized_at=authorized_at)
+    request = _v1alpha2_request(selection_refs=(capture.selection.reference(),))
+    admission = _admission()
+    entity = admission.entity_snapshots[0]
+    events: list[str] = []
+    derivations = _FakeDerivations(
+        outcomes={str(entity.resource_id): outcome_factory()},
+        events=events,
+    )
+    first_brief = _RoutedFirstBrief(events=events)
+    services = _host_services(
+        records=store,
+        recorded_sources=_FakeRecordedSources(admission=admission, events=events),
+        first_brief=first_brief,
+        prepared_derivations=derivations,
+        resources=_FakeResources(events=events),
+    )
+    return request, admission, derivations, first_brief, services, events
+
+
+async def test_a_revised_document_derives_a_shift_and_routes_a_brief_revision() -> None:
+    """Second admission of an entity that already has a snapshot is a change
+    event, not another first orientation."""
+
+    request, admission, derivations, first_brief, services, events = await _reingest_setup(
+        outcome_factory=lambda: _MaterialOutcome(
+            derivation_key="prepared_derivation:vault-revised",
+            receipt_id="attention_disposition:" + "d" * 32,
+        )
+    )
+    build = _build(request)
+
+    page = await PersonalIntelligenceBuildExecutor().start(build, services)
+
+    assert page == "resource-page"
+    # Core resolved the baseline; the executor never supplied one.
+    assert len(derivations.calls) == 1
+    call = derivations.calls[0]
+    assert call["detector_id"] == "personal_note_revised"
+    assert call["current_snapshot"].resource_id == str(admission.entity_snapshots[0].resource_id)
+    # The routed Brief path ran, and the initial-corpus orientation did not.
+    assert len(first_brief.routed_requests) == 1
+    assert first_brief.requests == []
+    routed = first_brief.routed_requests[0]
+    assert routed.derivation_key == "prepared_derivation:vault-revised"
+    assert routed.attention_receipt_id == "attention_disposition:" + "d" * 32
+    # Exact order: admit, then derive, then route, then project.
+    assert events == ["admit", "derive", "routed_brief", "query"]
+
+
+async def test_an_unchanged_reingest_creates_no_brief_and_still_projects() -> None:
+    """Re-reading an unchanged corpus must not fabricate a revision."""
+
+    request, _, derivations, first_brief, services, events = await _reingest_setup(outcome_factory=_UnchangedOutcome)
+
+    page = await PersonalIntelligenceBuildExecutor().start(_build(request), services)
+
+    assert page == "resource-page"
+    assert len(derivations.calls) == 1
+    assert first_brief.routed_requests == []
+    assert first_brief.requests == []
+    assert events == ["admit", "derive", "query"]
+
+
+async def test_a_first_admission_still_produces_the_initial_corpus_orientation() -> None:
+    """No prior snapshot means nothing to compare; the first pass is unchanged."""
+
+    request, _, derivations, first_brief, services, events = await _reingest_setup(outcome_factory=lambda: None)
+
+    await PersonalIntelligenceBuildExecutor().start(_build(request), services)
+
+    assert len(derivations.calls) == 1
+    assert first_brief.routed_requests == []
+    assert len(first_brief.requests) == 1
+    assert events == ["admit", "derive", "first_brief", "query"]
+
+
+async def test_reingest_without_a_derivation_port_fails_closed() -> None:
+    """Without the derivation port the build cannot tell a revision from a first
+    read, so it must refuse rather than silently re-orient."""
+
+    store = InMemoryImmutableRecordStore()
+    capture = await _persist_one_capture(store, authorized_at=datetime(2026, 8, 20, 11, tzinfo=UTC))
+    request = _v1alpha2_request(selection_refs=(capture.selection.reference(),))
+    services = IntelligenceBuildHostServices(
+        records=store,
+        resources=_FakeResources(),
+        activation_authority=object(),
+        recorded_sources=_FakeRecordedSources(),
+        first_brief=_RoutedFirstBrief(),
+        prepared_derivations=None,
+    )
+
+    with pytest.raises(PersonalIntelligenceBuildExecutorError):
+        await PersonalIntelligenceBuildExecutor().start(_build(request), services)
