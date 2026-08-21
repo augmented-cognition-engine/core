@@ -314,6 +314,13 @@ deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to W
 
   WS4's acceptance ("the WS0 fixture corpus includes all four kinds and every citation resolves to its
   span") is met. Nothing was committed, merged, pushed, tagged, published, or released.
+- **2026-08-21 — WS0–WS4 committed to a local branch (durability, not a landing):** All PI13 continuation
+  work existed only as uncommitted files in one worktree — 108 changed-or-new paths, 61 of them untracked
+  and therefore in no commit anywhere. The owner authorized backing it up. It is now commit `ad435b3` on
+  the local branch `pi13-continuation`, with `adapters/*/build/` (wheel-build byproducts of the WS0 lane)
+  newly ignored. The branch has **no upstream and was not pushed**; no merge, GitHub write, tag, publish,
+  or release occurred, and the frozen landing rules are unchanged. This is durability for reviewable work,
+  not a disposition on it.
 
 ## Current gate
 
