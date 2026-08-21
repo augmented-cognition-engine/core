@@ -361,26 +361,59 @@ deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to W
 
   This completes an existing declaration rather than adding vocabulary, so it did not need a packet
   amendment; §10's authorization of the WS5 re-ingest wiring covers it.
+- **2026-08-21 — WS5 continued: the executor routes revisions, and J7–J10 are exercised for the first
+  time. Eight of ten steps now pass from installed artifacts.**
+
+  The Personal executor no longer treats every build as a first read. Each admitted entity is compared
+  against its own prior state through `derive_against_prior_snapshot`; a material Shift routes an
+  append-only Brief revision through the existing `create_first_brief` path, an unchanged re-read
+  produces no Brief at all, and a genuine first read keeps the initial-corpus orientation. The
+  derivation port is required on every build, because guessing which case applies is the one thing the
+  executor must not do (`73f1f6f`).
+
+  J7–J10 were static rows written when no corpus existed. They are now computed from the walk:
+  **J8 PASS** (a correction bound to one exact cited claim of the admitted Brief, recorded as a proposal
+  only), **J9 PASS** (all sixteen resources reopened with exact identities after the connection pool was
+  closed and reopened), **J10 PASS** (84 records exported, 84 previewed, exact deletion proof, zero
+  survivors). J10 also fails closed on an empty preview, so a deletion confirmed against nothing can
+  never read as proof. The restart probe deliberately runs before ownership, which deletes the material
+  a restart must reopen (`f0fce0d`, `e81be87`).
+
+  A gate defect was fixed in passing: a late failure discarded the evidence earlier steps had produced,
+  so one failing step made passing steps report failure.
+
+  **Current lane result:** J1 J2 J3 J4 J5 PASS · J6 BLOCKED · J7 PARTIAL · J8 J9 J10 PASS.
+
+  Two honest non-passes, both with precise causes recorded below rather than worked around.
 
 ## Current gate
 
-**WS5 remaining: the Personal executor's re-ingest branch, then J6.** Every capability WS5 needs now
-exists and is declared; what is missing is the product-side sequencing:
+**Two steps remain, and neither is a coding task. Both need an owner decision.**
 
-1. **Executor re-ingest branch** — on a build whose admitted entities already have prior snapshots, call
-   `derive_against_prior_snapshot` with the Personal detector for that entity type
-   (`note` → `personal_note_revised`, `document` → `personal_document_revised`) instead of producing a
-   second initial-corpus orientation. Where a Shift is material, create the routed Brief through the
-   existing `create_first_brief` path, whose request binds the derivation key and attention receipt the
-   derivation admission returns. Where nothing changed, the build must say so rather than invent a
-   revision.
-2. **WS0 multi-pass lane** — preserve the database across two runs with a corpus edit between them.
-   `run_gate.sh` restarts a memory-only container each run today, so this is the first journey-depth
-   scenario that is not a single pass. Only this can flip **J6**.
-3. **Claim-bound correction re-derivation** on a real Brief — the positive half of **J8**.
+**J6 — no public surface admits a second capture.** Change detection now exists end to end: Core's
+content-revision family, the Pack's declared detectors, Core-resolved `prior_snapshot` baselines, and the
+executor's revision routing. Nothing can reach it, because a second PREPARED build cannot carry new
+material: `DurableIntelligenceBuildHostComposer` binds the ACTIVE Builder session to one exact activation
+approval, and a start request's selections come from that approval's own bound plan. The substrate's
+continuous-update path is live source ingress (`ace.application.live_source_ingress` through the live
+intelligence bridge), which has no public route and which the Personal journey does not compose. There is
+no refresh, re-ingest, or watch route on the public surface. Resolving this is an architecture decision:
 
-Carried, unchanged: the strict-durable-payload defect class remains latent at two reader sites
-(`MonitoringLifecycleReceiptV1Alpha1` and the decision-loop decoder in
-`ace/application/intelligence_resource_projection.py`), and no public route returns a session's
-authorized observation set. The `pi13-continuation` branch now holds six commits with no upstream; no
-merge, push, GitHub write, tag, publish, or release is authorized.
+1. add a public re-ingest surface to the PREPARED build flow, which needs activation/approval semantics
+   for subsequent ingests that do not exist today;
+2. compose the Personal journey onto LIVE ingress and expose it publicly — a whole subsystem, and the
+   path the substrate appears to have intended;
+3. scope J6 differently in the packet.
+
+**J7 — the honest-refusal half cannot be demonstrated, and the fix is fenced.** Connected cited answers
+work. `GroundedAskService` scores a claim by raw token overlap with no stopword filtering and a `score>0`
+threshold, so one shared common word answers and `missing_coverage:no_claims_matched_question_terms` is
+rarely reachable once a corpus exists. The claims returned are real and cited, so this is a relevance
+weakness rather than fabrication — but it means the no-answer guarantee credited by earlier acceptance
+runs held only because those runs had an empty corpus. Narrowing the scoring would change the substrate's
+released retrieval behaviour, which this continuation is explicitly forbidden to do, so it is reported
+and left for the owner.
+
+Neither can be closed without a decision, so WS5 stops here. WS6 (the Atrium Personal journey) remains
+untouched and is not blocked by either. The `pi13-continuation` branch has no upstream; no merge, push,
+GitHub write, tag, publish, or release is authorized.
