@@ -292,3 +292,37 @@ have meant publishing a guarantee that demonstrably does not hold as soon as a c
 This authorizes the refusal narrowing only. It does not reopen §5 for any other retrieval or search
 behaviour, and it authorizes no commit to a shared branch, merge, push, GitHub write, tag, package
 publish, release, or ACE 1.3 work.
+
+## 12. J6 continuous update — deferred to 1.3 by owner on 2026-08-21
+
+With §11 landed the lane reports **J1–J5 and J7–J10 passing from installed artifacts**, and J6 alone
+outstanding. The owner reviewed the finding and deferred it rather than holding the release.
+
+**What exists.** Change detection is complete and proven end to end: Core's content-revision family,
+Core-resolved `prior_snapshot` baselines, the Personal Pack's declared detectors, and the executor's
+append-only Brief-revision routing. What is missing is a way in.
+
+**Why it is not a small wiring job.** A second PREPARED build cannot carry new captures.
+`DurableIntelligenceBuildHostComposer` binds the ACTIVE Builder session to one exact activation
+approval, and a start request's selections come from that approval's own bound plan. Extending the
+PREPARED flow would mean loosening that binding — the rule that stops a build claiming authority it was
+never granted, and the reason the build path can be trusted at all.
+
+**Where it belongs.** The substrate's continuous-update path is live source ingress
+(`ace.application.live_source_ingress` through the live intelligence bridge). Three things say so: the
+ROADMAP records 1.0.0 as passing with "continuously updating cited Briefs", every detector family ships
+a `detect_live_*` twin awaiting a caller, and PI7's own wording is "a file watcher through re-ingest" —
+a watcher is continuous operation, not a one-shot governed build. Personal is not missing a capability;
+it is not composed onto a proven one, and that composition needs a public surface LIVE does not yet
+have.
+
+**The decision.** Continuous update moves to **1.3 — Intelligence Operations and Safe Evolution**, whose
+scope (operations, health, recovery, safe evolution) is where a watcher belongs. ACE 1.2 ships the nine
+steps it genuinely delivers, and the acceptance record states plainly that continuous update is not yet
+in the public Personal journey. Disclosing a real gap is this packet's own standard applied to itself;
+holding install, choose, connect, inventory, a cited first Brief across four source kinds, grounded ask,
+claim-bound correction, restart, and provable ownership behind the largest remaining piece serves no
+owner.
+
+This defers J6 and authorizes no commit to a shared branch, merge, push, GitHub write, tag, package
+publish, release, or ACE 1.3 implementation.
