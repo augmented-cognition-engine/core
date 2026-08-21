@@ -321,22 +321,46 @@ deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to W
   newly ignored. The branch has **no upstream and was not pushed**; no merge, GitHub write, tag, publish,
   or release occurred, and the frozen landing rules are unchanged. This is durability for reviewable work,
   not a disposition on it.
+- **2026-08-21 — WS5a/WS5b: content-revision detection exists in Core and is declared by the Pack:**
+  WS5's "document-shaped Shift" had nothing to derive from. Core shipped `numeric_delta` (needs a number
+  and a threshold) and `categorical_transition` (needs an enumerated from/to table, forbids identity);
+  neither can express "this document's text was edited", which is the only change a read-only corpus
+  produces. The owner froze PI13 §10 authorizing a third family as Core work rather than WS5 wiring.
+
+  `ContentRevisionRuleV1` + `detection/v1alpha3` now ship alongside the existing module versions
+  (published contracts are immutable, so neither was widened), with the strategy in
+  `ace/intelligence/detection/content_revision.py` and registration through the compiler, both
+  compiled-module registries, the generic bound-Pack detector lookup, and the prepared Shift/Signal
+  derivation dispatch. The rule carries no threshold and no transition table — equality is the whole
+  materiality test — and a revision Shift binds digests and character counts, never the document text.
+  The Personal Pack declares one rule per mapped entity type (`personal_note_revised` over `note.body`,
+  `personal_document_revised` over `document.body`), each carrying the mapped identity attribute as
+  comparison context. The two WS3-era guards asserting "no detection module yet" moved to pin the
+  authorized scope rather than its absence.
+
+  Verification: 7 new content-revision tests plus 57 across all three detector families; 963 pack,
+  bundle, intelligence, and gate tests pass; Ruff and diff hygiene clean. Commits `17029bd` and
+  `c0a7b6c` on the local `pi13-continuation` branch; still no push, merge, or release.
+
+  J6 has **not** moved yet: the capability exists and is declared, but nothing re-ingests an edited
+  corpus to produce the second snapshot a comparison needs.
 
 ## Current gate
 
-**WS4 is done; WS5 is next in the frozen order.** J1–J5 now pass from installed artifacts with full
-source-kind breadth, and the WS0 lane holds that breadth as a regression. What remains:
+**WS5 continues at re-ingest.** Change detection is available and declared; the remaining WS5 work is
+the wiring that gives it something to compare:
 
-- **WS5** — change detection and revision wiring: the PI7 watcher through re-ingest to a document-shaped
-  Shift and an append-only Brief revision with semantic diff, then claim-bound correction re-derivation on
-  a real Brief. This moves **J6** and the positive half of **J8**, and it is the step that makes J7's
-  connected cited answers exercisable. The WS0 lane will need a corpus edit between two runs against the
-  same database — the first journey-depth scenario that is not a single pass.
-- **WS6** — the Atrium Personal journey (J2–J5 in the UI over the WS2/WS3 APIs), after which J9/J10 can be
-  re-claimed at their widened scope.
+1. **Re-ingest** — a second authorized capture of an edited corpus, producing a second EntitySnapshot
+   for the same entity so `PreparedShiftSignalDerivationRequestV1Alpha1` has an ordered baseline/current
+   pair. The WS0 lane must preserve its database across two runs with an edit between them; today
+   `run_gate.sh` restarts a memory-only container each run, so this is the first journey-depth scenario
+   that is not a single pass.
+2. **Append-only Brief revision with semantic diff** — flips **J6**.
+3. **Claim-bound correction re-derivation** on a real Brief — the positive half of **J8**, and what
+   makes J7's connected cited answers exercisable.
 
 Carried, unchanged: the strict-durable-payload defect class remains latent at two reader sites
 (`MonitoringLifecycleReceiptV1Alpha1` and the decision-loop decoder in
-`ace/application/intelligence_resource_projection.py`), and no public route returns a session's authorized
-observation set, so the WS0 walk reopens it read-only through the installed session service. This tracker
-remains local; no commit, merge, push, GitHub write, tag, publish, or release is authorized.
+`ace/application/intelligence_resource_projection.py`), and no public route returns a session's
+authorized observation set. This tracker remains local; the `pi13-continuation` branch has no upstream,
+and no merge, push, GitHub write, tag, publish, or release is authorized.
