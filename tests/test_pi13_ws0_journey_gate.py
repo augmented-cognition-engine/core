@@ -41,6 +41,8 @@ from scripts.pi13_ws0_journey_gate import (
     probe_j6,
     probe_j7,
     probe_j8,
+    probe_j9,
+    probe_j10,
     write_atomic,
 )
 
@@ -544,6 +546,15 @@ def _walk_success() -> dict:
             "evidence": "answered_claims=2;citations=2;refused_unanswerable=True",
         },
         "correction": {"bound": True, "claim_id": "grounded_claim:abc", "evidence": "claim=grounded_claim:abc"},
+        "restart": {"reopened_identically": True, "before": 6, "after": 6, "evidence": "identical=True"},
+        "ownership": {
+            "exported": True,
+            "export_records": 6,
+            "previewed": 6,
+            "deletion_proved": True,
+            "survivors_after_deletion": 0,
+            "evidence": "export_records=6;preview_records=6;proof=True;survivors=0",
+        },
         "brief": {
             "count": 1,
             "cited_claims": 5,
@@ -627,6 +638,57 @@ class TestProbeJ8ClaimBoundCorrection:
 
         assert result.status is StepStatus.PARTIAL
         assert result.blocker == "WS0:claim_bound_correction_unavailable"
+
+
+class TestProbeJ9Restart:
+    def test_j9_passes_when_every_resource_reopens_identically(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: _walk_success())
+        result = probe_j9(_context(tmp_path))
+
+        assert result.status is StepStatus.PASS
+        joined = " ".join((result.summary, *result.evidence))
+        assert "identical=True" in joined
+        # The claim must be exactly what was proven: a reopened connection pool,
+        # not a restarted service with a persisted volume.
+        assert "connection pool" in joined
+
+    def test_j9_fails_when_reopened_material_differs(self, tmp_path, monkeypatch):
+        walk = _walk_success()
+        walk["restart"] = {"reopened_identically": False, "before": 6, "after": 5, "evidence": "identical=False"}
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: walk)
+        result = probe_j9(_context(tmp_path))
+
+        assert result.status is StepStatus.FAIL
+        assert result.blocker == "WS0:restart_material_changed"
+
+
+class TestProbeJ10Ownership:
+    def test_j10_passes_on_export_deletion_proof_and_non_reappearance(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: _walk_success())
+        result = probe_j10(_context(tmp_path))
+
+        assert result.status is StepStatus.PASS
+        assert "survivors=0" in " ".join(result.evidence)
+
+    def test_j10_fails_when_the_preview_covered_no_records(self, tmp_path, monkeypatch):
+        """Confirming a deletion whose preview covered nothing would prove nothing."""
+
+        walk = _walk_success()
+        walk["ownership"]["previewed"] = 0
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: walk)
+        result = probe_j10(_context(tmp_path))
+
+        assert result.status is StepStatus.FAIL
+        assert result.blocker == "WS0:ownership_deletion_preview_empty"
+
+    def test_j10_fails_when_deleted_material_reappears(self, tmp_path, monkeypatch):
+        walk = _walk_success()
+        walk["ownership"]["survivors_after_deletion"] = 3
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: walk)
+        result = probe_j10(_context(tmp_path))
+
+        assert result.status is StepStatus.FAIL
+        assert result.blocker == "WS0:deleted_material_reappeared"
 
 
 class TestProbeJ6StructuralBlocker:

@@ -791,6 +791,8 @@ _PERSONAL_OUTCOME_ID = "personal_orientation"
 _PERSONAL_CADENCE_ID = "daily"
 _OBSERVE_READ_GRANT_REF = "authority_grant:atrium-observe-read"
 _FEEDBACK_GRANT_REF = "authority_grant:atrium-resource-feedback"
+_EXPORT_GRANT_REF = "authority_grant:personal-export"
+_DELETE_GRANT_REF = "authority_grant:personal-delete"
 _BUILDS = "/v1/intelligence/builds"
 
 
@@ -984,6 +986,75 @@ async def _probe_claim_correction(post, *, brief: dict[str, Any]) -> dict[str, A
     }
 
 
+def _resource_identities(items: list[dict[str, Any]]) -> tuple[tuple[str, str, str], ...]:
+    """Exact (kind, id, digest) identity of every projected resource, order-independent."""
+
+    return tuple(
+        sorted(
+            (
+                str(item.get("reference", {}).get("resource_kind")),
+                str(item.get("reference", {}).get("resource_id")),
+                str(item.get("reference", {}).get("resource_digest")),
+            )
+            for item in items
+        )
+    )
+
+
+async def _probe_ownership(post, *, clock: _Clock) -> dict[str, Any]:
+    """Export, preview deletion, confirm it, and prove the material does not reappear.
+
+    Deletion is destructive, so this runs last in the walk.
+    """
+
+    export = await post(
+        "ownership_export",
+        "/v1/intelligence/ownership/export",
+        {"authority_grant_ref": _EXPORT_GRANT_REF},
+    )
+    preview = await post(
+        "ownership_delete_preview",
+        "/v1/intelligence/ownership/deletion/preview",
+        {"authority_grant_ref": _DELETE_GRANT_REF, "confirmation_window_seconds": 900},
+    )
+    confirmation = await post(
+        "ownership_delete_confirm",
+        "/v1/intelligence/ownership/deletion/confirm",
+        {
+            "authority_grant_ref": _DELETE_GRANT_REF,
+            "preview": preview,
+            "confirmation_digest": preview["confirmation_digest"],
+        },
+    )
+    at = clock.iso()
+    remaining = await post(
+        "ownership_verify",
+        "/v1/intelligence/resources/query",
+        {
+            "authority_grant_ref": _OBSERVE_READ_GRANT_REF,
+            "resource_kinds": ["brief", "observation", "entity"],
+            "subject_refs": [],
+            "as_of": at,
+            "available_at": at,
+            "page_size": 200,
+        },
+    )
+    survivors = len(remaining.get("items") or [])
+    exported_records = int(export.get("record_count") or 0)
+    previewed_records = int(preview.get("record_count") or 0)
+    return {
+        "exported": bool(export.get("contract")) and exported_records > 0,
+        "export_records": exported_records,
+        "previewed": previewed_records,
+        "deletion_proved": bool(confirmation.get("proof")),
+        "survivors_after_deletion": survivors,
+        "evidence": (
+            f"export_records={exported_records};preview_records={previewed_records};"
+            f"proof={bool(confirmation.get('proof'))};survivors={survivors}"
+        ),
+    }
+
+
 async def _run_installed_journey(context: ProbeContext, clock: _Clock) -> dict[str, Any]:
     """Drive the public route sequence from installed artifacts against the live SurrealDB."""
 
@@ -997,6 +1068,8 @@ async def _run_installed_journey(context: ProbeContext, clock: _Clock) -> dict[s
         "brief": None,
         "ask": None,
         "correction": None,
+        "restart": None,
+        "ownership": None,
     }
 
     def reached(step: str, note: str | None = None) -> None:
@@ -1432,6 +1505,36 @@ async def _run_installed_journey(context: ProbeContext, clock: _Clock) -> dict[s
             if briefs:
                 state["correction"] = await _probe_claim_correction(post, brief=briefs[0])
                 reached("correction", state["correction"]["evidence"])
+
+            # J9 before J10: the ownership probe deletes the very material a
+            # restart must be able to reopen.
+            before = _resource_identities(inventory_items + briefs)
+            await db.pool.close()
+            await db.pool.init()
+            reopen_at = clock.iso()
+            reopened = await post(
+                "restart_reopen",
+                "/v1/intelligence/resources/query",
+                {
+                    "authority_grant_ref": _OBSERVE_READ_GRANT_REF,
+                    "resource_kinds": ["source_health", "entity", "observation", "brief"],
+                    "subject_refs": [],
+                    "as_of": reopen_at,
+                    "available_at": reopen_at,
+                    "page_size": 200,
+                },
+            )
+            after = _resource_identities(reopened.get("items") or [])
+            state["restart"] = {
+                "reopened_identically": before == after,
+                "before": len(before),
+                "after": len(after),
+                "evidence": f"before={len(before)};after={len(after)};identical={before == after}",
+            }
+            reached("restart_reopen", state["restart"]["evidence"])
+
+            state["ownership"] = await _probe_ownership(post, clock=clock)
+            reached("ownership", state["ownership"]["evidence"])
     except _WalkStopped as exc:
         # Keep everything the walk already proved. A step that fails late must not
         # erase the evidence earlier steps produced, or the report would call a
@@ -1476,6 +1579,8 @@ def _installed_journey_walk(context: ProbeContext) -> dict[str, Any]:
             "brief": None,
             "ask": None,
             "correction": None,
+            "restart": None,
+            "ownership": None,
         }
     _WALK_RESULTS[key] = result
     return result
@@ -1764,26 +1869,112 @@ def probe_j8(context: ProbeContext) -> StepResult:
 
 
 def probe_j9(context: ProbeContext) -> StepResult:
-    """J9 Restart: run-3 scoped claim not re-claimable without connected state."""
+    """J9 Restart: every admitted resource reopens with its exact identity."""
+    walk = _installed_journey_walk(context)
+    restart = walk.get("restart")
+    if restart is None:
+        return StepResult(
+            step_id="J9",
+            name=STEP_NAMES["J9"],
+            status=StepStatus.BLOCKED,
+            summary=f"Restart blocked: the installed journey walk stopped at {walk.get('reached')}.",
+            evidence=_walk_evidence(walk),
+            blocker=f"J5/WS0:journey_walk:{walk.get('reached')}",
+        )
+    evidence = (
+        *_walk_evidence(walk),
+        f"restart:{restart.get('evidence')}",
+        # Claim exactly what was proven and no more.
+        "scope: the durable connection pool was closed and reopened and every resource re-resolved from "
+        "storage; this is not a full service restart with a persisted volume, which the memory-only "
+        "lane database cannot demonstrate",
+    )
+    if not restart.get("reopened_identically", False):
+        return StepResult(
+            step_id="J9",
+            name=STEP_NAMES["J9"],
+            status=StepStatus.FAIL,
+            summary=(
+                f"Restart changed durable material: {restart.get('before')} resources before, "
+                f"{restart.get('after')} after."
+            ),
+            evidence=evidence,
+            blocker="WS0:restart_material_changed",
+        )
     return StepResult(
         step_id="J9",
         name=STEP_NAMES["J9"],
-        status=StepStatus.BLOCKED,
-        summary="Restart blocked: scoped restart claim cannot be re-established.",
-        evidence=("run-3 scoped restart is not re-claimed without connected source/Brief/correction state",),
-        blocker="restart_scope_requires_connected_journey",
+        status=StepStatus.PASS,
+        summary=(
+            f"Restart verified from installed artifacts: all {restart.get('after')} resources reopened with "
+            "their exact identities after the connection pool was closed and reopened."
+        ),
+        evidence=evidence,
     )
 
 
 def probe_j10(context: ProbeContext) -> StepResult:
-    """J10 Own: run-3 scoped ownership claim not re-claimable without corpus intelligence."""
+    """J10 Own: truthful export, deletion proof, and verified non-reappearance."""
+    walk = _installed_journey_walk(context)
+    ownership = walk.get("ownership")
+    if ownership is None:
+        return StepResult(
+            step_id="J10",
+            name=STEP_NAMES["J10"],
+            status=StepStatus.BLOCKED,
+            summary=f"Own blocked: the installed journey walk stopped at {walk.get('reached')}.",
+            evidence=_walk_evidence(walk),
+            blocker=f"J5/WS0:journey_walk:{walk.get('reached')}",
+        )
+    evidence = (*_walk_evidence(walk), f"ownership:{ownership.get('evidence')}")
+    if not ownership.get("exported", False):
+        return StepResult(
+            step_id="J10",
+            name=STEP_NAMES["J10"],
+            status=StepStatus.FAIL,
+            summary="Own failed: the corpus could not be exported.",
+            evidence=evidence,
+            blocker="WS0:ownership_export_unavailable",
+        )
+    if not ownership.get("deletion_proved", False):
+        return StepResult(
+            step_id="J10",
+            name=STEP_NAMES["J10"],
+            status=StepStatus.FAIL,
+            summary="Own failed: deletion returned no proof.",
+            evidence=evidence,
+            blocker="WS0:ownership_deletion_unproven",
+        )
+    if ownership.get("previewed", 0) < 1:
+        return StepResult(
+            step_id="J10",
+            name=STEP_NAMES["J10"],
+            status=StepStatus.FAIL,
+            summary="Own failed: deletion was confirmed against a preview that covered no records.",
+            evidence=evidence,
+            blocker="WS0:ownership_deletion_preview_empty",
+        )
+    if ownership.get("survivors_after_deletion", 0) > 0:
+        return StepResult(
+            step_id="J10",
+            name=STEP_NAMES["J10"],
+            status=StepStatus.FAIL,
+            summary=(
+                f"Own failed: {ownership.get('survivors_after_deletion')} resources remained readable after "
+                "a proved deletion."
+            ),
+            evidence=evidence,
+            blocker="WS0:deleted_material_reappeared",
+        )
     return StepResult(
         step_id="J10",
         name=STEP_NAMES["J10"],
-        status=StepStatus.BLOCKED,
-        summary="Own blocked: scoped ownership pass cannot be re-established.",
-        evidence=("run-3 scoped ownership pass is not re-claimed without corpus-derived intelligence",),
-        blocker="ownership_scope_requires_connected_journey",
+        status=StepStatus.PASS,
+        summary=(
+            "Own verified from installed artifacts: the corpus exported, deletion returned an exact proof, "
+            "and no deleted material reappeared."
+        ),
+        evidence=evidence,
     )
 
 
