@@ -790,6 +790,7 @@ _ADVERTISED_SOURCE_KINDS: tuple[str, ...] = ("csv", "json", "md", "pdf")
 _PERSONAL_OUTCOME_ID = "personal_orientation"
 _PERSONAL_CADENCE_ID = "daily"
 _OBSERVE_READ_GRANT_REF = "authority_grant:atrium-observe-read"
+_FEEDBACK_GRANT_REF = "authority_grant:atrium-resource-feedback"
 _BUILDS = "/v1/intelligence/builds"
 
 
@@ -900,12 +901,103 @@ def _snapshot_source_paths(items: list[dict[str, Any]], *, corpus_root: Path) ->
     return paths
 
 
+async def _probe_grounded_ask(post, *, clock: _Clock) -> dict[str, Any]:
+    """Ask a corpus-answerable question, and prove an unanswerable one refuses.
+
+    A connected cited answer is the half J7 could never reach before; the honest
+    no-answer half must keep working beside it.
+    """
+
+    at = clock.iso()
+
+    async def ask(question: str) -> dict[str, Any]:
+        return await post(
+            "ask",
+            "/v1/intelligence/ask",
+            {
+                "authority_grant_ref": _OBSERVE_READ_GRANT_REF,
+                "question": question,
+                "subject_refs": [],
+                "as_of": at,
+                "available_at": at,
+                "max_claims": 5,
+            },
+        )
+
+    answered = await ask("What do my admitted local sources currently say?")
+    refused = await ask("Which harbour did the schooner Amelia depart from in 1887?")
+    answered_claims = answered.get("claims") or answered.get("answer_claims") or []
+    citations = answered.get("citations") or []
+    return {
+        "answered": bool(answered_claims),
+        "answer_claims": len(answered_claims),
+        "answer_citations": len(citations),
+        "refused_unanswerable": not (refused.get("claims") or refused.get("answer_claims")),
+        "evidence": (
+            f"answered_claims={len(answered_claims)};citations={len(citations)};"
+            f"refused_unanswerable={not (refused.get('claims') or refused.get('answer_claims'))}"
+        ),
+    }
+
+
+async def _probe_claim_correction(post, *, brief: dict[str, Any]) -> dict[str, Any]:
+    """Bind a correction to one exact cited claim of the real Brief."""
+
+    payload = _payload_of(brief) or {}
+    reference = brief.get("reference") or {}
+    cited = next(
+        (item for item in payload.get("claims") or [] if item.get("grounding_kind") == "cited"),
+        None,
+    )
+    if cited is None or not (cited.get("citation_ids") or []):
+        return {"bound": False, "evidence": "no cited claim available to correct"}
+    target = {
+        "contract": "ace.intelligence.resource-plane-reference/v1alpha1",
+        "product_id": reference["product_id"],
+        "resource_kind": reference["resource_kind"],
+        "resource_id": reference["resource_id"],
+        "resource_digest": reference["resource_digest"],
+        "resource_contract": reference["resource_contract"],
+        "revision": reference["revision"],
+        "as_of": reference["as_of"],
+        "available_at": reference["available_at"],
+    }
+    admission = await post(
+        "correction",
+        "/v1/intelligence/ask/corrections",
+        expect=(201,),
+        body={
+            "authority_grant_ref": _FEEDBACK_GRANT_REF,
+            "request_key": "claim_correction:pi13-ws0-journey",
+            "target": target,
+            "claim_id": str(cited["claim_id"]),
+            "citation_id": str((cited["citation_ids"])[0]),
+            "correction_intent": "outdated",
+            "note": "The owner reports this cited claim is out of date for the admitted corpus.",
+            "evidence": [],
+        },
+    )
+    return {
+        "bound": True,
+        "claim_id": str(cited["claim_id"]),
+        "evidence": f"claim={cited['claim_id']};admission={admission.get('contract', 'recorded')}",
+    }
+
+
 async def _run_installed_journey(context: ProbeContext, clock: _Clock) -> dict[str, Any]:
     """Drive the public route sequence from installed artifacts against the live SurrealDB."""
 
     root = context.repository_root
     evidence: list[str] = []
-    state: dict[str, Any] = {"reached": "start", "error": None, "evidence": evidence, "inventory": None, "brief": None}
+    state: dict[str, Any] = {
+        "reached": "start",
+        "error": None,
+        "evidence": evidence,
+        "inventory": None,
+        "brief": None,
+        "ask": None,
+        "correction": None,
+    }
 
     def reached(step: str, note: str | None = None) -> None:
         state["reached"] = step
@@ -935,9 +1027,15 @@ async def _run_installed_journey(context: ProbeContext, clock: _Clock) -> dict[s
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=api_main.app), base_url="http://ws0") as client:
             headers: dict[str, str] = {}
 
-            async def post(step: str, path: str, body: dict[str, Any]) -> dict[str, Any]:
-                response = await client.post(path, json=body, headers=headers)
-                if response.status_code != 200:
+            async def post(
+                step: str,
+                path: str,
+                body: dict[str, Any] | None = None,
+                *,
+                expect: tuple[int, ...] = (200,),
+            ) -> dict[str, Any]:
+                response = await client.post(path, json=body or {}, headers=headers)
+                if response.status_code not in expect:
                     raise _WalkStopped(step, f"{path}: {response.status_code} {response.text[:600]}")
                 return response.json()
 
@@ -1326,6 +1424,20 @@ async def _run_installed_journey(context: ProbeContext, clock: _Clock) -> dict[s
                 "unresolved_citations": unresolved,
             }
             reached("brief_queried", f"briefs={len(briefs)};cited_claims={cited_claims};uncited={uncited_claims}")
+
+            # J7/J8 only become answerable once a cited Brief exists, which it now
+            # does. Both are exercised against that exact Brief.
+            state["ask"] = await _probe_grounded_ask(post, clock=clock)
+            reached("ask", state["ask"]["evidence"])
+            if briefs:
+                state["correction"] = await _probe_claim_correction(post, brief=briefs[0])
+                reached("correction", state["correction"]["evidence"])
+    except _WalkStopped as exc:
+        # Keep everything the walk already proved. A step that fails late must not
+        # erase the evidence earlier steps produced, or the report would call a
+        # passing step failed.
+        state["reached"] = exc.step
+        state["error"] = f"{type(exc).__name__}: {exc}"
     finally:
         try:
             await db.pool.close()
@@ -1362,6 +1474,8 @@ def _installed_journey_walk(context: ProbeContext) -> dict[str, Any]:
             "evidence": [],
             "inventory": None,
             "brief": None,
+            "ask": None,
+            "correction": None,
         }
     _WALK_RESULTS[key] = result
     return result
@@ -1514,14 +1628,32 @@ def probe_j5(context: ProbeContext) -> StepResult:
 
 
 def probe_j6(context: ProbeContext) -> StepResult:
-    """J6 Change: blocked behind J5."""
+    """J6 Change: the substrate can now detect a revision; no public surface admits one."""
     return StepResult(
         step_id="J6",
         name=STEP_NAMES["J6"],
         status=StepStatus.BLOCKED,
-        summary="Change blocked: nothing exists to detect a change against.",
-        evidence=("no watched source or prior Brief revision exists",),
-        blocker="J5/WS5:change_revision_unavailable",
+        summary=(
+            "Change blocked: content-revision detection, the Pack's declared detectors, and the executor's "
+            "Brief-revision routing all exist, but no public surface admits a second capture of an edited "
+            "source, so nothing can reach them."
+        ),
+        evidence=(
+            "Core declares the content-revision detector family and resolves the prior_snapshot baseline "
+            "its rules declare",
+            "the Personal Pack declares personal_note_revised and personal_document_revised over the mapped "
+            "body attribute",
+            "the Personal executor compares every admitted entity against its prior state and routes an "
+            "append-only Brief revision for a material Shift",
+            "a second PREPARED build cannot carry new captures: DurableIntelligenceBuildHostComposer binds "
+            "the ACTIVE Builder session to one exact activation approval, and a start request's selections "
+            "come from that approval's own bound plan, so newly captured material has no admitted path",
+            "the substrate's continuous-update path is live source ingress "
+            "(ace.application.live_source_ingress through the live intelligence bridge), which the API "
+            "exposes through no public route and which the Personal journey does not compose",
+            "no refresh, re-ingest, or watch route exists on the public surface",
+        ),
+        blocker="WS5:public_reingest_surface_unavailable",
     )
 
 
@@ -1531,54 +1663,103 @@ def _api_route_paths(context: ProbeContext) -> set[str]:
 
 
 def probe_j7(context: ProbeContext) -> StepResult:
-    """J7 Ask: honest no-answer surface exists; cited answers need J5."""
-    ask_path = "/v1/intelligence/ask"
-    paths = _api_route_paths(context)
-    if ask_path in paths:
+    """J7 Ask: a cited answer from the admitted corpus, and an honest refusal beside it."""
+    walk = _installed_journey_walk(context)
+    ask = walk.get("ask")
+    if ask is None:
+        return StepResult(
+            step_id="J7",
+            name=STEP_NAMES["J7"],
+            status=StepStatus.BLOCKED,
+            summary=f"Ask blocked: the installed journey walk stopped at {walk.get('reached')} before asking.",
+            evidence=_walk_evidence(walk),
+            blocker=f"J5/WS0:journey_walk:{walk.get('reached')}",
+        )
+    evidence = (*_walk_evidence(walk), f"ask:{ask.get('evidence')}")
+    if ask.get("answered", False) and ask.get("answer_citations", 0) < 1:
+        return StepResult(
+            step_id="J7",
+            name=STEP_NAMES["J7"],
+            status=StepStatus.FAIL,
+            summary="Ask returned claims without citations, which is an answer beyond its evidence.",
+            evidence=evidence,
+            blocker="WS0:ask_answered_without_citations",
+        )
+    if not ask.get("answered", False):
         return StepResult(
             step_id="J7",
             name=STEP_NAMES["J7"],
             status=StepStatus.PARTIAL,
-            summary="Ask surface present but cannot produce connected cited answers yet.",
-            evidence=(
-                f"route present:{ask_path}",
-                "honest no-answer surface exists but connected cited-answer path is unavailable",
+            summary="Ask produced no connected cited answer from the admitted corpus.",
+            evidence=evidence,
+            blocker="WS0:connected_cited_answer_unavailable",
+        )
+    if not ask.get("refused_unanswerable", False):
+        return StepResult(
+            step_id="J7",
+            name=STEP_NAMES["J7"],
+            status=StepStatus.PARTIAL,
+            summary=(
+                "Ask produces connected cited answers, but its honest refusal cannot be demonstrated: a "
+                "lexically disjoint question was still answered."
             ),
-            blocker="cited_answer_requires_J5",
+            evidence=(
+                *evidence,
+                "GroundedAskService scores a claim by the raw token overlap between the question and the "
+                "claim statement, with no stopword filtering and a score>0 threshold, so a single shared "
+                "common word such as 'the' or 'in' is enough to answer",
+                "the returned claims are real and cited -- this is a relevance weakness, not fabrication -- "
+                "but it means missing_coverage:no_claims_matched_question_terms is rarely reachable once a "
+                "corpus exists",
+                "narrowing that scoring would change the substrate's released retrieval behaviour, which "
+                "this continuation is explicitly forbidden to do, so it is reported rather than repaired",
+            ),
+            blocker="WS0:ask_refusal_not_demonstrable",
         )
     return StepResult(
         step_id="J7",
         name=STEP_NAMES["J7"],
-        status=StepStatus.FAIL,
-        summary="Ask route is missing from the API surface.",
-        evidence=(f"route absent:{ask_path}",),
-        blocker="ask_route_missing",
+        status=StepStatus.PASS,
+        summary=(
+            f"Ask verified from installed artifacts: {ask.get('answer_claims')} cited claim(s) with "
+            f"{ask.get('answer_citations')} citation(s), and an unanswerable question refused."
+        ),
+        evidence=evidence,
     )
 
 
 def probe_j8(context: ProbeContext) -> StepResult:
-    """J8 Correct: fail-closed correction surface exists; re-derivation needs a real claim."""
-    corrections_path = "/v1/intelligence/ask/corrections"
-    paths = _api_route_paths(context)
-    if corrections_path in paths:
+    """J8 Correct: a correction bound to one exact cited claim of a real Brief."""
+    walk = _installed_journey_walk(context)
+    correction = walk.get("correction")
+    if correction is None:
+        return StepResult(
+            step_id="J8",
+            name=STEP_NAMES["J8"],
+            status=StepStatus.BLOCKED,
+            summary=f"Correct blocked: the installed journey walk stopped at {walk.get('reached')} before a Brief.",
+            evidence=_walk_evidence(walk),
+            blocker=f"J5/WS0:journey_walk:{walk.get('reached')}",
+        )
+    evidence = (*_walk_evidence(walk), f"correction:{correction.get('evidence')}")
+    if not correction.get("bound", False):
         return StepResult(
             step_id="J8",
             name=STEP_NAMES["J8"],
             status=StepStatus.PARTIAL,
-            summary="Correction surface present but cannot re-derive a real claim yet.",
-            evidence=(
-                f"route present:{corrections_path}",
-                "fail-closed claim-bound surface exists but real claim re-derivation is unavailable",
-            ),
-            blocker="rederivation_requires_real_claim",
+            summary="Correction surface present, but no real cited claim was available to bind.",
+            evidence=evidence,
+            blocker="WS0:claim_bound_correction_unavailable",
         )
     return StepResult(
         step_id="J8",
         name=STEP_NAMES["J8"],
-        status=StepStatus.FAIL,
-        summary="Correction route is missing from the API surface.",
-        evidence=(f"route absent:{corrections_path}",),
-        blocker="correction_route_missing",
+        status=StepStatus.PASS,
+        summary=(
+            "Correct verified from installed artifacts: a correction is bound to one exact cited claim of "
+            "the admitted Brief and recorded as a proposal only."
+        ),
+        evidence=evidence,
     )
 
 

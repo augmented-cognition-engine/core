@@ -38,6 +38,9 @@ from scripts.pi13_ws0_journey_gate import (
     probe_j3,
     probe_j4,
     probe_j5,
+    probe_j6,
+    probe_j7,
+    probe_j8,
     write_atomic,
 )
 
@@ -533,6 +536,14 @@ def _walk_success() -> dict:
             ],
             "observation_kinds": ["csv", "json", "md", "pdf"],
         },
+        "ask": {
+            "answered": True,
+            "answer_claims": 2,
+            "answer_citations": 2,
+            "refused_unanswerable": True,
+            "evidence": "answered_claims=2;citations=2;refused_unanswerable=True",
+        },
+        "correction": {"bound": True, "claim_id": "grounded_claim:abc", "evidence": "claim=grounded_claim:abc"},
         "brief": {
             "count": 1,
             "cited_claims": 5,
@@ -542,6 +553,102 @@ def _walk_success() -> dict:
             "unresolved_citations": 0,
         },
     }
+
+
+class TestProbeJ7ConnectedAnswers:
+    def test_j7_passes_when_a_cited_answer_and_an_honest_refusal_both_hold(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: _walk_success())
+        result = probe_j7(_context(tmp_path))
+
+        assert result.status is StepStatus.PASS
+        assert result.blocker is None
+        assert "answered_claims=2" in " ".join(result.evidence)
+
+    def test_j7_is_partial_when_refusal_cannot_be_demonstrated(self, tmp_path, monkeypatch):
+        """Answering a lexically disjoint question is not fabrication -- the claims
+        are still real and cited -- but it means the honest-refusal half of J7
+        cannot be shown, which the report must say rather than pass over."""
+
+        walk = _walk_success()
+        walk["ask"]["refused_unanswerable"] = False
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: walk)
+        result = probe_j7(_context(tmp_path))
+
+        assert result.status is StepStatus.PARTIAL
+        assert result.blocker == "WS0:ask_refusal_not_demonstrable"
+        joined = " ".join((result.summary, *result.evidence))
+        assert "stopword" in joined
+        assert "retrieval" in joined
+
+    def test_j7_fails_only_when_an_answer_carries_no_citation(self, tmp_path, monkeypatch):
+        walk = _walk_success()
+        walk["ask"] = {
+            "answered": True,
+            "answer_claims": 3,
+            "answer_citations": 0,
+            "refused_unanswerable": True,
+            "evidence": "answered_claims=3;citations=0",
+        }
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: walk)
+        result = probe_j7(_context(tmp_path))
+
+        assert result.status is StepStatus.FAIL
+        assert result.blocker == "WS0:ask_answered_without_citations"
+
+    def test_j7_is_partial_when_no_connected_answer_was_produced(self, tmp_path, monkeypatch):
+        walk = _walk_success()
+        walk["ask"] = {
+            "answered": False,
+            "answer_claims": 0,
+            "answer_citations": 0,
+            "refused_unanswerable": True,
+            "evidence": "answered_claims=0",
+        }
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: walk)
+        result = probe_j7(_context(tmp_path))
+
+        assert result.status is StepStatus.PARTIAL
+        assert result.blocker == "WS0:connected_cited_answer_unavailable"
+
+
+class TestProbeJ8ClaimBoundCorrection:
+    def test_j8_passes_when_a_correction_binds_a_real_cited_claim(self, tmp_path, monkeypatch):
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: _walk_success())
+        result = probe_j8(_context(tmp_path))
+
+        assert result.status is StepStatus.PASS
+        assert "grounded_claim:abc" in " ".join(result.evidence)
+
+    def test_j8_is_partial_without_a_real_claim_to_correct(self, tmp_path, monkeypatch):
+        walk = _walk_success()
+        walk["correction"] = {"bound": False, "evidence": "no cited claim available to correct"}
+        monkeypatch.setattr(scripts.pi13_ws0_journey_gate, "_installed_journey_walk", lambda context: walk)
+        result = probe_j8(_context(tmp_path))
+
+        assert result.status is StepStatus.PARTIAL
+        assert result.blocker == "WS0:claim_bound_correction_unavailable"
+
+
+class TestProbeJ6StructuralBlocker:
+    def test_j6_names_the_missing_public_reingest_surface(self, tmp_path):
+        """Detection now exists and the executor routes revisions, so J6's old
+        'nothing to detect against' summary would be false. The honest blocker is
+        that no public surface admits a second capture of an edited source."""
+
+        result = probe_j6(_context(tmp_path))
+
+        assert result.status is StepStatus.BLOCKED
+        assert result.blocker == "WS5:public_reingest_surface_unavailable"
+        joined = " ".join((result.summary, *result.evidence))
+        assert "content-revision" in joined
+        assert "activation approval" in joined
+        assert "live source ingress" in joined
+        assert "no public route" in joined
+
+    def test_j6_no_longer_claims_nothing_exists_to_detect_against(self, tmp_path):
+        text = " ".join((probe_j6(_context(tmp_path)).summary, *probe_j6(_context(tmp_path)).evidence)).lower()
+
+        assert "nothing exists to detect a change against" not in text
 
 
 class TestProbeJ4InstalledWalk:
