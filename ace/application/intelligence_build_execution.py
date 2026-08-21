@@ -41,6 +41,7 @@ if TYPE_CHECKING:
         PreparedShiftSignalDerivationRequestV1Alpha1,
     )
     from ace.application.recorded_source_admission import RecordedSourceAdmission, RecordedSourceMaterialV1Alpha1
+    from ace.intelligence.contracts.ledger import IntelligenceRecordReferenceV1Alpha1
     from ace.intelligence.contracts.source_mapping import ResolvedSubjectBindingV1Alpha1
 
 IntelligenceBuildEffect = Literal[
@@ -298,6 +299,22 @@ class IntelligenceBuildPreparedDerivationPort(Protocol):
         self,
         request: "PreparedShiftSignalDerivationRequestV1Alpha1",
     ) -> "PreparedShiftSignalDerivationOutcome": ...
+
+    async def derive_against_prior_snapshot(
+        self,
+        *,
+        derivation_key: str,
+        detector_id: str,
+        current_snapshot: "IntelligenceRecordReferenceV1Alpha1",
+        evaluated_at: datetime,
+    ) -> "PreparedShiftSignalDerivationOutcome | None":
+        """Derive against the ``prior_snapshot`` baseline the rule declares.
+
+        Returns ``None`` when the entity has no earlier admitted snapshot, so a
+        first admission reports a truthful absence rather than a fabricated
+        comparison.
+        """
+        ...
 
 
 class IntelligenceBuildFirstBriefPort(Protocol):

@@ -292,6 +292,62 @@ class CorePreparedShiftSignalDerivationService(IntelligenceBuildPreparedDerivati
             raise PreparedShiftSignalDerivationError("selected Entity Snapshot crossed exact activation scope")
         return value
 
+    async def derive_against_prior_snapshot(
+        self,
+        *,
+        derivation_key: str,
+        detector_id: str,
+        current_snapshot: IntelligenceRecordReferenceV1Alpha1,
+        evaluated_at: datetime,
+    ) -> PreparedShiftSignalDerivationOutcome | None:
+        """Derive against the baseline every detector rule already declares.
+
+        Each rule carries ``baseline="prior_snapshot"``, but callers had to locate
+        that snapshot themselves -- which a product executor holding only the
+        material it just admitted cannot do. Core owns the rule, so Core resolves
+        it: the latest durably admitted Entity Snapshot for the same entity whose
+        ``as_of`` strictly precedes the current one.
+
+        Returns ``None`` when no such snapshot exists. A first admission has
+        nothing to compare against, and that truthful absence is neither a Shift
+        nor an error.
+        """
+
+        if evaluated_at.tzinfo is None or evaluated_at.utcoffset() is None:
+            raise PreparedShiftSignalDerivationError("evaluated_at must include a timezone")
+        current = await self._load_snapshot(current_snapshot)
+        try:
+            values = await self.ledger.read_as_of(
+                product_id=self.build.product_id,
+                mode=IntelligenceResourceMode.PREPARED,
+                kind=IntelligenceRecordKind.ENTITY_SNAPSHOT,
+                available_at=evaluated_at.astimezone(UTC),
+            )
+        except PreparedIntelligenceAdmissionError as exc:
+            raise PreparedShiftSignalDerivationError("prior Entity Snapshot lookup failed closed") from exc
+        candidates = [
+            item
+            for item in values
+            if isinstance(item, EntitySnapshotV1Alpha1)
+            and item.entity_ref == current.entity_ref
+            and item.entity_type_ref == current.entity_type_ref
+            and item.activation_revision == self.binding.prepared_binding.reference
+            and item.as_of < current.as_of
+        ]
+        if not candidates:
+            return None
+        # Latest prior state, with the content identity as a deterministic
+        # tie-break so two snapshots sharing an as_of can never order by chance.
+        baseline = max(candidates, key=lambda item: (item.as_of, str(item.resource_id)))
+        request = PreparedShiftSignalDerivationRequestV1Alpha1(
+            derivation_key=derivation_key,
+            detector_id=detector_id,
+            baseline_snapshot=resource_reference(baseline),
+            current_snapshot=current_snapshot,
+            evaluated_at=evaluated_at,
+        )
+        return await self.derive(request)
+
     async def derive(
         self,
         request: PreparedShiftSignalDerivationRequestV1Alpha1,

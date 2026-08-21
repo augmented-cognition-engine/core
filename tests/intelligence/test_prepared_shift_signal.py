@@ -407,3 +407,46 @@ def test_selection_rejects_reversed_or_cross_product_entity_references() -> None
     import asyncio
 
     asyncio.run(_exercise())
+
+
+@pytest.mark.asyncio
+async def test_core_resolves_the_declared_prior_snapshot_baseline_itself() -> None:
+    """Every detector rule declares ``baseline="prior_snapshot"``, but until now
+    nothing honoured it: each caller had to locate an exact baseline reference
+    itself, which a product executor holding only the snapshots it just admitted
+    cannot do. Core owns the rule, so Core resolves the baseline."""
+
+    _, _, build, _, request, service = await _stack()
+
+    outcome = await service.derive_against_prior_snapshot(
+        derivation_key="prepared_derivation:resolved-baseline",
+        detector_id=request.detector_id,
+        current_snapshot=request.current_snapshot,
+        evaluated_at=request.evaluated_at,
+    )
+
+    assert outcome is not None
+    assert outcome.material_shift is True
+    # It selected exactly the snapshot the manual request named.
+    assert outcome.request.baseline_snapshot == request.baseline_snapshot
+    assert outcome.request.current_snapshot == request.current_snapshot
+
+
+@pytest.mark.asyncio
+async def test_no_prior_snapshot_yields_an_explicit_no_baseline_outcome() -> None:
+    """A first admission has nothing to compare against. That is a truthful
+    absence, not a Shift and not an error."""
+
+    _, _, _, records, request, service = await _stack()
+    before = await records.scan_product_records(product_id=request.baseline_snapshot.product_id)
+
+    outcome = await service.derive_against_prior_snapshot(
+        derivation_key="prepared_derivation:no-baseline",
+        detector_id=request.detector_id,
+        current_snapshot=request.baseline_snapshot,  # the earliest snapshot has no predecessor
+        evaluated_at=request.evaluated_at,
+    )
+    after = await records.scan_product_records(product_id=request.baseline_snapshot.product_id)
+
+    assert outcome is None
+    assert len(after) == len(before)
