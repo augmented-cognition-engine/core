@@ -186,7 +186,8 @@ class IntelligenceBuildRetryRequestV1Alpha1(BaseModel):
         return value.astimezone(UTC)
 
 
-def _verified_local_owner(user: dict) -> tuple[str, str]:
+def verified_local_intelligence_owner(user: dict) -> tuple[str, str]:
+    """Return the fixed local owner's (actor_ref, product_id) or deny."""
     authorities = user.get("authorities")
     if (
         user.get("local_owner") is not True
@@ -250,11 +251,12 @@ def _artifact_for(
     )
 
 
-def _start_request(
+def intelligence_activation_start_request(
     *,
     bound: BoundIntelligenceBuildPlanV1Alpha1,
     approval: ResolvedApprovalReceiptV1,
 ) -> IntelligenceBuildStartV1Alpha2:
+    """Derive the exact ``/start`` request one recorded approval authorizes."""
     request = IntelligenceBuildStartV1Alpha2(
         authority_grant_ref=LOCAL_OWNER_BUILD_GRANT_REF,
         resource_authority_grant_ref=LOCAL_OWNER_READ_GRANT_REF,
@@ -393,7 +395,7 @@ async def approve_intelligence_activation(
 ) -> IntelligenceActivationApprovalResultV1Alpha1:
     """Record an explicit local-owner approval for one exact bound plan."""
 
-    actor_ref, product_id = _verified_local_owner(user)
+    actor_ref, product_id = verified_local_intelligence_owner(user)
     now = datetime.now(UTC)
     bound = request.bound_plan
     plan_request = bound.binding_request.plan.request
@@ -437,7 +439,7 @@ async def approve_intelligence_activation(
         approval=approval,
         bound_plan_id=str(bound.bound_plan_id),
         bound_plan_digest=str(bound.bound_plan_digest),
-        start_request=_start_request(bound=bound, approval=approval),
+        start_request=intelligence_activation_start_request(bound=bound, approval=approval),
     )
 
 
@@ -455,7 +457,7 @@ async def associate_intelligence_build_session(
     any crossed bound plan, receipt, product, or actor fails closed.
     """
 
-    actor_ref, product_id = _verified_local_owner(user)
+    actor_ref, product_id = verified_local_intelligence_owner(user)
     bound = request.bound_plan
     plan_request = bound.binding_request.plan.request
     spec = bound.activation_spec
@@ -595,5 +597,7 @@ __all__ = [
     "ReviewedIntelligenceActivationApprovalV1Alpha1",
     "approve_intelligence_activation",
     "associate_intelligence_build_session",
+    "intelligence_activation_start_request",
     "retry_intelligence_build_session",
+    "verified_local_intelligence_owner",
 ]

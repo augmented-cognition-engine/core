@@ -8,6 +8,7 @@ as the Pack version. Every result is recompiled and re-conformed from bytes.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from hashlib import sha256
 from importlib import metadata
@@ -217,6 +218,39 @@ def _load_artifact(
     )
 
 
+def _exact_distributions(installed: Iterable[InstalledDistribution]) -> tuple[InstalledDistribution, ...]:
+    """Collapse one dist-info enumerated more than once into one installed distribution.
+
+    A duplicated ``sys.path`` entry (a re-prepended site-packages directory)
+    makes ``importlib.metadata.distributions()`` yield the same dist-info path
+    twice. That is one installed Pack, not an ambiguous pair, so entries whose
+    canonical distribution name *and* resolved dist-info path are identical
+    are kept once. Entries sharing a name across genuinely different paths,
+    or lacking a name or path, are retained so downstream ambiguity still
+    fails closed.
+    """
+
+    keyed: dict[tuple[str, str], InstalledDistribution] = {}
+    unkeyed: list[InstalledDistribution] = []
+    for distribution in installed:
+        try:
+            name = _distribution_name(distribution)
+        except Exception:  # noqa: BLE001 - an unnamed entry is retained for the strict path below
+            unkeyed.append(distribution)
+            continue
+        dist_info = getattr(distribution, "_path", None)
+        if not name or dist_info is None:
+            unkeyed.append(distribution)
+            continue
+        try:
+            resolved = str(Path(str(dist_info)).resolve())
+        except OSError:
+            unkeyed.append(distribution)
+            continue
+        keyed.setdefault((re.sub(r"[-_.]+", "-", name).lower(), resolved), distribution)
+    return tuple(keyed.values()) + tuple(unkeyed)
+
+
 def _index_installed_pack_roots(
     distributions: Iterable[InstalledDistribution] | None = None,
 ) -> tuple[_InstalledPackRoot, ...]:
@@ -226,7 +260,7 @@ def _index_installed_pack_roots(
     roots: list[_InstalledPackRoot] = []
     seen_roots: set[tuple[str, str]] = set()
     seen_pack_ids: set[str] = set()
-    for distribution in sorted(installed, key=lambda item: _distribution_name(item).lower()):
+    for distribution in sorted(_exact_distributions(installed), key=lambda item: _distribution_name(item).lower()):
         name = _distribution_name(distribution)
         declared = _declared_paths(distribution)
         for manifest_path_value in _manifest_paths(declared):

@@ -38,6 +38,7 @@ class SourceAcquisitionMode(StrEnum):
     LIVE = "live"
     RECORDED_REPLAY = "recorded_replay"
     PREPARED_FIXTURE = "prepared_fixture"
+    LOCAL = "local"
 
 
 class _StrictFrozenContract(FrozenContract):

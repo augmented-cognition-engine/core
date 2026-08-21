@@ -658,3 +658,66 @@ def test_brief_cannot_be_generated_before_its_lineage_shift_is_available() -> No
             citations=(citation,),
             claims=(_claim(citation),),
         )
+
+
+def test_brief_may_cite_evidence_retrieved_after_its_as_of_but_before_generation() -> None:
+    """Valid time and transaction time are separate axes.
+
+    ``as_of`` is the Brief's validity cut; ``retrieved_at`` is when the evidence
+    was ingested. Real ingestion lags capture, so evidence about material that
+    was already true at the cutoff is routinely retrieved afterwards. Requiring
+    ingestion to precede the validity cut is a category error that refuses every
+    orientation over a historical corpus cut; the honest transaction-time rule
+    is that a Brief cannot cite what it had not yet retrieved when it was
+    written.
+    """
+
+    lagging = CitationV1Alpha1(
+        source_ref="evidence:captured-before-cutoff",
+        source_digest="sha256:" + "d" * 64,
+        acquisition_mode=EvidenceAcquisitionMode.RECORDED_REPLAY,
+        acquisition_receipt_ref="receipt:lagging-acquisition",
+        acquisition_receipt_digest="sha256:" + "5" * 64,
+        source_as_of=AS_OF - timedelta(hours=1),
+        retrieved_at=AS_OF + timedelta(minutes=30),
+    )
+
+    brief = BriefV1Alpha1(
+        **_common(),
+        brief_type_ref="ontology:brief_type",
+        title="Orientation over an admitted corpus cut",
+        executive_summary="The cited material was already true at the cutoff; ingestion merely followed it.",
+        body_markdown="Ingestion lag is not future leakage.",
+        generated_at=AS_OF + timedelta(hours=1),
+        citations=(lagging,),
+        claims=(_claim(lagging),),
+    )
+
+    assert brief.citations[0].retrieved_at > brief.as_of
+    assert brief.citations[0].retrieved_at <= brief.generated_at
+
+
+def test_brief_cannot_cite_evidence_retrieved_after_it_was_generated() -> None:
+    """Transaction-time leakage is still refused on its own axis."""
+
+    unretrieved = CitationV1Alpha1(
+        source_ref="evidence:not-yet-retrieved",
+        source_digest="sha256:" + "d" * 64,
+        acquisition_mode=EvidenceAcquisitionMode.RECORDED_REPLAY,
+        acquisition_receipt_ref="receipt:late-acquisition",
+        acquisition_receipt_digest="sha256:" + "5" * 64,
+        source_as_of=AS_OF - timedelta(hours=1),
+        retrieved_at=AS_OF + timedelta(hours=2),
+    )
+
+    with pytest.raises(ValidationError, match="retrieved after the Brief was generated"):
+        BriefV1Alpha1(
+            **_common(),
+            brief_type_ref="ontology:brief_type",
+            title="Retrieval leak",
+            executive_summary="The evidence had not been retrieved when this was written.",
+            body_markdown="Transaction-time leakage must be refused.",
+            generated_at=AS_OF + timedelta(hours=1),
+            citations=(unretrieved,),
+            claims=(_claim(unretrieved),),
+        )

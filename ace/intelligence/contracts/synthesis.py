@@ -57,6 +57,15 @@ CASE_BRIEF_SYNTHESIS_RECEIPT_VERSION = "ace.intelligence.case-brief-synthesis-re
 PREPARED_CASE_BRIEF_APPEND_VERSION = "ace.intelligence.prepared-case-brief-append/v1alpha1"
 PREPARED_CASE_BRIEF_APPEND_INTENT_VERSION = "ace.intelligence.prepared-case-brief-append-intent/v1alpha1"
 PREPARED_CASE_BRIEF_APPEND_RECIPE_VERSION = "ace.intelligence.prepared-case-brief-append-recipe/v1alpha1"
+INITIAL_CORPUS_BRIEF_SYNTHESIS_REQUEST_VERSION = "ace.intelligence.initial-corpus-brief-synthesis-request/v1alpha1"
+INITIAL_CORPUS_BRIEF_SYNTHESIS_RECEIPT_VERSION = "ace.intelligence.initial-corpus-brief-synthesis-receipt/v1alpha1"
+PREPARED_INITIAL_CORPUS_BRIEF_APPEND_VERSION = "ace.intelligence.prepared-initial-corpus-brief-append/v1alpha1"
+PREPARED_INITIAL_CORPUS_BRIEF_APPEND_INTENT_VERSION = (
+    "ace.intelligence.prepared-initial-corpus-brief-append-intent/v1alpha1"
+)
+PREPARED_INITIAL_CORPUS_BRIEF_APPEND_RECIPE_VERSION = (
+    "ace.intelligence.prepared-initial-corpus-brief-append-recipe/v1alpha1"
+)
 BRIEF_SYNTHESIS_DRAFT_V1ALPHA2_VERSION = "ace.intelligence.brief-synthesis-draft/v1alpha2"
 PREPARED_STATUS_CASE_BRIEF_APPEND_VERSION = "ace.intelligence.prepared-status-case-brief-append/v1alpha1"
 PREPARED_STATUS_CASE_BRIEF_APPEND_INTENT_VERSION = "ace.intelligence.prepared-status-case-brief-append-intent/v1alpha1"
@@ -1503,6 +1512,485 @@ class PreparedCaseBriefAppendV1Alpha1(_StrictFrozenContract):
         return self
 
 
+class InitialCorpusBriefSynthesisRequestV1Alpha1(_StrictFrozenContract):
+    """One exact orientation-policy-bound first Brief over the admitted corpus.
+
+    This is the additive sibling of ``BriefSynthesisRequestV1Alpha1``. It binds
+    no routed derivation, no attention receipt, and no Signal: the first Brief
+    is an orientation over the already admitted Observation and Entity Snapshot
+    records at one exact ``corpus_as_of``/``corpus_available_at``, selected by a
+    declared Pack orientation policy. It is not a change event.
+    """
+
+    contract: Literal["ace.intelligence.initial-corpus-brief-synthesis-request/v1alpha1"] = (
+        INITIAL_CORPUS_BRIEF_SYNTHESIS_REQUEST_VERSION
+    )
+    synthesis_key: str
+    reasoning_attempt_key: str
+    product_id: str
+    mode: IntelligenceResourceMode = IntelligenceResourceMode.PREPARED
+    authenticated_context: AuthenticatedRuntimeContextV1Alpha1
+    activation_revision: ActivationRevisionReferenceV1Alpha1
+    pack: CompiledPackRefV1
+    orientation_policy_id: str
+    corpus_as_of: datetime
+    corpus_available_at: datetime
+    requested_at: datetime
+    request_id: str | None = None
+    request_digest: str | None = None
+
+    @field_validator("synthesis_key", "reasoning_attempt_key", "product_id")
+    @classmethod
+    def validate_references(cls, value: str, info) -> str:
+        return _reference(value, name=info.field_name)
+
+    @field_validator("orientation_policy_id")
+    @classmethod
+    def validate_orientation_policy_id(cls, value: str) -> str:
+        return validate_slug(value, name="orientation_policy_id")
+
+    @field_validator("request_digest")
+    @classmethod
+    def validate_digests(cls, value: str | None, info) -> str | None:
+        return _digest(value, name=info.field_name) if value is not None else None
+
+    @field_validator("corpus_as_of", "corpus_available_at", "requested_at")
+    @classmethod
+    def validate_times(cls, value: datetime, info) -> datetime:
+        return _aware(value, name=info.field_name)
+
+    @field_validator("request_id")
+    @classmethod
+    def validate_request_id(cls, value: str | None) -> str | None:
+        return _reference(value, name="request_id") if value is not None else None
+
+    @model_validator(mode="after")
+    def validate_scope_time_and_identity(self) -> Self:
+        if (
+            self.authenticated_context.product_id != self.product_id
+            or self.activation_revision.product_id != self.product_id
+        ):
+            raise ValueError("initial-corpus Brief synthesis request crossed exact product scope")
+        if self.corpus_as_of > self.corpus_available_at:
+            raise ValueError("the exact corpus as_of cannot follow its availability instant")
+        if self.corpus_available_at > self.requested_at:
+            raise ValueError("the exact corpus availability instant cannot follow request time")
+        if not (
+            self.authenticated_context.authenticated_at <= self.requested_at < self.authenticated_context.expires_at
+        ):
+            raise ValueError("initial-corpus Brief synthesis request must occur inside the authenticated window")
+        _derive_identity(
+            self,
+            prefix="initial_corpus_brief_synthesis_request",
+            id_field="request_id",
+            digest_field="request_digest",
+        )
+        return self
+
+
+class InitialCorpusBriefSynthesisReceiptV1Alpha1(_StrictFrozenContract):
+    """Durable semantic correlation for one canonical initial-corpus first Brief."""
+
+    contract: Literal["ace.intelligence.initial-corpus-brief-synthesis-receipt/v1alpha1"] = (
+        INITIAL_CORPUS_BRIEF_SYNTHESIS_RECEIPT_VERSION
+    )
+    product_id: str
+    mode: IntelligenceResourceMode = IntelligenceResourceMode.PREPARED
+    synthesis_key: str
+    reasoning_attempt_key: str
+    request_id: str
+    request_digest: str
+    reasoning_request_id: str
+    reasoning_request_digest: str
+    activation_revision: ActivationRevisionReferenceV1Alpha1
+    activation_commit: ReceiptReferenceV1Alpha1
+    pack: CompiledPackRefV1
+    orientation_module_id: str
+    orientation_module_digest: str
+    orientation_policy_id: str
+    orientation_policy_digest: str
+    corpus_as_of: datetime
+    corpus_available_at: datetime
+    corpus_observation_ids: tuple[str, ...] = Field(min_length=1, max_length=1_024)
+    corpus_entity_snapshot_ids: tuple[str, ...] = Field(min_length=1, max_length=1_024)
+    module_id: str
+    module_digest: str
+    template_id: str
+    template_digest: str
+    persona_ids: tuple[str, ...] = Field(min_length=1, max_length=64)
+    required_section_ids: tuple[str, ...] = Field(min_length=1, max_length=32)
+    actual_section_ids: tuple[str, ...] = Field(min_length=1, max_length=32)
+    section_claims: tuple[BriefSectionClaimBindingV1Alpha1, ...] = Field(
+        min_length=1,
+        max_length=32,
+    )
+    recommendation_claim_id: str | None = None
+    claim_supports: tuple[BriefClaimSupportBindingV1Alpha1, ...] = Field(
+        min_length=1,
+        max_length=1_024,
+    )
+    selected_context: tuple[BriefSelectedContextBindingV1Alpha1, ...] = Field(
+        min_length=1,
+        max_length=1_024,
+    )
+    write_intent_id: str
+    write_intent_digest: str
+    write_authorization: ReceiptReferenceV1Alpha1
+    reasoning_terminal: ReceiptReferenceV1Alpha1
+    reasoning_result_id: str
+    reasoning_result_digest: str
+    brief_id: str
+    brief_digest: str
+    created_at: datetime
+    receipt_id: str | None = None
+    receipt_digest: str | None = None
+
+    @field_validator(
+        "product_id",
+        "synthesis_key",
+        "reasoning_attempt_key",
+        "request_id",
+        "reasoning_request_id",
+        "reasoning_result_id",
+        "brief_id",
+        "write_intent_id",
+    )
+    @classmethod
+    def validate_references(cls, value: str, info) -> str:
+        return _reference(value, name=info.field_name)
+
+    @field_validator("orientation_module_id", "orientation_policy_id", "module_id", "template_id")
+    @classmethod
+    def validate_slugs(cls, value: str, info) -> str:
+        return validate_slug(value, name=info.field_name)
+
+    @field_validator(
+        "request_digest",
+        "reasoning_request_digest",
+        "orientation_module_digest",
+        "orientation_policy_digest",
+        "module_digest",
+        "template_digest",
+        "reasoning_result_digest",
+        "brief_digest",
+        "write_intent_digest",
+        "receipt_digest",
+    )
+    @classmethod
+    def validate_digests(cls, value: str | None, info) -> str | None:
+        return _digest(value, name=info.field_name) if value is not None else None
+
+    @field_validator("corpus_as_of", "corpus_available_at", "created_at")
+    @classmethod
+    def validate_times(cls, value: datetime, info) -> datetime:
+        return _aware(value, name=info.field_name)
+
+    @field_validator("corpus_observation_ids", "corpus_entity_snapshot_ids")
+    @classmethod
+    def normalize_corpus_ids(cls, value: tuple[str, ...], info) -> tuple[str, ...]:
+        validated = tuple(_reference(item, name=info.field_name) for item in value)
+        if len(validated) != len(set(validated)):
+            raise ValueError(f"{info.field_name} must use unique exact identities")
+        return tuple(sorted(validated))
+
+    @field_validator("persona_ids")
+    @classmethod
+    def normalize_personas(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        validated = tuple(validate_slug(item, name="persona_id") for item in value)
+        if len(validated) != len(set(validated)):
+            raise ValueError("synthesis receipt personas must be unique")
+        return tuple(sorted(validated))
+
+    @field_validator("required_section_ids", "actual_section_ids")
+    @classmethod
+    def validate_section_ids(cls, value: tuple[str, ...], info) -> tuple[str, ...]:
+        validated = tuple(validate_slug(item, name=info.field_name) for item in value)
+        if len(validated) != len(set(validated)):
+            raise ValueError(f"{info.field_name} must be unique")
+        return validated
+
+    @field_validator("claim_supports")
+    @classmethod
+    def validate_claim_supports(
+        cls,
+        value: tuple[BriefClaimSupportBindingV1Alpha1, ...],
+    ) -> tuple[BriefClaimSupportBindingV1Alpha1, ...]:
+        ids = [item.claim_id for item in value]
+        if len(ids) != len(set(ids)):
+            raise ValueError("synthesis receipt claim support bindings must be unique")
+        return value
+
+    @field_validator("section_claims")
+    @classmethod
+    def validate_section_claims(
+        cls,
+        value: tuple[BriefSectionClaimBindingV1Alpha1, ...],
+    ) -> tuple[BriefSectionClaimBindingV1Alpha1, ...]:
+        ids = [item.section_id for item in value]
+        claim_ids = [claim_id for item in value for claim_id in item.claim_ids]
+        if len(ids) != len(set(ids)) or len(claim_ids) != len(set(claim_ids)):
+            raise ValueError("section and claim membership must be unique")
+        return value
+
+    @field_validator("recommendation_claim_id")
+    @classmethod
+    def validate_recommendation_claim_id(cls, value: str | None) -> str | None:
+        return _reference(value, name="recommendation_claim_id") if value is not None else None
+
+    @field_validator("selected_context")
+    @classmethod
+    def normalize_context_bindings(
+        cls,
+        value: tuple[BriefSelectedContextBindingV1Alpha1, ...],
+    ) -> tuple[BriefSelectedContextBindingV1Alpha1, ...]:
+        record_ids = [item.record.resource_id for item in value]
+        context_ids = [item.context.context_id for item in value]
+        if len(record_ids) != len(set(record_ids)) or len(context_ids) != len(set(context_ids)):
+            raise ValueError("synthesis receipt record and context mappings must be one-to-one")
+        return tuple(sorted(value, key=lambda item: (item.record.resource_kind.value, item.record.resource_id)))
+
+    @field_validator("receipt_id")
+    @classmethod
+    def validate_receipt_id(cls, value: str | None) -> str | None:
+        return _reference(value, name="receipt_id") if value is not None else None
+
+    @model_validator(mode="after")
+    def validate_scope_and_identity(self) -> Self:
+        if self.activation_revision.product_id != self.product_id:
+            raise ValueError("synthesis receipt activation crossed exact product scope")
+        if self.corpus_as_of > self.corpus_available_at:
+            raise ValueError("the exact corpus as_of cannot follow its availability instant")
+        if self.actual_section_ids != self.required_section_ids:
+            raise ValueError("synthesis receipt section order must exactly conform to required policy")
+        if tuple(item.section_id for item in self.section_claims) != self.actual_section_ids:
+            raise ValueError("synthesis receipt section claim membership crossed exact section order")
+        bound_claim_ids = tuple(item.claim_id for item in self.claim_supports)
+        section_claim_ids = tuple(claim_id for item in self.section_claims for claim_id in item.claim_ids)
+        if bound_claim_ids != section_claim_ids:
+            raise ValueError("synthesis receipt must bind every ordered section claim exactly once")
+        if self.recommendation_claim_id is not None and self.recommendation_claim_id not in bound_claim_ids:
+            raise ValueError("recommendation claim must identify one exact ordered section claim")
+        selected_ids = {item.record.resource_id for item in self.selected_context}
+        if any(
+            item.record.product_id != self.product_id or item.record.mode is not self.mode
+            for item in self.selected_context
+        ):
+            raise ValueError("selected context records crossed product or mode scope")
+        if any(
+            item.record.as_of != self.corpus_as_of or item.record.available_at > self.corpus_available_at
+            for item in self.selected_context
+        ):
+            raise ValueError("selected corpus records must share the exact corpus as_of without future leakage")
+        corpus_ids = set(self.corpus_observation_ids) | set(self.corpus_entity_snapshot_ids)
+        if corpus_ids != selected_ids or len(corpus_ids) != len(self.corpus_observation_ids) + len(
+            self.corpus_entity_snapshot_ids
+        ):
+            raise ValueError("selected context must be exactly the admitted corpus Observations and Entity Snapshots")
+        if any(
+            item.record.resource_kind is not IntelligenceRecordKind.OBSERVATION
+            for item in self.selected_context
+            if item.record.resource_id in set(self.corpus_observation_ids)
+        ) or any(
+            item.record.resource_kind is not IntelligenceRecordKind.ENTITY_SNAPSHOT
+            for item in self.selected_context
+            if item.record.resource_id in set(self.corpus_entity_snapshot_ids)
+        ):
+            raise ValueError("corpus identities must name exact Observation and Entity Snapshot records")
+        support_ids = {support for item in self.claim_supports for support in item.support_record_ids}
+        if support_ids != selected_ids:
+            raise ValueError("claim support bindings must use every exact selected context record")
+        if not self.brief_id.startswith("brief:"):
+            raise ValueError("synthesis receipt must bind one exact Brief identity")
+        _derive_identity(
+            self,
+            prefix="initial_corpus_brief_synthesis_receipt",
+            id_field="receipt_id",
+            digest_field="receipt_digest",
+        )
+        return self
+
+
+class PreparedInitialCorpusBriefAppendRecordRecipeV1Alpha1(_StrictFrozenContract):
+    """One ordered record in the initial-corpus auth-reference/time recipe."""
+
+    record_kind: Literal["brief", "initial_corpus_brief_synthesis_receipt"]
+    payload_contract: str
+    record_key_derivation: str
+    payload_digest_derivation: str
+    as_of_derivation: str
+    available_at_derivation: Literal["authorization.authorized_at"] = "authorization.authorized_at"
+    processing_order: int = Field(ge=0, le=1)
+
+    @field_validator(
+        "payload_contract",
+        "record_key_derivation",
+        "payload_digest_derivation",
+        "as_of_derivation",
+    )
+    @classmethod
+    def validate_recipe_values(cls, value: str, info) -> str:
+        return _reference(value, name=info.field_name)
+
+
+class PreparedInitialCorpusBriefAppendIntentV1Alpha1(_StrictFrozenContract):
+    """Exact pre-authorization recipe for the initial-corpus second-phase append."""
+
+    contract: Literal["ace.intelligence.prepared-initial-corpus-brief-append-intent/v1alpha1"] = (
+        PREPARED_INITIAL_CORPUS_BRIEF_APPEND_INTENT_VERSION
+    )
+    recipe_contract: Literal["ace.intelligence.prepared-initial-corpus-brief-append-recipe/v1alpha1"] = (
+        PREPARED_INITIAL_CORPUS_BRIEF_APPEND_RECIPE_VERSION
+    )
+    product_id: str
+    record_space: Literal["prepared"] = "prepared"
+    transaction_key: str
+    orientation_policy_id: str
+    semantic_input_digest: str
+    authorization_operation: Literal["append_immutable_records"] = "append_immutable_records"
+    authorization_reference_insertion: Literal["synthesis_receipt.write_authorization"] = (
+        "synthesis_receipt.write_authorization"
+    )
+    timestamp_derivation: Literal["authorization.authorized_at"] = "authorization.authorized_at"
+    submitted_at_derivation: Literal["authorization.authorized_at"] = "authorization.authorized_at"
+    records: tuple[PreparedInitialCorpusBriefAppendRecordRecipeV1Alpha1, ...] = Field(
+        min_length=2,
+        max_length=2,
+    )
+    governed_state_identities: tuple[str, ...] = Field(min_length=4, max_length=64)
+    intent_id: str | None = None
+    intent_digest: str | None = None
+
+    @field_validator("product_id", "transaction_key", "governed_state_identities")
+    @classmethod
+    def validate_references(cls, value, info):
+        if info.field_name == "governed_state_identities":
+            validated = tuple(_reference(item, name="governed_state_identity") for item in value)
+            if len(validated) != len(set(validated)):
+                raise ValueError("governed state identities must be unique")
+            return tuple(sorted(validated))
+        return _reference(value, name=info.field_name)
+
+    @field_validator("orientation_policy_id")
+    @classmethod
+    def validate_orientation_policy_id(cls, value: str) -> str:
+        return validate_slug(value, name="orientation_policy_id")
+
+    @field_validator("semantic_input_digest", "intent_digest")
+    @classmethod
+    def validate_digests(cls, value: str | None, info) -> str | None:
+        return _digest(value, name=info.field_name) if value is not None else None
+
+    @field_validator("intent_id")
+    @classmethod
+    def validate_intent_id(cls, value: str | None) -> str | None:
+        return _reference(value, name="intent_id") if value is not None else None
+
+    @model_validator(mode="after")
+    def validate_recipe_and_identity(self) -> Self:
+        actual = tuple(
+            (
+                item.record_kind,
+                item.payload_contract,
+                item.record_key_derivation,
+                item.payload_digest_derivation,
+                item.as_of_derivation,
+                item.available_at_derivation,
+                item.processing_order,
+            )
+            for item in self.records
+        )
+        expected = (
+            (
+                "brief",
+                "ace.intelligence.brief/v1alpha1",
+                "brief.resource_id_from_authorized_at",
+                "brief.canonical_payload_from_intent_and_authorized_at",
+                "request.corpus_as_of",
+                "authorization.authorized_at",
+                0,
+            ),
+            (
+                "initial_corpus_brief_synthesis_receipt",
+                "ace.intelligence.initial-corpus-brief-synthesis-receipt/v1alpha1",
+                "receipt.receipt_id_from_authorization_reference_and_authorized_at",
+                "receipt.canonical_payload_from_intent_authorization_and_authorized_at",
+                "authorization.authorized_at",
+                "authorization.authorized_at",
+                1,
+            ),
+        )
+        if actual != expected:
+            raise ValueError("prepared initial-corpus Brief append recipe must contain exactly two ordered records")
+        _derive_identity(
+            self,
+            prefix="prepared_initial_corpus_brief_append_intent",
+            id_field="intent_id",
+            digest_field="intent_digest",
+        )
+        return self
+
+
+class PreparedInitialCorpusBriefAppendV1Alpha1(_StrictFrozenContract):
+    """Second-phase append containing one initial-corpus Brief and its receipt."""
+
+    contract: Literal["ace.intelligence.prepared-initial-corpus-brief-append/v1alpha1"] = (
+        PREPARED_INITIAL_CORPUS_BRIEF_APPEND_VERSION
+    )
+    synthesis_key: str
+    request_id: str
+    request_digest: str
+    brief: BriefV1Alpha1
+    synthesis_receipt: InitialCorpusBriefSynthesisReceiptV1Alpha1
+    submitted_at: datetime
+    append_id: str | None = None
+    append_digest: str | None = None
+
+    @field_validator("synthesis_key", "request_id")
+    @classmethod
+    def validate_references(cls, value: str, info) -> str:
+        return _reference(value, name=info.field_name)
+
+    @field_validator("request_digest", "append_digest")
+    @classmethod
+    def validate_digests(cls, value: str | None, info) -> str | None:
+        return _digest(value, name=info.field_name) if value is not None else None
+
+    @field_validator("submitted_at")
+    @classmethod
+    def validate_submitted_at(cls, value: datetime) -> datetime:
+        return _aware(value, name="submitted_at")
+
+    @field_validator("append_id")
+    @classmethod
+    def validate_append_id(cls, value: str | None) -> str | None:
+        return _reference(value, name="append_id") if value is not None else None
+
+    @model_validator(mode="after")
+    def validate_exact_pair_and_identity(self) -> Self:
+        receipt = self.synthesis_receipt
+        if (
+            self.brief.mode is not IntelligenceResourceMode.PREPARED
+            or self.brief.product_id != receipt.product_id
+            or self.brief.activation_revision != receipt.activation_revision
+            or self.brief.resource_id != receipt.brief_id
+            or self.brief.resource_digest != receipt.brief_digest
+            or self.brief.as_of != receipt.corpus_as_of
+            or self.synthesis_key != receipt.synthesis_key
+            or self.request_id != receipt.request_id
+            or self.request_digest != receipt.request_digest
+            or self.submitted_at != receipt.created_at
+            or self.brief.generated_at != self.submitted_at
+        ):
+            raise ValueError("prepared initial-corpus Brief append does not bind its exact synthesis receipt")
+        _derive_identity(
+            self,
+            prefix="prepared_initial_corpus_brief_append",
+            id_field="append_id",
+            digest_field="append_digest",
+        )
+        return self
+
+
 class PreparedStatusCaseBriefAppendRecordRecipeV1Alpha1(_StrictFrozenContract):
     """One ordered record in the status-aware auth-reference/time derivation recipe."""
 
@@ -1973,6 +2461,16 @@ __all__ = [
     "CASE_BRIEF_SYNTHESIS_RECEIPT_VERSION",
     "CASE_BRIEF_SYNTHESIS_REQUEST_VERSION",
     "CASE_MEMBER_ATTENTION_BINDING_VERSION",
+    "INITIAL_CORPUS_BRIEF_SYNTHESIS_RECEIPT_VERSION",
+    "INITIAL_CORPUS_BRIEF_SYNTHESIS_REQUEST_VERSION",
+    "PREPARED_INITIAL_CORPUS_BRIEF_APPEND_VERSION",
+    "PREPARED_INITIAL_CORPUS_BRIEF_APPEND_INTENT_VERSION",
+    "PREPARED_INITIAL_CORPUS_BRIEF_APPEND_RECIPE_VERSION",
+    "InitialCorpusBriefSynthesisReceiptV1Alpha1",
+    "InitialCorpusBriefSynthesisRequestV1Alpha1",
+    "PreparedInitialCorpusBriefAppendV1Alpha1",
+    "PreparedInitialCorpusBriefAppendIntentV1Alpha1",
+    "PreparedInitialCorpusBriefAppendRecordRecipeV1Alpha1",
     "PREPARED_BRIEF_APPEND_VERSION",
     "PREPARED_BRIEF_APPEND_INTENT_VERSION",
     "PREPARED_BRIEF_APPEND_RECIPE_VERSION",

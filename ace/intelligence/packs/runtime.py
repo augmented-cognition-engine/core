@@ -38,6 +38,11 @@ from ace.intelligence.contracts.feedback import (
     DecisionOutcomesModuleV1,
     FeedbackPolicyV1,
 )
+from ace.intelligence.contracts.orientation import (
+    ORIENTATION_MODULE_VERSION,
+    InitialOrientationPolicyV1,
+    OrientationModuleV1,
+)
 from ace.intelligence.contracts.pack import (
     ONTOLOGY_MODULE_VERSION,
     CompiledDomainPackV1,
@@ -106,6 +111,17 @@ class ResolvedBriefSynthesisPolicy:
     template: BriefTemplateV1 | BriefTemplateV1Alpha2
     template_digest: str
     personas: tuple[PersonaArchetypeV1, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedInitialOrientationPolicy:
+    """One exact orientation policy and its fully resolved synthesis selection."""
+
+    module_id: str
+    module_digest: str
+    policy: InitialOrientationPolicyV1
+    policy_digest: str
+    synthesis: ResolvedBriefSynthesisPolicy
 
 
 @dataclass(frozen=True, slots=True)
@@ -488,4 +504,95 @@ def resolve_brief_synthesis_policy(
         template=template,
         template_digest=f"sha256:{canonical_hash(template.model_dump(mode='json'))}",
         personas=tuple(persona_matches[item][0] for item in sorted(persona_matches)),
+    )
+
+
+def _orientation_modules(
+    validated: PreparedActivationBinding,
+) -> tuple[tuple[str, str, OrientationModuleV1], ...]:
+    return tuple(
+        (
+            module_ir.module_id,
+            module_ir.module_digest,
+            OrientationModuleV1.model_validate_json(module_ir.canonical_payload),
+        )
+        for module_ir in validated.pack.modules
+        if module_ir.contract == ORIENTATION_MODULE_VERSION
+    )
+
+
+def resolve_initial_orientation_policy(
+    binding: PreparedActivationBinding,
+    *,
+    policy_id: str,
+) -> ResolvedInitialOrientationPolicy:
+    """Resolve one orientation policy, its template, and its personas from bound Pack IR.
+
+    Personas may live in personas modules or be declared inline by orientation
+    modules; each routed persona must resolve exactly once across both, so an
+    orientation Pack never needs Signal-routing policy to name its readers.
+    """
+
+    validated = validate_prepared_activation_binding(binding)
+    policy_matches: list[tuple[str, str, InitialOrientationPolicyV1]] = []
+    for module_id, module_digest, module in _orientation_modules(validated):
+        policy_matches.extend(
+            (module_id, module_digest, policy)
+            for policy in module.initial_orientation_policies
+            if policy.policy_id == policy_id
+        )
+    if len(policy_matches) != 1:
+        raise PreparedActivationBindingError(
+            f"initial orientation policy {policy_id!r} must resolve exactly once in the bound compiled pack"
+        )
+    module_id, module_digest, policy = policy_matches[0]
+
+    template_matches: list[tuple[str, str, BriefTemplateV1 | BriefTemplateV1Alpha2]] = []
+    synthesis_models = {
+        SYNTHESIS_MODULE_VERSION: SynthesisModuleV1,
+        SYNTHESIS_MODULE_V1ALPHA2_VERSION: SynthesisModuleV1Alpha2,
+    }
+    for module_ir in validated.pack.modules:
+        model = synthesis_models.get(module_ir.contract)
+        if model is None:
+            continue
+        module = model.model_validate_json(module_ir.canonical_payload)
+        template_matches.extend(
+            (module_ir.module_id, module_ir.module_digest, template)
+            for template in module.brief_templates
+            if template.template_id == policy.brief_template_id
+        )
+    if len(template_matches) != 1:
+        raise PreparedActivationBindingError(
+            f"Brief template {policy.brief_template_id!r} must resolve exactly once in the bound compiled pack"
+        )
+
+    persona_matches: dict[str, list[PersonaArchetypeV1]] = {item: [] for item in policy.persona_ids}
+    for module in resolve_persona_modules(validated):
+        for persona in module.personas:
+            if persona.persona_id in persona_matches:
+                persona_matches[persona.persona_id].append(persona)
+    for _, _, orientation_module in _orientation_modules(validated):
+        for persona in orientation_module.personas:
+            if persona.persona_id in persona_matches:
+                persona_matches[persona.persona_id].append(persona)
+    unresolved = sorted(persona_id for persona_id, matches in persona_matches.items() if len(matches) != 1)
+    if unresolved:
+        raise PreparedActivationBindingError(
+            f"orientation personas must each resolve exactly once in the bound compiled pack: {unresolved}"
+        )
+
+    template_module_id, template_module_digest, template = template_matches[0]
+    return ResolvedInitialOrientationPolicy(
+        module_id=module_id,
+        module_digest=module_digest,
+        policy=policy,
+        policy_digest=f"sha256:{canonical_hash(policy.model_dump(mode='json'))}",
+        synthesis=ResolvedBriefSynthesisPolicy(
+            module_id=template_module_id,
+            module_digest=template_module_digest,
+            template=template,
+            template_digest=f"sha256:{canonical_hash(template.model_dump(mode='json'))}",
+            personas=tuple(persona_matches[item][0] for item in sorted(persona_matches)),
+        ),
     )

@@ -19,6 +19,7 @@ from ace.application.intelligence_build_planning import (
 )
 from ace.application.intelligence_builder import IntelligenceBuilderSessionService
 from ace.application.intelligence_builder_contracts import OnboardingBlockReason, OnboardingStage
+from ace.core.runtime_use import AUTHORITY_GRANT_STATE_KIND
 from ace.testing import InMemoryImmutableRecordStore
 from core.engine.api.intelligence_builds import (
     intelligence_activation_approval_records,
@@ -204,7 +205,10 @@ async def test_activation_authority_reuses_current_governed_grants_without_minti
     assert resolved.product_id == LOCAL_OWNER_PRODUCT_ID
     assert resolved.authority == "intelligence_build"
     assert resolved.effective_at == approved_at + timedelta(seconds=1)
-    assert len(governed.heads) == len(LOCAL_OWNER_GRANTS)
+    # Grant heads only: the same bootstrap also provisions the governed cognition
+    # configuration/capability heads, which this resolver never mints or reuses.
+    grant_heads = [key for key in governed.heads if key[0] == AUTHORITY_GRANT_STATE_KIND]
+    assert len(grant_heads) == len(LOCAL_OWNER_GRANTS)
 
 
 @pytest.mark.asyncio

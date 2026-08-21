@@ -23,7 +23,16 @@ from ace.application.intelligence_build_planning import (
     IntelligenceBuildPlanRequestV1Alpha2,
     IntelligenceBuildPlanV1Alpha3,
 )
+from ace.application.local_source_acquisition import AcquiredLocalFile
+from ace.application.local_source_connect import (
+    LocalSourceConnectAuthorizationRequest,
+    LocalSourceConnectPreviewRequest,
+    LocalSourceMappingScope,
+    authorize_local_source_connect,
+    preview_local_source_connect,
+)
 from ace.application.recorded_source_selection import RecordedSourceSelectionV1Alpha1
+from ace.core.contracts import canonical_hash
 from ace.core.runtime_use import CapabilityArtifactIdentityV1Alpha1
 from ace.intelligence.conformance import run_domain_pack_conformance
 from ace.intelligence.contracts.activation import (
@@ -44,11 +53,13 @@ from ace.intelligence.contracts.system_projection import (
     SourceBindingState,
 )
 from ace.intelligence.packs.compiler import compile_pack_document_with_report
+from ace.testing.immutable_records import InMemoryImmutableRecordStore
 from core.engine.api.intelligence_builds import router
 from core.engine.core.auth import get_current_user
 from core.engine.core.installed_intelligence_catalog import InstalledOnboardingProfile
 from core.engine.core.intelligence_build import _request_identity
 from core.engine.core.intelligence_build_plan import IntelligenceBuildPlanHttpRuntime, intelligence_build_plan_runtime
+from core.engine.core.local_source_connect import LocalSourceConnectRecordRepository
 from tests.test_api_intelligence_catalog import _profile as base_profile
 from tests.test_installed_pack_artifacts import _pack as pack_resources
 
@@ -137,9 +148,10 @@ class _Planner:
     pack_reference = PACK_REFERENCE
     artifact_identity = PLANNER_ARTIFACT
 
-    def __init__(self, *, invalid: bool = False, unavailable: bool = False) -> None:
+    def __init__(self, *, invalid: bool = False, unavailable: bool = False, no_selections: bool = False) -> None:
         self.invalid = invalid
         self.unavailable = unavailable
+        self.no_selections = no_selections
         self.calls = []
 
     async def prepare(self, request, *, profile, pack):
@@ -182,7 +194,7 @@ class _Planner:
             planner_artifact=self.artifact_identity,
             pack_reference=self.pack_reference,
             activation_proposal=proposal,
-            recorded_source_selections=(selection,),
+            recorded_source_selections=() if self.no_selections else (selection,),
         )
 
 
@@ -222,7 +234,13 @@ def _body() -> dict:
     }
 
 
-async def _request(*, planner, body: dict | None = None, claims: dict | None = None):
+async def _request(
+    *,
+    planner,
+    body: dict | None = None,
+    claims: dict | None = None,
+    selection_loader=None,
+):
     app = FastAPI()
     app.include_router(router)
     packs = _PackResolver()
@@ -231,6 +249,7 @@ async def _request(*, planner, body: dict | None = None, claims: dict | None = N
         profiles=(INSTALLED_PROFILE,),
         packs=packs,
         planners=_PlannerResolution(planner),
+        selection_loader=selection_loader,
     )
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.post("/v1/intelligence/builds/prepare", json=body or _body())
@@ -448,6 +467,188 @@ def test_prepare_openapi_exposes_stable_request_and_plan_contracts() -> None:
     projection_response = projection_operation["responses"]["200"]["content"]["application/json"]["schema"]
     assert projection_request["$ref"].removesuffix("-Input").endswith("IntelligenceBuildProjectionRequestV1")
     assert projection_response["$ref"].removesuffix("-Output").endswith("IntelligenceSystemProjectionV1Alpha1")
+
+
+# --- recorded_source_selection_refs against a durable Connect capture ---
+
+CONNECT_ROOT = "/nonexistent/pi13-ws2-api-root"
+
+
+class _StaticProvider:
+    """Returns a preconfigured acquired-file tuple, recording nothing further."""
+
+    def __init__(self, files: tuple) -> None:
+        self.artifact_identity = CapabilityArtifactIdentityV1Alpha1(
+            capability="source_snapshot",
+            contract="ace.source.snapshot/v1alpha1",
+            implementation_id="pi13-ws2-api-spy-provider",
+            implementation_version="1.0.0",
+            artifact_digest="sha256:" + "7" * 64,
+        )
+        self.files = files
+
+    async def snapshot(self, request):
+        return self.files
+
+
+def _connect_authorization_request(**overrides) -> LocalSourceConnectAuthorizationRequest:
+    values = dict(
+        product_id=PRODUCT,
+        actor_ref=ACTOR,
+        pack=PACK_REFERENCE,
+        profile_id=PROFILE.profile_id,
+        profile_digest=PROFILE.profile_digest,
+        source_group_id="official_records",
+        expected_contribution="A cited orientation over the exact authorized recorded scope.",
+        authorized_root=CONNECT_ROOT,
+        mapping_scopes=(
+            LocalSourceMappingScope(
+                mapping_id="official_record_snapshot",
+                source_definition_ref="source_definition:official-record",
+                source_type_ref="source:official-record/v1",
+                subject_binding_id="published_record",
+                entity_type_id="measurement",
+                include=("records/*.md",),
+            ),
+        ),
+        exclude=(),
+    )
+    values.update(overrides)
+    preview = preview_local_source_connect(LocalSourceConnectPreviewRequest(**values))
+    return LocalSourceConnectAuthorizationRequest(preview=preview, authorized=True, authorized_at=NOW)
+
+
+async def _persisted_connect_capture(**preview_overrides):
+    """Persist one real Connect capture for the ``official_records`` group and return it."""
+
+    request = _connect_authorization_request(**preview_overrides)
+    payload = '{"text":"official record"}'
+    acquired = AcquiredLocalFile(
+        relative_path="records/a.md",
+        extension="md",
+        byte_digest="sha256:" + "1" * 64,
+        size_bytes=len(payload),
+        status="acquired",
+        structured_payload_json=payload,
+    )
+    result = await authorize_local_source_connect(request, _StaticProvider(files=(acquired,)))
+    store = InMemoryImmutableRecordStore()
+    repository = LocalSourceConnectRecordRepository(store)
+    persisted = await repository.persist(request, result, NOW)
+    return repository, persisted.captures[0], request
+
+
+def _selection_ref(capture):
+    return capture.selection.reference()
+
+
+@pytest.mark.asyncio
+async def test_prepare_binds_exact_durable_selection_from_recorded_source_ref() -> None:
+    repository, capture, _ = await _persisted_connect_capture()
+    body = _body()
+    body["recorded_source_selection_refs"] = [_selection_ref(capture).model_dump(mode="json")]
+
+    response, _ = await _request(planner=_Planner(no_selections=True), body=body, selection_loader=repository)
+
+    assert response.status_code == 200, response.text
+    plan = IntelligenceBuildPlanV1Alpha3.model_validate_json(response.content)
+    assert plan.recorded_source_selections == (capture.selection,)
+    assert plan.recorded_source_selection_refs == (capture.selection.reference(),)
+    assert plan.review_projection is not None
+    assert plan.review_projection.sources[0].selection == capture.selection.reference()
+
+
+@pytest.mark.asyncio
+async def test_prepare_missing_selection_loader_is_unavailable() -> None:
+    repository, capture, _ = await _persisted_connect_capture()
+    body = _body()
+    body["recorded_source_selection_refs"] = [_selection_ref(capture).model_dump(mode="json")]
+
+    response, _ = await _request(planner=_Planner(), body=body, selection_loader=None)
+
+    assert response.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_prepare_fabricated_or_missing_selection_ref_is_conflict() -> None:
+    repository, capture, _ = await _persisted_connect_capture()
+    fabricated = _selection_ref(capture).model_copy(update={"selection_id": "recorded_source_selection:" + "0" * 32})
+    body = _body()
+    body["recorded_source_selection_refs"] = [fabricated.model_dump(mode="json")]
+
+    response, _ = await _request(planner=_Planner(), body=body, selection_loader=repository)
+
+    assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_prepare_cross_actor_selection_ref_is_conflict() -> None:
+    repository, capture, _ = await _persisted_connect_capture()
+    body = _body()
+    body["recorded_source_selection_refs"] = [_selection_ref(capture).model_dump(mode="json")]
+    claims = _claims()
+    claims["sub"] = "principal:someone-else"
+
+    response, _ = await _request(planner=_Planner(), body=body, claims=claims, selection_loader=repository)
+
+    assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_prepare_selection_pack_or_group_mismatch_is_conflict() -> None:
+    other_digest = canonical_hash({"pack": "pi13-ws2-api-other"})
+    other_pack = PACK_REFERENCE.model_copy(
+        update={
+            "compiled_pack_id": f"pack_ir:{other_digest[:32]}",
+            "pack_digest": f"sha256:{other_digest}",
+        }
+    )
+    repository, capture, _ = await _persisted_connect_capture(pack=other_pack)
+    body = _body()
+    body["recorded_source_selection_refs"] = [_selection_ref(capture).model_dump(mode="json")]
+
+    response, _ = await _request(planner=_Planner(), body=body, selection_loader=repository)
+
+    assert response.status_code == 409
+
+    repository_b, capture_b, _ = await _persisted_connect_capture()
+    body_b = _body()
+    body_b["source_group_ids"] = []
+    body_b["recorded_source_selection_refs"] = [_selection_ref(capture_b).model_dump(mode="json")]
+
+    response_b, _ = await _request(planner=_Planner(), body=body_b, selection_loader=repository_b)
+
+    assert response_b.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_prepare_duplicate_selection_refs_at_transport_is_rejected() -> None:
+    repository, capture, _ = await _persisted_connect_capture()
+    ref = _selection_ref(capture).model_dump(mode="json")
+    body = _body()
+    body["recorded_source_selection_refs"] = [ref, ref]
+
+    response, _ = await _request(planner=_Planner(), body=body, selection_loader=repository)
+
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_prepare_planner_disagreement_with_reviewed_selection_is_conflict() -> None:
+    repository, capture, _ = await _persisted_connect_capture()
+    body = _body()
+    body["recorded_source_selection_refs"] = [_selection_ref(capture).model_dump(mode="json")]
+
+    response, _ = await _request(planner=_Planner(), body=body, selection_loader=repository)
+    assert response.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_prepare_no_ref_planner_selection_behavior_remains_green() -> None:
+    response, _ = await _request(planner=_Planner())
+    assert response.status_code == 200
+    plan = IntelligenceBuildPlanV1Alpha3.model_validate_json(response.content)
+    assert plan.recorded_source_selection_refs[0].selection_id.startswith("recorded_source_selection:")
 
 
 def _pack_with_reviewed_requirements() -> CompiledDomainPackV1:

@@ -13,7 +13,7 @@
   "authority_requests": [
     {
       "request_id": "local_source_read",
-      "authority": "source_read"
+      "authority": "observe_read"
     }
   ]
 }

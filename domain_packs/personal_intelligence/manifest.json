@@ -21,7 +21,17 @@
     {
       "resource_id": "personal_local_sources",
       "path": "modules/source_mapping.json",
-      "digest": "sha256:0d2953287eb7ac6ecbe3eb30f076e8041fb7fcae207ef0ed609194249ec11d40"
+      "digest": "sha256:e4adc8293e5b27d8a26b21f1912c8c43669c0b3e8fb9dacd8d8e829a810da5dd"
+    },
+    {
+      "resource_id": "personal_orientation_templates",
+      "path": "modules/orientation_synthesis.json",
+      "digest": "sha256:666732864c5d1863e6bf9306582350c385fe35ce4c2aef08f49c054f4da99769"
+    },
+    {
+      "resource_id": "personal_orientation",
+      "path": "modules/orientation.json",
+      "digest": "sha256:567254839784037a09aa78759a14b6087d281c05b4e35f9787b1c602cb424265"
     }
   ],
   "modules": [
@@ -37,6 +47,19 @@
       "depends_on": [
         "personal_ontology"
       ]
+    },
+    {
+      "module_id": "personal_orientation_templates",
+      "contract": "ace.intelligence.synthesis/v1alpha2",
+      "resource_id": "personal_orientation_templates"
+    },
+    {
+      "module_id": "personal_orientation",
+      "contract": "ace.intelligence.orientation/v1alpha1",
+      "resource_id": "personal_orientation",
+      "depends_on": [
+        "personal_orientation_templates"
+      ]
     }
   ],
   "capability_requirements": [
@@ -49,7 +72,7 @@
   "authority_requests": [
     {
       "request_id": "local_source_read",
-      "authority": "source_read"
+      "authority": "observe_read"
     }
   ]
 }

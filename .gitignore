@@ -57,3 +57,6 @@ frontend/tests/e2e/jtbd2/state2.json
 
 # Vite local dev cache
 **/.vite/
+
+# Adapter wheel-build byproducts (the PI13 WS0 lane builds each adapter distribution).
+adapters/*/build/

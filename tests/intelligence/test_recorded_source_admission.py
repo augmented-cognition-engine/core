@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
@@ -21,6 +22,7 @@ from ace.application.intelligence_resource_projection import (
 from ace.application.recorded_source_admission import (
     CoreRecordedSourceAdmissionService,
     CoreRecordedSourceAdmissionV1Alpha2Service,
+    RecordedSourceAcquisitionReceiptV1Alpha1,
     RecordedSourceAdmissionError,
     RecordedSourceMaterialV1Alpha1,
 )
@@ -32,7 +34,9 @@ from ace.core import (
     GovernedStateHeadV1,
     canonical_json,
 )
+from ace.core.records import ImmutableRecordV1
 from ace.core.runtime_use import AUTHORITY_GRANT_STATE_KIND
+from ace.core.source import SourceAcquisitionMode
 from ace.intelligence import (
     EvidenceAcquisitionMode,
     IntelligenceResourceMode,
@@ -44,6 +48,7 @@ from ace.intelligence.contracts.resource_plane import (
     IntelligenceResourcePageState,
     IntelligenceResourceQueryV1Alpha1,
 )
+from ace.intelligence.contracts.resources import CitationV1Alpha1
 from ace.intelligence.packs.compiler import compile_pack
 from ace.testing import InMemoryImmutableRecordStore
 from core.engine.core.intelligence_resource_plane import intelligence_resource_projection_reader
@@ -559,6 +564,50 @@ async def test_recorded_admission_projects_explicit_source_readiness_without_fre
 
 
 @pytest.mark.asyncio
+async def test_local_acquisition_mode_projects_truthful_ready_source_health() -> None:
+    binding, build, records, material, _ = await _v1alpha2_stack()
+    local_material = RecordedSourceMaterialV1Alpha1(
+        **material.model_dump(mode="python", exclude={"acquisition_mode", "material_id", "material_digest"}),
+        acquisition_mode=SourceAcquisitionMode.LOCAL,
+    )
+    local_selection = _selection(binding, local_material)
+    request = IntelligenceBuildStartV1Alpha2(
+        **build.request.model_dump(mode="python", exclude={"recorded_source_selection_refs"}),
+        recorded_source_selection_refs=(local_selection.reference(),),
+    )
+    build = replace(build, request=request)
+
+    admitted = await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=records,
+    ).admit((local_material,))
+    query = IntelligenceResourceQueryV1Alpha1(
+        authenticated_context=build.authority_use.authenticated_context,
+        product_id=PRODUCT,
+        authority_grant_ref="authority_grant:atrium-observe-read",
+        resource_kinds=(IntelligenceResourceKind.SOURCE_HEALTH,),
+        subject_refs=(local_material.source_definition_ref,),
+        as_of=ADMITTED_AT,
+        available_at=ADMITTED_AT,
+        page_size=10,
+    )
+    page = await intelligence_resource_projection_reader(records).read(
+        query=query,
+        after=None,
+        limit=10,
+    )
+
+    assert page.state is IntelligenceResourcePageState.COMPLETE
+    assert len(page.records) == 1
+    readiness = page.records[0]
+    payload = readiness.payload.parsed_value()
+    assert payload["readiness_state"] == "ready"
+    assert payload["acquisition_mode"] == "local"
+    assert admitted.source_snapshots[0].acquisition_mode is SourceAcquisitionMode.LOCAL
+
+
+@pytest.mark.asyncio
 async def test_recorded_source_readiness_fails_closed_on_orphaned_snapshot() -> None:
     binding, build, records, material, _ = await _v1alpha2_stack()
     await CoreRecordedSourceAdmissionV1Alpha2Service(
@@ -662,6 +711,121 @@ async def test_missing_or_extra_recorded_material_fails_before_any_write() -> No
 
 
 @pytest.mark.asyncio
+async def test_local_acquisition_mode_is_disclosed_through_receipt_snapshot_observation_and_citation() -> None:
+    binding, build, records, material, _ = await _v1alpha2_stack()
+    local_material = RecordedSourceMaterialV1Alpha1(
+        **material.model_dump(mode="python", exclude={"acquisition_mode", "material_id", "material_digest"}),
+        acquisition_mode=SourceAcquisitionMode.LOCAL,
+    )
+    local_selection = _selection(binding, local_material)
+    request = IntelligenceBuildStartV1Alpha2(
+        **build.request.model_dump(mode="python", exclude={"recorded_source_selection_refs"}),
+        recorded_source_selection_refs=(local_selection.reference(),),
+    )
+    build = replace(build, request=request)
+
+    admitted = await CoreRecordedSourceAdmissionV1Alpha2Service(build=build, binding=binding, store=records).admit(
+        (local_material,)
+    )
+
+    receipt = admitted.acquisition_receipts[0]
+    observation = admitted.observations[0]
+    snapshot = admitted.source_snapshots[0]
+    assert receipt.acquisition_mode is EvidenceAcquisitionMode.LOCAL
+    assert snapshot.acquisition_mode is SourceAcquisitionMode.LOCAL
+    assert observation.acquisition_mode is EvidenceAcquisitionMode.LOCAL
+
+    citation = CitationV1Alpha1(
+        source_ref=observation.source_ref,
+        source_digest=observation.source_digest,
+        acquisition_mode=observation.acquisition_mode,
+        acquisition_receipt_ref=observation.acquisition_receipt_ref,
+        acquisition_receipt_digest=observation.acquisition_receipt_digest,
+        source_as_of=observation.event_effective_at,
+        retrieved_at=observation.ingested_at,
+    )
+    assert citation.acquisition_mode is EvidenceAcquisitionMode.LOCAL
+
+
+@pytest.mark.asyncio
+async def test_local_acquisition_mode_replays_exactly_and_stays_local() -> None:
+    binding, build, records, material, _ = await _v1alpha2_stack()
+    local_material = RecordedSourceMaterialV1Alpha1(
+        **material.model_dump(mode="python", exclude={"acquisition_mode", "material_id", "material_digest"}),
+        acquisition_mode=SourceAcquisitionMode.LOCAL,
+    )
+    local_selection = _selection(binding, local_material)
+    request = IntelligenceBuildStartV1Alpha2(
+        **build.request.model_dump(mode="python", exclude={"recorded_source_selection_refs"}),
+        recorded_source_selection_refs=(local_selection.reference(),),
+    )
+    build = replace(build, request=request)
+
+    first = await CoreRecordedSourceAdmissionV1Alpha2Service(build=build, binding=binding, store=records).admit(
+        (local_material,)
+    )
+    replay = await CoreRecordedSourceAdmissionV1Alpha2Service(build=build, binding=binding, store=records).admit(
+        (local_material,)
+    )
+
+    assert replay.replayed is True
+    assert replay.acquisition_receipts == first.acquisition_receipts
+    assert replay.acquisition_receipts[0].acquisition_mode is EvidenceAcquisitionMode.LOCAL
+    assert replay.observations[0].acquisition_mode is EvidenceAcquisitionMode.LOCAL
+
+
+@pytest.mark.asyncio
+async def test_recorded_source_material_defaults_to_recorded_replay_acquisition_mode() -> None:
+    binding, build, records, material = await _stack()
+
+    assert material.acquisition_mode is SourceAcquisitionMode.RECORDED_REPLAY
+    admitted = await CoreRecordedSourceAdmissionService(build=build, binding=binding, store=records).admit((material,))
+    assert admitted.acquisition_receipts[0].acquisition_mode is EvidenceAcquisitionMode.RECORDED_REPLAY
+    assert admitted.observations[0].acquisition_mode is EvidenceAcquisitionMode.RECORDED_REPLAY
+    assert admitted.source_snapshots[0].acquisition_mode is SourceAcquisitionMode.RECORDED_REPLAY
+
+
+@pytest.mark.parametrize("mode", [SourceAcquisitionMode.LIVE, SourceAcquisitionMode.PREPARED_FIXTURE])
+def test_recorded_source_material_rejects_live_and_prepared_fixture_acquisition_modes(
+    mode: SourceAcquisitionMode,
+) -> None:
+    with pytest.raises(Exception, match="LOCAL or RECORDED_REPLAY"):
+        RecordedSourceMaterialV1Alpha1(
+            source_group_id="official_records",
+            mapping_id="reading_snapshot",
+            subject_binding=_subject(_binding(_compiled_recorded_numeric_pack(), product_id=PRODUCT), "numeric"),
+            source_definition_ref="source_definition:numeric",
+            source_type_ref="source:reading/v1",
+            source_uri="https://example.invalid/recorded/reading-1",
+            captured_payload_json=(
+                payload := canonical_json({"reading": {"value": "1.000"}, "subject": {"code": "AX"}})
+            ),
+            captured_payload_digest="sha256:" + hashlib.sha256(payload.encode()).hexdigest(),
+            observed_at=OBSERVED_AT,
+            acquisition_mode=mode,
+        )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("mode", [EvidenceAcquisitionMode.LIVE, EvidenceAcquisitionMode.PREPARED_FIXTURE])
+async def test_recorded_source_acquisition_receipt_rejects_live_and_prepared_fixture_acquisition_modes(
+    mode: EvidenceAcquisitionMode,
+) -> None:
+    binding, build, records, material = await _stack()
+    admitted = await CoreRecordedSourceAdmissionService(build=build, binding=binding, store=records).admit((material,))
+    valid_receipt = admitted.acquisition_receipts[0]
+
+    with pytest.raises(Exception, match="LOCAL or RECORDED_REPLAY"):
+        RecordedSourceAcquisitionReceiptV1Alpha1(
+            **valid_receipt.model_dump(
+                mode="python",
+                exclude={"acquisition_mode", "receipt_id", "receipt_digest"},
+            ),
+            acquisition_mode=mode,
+        )
+
+
+@pytest.mark.asyncio
 async def test_stale_activation_or_authority_head_fails_atomic_append() -> None:
     binding, build, records, material = await _stack()
     records.governed_state_heads.clear()
@@ -669,3 +833,97 @@ async def test_stale_activation_or_authority_head_fails_atomic_append() -> None:
     with pytest.raises(Exception, match="precondition"):
         await CoreRecordedSourceAdmissionService(build=build, binding=binding, store=records).admit((material,))
     assert await records.scan_product_records(product_id=PRODUCT) == ()
+
+
+class _JsonRoundTripRecordStore(InMemoryImmutableRecordStore):
+    """Mirror the JSON-shaped payloads the durable SurrealDB adapter returns.
+
+    Surreal round-trips record payloads through JSON, so datetimes come back as
+    strings and enums as their values. In-memory doubles hand back the original
+    Python objects, which hides strict-validation failures in the replay path
+    that only appear against a real database.
+    """
+
+    @staticmethod
+    def _as_json(record: ImmutableRecordV1) -> ImmutableRecordV1:
+        return record.model_copy(update={"payload": json.loads(json.dumps(record.payload, default=str))})
+
+    async def load_record(self, storage_id: str, **kwargs) -> ImmutableRecordV1 | None:
+        record = await super().load_record(storage_id, **kwargs)
+        return None if record is None else self._as_json(record)
+
+    async def read_as_of(self, **kwargs) -> tuple[ImmutableRecordV1, ...]:
+        return tuple(self._as_json(item) for item in await super().read_as_of(**kwargs))
+
+
+@pytest.mark.asyncio
+async def test_v1alpha2_admission_replays_durable_json_shaped_payloads() -> None:
+    """The replay path must reopen payloads exactly as a real database returns
+    them: JSON-shaped datetimes and enum values, not live Python objects."""
+
+    binding, build, records, material, selection = await _v1alpha2_stack()
+    first = await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=records,
+    ).admit((material,))
+
+    durable = _JsonRoundTripRecordStore()
+    durable.records.update(records.records)
+    durable.receipts.update(records.receipts)
+    for head in getattr(records, "governed_state_heads", {}).values():
+        durable.set_governed_state_head(head)
+
+    replay = await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=durable,
+    ).admit((material,))
+
+    assert replay.replayed is True
+    assert replay.acquisition_receipts[0].reviewed_selection_id == selection.selection_id
+    assert replay.acquisition_receipts[0] == first.acquisition_receipts[0]
+    assert replay.observations == first.observations
+    assert replay.entity_snapshots == first.entity_snapshots
+
+
+@pytest.mark.asyncio
+async def test_source_readiness_projects_from_durable_json_shaped_records() -> None:
+    """The resource plane must project source health from records exactly as a
+    real database returns them. Reading JSON-shaped payloads strictly degrades
+    the only projected surface that carries an admitted source's identity."""
+
+    binding, build, records, material, selection = await _v1alpha2_stack()
+    await CoreRecordedSourceAdmissionV1Alpha2Service(
+        build=build,
+        binding=binding,
+        store=records,
+    ).admit((material,))
+
+    durable = _JsonRoundTripRecordStore()
+    durable.records.update(records.records)
+    durable.receipts.update(records.receipts)
+    for head in getattr(records, "governed_state_heads", {}).values():
+        durable.set_governed_state_head(head)
+
+    query = IntelligenceResourceQueryV1Alpha1(
+        authenticated_context=build.authority_use.authenticated_context,
+        product_id=PRODUCT,
+        authority_grant_ref="authority_grant:atrium-observe-read",
+        resource_kinds=(IntelligenceResourceKind.SOURCE_HEALTH,),
+        subject_refs=(material.source_definition_ref,),
+        as_of=ADMITTED_AT,
+        available_at=ADMITTED_AT,
+        page_size=10,
+    )
+    page = await intelligence_resource_projection_reader(durable).read(query=query, after=None, limit=10)
+
+    assert page.degraded_reason_refs == ()
+    assert page.state is IntelligenceResourcePageState.COMPLETE
+    assert len(page.records) == 1
+    payload = page.records[0].payload.parsed_value()
+    assert payload["readiness_state"] == "ready"
+    assert payload["reviewed_selection_id"] == selection.selection_id
+    # The admitted source's own identity is reachable from this projection.
+    assert payload["source_definition_ref"] == material.source_definition_ref
+    assert payload["source_uri"] == material.source_uri

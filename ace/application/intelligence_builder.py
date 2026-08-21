@@ -514,6 +514,18 @@ class IntelligenceBuilderSessionService:
             replayed=False,
         )
 
+    async def load_first(
+        self,
+        *,
+        product_id: str,
+        session_id: str,
+        available_at: datetime,
+    ) -> IntelligenceBuilderSessionRevisionV1 | None:
+        """Return the session's first durable revision (its start instant) from the same validated chain."""
+
+        chain = await self._load_chain(product_id=product_id, session_id=session_id, available_at=available_at)
+        return chain[0] if chain else None
+
     async def load_latest(
         self,
         *,
@@ -521,6 +533,16 @@ class IntelligenceBuilderSessionService:
         session_id: str,
         available_at: datetime,
     ) -> IntelligenceBuilderSessionRevisionV1 | None:
+        chain = await self._load_chain(product_id=product_id, session_id=session_id, available_at=available_at)
+        return chain[-1] if chain else None
+
+    async def _load_chain(
+        self,
+        *,
+        product_id: str,
+        session_id: str,
+        available_at: datetime,
+    ) -> tuple[IntelligenceBuilderSessionRevisionV1, ...]:
         try:
             records = await self.store.read_as_of(
                 product_id=product_id,
@@ -548,7 +570,7 @@ class IntelligenceBuilderSessionService:
                 raise IntelligenceBuilderSessionError("persisted onboarding envelope crossed exact session material")
             revisions.append(revision)
         if not revisions:
-            return None
+            return ()
         revisions.sort(key=lambda item: item.sequence)
         if tuple(item.sequence for item in revisions) != tuple(range(1, len(revisions) + 1)):
             raise IntelligenceBuilderSessionError("onboarding session history is forked or has a sequence gap")
@@ -564,7 +586,7 @@ class IntelligenceBuilderSessionService:
                 or current.occurred_at < previous.occurred_at
             ):
                 raise IntelligenceBuilderSessionError("onboarding session history lost exact chain continuity")
-        return revisions[-1]
+        return tuple(revisions)
 
     async def reload_admission(
         self,

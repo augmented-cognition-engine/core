@@ -2306,18 +2306,36 @@ class OpenAICompatProvider(ModelMapMixin):
         """
         if not usage:
             return
+        # `model` arrives as the payload's model — already wire-resolved.
+        # Record it verbatim: re-resolving would re-map a chained entry
+        # whose value is also a key (idempotent only for today's maps).
+        model_name = model or self._default_model
+        input_t = int(usage.get("prompt_tokens") or 0)
+        output_t = int(usage.get("completion_tokens") or 0)
+        # In-process accumulator first (Ollama parity): governed structured
+        # calls read their exact input/output units from here, and fail closed
+        # when they are unavailable. Cost is attached below when known.
         try:
             from core.engine.core.model_costs import cost_for_call
+
+            cost = cost_for_call(model_name, input_t, output_t)
+        except Exception:
+            cost = 0.0
+        accumulator = get_accumulator()
+        if accumulator is not None:
+            accumulator.record(
+                "chat_completions",
+                input_t,
+                output_t,
+                purpose="openai_compat",
+                provider="OpenAICompatProvider",
+                model=str(model_name),
+                cost_usd=cost,
+            )
+        try:
             from core.engine.intelligence.token_ledger import TokenLedger
             from core.engine.orchestration.context import get_active_bus
 
-            # `model` arrives as the payload's model — already wire-resolved.
-            # Record it verbatim: re-resolving would re-map a chained entry
-            # whose value is also a key (idempotent only for today's maps).
-            model_name = model or self._default_model
-            input_t = usage.get("prompt_tokens", 0)
-            output_t = usage.get("completion_tokens", 0)
-            cost = cost_for_call(model_name, input_t, output_t)
             if cost == 0.0 and (input_t or output_t):
                 logger.debug(
                     "No cost rates for model %r — recording cost_usd=0.0 (unknown-model grace)",

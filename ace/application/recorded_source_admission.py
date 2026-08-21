@@ -124,8 +124,16 @@ class RecordedSourceMaterialV1Alpha1(_StrictFrozenContract):
     event_effective_at: datetime | None = None
     observed_at: datetime
     locator: str | None = Field(default=None, min_length=1, max_length=1_000)
+    acquisition_mode: SourceAcquisitionMode = SourceAcquisitionMode.RECORDED_REPLAY
     material_id: str | None = None
     material_digest: str | None = None
+
+    @field_validator("acquisition_mode")
+    @classmethod
+    def validate_acquisition_mode(cls, value: SourceAcquisitionMode) -> SourceAcquisitionMode:
+        if value not in {SourceAcquisitionMode.LOCAL, SourceAcquisitionMode.RECORDED_REPLAY}:
+            raise ValueError("recorded source material only admits LOCAL or RECORDED_REPLAY acquisition")
+        return value
 
     @field_validator("source_group_id", "mapping_id")
     @classmethod
@@ -182,7 +190,7 @@ class RecordedSourceAcquisitionReceiptV1Alpha1(_StrictFrozenContract):
         RECORDED_SOURCE_ACQUISITION_RECEIPT_VERSION
     )
     disposition: Literal["recorded_material_admitted"] = "recorded_material_admitted"
-    acquisition_mode: Literal[EvidenceAcquisitionMode.RECORDED_REPLAY] = EvidenceAcquisitionMode.RECORDED_REPLAY
+    acquisition_mode: EvidenceAcquisitionMode = EvidenceAcquisitionMode.RECORDED_REPLAY
     product_id: str
     actor_ref: str
     build_id: str
@@ -223,6 +231,13 @@ class RecordedSourceAcquisitionReceiptV1Alpha1(_StrictFrozenContract):
     @classmethod
     def validate_group(cls, value: str) -> str:
         return validate_slug(value, name="source_group_id")
+
+    @field_validator("acquisition_mode")
+    @classmethod
+    def validate_acquisition_mode(cls, value: EvidenceAcquisitionMode) -> EvidenceAcquisitionMode:
+        if value not in {EvidenceAcquisitionMode.LOCAL, EvidenceAcquisitionMode.RECORDED_REPLAY}:
+            raise ValueError("recorded source acquisition receipt only admits LOCAL or RECORDED_REPLAY")
+        return value
 
     @field_validator(
         "build_request_digest",
@@ -529,6 +544,7 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
             build_authority_use=self.build.authority_use,
             activation_revision=self.binding.prepared_binding.reference,
             activation_head_precondition=activation_head,
+            acquisition_mode=EvidenceAcquisitionMode(material.acquisition_mode.value),
             recorded_material_id=str(material.material_id),
             recorded_material_digest=str(material.material_digest),
             source_group_id=material.source_group_id,
@@ -545,7 +561,10 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
     def _decode_acquisition(self, record: ImmutableRecordV1) -> RecordedSourceAcquisitionReceiptV1Alpha1:
         if record.payload_contract != RECORDED_SOURCE_ACQUISITION_RECEIPT_VERSION:
             raise ValueError("recorded admission receipt is not legacy v1alpha1 material")
-        return RecordedSourceAcquisitionReceiptV1Alpha1.model_validate(record.payload)
+        # Durable payloads round-trip through JSON (string datetimes, enum values),
+        # so replay parses the persisted form; every identity, digest, and binding
+        # is still re-verified exactly by the caller after decoding.
+        return RecordedSourceAcquisitionReceiptV1Alpha1.model_validate(record.payload, strict=False)
 
     def _acquisition_matches(
         self,
@@ -587,7 +606,7 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
                 observed_at=material.observed_at,
                 ingested_at=admitted_at,
                 locator=material.locator,
-                acquisition_mode=SourceAcquisitionMode.RECORDED_REPLAY,
+                acquisition_mode=material.acquisition_mode,
                 acquisition_receipt_ref=str(acquisition.receipt_id),
                 acquisition_receipt_digest=str(acquisition.receipt_digest),
             )
@@ -602,9 +621,12 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
                 raise RecordedSourceAdmissionError("recorded material failed activation-bound source mapping") from None
             observation = mapped.observation
             entity = mapped.entity_snapshot
+            expected_evidence_mode = EvidenceAcquisitionMode(material.acquisition_mode.value)
             if (
                 observation.mode is not IntelligenceResourceMode.PREPARED
-                or observation.acquisition_mode is not EvidenceAcquisitionMode.RECORDED_REPLAY
+                or observation.acquisition_mode is not expected_evidence_mode
+                or acquisition.acquisition_mode is not expected_evidence_mode
+                or snapshot.acquisition_mode is not material.acquisition_mode
                 or observation.acquisition_receipt_ref != acquisition.receipt_id
                 or observation.acquisition_receipt_digest != acquisition.receipt_digest
                 or entity.mode is not IntelligenceResourceMode.PREPARED
@@ -734,16 +756,19 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
             offset = index * 4
             try:
                 acquisition = self._decode_acquisition(loaded[offset])
-                snapshot = CanonicalSourceSnapshotV1Alpha1.model_validate(loaded[offset + 1].payload)
-                observation = ObservationV1Alpha1.model_validate(loaded[offset + 2].payload)
-                entity = EntitySnapshotV1Alpha1.model_validate(loaded[offset + 3].payload)
+                snapshot = CanonicalSourceSnapshotV1Alpha1.model_validate(loaded[offset + 1].payload, strict=False)
+                observation = ObservationV1Alpha1.model_validate(loaded[offset + 2].payload, strict=False)
+                entity = EntitySnapshotV1Alpha1.model_validate(loaded[offset + 3].payload, strict=False)
             except (TypeError, ValueError) as exc:
                 raise RecordedSourceAdmissionError("recorded admission payload failed exact replay") from exc
+            expected_evidence_mode = EvidenceAcquisitionMode(material.acquisition_mode.value)
             if (
                 not self._acquisition_matches(acquisition, material)
                 or acquisition.build_id != self.build.build_id
                 or acquisition.build_request_digest != self.build.request_digest
                 or acquisition.activation_revision != self.binding.prepared_binding.reference
+                or acquisition.acquisition_mode is not expected_evidence_mode
+                or snapshot.acquisition_mode is not material.acquisition_mode
                 or snapshot.acquisition_receipt_ref != acquisition.receipt_id
                 or snapshot.acquisition_receipt_digest != acquisition.receipt_digest
                 or observation.source_ref != snapshot.source_snapshot_ref
@@ -752,7 +777,7 @@ class CoreRecordedSourceAdmissionService(IntelligenceBuildRecordedSourcePort):
                 or observation.acquisition_receipt_digest != acquisition.receipt_digest
                 or observation.activation_revision != self.binding.prepared_binding.reference
                 or observation.mode is not IntelligenceResourceMode.PREPARED
-                or observation.acquisition_mode is not EvidenceAcquisitionMode.RECORDED_REPLAY
+                or observation.acquisition_mode is not expected_evidence_mode
                 or entity.product_id != self.build.product_id
                 or entity.mode is not IntelligenceResourceMode.PREPARED
                 or entity.activation_revision != self.binding.prepared_binding.reference
@@ -856,7 +881,7 @@ class CoreRecordedSourceAdmissionV1Alpha2Service(CoreRecordedSourceAdmissionServ
     def _decode_acquisition(self, record: ImmutableRecordV1) -> RecordedSourceAcquisitionReceiptV1Alpha2:
         if record.payload_contract != RECORDED_SOURCE_ACQUISITION_RECEIPT_V1ALPHA2_VERSION:
             raise ValueError("recorded admission receipt is not v1alpha2 material")
-        return RecordedSourceAcquisitionReceiptV1Alpha2.model_validate(record.payload)
+        return RecordedSourceAcquisitionReceiptV1Alpha2.model_validate(record.payload, strict=False)
 
     def _acquisition_matches(
         self,

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from ace.application.installed_pack_artifacts import InstalledCompiledPackArtifactResolver, InstalledPackArtifactError
 from ace.application.intelligence_build_execution import (
@@ -34,6 +34,13 @@ from ace.application.intelligence_system_projection import (
     IntelligenceSystemProjectionV1Alpha1,
     project_intelligence_system_plan,
 )
+from ace.application.local_source_connect import LocalSourceConnectCapture
+from ace.application.recorded_source_selection import (
+    RecordedSourceSelectionReferenceV1Alpha1,
+    RecordedSourceSelectionV1Alpha1,
+)
+from core.engine.core.db import pool
+from core.engine.core.immutable_records import SurrealImmutableRecordStore
 from core.engine.core.installed_intelligence_catalog import (
     InstalledIntelligenceCatalogError,
     InstalledOnboardingProfile,
@@ -42,6 +49,11 @@ from core.engine.core.installed_intelligence_catalog import (
 from core.engine.core.intelligence_build_planner_registry import (
     IntelligenceBuildPlannerRegistryError,
     resolve_intelligence_build_planner,
+)
+from core.engine.core.local_source_connect import (
+    LocalSourceConnectRecordConflict,
+    LocalSourceConnectRecordRepository,
+    LocalSourceConnectRecordUnavailable,
 )
 
 
@@ -73,9 +85,22 @@ class IntelligenceBuildPlanPrepareV1Alpha2(BaseModel):
     subject: str = Field(min_length=8, max_length=2_000)
     outcome_id: str = Field(min_length=1, max_length=240)
     source_group_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=64)
+    recorded_source_selection_refs: tuple[RecordedSourceSelectionReferenceV1Alpha1, ...] = Field(
+        default_factory=tuple, max_length=64
+    )
     cadence_id: str = Field(min_length=1, max_length=240)
     proposed_effects: tuple[IntelligenceBuildEffect, ...] = REQUIRED_INTELLIGENCE_BUILD_EFFECTS
     requested_at: datetime
+
+    @field_validator("recorded_source_selection_refs")
+    @classmethod
+    def _unique_selection_refs(
+        cls, value: tuple[RecordedSourceSelectionReferenceV1Alpha1, ...]
+    ) -> tuple[RecordedSourceSelectionReferenceV1Alpha1, ...]:
+        keys = [(item.source_group_id, item.selection_id) for item in value]
+        if len(keys) != len(set(keys)):
+            raise ValueError("recorded_source_selection_refs must name each exact selection once")
+        return value
 
 
 class IntelligenceBuildProjectionRequestV1(BaseModel):
@@ -98,11 +123,20 @@ class _InstalledPlannerResolution:
         return resolve_intelligence_build_planner(profile_id)
 
 
+class RecordedSourceSelectionLoaderPort(Protocol):
+    """Server-side loader for one durable, reviewed recorded source selection."""
+
+    async def load_capture(
+        self, product_id: str, selection_ref: RecordedSourceSelectionReferenceV1Alpha1, *, actor_ref: str
+    ) -> LocalSourceConnectCapture: ...
+
+
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildPlanHttpRuntime:
     profiles: tuple[InstalledOnboardingProfile, ...]
     packs: InstalledCompiledPackArtifactResolver
     planners: IntelligenceBuildPlannerResolutionPort
+    selection_loader: RecordedSourceSelectionLoaderPort | None = None
 
 
 class IntelligenceBuildPlanError(RuntimeError):
@@ -135,6 +169,7 @@ def intelligence_build_plan_runtime() -> IntelligenceBuildPlanHttpRuntime:
         profiles=profiles,
         packs=packs,
         planners=_InstalledPlannerResolution(),
+        selection_loader=LocalSourceConnectRecordRepository(SurrealImmutableRecordStore(pool)),
     )
 
 
@@ -206,11 +241,38 @@ async def prepare_intelligence_build_plan(
         raise IntelligenceBuildPlanUnavailable("installed Intelligence Pack failed exact resolution") from exc
     if artifact is None:
         raise IntelligenceBuildPlanUnavailable("planned Intelligence Pack is not installed at the exact version")
+
+    loaded_selections: tuple[RecordedSourceSelectionV1Alpha1, ...] = ()
+    if request.recorded_source_selection_refs:
+        if runtime.selection_loader is None:
+            raise IntelligenceBuildPlanUnavailable("no recorded source selection loader is installed")
+        declared_groups = set(request.source_group_ids)
+        selections: list[RecordedSourceSelectionV1Alpha1] = []
+        for ref in request.recorded_source_selection_refs:
+            try:
+                capture = await runtime.selection_loader.load_capture(product_id, ref, actor_ref=actor_ref)
+            except LocalSourceConnectRecordConflict as exc:
+                raise IntelligenceBuildPlanConflict("recorded source selection failed exact durable replay") from exc
+            except LocalSourceConnectRecordUnavailable as exc:
+                raise IntelligenceBuildPlanUnavailable("recorded source selection storage is unavailable") from exc
+            selection = capture.selection
+            if (
+                selection.product_id != product_id
+                or selection.pack != pack_reference
+                or selection.source_group_id not in declared_groups
+                or selection.reference() != ref
+            ):
+                raise IntelligenceBuildPlanConflict(
+                    "recorded source selection crossed its exact reviewed product, Pack, or source group"
+                )
+            selections.append(selection)
+        loaded_selections = tuple(sorted(selections, key=lambda item: (item.source_group_id, str(item.selection_id))))
+
     try:
         exact_request = IntelligenceBuildPlanRequestV1Alpha2(
             product_id=product_id,
             actor_ref=actor_ref,
-            **request.model_dump(mode="python"),
+            **request.model_dump(mode="python", exclude={"recorded_source_selection_refs"}),
         )
         plan = IntelligenceBuildPlanV1Alpha3.model_validate(
             (
@@ -236,6 +298,29 @@ async def prepare_intelligence_build_plan(
         != tuple(item.request_id for item in artifact.pack.authority_requests)
     ):
         raise IntelligenceBuildPlanConflict("Intelligence build planner changed exact installed review material")
+    if request.recorded_source_selection_refs:
+        if plan.recorded_source_selections and plan.recorded_source_selections != loaded_selections:
+            raise IntelligenceBuildPlanConflict(
+                "Intelligence build planner proposed selections that conflict with reviewed source selections"
+            )
+        try:
+            plan = IntelligenceBuildPlanV1Alpha3.model_validate(
+                {
+                    **plan.model_dump(
+                        mode="python",
+                        exclude={
+                            "plan_id",
+                            "plan_digest",
+                            "recorded_source_selections",
+                            "recorded_source_selection_refs",
+                        },
+                    ),
+                    "recorded_source_selections": loaded_selections,
+                    "recorded_source_selection_refs": (),
+                }
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            raise IntelligenceBuildPlanConflict("reviewed source selections could not bind into the plan") from exc
     try:
         exact_review = project_intelligence_build_review(
             request_id=str(exact_request.request_id),
@@ -286,6 +371,7 @@ async def bind_intelligence_build_plan(
         subject=plan.request.subject,
         outcome_id=plan.request.outcome_id,
         source_group_ids=plan.request.source_group_ids,
+        recorded_source_selection_refs=plan.recorded_source_selection_refs,
         cadence_id=plan.request.cadence_id,
         proposed_effects=plan.request.proposed_effects,
         requested_at=plan.request.requested_at,
@@ -332,6 +418,7 @@ async def project_intelligence_build_plan(
         subject=plan.request.subject,
         outcome_id=plan.request.outcome_id,
         source_group_ids=plan.request.source_group_ids,
+        recorded_source_selection_refs=plan.recorded_source_selection_refs,
         cadence_id=plan.request.cadence_id,
         proposed_effects=plan.request.proposed_effects,
         requested_at=plan.request.requested_at,
@@ -394,6 +481,7 @@ __all__ = [
     "IntelligenceBuildPlanV1Alpha2",
     "IntelligenceBuildPlanV1Alpha3",
     "IntelligenceBuildPlannerResolutionPort",
+    "RecordedSourceSelectionLoaderPort",
     "bind_intelligence_build_plan",
     "intelligence_build_plan_runtime",
     "prepare_intelligence_build_plan",

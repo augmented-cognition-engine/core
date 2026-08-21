@@ -1,0 +1,18 @@
+{
+  "contract": "ace.intelligence.synthesis/v1alpha2",
+  "module_id": "personal_orientation_templates",
+  "brief_templates": [
+    {
+      "template_id": "personal_orientation_first_brief",
+      "brief_type": "personal_orientation",
+      "display_name": "Personal Orientation Brief",
+      "objective": "Produce a compact orientation of the owner's corpus exactly as admitted at one moment: what the material is about and what currently matters. Every material claim must cite exact included source material; any statement beyond the sources must be an explicit inference with stated uncertainty; refuse unsupported material claims. This is an orientation over existing admitted material, not a change or event report.",
+      "required_sections": [
+        "current_landscape",
+        "what_matters_now",
+        "open_questions"
+      ],
+      "recommendation_required": false
+    }
+  ]
+}

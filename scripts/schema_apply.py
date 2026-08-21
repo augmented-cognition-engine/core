@@ -11,7 +11,11 @@ from pathlib import Path
 from surrealdb import AsyncSurreal
 
 # Allow running as script without installing package
-sys.path.insert(0, str(Path(__file__).parent.parent))
+_REPOSITORY_ROOT = str(Path(__file__).parent.parent)
+# Idempotent: in an installed environment this "root" is site-packages itself, and a
+# duplicated sys.path entry makes importlib.metadata enumerate every distribution twice.
+if _REPOSITORY_ROOT not in sys.path:
+    sys.path.insert(0, _REPOSITORY_ROOT)
 from core.engine.core.config import settings
 from core.engine.core.migration_compat import (
     STRICT_FROM_VERSION,

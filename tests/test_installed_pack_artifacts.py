@@ -359,3 +359,31 @@ async def test_resolver_constructor_rejects_changed_compilation_or_conformance(t
                 ),
             )
         )
+
+
+class _EnumeratedTwice(_Distribution):
+    """importlib.metadata enumerates one dist-info once per duplicate sys.path entry."""
+
+    def __init__(self, root: Path, name: str, resources: dict[str, bytes]) -> None:
+        super().__init__(root, name, resources)
+        self._path = root / f"{name}.dist-info"
+
+
+@pytest.mark.asyncio
+async def test_one_dist_info_enumerated_twice_is_not_a_duplicate_root(tmp_path: Path) -> None:
+    """A duplicated sys.path entry makes importlib.metadata yield the same
+    dist-info twice. That is one installed Pack, not two, and must index once;
+    two genuinely different roots carrying the same Pack stay ambiguous."""
+
+    resources = _pack()
+    first = _EnumeratedTwice(tmp_path / "site", "ace-personal-intelligence-pack", resources)
+    again = _EnumeratedTwice(tmp_path / "site", "ace-personal-intelligence-pack", resources)
+
+    resolver = InstalledCompiledPackArtifactResolver.discover([first, again])
+    artifact = await resolver.resolve_exact(reference=_reference(resources))
+    assert artifact is not None
+    assert artifact.distribution == "ace-personal-intelligence-pack"
+
+    other_root = _EnumeratedTwice(tmp_path / "elsewhere", "ace-personal-intelligence-pack", resources)
+    with pytest.raises(InstalledPackArtifactError, match="declared more than once|ambiguous"):
+        InstalledCompiledPackArtifactResolver.discover([first, other_root])

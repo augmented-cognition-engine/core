@@ -148,6 +148,15 @@ The pipeline runs in two clearly separated modes:
 | **PREPARED** | Analysis over supplied material. Pure functions over contract values. | No network, no clock authority, no side effects. |
 | **LIVE** | Governed effects against an authorized real source. | One exact resolved source definition, through an activation-bound, authority-checked adapter. |
 
+Within PREPARED, acquisition is further disclosed by exactly how the material was captured:
+
+| Acquisition mode | What it means |
+|---|---|
+| **LOCAL** | Authorized read-only filesystem capture. Never live HTTPS traffic and never a replayed prior capture. |
+| **RECORDED_REPLAY** | Replay of a previously admitted, reviewed capture. Never live HTTPS traffic and never a fresh filesystem read. |
+| **PREPARED_FIXTURE** | Analysis over supplied fixture material with no capture provenance at all. |
+| **LIVE** | Governed real-time acquisition against an authorized source, under LIVE mode only. |
+
 Interpretation functions are mode-typed and refuse to cross: `detect_numeric_shift` accepts only
 PREPARED snapshots, `detect_live_numeric_shift` only LIVE ones. **No pure Intelligence function
 grants LIVE authority** — the application bridge must independently prove a committed activation

@@ -14,7 +14,9 @@ from pathlib import Path
 import pytest
 
 from ace.intelligence.contracts.diagnostics import PackCompatibilityStatus
+from ace.intelligence.contracts.orientation import OrientationModuleV1
 from ace.intelligence.contracts.pack import OntologyModuleV1
+from ace.intelligence.contracts.synthesis import SynthesisModuleV1Alpha2
 from ace.intelligence.packs.compiler import (
     compile_pack_document,
     compile_pack_document_with_report,
@@ -101,12 +103,55 @@ def test_personal_pack_declares_governed_local_source_policy() -> None:
     pack = compile_pack_document(manifest, resources)
 
     # The pack requests only inert, non-escalating source authority/capability.
+    # The read request names the existing observe_read grant class so the fixed
+    # local-owner grants created by setup can satisfy activation exactly
+    # (PI13 §8.1); no pack-private authority vocabulary exists to resolve.
     assert [item.capability for item in pack.capability_requirements] == ["source_snapshot"]
-    assert [item.authority for item in pack.authority_requests] == ["source_read"]
+    assert [item.authority for item in pack.authority_requests] == ["observe_read"]
     assert {module.module_id for module in pack.modules} == {
         "personal_ontology",
         "personal_local_sources",
+        "personal_orientation",
+        "personal_orientation_templates",
     }
+
+
+def test_personal_pack_declares_the_frozen_initial_orientation_policy() -> None:
+    """PI13 §8.3: exact declarative policy/template/persona IDs, and no WS5 policy."""
+
+    manifest, resources, _ = _load()
+    fixture = json.loads((PACK_ROOT / "conformance" / "initial_orientation_fixture.json").read_bytes())
+
+    pack = compile_pack_document(manifest, resources)
+    orientation = next(
+        OrientationModuleV1.model_validate_json(module.canonical_payload)
+        for module in pack.modules
+        if module.module_id == "personal_orientation"
+    )
+    synthesis = next(
+        SynthesisModuleV1Alpha2.model_validate_json(module.canonical_payload)
+        for module in pack.modules
+        if module.module_id == "personal_orientation_templates"
+    )
+
+    [policy] = orientation.initial_orientation_policies
+    assert policy.policy_id == fixture["orientation_policy_id"] == "personal_initial_orientation"
+    assert policy.brief_template_id == fixture["brief_template_id"] == "personal_orientation_first_brief"
+    assert list(policy.persona_ids) == fixture["persona_ids"] == ["personal_orientation_analyst"]
+    [persona] = orientation.personas
+    assert persona.persona_id == "personal_orientation_analyst"
+    [template] = synthesis.brief_templates
+    assert template.template_id == fixture["brief_template_id"]
+    assert template.brief_type == fixture["brief_type"]
+    assert list(template.required_sections) == fixture["required_sections"]
+    assert template.recommendation_required is fixture["recommendation_required"]
+    assert template.claim_policy == fixture["claim_policy"]
+
+    # Change detection and Signal-routing policy remain WS5 scope: the Personal
+    # Pack must declare no detection module and no personas/routing module.
+    contracts = {module.contract for module in pack.modules}
+    assert not any(contract.startswith("ace.intelligence.detection/") for contract in contracts)
+    assert not any(contract.startswith("ace.intelligence.personas/") for contract in contracts)
 
 
 def test_personal_pack_passes_provider_free_conformance() -> None:

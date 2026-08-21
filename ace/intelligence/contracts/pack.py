@@ -36,6 +36,10 @@ from ace.intelligence.contracts.feedback import (
     DECISION_OUTCOMES_MODULE_VERSION,
     DecisionOutcomesModuleV1,
 )
+from ace.intelligence.contracts.orientation import (
+    ORIENTATION_MODULE_VERSION,
+    OrientationModuleV1,
+)
 from ace.intelligence.contracts.personas import PERSONAS_MODULE_VERSION, PersonasModuleV1
 from ace.intelligence.contracts.source_mapping import (
     SOURCE_MAPPING_MODULE_VERSION,
@@ -467,6 +471,7 @@ class CompiledModuleV1(FrozenContract):
             SYNTHESIS_MODULE_V1ALPHA2_VERSION: SynthesisModuleV1Alpha2,
             EPISTEMIC_STATUS_MODULE_VERSION: EpistemicStatusModuleV1,
             EPISTEMIC_STATUS_MODULE_V1ALPHA2_VERSION: EpistemicStatusModuleV1Alpha2,
+            ORIENTATION_MODULE_VERSION: OrientationModuleV1,
         }
         model = model_by_contract.get(self.contract)
         if model is None:
@@ -542,6 +547,11 @@ def _validate_compiled_module_graph(
         item.module_id: PersonasModuleV1.model_validate_json(item.canonical_payload)
         for item in modules
         if item.contract == PERSONAS_MODULE_VERSION
+    }
+    orientation_modules = {
+        item.module_id: OrientationModuleV1.model_validate_json(item.canonical_payload)
+        for item in modules
+        if item.contract == ORIENTATION_MODULE_VERSION
     }
     source_mapping_modules = {
         item.module_id: SourceMappingModuleV1.model_validate_json(item.canonical_payload)
@@ -784,6 +794,37 @@ def _validate_compiled_module_graph(
                 raise ValueError(
                     f"routing rule {route.routing_rule_id} references Brief template outside its module "
                     f"dependencies: {route.brief_template_id}"
+                )
+
+    orientation_persona_owner = dict(persona_owner)
+    orientation_policy_owner: dict[str, str] = {}
+    for module_id, orientation in orientation_modules.items():
+        for persona in orientation.personas:
+            owner = orientation_persona_owner.get(persona.persona_id)
+            if owner is not None:
+                raise ValueError(
+                    f"orientation persona {persona.persona_id} is declared by multiple modules: {owner}, {module_id}"
+                )
+            orientation_persona_owner[persona.persona_id] = module_id
+    for module_id, orientation in orientation_modules.items():
+        for policy in orientation.initial_orientation_policies:
+            owner = orientation_policy_owner.get(policy.policy_id)
+            if owner is not None:
+                raise ValueError(
+                    f"initial orientation policy {policy.policy_id} is declared by multiple modules: "
+                    f"{owner}, {module_id}"
+                )
+            orientation_policy_owner[policy.policy_id] = module_id
+            if policy.brief_template_id not in template_owner:
+                raise ValueError(
+                    f"initial orientation policy {policy.policy_id} references an unknown Brief template: "
+                    f"{policy.brief_template_id}"
+                )
+            missing_personas = set(policy.persona_ids) - set(orientation_persona_owner)
+            if missing_personas:
+                raise ValueError(
+                    f"initial orientation policy {policy.policy_id} references unknown personas: "
+                    f"{sorted(missing_personas)}"
                 )
 
     epistemic_models = {

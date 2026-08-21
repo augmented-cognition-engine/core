@@ -291,6 +291,14 @@ from ace.application.external_operations import (
     export_manifest_checksum,
 )
 from ace.application.grounded_ask import ASK_MAX_CANDIDATE_BRIEFS, GroundedAskError, GroundedAskService
+from ace.application.initial_corpus_brief_synthesis import (
+    INITIAL_CORPUS_BRIEF_SYNTHESIS_RECEIPT_KIND,
+    InitialCorpusBriefSynthesisError,
+    InitialCorpusBriefSynthesisReplayConflict,
+    InitialCorpusBriefSynthesisService,
+    PreparedInitialCorpusBriefAppendAdmission,
+    ResolvedInitialCorpusClosure,
+)
 from ace.application.installed_bundle_artifacts import (
     MAX_BUNDLE_MANIFEST_BYTES,
     InstalledBundleArtifactError,
@@ -354,15 +362,19 @@ from ace.application.intelligence_build_first_brief import (
     CREATE_FIRST_BRIEF_EFFECT,
     INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION,
     INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_VERSION,
+    INTELLIGENCE_BUILD_INITIAL_CORPUS_FIRST_BRIEF_REQUEST_VERSION,
     CoreIntelligenceBuildFirstBriefService,
     IntelligenceBuildFirstBriefCognition,
     IntelligenceBuildFirstBriefError,
     IntelligenceBuildFirstBriefOutcome,
     IntelligenceBuildFirstBriefRequestV1Alpha1,
     IntelligenceBuildFirstBriefRequestV1Alpha2,
+    IntelligenceBuildInitialCorpusFirstBriefOutcome,
+    IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1,
 )
 from ace.application.intelligence_build_host import (
     DurableIntelligenceBuildHostComposer,
+    IntelligenceBuildFirstBriefCognitionPort,
     IntelligenceBuildHostCompositionError,
 )
 from ace.application.intelligence_build_plan_binding import (
@@ -533,6 +545,25 @@ from ace.application.live_source_ingress import (
 )
 from ace.application.local_source_acquisition import AcquiredLocalFile, acquire_local_folder
 from ace.application.local_source_change import AcquisitionChangeSet, diff_acquisitions
+from ace.application.local_source_connect import (
+    LOCAL_SOURCE_CONNECT_AUTHORIZATION_REQUEST_VERSION,
+    LOCAL_SOURCE_CONNECT_AUTHORIZATION_RESULT_VERSION,
+    LOCAL_SOURCE_CONNECT_CAPTURE_VERSION,
+    LOCAL_SOURCE_CONNECT_PREVIEW_REQUEST_VERSION,
+    LOCAL_SOURCE_CONNECT_PREVIEW_VERSION,
+    LOCAL_SOURCE_CONNECT_UNSUPPORTED_FILE_VERSION,
+    LOCAL_SOURCE_MAPPING_SCOPE_VERSION,
+    LocalSourceConnectAuthorizationRequest,
+    LocalSourceConnectAuthorizationResult,
+    LocalSourceConnectCapture,
+    LocalSourceConnectError,
+    LocalSourceConnectPreview,
+    LocalSourceConnectPreviewRequest,
+    LocalSourceConnectUnsupportedFile,
+    LocalSourceMappingScope,
+    authorize_local_source_connect,
+    preview_local_source_connect,
+)
 from ace.application.measured_composition import (
     COMPOSITION_EVALUATION_AUTHORITY_RESOLUTION_VERSION,
     CONDITION_ASSIGNMENT_RECORD_KIND,
@@ -640,6 +671,14 @@ from ace.application.solution_bundle_activation import (
     SolutionBundleActivationAdmissionService,
     SolutionBundleActivationError,
 )
+from ace.application.source_snapshot_provider import (
+    SOURCE_SNAPSHOT_CAPABILITY,
+    SOURCE_SNAPSHOT_CONTRACT,
+    SOURCE_SNAPSHOT_REQUEST_VERSION,
+    SourceSnapshotProvider,
+    SourceSnapshotRequestV1Alpha1,
+    validate_source_snapshot_provider_registration,
+)
 from ace.application.supersession_impact import (
     SupersessionImpactAdmission,
     SupersessionImpactAdmissionError,
@@ -647,6 +686,7 @@ from ace.application.supersession_impact import (
     SupersessionImpactService,
     supersession_impact_record,
 )
+from ace.intelligence.contracts.activation import AuthorityBindingV1
 from ace.intelligence.contracts.claim_correction import (
     ClaimCorrectionAdmissionV1Alpha1,
     ClaimCorrectionRequestV1Alpha1,
@@ -666,6 +706,7 @@ from ace.intelligence.contracts.resource_feedback import (
 
 __all__ = [
     "ACTIVATION_GOLDEN_FIXTURE_PATH",
+    "AuthorityBindingV1",
     "InstalledCompiledPackArtifact",
     "InstalledCompiledPackArtifactResolver",
     "InstalledBundleArtifactError",
@@ -693,6 +734,23 @@ __all__ = [
     "AcquisitionChangeSet",
     "acquire_local_folder",
     "diff_acquisitions",
+    "LOCAL_SOURCE_CONNECT_AUTHORIZATION_REQUEST_VERSION",
+    "LOCAL_SOURCE_CONNECT_AUTHORIZATION_RESULT_VERSION",
+    "LOCAL_SOURCE_CONNECT_CAPTURE_VERSION",
+    "LOCAL_SOURCE_CONNECT_PREVIEW_REQUEST_VERSION",
+    "LOCAL_SOURCE_CONNECT_PREVIEW_VERSION",
+    "LOCAL_SOURCE_CONNECT_UNSUPPORTED_FILE_VERSION",
+    "LOCAL_SOURCE_MAPPING_SCOPE_VERSION",
+    "LocalSourceConnectAuthorizationRequest",
+    "LocalSourceConnectAuthorizationResult",
+    "LocalSourceConnectCapture",
+    "LocalSourceConnectError",
+    "LocalSourceConnectPreview",
+    "LocalSourceConnectPreviewRequest",
+    "LocalSourceConnectUnsupportedFile",
+    "LocalSourceMappingScope",
+    "authorize_local_source_connect",
+    "preview_local_source_connect",
     "ActionResourceProjectionReader",
     "RESOURCE_QUERY_AUTHORITY",
     "RESOURCE_QUERY_OPERATION",
@@ -1010,6 +1068,7 @@ __all__ = [
     "IntelligenceBuildExecutor",
     "IntelligenceBuildFirstBriefPort",
     "DurableIntelligenceBuildHostComposer",
+    "IntelligenceBuildFirstBriefCognitionPort",
     "IntelligenceBuildHostCompositionError",
     "IntelligenceBuildHostServices",
     "IntelligenceBuildPreparedDerivationPort",
@@ -1067,6 +1126,15 @@ __all__ = [
     "IntelligenceBuildFirstBriefOutcome",
     "IntelligenceBuildFirstBriefRequestV1Alpha1",
     "IntelligenceBuildFirstBriefRequestV1Alpha2",
+    "INTELLIGENCE_BUILD_INITIAL_CORPUS_FIRST_BRIEF_REQUEST_VERSION",
+    "INITIAL_CORPUS_BRIEF_SYNTHESIS_RECEIPT_KIND",
+    "InitialCorpusBriefSynthesisError",
+    "InitialCorpusBriefSynthesisReplayConflict",
+    "InitialCorpusBriefSynthesisService",
+    "IntelligenceBuildInitialCorpusFirstBriefOutcome",
+    "IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1",
+    "PreparedInitialCorpusBriefAppendAdmission",
+    "ResolvedInitialCorpusClosure",
     "REQUIRED_INTELLIGENCE_BUILD_EFFECTS",
     "RecordedSourceAcquisitionReceiptV1Alpha1",
     "RecordedSourceAcquisitionReceiptV1Alpha2",
@@ -1163,6 +1231,12 @@ __all__ = [
     "SourceScopeProposalV1",
     "SourceScopeSelectionV1",
     "SourceValueKind",
+    "SOURCE_SNAPSHOT_CAPABILITY",
+    "SOURCE_SNAPSHOT_CONTRACT",
+    "SOURCE_SNAPSHOT_REQUEST_VERSION",
+    "SourceSnapshotProvider",
+    "SourceSnapshotRequestV1Alpha1",
+    "validate_source_snapshot_provider_registration",
     "SuppressionGroupingRuleV1",
     "WatchTargetKind",
     "WatchTargetV1",

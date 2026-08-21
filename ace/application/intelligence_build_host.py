@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Protocol
 
 from ace.application.domain_activation import (
     CommittedActivationBinding,
@@ -56,6 +57,24 @@ class IntelligenceBuildHostCompositionError(RuntimeError):
     """Durable activation/bootstrap material could not compose safe build ports."""
 
 
+class IntelligenceBuildFirstBriefCognitionPort(Protocol):
+    """Compose the governed first-Brief cognition for one exact authorized build.
+
+    The reasoning-execution and append bindings are product-scoped and resolved
+    from *current* governed-state heads, so composition happens per authorized
+    build rather than once at host start. Implementations must fail closed with
+    a specific error naming the missing provider, configuration, head, grant,
+    or capability; they never fabricate readiness.
+    """
+
+    async def compose_first_brief_cognition(
+        self,
+        *,
+        build: AuthorizedIntelligenceBuild,
+        records: ImmutableRecordStore,
+    ) -> IntelligenceBuildFirstBriefCognition: ...
+
+
 @dataclass(frozen=True, slots=True)
 class _BootstrapCandidate:
     plan_reference: OnboardingArtifactReferenceV1
@@ -104,11 +123,17 @@ class DurableIntelligenceBuildHostComposer:
         runtime_use: RuntimeUseResolver,
         packs: ExactCompiledPackResolver,
         first_brief_cognition: IntelligenceBuildFirstBriefCognition | None = None,
+        first_brief_cognition_resolver: IntelligenceBuildFirstBriefCognitionPort | None = None,
     ) -> None:
+        if first_brief_cognition is not None and first_brief_cognition_resolver is not None:
+            raise IntelligenceBuildHostCompositionError(
+                "host composer cannot configure both first_brief_cognition and first_brief_cognition_resolver"
+            )
         self.governed_state = governed_state
         self.runtime_use = runtime_use
         self.packs = packs
         self.first_brief_cognition = first_brief_cognition
+        self.first_brief_cognition_resolver = first_brief_cognition_resolver
 
     async def _matching_candidates(
         self,
@@ -434,6 +459,21 @@ class DurableIntelligenceBuildHostComposer:
             store=self.governed_state,
             authority=activation_authority,
         )
+        cognition: IntelligenceBuildFirstBriefCognition | None = None
+        if self.first_brief_cognition is not None:
+            cognition = self.first_brief_cognition
+        elif self.first_brief_cognition_resolver is not None:
+            # Same per-build, current-head contract as above; a resolver failure
+            # (IntelligenceBuildCognitionUnavailable or otherwise) is deliberately
+            # not caught here so it propagates and fails the build response closed.
+            cognition = await self.first_brief_cognition_resolver.compose_first_brief_cognition(
+                build=build,
+                records=records,
+            )
+            if cognition is None:
+                raise IntelligenceBuildHostCompositionError(
+                    "first-Brief cognition resolver returned no governed bindings"
+                )
         return IntelligenceBuildHostServices(
             records=records,
             resources=resources,
@@ -466,10 +506,10 @@ class DurableIntelligenceBuildHostComposer:
                     packs=self.packs,
                     records=records,
                     runtime_use=self.runtime_use,
-                    cognition=self.first_brief_cognition,
+                    cognition=cognition,
                     active_session=bootstrap.session,
                 )
-                if self.first_brief_cognition is not None
+                if cognition is not None
                 else None
             ),
         )
@@ -477,5 +517,6 @@ class DurableIntelligenceBuildHostComposer:
 
 __all__ = [
     "DurableIntelligenceBuildHostComposer",
+    "IntelligenceBuildFirstBriefCognitionPort",
     "IntelligenceBuildHostCompositionError",
 ]

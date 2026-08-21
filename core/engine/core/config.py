@@ -15,9 +15,47 @@ from pydantic import AliasChoices, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _resolved_env_files() -> tuple[str, ...]:
+    """Resolve the installation's ``.env`` independent of the current working directory (issue #260).
+
+    ``ace doctor`` (and every other command) must load the same configuration
+    regardless of the directory the operator happens to be standing in when
+    they run it — a fresh checkout's stray ``.env`` in an unrelated cwd must
+    never silently shadow the installation's real configuration. ``ACE_ENV_FILE``
+    is an explicit, exact override. Otherwise, candidates are merged in
+    ascending priority (pydantic-settings applies later files' values over
+    earlier ones): the source-checkout root ``.env`` may still supply values,
+    but the ``ACE_CONFIG_DIR``-scoped files this installation's own
+    ``ace setup`` writes to (see ``core/engine/cli/commands/setup.py``) always
+    win when present. The process's current working directory is never an
+    implicit candidate.
+    """
+
+    explicit = os.environ.get("ACE_ENV_FILE", "").strip()
+    if explicit:
+        return (str(Path(explicit).expanduser()),)
+
+    config_dir = Path(os.environ.get("ACE_CONFIG_DIR", Path.home() / ".ace")).expanduser()
+    # `config.py` lives at <repo_root>/core/engine/core/config.py; parents[3] is
+    # the repo root, matching setup.py's own source-checkout resolution so a
+    # dev checkout run from any subdirectory still finds its own `.env`.
+    source_root = Path(__file__).resolve().parents[3]
+    candidates = [
+        source_root / ".env",
+        config_dir / ".env",
+        config_dir / "runtime" / ".env",
+    ]
+    seen: list[Path] = []
+    for candidate in candidates:
+        if candidate not in seen:
+            seen.append(candidate)
+    existing = [str(candidate) for candidate in seen if candidate.is_file()]
+    return tuple(existing) if existing else (str(seen[-1]),)
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=_resolved_env_files(),
         env_file_encoding="utf-8",
         extra="ignore",
     )

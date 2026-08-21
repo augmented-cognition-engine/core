@@ -31,6 +31,7 @@ import httpx
 from core.engine.cli.auth import get_config_path, get_headers, save_config
 from core.engine.cli.commands.run import _submit_and_wait
 from core.engine.cli.display import console, print_task_result
+from core.engine.core.local_owner_authority import LOCAL_OWNER_GRANTS
 
 _DEFAULT_API_PORT = 3000
 
@@ -744,7 +745,7 @@ def _bootstrap_local_owner(token: str) -> None:
         grants = response.json().get("grants")
     except (httpx.HTTPError, ValueError) as exc:
         raise click.ClickException(f"ACE started, but local-owner permissions could not be verified: {exc}") from exc
-    if not isinstance(grants, list) or len(grants) != 4:
+    if not isinstance(grants, list) or len(grants) != len(LOCAL_OWNER_GRANTS):
         raise click.ClickException("ACE started, but local-owner permission verification was incomplete.")
 
 

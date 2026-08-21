@@ -1163,7 +1163,10 @@ def _decode_recorded_acquisition(
     model = models.get(record.payload_contract)
     if model is None:
         raise ValueError("recorded acquisition uses an unsupported contract")
-    value = model.model_validate(record.payload)
+    # Durable payloads round-trip through JSON (string datetimes, enum values), so
+    # the reader parses the persisted form; the envelope check below still binds
+    # every identity and instant exactly.
+    value = model.model_validate(record.payload, strict=False)
     if (
         record.record_space != PREPARED_RECORD_SPACE
         or record.record_kind != RECORDED_SOURCE_RECORD_KIND
@@ -1177,7 +1180,7 @@ def _decode_recorded_acquisition(
 
 
 def _decode_recorded_snapshot(record: ImmutableRecordV1) -> CanonicalSourceSnapshotV1Alpha1:
-    value = CanonicalSourceSnapshotV1Alpha1.model_validate(record.payload)
+    value = CanonicalSourceSnapshotV1Alpha1.model_validate(record.payload, strict=False)
     if (
         record.record_space != PREPARED_RECORD_SPACE
         or record.record_kind != SOURCE_SNAPSHOT_RECORD_KIND
@@ -1208,7 +1211,7 @@ def _recorded_source_readiness_record(
         or snapshot.event_effective_at != acquisition.event_effective_at
         or snapshot.observed_at != acquisition.observed_at
         or snapshot.ingested_at != acquisition.admitted_at
-        or snapshot.acquisition_mode.value != "recorded_replay"
+        or snapshot.acquisition_mode.value not in ("recorded_replay", "local")
     ):
         raise ValueError("recorded acquisition and source snapshot do not form one exact admitted source")
     resource_id = f"source_health:{canonical_hash([acquisition.product_id, acquisition.source_definition_ref])[:32]}"
@@ -1273,6 +1276,7 @@ def _recorded_source_readiness_record(
         "freshness": "unverified",
         "freshness_verified": False,
         "network_capture_performed": False,
+        "acquisition_mode": snapshot.acquisition_mode.value,
     }
     subjects = tuple(
         sorted(

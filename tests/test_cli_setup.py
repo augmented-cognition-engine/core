@@ -214,6 +214,33 @@ def test_setup_starts_runtime_and_logs_in_without_exposing_api_key(tmp_path, mon
     assert "ACE is ready" in result.output
 
 
+def test_bootstrap_local_owner_accepts_the_current_authority_grant_set():
+    from core.engine.cli.commands.setup import _bootstrap_local_owner
+    from core.engine.core.local_owner_authority import LOCAL_OWNER_GRANTS
+
+    response = MagicMock()
+    response.json.return_value = {"grants": [spec.grant_ref for spec in LOCAL_OWNER_GRANTS]}
+    with patch("core.engine.cli.commands.setup.httpx.post", return_value=response):
+        _bootstrap_local_owner("owner-token")
+
+
+def test_bootstrap_local_owner_rejects_an_incomplete_grant_response():
+    from core.engine.cli.commands.setup import _bootstrap_local_owner
+
+    response = MagicMock()
+    response.json.return_value = {
+        "grants": [
+            "authority_grant:atrium-intelligence-build",
+            "authority_grant:atrium-observe-read",
+            "authority_grant:atrium-resource-feedback",
+            "authority_grant:atrium-export",
+        ]
+    }
+    with patch("core.engine.cli.commands.setup.httpx.post", return_value=response):
+        with pytest.raises(click.ClickException, match="local-owner permission verification was incomplete"):
+            _bootstrap_local_owner("owner-token")
+
+
 def test_provider_selection_clears_higher_priority_routes(monkeypatch):
     monkeypatch.setattr("core.engine.cli.commands.setup.shutil.which", lambda name: f"/bin/{name}")
     updates = _provider_updates(

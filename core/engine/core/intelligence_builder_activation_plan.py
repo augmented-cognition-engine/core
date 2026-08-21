@@ -37,6 +37,7 @@ from ace.application import (
     IntelligenceBuilderActivationError,
     IntelligenceBuilderActivationPlanCoordinator,
     IntelligenceBuilderActivationService,
+    IntelligenceBuilderSessionError,
     IntelligenceBuilderSessionRevisionV1,
     IntelligenceBuilderSessionService,
     activation_commit_reference,
@@ -55,7 +56,7 @@ from core.engine.core.governed_state import SurrealGovernedStateStore
 from core.engine.core.immutable_records import SurrealImmutableRecordStore
 from core.engine.core.intelligence_activation_authority import (
     RecordedIntelligenceActivationAuthority,
-    _verified_local_owner,
+    verified_local_intelligence_owner,
 )
 
 INTELLIGENCE_ACTIVATION_PLAN_APPROVAL_RECORD_SPACE = "intelligence_activation_plan_approval"
@@ -361,9 +362,40 @@ def _verified_bound_scope(*, bound_plan: BoundIntelligenceBuildPlanV1Alpha1, pro
 
 def _verified_owner(user: dict) -> tuple[str, str]:
     try:
-        return _verified_local_owner(user)
+        return verified_local_intelligence_owner(user)
     except Exception as exc:
         raise DomainActivationPlanCoordinationDenied("verified caller is not the local Intelligence owner") from exc
+
+
+async def _session_started_at(
+    *,
+    runtime: IntelligenceBuilderActivationPlanRuntime,
+    product_id: str,
+    session_id: str,
+    available_at: datetime,
+) -> datetime:
+    """The plan's ``created_at`` is the session's durable start instant.
+
+    ``/session/associate`` starts the Builder session at the activation-spec
+    approval's own ``approved_at``; canonical activation later requires that
+    same approval to fall inside the v1alpha2 plan's ``[created_at,
+    occurred_at]`` window. Anchoring ``created_at`` on the first durable
+    revision (never a client value) makes the plan's window the session's
+    lifetime, so both the spec approval and the plan's own later approval bind
+    by construction without re-minting or bundling any approval.
+    """
+
+    try:
+        first = await runtime.coordinator.sessions.load_first(
+            product_id=product_id,
+            session_id=session_id,
+            available_at=available_at,
+        )
+    except IntelligenceBuilderSessionError as exc:
+        raise DomainActivationPlanCoordinationUnavailable("Builder session history is unavailable") from exc
+    if first is None:
+        raise DomainActivationPlanCoordinationNotFound("activation plan requires a durable Builder session")
+    return first.occurred_at
 
 
 async def prepare_domain_activation_plan(
@@ -382,11 +414,18 @@ async def prepare_domain_activation_plan(
     if request.requested_at > now + timedelta(minutes=5):
         raise DomainActivationPlanCoordinationConflict("requested_at cannot be materially in the future")
     try:
+        created_at = await _session_started_at(
+            runtime=runtime,
+            product_id=product_id,
+            session_id=request.current.session_id,
+            available_at=request.requested_at,
+        )
         return await runtime.coordinator.prepare(
             product_id=product_id,
             session_id=request.current.session_id,
             bound=request.bound_plan,
-            created_at=request.requested_at,
+            created_at=created_at,
+            evaluated_at=request.requested_at,
         )
     except IntelligenceBuilderActivationDependencyNotReadyError as exc:
         raise DomainActivationPlanCoordinationNotFound(str(exc)) from exc
@@ -414,11 +453,18 @@ async def approve_domain_activation_plan(
     if request.approved_at > now + timedelta(minutes=5):
         raise DomainActivationPlanCoordinationConflict("approved_at cannot be materially in the future")
     try:
+        created_at = await _session_started_at(
+            runtime=runtime,
+            product_id=product_id,
+            session_id=request.current.session_id,
+            available_at=request.approved_at,
+        )
         plan = await runtime.coordinator.prepare(
             product_id=product_id,
             session_id=request.current.session_id,
             bound=request.bound_plan,
-            created_at=request.approved_at,
+            created_at=created_at,
+            evaluated_at=request.approved_at,
         )
         artifact = _plan_approval_artifact(
             plan=plan,
@@ -457,7 +503,7 @@ async def approve_domain_activation_plan(
             bound=request.bound_plan,
             actor_ref=actor_ref,
             approval_receipt_ref=artifact.approval.receipt_ref,
-            created_at=request.approved_at,
+            created_at=created_at,
             committed_at=request.approved_at,
         )
         return activation_commit_reference(committed)

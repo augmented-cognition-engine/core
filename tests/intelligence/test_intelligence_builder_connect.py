@@ -339,3 +339,50 @@ def test_public_contracts_publish_machine_readable_schema_without_credential_fie
     effect_ref = selection["properties"]["effects"]["items"]["$ref"]
     effect_name = effect_ref.rsplit("/", maxsplit=1)[-1]
     assert schema["$defs"][effect_name]["enum"] == ["connection_test", "bounded_sample"]
+
+
+@pytest.mark.asyncio
+async def test_load_first_returns_the_durable_goal_selected_revision_of_the_same_validated_chain():
+    """The first durable revision is the session's start instant: the only
+    non-client, non-fabricated origin for a plan window that must contain an
+    approval minted when the session was associated."""
+
+    store, _, agent, _, _, scope = await _connection_setup(approved=True)
+    outcome = await agent.connect(
+        scope.session.revision,
+        proposal=scope.proposal,
+        approval_receipt_ref=_APPROVAL,
+        actor_ref="principal:builder",
+        occurred_at=_START + timedelta(seconds=2),
+    )
+    assert outcome.connected is True
+
+    restarted = IntelligenceBuilderSessionService(store=store)
+    first = await restarted.load_first(
+        product_id=outcome.session.revision.product_id,
+        session_id=outcome.session.revision.session_id,
+        available_at=_START + timedelta(seconds=3),
+    )
+    latest = await restarted.load_latest(
+        product_id=outcome.session.revision.product_id,
+        session_id=outcome.session.revision.session_id,
+        available_at=_START + timedelta(seconds=3),
+    )
+
+    assert first is not None and latest is not None
+    assert first.sequence == 1
+    assert first.stage is OnboardingStage.GOAL_SELECTED
+    assert first.prior_revision_id is None
+    assert first.session_id == latest.session_id
+    assert first.correlation_id == latest.correlation_id
+    assert first.occurred_at <= latest.occurred_at
+    assert latest.sequence > 1
+
+    assert (
+        await restarted.load_first(
+            product_id=outcome.session.revision.product_id,
+            session_id="intelligence_builder_session:unknown",
+            available_at=_START + timedelta(seconds=3),
+        )
+        is None
+    )

@@ -106,6 +106,9 @@ any-llm = [
 [project.entry-points."ace.intelligence_build_planners"]
 personal_intelligence = "core.engine.personal_intelligence.build_planner:PersonalIntelligenceBuildPlanner"
 
+[project.entry-points."ace.intelligence_builders"]
+personal_intelligence = "core.engine.personal_intelligence.build_executor:PersonalIntelligenceBuildExecutor"
+
 [project.scripts]
 ace = "core.engine.cli.main:cli"
 ace-mcp = "core.engine.mcp.server:main"

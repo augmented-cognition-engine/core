@@ -125,6 +125,10 @@ def test_only_host_adapters_and_installed_product_applications_import_public_ace
         "core/engine/core/agent_composition_lifecycle_runtime.py",
         "core/engine/core/external_operations.py",
         "core/engine/core/structured_reasoning_provider.py",
+        # PI13 WS3c: domain-neutral host composition for the selected structured
+        # provider plus exact governed reasoning/append bindings. It reads only
+        # current Core state and imports no product implementation.
+        "core/engine/core/intelligence_build_cognition.py",
         # JWT verification is a host boundary. It derives one public
         # authentication receipt from verified claims without exposing the
         # public application contract to API route modules.
@@ -145,6 +149,34 @@ def test_only_host_adapters_and_installed_product_applications_import_public_ace
         # deletion journey's Core contracts to the scanner graph rows and Qdrant vectors;
         # imports ace.core contract shapes only, never ace.intelligence.
         "core/engine/core/personal_intelligence_derivative_erasure.py",
+        # WS1: generic host registry for the public source-snapshot provider
+        # port; it imports no product implementation.
+        "core/engine/core/source_snapshot_provider_registry.py",
+        # WS2: Connect host persistence/replay and preview host adapter. It
+        # durably appends/replays governed Connect material and derives
+        # installed mapping scopes solely through the public
+        # ace.application.local_source_connect surface; it never imports
+        # ace.intelligence directly.
+        "core/engine/core/local_source_connect.py",
+        # PI13 WS3a: governed local first-run bootstrap host adapter. It
+        # composes only existing production approval/authority services over
+        # the durable stores and reaches intelligence contracts solely
+        # through public ace.application surfaces, never ace.intelligence.
+        "core/engine/core/local_first_run_bootstrap.py",
+        # PI13 WS3 (addendum 9): the local-owner Builder-session progression host
+        # adapters and their selected-provider strategy adapters. They compose only
+        # the existing Connection/Ontology/Intelligence/Briefing Agent services,
+        # Builder state machine, and durable stores, reach intelligence contracts
+        # solely through public ace.application surfaces, and never import
+        # ace.intelligence directly.
+        "core/engine/core/intelligence_builder_concept_progression.py",
+        "core/engine/core/intelligence_builder_disposition_authority.py",
+        "core/engine/core/intelligence_builder_host_contracts.py",
+        "core/engine/core/intelligence_builder_intelligence_progression.py",
+        "core/engine/core/intelligence_builder_local_source_provider.py",
+        "core/engine/core/intelligence_builder_observation_admission.py",
+        "core/engine/core/intelligence_builder_strategies.py",
+        "core/engine/core/local_source_connect_progression.py",
     }
     governed_authority_contracts = {
         # Slice 7: the delegated request envelope and its receipts bind the
@@ -163,6 +195,11 @@ def test_only_host_adapters_and_installed_product_applications_import_public_ace
         # ace.intelligence_build_planners entry-point group, and it imports
         # intelligence contracts solely through public ace.application surfaces.
         "core/engine/personal_intelligence/build_planner.py",
+        # PI13 WS3: the first-party Personal build executor. Generic Core
+        # reaches it only through the dedicated ace.intelligence_builders
+        # entry-point group; the executor composes public application ports
+        # with the host's exact durable Connect-capture repository.
+        "core/engine/personal_intelligence/build_executor.py",
     }
     allowed = host_adapters | governed_authority_contracts | installed_product_applications
     offenders = sorted(

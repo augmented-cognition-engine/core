@@ -98,6 +98,97 @@ jobs:
         # advisory has no fix, add an explicit --ignore-vuln here with a reason.)
         run: uv run pip-audit
 
+  pi13-ws0:
+    name: PI13 WS0 — Personal J1-J10 (allowed failure)
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 35
+    # Allowed failure: WS0 is an observability gate, not a merge gate. The
+    # runner step itself must stay strict (no || true) so a red run is visible.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          version: "latest"
+      - name: Install build tooling
+        run: python -m pip install build==1.5.0 setuptools==83.0.0
+      - name: Build wheels (Core + local adapters + PI pack + PI bundle)
+        run: |
+          mkdir -p "$RUNNER_TEMP/pi13-ws0-dist"
+          python -m build --wheel --outdir "$RUNNER_TEMP/pi13-ws0-dist" .
+          for adapter in adapters/local_*; do
+            python -m build --wheel --outdir "$RUNNER_TEMP/pi13-ws0-dist" "$adapter"
+          done
+          python -m build --wheel --outdir "$RUNNER_TEMP/pi13-ws0-dist" domain_packs/personal_intelligence
+          python -m build --wheel --outdir "$RUNNER_TEMP/pi13-ws0-dist" solution_bundles/personal_intelligence
+      - name: Create install venv outside the workspace
+        run: |
+          python -m venv "$RUNNER_TEMP/pi13-ws0-venv"
+          "$RUNNER_TEMP/pi13-ws0-venv/bin/pip" install --upgrade pip
+          "$RUNNER_TEMP/pi13-ws0-venv/bin/pip" install "$RUNNER_TEMP"/pi13-ws0-dist/*.whl
+      - name: Start disposable SurrealDB (in-memory, no volume)
+        run: |
+          docker run -d --name pi13-ws0-surreal -p 18130:8000 \
+            surrealdb/surrealdb:v3.2.3 \
+            start --username root --password root --bind 0.0.0.0:8000 memory
+          for attempt in $(seq 1 30); do
+            if docker exec pi13-ws0-surreal /surreal is-ready --endpoint http://localhost:8000; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "SurrealDB never became ready" >&2
+          docker logs pi13-ws0-surreal >&2 || true
+          exit 1
+      - name: Apply schema from the installed package
+        working-directory: ${{ runner.temp }}
+        env:
+          SURREAL_URL: ws://localhost:18130
+          SURREAL_USER: root
+          SURREAL_PASS: root
+          SURREAL_NS: ace
+          SURREAL_DB: ace
+          JWT_SECRET: pi13-ws0-ci-only-not-a-secret
+          REQUIRE_SUBSCRIPTION: "0"
+        run: '"$RUNNER_TEMP/pi13-ws0-venv/bin/python" -m scripts.schema_apply'
+      - name: Run J1-J10 journey gate (installed venv, stub model)
+        working-directory: ${{ runner.temp }}
+        env:
+          SURREAL_URL: ws://localhost:18130
+          SURREAL_USER: root
+          SURREAL_PASS: root
+          SURREAL_NS: ace
+          SURREAL_DB: ace
+          JWT_SECRET: pi13-ws0-ci-only-not-a-secret
+          REQUIRE_SUBSCRIPTION: "0"
+        run: |
+          mkdir -p "$RUNNER_TEMP/pi13-ws0-report"
+          "$RUNNER_TEMP/pi13-ws0-venv/bin/python" "$GITHUB_WORKSPACE/scripts/pi13_ws0_journey_gate.py" \
+            --repository-root "$GITHUB_WORKSPACE" \
+            --fixture-corpus "$GITHUB_WORKSPACE/tests/fixtures/pi13_ws0" \
+            --json-report "$RUNNER_TEMP/pi13-ws0-report/journey_gate.json" \
+            --markdown-report "$RUNNER_TEMP/pi13-ws0-report/journey_gate.md"
+      - name: Publish journey report to step summary
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/pi13-ws0-report/journey_gate.md" ]; then
+            cat "$RUNNER_TEMP/pi13-ws0-report/journey_gate.md" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload journey report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pi13-ws0-journey-report
+          path: ${{ runner.temp }}/pi13-ws0-report
+          if-no-files-found: error
+      - name: Tear down SurrealDB container
+        if: always()
+        run: docker rm -f pi13-ws0-surreal || true
+
   docker:
     name: Docker Build
     runs-on: ubuntu-latest

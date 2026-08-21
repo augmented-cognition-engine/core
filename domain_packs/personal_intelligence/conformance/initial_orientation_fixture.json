@@ -1,0 +1,18 @@
+{
+  "contract": "ace.intelligence.initial-orientation-conformance-fixture/v1",
+  "fixture_id": "personal_initial_orientation_golden",
+  "fixture_version": "1.0.0",
+  "orientation_policy_id": "personal_initial_orientation",
+  "brief_template_id": "personal_orientation_first_brief",
+  "brief_type": "personal_orientation",
+  "persona_ids": [
+    "personal_orientation_analyst"
+  ],
+  "required_sections": [
+    "current_landscape",
+    "what_matters_now",
+    "open_questions"
+  ],
+  "recommendation_required": false,
+  "claim_policy": "citation_or_explicit_inference"
+}

@@ -29,6 +29,10 @@ from ace.intelligence.contracts.feedback import (
     DECISION_OUTCOMES_MODULE_VERSION,
     DecisionOutcomesModuleV1,
 )
+from ace.intelligence.contracts.orientation import (
+    ORIENTATION_MODULE_VERSION,
+    OrientationModuleV1,
+)
 from ace.intelligence.contracts.pack import (
     COMPILED_DOMAIN_PACK_STABLE_VERSION,
     DOMAIN_PACK_MANIFEST_STABLE_VERSION,
@@ -419,6 +423,10 @@ def _compile_synthesis_v1alpha2(
     )
 
 
+def _compile_orientation(payload: Any, *, module_id: str, path: str) -> OrientationModuleV1:
+    return _compile_typed_module(payload, module_id=module_id, path=path, model=OrientationModuleV1)
+
+
 def _compile_epistemic_status(
     payload: Any,
     *,
@@ -551,6 +559,7 @@ _MODULE_VALIDATORS: dict[str, Callable[..., Any]] = {
     DECISION_OUTCOMES_MODULE_VERSION: _compile_decision_outcomes,
     PERSONAS_MODULE_VERSION: _compile_personas,
     SOURCE_MAPPING_MODULE_VERSION: _compile_source_mapping,
+    ORIENTATION_MODULE_VERSION: _compile_orientation,
     SYNTHESIS_MODULE_VERSION: _compile_synthesis,
     SYNTHESIS_MODULE_V1ALPHA2_VERSION: _compile_synthesis_v1alpha2,
     EPISTEMIC_STATUS_MODULE_VERSION: _compile_epistemic_status,
@@ -687,6 +696,60 @@ def _validate_source_mapping_modules(
                     )
 
 
+def _validate_orientation_modules(modules: list[CompiledModuleV1]) -> None:
+    """Every orientation policy must name one exact declared template and persona set."""
+
+    template_counts: dict[str, int] = {}
+    persona_counts: dict[str, int] = {}
+    synthesis_models = {
+        SYNTHESIS_MODULE_VERSION: SynthesisModuleV1,
+        SYNTHESIS_MODULE_V1ALPHA2_VERSION: SynthesisModuleV1Alpha2,
+    }
+    for compiled in modules:
+        model = synthesis_models.get(compiled.contract)
+        if model is not None:
+            module = model.model_validate_json(compiled.canonical_payload)
+            for template in module.brief_templates:
+                template_counts[template.template_id] = template_counts.get(template.template_id, 0) + 1
+        if compiled.contract == PERSONAS_MODULE_VERSION:
+            module = PersonasModuleV1.model_validate_json(compiled.canonical_payload)
+            for persona in module.personas:
+                persona_counts[persona.persona_id] = persona_counts.get(persona.persona_id, 0) + 1
+        if compiled.contract == ORIENTATION_MODULE_VERSION:
+            module = OrientationModuleV1.model_validate_json(compiled.canonical_payload)
+            for persona in module.personas:
+                persona_counts[persona.persona_id] = persona_counts.get(persona.persona_id, 0) + 1
+
+    policy_owner: dict[str, str] = {}
+    for compiled in modules:
+        if compiled.contract != ORIENTATION_MODULE_VERSION:
+            continue
+        module = OrientationModuleV1.model_validate_json(compiled.canonical_payload)
+        for policy in module.initial_orientation_policies:
+            policy_path = f"modules.{compiled.module_id}.initial_orientation_policies.{policy.policy_id}"
+            owner = policy_owner.get(policy.policy_id)
+            if owner is not None:
+                _fail(
+                    "duplicate_orientation_policy_id",
+                    f"{policy_path}.policy_id",
+                    f"initial orientation policy ID is already declared by module {owner}",
+                )
+            policy_owner[policy.policy_id] = compiled.module_id
+            if template_counts.get(policy.brief_template_id, 0) != 1:
+                _fail(
+                    "unresolved_orientation_template",
+                    f"{policy_path}.brief_template_id",
+                    "orientation policy must name a Brief template declared exactly once in this pack",
+                )
+            unresolved = sorted(item for item in policy.persona_ids if persona_counts.get(item, 0) != 1)
+            if unresolved:
+                _fail(
+                    "unresolved_orientation_personas",
+                    f"{policy_path}.persona_ids",
+                    f"orientation policy personas must each be declared exactly once in this pack: {unresolved}",
+                )
+
+
 def _validate_dependency_graph(manifest: DomainPackManifestV1) -> None:
     dependencies = {item.module_id: item.depends_on for item in manifest.modules}
     visiting: set[str] = set()
@@ -784,6 +847,7 @@ def _compile_pack(
         )
 
     _validate_source_mapping_modules(manifest, compiled_modules)
+    _validate_orientation_modules(compiled_modules)
     _validate_stable_resource_boundaries(manifest, compiled_modules)
 
     try:

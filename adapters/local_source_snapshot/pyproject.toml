@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ace-local-source-snapshot"
+version = "0.1.0"
+description = "Installable source_snapshot capability provider composing ace-core's governed local acquisition with the format normalizers"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+dependencies = [
+    "ace-core>=1.2.2,<2",
+    "ace-local-source-normalizers>=0.1.0,<1",
+]
+
+[project.entry-points."ace.source_snapshot_providers"]
+local_source_snapshot = "ace_local_source_snapshot.provider:LocalSourceSnapshotProvider"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["ace_local_source_snapshot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# ace-core (repo root), this package's src, and the sibling normalizer plus four adapter srcs,
+# so the multi-package spine is importable without installing anything.
+pythonpath = [
+    "../..",
+    "src",
+    "../local_source_normalizers/src",
+    "../local_markdown_source/src",
+    "../local_csv_source/src",
+    "../local_json_source/src",
+    "../local_pdf_source/src",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pypdf>=4,<6"]

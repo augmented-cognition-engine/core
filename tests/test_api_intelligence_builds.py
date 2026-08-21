@@ -21,6 +21,7 @@ from core.engine.core.intelligence_build import (
     IntelligenceBuildHttpRuntime,
     intelligence_build_runtime,
 )
+from core.engine.core.intelligence_build_cognition import IntelligenceBuildCognitionUnavailable
 
 pytestmark = pytest.mark.unit
 
@@ -144,6 +145,13 @@ class _Executor:
         )
 
 
+class _UnavailableCognitionHost:
+    async def compose(self, **_kwargs):
+        raise IntelligenceBuildCognitionUnavailable(
+            "intelligence-build cognition requires the current reasoning-configuration governed head"
+        )
+
+
 def _claims(*, authorities: list[str] | None = None) -> dict:
     return {
         "sub": ACTOR,
@@ -182,6 +190,7 @@ async def _request(
     executor: _Executor,
     activation_authority: _ActivationAuthority | None = None,
     body: dict | None = None,
+    host_composer=None,
 ):
     app = FastAPI()
     app.include_router(router)
@@ -192,6 +201,7 @@ async def _request(
         authority=authority,
         activation_authority=activation_authority or _ActivationAuthority(),
         executor=executor,
+        host_composer=host_composer,
     )
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.post("/v1/intelligence/builds/start", json=body or _body())
@@ -258,6 +268,19 @@ async def test_start_build_rejects_activation_approval_subject_mismatch() -> Non
         executor=_Executor(),
     )
     assert future_approval.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_start_build_names_missing_governed_cognition_dependency() -> None:
+    response, _ = await _request(
+        claims=_claims(),
+        authority=_Authority(),
+        executor=_Executor(),
+        host_composer=_UnavailableCognitionHost(),
+    )
+
+    assert response.status_code == 503
+    assert "reasoning-configuration governed head" in response.json()["detail"]
 
 
 @pytest.mark.asyncio

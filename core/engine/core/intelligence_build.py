@@ -40,6 +40,10 @@ from core.engine.core.intelligence_activation_authority import (
     IntelligenceActivationApprovalUnavailable,
     RecordedIntelligenceActivationAuthority,
 )
+from core.engine.core.intelligence_build_cognition import (
+    IntelligenceBuildCognitionUnavailable,
+    ProductionIntelligenceBuildCognitionResolver,
+)
 from core.engine.core.intelligence_build_executor_registry import (
     IntelligenceBuildExecutorRegistryError,
     resolve_intelligence_build_executor,
@@ -143,6 +147,11 @@ def intelligence_build_runtime() -> IntelligenceBuildHttpRuntime:
         records=records,
         governed_state=governed_state,
     )
+    cognition_resolver = ProductionIntelligenceBuildCognitionResolver(
+        governed_state=governed_state,
+        runtime_use=authority,
+        records=records,
+    )
     return IntelligenceBuildHttpRuntime(
         records=records,
         authority=authority,
@@ -152,6 +161,7 @@ def intelligence_build_runtime() -> IntelligenceBuildHttpRuntime:
             governed_state=governed_state,
             runtime_use=authority,
             packs=InstalledCompiledPackArtifactResolver.discover(),
+            first_brief_cognition_resolver=cognition_resolver,
         ),
     )
 
@@ -303,6 +313,8 @@ async def start_intelligence_build(
         raise IntelligenceBuildDenied("reviewed activation approval or authority denied the build") from exc
     except IntelligenceActivationApprovalUnavailable as exc:
         raise IntelligenceBuildUnavailable("reviewed activation authority is unavailable") from exc
+    except IntelligenceBuildCognitionUnavailable as exc:
+        raise IntelligenceBuildUnavailable(str(exc)) from exc
     except (ValidationError, TypeError, ValueError) as exc:
         raise IntelligenceBuildContractConflict("Intelligence build result failed exact validation") from exc
     except IntelligenceBuildError:

@@ -18,6 +18,11 @@ from ace.application.domain_activation import (
     DomainActivationAdmissionService,
     bind_committed_activation,
 )
+from ace.application.initial_corpus_brief_synthesis import (
+    InitialCorpusBriefSynthesisError,
+    InitialCorpusBriefSynthesisService,
+    PreparedInitialCorpusBriefAppendAdmission,
+)
 from ace.application.intelligence_build_execution import (
     AuthorizedIntelligenceBuild,
     IntelligenceBuildFirstBriefPort,
@@ -42,18 +47,25 @@ from ace.core.reasoning import (
 )
 from ace.core.records import ImmutableRecordStore
 from ace.core.runtime_use import AuthorityUseReceiptV1Alpha1, RuntimeUseResolver
-from ace.intelligence.contracts.common import validate_digest, validate_reference
+from ace.intelligence.contracts.common import validate_digest, validate_reference, validate_slug
 from ace.intelligence.contracts.ledger import AttentionDisposition, resource_reference
 from ace.intelligence.contracts.resources import SignalV1Alpha1
-from ace.intelligence.contracts.synthesis import BriefSynthesisRequestV1Alpha1
+from ace.intelligence.contracts.synthesis import (
+    BriefSynthesisRequestV1Alpha1,
+    InitialCorpusBriefSynthesisRequestV1Alpha1,
+)
 from ace.intelligence.packs.runtime import (
     PreparedActivationBindingError,
     resolve_brief_synthesis_policy,
+    resolve_initial_orientation_policy,
 )
 
 INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_VERSION = "ace.application.intelligence-build-first-brief-request/v1alpha1"
 INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION = (
     "ace.application.intelligence-build-first-brief-request/v1alpha2"
+)
+INTELLIGENCE_BUILD_INITIAL_CORPUS_FIRST_BRIEF_REQUEST_VERSION = (
+    "ace.application.intelligence-build-initial-corpus-first-brief-request/v1alpha1"
 )
 CREATE_FIRST_BRIEF_EFFECT = "create_first_brief"
 INTELLIGENCE_BUILD_OPERATION = "start_intelligence_build"
@@ -183,6 +195,76 @@ class IntelligenceBuildFirstBriefRequestV1Alpha2(FrozenContract):
         return self
 
 
+class IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1(FrozenContract):
+    """Build-bound initial-corpus orientation; no derivation or attention receipt.
+
+    The J5 first Brief is an orientation over the already admitted corpus at one
+    exact ``corpus_as_of``/``corpus_available_at``, selected by a declared Pack
+    orientation policy. It binds no Signal, no Shift, and no change event.
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        strict=True,
+        revalidate_instances="always",
+        validate_default=True,
+        allow_inf_nan=False,
+    )
+
+    contract: Literal["ace.application.intelligence-build-initial-corpus-first-brief-request/v1alpha1"] = (
+        INTELLIGENCE_BUILD_INITIAL_CORPUS_FIRST_BRIEF_REQUEST_VERSION
+    )
+    build_id: str
+    build_request_digest: str
+    orientation_policy_id: str
+    corpus_as_of: datetime
+    corpus_available_at: datetime
+    requested_at: datetime
+    request_id: str | None = Field(default=None, max_length=240)
+    request_digest: str | None = Field(default=None, pattern=r"^sha256:[a-f0-9]{64}$")
+
+    @field_validator("build_id", "request_id")
+    @classmethod
+    def validate_refs(cls, value: str | None, info) -> str | None:
+        return validate_reference(value, name=info.field_name) if value is not None else None
+
+    @field_validator("orientation_policy_id")
+    @classmethod
+    def validate_orientation_policy_id(cls, value: str) -> str:
+        return validate_slug(value, name="orientation_policy_id")
+
+    @field_validator("build_request_digest", "request_digest")
+    @classmethod
+    def validate_digests(cls, value: str | None, info) -> str | None:
+        return validate_digest(value) if value is not None else None
+
+    @field_validator("corpus_as_of", "corpus_available_at", "requested_at")
+    @classmethod
+    def normalize_times(cls, value: datetime, info) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError(f"{info.field_name} must include a timezone")
+        return value.astimezone(UTC)
+
+    @model_validator(mode="after")
+    def validate_times_and_derive_identity(self) -> Self:
+        if self.corpus_as_of > self.corpus_available_at:
+            raise ValueError("the exact corpus as_of cannot follow its availability instant")
+        if self.corpus_available_at > self.requested_at:
+            raise ValueError("the exact corpus availability instant cannot follow request time")
+        material = self.model_dump(mode="json", exclude={"request_id", "request_digest"})
+        digest = canonical_hash(material)
+        expected_id = f"intelligence_build_initial_corpus_first_brief:{digest[:32]}"
+        expected_digest = f"sha256:{digest}"
+        if self.request_id is not None and self.request_id != expected_id:
+            raise ValueError("request_id does not match exact initial-corpus first-Brief selection")
+        if self.request_digest is not None and self.request_digest != expected_digest:
+            raise ValueError("request_digest does not match exact initial-corpus first-Brief selection")
+        object.__setattr__(self, "request_id", expected_id)
+        object.__setattr__(self, "request_digest", expected_digest)
+        return self
+
+
 @dataclass(frozen=True, slots=True)
 class IntelligenceBuildFirstBriefCognition:
     """Existing governed cognition and append bindings selected by the Core host."""
@@ -198,6 +280,18 @@ class IntelligenceBuildFirstBriefOutcome:
     session: IntelligenceBuilderSessionRevisionV1
     binding: CommittedActivationBinding
     admission: PreparedBriefAppendAdmission
+
+    @property
+    def replayed(self) -> bool:
+        return self.admission.replayed
+
+
+@dataclass(frozen=True, slots=True)
+class IntelligenceBuildInitialCorpusFirstBriefOutcome:
+    request: IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1
+    session: IntelligenceBuilderSessionRevisionV1
+    binding: CommittedActivationBinding
+    admission: PreparedInitialCorpusBriefAppendAdmission
 
     @property
     def replayed(self) -> bool:
@@ -511,15 +605,105 @@ class CoreIntelligenceBuildFirstBriefService(IntelligenceBuildFirstBriefPort):
             admission=admission,
         )
 
+    async def create_initial_corpus_first_brief(
+        self,
+        request: IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1,
+    ) -> IntelligenceBuildInitialCorpusFirstBriefOutcome:
+        """Derive the J5 first Brief as an orientation over the admitted corpus.
+
+        This path creates no synthetic Shift or Signal, performs no second
+        capture or read, and leaves the routed ``create_first_brief`` derivation
+        untouched. Closure is exactly the admitted Observation and Entity
+        Snapshot records at one exact as_of/availability instant.
+        """
+
+        try:
+            exact = IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1.model_validate(
+                request.model_dump(mode="python")
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise IntelligenceBuildFirstBriefError(
+                "initial-corpus first-Brief request failed exact revalidation"
+            ) from exc
+        if exact.build_id != self.build.build_id or exact.build_request_digest != self.build.request_digest:
+            raise IntelligenceBuildFirstBriefError("initial-corpus first-Brief request crossed the authorized build")
+        session = await self._load_current_session(exact)
+        await self._resolve_current_build_authority(exact)
+        binding = await self._load_binding(session=session, available_at=exact.requested_at)
+        if self.cognition is None:
+            raise IntelligenceBuildFirstBriefError(
+                "governed first-Brief cognition and append composition is not installed"
+            )
+        try:
+            resolve_initial_orientation_policy(
+                binding.prepared_binding,
+                policy_id=exact.orientation_policy_id,
+            )
+        except PreparedActivationBindingError:
+            raise IntelligenceBuildFirstBriefError(
+                "declared orientation policy, template, or personas failed exact resolution"
+            ) from None
+        synthesis_material = {
+            "build_id": self.build.build_id,
+            "request_id": exact.request_id,
+            "session_revision_id": session.revision_id,
+            "orientation_policy_id": exact.orientation_policy_id,
+            "corpus_as_of": exact.corpus_as_of.isoformat(),
+            "corpus_available_at": exact.corpus_available_at.isoformat(),
+            "activation_revision_id": binding.prepared_binding.reference.revision_id,
+            "pack_digest": binding.prepared_binding.revision.spec.pack.pack_digest,
+        }
+        identity = canonical_hash(synthesis_material)
+        synthesis_request = InitialCorpusBriefSynthesisRequestV1Alpha1(
+            synthesis_key=f"initial_corpus_first_brief_synthesis:{identity[:32]}",
+            reasoning_attempt_key=f"initial_corpus_first_brief_reasoning:{identity[:32]}",
+            product_id=self.build.product_id,
+            authenticated_context=self.build.authority_use.authenticated_context,
+            activation_revision=binding.prepared_binding.reference,
+            pack=binding.prepared_binding.revision.spec.pack,
+            orientation_policy_id=exact.orientation_policy_id,
+            corpus_as_of=exact.corpus_as_of,
+            corpus_available_at=exact.corpus_available_at,
+            requested_at=exact.requested_at,
+        )
+        service = InitialCorpusBriefSynthesisService(
+            activation_service=self.activations,
+            pack=binding.prepared_binding.pack,
+            pack_resolver=self.packs,
+            store=self.records,
+            reasoning=self.cognition.reasoning,
+            execution_binding=self.cognition.execution_binding,
+            append_binding=self.cognition.append_binding,
+            clock=lambda: exact.requested_at,
+        )
+        try:
+            admission = await service.synthesize(
+                synthesis_request,
+                delivery_context=self.build.authority_use.authenticated_context,
+            )
+        except InitialCorpusBriefSynthesisError as exc:
+            raise IntelligenceBuildFirstBriefError(
+                "canonical initial-corpus first-Brief synthesis failed closed"
+            ) from exc
+        return IntelligenceBuildInitialCorpusFirstBriefOutcome(
+            request=exact,
+            session=session,
+            binding=binding,
+            admission=admission,
+        )
+
 
 __all__ = [
     "CREATE_FIRST_BRIEF_EFFECT",
     "CoreIntelligenceBuildFirstBriefService",
     "INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_V1ALPHA2_VERSION",
     "INTELLIGENCE_BUILD_FIRST_BRIEF_REQUEST_VERSION",
+    "INTELLIGENCE_BUILD_INITIAL_CORPUS_FIRST_BRIEF_REQUEST_VERSION",
     "IntelligenceBuildFirstBriefCognition",
     "IntelligenceBuildFirstBriefError",
     "IntelligenceBuildFirstBriefOutcome",
     "IntelligenceBuildFirstBriefRequestV1Alpha1",
     "IntelligenceBuildFirstBriefRequestV1Alpha2",
+    "IntelligenceBuildInitialCorpusFirstBriefOutcome",
+    "IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1",
 ]

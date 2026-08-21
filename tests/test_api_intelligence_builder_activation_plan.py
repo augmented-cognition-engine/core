@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 import pytest
 from fastapi import FastAPI
@@ -72,8 +73,27 @@ def _owned_session(session: IntelligenceBuilderSessionRevisionV1) -> Intelligenc
     return IntelligenceBuilderSessionRevisionV1.model_validate(data)
 
 
+_FAKE_SESSION_STARTED_AT = datetime(2026, 8, 21, 12, 0, tzinfo=UTC)
+
+
+class _FakeSessions:
+    """The durable session port the host consults for the plan window start."""
+
+    def __init__(self, first_revision) -> None:
+        self.first_revision = first_revision
+        self.load_first_calls: list[dict] = []
+
+    async def load_first(self, **kwargs):
+        self.load_first_calls.append(kwargs)
+        return self.first_revision
+
+
 class _FakeCoordinator:
-    def __init__(self) -> None:
+    def __init__(self, *, first_revision=...) -> None:
+        if first_revision is ...:
+            # The host reads only the first durable revision's ``occurred_at``.
+            first_revision = SimpleNamespace(sequence=1, occurred_at=_FAKE_SESSION_STARTED_AT)
+        self.sessions = _FakeSessions(first_revision)
         self.prepare_calls: list[dict] = []
         self.admit_calls: list[dict] = []
         self.activate_calls: list[dict] = []
@@ -220,6 +240,43 @@ async def test_prepare_returns_the_coordinators_exact_plan_for_the_verified_owne
     assert response.json()["plan_id"] == plan.plan_id
     assert len(coordinator.prepare_calls) == 1
     assert coordinator.prepare_calls[0]["session_id"] == session.session_id
+    # The plan window starts at the session's durable first revision, never at
+    # a client-supplied time; the request time is only the durable read instant.
+    assert coordinator.prepare_calls[0]["created_at"] == _FAKE_SESSION_STARTED_AT
+    assert coordinator.prepare_calls[0]["evaluated_at"] == requested_at
+    assert coordinator.sessions.load_first_calls[0]["session_id"] == session.session_id
+
+
+@pytest.mark.asyncio
+async def test_prepare_and_approve_map_a_missing_durable_session_to_404() -> None:
+    material, session, bound_plan = await _owned_material()
+    coordinator = _FakeCoordinator(first_revision=None)
+    app = _app(coordinator=coordinator, claims=_owner_claims())
+    now = datetime.now(UTC)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        prepared = await client.post(
+            "/v1/intelligence/builds/activation-plan/prepare",
+            json={
+                "current": session.model_dump(mode="json"),
+                "bound_plan": bound_plan.model_dump(mode="json"),
+                "requested_at": now.isoformat(),
+            },
+        )
+        approved = await client.post(
+            "/v1/intelligence/builds/activation-plan/approve",
+            json={
+                "decision": "approve",
+                "current": session.model_dump(mode="json"),
+                "bound_plan": bound_plan.model_dump(mode="json"),
+                "approved_at": now.isoformat(),
+            },
+        )
+
+    assert prepared.status_code == 404, prepared.text
+    assert approved.status_code == 404, approved.text
+    assert coordinator.prepare_calls == []
+    assert coordinator.admit_calls == []
 
 
 @pytest.mark.asyncio

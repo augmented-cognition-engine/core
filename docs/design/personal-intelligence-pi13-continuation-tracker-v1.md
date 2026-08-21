@@ -1,0 +1,335 @@
+# PI13 continuation tracker v1 (draft issue body — local until posted by the owner)
+
+- Date: 2026-08-20
+- Status: **active local tracker; packet frozen; not posted; no GitHub state mutated**
+- Why this exists: issue #195 is closed while the
+  [public acceptance record](../evidence/personal-intelligence-v1.2-public-acceptance-v1.md)
+  reads "not passed — journey integration continuation in progress (PI13)". The continuation
+  therefore needs its own live public ledger; this file is the draft body for that record, to be
+  posted (or attached to a reopened/successor issue) only after the owner separately authorizes
+  the GitHub write.
+- Companion packet:
+  [PI13 — Personal journey runtime integration](personal-intelligence-journey-integration-pi13-v1.md)
+  (frozen by owner on 2026-08-20)
+- Evidence baseline: **run 3** (v1.2.2, 2026-08-20, brief sha256
+  `90e8b87ad34a105c31af7e029e5722d90593310fd0de427ef19ccd62d49ec58e`), with runs 1 (v1.2.0) and
+  2 (v1.2.1) as history; full logs under `docs/evidence/artifacts/personal-acceptance-1.2/`.
+
+## Ground rules
+
+1. **Journey-depth completion.** A workstream moves to complete only when (a) its J-step visibly
+   changes in the WS0 lane, and (b) a **fresh clean-context-style installed-artifact run** over
+   the WS0-built public-artifact form confirms the change. Green unit or conformance suites at
+   the workstream's own boundary complete nothing on this ledger.
+2. **Candidate evidence ≠ public release acceptance.** Everything this ledger records — WS0 lane
+   results and maintainer-host clean-context runs — is candidate evidence. Public release
+   acceptance remains what the amended gate requires: a clean-context run reporting J1–J10 end
+   to end, maintainer cross-check concurrence, and the four-record reconciliation. This tracker
+   never declares ACE 1.2 passed.
+3. **WS0 composition, named.** The WS0 lane builds the public artifacts, installs them into a
+   **bare venv**, stands up an **ephemeral SurrealDB**, and attempts J1→J10 with a fixture
+   corpus and a deterministic stub provider. From its first allowed-to-fail merge it reports
+   every J1–J10 step; a step past the integrated frontier reads "blocked on …" — explicitly,
+   never absently.
+4. **Honest updates.** A status change cites the WS0 run and the confirming clean-context run
+   that justify it. Prior entries are corrected by appending, not rewriting.
+
+## Workstream ledger
+
+| WS | Frozen PI13 scope | Status | Journey evidence |
+|---|---|---|---|
+| WS0 | Journey-depth CI lane: bare venv + ephemeral SurrealDB, full J1–J10 per-step report, allowed-to-fail first | owner-accepted local candidate; not landed | Candidate run 1: J1/J2 pass; J3 fail; J4–J6/J9/J10 blocked; J7/J8 partial. See [WS0 candidate evidence](../evidence/personal-intelligence-pi13-ws0-candidate-v1.md). Owner accepted its disposition and authorized WS1 to begin locally on 2026-08-20. |
+| WS1 | Local snapshot capability provider (`ace.source.snapshot/v1alpha1` over the PI2 adapters) | owner-accepted local candidate; not landed | Candidate run 2 moves the snapshot-binding portion of J3: the installed provider resolves, binds to the Personal pack requirement, and prepares an unpersisted activation spec. See [WS1 candidate evidence](../evidence/personal-intelligence-pi13-ws1-candidate-v1.md). Owner accepted its disposition and authorized WS2 to begin locally on 2026-08-20. |
+| WS2 | Connect API + acquisition wiring (consent-before-read); carries #259/#260 jointly with WS3 | owner-accepted local candidate; not landed | Candidate run 3 moves J3 to **PASS**: exact preview/authorize routes, installed snapshot binding, and negative consent-before-read probes pass; authorize/replay/plan also pass against a fresh installed wheel set and ephemeral SurrealDB. #259 is fixed; #260 remains carried to WS3. The owner accepted this disposition and authorized WS3 on 2026-08-20. See [WS2 candidate evidence](../evidence/personal-intelligence-pi13-ws2-candidate-v1.md). |
+| WS3 | Build executor (`ace.intelligence_builders` through the production registry seam); carries #259/#260 jointly with WS2 | **Builder progression coordinator accepted locally; blocked before WS0 J4/J5 movement on thin API/activation composition; local only** | The owner-authorized five-grant migration, cognition heads, and separate exact source/concept/intelligence progression now pass focused and broader WS3 verification. The next clean-journey blocker is exposing the frozen coordinator through the host API and completing the existing activation-plan path from `FIRST_BRIEFING_READY` to `ACTIVE`; without an active session the host composer correctly withholds admission and first-Brief ports. No installed-artifact J4/J5 pass is claimed; WS4 has not started. See [WS3 evidence](../evidence/personal-intelligence-pi13-ws3-candidate-v1.md). |
+| WS4 | Full source-kind mapping (PDF, CSV, JSON joining Markdown; advertised = mapped, by test) | not started | — |
+| WS5 | Change detection and revision wiring; claim-bound correction re-derivation | not started | — |
+| WS6 | Atrium Personal journey (J2–J5 in the UI over WS2/WS3 APIs) | not started | — |
+
+The packet froze #259 (setup owner-verification grant-count skew) and #260 (CWD-only `.env`
+loading / default-port doctor probe) jointly in WS2/WS3 territory. WS2 candidate 1 fixes #259 by
+deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to WS3.
+
+## J-step ledger (initialized from run 3, v1.2.2)
+
+| Step | Run-3 baseline | Current status | Unblocked by |
+|---|---|---|---|
+| J1 Install | Pass with defects #259, #260 (both root-caused) | **PASS in WS0 candidate 3** — fresh distributions, schema v179, four fixture kinds, exact eleven MCP tools, deterministic stub; #259 fixed. The #260 code correction passes focused WS3 verification but has not received the required fresh installed-artifact confirmation. | #260 remains open on this ledger until a fresh WS0 run confirms it |
+| J2 Choose | Pass — planner loads and plans through the production registry path | **PASS in WS0 candidate 1** — installed Personal profile and planner resolve to the pack | held as regression by WS0 |
+| J3 Connect | Fail (F5–F7): no snapshot capability, no acquisition wiring, no connect API; bind and owner approval succeed, `builds/start` → 503 | **PASS in WS0 candidate 3** — installed provider binding, exact preview/authorize routes, and negative consent-before-read probes pass; executor absence remains visible but belongs to WS3 and blocks J4/J5 | held as regression by WS0; breadth WS4, UI WS6 |
+| J4 Inventory | Blocked on J3; resource plane answers honestly with receipts, all kinds empty | **BLOCKED after accepted WS3 progression coordinator** — the durable local-owner Connect, concept, and intelligence proposal/approval path now reaches `FIRST_BRIEFING_READY` in focused composition, but no thin production API has yet composed that path with the existing canonical activation plan to `ACTIVE`; the host composer correctly withholds admission until then | WS3 API/activation composition, then WS6 surfaces |
+| J5 First Brief | Blocked on J3; no corpus Brief can exist | **BLOCKED with J4 on canonical activation** — recorded source/corpus, first-Brief strategy, and durable Builder progression now exist in focused composition, but neither the production API nor the fresh installed journey has reached the required `ACTIVE` session | WS3 API/activation composition; WS4 later adds PDF/CSV/JSON citation breadth |
+| J6 Change | Blocked on J5; pure detection primitive ships uncalled | **BLOCKED in WS0 candidate 1** on watched source/prior Brief | WS5 |
+| J7 Ask | Partial: honest no-answer with receipts passes; cited answers untestable | **PARTIAL in WS0 candidate 1** — route present; connected cited answer unavailable | positive half via WS3/WS4 |
+| J8 Correct | Partial: fail-closed claim/citation binding passes; re-derivation untestable | **PARTIAL in WS0 candidate 1** — route present; real claim re-derivation unavailable | WS5 |
+| J9 Restart | Pass, scoped to what exists (identity-exact reopen) | **BLOCKED in WS0 candidate 1** — run-3 scoped pass deliberately not re-claimed without connected state | scope widens as J3–J6 land |
+| J10 Own | Pass, scoped (truthful export/deletion, verified non-reappearance) | **BLOCKED in WS0 candidate 1** — run-3 scoped pass deliberately not re-claimed without corpus-derived intelligence | scope widens as J3–J6 land |
+
+## Progress log (append-only)
+
+- **2026-08-20 — WS0 candidate run 1:** J1/J2 passed; J3 failed with snapshot binding,
+  Connect routes, and executor absent; J4–J6/J9/J10 were blocked; J7/J8 were partial. The owner
+  accepted this local candidate and authorized WS1 to begin locally.
+- **2026-08-20 — WS0 candidate run 2 / WS1 candidate 1:** J1/J2 remain passed. J3 remains
+  failed, but the installed `source_snapshot` provider now resolves, validates, binds to the
+  Personal pack requirement, and produces an unpersisted activation spec. The exact remaining
+  J3 blocker is `missing_connect_routes_executor`. J4–J10 retain their candidate-run-1 status.
+  The owner accepted this local candidate and authorized WS2 to begin locally. Nothing has
+  landed.
+- **2026-08-20 — WS0 candidate run 3 / WS2 candidate 1:** J1/J2 remain passed and J3 moves to
+  **PASS**. The installed gate sees both exact Connect routes, the installed snapshot provider,
+  and negative missing/false-consent probes with zero provider calls. A separate installed API
+  composition against a memory-only SurrealDB passes preview, authorize, exact replay, and
+  reviewed-selection plan binding. J4–J6/J9/J10 remain blocked and J7/J8 remain partial. #259
+  is fixed; #260 remains carried to WS3. The candidate is reviewed locally and awaits owner
+  disposition. Nothing has landed.
+- **2026-08-20 — WS2 accepted / WS3 authorized:** The owner accepted WS2 candidate 1 and
+  authorized WS3 implementation. WS2 remains local and unlanded. WS3 begins at the frozen
+  production-executor, Builder-session, recorded-source-admission, first-Brief, and #260 scope;
+  WS4 citation mapping has not started.
+- **2026-08-20 — WS3 partial implementation / packet blocker:** The production
+  `personal_intelligence` executor now loads from `ace.intelligence_builders`, replays only the
+  authorized recorded capture, routes it through existing recorded-source admission, and reads
+  SOURCE_HEALTH/ENTITY/OBSERVATION/BRIEF projections. The Personal Markdown mapping and #260
+  environment resolution correction pass focused verification (104 tests; Ruff clean). Review
+  found that J4 still cannot execute in the clean journey without fabricating governed authority,
+  and J5 cannot be defined from the frozen packet without product policy and cognition choices.
+  WS0 now reports both blockers truthfully. No J-step moved; no fresh installed-artifact WS3
+  confirmation or owner-disposition candidate exists; WS4 has not started.
+- **2026-08-20 — corrected WS3 addendum frozen:** The owner chose the non-Shift initial-corpus
+  Brief semantics and froze the existing-grant governed bootstrap, Pack-local orientation
+  policy/template/persona, and governed selected-provider cognition composition in PI13 §8.
+  WS3 implementation resumes in that internal order. This is not a J-step movement or landing
+  authorization; WS4 remains prohibited.
+- **2026-08-20 — WS3a–WS3d focused candidate:** The durable local-owner activation/build/read
+  bootstrap, initial-corpus synthesis service, frozen Personal orientation policy, production
+  governed cognition resolver, and Personal executor's exact admit → first Brief → projection
+  order are implemented locally. The focused WS3 suite passes 141 tests with the one reproduced
+  pristine-baseline extension-disabled kernel-start failure deselected; Ruff and diff hygiene pass.
+  Review found one remaining authority-provisioning decision before WS0 can move J5: setup's five
+  fixed grants contain neither `reason` nor `append_immutable_records`, while the new production
+  resolver correctly refuses to mint or widen grants. Choosing a new grant or widening/migrating
+  an existing grant changes governed authority material and requires owner direction. J4/J5 remain
+  blocked in WS0, no installed-artifact WS3 confirmation is claimed, and WS4 has not started.
+- **2026-08-21 — authority widening/migration implemented and verified:** The owner authorized
+  widening only the existing feedback grant with `reason` and `append_immutable_records` while
+  preserving five grant identities. Exact historical installations migrate append-only to
+  sequence 2; fresh and migrated production-adapter paths over disposable schema-v179 SurrealDB
+  pass, including four exact cognition heads. Focused authority/cognition tests pass 20/20 and the
+  surrounding WS3 set passes 135/135 with the one known pristine-baseline test deselected. WS0's
+  J4/J5 rows now name the next truthful blocker: no production path progresses the associated
+  Builder session and exact human dispositions from `GOAL_SELECTED` to
+  `FIRST_BRIEFING_READY`/`ACTIVE`. No J-step pass or installed-artifact WS3 completion is claimed.
+- **2026-08-21 — Builder progression coordinator accepted locally:** The frozen addendum's exact
+  local-owner path is now implemented through recorded Connect replay, source-scope approval,
+  concept proposal/approval, observation admission, intelligence proposal/approval, and
+  first-Brief preparation. Its exclusive pre-provider intents bind every exact input, survive
+  crash/retry without repeating provider or owner decisions, and reopen durable Connect and
+  artifact chains before returning an outcome. Independent verification passes 142 focused WS3
+  regression tests and 185 broader related tests (two expected skips; only existing warnings).
+  The remaining WS3 frontier is thin host API composition and the existing activation-plan path
+  to `ACTIVE`; no WS0 J4/J5 change, installed-artifact pass, landing, or WS4 work is claimed.
+- **2026-08-21 — WS3 thin Builder progression API accepted locally; boundary repair:** The seven
+  exact local-owner routes now exist under `/v1/intelligence/builds/builder/...` (source propose,
+  source approve-connect, concept propose/approve, intelligence propose/approve, first-brief
+  prepare) over the accepted coordinators, with limited response envelopes in
+  `core/engine/core/intelligence_builder_host_contracts.py` that expose only the exact artifact,
+  the reviewed approval when one was made, and the resulting session revision. Ten focused API
+  tests drive the real coordinators over in-memory stores through HTTP to `FIRST_BRIEFING_READY`,
+  prove approval-before-connect through the minted receipt, exact response key sets, 403/404/409/
+  422/503 mapping, and zero store/provider contact on rejected input. Independent verification
+  also found that three accepted coordinator modules (concept progression, intelligence
+  progression, observation admission) imported `ace.intelligence.contracts.*` directly and that
+  eight WS3 host adapters were absent from the boundary allowlist, so
+  `tests/test_public_core_boundaries.py` was red; both are repaired (host-local digest/reference
+  validators, the public `ace.application.intelligence_agent_contracts` surface now exports the
+  `CanonicalJsonValueV1Alpha1` type it already uses for observation attributes, allowlist entries
+  with rationale). Boundary suite 9/9 (known pristine-baseline kernel-start test deselected),
+  focused WS3/API sweep 196/196, Ruff and diff hygiene clean. No activation behavior changed; no
+  J-step moved; no installed-artifact run; WS4 not started; nothing landed.
+- **2026-08-21 — WS3 activation composition proof; exact canonical-activation blocker found:** A
+  focused composition test (`tests/test_pi13_ws3_activation_composition.py`) drives the public
+  route sequence end to end over in-memory durable stores with the production authority resolvers
+  (`RecordedIntelligenceActivationAuthority`, `RecordedDomainActivationPlanAuthority`), the real
+  installed Personal Pack artifact, and one deterministic provider through the selected-provider
+  strategy ports: `/approve` → `/session/associate` → the seven `/builder/...` routes →
+  `FIRST_BRIEFING_READY` (exactly three provider calls, none for approvals) →
+  `/activation-plan/prepare` and `/approve` reload the session's durable observation set,
+  intelligence model/disposition, and first Brief and **admit the v1alpha2 plan**, advancing the
+  session to `ACTIVATION_PENDING`. `/activation-plan/activate` then fails closed in
+  `DomainActivationCompatibilityService` ("canonical approval does not bind the exact specification,
+  actor, product, and time"): the canonical v1alpha1 rule requires the activation-spec approval's
+  `approved_at` inside `[plan.created_at, plan revision occurred_at]`, but the public flow mints that
+  approval at J3 (it is what `/session/associate` derives the session from) and the host
+  plan-approve route sets both `created_at` and `occurred_at` to the plan-approval instant, so the
+  window is unsatisfiable by construction. A second test proves the state machine is not bypassed
+  (an `INTELLIGENCE_MODEL_APPROVED` session cannot prepare or approve a plan and spends no provider
+  call); the to-`ACTIVE` path is pinned as a strict expected failure that flips when the gate is
+  resolved. WS0 J4/J5 now report `WS3:canonical_activation_approval_window_unsatisfiable` instead
+  of the obsolete "no progression API" blocker (gate suite 67/67). Hygiene correction: nine
+  earlier WS3a–WS3d files failed `ruff format --check` (which CI's lint lane enforces repo-wide)
+  despite prior "format passes" entries; they were mechanically reformatted with no behavior change,
+  and the repo-wide `ruff check`/`ruff format --check`/`git diff --check` now pass. Combined focused
+  sweep: 355 passed, 1 deselected (known pristine-baseline kernel-start test), 1 expected failure
+  (the to-ACTIVE target). No J-step moved; no installed-artifact run; WS4 not started; nothing landed.
+- **2026-08-21 — owner decision: anchor the plan window on the session's durable start; session
+  reaches ACTIVE:** The owner chose option 1. `IntelligenceBuilderSessionService` now exposes
+  `load_first` (the first durable revision, from the same validated chain `load_latest` reads), and
+  the host `prepare_domain_activation_plan`/`approve_domain_activation_plan` derive the v1alpha2
+  plan's `created_at` from that first revision's `occurred_at` — which `/session/associate` set to
+  the J3 activation-spec approval's own `approved_at` — while the request time remains only the
+  durable as-of read instant and the plan's `occurred_at`/`committed_at`. The application
+  coordinator's `prepare` gained an optional `evaluated_at` separate from `created_at` (default
+  unchanged, so every existing caller keeps its behavior) and fails closed if asked to read before
+  the window starts. No client value sets the window; no approval is re-minted or bundled; the
+  state machine and both separate approvals are unchanged. The focused composition proof now
+  reaches **`ACTIVE`** through the public routes: `/approve` → `/session/associate` → seven
+  `/builder/...` routes → `/activation-plan/prepare` → `/approve` → `/activate` (replay returns the
+  identical receipt); a second test pins `created_at == session start == spec approved_at` and that
+  the preview is a pure function of durable material; a third proves a pre-briefing session still
+  cannot plan (409, no provider call). The activation-plan API fake gained the `sessions.load_first`
+  port and pins that the host derives `created_at` from it (missing durable session → 404). WS0
+  J4/J5 now report `WS0:installed_artifact_journey_walk_pending` /
+  `J4/WS0:installed_artifact_first_brief_pending`: the composition is proven, the lane itself does
+  not yet execute it against installed artifacts. Combined focused sweep: 392 passed, 1 deselected
+  (known pristine-baseline kernel-start test); repo-wide `ruff check`, `ruff format --check`, and
+  `git diff --check` clean. No J-step moved; no installed-artifact run; WS4 not started; nothing
+  landed.
+- **2026-08-21 — WS0 installed-artifact walk implemented; three durable-path defects fixed; J5 hits a
+  Brief-time semantics gate:** The WS0 lane now *walks the journey* from installed artifacts instead of
+  reporting static rows. `scripts/pi13_ws0_journey_gate.py` drives `/auth/token` →
+  `/auth/local-owner/bootstrap` → connect preview/authorize over the fixture corpus → prepare/bind →
+  `/bootstrap/local-first-run` → `/session/associate` → the seven `/builder/...` routes →
+  activation-plan prepare/approve/activate → `/start` → `resources/query`, computing J4 from the real
+  resource page and J5 from the Brief's cited claims. WS0's deterministic provider
+  (`scripts/pi13_ws0_stub_provider.py`) is a loopback OpenAI-compatible server bound through
+  `OPENAI_COMPAT_BASE_URL`, so `get_llm()` selects the production `OpenAICompatProvider`; nothing is
+  injected. A second Markdown fixture note was added (the source-scope bridge needs two exact captures;
+  PDF/CSV/JSON remain WS4).
+
+  Running it against fresh wheels in a bare venv over an ephemeral SurrealDB found three real defects
+  that no in-memory test could see, each fixed test-first:
+  1. **`scripts/schema_apply` duplicated a `sys.path` entry** (its repo-root insert is site-packages in an
+     installed environment), which made `importlib.metadata` enumerate every distribution twice and broke
+     installed-Pack discovery process-wide. The insert is now idempotent.
+  2. **The installed-Pack resolver treated one dist-info enumerated twice as two Packs.** It now collapses
+     entries whose canonical name *and* resolved dist-info path are identical; genuinely different roots
+     stay ambiguous.
+  3. **Recorded-source admission's replay validated durable payloads strictly.** SurrealDB returns JSON
+     (string datetimes, enum values), so every real replay failed closed; in-memory doubles returned live
+     Python objects and hid it. Replay now parses the persisted JSON form (identities and bindings are
+     still re-verified exactly afterwards), proven by a JSON-round-trip store double.
+  Also: the cognition resolver now accepts the build's own `ProductScopedImmutableRecordStore` fence over
+  the configured store (production `/start` always wraps it; identity alone rejected the real
+  composition), and the compat provider records its usage into the in-process accumulator like the Ollama
+  provider, without which every governed structured call fails closed for "missing telemetry".
+
+  With those fixed the installed walk reaches `ACTIVE` and `/start` executes admission — then canonical
+  Brief assembly refuses the draft: **`Brief citations must be available by the Brief as_of cutoff`.** J4
+  and J5 therefore still do not pass.
+
+  Verification: the full fast suite (`pytest -m "not e2e"`) reports **9591 passed, 50 skipped, 4 failed**;
+  repo-wide Ruff check/format and `git diff --check` are clean. All four failures are pre-existing and
+  outside this work: three in `tests/test_graph_context.py` (that test file and `core/engine/graph/context.py`
+  are untouched in this worktree, so they fail at the `e9a53ae` baseline) and the one known
+  pristine-baseline `test_extension_disabled_kernel_starts_without_live_composition`. One stale assertion
+  *was* repaired as part of PI13: `test_activation_authority_reuses_current_governed_grants_without_minting_new_ones`
+  counted every governed head against the five grants, but the same bootstrap now also provisions the four
+  cognition heads; it now counts grant heads specifically, preserving the test's intent. No J-step moved;
+  WS4 not started; nothing landed.
+- **2026-08-21 — owner chose the two-axis citation rule; J4 and J5 PASS from installed artifacts:** The
+  owner selected option 2. `BriefV1Alpha1` now enforces its two no-leakage guarantees on their own
+  bitemporal axes: valid time keeps `source_as_of <= as_of` (message unchanged), and transaction time
+  becomes `retrieved_at <= generated_at` — `generated_at` already being this contract's own
+  `_availability_field`. The old rule compared `retrieved_at` (when evidence was learned) against `as_of`
+  (when it was true), which forced ingestion to precede the validity cut and refused every orientation
+  over a historical corpus. Existing coverage still refuses future evidence through the valid-time clause;
+  two new tests pin that ordinary ingestion lag is admitted and that citing evidence retrieved after the
+  Brief was written is still refused with its own message.
+
+  Running the installed lane again exposed one further defect of the class already fixed twice: the
+  resource-plane reader's recorded-source decoders (`_decode_recorded_acquisition`,
+  `_decode_recorded_snapshot`) validated durable payloads strictly, so `source_health` degraded with
+  `invalid-recorded-source-readiness` — and `source_health` is the only projected surface binding an
+  admitted snapshot to the `source_uri` that was authorized and read. Fixed test-first with the
+  JSON-round-trip store double. The gate's own evidence extraction was then rewired onto that public
+  chain (`source_health.source_snapshot_ref` is exactly the `source_ref` an Observation and a Brief
+  citation carry), and J4 now reads the resource plane as the owner would rather than trusting the
+  build's own page.
+
+  **Result — the WS0 lane, twice over a fresh bare venv, freshly built wheels, and an ephemeral
+  memory-only SurrealDB:**
+
+  | Step | Result |
+  |---|---|
+  | J1 Install | PASS |
+  | J2 Choose | PASS |
+  | J3 Connect | PASS |
+  | **J4 Inventory** | **PASS** — `source_health=2 entity=2 observation=2`; every observation resolves to `notes/second.md` / `notes/vault.md`; page complete, no degraded reasons |
+  | **J5 First Brief** | **PASS** — `briefs=1 cited_claims=3 uncited_claims=0 unresolved_citations=0`; citations resolve to both Markdown sources |
+  | J6–J10 | unchanged (J6 blocked on WS5; J7/J8 partial; J9/J10 blocked pending wider scope) |
+
+  The full public sequence now runs from installed artifacts: `/auth/token` → `/auth/local-owner/bootstrap`
+  → connect preview/authorize → prepare → bind → `/bootstrap/local-first-run` → `/session/associate` →
+  the seven `/builder/...` routes → activation prepare/approve/activate (`ACTIVE`) → `/start` →
+  `resources/query`. Core wheel `ace_core-1.2.2` sha256 `def4b5a08b250db4c8e956ca20e31eaff25152f03b36fb98058b411407c6af29`.
+
+  Verification: full fast suite `9594 passed, 50 skipped, 4 failed`; repo-wide Ruff check/format and
+  `git diff --check` clean. The four failures are the same pre-existing baseline set (three in
+  `tests/test_graph_context.py`, whose test file and target are untouched here, plus the known
+  pristine-baseline `test_extension_disabled_kernel_starts_without_live_composition`). One run-order
+  teardown error in `tests/test_embedding_reconciler.py` did not reproduce in isolation (2 passed) and
+  touches no file changed here.
+
+  This is WS0/WS3 candidate evidence, not a release acceptance: the amended gate still requires a full
+  clean-context J1–J10 run, maintainer concurrence, and the four-record reconciliation. WS4 has not
+  started; nothing was committed, merged, pushed, tagged, published, or released.
+- **2026-08-21 — WS3 candidate accepted; WS4 authorized:** The owner accepted the reviewed WS3 candidate
+  (progression coordinators, thin host routes, canonical activation composition, and the J4/J5 installed
+  passes above) and authorized WS4 to begin. WS3 remains local and unlanded; the acceptance is a
+  disposition on this ledger, not a landing or release authorization.
+- **2026-08-21 — WS4 complete: all four advertised source kinds map, admit, and cite:** The Personal Pack
+  now declares four source mappings instead of one. PDF, CSV, and JSON each map their normalized unit into
+  the ontology's existing `document` entity, mirroring the shipped Markdown declaration exactly: the unit's
+  anchor identifies and titles the citable span (`/0/anchor_value`) and its text is the body (`/0/text`).
+  The anchor is precisely what the citation locator grammar round-trips per format — PDF page number, CSV
+  one-based row index, JSON Pointer — so a citation resolves to a real span rather than a whole file. The
+  Markdown mapping's `source_definition_ref` was renamed `local_markdown_notes` → `local_markdown_folder`
+  so the pack's mapped kinds and the profile's advertised `source_ids` are the same four identifiers;
+  without that alignment the packet's "advertised = mapped, by test" acceptance has nothing to compare.
+  Manifest resource digests and the solution bundle were regenerated from the new bytes.
+
+  Three tests hold the invariant: advertised kinds must equal mapped kinds; each new kind must resolve its
+  declared attributes against the exact first unit its shipped adapter really produces (captured from live
+  `ace-local-source-normalizers` output, not guessed); and every mapped entity type and attribute must be
+  declared by the pack ontology. The WS0 lane now connects one scope per kind and requires breadth on both
+  sides — J4 fails `WS0:inventory_source_kinds_incomplete` and J5 fails `WS0:brief_citation_kinds_incomplete`
+  if any advertised kind silently drops out.
+
+  **Installed-artifact result** (fresh wheels, bare venv, ephemeral memory-only SurrealDB): J1–J5 PASS.
+  J4 reports `source_health=5 entity=5 observation=5` with observations resolving to `notes/vault.md`,
+  `notes/second.md`, `sample.pdf`, `sample.csv`, `sample.json` across `csv,json,md,pdf`; J5 reports
+  `briefs=1 cited_claims=6 uncited_claims=0 unresolved_citations=0` with citations spanning the same four
+  kinds. J3 additionally shows `executor_present:True`. J6–J10 are unchanged and correctly blocked/partial.
+
+  WS4's acceptance ("the WS0 fixture corpus includes all four kinds and every citation resolves to its
+  span") is met. Nothing was committed, merged, pushed, tagged, published, or released.
+
+## Current gate
+
+**WS4 is done; WS5 is next in the frozen order.** J1–J5 now pass from installed artifacts with full
+source-kind breadth, and the WS0 lane holds that breadth as a regression. What remains:
+
+- **WS5** — change detection and revision wiring: the PI7 watcher through re-ingest to a document-shaped
+  Shift and an append-only Brief revision with semantic diff, then claim-bound correction re-derivation on
+  a real Brief. This moves **J6** and the positive half of **J8**, and it is the step that makes J7's
+  connected cited answers exercisable. The WS0 lane will need a corpus edit between two runs against the
+  same database — the first journey-depth scenario that is not a single pass.
+- **WS6** — the Atrium Personal journey (J2–J5 in the UI over the WS2/WS3 APIs), after which J9/J10 can be
+  re-claimed at their widened scope.
+
+Carried, unchanged: the strict-durable-payload defect class remains latent at two reader sites
+(`MonitoringLifecycleReceiptV1Alpha1` and the decision-loop decoder in
+`ace/application/intelligence_resource_projection.py`), and no public route returns a session's authorized
+observation set, so the WS0 walk reopens it read-only through the installed session service. This tracker
+remains local; no commit, merge, push, GitHub write, tag, publish, or release is authorized.

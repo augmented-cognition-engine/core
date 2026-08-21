@@ -3,8 +3,62 @@
   "module_id": "personal_local_sources",
   "mappings": [
     {
+      "mapping_id": "local_csv_row",
+      "source_definition_ref": "local_csv_table",
+      "source_type_ref": "csv.row",
+      "capability_requirement_id": "local_source_snapshot",
+      "authority_request_id": "local_source_read",
+      "allowed_uri_schemes": [
+        "file"
+      ],
+      "subject_binding_id": "csv_row_subject",
+      "entity_type_id": "document",
+      "attribute_mappings": [
+        {
+          "attribute_id": "document_ref",
+          "source_pointer": "/0/anchor_value"
+        },
+        {
+          "attribute_id": "title",
+          "source_pointer": "/0/anchor_value"
+        },
+        {
+          "attribute_id": "body",
+          "source_pointer": "/0/text"
+        }
+      ],
+      "static_confidence": 0.9
+    },
+    {
+      "mapping_id": "local_json_pointer",
+      "source_definition_ref": "local_json_document",
+      "source_type_ref": "json.pointer",
+      "capability_requirement_id": "local_source_snapshot",
+      "authority_request_id": "local_source_read",
+      "allowed_uri_schemes": [
+        "file"
+      ],
+      "subject_binding_id": "json_document_subject",
+      "entity_type_id": "document",
+      "attribute_mappings": [
+        {
+          "attribute_id": "document_ref",
+          "source_pointer": "/0/anchor_value"
+        },
+        {
+          "attribute_id": "title",
+          "source_pointer": "/0/anchor_value"
+        },
+        {
+          "attribute_id": "body",
+          "source_pointer": "/0/text"
+        }
+      ],
+      "static_confidence": 0.9
+    },
+    {
       "mapping_id": "local_markdown_note",
-      "source_definition_ref": "local_markdown_notes",
+      "source_definition_ref": "local_markdown_folder",
       "source_type_ref": "markdown.note",
       "capability_requirement_id": "local_source_snapshot",
       "authority_request_id": "local_source_read",
@@ -16,15 +70,42 @@
       "attribute_mappings": [
         {
           "attribute_id": "note_ref",
-          "source_pointer": "/id"
+          "source_pointer": "/0/anchor_value"
         },
         {
           "attribute_id": "title",
-          "source_pointer": "/title"
+          "source_pointer": "/0/anchor_value"
         },
         {
           "attribute_id": "body",
-          "source_pointer": "/content"
+          "source_pointer": "/0/text"
+        }
+      ],
+      "static_confidence": 0.9
+    },
+    {
+      "mapping_id": "local_pdf_page",
+      "source_definition_ref": "local_pdf_document",
+      "source_type_ref": "pdf.page",
+      "capability_requirement_id": "local_source_snapshot",
+      "authority_request_id": "local_source_read",
+      "allowed_uri_schemes": [
+        "file"
+      ],
+      "subject_binding_id": "pdf_document_subject",
+      "entity_type_id": "document",
+      "attribute_mappings": [
+        {
+          "attribute_id": "document_ref",
+          "source_pointer": "/0/anchor_value"
+        },
+        {
+          "attribute_id": "title",
+          "source_pointer": "/0/anchor_value"
+        },
+        {
+          "attribute_id": "body",
+          "source_pointer": "/0/text"
         }
       ],
       "static_confidence": 0.9

@@ -464,15 +464,25 @@ class IntelligenceBuilderActivationPlanCoordinator:
         session_id: str,
         bound: BoundIntelligenceBuildPlanV1Alpha1,
         created_at: datetime,
+        evaluated_at: datetime | None = None,
     ) -> IntelligenceActivationPlanV1Alpha2:
-        """Side-effect-free preview of the exact plan the owner is about to approve."""
+        """Side-effect-free preview of the exact plan the owner is about to approve.
+
+        ``created_at`` is the plan's window start; ``evaluated_at`` (default:
+        ``created_at``) is the durable as-of instant at which the briefing-ready
+        session and its handoff artifacts are reloaded. Callers that anchor the
+        window on the session's start pass the later request time here.
+        """
 
         if bound.binding_request.plan.request.product_id != product_id:
             raise IntelligenceBuilderActivationError("bound plan crossed the exact activation product scope")
+        read_at = created_at if evaluated_at is None else evaluated_at
+        if read_at < created_at:
+            raise IntelligenceBuilderActivationError("activation plan cannot be evaluated before its window starts")
         material = await self._reload_onboarding_material(
             product_id=product_id,
             session_id=session_id,
-            evaluated_at=created_at,
+            evaluated_at=read_at,
         )
         return prepare_initial_domain_activation_plan(
             session=material.session,

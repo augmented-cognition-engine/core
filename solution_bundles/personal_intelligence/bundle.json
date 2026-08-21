@@ -24,33 +24,38 @@
       "adapter_id": "ace-local-source-normalizers",
       "adapter_version": "0.1.0",
       "artifact_digest": "sha256:2427ad1bb0dcf268fb541c8b348260da346703be9e50ab42fc33971aac1edf39"
+    },
+    {
+      "adapter_id": "ace-local-source-snapshot",
+      "adapter_version": "0.1.0",
+      "artifact_digest": "sha256:e3c05061c51876a35c0607cbe00a0f3600504720ef8bbc941f2caa138097197e"
     }
   ],
   "atrium_modules": [],
   "bundle_id": "personal_intelligence",
   "bundle_version": "1.2.0",
   "contract": "ace.intelligence.solution-bundle-manifest/v1alpha1",
-  "manifest_hash": "sha256:9788a722e45c075d9836cb97dde3cb189832c3d00c94d2b51199ecde570fe4b3",
-  "manifest_id": "solution_bundle_manifest:9788a722e45c075d9836cb97dde3cb18",
+  "manifest_hash": "sha256:8343618bb2f35d19b1bc990dd40813595e06cee0434232d42177a5d5a8aad223",
+  "manifest_id": "solution_bundle_manifest:8343618bb2f35d19b1bc990dd4081359",
   "overlay": {
-    "compiled_overlay_id": "overlay_ir:5f741a65d9deccc23089591965e676d2",
+    "compiled_overlay_id": "overlay_ir:3ba875ff98e507843ce77836f1146950",
     "contract": "ace.intelligence.compiled-overlay/v1alpha1",
-    "overlay_digest": "sha256:5f741a65d9deccc23089591965e676d2d55710a97cc570bdf3d71dd9a27bef11",
+    "overlay_digest": "sha256:3ba875ff98e507843ce77836f1146950b7ac2e9e72bfb411e73af2e8f1520957",
     "overlay_id": "personal_defaults",
-    "pack_digest": "sha256:11a4cb0ebd7f211343eed4630b7df00adf1dd22ae87aec412521493dca77aec2",
+    "pack_digest": "sha256:558f7ae1f41adefe8591e6466f9691c2cf1d9d0565f116151784ea5214956458",
     "pack_id": "personal_intelligence",
     "pack_version": "1.0.0",
     "values": [],
     "version": "1.0.0"
   },
   "pack": {
-    "compiled_pack_id": "pack_ir:11a4cb0ebd7f211343eed4630b7df00a",
-    "pack_digest": "sha256:11a4cb0ebd7f211343eed4630b7df00adf1dd22ae87aec412521493dca77aec2",
+    "compiled_pack_id": "pack_ir:558f7ae1f41adefe8591e6466f9691c2",
+    "pack_digest": "sha256:558f7ae1f41adefe8591e6466f9691c2cf1d9d0565f116151784ea5214956458",
     "pack_id": "personal_intelligence",
     "pack_version": "1.0.0"
   },
   "policy": {
-    "policy_digest": "sha256:fdcf4209214a6707bae678dfce57f853a0bc971b14fdc9bf61794cd09aec75eb",
+    "policy_digest": "sha256:6b406d7ad28c56094cd2384be4dda2028d1a8e4c41f1f91978846129afb5b63d",
     "policy_id": "personal_local_read_only",
     "policy_version": "1.0.0"
   },

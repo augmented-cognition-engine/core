@@ -75,6 +75,7 @@ class EvidenceAcquisitionMode(StrEnum):
     LIVE = "live"
     RECORDED_REPLAY = "recorded_replay"
     PREPARED_FIXTURE = "prepared_fixture"
+    LOCAL = "local"
 
 
 class ClaimGroundingKind(StrEnum):
@@ -746,13 +747,19 @@ class BriefV1Alpha1(_IntelligenceResourceV1Alpha1):
     def validate_claim_grounding(self) -> Self:
         if self.generated_at < self.as_of:
             raise ValueError("Brief generated_at cannot precede as_of")
-        unavailable = [
-            item.citation_id
-            for item in self.citations
-            if item.source_as_of > self.as_of or item.retrieved_at > self.as_of
-        ]
-        if unavailable:
+        # Two independent no-leakage axes. Valid time: nothing the Brief cites may
+        # have become true after its own validity cut. Transaction time: nothing it
+        # cites may have been retrieved after it was written (``generated_at`` is
+        # this contract's own availability field). Comparing ``retrieved_at`` to
+        # ``as_of`` conflates the two and would refuse every Brief whose evidence
+        # was ingested after the cut it describes -- which is ordinary ingestion
+        # lag, not leakage.
+        future_validity = [item.citation_id for item in self.citations if item.source_as_of > self.as_of]
+        if future_validity:
             raise ValueError("Brief citations must be available by the Brief as_of cutoff")
+        future_retrieval = [item.citation_id for item in self.citations if item.retrieved_at > self.generated_at]
+        if future_retrieval:
+            raise ValueError("Brief citations cannot be retrieved after the Brief was generated")
         citation_ids = {item.citation_id for item in self.citations}
         used_citation_ids = {citation_id for claim in self.claims for citation_id in claim.citation_ids}
         missing = used_citation_ids - citation_ids

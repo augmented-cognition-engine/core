@@ -33,6 +33,8 @@ if TYPE_CHECKING:
     from ace.application.intelligence_build_first_brief import (
         IntelligenceBuildFirstBriefOutcome,
         IntelligenceBuildFirstBriefRequestV1Alpha2,
+        IntelligenceBuildInitialCorpusFirstBriefOutcome,
+        IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1,
     )
     from ace.application.prepared_shift_signal import (
         PreparedShiftSignalDerivationOutcome,
@@ -305,6 +307,11 @@ class IntelligenceBuildFirstBriefPort(Protocol):
         self,
         request: "IntelligenceBuildFirstBriefRequestV1Alpha2",
     ) -> "IntelligenceBuildFirstBriefOutcome": ...
+
+    async def create_initial_corpus_first_brief(
+        self,
+        request: "IntelligenceBuildInitialCorpusFirstBriefRequestV1Alpha1",
+    ) -> "IntelligenceBuildInitialCorpusFirstBriefOutcome": ...
 
 
 @dataclass(frozen=True, slots=True)

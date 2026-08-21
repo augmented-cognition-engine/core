@@ -637,6 +637,7 @@ __all__ = [
     "AuthorizedObservationSetV1",
     "AuthorizedObservationV1",
     "BaselineProposalV1",
+    "CanonicalJsonValueV1Alpha1",
     "DetectorProposalV1",
     "DetectorStrategyKind",
     "EpistemicClassification",
