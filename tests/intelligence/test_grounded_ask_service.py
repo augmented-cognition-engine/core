@@ -266,3 +266,72 @@ async def test_bounds_candidate_briefs_by_the_ordinary_budget() -> None:
 
     assert captured["query"].page_size == ASK_MAX_CANDIDATE_BRIEFS
     assert captured["query"].resource_kinds == (IntelligenceResourceKind.BRIEF,)
+
+
+@pytest.mark.asyncio
+async def test_refuses_when_a_question_shares_only_common_words_with_a_claim() -> None:
+    """Sharing "the" is not coverage.
+
+    Scoring on raw token overlap meant one stopword answered anything, so the
+    honest no-answer guarantee held only while a corpus was empty. A question
+    about something the corpus never mentions must still be refused when it
+    happens to share ordinary English words with a claim.
+    """
+
+    brief = _brief(
+        resource_id_hex="a",
+        statement="The vault note records the current grind setting for the espresso routine.",
+        excerpt="Grind setting is 14.",
+    )
+    service = GroundedAskService(
+        resource_plane=IntelligenceResourcePlaneService(
+            reader=_Reader(_brief_record(brief, resource_id="brief:vault")),
+            authority=_Authority(),
+        )
+    )
+
+    result = await service.ask(
+        _question(question="Which harbour did the schooner depart from in the storm?"),
+        evaluated_at=NOW,
+    )
+
+    assert isinstance(result, AskNoAnswerV1Alpha1)
+    assert result.missing_coverage == ("missing_coverage:no_claims_matched_question_terms",)
+
+
+@pytest.mark.asyncio
+async def test_refuses_a_question_carrying_no_meaningful_terms_at_all() -> None:
+    brief = _brief(resource_id_hex="a", statement="The vault note records the grind setting.", excerpt="14.")
+    service = GroundedAskService(
+        resource_plane=IntelligenceResourcePlaneService(
+            reader=_Reader(_brief_record(brief, resource_id="brief:vault")),
+            authority=_Authority(),
+        )
+    )
+
+    result = await service.ask(_question(question="What about it, then?"), evaluated_at=NOW)
+
+    assert isinstance(result, AskNoAnswerV1Alpha1)
+    assert result.missing_coverage == ("missing_coverage:no_claims_matched_question_terms",)
+
+
+@pytest.mark.asyncio
+async def test_still_answers_when_the_question_shares_a_real_term() -> None:
+    """The narrowing must not silence genuine coverage."""
+
+    brief = _brief(
+        resource_id_hex="a",
+        statement="The vault note records the current grind setting for the espresso routine.",
+        excerpt="Grind setting is 14.",
+    )
+    service = GroundedAskService(
+        resource_plane=IntelligenceResourcePlaneService(
+            reader=_Reader(_brief_record(brief, resource_id="brief:vault")),
+            authority=_Authority(),
+        )
+    )
+
+    result = await service.ask(_question(question="What grind setting am I using?"), evaluated_at=NOW)
+
+    assert isinstance(result, AskAnswerV1Alpha1)
+    assert result.claims == brief.claims

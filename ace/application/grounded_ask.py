@@ -34,8 +34,131 @@ def _exact_question(value: AskQuestionV1Alpha1) -> AskQuestionV1Alpha1:
         raise GroundedAskError("ask question failed exact revalidation") from exc
 
 
+# Ordinary English function words carry no coverage. Scoring on raw token overlap
+# meant a single shared "the" answered any question, so the honest no-answer
+# guarantee held only while a corpus was empty -- the opposite of when an owner
+# needs it. The list is deliberately small, closed, and language-explicit: it
+# removes words that cannot indicate subject matter, and nothing else. Narrowing
+# here can only make the service refuse more often; it can never produce an
+# answer that unfiltered scoring would have withheld.
+_STOPWORDS = frozenset(
+    {
+        "a",
+        "about",
+        "after",
+        "all",
+        "am",
+        "an",
+        "and",
+        "any",
+        "anything",
+        "are",
+        "as",
+        "at",
+        "be",
+        "been",
+        "before",
+        "being",
+        "but",
+        "by",
+        "can",
+        "could",
+        "did",
+        "do",
+        "does",
+        "doing",
+        "done",
+        "for",
+        "from",
+        "get",
+        "had",
+        "has",
+        "have",
+        "he",
+        "her",
+        "hers",
+        "him",
+        "his",
+        "how",
+        "i",
+        "if",
+        "in",
+        "into",
+        "is",
+        "it",
+        "its",
+        "just",
+        "me",
+        "more",
+        "most",
+        "my",
+        "no",
+        "not",
+        "now",
+        "of",
+        "on",
+        "one",
+        "only",
+        "or",
+        "our",
+        "ours",
+        "out",
+        "over",
+        "own",
+        "same",
+        "she",
+        "should",
+        "so",
+        "some",
+        "something",
+        "such",
+        "than",
+        "that",
+        "the",
+        "their",
+        "theirs",
+        "them",
+        "then",
+        "there",
+        "these",
+        "they",
+        "this",
+        "those",
+        "through",
+        "to",
+        "too",
+        "under",
+        "up",
+        "us",
+        "was",
+        "we",
+        "were",
+        "what",
+        "when",
+        "where",
+        "which",
+        "while",
+        "who",
+        "whom",
+        "why",
+        "will",
+        "with",
+        "would",
+        "you",
+        "your",
+        "yours",
+    }
+)
+
+
 def _terms(text: str) -> set[str]:
     return set(_WORD.findall(text.lower()))
+
+
+def _matchable_terms(text: str) -> set[str]:
+    """Terms that can actually indicate what a question or claim is about."""
+
+    return _terms(text) - _STOPWORDS
 
 
 class GroundedAskService:
@@ -51,7 +174,7 @@ class GroundedAskService:
         evaluated_at: datetime,
     ) -> AskAnswerV1Alpha1 | AskNoAnswerV1Alpha1:
         request = _exact_question(value)
-        question_terms = _terms(request.question)
+        question_terms = _matchable_terms(request.question)
 
         query = IntelligenceResourceQueryV1Alpha1(
             authenticated_context=request.authenticated_context,
@@ -81,7 +204,7 @@ class GroundedAskService:
             for claim in brief.claims:
                 if claim.grounding_kind is not ClaimGroundingKind.CITED:
                     continue
-                score = len(question_terms & _terms(claim.statement))
+                score = len(question_terms & _matchable_terms(claim.statement))
                 if score > 0:
                     scored.append((score, claim, brief, item.reference))
 

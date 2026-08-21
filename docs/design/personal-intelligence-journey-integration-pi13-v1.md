@@ -266,3 +266,29 @@ have: J5's first-corpus Brief semantics (resolved in §8.2), the Brief citation 
 journey against installed artifacts and let the failure name the gap — is what surfaced each one.
 Future packets should treat "the runtime already supports this" as a claim to verify, not an
 assumption to freeze.
+
+## 11. Grounded Ask refusal narrowing — frozen by owner on 2026-08-21
+
+§5 forbids this continuation from changing the substrate's released retrieval behaviour. The WS0 lane,
+once a real corpus existed, showed why that fence needed one explicit exception.
+
+`GroundedAskService` scored a claim by the raw token overlap between the question and the claim
+statement, with no stopword filtering and a `score > 0` threshold. One shared ordinary word — "the",
+"in", "from" — was therefore enough to answer any question, and
+`missing_coverage:no_claims_matched_question_terms` became unreachable in practice. The honest
+no-answer guarantee that J7 advertises, and that earlier acceptance runs credited, held only because
+those runs had an empty corpus: the exact condition under which an owner never needs it.
+
+The owner authorized one narrow correction: matching now ignores a small, closed, explicitly
+English list of function words that cannot indicate subject matter, on both the question and the
+claim. Nothing else about retrieval changes — not embeddings, not the resource-plane query, not the
+ranking of claims that do match.
+
+The exception is safe in one direction and that is why it was granted: filtering stopwords can only
+make the service **refuse more often**. It cannot fabricate an answer, cannot widen authority, and
+cannot surface a claim that unfiltered scoring would have withheld. Shipping the alternative would
+have meant publishing a guarantee that demonstrably does not hold as soon as a corpus exists.
+
+This authorizes the refusal narrowing only. It does not reopen §5 for any other retrieval or search
+behaviour, and it authorizes no commit to a shared branch, merge, push, GitHub write, tag, package
+publish, release, or ACE 1.3 work.
