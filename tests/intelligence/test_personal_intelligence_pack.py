@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from ace.intelligence.contracts.detection import DetectionModuleV1Alpha3
 from ace.intelligence.contracts.diagnostics import PackCompatibilityStatus
 from ace.intelligence.contracts.orientation import OrientationModuleV1
 from ace.intelligence.contracts.pack import OntologyModuleV1
@@ -113,11 +114,12 @@ def test_personal_pack_declares_governed_local_source_policy() -> None:
         "personal_local_sources",
         "personal_orientation",
         "personal_orientation_templates",
+        "personal_change_detection",
     }
 
 
 def test_personal_pack_declares_the_frozen_initial_orientation_policy() -> None:
-    """PI13 §8.3: exact declarative policy/template/persona IDs, and no WS5 policy."""
+    """PI13 §8.3 policy identities, plus §10's authorized change-detection scope."""
 
     manifest, resources, _ = _load()
     fixture = json.loads((PACK_ROOT / "conformance" / "initial_orientation_fixture.json").read_bytes())
@@ -147,11 +149,25 @@ def test_personal_pack_declares_the_frozen_initial_orientation_policy() -> None:
     assert template.recommendation_required is fixture["recommendation_required"]
     assert template.claim_policy == fixture["claim_policy"]
 
-    # Change detection and Signal-routing policy remain WS5 scope: the Personal
-    # Pack must declare no detection module and no personas/routing module.
+    # PI13 §10 authorized WS5's change-detection policy, so the detection module
+    # is now expected -- but its scope stays exactly that. The Pack declares only
+    # content-revision rules (no numeric or categorical families it has no
+    # numeric or enumerated attribute to support) and still no personas/routing
+    # module, which remains outside this continuation.
     contracts = {module.contract for module in pack.modules}
-    assert not any(contract.startswith("ace.intelligence.detection/") for contract in contracts)
+    assert "ace.intelligence.detection/v1alpha3" in contracts
     assert not any(contract.startswith("ace.intelligence.personas/") for contract in contracts)
+    detection = next(
+        DetectionModuleV1Alpha3.model_validate_json(module.canonical_payload)
+        for module in pack.modules
+        if module.module_id == "personal_change_detection"
+    )
+    assert detection.numeric_delta_rules == ()
+    assert detection.categorical_transition_rules == ()
+    assert {rule.detector_id for rule in detection.content_revision_rules} == {
+        "personal_note_revised",
+        "personal_document_revised",
+    }
 
 
 def test_personal_pack_passes_provider_free_conformance() -> None:

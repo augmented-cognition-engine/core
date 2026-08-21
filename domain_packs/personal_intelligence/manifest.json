@@ -32,6 +32,11 @@
       "resource_id": "personal_orientation",
       "path": "modules/orientation.json",
       "digest": "sha256:567254839784037a09aa78759a14b6087d281c05b4e35f9787b1c602cb424265"
+    },
+    {
+      "resource_id": "personal_change_detection",
+      "path": "modules/detection.json",
+      "digest": "sha256:e08332ce16843fb18dd4daafe919c8a4248c86c5977083e5614b33a88ae9ca37"
     }
   ],
   "modules": [
@@ -59,6 +64,14 @@
       "resource_id": "personal_orientation",
       "depends_on": [
         "personal_orientation_templates"
+      ]
+    },
+    {
+      "module_id": "personal_change_detection",
+      "contract": "ace.intelligence.detection/v1alpha3",
+      "resource_id": "personal_change_detection",
+      "depends_on": [
+        "personal_ontology"
       ]
     }
   ],

@@ -1,0 +1,28 @@
+{
+  "contract": "ace.intelligence.detection/v1alpha3",
+  "module_id": "personal_change_detection",
+  "content_revision_rules": [
+    {
+      "detector_id": "personal_note_revised",
+      "entity_type_id": "note",
+      "attribute_id": "body",
+      "baseline": "prior_snapshot",
+      "context_attribute_ids": [
+        "note_ref"
+      ],
+      "shift_type": "personal_source_revised",
+      "signal_type": "personal_source_attention"
+    },
+    {
+      "detector_id": "personal_document_revised",
+      "entity_type_id": "document",
+      "attribute_id": "body",
+      "baseline": "prior_snapshot",
+      "context_attribute_ids": [
+        "document_ref"
+      ],
+      "shift_type": "personal_source_revised",
+      "signal_type": "personal_source_attention"
+    }
+  ]
+}
