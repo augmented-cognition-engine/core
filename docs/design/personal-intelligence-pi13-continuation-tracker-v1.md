@@ -385,35 +385,38 @@ deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to W
   **Current lane result:** J1 J2 J3 J4 J5 PASS · J6 BLOCKED · J7 PARTIAL · J8 J9 J10 PASS.
 
   Two honest non-passes, both with precise causes recorded below rather than worked around.
+- **2026-08-21 — WS6 begun: Atrium can reach the Personal journey surfaces.** Atrium's
+  intelligence-builds client predates WS2/WS3, so it knew the activation-plan routes but nothing about
+  Connect or the seven Builder progression routes; the UI could not be built over surfaces the client
+  could not reach. `core/ui/canvas/src/api/personalJourneyApi.ts` adds them, preserving the server's
+  separation of source-scope, concept-model, and intelligence-model dispositions rather than smoothing
+  them into one action, with approve-and-connect as the only source surface (the server offers no
+  approval-only shortcut) and no first-Brief approval (none exists). Failures carry the server's own
+  reason; a 401 refreshes once and retries; a non-JSON failure still raises a bounded typed error.
+  12 new tests, typecheck clean, full canvas suite 692 passed (`fb223c3`).
 
 ## Current gate
 
-**Two steps remain, and neither is a coding task. Both need an owner decision.**
+**Where ACE 1.2 actually stands, and what only the owner can close.**
 
-**J6 — no public surface admits a second capture.** Change detection now exists end to end: Core's
-content-revision family, the Pack's declared detectors, Core-resolved `prior_snapshot` baselines, and the
-executor's revision routing. Nothing can reach it, because a second PREPARED build cannot carry new
-material: `DurableIntelligenceBuildHostComposer` binds the ACTIVE Builder session to one exact activation
-approval, and a start request's selections come from that approval's own bound plan. The substrate's
-continuous-update path is live source ingress (`ace.application.live_source_ingress` through the live
-intelligence bridge), which has no public route and which the Personal journey does not compose. There is
-no refresh, re-ingest, or watch route on the public surface. Resolving this is an architecture decision:
+The lane result from installed artifacts is **J1 J2 J3 J4 J5 PASS · J6 BLOCKED · J7 PARTIAL · J8 J9 J10
+PASS**. Two steps are not closable by implementation:
 
-1. add a public re-ingest surface to the PREPARED build flow, which needs activation/approval semantics
-   for subsequent ingests that do not exist today;
-2. compose the Personal journey onto LIVE ingress and expose it publicly — a whole subsystem, and the
-   path the substrate appears to have intended;
-3. scope J6 differently in the packet.
+1. **J6** needs an architecture decision — a public re-ingest surface for the PREPARED flow (which needs
+   activation/approval semantics for subsequent ingests that do not exist), or composing the Personal
+   journey onto LIVE source ingress and exposing it, or rescoping J6 in the packet.
+2. **J7** needs a decision on fenced behaviour — the honest-refusal half cannot be demonstrated because
+   `GroundedAskService` scores claims by unfiltered token overlap, and narrowing that is a change to
+   released retrieval behaviour that this continuation is forbidden to make.
 
-**J7 — the honest-refusal half cannot be demonstrated, and the fix is fenced.** Connected cited answers
-work. `GroundedAskService` scores a claim by raw token overlap with no stopword filtering and a `score>0`
-threshold, so one shared common word answers and `missing_coverage:no_claims_matched_question_terms` is
-rarely reachable once a corpus exists. The claims returned are real and cited, so this is a relevance
-weakness rather than fabrication — but it means the no-answer guarantee credited by earlier acceptance
-runs held only because those runs had an empty corpus. Narrowing the scoring would change the substrate's
-released retrieval behaviour, which this continuation is explicitly forbidden to do, so it is reported
-and left for the owner.
+Beyond those, **release itself has gates no implementation can pass**: the packet declares ACE 1.2 passed
+only on a clean-context J1–J10 run, a maintainer cross-check, and the four-record reconciliation closing;
+the external-user acceptance run is still a carried follow-up; and publishing requires push, tag, and
+package-publish actions that are outward-facing and irreversible. Those remain the owner's.
 
-Neither can be closed without a decision, so WS5 stops here. WS6 (the Atrium Personal journey) remains
-untouched and is not blocked by either. The `pi13-continuation` branch has no upstream; no merge, push,
-GitHub write, tag, publish, or release is authorized.
+**Buildable work that remains:** WS6's Personal journey surfaces (J2 choose, J3 connect, J4 inventory, J5
+Brief) over the new client, the PI6 first-run candidate mounting, and Playwright paths against the real
+APIs. None of it is blocked by J6 or J7.
+
+The `pi13-continuation` branch holds thirteen commits with no upstream. No merge, push, GitHub write, tag,
+publish, or release has occurred or is authorized.
