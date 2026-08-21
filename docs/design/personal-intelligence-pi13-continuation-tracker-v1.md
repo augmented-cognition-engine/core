@@ -394,29 +394,53 @@ deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to W
   approval-only shortcut) and no first-Brief approval (none exists). Failures carry the server's own
   reason; a 401 refreshes once and retries; a non-JSON failure still raises a bounded typed error.
   12 new tests, typecheck clean, full canvas suite 692 passed (`fb223c3`).
+- **2026-08-21 — J7 fixed and passing; J6 deferred to 1.3; Connect surface built. Nine of ten steps pass
+  from installed artifacts.**
+
+  The owner delegated the remaining decisions and asked for the best product and experience. Three moves
+  followed.
+
+  **J7 now PASSES.** Packet §11 authorized one narrow exception to the retrieval fence: grounded Ask
+  ignores a small, closed list of English function words on both the question and the claim. A single
+  shared "the" no longer answers anything, and the lane now shows five cited claims for a real question
+  *and* an honest refusal for one the corpus cannot answer. The exception was granted because it is safe
+  in exactly one direction — filtering stopwords can only make the service refuse more often; it can
+  never fabricate, widen authority, or surface a claim unfiltered scoring would have withheld (`d5560e8`).
+
+  **J6 is deferred to 1.3** (packet §12). Change detection is complete and proven; what is missing is a
+  way in, and the way in belongs to live source ingress: the ROADMAP records 1.0.0 as passing with
+  "continuously updating cited Briefs", every detector family ships a `detect_live_*` twin awaiting a
+  caller, and PI7's own wording is "a file watcher through re-ingest". Extending the PREPARED flow
+  instead would mean loosening the rule that an ACTIVE session binds one exact activation approval — the
+  reason the build path can be trusted. 1.3 is *Intelligence Operations and Safe Evolution*, where a
+  watcher belongs (`9e19115`).
+
+  **WS6 gained the missing experience.** Atrium's onboarding covered choose through activate but skipped
+  the one step where an owner hands over their own material — the acceptance run's FINDING-5.
+  `ConnectLocalSources` shows the exact folder, include patterns for all four kinds, and
+  read-only/no-network/nothing-written *before* any read, offers consent only then, and withdraws the
+  preview when the folder is edited so consent can never carry to unseen material. Six tests; typecheck
+  clean; canvas suite 698 passed (`fb223c3`, `d4da7be`).
+
+  **Lane result: J1 J2 J3 J4 J5 PASS · J6 BLOCKED (deferred to 1.3) · J7 J8 J9 J10 PASS.**
 
 ## Current gate
 
-**Where ACE 1.2 actually stands, and what only the owner can close.**
+**ACE 1.2 delivers nine of its ten journey steps from public artifacts, with the tenth disclosed.**
 
-The lane result from installed artifacts is **J1 J2 J3 J4 J5 PASS · J6 BLOCKED · J7 PARTIAL · J8 J9 J10
-PASS**. Two steps are not closable by implementation:
+What remains is no longer implementation of the journey itself:
 
-1. **J6** needs an architecture decision — a public re-ingest surface for the PREPARED flow (which needs
-   activation/approval semantics for subsequent ingests that do not exist), or composing the Personal
-   journey onto LIVE source ingress and exposing it, or rescoping J6 in the packet.
-2. **J7** needs a decision on fenced behaviour — the honest-refusal half cannot be demonstrated because
-   `GroundedAskService` scores claims by unfiltered token overlap, and narrowing that is a change to
-   released retrieval behaviour that this continuation is forbidden to make.
+1. **WS6 breadth** — the Connect surface exists and is tested; mounting it in the onboarding flow
+   alongside J4 inventory and J5 Brief surfaces, plus Playwright paths against the real APIs, is
+   remaining product work. None of it blocks the acceptance verdict for the steps already passing.
+2. **The acceptance gates, which are the owner's** — a clean-context J1–J10 run, the maintainer
+   cross-check, and the four-record reconciliation closing. The lane's results are candidate evidence and
+   have never been anything else.
+3. **Publication** — push, tag, and package publish are outward-facing and irreversible, and remain
+   unauthorized.
 
-Beyond those, **release itself has gates no implementation can pass**: the packet declares ACE 1.2 passed
-only on a clean-context J1–J10 run, a maintainer cross-check, and the four-record reconciliation closing;
-the external-user acceptance run is still a carried follow-up; and publishing requires push, tag, and
-package-publish actions that are outward-facing and irreversible. Those remain the owner's.
+The acceptance record must state plainly that continuous update (J6) is not yet in the public Personal
+journey and now lands in 1.3. Disclosing a real gap is this packet's own standard applied to itself.
 
-**Buildable work that remains:** WS6's Personal journey surfaces (J2 choose, J3 connect, J4 inventory, J5
-Brief) over the new client, the PI6 first-run candidate mounting, and Playwright paths against the real
-APIs. None of it is blocked by J6 or J7.
-
-The `pi13-continuation` branch holds thirteen commits with no upstream. No merge, push, GitHub write, tag,
-publish, or release has occurred or is authorized.
+The `pi13-continuation` branch holds seventeen commits with no upstream. No merge, push, GitHub write,
+tag, publish, or release has occurred or is authorized.
