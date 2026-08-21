@@ -22,9 +22,11 @@ from ace.intelligence.contracts.common import (
 )
 from ace.intelligence.contracts.detection import (
     DETECTION_MODULE_V1ALPHA2_VERSION,
+    DETECTION_MODULE_V1ALPHA3_VERSION,
     DETECTION_MODULE_VERSION,
     DetectionModuleV1,
     DetectionModuleV1Alpha2,
+    DetectionModuleV1Alpha3,
 )
 from ace.intelligence.contracts.epistemic import (
     EPISTEMIC_STATUS_MODULE_V1ALPHA2_VERSION,
@@ -464,6 +466,7 @@ class CompiledModuleV1(FrozenContract):
             ONTOLOGY_MODULE_VERSION: OntologyModuleV1,
             DETECTION_MODULE_VERSION: DetectionModuleV1,
             DETECTION_MODULE_V1ALPHA2_VERSION: DetectionModuleV1Alpha2,
+            DETECTION_MODULE_V1ALPHA3_VERSION: DetectionModuleV1Alpha3,
             DECISION_OUTCOMES_MODULE_VERSION: DecisionOutcomesModuleV1,
             PERSONAS_MODULE_VERSION: PersonasModuleV1,
             SOURCE_MAPPING_MODULE_VERSION: SourceMappingModuleV1,
@@ -523,6 +526,7 @@ def _validate_compiled_module_graph(
     detection_models = {
         DETECTION_MODULE_VERSION: DetectionModuleV1,
         DETECTION_MODULE_V1ALPHA2_VERSION: DetectionModuleV1Alpha2,
+        DETECTION_MODULE_V1ALPHA3_VERSION: DetectionModuleV1Alpha3,
     }
     detections = {
         item.module_id: detection_models[item.contract].model_validate_json(item.canonical_payload)

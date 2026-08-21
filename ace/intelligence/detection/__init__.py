@@ -7,6 +7,13 @@ from ace.intelligence.detection.categorical_transition import (
     route_categorical_shift_as_signal,
     route_live_categorical_shift_as_signal,
 )
+from ace.intelligence.detection.content_revision import (
+    ContentRevisionDetectionError,
+    detect_content_revision_shift,
+    detect_live_content_revision_shift,
+    route_content_revision_shift_as_signal,
+    route_live_content_revision_shift_as_signal,
+)
 from ace.intelligence.detection.numeric_delta import (
     NumericDeltaDetectionError,
     detect_live_numeric_shift,
@@ -16,6 +23,11 @@ from ace.intelligence.detection.numeric_delta import (
 )
 
 __all__ = [
+    "route_live_content_revision_shift_as_signal",
+    "route_content_revision_shift_as_signal",
+    "detect_live_content_revision_shift",
+    "detect_content_revision_shift",
+    "ContentRevisionDetectionError",
     "CategoricalTransitionDetectionError",
     "NumericDeltaDetectionError",
     "detect_categorical_shift",

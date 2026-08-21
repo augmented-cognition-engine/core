@@ -20,13 +20,18 @@ from ace.intelligence.derivation import (
 )
 from ace.intelligence.detection import (
     CategoricalTransitionDetectionError,
+    ContentRevisionDetectionError,
     NumericDeltaDetectionError,
     detect_categorical_shift,
+    detect_content_revision_shift,
     detect_live_categorical_shift,
+    detect_live_content_revision_shift,
     detect_live_numeric_shift,
     detect_numeric_shift,
     route_categorical_shift_as_signal,
+    route_content_revision_shift_as_signal,
     route_live_categorical_shift_as_signal,
+    route_live_content_revision_shift_as_signal,
     route_live_shift_as_signal,
     route_shift_as_signal,
 )
@@ -80,6 +85,11 @@ from ace.intelligence.synthesis import (
 )
 
 __all__ = [
+    "route_live_content_revision_shift_as_signal",
+    "route_content_revision_shift_as_signal",
+    "detect_live_content_revision_shift",
+    "detect_content_revision_shift",
+    "ContentRevisionDetectionError",
     "BriefClaimEpistemicStatusBindingV1Alpha1",
     "BriefClaimEpistemicStatusBindingV1Alpha2",
     "BriefSynthesisDraftV1Alpha2",

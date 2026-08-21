@@ -15,9 +15,11 @@ from ace.core.contracts import canonical_hash, canonical_json
 from ace.intelligence.contracts.common import MAX_PACK_BYTES, MAX_RESOURCE_BYTES, validate_contract
 from ace.intelligence.contracts.detection import (
     DETECTION_MODULE_V1ALPHA2_VERSION,
+    DETECTION_MODULE_V1ALPHA3_VERSION,
     DETECTION_MODULE_VERSION,
     DetectionModuleV1,
     DetectionModuleV1Alpha2,
+    DetectionModuleV1Alpha3,
 )
 from ace.intelligence.contracts.epistemic import (
     EPISTEMIC_STATUS_MODULE_V1ALPHA2_VERSION,
@@ -387,6 +389,20 @@ def _compile_detection_v1alpha2(
     )
 
 
+def _compile_detection_v1alpha3(
+    payload: Any,
+    *,
+    module_id: str,
+    path: str,
+) -> DetectionModuleV1Alpha3:
+    return _compile_typed_module(
+        payload,
+        module_id=module_id,
+        path=path,
+        model=DetectionModuleV1Alpha3,
+    )
+
+
 def _compile_personas(payload: Any, *, module_id: str, path: str) -> PersonasModuleV1:
     return _compile_typed_module(payload, module_id=module_id, path=path, model=PersonasModuleV1)
 
@@ -556,6 +572,7 @@ _MODULE_VALIDATORS: dict[str, Callable[..., Any]] = {
     ONTOLOGY_MODULE_VERSION: _compile_ontology,
     DETECTION_MODULE_VERSION: _compile_detection,
     DETECTION_MODULE_V1ALPHA2_VERSION: _compile_detection_v1alpha2,
+    DETECTION_MODULE_V1ALPHA3_VERSION: _compile_detection_v1alpha3,
     DECISION_OUTCOMES_MODULE_VERSION: _compile_decision_outcomes,
     PERSONAS_MODULE_VERSION: _compile_personas,
     SOURCE_MAPPING_MODULE_VERSION: _compile_source_mapping,

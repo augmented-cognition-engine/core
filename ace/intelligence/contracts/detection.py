@@ -18,6 +18,7 @@ from ace.intelligence.contracts.common import (
 
 DETECTION_MODULE_VERSION = "ace.intelligence.detection/v1alpha1"
 DETECTION_MODULE_V1ALPHA2_VERSION = "ace.intelligence.detection/v1alpha2"
+DETECTION_MODULE_V1ALPHA3_VERSION = "ace.intelligence.detection/v1alpha3"
 MAX_TRANSITION_VALUE_CHARS = 500
 
 
@@ -203,6 +204,134 @@ class CategoricalTransitionRuleV1(FrozenContract):
         if len(self.context_attribute_ids) != len(set(self.context_attribute_ids)):
             raise ValueError("context attribute IDs must be unique")
         object.__setattr__(self, "context_attribute_ids", tuple(sorted(self.context_attribute_ids)))
+        return self
+
+
+class ContentRevisionRuleV1(FrozenContract):
+    """A declarative request to watch one text attribute for any exact change.
+
+    The rule names domain types but contains no implementation. Intelligence owns
+    the ``content_revision`` strategy; a pack supplies the watched attribute and
+    the vocabulary its Shift and Signal carry.
+
+    There is deliberately no threshold and no transition table. A document's text
+    cannot be enumerated the way a lifecycle stage can, and a rule that guessed
+    which edits "count" would either fire on every re-read or silently swallow a
+    real revision. Equality is the whole materiality test.
+    """
+
+    detector_id: str
+    entity_type_id: str
+    attribute_id: str
+    baseline: Literal["prior_snapshot"] = "prior_snapshot"
+    context_attribute_ids: tuple[str, ...] = Field(default_factory=tuple, max_length=32)
+    shift_type: str
+    signal_type: str
+
+    @field_validator(
+        "detector_id",
+        "entity_type_id",
+        "attribute_id",
+        "shift_type",
+        "signal_type",
+    )
+    @classmethod
+    def validate_ids(cls, value: str, info) -> str:
+        return validate_slug(value, name=info.field_name)
+
+    @field_validator("context_attribute_ids", mode="before")
+    @classmethod
+    def normalize_context_attribute_ids(cls, value: Any) -> tuple[str, ...]:
+        return tuple(
+            validate_slug(item, name="context attribute ID")
+            for item in normalized_strings(value, label="context attribute IDs")
+        )
+
+    @model_validator(mode="after")
+    def validate_context(self) -> Self:
+        if self.attribute_id in self.context_attribute_ids:
+            raise ValueError("the watched attribute cannot also be a comparison context attribute")
+        if len(self.context_attribute_ids) != len(set(self.context_attribute_ids)):
+            raise ValueError("context attribute IDs must be unique")
+        object.__setattr__(self, "context_attribute_ids", tuple(sorted(self.context_attribute_ids)))
+        return self
+
+
+class DetectionModuleV1Alpha3(FrozenContract):
+    """One immutable module of numeric, categorical, and content-revision rules.
+
+    Published module contracts are immutable, so this ships alongside
+    ``v1alpha1``/``v1alpha2`` rather than widening either.
+    """
+
+    contract: Literal["ace.intelligence.detection/v1alpha3"] = DETECTION_MODULE_V1ALPHA3_VERSION
+    module_id: str
+    numeric_delta_rules: tuple[NumericDeltaRuleV1, ...] = Field(
+        default_factory=tuple,
+        max_length=MAX_DECLARATIONS,
+    )
+    categorical_transition_rules: tuple[CategoricalTransitionRuleV1, ...] = Field(
+        default_factory=tuple,
+        max_length=MAX_DECLARATIONS,
+    )
+    content_revision_rules: tuple[ContentRevisionRuleV1, ...] = Field(
+        default_factory=tuple,
+        max_length=MAX_DECLARATIONS,
+    )
+
+    @field_validator("module_id")
+    @classmethod
+    def validate_module_id(cls, value: str) -> str:
+        return validate_slug(value, name="module_id")
+
+    @field_validator(
+        "numeric_delta_rules",
+        "categorical_transition_rules",
+        "content_revision_rules",
+        mode="before",
+    )
+    @classmethod
+    def preserve_strict_collection(cls, value: Any, info) -> Any:
+        if not isinstance(value, (list, tuple)):
+            raise ValueError(f"{info.field_name} must be a collection")
+        return value
+
+    @field_validator("numeric_delta_rules")
+    @classmethod
+    def normalize_numeric_rules(
+        cls,
+        value: tuple[NumericDeltaRuleV1, ...],
+    ) -> tuple[NumericDeltaRuleV1, ...]:
+        return sorted_unique(value, key=lambda item: item.detector_id, label="numeric delta rules")
+
+    @field_validator("categorical_transition_rules")
+    @classmethod
+    def normalize_categorical_rules(
+        cls,
+        value: tuple[CategoricalTransitionRuleV1, ...],
+    ) -> tuple[CategoricalTransitionRuleV1, ...]:
+        return sorted_unique(
+            value,
+            key=lambda item: item.detector_id,
+            label="categorical transition rules",
+        )
+
+    @field_validator("content_revision_rules")
+    @classmethod
+    def normalize_content_rules(
+        cls,
+        value: tuple[ContentRevisionRuleV1, ...],
+    ) -> tuple[ContentRevisionRuleV1, ...]:
+        return sorted_unique(value, key=lambda item: item.detector_id, label="content revision rules")
+
+    @model_validator(mode="after")
+    def validate_rules(self) -> Self:
+        families = (self.numeric_delta_rules, self.categorical_transition_rules, self.content_revision_rules)
+        if not any(families):
+            raise ValueError("a detection module must declare at least one detector rule")
+        detector_ids = [item.detector_id for family in families for item in family]
+        if len(detector_ids) != len(set(detector_ids)):
+            raise ValueError("detector IDs must be unique across detector rule families")
         return self
 
 

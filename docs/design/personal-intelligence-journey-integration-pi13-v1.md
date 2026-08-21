@@ -219,3 +219,50 @@ in WS0 and a fresh installed-artifact run against ephemeral SurrealDB.
 This freeze authorizes implementation and verification of the bounded WS3 progression path only.
 It does not authorize WS4, a commit, merge, push, GitHub write, tag, package publish, release, or
 ACE 1.3 work.
+
+## 10. WS5 content-revision detection addendum — frozen by owner on 2026-08-21
+
+WS5 review proved that its one-line deliverable — "the PI7 watcher through re-ingest to a
+document-shaped Shift" — assumes a detection capability Core does not have. The Shift *shape* is not
+the gap: `shift_type` is free Pack vocabulary, so a Pack may already declare `document_revised`. The
+gap is upstream. `ace/intelligence/detection/` ships exactly two strategies:
+
+- `numeric_delta`, which requires a numeric attribute and a threshold; and
+- `categorical_transition`, which requires exact declared `from_value`/`to_value` pairs, forbids
+  `from == to`, and supports no wildcard.
+
+The Personal corpus maps `note`/`document` attributes that are free text (`title`, `body`). Neither
+strategy can express "this document's content changed", which is the only change a read-only local
+corpus can produce. §8.3 deferred detector policy to WS5 precisely so this decision would be made
+here, in the open.
+
+The owner froze the following, and authorized it as **Core work rather than WS5 wiring**:
+
+1. Core gains a third declarative detector family, **content revision**: a rule naming one entity
+   type and one string attribute, material when that attribute's exact value changes between the
+   baseline and current snapshot. It follows the existing families exactly — inert Pack-declared
+   policy interpreted by an Intelligence-owned strategy, with the Pack supplying `shift_type` and
+   `signal_type` and owning no implementation.
+2. The rule carries no threshold or transition table. Equality is the whole materiality test; a rule
+   that fires on every re-read would be dishonest, and one that ignores an edit would be worse.
+3. A content-revision Shift binds **digests and character counts**, never the document text. Shift
+   payloads are bounded canonical JSON, and the text is already citable through the Observation the
+   Brief cites; copying it into the Shift would duplicate evidence and risk the bound.
+4. The family ships as a new detection module version alongside the existing ones. Published module
+   contracts are immutable, so `v1alpha2` is not widened.
+5. This is domain-neutral Core vocabulary. It adds no Personal noun to `ace/core` or
+   `ace/intelligence`, and World/Market Packs may declare it on the same terms.
+
+This addendum authorizes the detector family, the Personal Pack's declaration of it, and the WS5
+re-ingest wiring that carries a corpus edit through to a Shift and an append-only Brief revision. It
+does not authorize WS6, a commit to a shared branch, merge, push, GitHub write, tag, package publish,
+release, or ACE 1.3 work.
+
+### 10.1 Recorded pattern
+
+This is the third frozen packet line whose acceptance assumed a capability the substrate did not
+have: J5's first-corpus Brief semantics (resolved in §8.2), the Brief citation time axes (resolved
+2026-08-21), and now change detection over documents. The continuation's own method — run the
+journey against installed artifacts and let the failure name the gap — is what surfaced each one.
+Future packets should treat "the runtime already supports this" as a claim to verify, not an
+assumption to freeze.

@@ -19,10 +19,13 @@ from ace.intelligence.contracts.activation import (
 )
 from ace.intelligence.contracts.detection import (
     DETECTION_MODULE_V1ALPHA2_VERSION,
+    DETECTION_MODULE_V1ALPHA3_VERSION,
     DETECTION_MODULE_VERSION,
     CategoricalTransitionRuleV1,
+    ContentRevisionRuleV1,
     DetectionModuleV1,
     DetectionModuleV1Alpha2,
+    DetectionModuleV1Alpha3,
     NumericDeltaRuleV1,
 )
 from ace.intelligence.contracts.epistemic import (
@@ -238,12 +241,13 @@ def validate_prepared_activation_binding(
 _DETECTION_MODELS = {
     DETECTION_MODULE_VERSION: DetectionModuleV1,
     DETECTION_MODULE_V1ALPHA2_VERSION: DetectionModuleV1Alpha2,
+    DETECTION_MODULE_V1ALPHA3_VERSION: DetectionModuleV1Alpha3,
 }
 
 
 def _detection_modules(
     validated: PreparedActivationBinding,
-) -> tuple[DetectionModuleV1 | DetectionModuleV1Alpha2, ...]:
+) -> tuple[DetectionModuleV1 | DetectionModuleV1Alpha2 | DetectionModuleV1Alpha3, ...]:
     return tuple(
         _DETECTION_MODELS[module_ir.contract].model_validate_json(module_ir.canonical_payload)
         for module_ir in validated.pack.modules
@@ -293,7 +297,7 @@ def resolve_detector_rule(
     binding: PreparedActivationBinding,
     *,
     detector_id: str,
-) -> NumericDeltaRuleV1 | CategoricalTransitionRuleV1:
+) -> NumericDeltaRuleV1 | CategoricalTransitionRuleV1 | ContentRevisionRuleV1:
     """Resolve one detector of any declared family only from the exact bound Pack IR."""
 
     validated = validate_prepared_activation_binding(binding)
@@ -302,6 +306,29 @@ def resolve_detector_rule(
         matches.extend(rule for rule in module.numeric_delta_rules if rule.detector_id == detector_id)
         matches.extend(
             rule for rule in getattr(module, "categorical_transition_rules", ()) if rule.detector_id == detector_id
+        )
+        matches.extend(
+            rule for rule in getattr(module, "content_revision_rules", ()) if rule.detector_id == detector_id
+        )
+    if len(matches) != 1:
+        raise PreparedActivationBindingError(
+            f"detector {detector_id!r} must resolve exactly once in the bound compiled pack"
+        )
+    return matches[0]
+
+
+def resolve_content_revision_rule(
+    binding: PreparedActivationBinding,
+    *,
+    detector_id: str,
+) -> ContentRevisionRuleV1:
+    """Resolve one content-revision detector only from the exact bound Pack IR."""
+
+    validated = validate_prepared_activation_binding(binding)
+    matches: list[ContentRevisionRuleV1] = []
+    for module in _detection_modules(validated):
+        matches.extend(
+            rule for rule in getattr(module, "content_revision_rules", ()) if rule.detector_id == detector_id
         )
     if len(matches) != 1:
         raise PreparedActivationBindingError(

@@ -31,6 +31,7 @@ from ace.core.state import (
 from ace.intelligence.contracts.common import validate_reference, validate_slug
 from ace.intelligence.contracts.detection import (
     CategoricalTransitionRuleV1,
+    ContentRevisionRuleV1,
     NumericDeltaRuleV1,
 )
 from ace.intelligence.contracts.ledger import (
@@ -48,10 +49,13 @@ from ace.intelligence.contracts.resources import (
 )
 from ace.intelligence.detection import (
     CategoricalTransitionDetectionError,
+    ContentRevisionDetectionError,
     NumericDeltaDetectionError,
     detect_categorical_shift,
+    detect_content_revision_shift,
     detect_numeric_shift,
     route_categorical_shift_as_signal,
+    route_content_revision_shift_as_signal,
     route_shift_as_signal,
 )
 from ace.intelligence.packs.runtime import (
@@ -339,12 +343,31 @@ class CorePreparedShiftSignalDerivationService(IntelligenceBuildPreparedDerivati
                     if shift is not None
                     else None
                 )
+            elif isinstance(rule, ContentRevisionRuleV1):
+                shift = detect_content_revision_shift(
+                    binding=self.binding.prepared_binding,
+                    detector_id=exact.detector_id,
+                    baseline=baseline,
+                    current=current,
+                    detected_at=exact.evaluated_at,
+                )
+                signal = (
+                    route_content_revision_shift_as_signal(
+                        binding=self.binding.prepared_binding,
+                        detector_id=exact.detector_id,
+                        shift=shift,
+                        detected_at=exact.evaluated_at,
+                    )
+                    if shift is not None
+                    else None
+                )
             else:
                 raise PreparedShiftSignalDerivationError("Pack detector family is not supported by this exact port")
         except (
             PreparedActivationBindingError,
             NumericDeltaDetectionError,
             CategoricalTransitionDetectionError,
+            ContentRevisionDetectionError,
         ) as exc:
             raise PreparedShiftSignalDerivationError("activation-bound detector interpretation failed") from exc
         if shift is None or signal is None:
