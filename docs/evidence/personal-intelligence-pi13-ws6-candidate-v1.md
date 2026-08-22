@@ -78,6 +78,23 @@ CI now fails when the committed bundle does not match the source it is built fro
 (`.github/workflows/ci.yml`, "Fail if the committed Atrium bundle is stale"), with the fix named in the
 error message. Without that gate the same silent staleness recurs on the next UI change.
 
+## A second artifact defect, found by checking the wheel rather than the tree
+
+Rebuilding the bundle is necessary but not sufficient. `setuptools` copies package data into
+`build/lib/` and never prunes files that have since been deleted, so a locally built wheel carries every
+Atrium bundle the tree has ever held. The first lane wheel contained both `index-Bua4tRJ5.js` (the old
+bundle, carrying `Activate continuous maintenance`) and `index-YdGv59gM.js` (the new one) -- about two
+megabytes of stale, unreferenced JavaScript. Behaviour was correct, because the packaged `index.html`
+references only the new assets, but the retired claim shipped inside the artifact.
+
+Removing `build/` before building produces a wheel with exactly the three current assets. CI publishes
+from a fresh `actions/checkout` and so has no `build/` directory, which is why published artifacts were
+never affected -- but any locally cut release would have been. Recorded in CONTRIBUTING alongside the
+rebuild step.
+
+The WS0 lane was then rebuilt from byte-clean wheels and re-run, so the evidence below rests on
+artifacts containing only current bytes.
+
 ## Verification
 
 - Canvas: 700 tests pass, `tsc --noEmit` clean.

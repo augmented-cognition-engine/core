@@ -88,6 +88,31 @@ Markers distinguish `e2e` and `requires_extensions` work from the default determ
 Do not make provider-quality claims from credential-free fixtures; follow
 [`evaluations/README.md`](evaluations/README.md) for matched-model evidence and paid-live guards.
 
+### Atrium (`core/ui/canvas`) changes
+
+`core/engine/atrium/static` is a **committed build artifact**: it is the SPA the Python package
+actually serves. Nothing rebuilds it as a side effect of a test run, and a stale bundle is invisible
+locally -- the server happily serves an older Atrium. After changing anything under
+`core/ui/canvas/src`, rebuild and commit the result:
+
+```
+cd core/ui/canvas && npm run build:package     # writes core/engine/atrium/static
+```
+
+CI fails if the committed bundle does not match its source, so an unrebuilt change is caught -- but
+only after you push. Two consecutive builds of the same source produce byte-identical output, so a
+diff in that directory always means a real source change.
+
+**Building wheels locally:** `setuptools` copies package data into `build/lib/` and never prunes files
+that have since been deleted, so a tree that has ever held an older Atrium bundle will bake every one
+of them into the wheel. Remove `build/` before building anything you intend to inspect or ship:
+
+```
+rm -rf build && python -m build --wheel .
+```
+
+CI publishes from a fresh checkout and is unaffected.
+
 ### 4. Conventions
 
 **Commits:**
