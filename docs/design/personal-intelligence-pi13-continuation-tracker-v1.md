@@ -494,6 +494,36 @@ preparation, on code the release cannot execute. They belong to 1.3 alongside th
 makes them reachable. **When that work starts, use a JSON-round-trip store double**: in-memory doubles
 return live Python objects and hide this class entirely, which is why it survived four times.
 
+## What CI found that no local run had
+
+The release commit went to `main` and CI failed. Three findings, and the first one matters most because
+it corrects a belief this ledger had been carrying.
+
+1. **`test_extension_disabled_kernel_starts_without_live_composition` was a regression from this branch,
+   not a pre-existing baseline failure.** It had been recorded as baseline for several sessions on the
+   strength of failing locally. CI settles it: the test passes on `origin/main` and failed on the release
+   commit. The cause is structural and worth carrying forward — importing **any** `ace.application`
+   submodule executes `ace/application/__init__.py`, which loads `live_source_ingress` and
+   `live_intelligence_bridge`. `local_owner_authority` is new here and imports one constant from
+   `ace.application.intelligence_resource_feedback`; `cli/commands/setup` imported it at module scope, so
+   a bare `ace --help` began loading live composition. The import moved into the one function that uses
+   it. **A failure seen only on your own branch is not evidence that it pre-dates your branch.**
+
+2. **Two registry tests were in the wrong lane.** They exercise executor discovery, which the
+   naked-kernel switch disables for the whole process before it inspects any entry points, injected ones
+   included. That short-circuit is the switch working correctly, so the tests now carry
+   `requires_extensions` rather than the switch being loosened to accommodate them.
+
+3. **CI could not be green on any release commit.** `uv sync` installs the root project editable, and
+   `pip-audit` resolved `ace-core 1.2.3` against PyPI, where a version cannot exist before publication.
+   It had only ever passed because the committed version was already published. `--skip-editable` drops
+   the root project — and immediately surfaced a real advisory the resolution error had been masking:
+   `pip 26.1.2`, PYSEC-2026-3721, fixed in 26.2. Floored explicitly rather than suppressed, because this
+   job's own policy permits `--ignore-vuln` only when no fix exists.
+
+The WS0 job fails on J6 and is `continue-on-error: true` by design — an observability gate, not a merge
+gate. The run is green with it red, which is the intended behaviour for a disclosed gap.
+
 ## Current gate
 
 **ACE 1.2 delivers nine of its ten journey steps from public artifacts, with the tenth disclosed.**

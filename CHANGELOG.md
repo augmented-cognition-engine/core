@@ -56,6 +56,16 @@ read does. Deselecting the group withdraws that authorization.
 `core/engine/atrium/static` is a committed build artifact and had drifted from its source; it is rebuilt,
 and CI now fails when it drifts again.
 
+### Fixed
+
+- The CLI no longer loads live-composition modules at start. Importing any `ace.application` submodule
+  executes the package `__init__`, which pulls in `live_source_ingress` and `live_intelligence_bridge`;
+  a module-scope import for a single constant put both on the `ace --help` path and broke the kernel
+  boundary the naked-kernel lane exists to defend. The import now sits in the function that uses it.
+- `pip` is floored at 26.2 for PYSEC-2026-3721. The dependency audit skips the editable root project,
+  which cannot be resolved on the index before it is published — so the audit could not pass on any
+  release commit, and the resolution error was masking a real advisory underneath it.
+
 ## 1.2.2
 
 ### Planner registration repair from the v1.2.1 acceptance rerun
