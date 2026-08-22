@@ -42,14 +42,17 @@ async def run_integration_validation(
     points_checked = 0
     points_valid = 0
     point_results = []
+    skipped_entries: list[str] = []
 
     for point in integration_points:
         if not isinstance(point, dict):
+            skipped_entries.append(f"non-dict entry (type={type(point).__name__})")
             continue
 
         file_path = point.get("file", "")
         function_name = point.get("function", "")
         if not file_path:
+            skipped_entries.append(f"entry missing usable 'file' (keys={sorted(point.keys())})")
             continue
 
         points_checked += 1
@@ -78,6 +81,14 @@ async def run_integration_validation(
                 "valid": valid,
                 "reason": reason,
             }
+        )
+
+    if skipped_entries:
+        logger.warning(
+            "integration_validation: skipped %d integration_points entr%s with unusable shape: %s",
+            len(skipped_entries),
+            "y" if len(skipped_entries) == 1 else "ies",
+            skipped_entries,
         )
 
     if points_checked == 0:

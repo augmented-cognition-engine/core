@@ -414,7 +414,7 @@ PRODUCT HEALTH: {health}
 {team_section}
 {risk_section}
 
-Generate a JSON spec with: objective, acceptance_criteria (array of {{criterion, verification, automated}}), constraints, integration_points, estimated_files, test_requirements, best_practices.
+Generate a JSON spec with: objective, acceptance_criteria (array of {{criterion, verification, automated}}), constraints, integration_points (array of {{file, function, description}}), estimated_files, test_requirements, best_practices.
 
 GROUNDING RULES — strict:
 - This spec is for an agent-engineer to execute autonomously on this codebase. Output CONCRETE code-and-file actions only.
@@ -621,7 +621,7 @@ Generate a JSON spec with:
 - objective: one clear sentence of what to build/fix
 - acceptance_criteria: array of {{"criterion": "...", "verification": "...", "automated": true/false}}
 - constraints: array of things NOT to do or to preserve
-- integration_points: array of {{"component": "...", "integration": "..."}} for files to modify
+- integration_points: array of {{"file": "...", "function": "...", "description": "..."}} for files to modify
 - estimated_files: array of file paths using the project's actual language and conventions above
 - test_requirements: array of tests to write
 - best_practices: array of relevant practices to follow

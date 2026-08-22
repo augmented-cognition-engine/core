@@ -34,6 +34,7 @@ async def run_code_inspection(
     files_checked = []
     functions_found = []
     functions_missing = []
+    skipped_entries: list[str] = []
 
     # Check estimated files exist
     for file_path in estimated_files:
@@ -44,11 +45,13 @@ async def run_code_inspection(
     # Check integration point functions via AST
     for point in integration_points:
         if not isinstance(point, dict):
+            skipped_entries.append(f"non-dict entry (type={type(point).__name__})")
             continue
 
         file_path = point.get("file", "")
         function_name = point.get("function", "")
         if not file_path or not function_name:
+            skipped_entries.append(f"entry missing usable 'file'/'function' (keys={sorted(point.keys())})")
             continue
 
         abs_path = os.path.join(root, file_path) if not os.path.isabs(file_path) else file_path
@@ -62,6 +65,14 @@ async def run_code_inspection(
             functions_found.append(f"{file_path}:{function_name}")
         else:
             functions_missing.append(f"{file_path}:{function_name}")
+
+    if skipped_entries:
+        logger.warning(
+            "code_inspection: skipped %d integration_points entr%s with unusable shape: %s",
+            len(skipped_entries),
+            "y" if len(skipped_entries) == 1 else "ies",
+            skipped_entries,
+        )
 
     # Determine overall status
     if not files_checked and not integration_points:

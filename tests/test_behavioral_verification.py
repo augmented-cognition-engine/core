@@ -183,6 +183,67 @@ async def test_code_inspection_no_files():
     assert result.status == "skipped"
 
 
+@pytest.mark.asyncio
+async def test_code_inspection_warns_on_non_dict_integration_point(caplog):
+    """A non-dict integration_points entry is skipped silently today — it must
+    now log a warning naming what was skipped, so the skip leaves a trace."""
+    spec = {"estimated_files": [], "integration_points": ["not-a-dict"]}
+
+    from core.engine.verification.checks.code_inspection import run_code_inspection
+
+    with caplog.at_level("WARNING", logger="core.engine.verification.checks.code_inspection"):
+        await run_code_inspection(spec)
+
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == 1
+    assert "integration_points" in warnings[0].getMessage()
+
+
+@pytest.mark.asyncio
+async def test_code_inspection_warns_on_gap_prompt_shaped_point(caplog):
+    """The real gap-prompt output shape — {component, integration} — has
+    neither a usable 'file' nor 'function' key and is skipped today with no
+    signal. It must now log a warning."""
+    spec = {
+        "estimated_files": [],
+        "integration_points": [{"component": "auth middleware", "integration": "wrap login handler"}],
+    }
+
+    from core.engine.verification.checks.code_inspection import run_code_inspection
+
+    with caplog.at_level("WARNING", logger="core.engine.verification.checks.code_inspection"):
+        await run_code_inspection(spec)
+
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == 1
+    assert "integration_points" in warnings[0].getMessage()
+
+
+@pytest.mark.asyncio
+async def test_code_inspection_no_warning_for_wellformed_integration_point(caplog, tmp_path):
+    """A well-formed {file, function, description} point must NOT trigger a
+    warning — the signal has to stay meaningful."""
+    target = tmp_path / "engine" / "foo.py"
+    target.parent.mkdir(parents=True)
+    target.write_text("def my_handler(): pass\n")
+
+    spec = {
+        "estimated_files": ["engine/foo.py"],
+        "integration_points": [
+            {"file": "engine/foo.py", "function": "my_handler", "description": "Handles requests"},
+        ],
+    }
+
+    from core.engine.verification.checks.code_inspection import run_code_inspection
+
+    with caplog.at_level("WARNING", logger="core.engine.verification.checks.code_inspection"):
+        result = await run_code_inspection(spec, project_root=str(tmp_path))
+
+    assert result.status == "passed"
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert warnings == []
+
+
 # ---------------------------------------------------------------------------
 # Test execution
 # ---------------------------------------------------------------------------
@@ -356,6 +417,65 @@ async def test_integration_validation_no_points():
 
     result = await run_integration_validation(spec)
     assert result.status == "skipped"
+
+
+@pytest.mark.asyncio
+async def test_integration_validation_warns_on_non_dict_integration_point(caplog):
+    """A non-dict integration_points entry is skipped silently today — it must
+    now log a warning naming what was skipped, so the skip leaves a trace."""
+    spec = {"integration_points": ["not-a-dict"]}
+
+    from core.engine.verification.checks.integration import run_integration_validation
+
+    with caplog.at_level("WARNING", logger="core.engine.verification.checks.integration"):
+        await run_integration_validation(spec)
+
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == 1
+    assert "integration_points" in warnings[0].getMessage()
+
+
+@pytest.mark.asyncio
+async def test_integration_validation_warns_on_gap_prompt_shaped_point(caplog):
+    """The real gap-prompt output shape — {component, integration} — has
+    neither a usable 'file' nor 'function' key and is skipped today with no
+    signal. It must now log a warning."""
+    spec = {
+        "integration_points": [{"component": "auth middleware", "integration": "wrap login handler"}],
+    }
+
+    from core.engine.verification.checks.integration import run_integration_validation
+
+    with caplog.at_level("WARNING", logger="core.engine.verification.checks.integration"):
+        await run_integration_validation(spec)
+
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == 1
+    assert "integration_points" in warnings[0].getMessage()
+
+
+@pytest.mark.asyncio
+async def test_integration_validation_no_warning_for_wellformed_integration_point(caplog, tmp_path):
+    """A well-formed {file, function, description} point must NOT trigger a
+    warning — the signal has to stay meaningful."""
+    target = tmp_path / "engine" / "foo.py"
+    target.parent.mkdir(parents=True)
+    target.write_text("def my_handler(): pass\n")
+
+    spec = {
+        "integration_points": [
+            {"file": "engine/foo.py", "function": "my_handler", "description": "Handles requests"},
+        ],
+    }
+
+    from core.engine.verification.checks.integration import run_integration_validation
+
+    with caplog.at_level("WARNING", logger="core.engine.verification.checks.integration"):
+        result = await run_integration_validation(spec, project_root=str(tmp_path))
+
+    assert result.status == "passed"
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert warnings == []
 
 
 # ---------------------------------------------------------------------------
