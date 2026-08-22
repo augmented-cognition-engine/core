@@ -31,7 +31,6 @@ import httpx
 from core.engine.cli.auth import get_config_path, get_headers, save_config
 from core.engine.cli.commands.run import _submit_and_wait
 from core.engine.cli.display import console, print_task_result
-from core.engine.core.local_owner_authority import LOCAL_OWNER_GRANTS
 
 _DEFAULT_API_PORT = 3000
 
@@ -745,6 +744,12 @@ def _bootstrap_local_owner(token: str) -> None:
         grants = response.json().get("grants")
     except (httpx.HTTPError, ValueError) as exc:
         raise click.ClickException(f"ACE started, but local-owner permissions could not be verified: {exc}") from exc
+    # Imported here, not at module scope: importing any `ace.application`
+    # submodule executes the package __init__, which loads the live composition
+    # modules. The kernel boundary forbids those at CLI start, so a bare
+    # `ace --help` must not pay for a constant this one check needs.
+    from core.engine.core.local_owner_authority import LOCAL_OWNER_GRANTS
+
     if not isinstance(grants, list) or len(grants) != len(LOCAL_OWNER_GRANTS):
         raise click.ClickException("ACE started, but local-owner permission verification was incomplete.")
 

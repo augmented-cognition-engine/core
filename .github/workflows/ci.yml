@@ -112,7 +112,13 @@ jobs:
         # No suppressions: the tree audits clean. (CVE-2025-3000 was fixed by
         # torch 2.13; the former --ignore-vuln for it is gone. If a future
         # advisory has no fix, add an explicit --ignore-vuln here with a reason.)
-        run: uv run pip-audit
+        #
+        # --skip-editable excludes the root project, which `uv sync` installs
+        # editable. Auditing ace-core against PyPI is meaningless -- it resolves
+        # our own package -- and it fails outright on any release commit, because
+        # the version bump necessarily precedes publication. Dependencies, which
+        # are what this job exists to scan, are unaffected.
+        run: uv run pip-audit --skip-editable
 
   pi13-ws0:
     name: PI13 WS0 — Personal J1-J10 (allowed failure)

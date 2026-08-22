@@ -404,8 +404,14 @@ def _host_services(*, records, recorded_sources=None, resources=None, first_brie
 
 
 # --- entry-point / registry ---
+#
+# Both registry tests exercise executor discovery, which the naked-kernel switch
+# disables for the whole process before it looks at any entry points -- injected
+# ones included. That short-circuit is the switch working correctly, so these are
+# excluded from the naked-kernel lane rather than the switch being loosened.
 
 
+@pytest.mark.requires_extensions
 async def test_entry_point_target_is_zero_arg_and_registry_resolves_it() -> None:
     _reset_intelligence_build_executor_registry_for_tests()
     entry_point = EntryPoint(
@@ -422,6 +428,7 @@ async def test_entry_point_target_is_zero_arg_and_registry_resolves_it() -> None
         _reset_intelligence_build_executor_registry_for_tests()
 
 
+@pytest.mark.requires_extensions
 async def test_registry_rejects_a_second_executor_claiming_the_same_profile() -> None:
     _reset_intelligence_build_executor_registry_for_tests()
     entry_points = (
