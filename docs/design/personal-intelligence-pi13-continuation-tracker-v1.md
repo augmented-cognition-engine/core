@@ -474,6 +474,26 @@ So the bump belongs to whoever publishes. `CHANGELOG.md` carries the full `1.2.3
 released` entry, including its disclosed continuous-update gap; every version identifier still reads
 `1.2.2`. Publication is one deliberate commit away and remains unauthorized here.
 
+## Latent, deliberately not fixed
+
+The strict-validation-of-durable-payloads defect class was found four times and fixed four times, each
+with a reproducing test. Sites of the same shape remain in
+`ace/application/intelligence_resource_projection.py`, and they are being left alone on purpose:
+
+- `MonitoringLifecycleReceiptV1Alpha1.model_validate(record.payload)` (line 467) and the live
+  acquisition/snapshot/admission decoders (lines 987-989, 1107) validate durable payloads in Python
+  mode, which is what broke the four fixed sites when SurrealDB returned JSON.
+- Every one of them sits in the live-monitoring or live-source-ingress path. Live ingress has no public
+  route in 1.2 -- it is the same absence that blocks J6 -- so the public Personal journey never reaches
+  them, and the WS0 lane consequently cannot produce a failing case.
+- The monitoring site is inside a `try` that drops the record and can degrade the page, so its failure
+  mode is a missing record rather than a wrong one.
+
+Changing them now would mean editing durable read paths with no reproducing test, during release
+preparation, on code the release cannot execute. They belong to 1.3 alongside the live ingress work that
+makes them reachable. **When that work starts, use a JSON-round-trip store double**: in-memory doubles
+return live Python objects and hide this class entirely, which is why it survived four times.
+
 ## Current gate
 
 **ACE 1.2 delivers nine of its ten journey steps from public artifacts, with the tenth disclosed.**
