@@ -163,6 +163,28 @@ Each was reproduced against real installed artifacts and a real database, and ea
 - grounded Ask scored claims on unfiltered token overlap, so one shared common word answered anything and
   the honest-no-answer guarantee held only while a corpus was empty.
 
+### What the Atrium said, and what it says now
+
+The steps above were verified through public HTTP routes. The Atrium is where an owner actually forms
+expectations, and it carried three defects of its own (`personal-intelligence-pi13-ws6-candidate-v1.md`):
+
+- The onboarding flow's final stage was labelled **"Activate continuous maintenance"** and reached
+  `complete` on an active Builder session — asserting, at the exact point of reading, the one capability
+  J6 shows is absent. It is now "Activate the domain" and states that Briefs are rebuilt when you ask
+  and that this release does not update them on its own.
+- Whether a source group's evidence lives on the owner's machine existed only as prose, so the Connect
+  surface could not be mounted from anything trustworthy. The onboarding-profile contract now carries
+  `requires_authorized_root` (additive, defaulted, no Personal noun in `ace/intelligence`), and the
+  Atrium fails closed on a malformed value.
+- Selecting a local source group was enough to proceed to planning. Selection and preview now both leave
+  planning blocked; only allowing the read of the exact shown scope unblocks it, and deselecting the
+  group or changing profile withdraws that authorization.
+
+And the finding that made those three consequential: `core/engine/atrium/static` is a committed build
+artifact that nothing rebuilt or checked. The bundle the package serves contained none of the Atrium
+work in this continuation and still contained the retired maintenance claim. It has been rebuilt from
+source, and CI now fails when it drifts.
+
 ### What acceptance still requires
 
 Unchanged and owner-held: a clean-context J1–J10 run against **published** artifacts, the maintainer

@@ -201,6 +201,7 @@ async def test_profile_and_session_revisions_project_through_one_rebuildable_rea
             "description": "Reviewed measurements that test first-party claims.",
             "evidence_role": "independent-measurement",
             "label": "Independent evidence",
+            "requires_authorized_root": False,
             "source_group_id": "independent-evidence",
             "source_ids": ["metr", "stanford-helm"],
             "source_labels": ["METR", "Stanford HELM"],

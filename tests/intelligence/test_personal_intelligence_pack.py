@@ -15,6 +15,10 @@ import pytest
 
 from ace.intelligence.contracts.detection import DetectionModuleV1Alpha3
 from ace.intelligence.contracts.diagnostics import PackCompatibilityStatus
+from ace.intelligence.contracts.intelligence_builder_presentation import (
+    IntelligenceOnboardingProfileV1Alpha1,
+    IntelligenceOnboardingSourceGroupV1Alpha1,
+)
 from ace.intelligence.contracts.orientation import OrientationModuleV1
 from ace.intelligence.contracts.pack import OntologyModuleV1
 from ace.intelligence.contracts.synthesis import SynthesisModuleV1Alpha2
@@ -187,3 +191,39 @@ def test_personal_pack_passes_provider_free_conformance() -> None:
     # Conformance binds to the exact compilation material.
     assert receipt.compilation_result_id == report.compilation.result_id
     assert receipt.compilation_result_digest == report.compilation.result_digest
+
+
+def test_personal_profile_declares_that_local_sources_need_an_authorized_root() -> None:
+    """WS6: the Connect surface is mounted from the contract, never from a label string.
+
+    A source group whose evidence is local files cannot be connected by selecting it.
+    The owner must name a root and see the exact scope first, so the profile states that
+    requirement structurally -- the Atrium has no business inferring locality from prose.
+    """
+
+    # Loaded exactly as the installed-pack resolver does: JSON mode, so the
+    # strict tuple fields accept the shipped arrays.
+    profile = IntelligenceOnboardingProfileV1Alpha1.model_validate_json(
+        (PACK_ROOT / "onboarding_profile.json").read_bytes()
+    )
+
+    local = next(item for item in profile.source_groups if item.source_group_id == "personal_local_sources")
+    assert local.requires_authorized_root is True
+
+
+def test_onboarding_source_groups_do_not_require_a_root_unless_they_say_so() -> None:
+    group = IntelligenceOnboardingSourceGroupV1Alpha1.model_validate_json(
+        json.dumps(
+            {
+                "source_group_id": "public_records",
+                "label": "Official records",
+                "description": "Primary official evidence.",
+                "evidence_role": "authoritative_record",
+                "source_ids": ["federal-register"],
+                "source_labels": ["Federal Register"],
+                "access_label": "Public - no credentials",
+            }
+        )
+    )
+
+    assert group.requires_authorized_root is False

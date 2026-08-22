@@ -424,15 +424,66 @@ deriving the expected count from `LOCAL_OWNER_GRANTS`; #260 remains carried to W
 
   **Lane result: J1 J2 J3 J4 J5 PASS · J6 BLOCKED (deferred to 1.3) · J7 J8 J9 J10 PASS.**
 
+## WS6 -- the Connect surface reaches the product, and the Atrium stops overclaiming
+
+Three things were true at once: the Connect surface existed but was mounted nowhere, the shipped SPA
+bundle was a committed build artifact that predated all of it, and the onboarding flow told owners it
+had activated *continuous maintenance* -- the exact capability J6 proved absent.
+
+1. **The Atrium no longer claims continuous update.** Stage 8 was labelled "Activate continuous
+   maintenance" and reached `complete` on an ACTIVE Builder session. Its `detail` was literally true
+   ("The durable Builder session is active"), but label plus state is what an owner reads, and together
+   they asserted J6. The stage is now "Activate the domain", and says plainly that Briefs are rebuilt
+   when you ask and that this release does not update them on its own. Same disclosure as the
+   acceptance record, at the point where it is actually read.
+
+2. **Locality became a contract fact, not a label string.** A source group whose evidence lives on the
+   owner's machine cannot be connected by selecting it. The Atrium had no structural way to know which
+   groups those are -- only prose like "Read-only local files". `IntelligenceOnboardingSourceGroupV1Alpha1`
+   now carries `requires_authorized_root: StrictBool = False` (additive, defaulted, no Personal noun in
+   `ace/intelligence`), and the Personal profile sets it on `personal_local_sources`. The Atrium mounts
+   the Connect surface from that field. The UI parser fails closed: a malformed value rejects the group
+   rather than reading as "no authorization needed".
+
+3. **Selection is not consent, and consent does not outlive its scope.** The Evidence step now blocks
+   `Prepare exact plan` while any selected group that requires a root is unauthorized -- previewing the
+   scope does not lift the block, only allowing the read does. Deselecting a group withdraws its
+   authorization, because its Connect surface unmounts with the scope that consent was given for, and
+   changing profile clears all of it.
+
+4. **The shipped bundle was stale, and none of this would have shipped.** `core/engine/atrium/static`
+   is a committed build artifact; nothing rebuilds or staleness-checks it. The committed bundle
+   contained neither `personalJourneyApi` nor the Connect surface, and still contained the retired
+   "Activate continuous maintenance" string. Rebuilt via `npm run build:package`; verified by grepping
+   the new bundle for the added strings and for the absence of the retired one. **Any future UI change
+   that is not followed by that rebuild does not reach an installed artifact.**
+
+Canvas: 700 tests, typecheck clean. Python: the onboarding-profile projection gained the new field and
+its expectation was updated; the pack, catalog, journey-start, connect-host, and build-plan suites pass.
+
+## 1.2.3 is prepared, not released
+
+The repo binds three things together -- `ace/__init__.py`, the README published-version badge, and the
+ROADMAP "latest published release" line -- and `test_ace_120_release_candidate` plus
+`test_public_roadmap_positioning` enforce that binding. That encodes a convention: version, docs, and
+publication move in one commit. A source tree bumped to `1.2.3` without publishing has no honest
+representation in that scheme, and the only way to make the guards pass would be to weaken them or to
+state in the README that an unpublished version is current.
+
+So the bump belongs to whoever publishes. `CHANGELOG.md` carries the full `1.2.3 -- prepared, not
+released` entry, including its disclosed continuous-update gap; every version identifier still reads
+`1.2.2`. Publication is one deliberate commit away and remains unauthorized here.
+
 ## Current gate
 
 **ACE 1.2 delivers nine of its ten journey steps from public artifacts, with the tenth disclosed.**
 
 What remains is no longer implementation of the journey itself:
 
-1. **WS6 breadth** — the Connect surface exists and is tested; mounting it in the onboarding flow
-   alongside J4 inventory and J5 Brief surfaces, plus Playwright paths against the real APIs, is
-   remaining product work. None of it blocks the acceptance verdict for the steps already passing.
+1. **WS6 breadth** — the Connect surface is now mounted in the onboarding flow, gated so selection is
+   not consent, and rebuilt into the shipped SPA bundle. J4 inventory and J5 Brief surfaces and
+   Playwright paths against the real APIs remain product work. None of it blocks the acceptance
+   verdict for the steps already passing.
 2. **The acceptance gates, which are the owner's** — a clean-context J1–J10 run, the maintainer
    cross-check, and the four-record reconciliation closing. The lane's results are candidate evidence and
    have never been anything else.
@@ -442,5 +493,5 @@ What remains is no longer implementation of the journey itself:
 The acceptance record must state plainly that continuous update (J6) is not yet in the public Personal
 journey and now lands in 1.3. Disclosing a real gap is this packet's own standard applied to itself.
 
-The `pi13-continuation` branch holds seventeen commits with no upstream. No merge, push, GitHub write,
+The `pi13-continuation` branch holds its commits with no upstream. No merge, push, GitHub write,
 tag, publish, or release has occurred or is authorized.

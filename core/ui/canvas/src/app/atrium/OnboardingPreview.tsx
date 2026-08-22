@@ -68,6 +68,12 @@ import type {
 } from './onboardingModel'
 import { isCustomPreviewProfile, onboardingSessionFromResources, parseBuilderSession } from './onboardingModel'
 import { semanticOnboardingStages, type SemanticOnboardingStage } from './onboardingJourney'
+import { ConnectLocalSources } from './ConnectLocalSources'
+import type {
+  ExactServerMaterial,
+  LocalSourceConnectAuthorizeInput,
+  LocalSourceConnectPreviewInput,
+} from '@/api/personalJourneyApi'
 
 const BuildIcon = ATRIUM_ACTION_ICONS.build
 
@@ -463,6 +469,8 @@ export function OnboardingPreview({
   onProjectResourceState,
   onRetryBuild,
   onBuildStarted,
+  onConnectPreview,
+  onConnectAuthorize,
   onOpenBrief,
 }: {
   readonly open: boolean
@@ -485,6 +493,8 @@ export function OnboardingPreview({
   readonly onProjectResourceState?: (input: IntelligenceBuildResourceStateInput) => Promise<IntelligenceSystemProjection>
   readonly onRetryBuild?: (current: Readonly<Record<string, unknown>>) => Promise<Readonly<Record<string, unknown>>>
   readonly onBuildStarted?: (result: IntelligenceBuildResult) => void | Promise<void>
+  readonly onConnectPreview?: (input: LocalSourceConnectPreviewInput) => Promise<ExactServerMaterial>
+  readonly onConnectAuthorize?: (input: LocalSourceConnectAuthorizeInput) => Promise<ExactServerMaterial>
   readonly onOpenBrief: () => void
 }) {
   const [profileId, setProfileId] = useState(profiles[0].profile_id)
@@ -499,6 +509,9 @@ export function OnboardingPreview({
   const [sourceGroupIds, setSourceGroupIds] = useState<readonly string[]>(() =>
     profile.source_groups.filter((group) => group.default_selected).map((group) => group.source_group_id),
   )
+  // Groups whose local scope the owner has seen and allowed. Reset when the
+  // profile changes, because consent is never transferable between profiles.
+  const [authorizedGroupIds, setAuthorizedGroupIds] = useState<readonly string[]>([])
   const [planPending, setPlanPending] = useState(false)
   const [planError, setPlanError] = useState<PlanErrorState | null>(null)
   const [preparedInput, setPreparedInput] = useState<IntelligenceBuildPlanPrepareInput | null>(null)
@@ -541,9 +554,14 @@ export function OnboardingPreview({
     ? customPreviewLanes(outcome.recommended_topic_labels.length || 'Custom')
     : buildLanes(effectiveSession, resourceStateProjection)
   const evidenceRequired = profile.source_groups.length > 0
+  // A selected group whose evidence is local files is not plannable until its
+  // scope has been shown and allowed. Selection alone is a proposal, not consent.
+  const unauthorizedLocalGroups = selectedSourceGroups.filter(
+    (group) => group.requires_authorized_root && !authorizedGroupIds.includes(group.source_group_id),
+  )
   const canContinue = step === 1
     ? subject.trim().length >= 8
-    : step !== 2 || !evidenceRequired || selectedSourceGroups.length > 0
+    : step !== 2 || !evidenceRequired || (selectedSourceGroups.length > 0 && unauthorizedLocalGroups.length === 0)
   const stepLabels = customPreview ? CUSTOM_PREVIEW_STEP_LABELS : STEP_LABELS
   const semanticStages = semanticOnboardingStages({
     subject,
@@ -573,6 +591,7 @@ export function OnboardingPreview({
     setSourceGroupIds(
       profile.source_groups.filter((group) => group.default_selected).map((group) => group.source_group_id),
     )
+    setAuthorizedGroupIds([])
     setPreparedInput(null)
     setPreparedPlan(null)
     setSystemProjection(null)
@@ -610,6 +629,10 @@ export function OnboardingPreview({
 
   function toggleSourceGroup(sourceGroupId: string) {
     invalidatePreparedPlan()
+    // Deselecting withdraws any authorization the owner gave this group. Its
+    // Connect surface unmounts with its shown scope, so the consent must not
+    // outlive what it was given for.
+    setAuthorizedGroupIds((current) => current.filter((item) => item !== sourceGroupId))
     setSourceGroupIds((current) => current.includes(sourceGroupId)
       ? current.filter((item) => item !== sourceGroupId)
       : [...current, sourceGroupId])
@@ -1004,6 +1027,31 @@ export function OnboardingPreview({
                   <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
                     <PlugZap className="size-3.5 text-muted-foreground" aria-hidden="true" /> {selectedSourceGroups.length} groups · {proposedSourceCount} sources proposed
                   </div>
+                  {selectedSourceGroups
+                    .filter((group) => group.requires_authorized_root)
+                    .map((group) => (
+                      <div key={group.source_group_id} className="mt-6 rounded-lg border p-4">
+                        <div className="text-sm font-semibold">{group.label}</div>
+                        <p className="mt-1 mb-4 text-xs text-muted-foreground">
+                          This evidence is on your machine. ACE reads nothing until you have seen the exact scope and allowed it.
+                        </p>
+                        {onConnectPreview !== undefined && onConnectAuthorize !== undefined ? (
+                          <ConnectLocalSources
+                            profileId={profile.profile_id}
+                            profileDigest={profile.profile_digest ?? ''}
+                            sourceGroupId={group.source_group_id}
+                            onPreview={onConnectPreview}
+                            onAuthorize={onConnectAuthorize}
+                            onAuthorized={() => setAuthorizedGroupIds((current) =>
+                              current.includes(group.source_group_id) ? current : [...current, group.source_group_id])}
+                          />
+                        ) : (
+                          <p className="text-sm text-muted-foreground">
+                            This host has no local-source connect handler, so this evidence cannot be authorized here.
+                          </p>
+                        )}
+                      </div>
+                    ))}
                 </>
               ) : (
                 <div className="mt-6 rounded-lg border border-dashed p-6 text-sm text-muted-foreground">

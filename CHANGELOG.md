@@ -45,6 +45,20 @@ admits a second capture of an edited source, so nothing reaches it yet. Continuo
 1.3 (Intelligence Operations and Safe Evolution), where the file watcher belongs. Every other step of
 the journey passes from installed artifacts.
 
+### The Atrium stops claiming what the journey cannot do
+
+The onboarding flow's last stage was "Activate continuous maintenance" and reached `complete` on an
+active domain — asserting the one capability this release does not have. It is now "Activate the
+domain", and says plainly that Briefs are rebuilt when you ask.
+
+Local evidence is now connected from a contract fact rather than a label string: a source group can
+declare `requires_authorized_root`, and the Atrium mounts the folder-scope surface from that. Selecting
+such a group no longer lets planning proceed, and neither does previewing the scope — only allowing the
+read does. Deselecting the group withdraws that authorization.
+
+`core/engine/atrium/static` is a committed build artifact and had drifted from its source; it is rebuilt,
+and CI now fails when it drifts again.
+
 ## 1.2.2
 
 ### Planner registration repair from the v1.2.1 acceptance rerun

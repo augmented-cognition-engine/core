@@ -27,6 +27,11 @@ export interface IntelligenceOnboardingSourceGroup {
   readonly source_labels: readonly string[]
   readonly access_label: string
   readonly default_selected: boolean
+  /**
+   * Evidence that lives on the owner's machine. Selecting the group is not
+   * consent: a root must be named and its exact scope allowed before ACE reads.
+   */
+  readonly requires_authorized_root: boolean
 }
 
 export interface IntelligenceOnboardingProfile {
@@ -218,7 +223,10 @@ function parseSourceGroup(value: unknown): IntelligenceOnboardingSourceGroup | n
     typeof value.source_group_id !== 'string' || typeof value.label !== 'string' ||
     typeof value.description !== 'string' || typeof value.evidence_role !== 'string' ||
     sourceIds === null || sourceIds.length === 0 || sourceLabels === null || sourceLabels.length === 0 ||
-    typeof value.access_label !== 'string' || typeof value.default_selected !== 'boolean'
+    typeof value.access_label !== 'string' || typeof value.default_selected !== 'boolean' ||
+    // Fail closed: a malformed authorization requirement is rejected outright
+    // rather than read as "no authorization needed".
+    (value.requires_authorized_root !== undefined && typeof value.requires_authorized_root !== 'boolean')
   ) return null
   return {
     source_group_id: value.source_group_id,
@@ -229,6 +237,7 @@ function parseSourceGroup(value: unknown): IntelligenceOnboardingSourceGroup | n
     source_labels: sourceLabels,
     access_label: value.access_label,
     default_selected: value.default_selected,
+    requires_authorized_root: value.requires_authorized_root === true,
   }
 }
 

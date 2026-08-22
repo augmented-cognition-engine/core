@@ -80,6 +80,22 @@ jobs:
       - name: Build (naked posture — zero extensions)
         working-directory: core/ui/canvas
         run: npx vite build
+      # core/engine/atrium/static is a COMMITTED build artifact: it is what the
+      # Python package serves, so a UI change that is not rebuilt into it never
+      # reaches an installed artifact. Nothing else rebuilds or checks it, and a
+      # stale bundle is invisible — it serves an older Atrium perfectly happily.
+      # Rebuild and fail if the committed bundle differs from current source.
+      - name: Packaged Atrium bundle is current
+        working-directory: core/ui/canvas
+        run: npm run build:package
+      - name: Fail if the committed Atrium bundle is stale
+        run: |
+          if [ -n "$(git status --porcelain core/engine/atrium/static)" ]; then
+            echo "::error::The committed Atrium bundle does not match core/ui/canvas source."
+            echo "Run 'npm run build:package' in core/ui/canvas and commit core/engine/atrium/static."
+            git status --porcelain core/engine/atrium/static
+            exit 1
+          fi
 
   security:
     name: Security Audit

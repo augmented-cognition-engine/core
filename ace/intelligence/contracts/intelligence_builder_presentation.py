@@ -89,6 +89,10 @@ class IntelligenceOnboardingSourceGroupV1Alpha1(_BuilderPresentationContract):
     source_labels: tuple[str, ...] = Field(min_length=1, max_length=8)
     access_label: str = Field(min_length=1, max_length=160)
     default_selected: StrictBool = True
+    # Evidence that lives on the owner's machine cannot be connected by selecting
+    # the group: a root must be named and the exact scope shown before any read.
+    # Stated structurally so a presentation surface never has to read the prose.
+    requires_authorized_root: StrictBool = False
 
     @field_validator("source_group_id", "evidence_role")
     @classmethod

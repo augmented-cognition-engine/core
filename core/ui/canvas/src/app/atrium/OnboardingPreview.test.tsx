@@ -42,6 +42,7 @@ const profile: IntelligenceOnboardingProfile = {
     source_labels: ['Federal Register'],
     access_label: 'Recorded public evidence',
     default_selected: true,
+    requires_authorized_root: false,
   }],
   cadences: [{ cadence_id: 'daily', label: 'Daily', description: 'Orient me daily.' }],
   default_cadence_id: 'daily',
@@ -404,6 +405,69 @@ describe('Atrium Intelligence Builder onboarding', () => {
     expect(screen.getByRole('complementary', { name: 'Build context' })).toBeTruthy()
     expect(screen.getByText('Authority not granted')).toBeTruthy()
     expect(screen.getByText(/Predicted coverage and binding readiness are not projected/)).toBeTruthy()
+  })
+
+  it('will not plan over local files until the owner has seen the scope and allowed the read', async () => {
+    const localProfile: IntelligenceOnboardingProfile = {
+      ...profile,
+      profile_id: 'onboarding_profile:personal',
+      source_groups: [{
+        source_group_id: 'personal_local_sources',
+        label: 'Your local knowledge',
+        description: 'Files you explicitly authorize, read-only.',
+        evidence_role: 'primary_evidence',
+        source_ids: ['local_markdown_folder'],
+        source_labels: ['Markdown/Obsidian folder'],
+        access_label: 'Read-only local files',
+        default_selected: true,
+        requires_authorized_root: true,
+      }],
+    }
+    const onConnectPreview = vi.fn().mockResolvedValue({
+      contract: 'ace.application.local-source-connect-preview/v1alpha1',
+      authorized_root: '/Users/you/notes',
+      mapping_scopes: [{ mapping_id: 'local_markdown_note', include: ['notes/*.md'] }],
+      record_count: 3,
+    })
+    const onConnectAuthorize = vi.fn().mockResolvedValue({
+      contract: 'ace.application.local-source-connect-result/v1alpha1',
+      captures: [{ capture_id: 'a' }, { capture_id: 'b' }, { capture_id: 'c' }],
+    })
+
+    render(
+      <OnboardingPreview
+        open
+        onOpenChange={vi.fn()}
+        profiles={[localProfile]}
+        session={null}
+        onPrepareBuild={vi.fn()}
+        onConnectPreview={onConnectPreview}
+        onConnectAuthorize={onConnectAuthorize}
+        onOpenBrief={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Use this intelligence/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Choose evidence/ }))
+
+    // Selecting the group is not consent: the scope must be shown and allowed first.
+    expect(screen.getByLabelText('Which folder should ACE read?')).toBeTruthy()
+    expect(screen.getByRole('button', { name: /Prepare exact plan/ })).toHaveProperty('disabled', true)
+
+    fireEvent.change(screen.getByLabelText('Which folder should ACE read?'), {
+      target: { value: '/Users/you/notes' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Show me what ACE would read/ }))
+    await waitFor(() => expect(screen.getByText('/Users/you/notes')).toBeTruthy())
+
+    // Seeing the scope is still not consent.
+    expect(screen.getByRole('button', { name: /Prepare exact plan/ })).toHaveProperty('disabled', true)
+    expect(onConnectAuthorize).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: /Allow ACE to read these files/ }))
+    await waitFor(() => expect(screen.getByText(/ACE read 3 files from this folder/)).toBeTruthy())
+
+    expect(screen.getByRole('button', { name: /Prepare exact plan/ })).toHaveProperty('disabled', false)
   })
 
   it('keeps Custom unmistakably in Preview and never starts unsupported execution', async () => {

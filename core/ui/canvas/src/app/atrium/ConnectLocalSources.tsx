@@ -19,7 +19,17 @@ import type {
  * consent can never be given for something other than what was shown.
  */
 
-/** The mapped kinds the Personal pack ships, in the order an owner meets them. */
+/**
+ * The mapped kinds the Personal pack ships, in the order an owner meets them.
+ *
+ * These are a fallback for callers that do not pass `scopes`, and they are
+ * Personal-pack specific. That is a real limitation, not a general default: a
+ * different Pack with local sources needs its own scopes passed in. It is safe
+ * rather than merely untidy because the server resolves every requested
+ * mapping_id against the installed Pack's own source-mapping module for that
+ * source group and fails closed on one it does not declare -- so the wrong
+ * scopes produce an error, never an unintended read.
+ */
 const DEFAULT_SCOPES: ReadonlyArray<{ readonly mapping_id: string; readonly include: readonly string[] }> = [
   { mapping_id: 'local_markdown_note', include: ['notes/*.md'] },
   { mapping_id: 'local_pdf_page', include: ['*.pdf'] },

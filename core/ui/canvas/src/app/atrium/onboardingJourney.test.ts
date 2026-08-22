@@ -37,6 +37,7 @@ const profile: IntelligenceOnboardingProfile = {
     source_labels: ['Federal Register'],
     access_label: 'Public · no credentials',
     default_selected: true,
+    requires_authorized_root: false,
   }],
   cadences: [{ cadence_id: 'daily', label: 'Daily', description: 'Orient me daily.' }],
   default_cadence_id: 'daily',
@@ -191,6 +192,19 @@ describe('eight-stage onboarding reconciliation', () => {
       state: 'current',
       detail: expect.stringContaining('later revision'),
     })
+  })
+
+  it('never lets an active domain imply that Briefs update on their own', () => {
+    const active = semanticOnboardingStages({
+      subject: profile.starter_prompts[0],
+      plan: exactPlan,
+      session: session('active'),
+      customPreview: false,
+    })
+    const maintenance = active.find((stage) => stage.id === 'activate_maintenance')
+    expect(maintenance?.state).toBe('complete')
+    expect(maintenance?.label).not.toContain('continuous')
+    expect(maintenance?.detail).toContain('rebuilt when you ask')
   })
 
   it('never treats a public access label or exact selection as readiness', () => {

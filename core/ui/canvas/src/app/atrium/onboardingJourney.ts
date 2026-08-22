@@ -250,14 +250,14 @@ export function semanticOnboardingStages({
       id: 'activate_maintenance',
       number: 8,
       chapter: 'Activate',
-      label: 'Activate continuous maintenance',
+      label: 'Activate the domain',
       state: customPreview
         ? 'unsupported'
         : runtimeState('activate_maintenance') ?? (rank >= 9 ? 'complete' : rank >= 8 ? 'current' : 'waiting'),
       detail: runtimeState('activate_maintenance') !== null
         ? runtimeMessage
         : rank >= 9
-          ? 'The durable Builder session is active.'
+          ? 'The durable Builder session is active. Briefs are rebuilt when you ask; this release does not update them on its own.'
           : rank >= 8
             ? 'Activation is pending exact Core admission.'
             : activation.detail,

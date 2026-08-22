@@ -42,7 +42,8 @@
         "JSON document"
       ],
       "access_label": "Read-only local files",
-      "default_selected": true
+      "default_selected": true,
+      "requires_authorized_root": true
     }
   ],
   "cadences": [

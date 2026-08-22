@@ -47,6 +47,7 @@ import {
   LivingBriefOverview,
   SurfacePlaceholder,
 } from './LivingIntelligence'
+import { authorizeLocalSourceConnect, previewLocalSourceConnect } from '@/api/personalJourneyApi'
 import { OnboardingPreview } from './OnboardingPreview'
 import { ConsumerContractLedger, DomainPackLedger, PackActivationReader } from './DomainPackConsumers'
 import { EntityIntelligenceExplore } from './EntityIntelligence'
@@ -692,6 +693,8 @@ export function IntelligenceOS() {
             onStartBuild={startIntelligence}
             onProjectResourceState={projectIntelligenceResourceState}
             onRetryBuild={retryIntelligence}
+            onConnectPreview={previewLocalSourceConnect}
+            onConnectAuthorize={authorizeLocalSourceConnect}
             onBuildStarted={() => refresh()}
             onOpenBrief={openFirstBrief}
           />
