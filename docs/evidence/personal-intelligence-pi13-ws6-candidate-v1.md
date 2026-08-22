@@ -98,9 +98,16 @@ artifacts containing only current bytes.
 ## Verification
 
 - Canvas: 700 tests pass, `tsc --noEmit` clean.
-- Python: the onboarding-profile resource projection legitimately gained the new field and its exact
+- Python, CI-equivalent (`pytest -m "not e2e"`, the gate CI actually runs): **9636 passed, 50 skipped,
+  4 failed** in 7m06s. The four are the documented baseline -- three in `tests/test_graph_context.py`
+  and `test_extension_disabled_kernel_starts_without_live_composition` -- unchanged by this work. The
+  count rose from 9633 by exactly the three tests added here (two pack-contract, one roadmap).
+- The onboarding-profile resource projection legitimately gained the new field and its exact
   expectation was updated; the pack, installed-catalog, journey-start, local-source-connect-host,
   build-plan, and onboarding-API suites pass.
+- WS0 lane, rebuilt from byte-clean wheels against an ephemeral SurrealDB: J1-J5 PASS, J6 BLOCKED as
+  disclosed, J7-J10 PASS. The gate exits 1 because J6 is blocked; that is the disclosed gap, not a
+  regression.
 
 ## Disclosed, not fixed
 
