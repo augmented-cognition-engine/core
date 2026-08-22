@@ -197,6 +197,11 @@ dev = [
     "ruff>=0.9",
     "pytest-cov>=6.0",
     "pip-audit>=2.7",
+    # pip arrives transitively via pip-audit. 26.1.2 carries PYSEC-2026-3721,
+    # fixed in 26.2, so the floor is stated here rather than the advisory being
+    # suppressed -- this repo's audit policy only permits --ignore-vuln when no
+    # fix exists.
+    "pip>=26.2",
     "pre-commit>=4.0",
     "setuptools>=68",
 ]
