@@ -171,3 +171,18 @@ def test_041_publication_gate_is_complete_and_bounded() -> None:
     assert "| GC1 | passed |" in ROADMAP
     for outcome in ("SI1", "SI2", "SI3", "SI4"):
         assert f"| {outcome} | not ready |" in ROADMAP
+
+
+def test_roadmap_gives_the_deferred_personal_continuous_update_a_destination() -> None:
+    """PI13 §12 defers J6 out of 1.2, so 1.3 must be where it lands.
+
+    A gap disclosed in the acceptance record and the CHANGELOG but absent from the
+    roadmap is a deferral with nowhere to go. The 1.2 row must not claim continuous
+    update, and the 1.3 scope must name it.
+    """
+
+    row_1_2 = next(line for line in ROADMAP.splitlines() if line.startswith("| 1.2 | Personal Intelligence |"))
+    assert "continuous" not in row_1_2.lower()
+
+    row_1_3 = next(line for line in ROADMAP.splitlines() if line.startswith("| 1.3 | Intelligence Operations"))
+    assert "continuous update" in row_1_3.lower()
