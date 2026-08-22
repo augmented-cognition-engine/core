@@ -1,6 +1,6 @@
 # ACE 1.2 Personal Intelligence public acceptance v1
 
-Status: **not passed as a public release acceptance — PI13 continuation complete for nine of ten steps; unlanded and unpublished; J6 deferred to 1.3**
+Status: **passed for nine of ten steps against published `ace-core==1.2.3` artifacts; J6 continuous update is not in this release and lands in 1.3**
 
 This record binds the public J1–J10 acceptance evidence for ACE 1.2 Personal Intelligence. Its
 verdict is honest and current: the released substrate demonstrates real integrity on every surface
@@ -185,9 +185,51 @@ artifact that nothing rebuilt or checked. The bundle the package serves containe
 work in this continuation and still contained the retired maintenance claim. It has been rebuilt from
 source, and CI now fails when it drifts.
 
+### Public-artifact acceptance run (2026-08-22, `ace-core==1.2.3`)
+
+The runs recorded above executed locally built wheels, which is why this record read "not passed" while
+the continuation was unlanded. That precondition is gone: 1.2.3 is published, and J1–J10 has now been
+run against the published artifacts themselves.
+
+**Provenance.** `ace-core==1.2.3` installed from the public index; the Personal pack, solution bundle,
+and the six local-source adapters installed from the `v1.2.3` GitHub Release assets. Bare virtualenv
+outside every checkout, disposable in-memory SurrealDB, schema applied from the installed artifact
+(v179). Nothing was built from a working tree. The gate ran with `--repository-root`, whose
+`_import_outside_repo` guard raises if any product module resolves inside the checkout, so working-tree
+contamination fails the run rather than passing quietly. Verified after the fact: `ace` resolves to the
+acceptance virtualenv's `site-packages`, outside any git repository.
+
+| Step | Verdict | Measured from published artifacts |
+|---|---|---|
+| J1 Install | **PASS** | `dist:ace-core==1.2.3`, schema v179, 11 MCP tools, provider invoked |
+| J2 Choose | **PASS** | Personal profile `sha256:bcca3661…`, planner resolves to its pack |
+| J3 Connect | **PASS** | Both connect routes; consent-before-read holds, `provider_calls=0` on refusal |
+| J4 Inventory | **PASS** | `source_health=5 entity=5 observation=5` across csv, json, md, pdf |
+| J5 First Brief | **PASS** | `briefs=1 cited_claims=6 uncited=0 unresolved=0`; citations span all four kinds |
+| J6 Change | **BLOCKED** | `WS5:public_reingest_surface_unavailable` — disclosed, deferred to 1.3 |
+| J7 Ask | **PASS** | 5 cited claims, 5 citations, unanswerable question refused |
+| J8 Correct | **PASS** | Correction bound to one exact cited claim, recorded as proposal only |
+| J9 Restart | **PASS** | 16 resources reopened with identical identities (scope: reopened pool) |
+| J10 Own | **PASS** | 84 exported, 84 previewed, exact deletion proof, 0 survivors |
+
+Every figure is identical to the pre-release lane. That is the point of the run: the published artifacts
+behave exactly as the candidate evidence claimed, which is what "candidate" was always conditional on.
+
+**The gate exits non-zero, and should.** J6 is blocked, so `all_pass` is false. This record does not
+round that up. Nine of ten steps pass; continuous update is absent from the public Personal journey for
+1.2 and is named in the 1.3 roadmap scope.
+
 ### What acceptance still requires
 
-Unchanged and owner-held: a clean-context J1–J10 run against **published** artifacts, the maintainer
-cross-check, and the four-record reconciliation closing. The external-user acceptance run remains a
-carried follow-up. Until the continuation lands and is published, this record's verdict stays **not
-passed**, and the reconciliation continues to carry that status.
+The clean-context run against published artifacts is **done** and recorded above. Still owner-held and
+outstanding:
+
+- **the maintainer cross-check** — a second person reproducing the run, which by definition cannot be
+  self-served by whoever produced it;
+- **the four-record reconciliation closing**, which should now be updated to carry "passed for nine of
+  ten steps, J6 disclosed" rather than "not passed";
+- **the external-user acceptance run**, which remains a carried follow-up.
+
+One limit of the run above, stated rather than glossed: it was executed on the same machine that
+produced the release, by the same operator. It proves the published artifacts reproduce the journey; it
+does not substitute for an independent reproduction.

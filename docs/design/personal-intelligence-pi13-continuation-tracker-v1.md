@@ -524,6 +524,21 @@ it corrects a belief this ledger had been carrying.
 The WS0 job fails on J6 and is `continue-on-error: true` by design — an observability gate, not a merge
 gate. The run is green with it red, which is the intended behaviour for a disclosed gap.
 
+## Released and accepted (2026-08-22)
+
+`ace-core==1.2.3` is published: tag `v1.2.3`, GitHub Release with the pack, bundle, and six local-source
+adapters attached, PyPI carrying the wheel and sdist, `main` green at the tagged commit.
+
+J1–J10 has been re-run against the **published** artifacts — `ace-core` from the public index, everything
+else from the Release assets, bare venv outside every checkout, disposable SurrealDB, schema applied from
+the installed artifact. Result: **J1–J5 PASS, J6 BLOCKED, J7–J10 PASS**, every measured figure identical
+to the pre-release lane. Recorded in
+[the public acceptance record](../evidence/personal-intelligence-v1.2-public-acceptance-v1.md).
+
+The run is not self-certifying and the record says so: it ran on the machine that produced the release,
+by the same operator. The maintainer cross-check and the four-record reconciliation remain open, and the
+reconciliation should now carry "passed for nine of ten steps, J6 disclosed" instead of "not passed".
+
 ## Current gate
 
 **ACE 1.2 delivers nine of its ten journey steps from public artifacts, with the tenth disclosed.**
