@@ -2,10 +2,7 @@
 
 Notable user- and contributor-visible changes are recorded here.
 
-## 1.2.3 — prepared, not released
-
-The version bump, README badge, and ROADMAP published-release line move together at publication, so
-this source tree still identifies `1.2.2` until that release is made.
+## 1.2.3
 
 ### The Personal Intelligence journey runs end to end
 

@@ -26,10 +26,10 @@ The published stable 1.0 identities are:
 - Python import: `ace`
 - CLI command: `ace`
 - thin MCP command: `ace-mcp-client`
-- version: `1.2.2` (current public release and public-index install)
+- version: `1.2.3` (current public release and public-index install)
 
 The tagged GitHub Release, trusted PyPI publication, and this source tree carry package version
-1.2.2 for ACE 1.2 Personal Intelligence.
+1.2.3 for ACE 1.2 Personal Intelligence.
 
 The thin MCP surface contains exactly eleven tools:
 
