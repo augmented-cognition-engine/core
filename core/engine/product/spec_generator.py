@@ -647,7 +647,7 @@ CONTEXT: {context}
 {tech_section}
 {existing_section}
 
-Generate a JSON spec with: objective, acceptance_criteria (array of {{criterion, verification, automated}}), constraints, integration_points, estimated_files, test_requirements, best_practices.
+Generate a JSON spec with: objective, acceptance_criteria (array of {{criterion, verification, automated}}), constraints, integration_points (array of {{file, function, description}}), estimated_files, test_requirements, best_practices.
 
 All file paths must use the project's actual language and conventions shown above.
 Be specific and actionable."""
@@ -674,7 +674,7 @@ PRODUCT HEALTH: {health}
 {tech_section}
 {existing_section}
 
-Generate a JSON spec with: objective, acceptance_criteria (array of {{criterion, verification, automated}}), constraints, integration_points, estimated_files, test_requirements, best_practices.
+Generate a JSON spec with: objective, acceptance_criteria (array of {{criterion, verification, automated}}), constraints, integration_points (array of {{file, function, description}}), estimated_files, test_requirements, best_practices.
 
 All file paths must use the project's actual language and conventions shown above.
 Be specific and actionable. Consider the product's current health and vision."""
@@ -870,6 +870,30 @@ Be specific and actionable. Consider the product's current health and vision."""
                 else:
                     test_reqs.append(str(t))
 
+            # Build integration_points (normalize to dicts — schema is array<object>)
+            integration_points = []
+            dropped_types = []
+            for ip in spec_data.get("integration_points") or []:
+                if isinstance(ip, dict):
+                    integration_points.append(ip)
+                elif isinstance(ip, str):
+                    integration_points.append({"file": "", "function": "", "description": ip})
+                else:
+                    # Cannot be coerced into the {file, function, description} shape
+                    # without fabricating data, and the schema rejects non-object
+                    # entries — drop it, but leave a trace so a malformed LLM
+                    # output is distinguishable from an LLM that emitted nothing.
+                    dropped_types.append(type(ip).__name__)
+            if dropped_types:
+                logger.warning(
+                    "_persist_spec: dropped %d malformed integration_points entr%s (types=%s) for product=%s source=%s",
+                    len(dropped_types),
+                    "y" if len(dropped_types) == 1 else "ies",
+                    dropped_types,
+                    product_id,
+                    source,
+                )
+
             # Normalize constraints and best_practices to strings
             raw_constraints = spec_data.get("constraints") or []
             constraints = [str(c) for c in raw_constraints]
@@ -913,7 +937,7 @@ Be specific and actionable. Consider the product's current health and vision."""
                         "context": spec_data.get("context"),
                         "criteria": criteria,
                         "constraints": constraints,
-                        "integration_points": spec_data.get("integration_points"),
+                        "integration_points": integration_points,
                         "estimated_files": estimated_files,
                         "test_requirements": test_reqs,
                         "best_practices": best_practices,
@@ -948,7 +972,7 @@ Be specific and actionable. Consider the product's current health and vision."""
                         "context": spec_data.get("context"),
                         "criteria": criteria,
                         "constraints": constraints,
-                        "integration_points": spec_data.get("integration_points"),
+                        "integration_points": integration_points,
                         "estimated_files": estimated_files,
                         "test_requirements": test_reqs,
                         "best_practices": best_practices,

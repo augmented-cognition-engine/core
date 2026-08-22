@@ -262,3 +262,147 @@ async def test_persist_spec_resolves_capability():
     # Result matches the stored record
     assert result["id"] == "agent_spec:003"
     assert result["status"] == "draft"
+
+
+# ---------------------------------------------------------------------------
+# Test 5: _persist_spec normalizes integration_points strings to dicts
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_persist_spec_normalizes_integration_points_strings():
+    """When the LLM returns integration_points as plain strings, _persist_spec
+    must coerce them to {file, function, description} dicts before writing —
+    the DB schema declares integration_points as option<array<object>>, so an
+    array of strings would raise a coercion error at the DB layer."""
+    cap_record = {"id": "capability:auth", "slug": "auth"}
+    spec_record = {"id": "agent_spec:004", "objective": "Fix rate limiting", "status": "draft"}
+
+    db = _make_db(
+        [cap_record],  # capability lookup
+        [spec_record],  # CREATE agent_spec
+    )
+    pool = _make_pool(db)
+
+    with (
+        patch("core.engine.product.spec_generator.get_llm"),
+        patch("core.engine.product.spec_generator.ProductMap"),
+    ):
+        from core.engine.product.spec_generator import SpecGenerator
+
+        gen = SpecGenerator(pool)
+
+        spec_data = {
+            "objective": "Fix rate limiting",
+            "acceptance_criteria": [{"criterion": "Returns 429", "verification": "curl", "automated": True}],
+            "constraints": ["preserve middleware interface"],
+            "integration_points": ["Wire into login endpoint in auth.py"],
+            "estimated_files": ["engine/api/auth.py"],
+            "test_requirements": ["test_rate_limit"],
+            "best_practices": ["use token bucket"],
+        }
+
+        await gen._persist_spec(spec_data, "gap", "auth", "product:test")
+
+    # The CREATE call is the second db.query call — inspect the params actually
+    # sent to the DB layer, not just that the mock was invoked.
+    create_params = db.query.call_args_list[1][0][1]
+    sent_points = create_params["integration_points"]
+
+    assert sent_points == [{"file": "", "function": "", "description": "Wire into login endpoint in auth.py"}]
+
+
+@pytest.mark.asyncio
+async def test_persist_spec_leaves_wellformed_integration_points_unchanged():
+    """A well-formed list of {file, function, description} dicts must pass
+    through _persist_spec unchanged — the normalization fix must not mangle
+    correct input."""
+    cap_record = {"id": "capability:auth", "slug": "auth"}
+    spec_record = {"id": "agent_spec:005", "objective": "Fix rate limiting", "status": "draft"}
+
+    db = _make_db(
+        [cap_record],  # capability lookup
+        [spec_record],  # CREATE agent_spec
+    )
+    pool = _make_pool(db)
+
+    well_formed = [
+        {"file": "engine/api/auth.py", "function": "login", "description": "Add decorator"},
+    ]
+
+    with (
+        patch("core.engine.product.spec_generator.get_llm"),
+        patch("core.engine.product.spec_generator.ProductMap"),
+    ):
+        from core.engine.product.spec_generator import SpecGenerator
+
+        gen = SpecGenerator(pool)
+
+        spec_data = {
+            "objective": "Fix rate limiting",
+            "acceptance_criteria": [{"criterion": "Returns 429", "verification": "curl", "automated": True}],
+            "constraints": ["preserve middleware interface"],
+            "integration_points": well_formed,
+            "estimated_files": ["engine/api/auth.py"],
+            "test_requirements": ["test_rate_limit"],
+            "best_practices": ["use token bucket"],
+        }
+
+        await gen._persist_spec(spec_data, "gap", "auth", "product:test")
+
+    create_params = db.query.call_args_list[1][0][1]
+    assert create_params["integration_points"] == well_formed
+
+
+@pytest.mark.asyncio
+async def test_persist_spec_drops_malformed_integration_points_and_warns(caplog):
+    """A mixed integration_points list — well-formed dict, coercible string, and
+    a malformed entry (e.g. an int) that cannot be turned into {file, function,
+    description} without fabricating data — must drop only the malformed entry,
+    keep the dict and the coerced string, and log a warning naming the dropped
+    entry's type so the drop leaves a trace instead of failing silently."""
+    cap_record = {"id": "capability:auth", "slug": "auth"}
+    spec_record = {"id": "agent_spec:006", "objective": "Fix rate limiting", "status": "draft"}
+
+    db = _make_db(
+        [cap_record],  # capability lookup
+        [spec_record],  # CREATE agent_spec
+    )
+    pool = _make_pool(db)
+
+    well_formed = {"file": "engine/api/auth.py", "function": "login", "description": "Add decorator"}
+    mixed = [well_formed, "Wire into login endpoint in auth.py", 42]
+
+    with (
+        patch("core.engine.product.spec_generator.get_llm"),
+        patch("core.engine.product.spec_generator.ProductMap"),
+    ):
+        from core.engine.product.spec_generator import SpecGenerator
+
+        gen = SpecGenerator(pool)
+
+        spec_data = {
+            "objective": "Fix rate limiting",
+            "acceptance_criteria": [{"criterion": "Returns 429", "verification": "curl", "automated": True}],
+            "constraints": ["preserve middleware interface"],
+            "integration_points": mixed,
+            "estimated_files": ["engine/api/auth.py"],
+            "test_requirements": ["test_rate_limit"],
+            "best_practices": ["use token bucket"],
+        }
+
+        with caplog.at_level("WARNING", logger="core.engine.product.spec_generator"):
+            await gen._persist_spec(spec_data, "gap", "auth", "product:test")
+
+    create_params = db.query.call_args_list[1][0][1]
+    sent_points = create_params["integration_points"]
+
+    # The malformed int is gone; the dict and the coerced string both survive.
+    assert well_formed in sent_points
+    assert {"file": "", "function": "", "description": "Wire into login endpoint in auth.py"} in sent_points
+    assert len(sent_points) == 2
+    assert not any(isinstance(p, int) for p in sent_points)
+
+    # The drop left a trace naming the offending type.
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert any("integration_points" in r.getMessage() and "int" in r.getMessage() for r in warnings)
