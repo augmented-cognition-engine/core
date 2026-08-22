@@ -26,7 +26,7 @@ def test_current_release_and_passed_milestone_are_reconciled() -> None:
     assert "| 0.9.0 | Single-user Intelligence Builder | **Passed** |" in ROADMAP
     assert "| 1.0.0 | Personal Intelligence Operating System | **Passed** |" in ROADMAP
     assert "| 1.1 | Code Intelligence | **Passed** |" in ROADMAP
-    assert "| 1.2 | Personal Intelligence | **Now** |" in ROADMAP
+    assert "| 1.2 | Personal Intelligence | **Passed** |" in ROADMAP
     assert "| [#194](https://github.com/augmented-cognition-engine/core/issues/194) |" in ROADMAP
     assert "now closed by the tagged release" in ROADMAP_ONE_LINE
     assert "records Code Intelligence as complete" in ROADMAP
@@ -173,6 +173,18 @@ def test_041_publication_gate_is_complete_and_bounded() -> None:
         assert f"| {outcome} | not ready |" in ROADMAP
 
 
+def test_exactly_one_milestone_is_active() -> None:
+    """A passed milestone must hand **Now** to its successor, not leave the board empty.
+
+    Marking 1.2 passed without promoting 1.3 would show a roadmap where nothing is
+    being worked on, which is a different falsehood from the one it fixed.
+    """
+
+    active = [line for line in ROADMAP.splitlines() if line.startswith("| ") and "| **Now** |" in line]
+    assert len(active) == 1, f"expected exactly one active milestone, found {len(active)}: {active}"
+    assert active[0].startswith("| 1.3 | Intelligence Operations")
+
+
 def test_roadmap_gives_the_deferred_personal_continuous_update_a_destination() -> None:
     """PI13 §12 defers J6 out of 1.2, so 1.3 must be where it lands.
 
@@ -182,7 +194,11 @@ def test_roadmap_gives_the_deferred_personal_continuous_update_a_destination() -
     """
 
     row_1_2 = next(line for line in ROADMAP.splitlines() if line.startswith("| 1.2 | Personal Intelligence |"))
-    assert "continuous" not in row_1_2.lower()
+    # 1.2 may NAME continuous update as deferred -- that is disclosure, the opposite
+    # of a claim -- but it may never present it as delivered. So if the row mentions
+    # it at all, the row must also point at where it actually lands.
+    if "continuous" in row_1_2.lower():
+        assert "1.3" in row_1_2, "1.2 mentions continuous update without naming 1.3 as its destination"
 
     row_1_3 = next(line for line in ROADMAP.splitlines() if line.startswith("| 1.3 | Intelligence Operations"))
     assert "continuous update" in row_1_3.lower()
