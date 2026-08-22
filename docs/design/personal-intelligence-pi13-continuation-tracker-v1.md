@@ -500,10 +500,13 @@ return live Python objects and hide this class entirely, which is why it survive
 
 What remains is no longer implementation of the journey itself:
 
-1. **WS6 breadth** — the Connect surface is now mounted in the onboarding flow, gated so selection is
-   not consent, and rebuilt into the shipped SPA bundle. J4 inventory and J5 Brief surfaces and
-   Playwright paths against the real APIs remain product work. None of it blocks the acceptance
-   verdict for the steps already passing.
+1. **WS6 breadth** — the Connect surface is mounted in the onboarding flow, gated so that neither
+   selecting a local group nor previewing its scope is treated as consent, and rebuilt into the shipped
+   SPA bundle. The J4 inventory and J5 Brief surfaces already exist: `LivingIntelligence` and
+   `trustProjection` render `entity`, `observation`, `source_health`, and `brief` generically from the
+   same `/v1/intelligence/resources/query` route the lane exercises, so no Personal-specific surface was
+   needed. What remains is Playwright coverage against the real APIs — test breadth, not product, and
+   weaker evidence than the installed-artifact lane already provides.
 2. **The acceptance gates, which are the owner's** — a clean-context J1–J10 run, the maintainer
    cross-check, and the four-record reconciliation closing. The lane's results are candidate evidence and
    have never been anything else.
